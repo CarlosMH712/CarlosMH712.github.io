@@ -1,54 +1,40 @@
-# Portal académico de Carlos Molina
+# Carlos Molina | Aerospace Engineering
 
-Prueba inicial de sitio estático para GitHub Pages.
+Personal academic website of Carlos Alberto Molina Holguín.
 
-## Publicación recomendada
+## Features
 
-La cuenta de GitHub es:
+- English, Spanish, and German interface
+- Academic profile and teaching areas
+- Computational tools
+- Research interests
+- Contact links
+- Responsive design for desktop and mobile
 
-```text
-CarlosMH712
-```
+## GitHub Pages deployment
 
-Para publicar el portal como sitio principal, crea un repositorio público llamado exactamente:
+Use the `main` branch and the repository root `/`.
 
-```text
-CarlosMH712.github.io
-```
-
-Después sube estos archivos a la raíz de la rama `main`:
-
-- `index.html`
-- `styles.css`
-- `script.js`
-
-En GitHub:
-
-1. Abre el repositorio.
-2. Entra a `Settings`.
-3. Selecciona `Pages`.
-4. En `Build and deployment`, elige `Deploy from a branch`.
-5. Selecciona la rama `main` y la carpeta `/ (root)`.
-6. Guarda la configuración.
-
-El portal deberá quedar disponible en:
+Upload these items directly to the root:
 
 ```text
-https://CarlosMH712.github.io
+index.html
+styles.css
+script.js
+README.md
+carlos-molina-profile.jpg
 ```
 
-## Calculadora de Streamlit
+The public address is:
 
-La tarjeta de flujo compresible tiene un enlace provisional. Cuando la calculadora se publique en Streamlit Community Cloud, sustituye en `index.html`:
-
-```html
-href="#"
+```text
+https://carlosmh712.github.io/
 ```
 
-por la dirección pública de la aplicación, por ejemplo:
+## Pending additions
 
-```html
-href="https://nombre-de-la-app.streamlit.app"
-```
-
-y elimina las clases y atributos de estado deshabilitado si corresponde.
+- Updated academic CV
+- ORCID profile link
+- Public Streamlit URL for the compressible-flow calculator
+- Individual course pages
+- Publications page
