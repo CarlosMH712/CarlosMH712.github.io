@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Sequential shock-expansion analysis of polygonal supersonic geometries, flat plates, wedges, and diamond airfoils." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Shock–Expansion Analysis | Aerodynamics II</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=6" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=6"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html" data-ui-key="course">Aerodynamics II</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+    <div data-language="en">
+      <p class="eyebrow">Aerodynamics II · Lecture 06</p>
+      <h1>Shock–Expansion Analysis</h1>
+      <p class="hero-copy">A region-by-region method for polygonal supersonic geometries, combining oblique shocks and Prandtl–Meyer expansions.</p>
+    </div>
+
+    <div data-language="es" hidden>
+      <p class="eyebrow">Aerodinámica II · Lecture 06</p>
+      <h1>Análisis choque–expansión</h1>
+      <p class="hero-copy">Método región por región para geometrías supersónicas poligonales, combinando choques oblicuos y expansiones.</p>
+    </div>
+
+    <div data-language="de" hidden>
+      <p class="eyebrow">Aerodynamik II · Vorlesung 06</p>
+      <h1>Stoß–Expansions-Analyse</h1>
+      <p class="hero-copy">Gebietsweise Berechnung polygonaler Überschallgeometrien mit Schrägstößen und Expansionen.</p>
+    </div>
+
+    <div class="hero-meta"><span>Estimated reading: 40 min</span><span>Piecewise-linear geometry</span><span>Sequential states</span><span>Calculator bridge</span></div>
+
+    <div class="button-row">
+      <a class="button secondary" href="prandtl-meyer.html">← Previous</a>
+      <a class="button primary" href="../index.html#tools">Computational tools →</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links">
+        <a href="#principle">Core principle</a>
+        <a href="#turns">Classifying turns</a>
+        <a href="#propagation">State propagation</a>
+        <a href="#algorithm">General algorithm</a>
+        <a href="#plate">Flat plate</a>
+        <a href="#diamond">Diamond airfoil</a>
+        <a href="#comparison">Shock vs expansion</a>
+        <a href="#calculator">Calculator specification</a>
+        <a href="#references">References</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+      <section id="principle">
+        <p class="section-label">Core principle</p>
+        <h2>Each corner creates a new flow region</h2>
+        <p class="lead">
+          Shock–expansion theory gives the inviscid two-dimensional solution over bodies made
+          from straight panels, provided shocks remain attached and viscous interactions are neglected.
+        </p>
+
+        <div class="equation-grid">
+          <div class="callout warning">
+            <strong>Compression turn.</strong> The flow turns toward itself:
+            solve an oblique shock.
+          </div>
+          <div class="callout success">
+            <strong>Expansion turn.</strong> The flow turns away from itself:
+            solve a Prandtl–Meyer fan.
+          </div>
+        </div>
+
+        <p>
+          Pressure is uniform over each straight panel between consecutive waves.
+          The downstream state from one corner becomes the upstream state for the next.
+        </p>
+      </section>
+
+      <section id="turns">
+        <p class="section-label">Geometry convention</p>
+        <h2>Classifying the local turn</h2>
+
+        <div class="equation-card">
+          \[
+          \boxed{
+          \Delta\theta_i=\alpha_i-\alpha_{i-1}
+          }
+          \]
+        </div>
+
+        <p>
+          The sign alone is not sufficient unless the surface orientation and traversal
+          convention are fixed. The robust physical test is whether the streamline turns
+          toward or away from the local body surface.
+        </p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 900 380" role="img" aria-label="Sequential polygonal geometry with shock and expansion">
+            <defs>
+              <marker id="se-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="#0d568d"></path>
+              </marker>
+            </defs>
+            <polyline points="100,270 330,230 560,300 800,215" fill="none" stroke="#071d33" stroke-width="9"/>
+            <line x1="330" y1="230" x2="455" y2="55" stroke="#d67b28" stroke-width="7"/>
+            <g stroke="#176b47" stroke-width="3">
+              <line x1="560" y1="300" x2="445" y2="90"/>
+              <line x1="560" y1="300" x2="490" y2="70"/>
+              <line x1="560" y1="300" x2="540" y2="60"/>
+            </g>
+            <line x1="800" y1="215" x2="700" y2="45" stroke="#d67b28" stroke-width="7"/>
+            <g stroke="#0d568d" stroke-width="4" marker-end="url(#se-arrow)">
+              <line x1="25" y1="130" x2="220" y2="130"/>
+              <line x1="360" y1="205" x2="500" y2="245"/>
+              <line x1="610" y1="270" x2="750" y2="220"/>
+            </g>
+            <text x="125" y="105" font-size="20" fill="#071d33">Region 1</text>
+            <text x="405" y="185" font-size="20" fill="#071d33">Region 2</text>
+            <text x="650" y="325" font-size="20" fill="#071d33">Region 3</text>
+            <text x="380" y="65" font-size="18" fill="#d67b28">shock</text>
+            <text x="520" y="45" font-size="18" fill="#176b47">expansion fan</text>
+          </svg>
+          <figcaption>Each wave creates a new uniform region and a new upstream condition.</figcaption>
+        </figure>
+      </section>
+
+      <section id="propagation">
+        <p class="section-label">State vector</p>
+        <h2>Propagating properties from region to region</h2>
+
+        <div class="equation-card">
+          \[
+          \mathbf{S}_i=
+          \left(
+          M_i,\ p_i,\ T_i,\ \rho_i,\ p_{0,i},\ \alpha_i
+          \right)
+          \]
+        </div>
+
+        <div class="wave-table">
+          <div>
+            <strong>Oblique shock</strong>
+            <span>Input: \(M_i,\theta_i,\gamma\)</span>
+            <span>Output: \(\beta_i,M_{i+1}\), property ratios, \(p_{0,i+1}/p_{0,i}<1\)</span>
+          </div>
+          <div>
+            <strong>Prandtl–Meyer expansion</strong>
+            <span>Input: \(M_i,\theta_i,\gamma\)</span>
+            <span>Output: \(M_{i+1}\), isentropic ratios, \(p_{0,i+1}=p_{0,i}\)</span>
+          </div>
+        </div>
+
+        <p>For a sequence of shocks, total-pressure recovery multiplies:</p>
+
+        <div class="equation-card">
+          \[
+          \boxed{
+          \frac{p_{0,f}}{p_{0,1}}
+          =
+          \prod_{j=1}^{N}
+          \left(\frac{p_{0,j+1}}{p_{0,j}}\right)
+          }
+          \]
+        </div>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">General method</p>
+        <h2>Algorithm for a polygonal body</h2>
+
+        <div class="process-flow">
+          <div><strong>1</strong><span>Traverse the surface from the leading edge</span></div>
+          <div><strong>2</strong><span>Read the next panel inclination</span></div>
+          <div><strong>3</strong><span>Compute the local flow turn</span></div>
+          <div><strong>4</strong><span>Classify compression or expansion</span></div>
+          <div><strong>5</strong><span>Solve the corresponding wave</span></div>
+          <div><strong>6</strong><span>Propagate \(M,p,T,\rho,p_0\)</span></div>
+          <div><strong>7</strong><span>Assign uniform panel pressure</span></div>
+          <div><strong>8</strong><span>Integrate pressure forces and moments</span></div>
+        </div>
+
+        <div class="callout warning">
+          Stop or flag the calculation when an attached-shock solution does not exist,
+          when the state becomes subsonic but a later supersonic-wave model is requested,
+          or when a panel convention produces an ambiguous turn.
+        </div>
+      </section>
+
+      <section id="plate">
+        <p class="section-label">Application 1</p>
+        <h2>Flat plate at supersonic angle of attack</h2>
+
+        <p>
+          For a thin plate at angle \(\alpha\), the upper surface expands and the lower
+          surface compresses. If \(p_u\) and \(p_l\) are the two panel pressures,
+        </p>
+
+        <div class="equation-grid">
+          <div class="equation-card">\[\boxed{L'=(p_l-p_u)c\cos\alpha}\]</div>
+          <div class="equation-card">\[\boxed{D'=(p_l-p_u)c\sin\alpha}\]</div>
+        </div>
+
+        <div class="equation-card">\[\boxed{\frac{c_d}{c_l}=\tan\alpha}\]</div>
+
+        <div class="example">
+          <h3>Mach 3, \(\alpha=5^\circ\)</h3>
+          <p>Upper expansion: \(M_u\approx3.27\), \(p_u/p_\infty\approx0.668\).</p>
+          <p>Lower weak shock: \(p_l/p_\infty\approx1.458\).</p>
+          <div class="result-box">\[\boxed{c_l\approx0.125,\qquad c_d\approx0.0109}\]</div>
+        </div>
+      </section>
+
+      <section id="diamond">
+        <p class="section-label">Application 2</p>
+        <h2>Symmetric diamond airfoil</h2>
+
+        <p>
+          At zero angle of attack, a diamond airfoil with semi-angle \(\varepsilon\)
+          experiences a leading-edge shock, an expansion of \(2\varepsilon\) at maximum
+          thickness, and a closing wave at the trailing edge.
+        </p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 900 350" role="img" aria-label="Diamond airfoil shock expansion pattern">
+            <polygon points="210,175 450,95 690,175 450,255" fill="#eaf4fb" stroke="#071d33" stroke-width="7"/>
+            <line x1="210" y1="175" x2="340" y2="25" stroke="#d67b28" stroke-width="6"/>
+            <line x1="210" y1="175" x2="340" y2="325" stroke="#d67b28" stroke-width="6"/>
+            <g stroke="#176b47" stroke-width="3">
+              <line x1="450" y1="95" x2="350" y2="20"/>
+              <line x1="450" y1="95" x2="395" y2="5"/>
+              <line x1="450" y1="255" x2="350" y2="330"/>
+              <line x1="450" y1="255" x2="395" y2="345"/>
+            </g>
+            <text x="310" y="150" font-size="20" fill="#071d33">p₂</text>
+            <text x="590" y="150" font-size="20" fill="#071d33">p₃</text>
+          </svg>
+          <figcaption>Ideal shock–expansion sequence over a symmetric diamond airfoil.</figcaption>
+        </figure>
+
+        <div class="equation-card">\[\boxed{D'=(p_2-p_3)t}\]</div>
+
+        <div class="example">
+          <h3>Mach 3, \(\varepsilon=5^\circ\)</h3>
+          <p>Leading shock: \(\beta\approx23.13^\circ\), \(M_2\approx2.750\), \(p_2/p_\infty\approx1.454\).</p>
+          <p>Expansion through \(10^\circ\): \(M_3\approx3.269\), \(p_3/p_\infty\approx0.668\).</p>
+          <div class="result-box">\[\boxed{c_{d,w}\approx0.0109}\]</div>
+        </div>
+      </section>
+
+      <section id="comparison">
+        <p class="section-label">Operational summary</p>
+        <h2>Shock and expansion rules</h2>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Feature</th><th>Oblique shock</th><th>Expansion fan</th></tr></thead>
+            <tbody>
+              <tr><td>Turn</td><td>Toward the flow</td><td>Away from the flow</td></tr>
+              <tr><td>Process</td><td>Discontinuous, irreversible</td><td>Continuous, isentropic</td></tr>
+              <tr><td>Mach</td><td>Decreases</td><td>Increases</td></tr>
+              <tr><td>Static pressure</td><td>Increases</td><td>Decreases</td></tr>
+              <tr><td>Total pressure</td><td>Decreases</td><td>Constant</td></tr>
+              <tr><td>Main solver</td><td>θ–β–M + normal shock</td><td>Inverse Prandtl–Meyer</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="calculator">
+        <p class="section-label">Software specification</p>
+        <h2>What the geometry calculator must implement</h2>
+
+        <ul class="check-list">
+          <li>Consistent panel-angle and flow-turn convention.</li>
+          <li>Weak/strong branch selection for compression corners.</li>
+          <li>Attached-shock feasibility test using \(\theta_{\max}\).</li>
+          <li>Numerical inversion of \(\nu(M)\).</li>
+          <li>Region table containing \(M,p,T,\rho,p_0\).</li>
+          <li>Cumulative total-pressure recovery.</li>
+          <li>Optional Pitot probe at a selected region.</li>
+          <li>Plots that distinguish shocks, expansion fans, geometry, and flow direction.</li>
+          <li>Warnings when the assumptions are violated.</li>
+        </ul>
+
+        <div class="validation-case">
+          <strong>Primary validation geometry</strong>
+          <span>Diamond airfoil: \(M_\infty=3\), \(\varepsilon=5^\circ\), leading shock followed by a \(10^\circ\) expansion.</span>
+        </div>
+
+        <div class="button-row lecture-actions">
+          <a class="button outline" href="../index.html#tools">Calculator status</a>
+        </div>
+      </section>
+
+      <section id="references" class="references">
+        <h2>References</h2>
+        <ol>
+          <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed., Section 9.7.</li>
+          <li>Anderson, J. D., Jr. <em>Modern Compressible Flow</em>.</li>
+          <li>Ames Research Staff. NACA Report 1135.</li>
+        </ol>
+        <p class="source-note">Adapted from the Aerodynamics II course notes by Carlos Alberto Molina Holguín.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="prandtl-meyer.html"><span>Previous lecture</span>← Prandtl–Meyer</a>
+        <a class="next-link" href="../index.html#tools"><span>Next project stage</span>Compressible-Flow Calculator →</a>
+      </nav>
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+      <section id="principle-es">
+        <p class="section-label">Principio central</p>
+        <h2>Cada esquina crea una nueva región</h2>
+        <p class="lead">
+          La teoría choque–expansión resuelve cuerpos bidimensionales formados por paneles rectos,
+          siempre que los choques permanezcan adheridos y se ignoren interacciones viscosas.
+        </p>
+        <div class="equation-grid">
+          <div class="callout warning"><strong>Compresión:</strong> giro hacia sí mismo → choque oblicuo.</div>
+          <div class="callout success"><strong>Expansión:</strong> giro alejándose de sí mismo → Prandtl–Meyer.</div>
+        </div>
+      </section>
+
+      <section id="turns-es">
+        <p class="section-label">Convención geométrica</p>
+        <h2>Clasificación del giro local</h2>
+        <div class="equation-card">\[\boxed{\Delta\theta_i=\alpha_i-\alpha_{i-1}}\]</div>
+        <p>
+          El signo debe interpretarse con una convención fija de recorrido y orientación.
+          La prueba física robusta es determinar si la línea de corriente gira hacia o
+          alejándose de la superficie.
+        </p>
+      </section>
+
+      <section id="propagation-es">
+        <p class="section-label">Vector de estado</p>
+        <h2>Propagación región por región</h2>
+        <div class="equation-card">\[\mathbf{S}_i=(M_i,p_i,T_i,\rho_i,p_{0,i},\alpha_i)\]</div>
+        <div class="equation-card">\[\boxed{\frac{p_{0,f}}{p_{0,1}}=\prod_{j=1}^{N}\left(\frac{p_{0,j+1}}{p_{0,j}}\right)}\]</div>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Método general</p>
+        <h2>Algoritmo para un cuerpo poligonal</h2>
+        <ol>
+          <li>Recorrer la superficie desde el borde de ataque.</li>
+          <li>Determinar la inclinación del siguiente panel.</li>
+          <li>Calcular y clasificar el giro local.</li>
+          <li>Resolver choque oblicuo o expansión.</li>
+          <li>Propagar \(M,p,T,\rho,p_0\).</li>
+          <li>Asignar presión uniforme al panel.</li>
+          <li>Integrar fuerzas y momentos.</li>
+        </ol>
+      </section>
+
+      <section id="plate-es">
+        <p class="section-label">Aplicación 1</p>
+        <h2>Placa plana a ángulo de ataque</h2>
+        <div class="equation-grid">
+          <div class="equation-card">\[\boxed{L'=(p_l-p_u)c\cos\alpha}\]</div>
+          <div class="equation-card">\[\boxed{D'=(p_l-p_u)c\sin\alpha}\]</div>
+        </div>
+        <div class="equation-card">\[\boxed{\frac{c_d}{c_l}=\tan\alpha}\]</div>
+        <div class="example">
+          <p>Para \(M_\infty=3\), \(\alpha=5^\circ\): \(p_u/p_\infty\approx0.668\), \(p_l/p_\infty\approx1.458\).</p>
+          <div class="result-box">\[\boxed{c_l\approx0.125,\qquad c_d\approx0.0109}\]</div>
+        </div>
+      </section>
+
+      <section id="diamond-es">
+        <p class="section-label">Aplicación 2</p>
+        <h2>Perfil diamante simétrico</h2>
+        <p>Choque en el borde de ataque, expansión de \(2\varepsilon\) en el máximo espesor y onda de cierre.</p>
+        <div class="equation-card">\[\boxed{D'=(p_2-p_3)t}\]</div>
+        <div class="example">
+          <p>\(M_\infty=3\), \(\varepsilon=5^\circ\): \(p_2/p_\infty\approx1.454\), \(p_3/p_\infty\approx0.668\).</p>
+          <div class="result-box">\[\boxed{c_{d,w}\approx0.0109}\]</div>
+        </div>
+      </section>
+
+      <section id="calculator-es">
+        <p class="section-label">Especificación del software</p>
+        <h2>Requisitos para la calculadora geométrica</h2>
+        <ul class="check-list">
+          <li>Convención consistente para inclinaciones y giros.</li>
+          <li>Selección de rama débil o fuerte.</li>
+          <li>Verificación de \(\theta_{\max}\).</li>
+          <li>Inversión numérica de \(\nu(M)\).</li>
+          <li>Tabla por regiones con \(M,p,T,\rho,p_0\).</li>
+          <li>Recuperación acumulada de presión total.</li>
+          <li>Pitot opcional en una región elegida.</li>
+          <li>Representación diferenciada de choques y expansiones.</li>
+        </ul>
+        <div class="validation-case"><strong>Geometría principal de validación</strong><span>Perfil diamante, \(M_\infty=3\), \(\varepsilon=5^\circ\).</span></div>
+      </section>
+
+      <section id="references-es" class="references">
+        <h2>Referencias</h2>
+        <ol><li>Anderson, <em>Fundamentals of Aerodynamics</em>, sección 9.7.</li><li>Anderson, <em>Modern Compressible Flow</em>.</li><li>NACA Report 1135.</li></ol>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="prandtl-meyer.html"><span>Lecture anterior</span>← Prandtl–Meyer</a>
+        <a class="next-link" href="../index.html#tools"><span>Siguiente etapa</span>Calculadora de flujo compresible →</a>
+      </nav>
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+      <section>
+        <p class="section-label">Kerninhalt</p>
+        <h2>Stoß–Expansions-Verfahren</h2>
+        <p class="lead">
+          Jede Ecke einer polygonalen Geometrie wird als Schrägstoß oder
+          Prandtl–Meyer-Expansion behandelt. Der Ausgangszustand wird zum
+          Eingangszustand des nächsten Panels.
+        </p>
+        <div class="equation-card">\[\boxed{\Delta\theta_i=\alpha_i-\alpha_{i-1}}\]</div>
+        <div class="equation-card">\[\boxed{\frac{p_{0,f}}{p_{0,1}}=\prod_j\frac{p_{0,j+1}}{p_{0,j}}}\]</div>
+        <div class="de-note">Das Verfahren bildet die theoretische Grundlage des Geometrie-Rechners.</div>
+      </section>
+      <section class="references"><h2>Literatur</h2><ol><li>Anderson, Abschnitt 9.7.</li><li>NACA Report 1135.</li></ol></section>
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>© <span id="year"></span> Carlos Alberto Molina Holguín</p>
+    <p>Universidad Autónoma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

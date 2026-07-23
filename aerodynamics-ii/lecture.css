@@ -797,3 +797,140 @@ footer {
     width: 100%;
   }
 }
+
+
+/* Version 6: oblique shock, Prandtl–Meyer, and shock–expansion modules */
+.branch-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.9rem;
+  margin: 1.4rem 0;
+}
+
+.branch-card {
+  padding: 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: white;
+}
+
+.branch-card h3 {
+  margin-top: 0;
+}
+
+.branch-card.weak {
+  border-top: 4px solid var(--blue);
+}
+
+.branch-card.strong {
+  border-top: 4px solid var(--accent);
+}
+
+.process-flow {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.process-flow > div {
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 72px;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: white;
+}
+
+.process-flow strong {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: white;
+  background: var(--blue);
+}
+
+.process-flow span {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.validation-case {
+  display: grid;
+  gap: 0.25rem;
+  margin: 1.3rem 0;
+  padding: 1rem 1.15rem;
+  border-left: 4px solid var(--accent);
+  background: #fff7ed;
+}
+
+.validation-case strong {
+  color: var(--navy);
+}
+
+.validation-case span {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.wave-table {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.9rem;
+  margin: 1.4rem 0;
+}
+
+.wave-table > div {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: white;
+}
+
+.wave-table strong {
+  color: var(--navy);
+}
+
+.wave-table span {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.check-list {
+  padding-left: 0 !important;
+  list-style: none;
+}
+
+.check-list li {
+  position: relative;
+  padding: 0.55rem 0 0.55rem 1.8rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.check-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0.25rem;
+  color: var(--success);
+  font-weight: 800;
+}
+
+.lecture-actions {
+  margin-top: 1.3rem;
+}
+
+@media (max-width: 650px) {
+  .branch-grid,
+  .process-flow,
+  .wave-table {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Prandtl-Meyer function, centered expansion fans, property ratios, and worked supersonic expansion examples." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Prandtl–Meyer Expansion Waves | Aerodynamics II</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=6" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=6"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html" data-ui-key="course">Aerodynamics II</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+    <div data-language="en">
+      <p class="eyebrow">Aerodynamics II · Lecture 05</p>
+      <h1>Prandtl–Meyer Expansion Waves</h1>
+      <p class="hero-copy">Continuous isentropic turning through a convex corner, the Prandtl–Meyer function, and downstream-property calculation.</p>
+    </div>
+
+    <div data-language="es" hidden>
+      <p class="eyebrow">Aerodinámica II · Lecture 05</p>
+      <h1>Ondas de expansión de Prandtl–Meyer</h1>
+      <p class="hero-copy">Giro isoentrópico continuo alrededor de una esquina convexa, función de Prandtl–Meyer y cálculo de propiedades.</p>
+    </div>
+
+    <div data-language="de" hidden>
+      <p class="eyebrow">Aerodynamik II · Vorlesung 05</p>
+      <h1>Prandtl–Meyer-Expansionen</h1>
+      <p class="hero-copy">Kontinuierliche isentrope Umlenkung an einer konvexen Ecke und die Prandtl–Meyer-Funktion.</p>
+    </div>
+
+    <div class="hero-meta"><span>Estimated reading: 35 min</span><span>M₁ > 1</span><span>Convex turn</span><span>Isentropic</span></div>
+
+    <div class="button-row">
+      <a class="button secondary" href="oblique-shocks.html">← Previous</a>
+      <a class="button primary" href="shock-expansion.html">Next lecture →</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links">
+        <a href="#physics">Physical picture</a>
+        <a href="#infinitesimal">Infinitesimal expansion</a>
+        <a href="#function">Prandtl–Meyer function</a>
+        <a href="#fan">Finite centered fan</a>
+        <a href="#properties">Property changes</a>
+        <a href="#algorithm">Calculation algorithm</a>
+        <a href="#example">Worked example</a>
+        <a href="#comparison">Shock vs expansion</a>
+        <a href="#references">References</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+      <section id="physics">
+        <p class="section-label">Physical picture</p>
+        <h2>A convex corner creates a continuous expansion fan</h2>
+        <p class="lead">
+          When a supersonic stream turns away from itself, the pressure adjustment cannot occur
+          through an expansion shock. Instead, a continuous family of Mach waves forms a centered
+          Prandtl–Meyer fan.
+        </p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 850 350" role="img" aria-label="Centered Prandtl-Meyer fan">
+            <defs>
+              <marker id="pm-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="#0d568d"></path>
+              </marker>
+            </defs>
+            <polyline points="70,230 390,230 760,315" fill="none" stroke="#071d33" stroke-width="8"/>
+            <g stroke="#d67b28" stroke-width="3">
+              <line x1="390" y1="230" x2="170" y2="40"/>
+              <line x1="390" y1="230" x2="215" y2="35"/>
+              <line x1="390" y1="230" x2="265" y2="30"/>
+              <line x1="390" y1="230" x2="320" y2="25"/>
+              <line x1="390" y1="230" x2="380" y2="25"/>
+            </g>
+            <g stroke="#0d568d" stroke-width="4" marker-end="url(#pm-arrow)">
+              <line x1="80" y1="120" x2="315" y2="120"/>
+              <line x1="80" y1="175" x2="315" y2="175"/>
+              <line x1="480" y1="230" x2="695" y2="280"/>
+            </g>
+            <text x="170" y="95" font-size="21" fill="#071d33">M₁, p₁, T₁</text>
+            <text x="650" y="220" font-size="21" fill="#071d33">M₂, p₂, T₂</text>
+            <text x="335" y="55" font-size="20" fill="#d67b28">centered fan</text>
+          </svg>
+          <figcaption>
+            Properties change continuously through the fan; there is no finite discontinuity.
+          </figcaption>
+        </figure>
+
+        <div class="callout success">
+          <strong>Expansion behavior.</strong> Mach number increases, while static pressure,
+          temperature, and density decrease. Total temperature and total pressure remain constant.
+        </div>
+      </section>
+
+      <section id="infinitesimal">
+        <p class="section-label">Differential relation</p>
+        <h2>An infinitesimal turn through a Mach wave</h2>
+
+        <p>For an infinitesimal expansion \(d\theta\), velocity and Mach satisfy</p>
+
+        <div class="equation-card">
+          \[
+          \boxed{
+          d\theta
+          =
+          \sqrt{M^2-1}\frac{dV}{V}
+          }
+          \]
+        </div>
+
+        <div class="equation-card">
+          \[
+          \boxed{
+          d\theta=
+          \frac{\sqrt{M^2-1}}
+          {1+\frac{\gamma-1}{2}M^2}
+          \frac{dM}{M}
+          }
+          \]
+        </div>
+
+        <p>
+          This differential relation is integrated from the sonic state to define the
+          Prandtl–Meyer function.
+        </p>
+      </section>
+
+      <section id="function">
+        <p class="section-label">Central function</p>
+        <h2>The Prandtl–Meyer function</h2>
+
+        <div class="equation-card">
+          \[
+          \boxed{
+          \nu(M)=
+          \sqrt{\frac{\gamma+1}{\gamma-1}}
+          \tan^{-1}\left[
+          \sqrt{\frac{\gamma-1}{\gamma+1}(M^2-1)}
+          \right]
+          -
+          \tan^{-1}\left(\sqrt{M^2-1}\right)
+          }
+          \]
+        </div>
+
+        <p>
+          The function measures the isentropic turning accumulated from \(M=1\), where
+          \(\nu(1)=0\), to the specified Mach number.
+        </p>
+
+        <div class="equation-card">
+          \[
+          \boxed{
+          \nu_{\max}
+          =
+          \frac{\pi}{2}
+          \left(
+          \sqrt{\frac{\gamma+1}{\gamma-1}}-1
+          \right)
+          }
+          \]
+        </div>
+
+        <p>For air, \(\nu_{\max}=130.45^\circ\).</p>
+      </section>
+
+      <section id="fan">
+        <p class="section-label">Finite turn</p>
+        <h2>A centered fan connects two uniform supersonic states</h2>
+
+        <div class="equation-card">
+          \[
+          \boxed{
+          \theta=\nu(M_2)-\nu(M_1)
+          }
+          \]
+        </div>
+
+        <p>For a known upstream state and turn angle,</p>
+
+        <div class="equation-card">
+          \[
+          \boxed{
+          \nu(M_2)=\nu(M_1)+\theta
+          }
+          \]
+        </div>
+
+        <p>
+          The inverse problem \(M=\nu^{-1}(\nu)\) has no simple elementary closed form,
+          so it is solved using a table or a numerical root finder.
+        </p>
+
+        <div class="definition-grid">
+          <div class="definition"><strong>First characteristic</strong><span>\(\mu_1=\sin^{-1}(1/M_1)\)</span></div>
+          <div class="definition"><strong>Last characteristic</strong><span>\(\mu_2=\sin^{-1}(1/M_2)\)</span></div>
+        </div>
+      </section>
+
+      <section id="properties">
+        <p class="section-label">Isentropic property changes</p>
+        <h2>Pressure, temperature, and density ratios</h2>
+
+        <div class="equation-grid">
+          <div class="equation-card">
+            \[
+            \boxed{
+            \frac{T_2}{T_1}
+            =
+            \frac{1+\frac{\gamma-1}{2}M_1^2}
+            {1+\frac{\gamma-1}{2}M_2^2}
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            \[
+            \boxed{
+            \frac{p_2}{p_1}
+            =
+            \left(\frac{T_2}{T_1}\right)^{\gamma/(\gamma-1)}
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            \[
+            \boxed{
+            \frac{\rho_2}{\rho_1}
+            =
+            \left(\frac{T_2}{T_1}\right)^{1/(\gamma-1)}
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            \[
+            \boxed{
+            T_{0,2}=T_{0,1},
+            \qquad
+            p_{0,2}=p_{0,1}
+            }
+            \]
+          </div>
+        </div>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">Engineering workflow</p>
+        <h2>Calculation algorithm</h2>
+
+        <div class="process-flow">
+          <div><strong>1</strong><span>Specify \(M_1,\theta,\gamma\)</span></div>
+          <div><strong>2</strong><span>Compute \(\nu_1=\nu(M_1)\)</span></div>
+          <div><strong>3</strong><span>Set \(\nu_2=\nu_1+\theta\)</span></div>
+          <div><strong>4</strong><span>Check \(\nu_2<\nu_{\max}\)</span></div>
+          <div><strong>5</strong><span>Solve \(\nu(M_2)=\nu_2\)</span></div>
+          <div><strong>6</strong><span>Compute \(T_2/T_1\)</span></div>
+          <div><strong>7</strong><span>Compute \(p_2/p_1,\rho_2/\rho_1\)</span></div>
+          <div><strong>8</strong><span>Verify \(M_2>M_1\) and \(p_{0,2}=p_{0,1}\)</span></div>
+        </div>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>A \(15^\circ\) expansion from \(M_1=2\)</h2>
+
+        <div class="example">
+          <p>
+            Air at \(M_1=2.0\), \(p_1=120\ \text{kPa}\), and \(T_1=300\ \text{K}\)
+            expands through \(\theta=15^\circ\).
+          </p>
+
+          <div class="solution-step"><span class="solution-step-number">1</span><div>\[\nu(M_1)=26.38^\circ.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">2</span><div>\[\nu(M_2)=26.38^\circ+15^\circ=41.38^\circ.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">3</span><div>\[M_2\approx2.59845.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">4</span><div>\[\frac{T_2}{T_1}=0.76583,\qquad T_2\approx229.7\ \text{K}.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">5</span><div>\[\frac{p_2}{p_1}=0.39307,\qquad p_2\approx47.2\ \text{kPa}.\]</div></div>
+
+          <div class="result-box">
+            \[
+            \boxed{
+            M_2\approx2.598,\quad
+            T_2\approx229.7\ \text{K},\quad
+            p_2\approx47.2\ \text{kPa}
+            }
+            \]
+          </div>
+        </div>
+
+        <div class="validation-case">
+          <strong>Calculator validation case</strong>
+          <span>Inputs: \(M_1=2.0\), expansion \(\theta=15^\circ\), \(\gamma=1.4\).</span>
+        </div>
+      </section>
+
+      <section id="comparison">
+        <p class="section-label">Conceptual comparison</p>
+        <h2>Compression shock versus expansion fan</h2>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Feature</th><th>Oblique shock</th><th>Prandtl–Meyer fan</th></tr></thead>
+            <tbody>
+              <tr><td>Change</td><td>Discontinuous</td><td>Continuous</td></tr>
+              <tr><td>Thermodynamics</td><td>Adiabatic, irreversible</td><td>Isentropic</td></tr>
+              <tr><td>Mach</td><td>Decreases</td><td>Increases</td></tr>
+              <tr><td>Static pressure</td><td>Increases</td><td>Decreases</td></tr>
+              <tr><td>Static temperature</td><td>Increases</td><td>Decreases</td></tr>
+              <tr><td>Total pressure</td><td>Decreases</td><td>Constant</td></tr>
+              <tr><td>Central relation</td><td>θ–β–M</td><td>\(\nu(M_2)-\nu(M_1)=\theta\)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="references" class="references">
+        <h2>References</h2>
+        <ol>
+          <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed., Chapter 9.</li>
+          <li>Anderson, J. D., Jr. <em>Modern Compressible Flow</em>.</li>
+          <li>Ames Research Staff. NACA Report 1135.</li>
+        </ol>
+        <p class="source-note">Adapted from the Aerodynamics II course notes by Carlos Alberto Molina Holguín.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="oblique-shocks.html"><span>Previous lecture</span>← Oblique Shocks</a>
+        <a class="next-link" href="shock-expansion.html"><span>Next lecture</span>Shock–Expansion Analysis →</a>
+      </nav>
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+      <section id="physics-es">
+        <p class="section-label">Interpretación física</p>
+        <h2>Una esquina convexa genera un abanico continuo</h2>
+        <p class="lead">
+          Al girar alejándose de sí misma, una corriente supersónica se expande mediante
+          una familia continua de ondas de Mach, no mediante un choque expansivo.
+        </p>
+        <div class="callout success">
+          El Mach aumenta; presión, temperatura y densidad estáticas disminuyen;
+          \(T_0\) y \(p_0\) permanecen constantes.
+        </div>
+      </section>
+
+      <section id="infinitesimal-es">
+        <p class="section-label">Relación diferencial</p>
+        <h2>Expansión infinitesimal</h2>
+        <div class="equation-card">\[\boxed{d\theta=\sqrt{M^2-1}\frac{dV}{V}}\]</div>
+        <div class="equation-card">\[\boxed{d\theta=\frac{\sqrt{M^2-1}}{1+\frac{\gamma-1}{2}M^2}\frac{dM}{M}}\]</div>
+      </section>
+
+      <section id="function-es">
+        <p class="section-label">Función central</p>
+        <h2>Función de Prandtl–Meyer</h2>
+        <div class="equation-card">
+          \[
+          \boxed{
+          \nu(M)=
+          \sqrt{\frac{\gamma+1}{\gamma-1}}
+          \tan^{-1}\left[\sqrt{\frac{\gamma-1}{\gamma+1}(M^2-1)}\right]
+          -
+          \tan^{-1}\left(\sqrt{M^2-1}\right)
+          }
+          \]
+        </div>
+        <p>Para aire, \(\nu_{\max}=130.45^\circ\).</p>
+      </section>
+
+      <section id="fan-es">
+        <p class="section-label">Giro finito</p>
+        <h2>Abanico centrado</h2>
+        <div class="equation-card">\[\boxed{\theta=\nu(M_2)-\nu(M_1)}\]</div>
+        <div class="equation-card">\[\boxed{\nu(M_2)=\nu(M_1)+\theta}\]</div>
+        <p>La inversión de \(\nu(M)\) requiere tablas o un algoritmo numérico.</p>
+      </section>
+
+      <section id="properties-es">
+        <p class="section-label">Cambios isoentrópicos</p>
+        <h2>Relaciones de propiedades</h2>
+        <div class="equation-grid">
+          <div class="equation-card">\[\boxed{\frac{T_2}{T_1}=\frac{1+\frac{\gamma-1}{2}M_1^2}{1+\frac{\gamma-1}{2}M_2^2}}\]</div>
+          <div class="equation-card">\[\boxed{\frac{p_2}{p_1}=\left(\frac{T_2}{T_1}\right)^{\gamma/(\gamma-1)}}\]</div>
+          <div class="equation-card">\[\boxed{\frac{\rho_2}{\rho_1}=\left(\frac{T_2}{T_1}\right)^{1/(\gamma-1)}}\]</div>
+          <div class="equation-card">\[\boxed{T_{0,2}=T_{0,1},\qquad p_{0,2}=p_{0,1}}\]</div>
+        </div>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Procedimiento</p>
+        <h2>Algoritmo de cálculo</h2>
+        <ol>
+          <li>Calcular \(\nu_1=\nu(M_1)\).</li>
+          <li>Formar \(\nu_2=\nu_1+\theta\).</li>
+          <li>Verificar \(\nu_2<\nu_{\max}\).</li>
+          <li>Resolver \(\nu(M_2)=\nu_2\).</li>
+          <li>Calcular las razones de propiedades.</li>
+          <li>Comprobar \(M_2>M_1\) y conservación de \(p_0\).</li>
+        </ol>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>Expansión de \(15^\circ\) desde \(M_1=2\)</h2>
+        <div class="example">
+          <p>\(M_1=2.0\), \(p_1=120\ \text{kPa}\), \(T_1=300\ \text{K}\), \(\theta=15^\circ\).</p>
+          <div class="solution-step"><span class="solution-step-number">1</span><div>\[\nu_1=26.38^\circ,\qquad \nu_2=41.38^\circ.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">2</span><div>\[M_2\approx2.59845.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">3</span><div>\[\frac{T_2}{T_1}=0.76583,\qquad T_2\approx229.7\ \text{K}.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">4</span><div>\[\frac{p_2}{p_1}=0.39307,\qquad p_2\approx47.2\ \text{kPa}.\]</div></div>
+          <div class="result-box">\[\boxed{M_2\approx2.598,\quad T_2\approx229.7\ \text{K},\quad p_2\approx47.2\ \text{kPa}}\]</div>
+        </div>
+        <div class="validation-case"><strong>Caso de validación</strong><span>\(M_1=2.0\), expansión de \(15^\circ\).</span></div>
+      </section>
+
+      <section id="comparison-es">
+        <p class="section-label">Comparación</p>
+        <h2>Choque oblicuo frente a expansión</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Característica</th><th>Choque oblicuo</th><th>Expansión</th></tr></thead>
+            <tbody>
+              <tr><td>Cambio</td><td>Discontinuo</td><td>Continuo</td></tr>
+              <tr><td>Naturaleza</td><td>Irreversible</td><td>Isoentrópica</td></tr>
+              <tr><td>Mach</td><td>Disminuye</td><td>Aumenta</td></tr>
+              <tr><td>Presión estática</td><td>Aumenta</td><td>Disminuye</td></tr>
+              <tr><td>Presión total</td><td>Disminuye</td><td>Constante</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="references-es" class="references">
+        <h2>Referencias</h2>
+        <ol><li>Anderson, <em>Fundamentals of Aerodynamics</em>, capítulo 9.</li><li>Anderson, <em>Modern Compressible Flow</em>.</li><li>NACA Report 1135.</li></ol>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="oblique-shocks.html"><span>Lecture anterior</span>← Choques oblicuos</a>
+        <a class="next-link" href="shock-expansion.html"><span>Siguiente lecture</span>Análisis choque–expansión →</a>
+      </nav>
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+      <section>
+        <p class="section-label">Kerninhalt</p>
+        <h2>Prandtl–Meyer-Expansion</h2>
+        <p class="lead">Eine konvexe Ecke erzeugt einen kontinuierlichen isentropen Expansionsfächer.</p>
+        <div class="equation-card">\[\boxed{\theta=\nu(M_2)-\nu(M_1)}\]</div>
+        <div class="equation-card">\[\boxed{\nu(M)=\sqrt{\frac{\gamma+1}{\gamma-1}}\tan^{-1}\sqrt{\frac{\gamma-1}{\gamma+1}(M^2-1)}-\tan^{-1}\sqrt{M^2-1}}\]</div>
+        <div class="de-note">Die Machzahl steigt; statischer Druck und Temperatur sinken; der Totaldruck bleibt konstant.</div>
+      </section>
+      <section class="references"><h2>Literatur</h2><ol><li>Anderson, Kapitel 9.</li><li>NACA Report 1135.</li></ol></section>
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>© <span id="year"></span> Carlos Alberto Molina Holguín</p>
+    <p>Universidad Autónoma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

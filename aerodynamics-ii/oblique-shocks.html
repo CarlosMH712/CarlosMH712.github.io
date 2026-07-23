@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Oblique shock-wave theory, theta-beta-M relation, weak and strong branches, attached and detached shocks." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Oblique Shock Waves | Aerodynamics II</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=6" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=6"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html" data-ui-key="course">Aerodynamics II</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+    <div data-language="en">
+      <p class="eyebrow">Aerodynamics II · Lecture 04</p>
+      <h1>Oblique Shock Waves</h1>
+      <p class="hero-copy">Reduction to the normal component, the θ–β–M relation, weak and strong branches, attachment limits, and downstream properties.</p>
+    </div>
+
+    <div data-language="es" hidden>
+      <p class="eyebrow">Aerodinámica II · Lecture 04</p>
+      <h1>Ondas de choque oblicuas</h1>
+      <p class="hero-copy">Reducción a la componente normal, relación θ–β–M, ramas débil y fuerte, límites de adherencia y propiedades aguas abajo.</p>
+    </div>
+
+    <div data-language="de" hidden>
+      <p class="eyebrow">Aerodynamik II · Vorlesung 04</p>
+      <h1>Schrägstoßwellen</h1>
+      <p class="hero-copy">Normalkomponente, θ–β–M-Beziehung, schwache und starke Lösung sowie Anlegegrenzen.</p>
+    </div>
+
+    <div class="hero-meta"><span>Estimated reading: 40 min</span><span>M₁ > 1</span><span>Compression turn</span><span>Irreversible</span></div>
+
+    <div class="button-row">
+      <a class="button secondary" href="normal-shocks.html">← Previous</a>
+      <a class="button primary" href="prandtl-meyer.html">Next lecture →</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links">
+        <a href="#physics">Physical picture</a>
+        <a href="#geometry">Geometry</a>
+        <a href="#normal">Normal-component method</a>
+        <a href="#tbm">θ–β–M relation</a>
+        <a href="#branches">Weak and strong branches</a>
+        <a href="#algorithm">Calculation algorithm</a>
+        <a href="#example">Worked example</a>
+        <a href="#advanced">Advanced extensions</a>
+        <a href="#references">References</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+      <section id="physics">
+        <p class="section-label">Physical picture</p>
+        <h2>Supersonic compression around a concave corner</h2>
+        <p class="lead">
+          A supersonic stream cannot adjust smoothly upstream of a finite compression corner.
+          The disturbances accumulate into an oblique shock that turns and compresses the flow.
+        </p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 840 330" role="img" aria-label="Oblique shock over a wedge">
+            <defs>
+              <marker id="obs-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="#0d568d"></path>
+              </marker>
+            </defs>
+            <line x1="55" y1="215" x2="760" y2="215" stroke="#607181" stroke-width="2" stroke-dasharray="8 8"/>
+            <polyline points="380,215 760,300" fill="none" stroke="#071d33" stroke-width="8"/>
+            <line x1="380" y1="215" x2="585" y2="55" stroke="#d67b28" stroke-width="7"/>
+            <g stroke="#0d568d" stroke-width="4" marker-end="url(#obs-arrow)">
+              <line x1="65" y1="120" x2="315" y2="120"/>
+              <line x1="65" y1="170" x2="315" y2="170"/>
+              <line x1="460" y1="205" x2="690" y2="257"/>
+            </g>
+            <path d="M285 215 A95 95 0 0 1 318 141" fill="none" stroke="#0d568d" stroke-width="3"/>
+            <text x="292" y="164" font-size="21" fill="#071d33">β</text>
+            <path d="M470 215 A90 90 0 0 1 468 235" fill="none" stroke="#176b47" stroke-width="3"/>
+            <text x="505" y="246" font-size="21" fill="#071d33">θ</text>
+            <text x="190" y="93" font-size="21" fill="#071d33">M₁, p₁, T₁</text>
+            <text x="620" y="195" font-size="21" fill="#071d33">M₂, p₂, T₂</text>
+            <text x="555" y="55" font-size="19" fill="#d67b28">oblique shock</text>
+          </svg>
+          <figcaption>
+            The wave angle is \(\beta\); the flow turns through \(\theta\).
+          </figcaption>
+        </figure>
+
+        <div class="equation-card">
+          \[
+          \boxed{\mu=\sin^{-1}\left(\frac{1}{M_1}\right)}
+          \]
+        </div>
+
+        <p>
+          The Mach angle \(\mu\) is the limiting wave angle for an infinitesimal disturbance.
+          A finite compressive shock satisfies \(\beta>\mu\).
+        </p>
+      </section>
+
+      <section id="geometry">
+        <p class="section-label">Velocity decomposition</p>
+        <h2>Normal and tangential components</h2>
+
+        <div class="equation-grid">
+          <div class="equation-card">
+            \[
+            V_{n1}=V_1\sin\beta,
+            \qquad
+            V_{t1}=V_1\cos\beta
+            \]
+          </div>
+          <div class="equation-card">
+            \[
+            V_{n2}=V_2\sin(\beta-\theta),
+            \qquad
+            V_{t2}=V_2\cos(\beta-\theta)
+            \]
+          </div>
+        </div>
+
+        <div class="equation-card">
+          \[
+          \boxed{
+          M_{n1}=M_1\sin\beta,
+          \qquad
+          M_{n2}=M_2\sin(\beta-\theta)
+          }
+          \]
+        </div>
+
+        <div class="callout success">
+          <strong>Central simplification.</strong> The tangential velocity remains constant,
+          \(V_{t1}=V_{t2}\). Mass, normal momentum, and energy therefore reduce exactly
+          to the normal-shock equations applied to \(M_{n1}\).
+        </div>
+      </section>
+
+      <section id="normal">
+        <p class="section-label">Jump relations</p>
+        <h2>Normal-shock equations evaluated with \(M_{n1}\)</h2>
+
+        <div class="equation-grid">
+          <div class="equation-card">
+            \[
+            \boxed{
+            \frac{p_2}{p_1}
+            =
+            1+\frac{2\gamma}{\gamma+1}(M_{n1}^2-1)
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            \[
+            \boxed{
+            \frac{\rho_2}{\rho_1}
+            =
+            \frac{(\gamma+1)M_{n1}^2}
+            {2+(\gamma-1)M_{n1}^2}
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            \[
+            \boxed{
+            \frac{T_2}{T_1}
+            =
+            \frac{p_2/p_1}{\rho_2/\rho_1}
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            \[
+            \boxed{
+            M_{n2}^2=
+            \frac{1+\frac{\gamma-1}{2}M_{n1}^2}
+            {\gamma M_{n1}^2-\frac{\gamma-1}{2}}
+            }
+            \]
+          </div>
+        </div>
+
+        <div class="equation-card">
+          \[
+          \boxed{
+          M_2=\frac{M_{n2}}{\sin(\beta-\theta)}
+          }
+          \]
+        </div>
+
+        <p>
+          The total-pressure ratio is also obtained from the normal-shock relation evaluated
+          at \(M_{n1}\). The total temperature remains constant, but \(p_0\) decreases.
+        </p>
+      </section>
+
+      <section id="tbm">
+        <p class="section-label">Central relation</p>
+        <h2>The \(\theta\)–\(\beta\)–\(M\) equation</h2>
+
+        <div class="equation-card">
+          \[
+          \boxed{
+          \tan\theta =
+          2\cot\beta\,
+          \frac{M_1^2\sin^2\beta-1}
+          {M_1^2[\gamma+\cos(2\beta)]+2}
+          }
+          \]
+        </div>
+
+        <p>
+          Given \(M_1\) and the required deflection \(\theta\), this nonlinear relation
+          provides the admissible shock angles \(\beta\). Once \(\beta\) is known, the
+          normal-component method determines the complete downstream state.
+        </p>
+
+        <details class="details">
+          <summary>Compact geometric derivation</summary>
+          <div class="details-content">
+            \[
+            \tan\beta=\frac{V_{n1}}{V_{t1}},
+            \qquad
+            \tan(\beta-\theta)=\frac{V_{n2}}{V_{t2}}.
+            \]
+            <p>Since \(V_{t1}=V_{t2}\) and continuity gives \(V_{n2}/V_{n1}=\rho_1/\rho_2\),</p>
+            \[
+            \tan(\beta-\theta)=\frac{\rho_1}{\rho_2}\tan\beta.
+            \]
+            <p>Substitution of the normal-shock density ratio yields the classical equation.</p>
+          </div>
+        </details>
+      </section>
+
+      <section id="branches">
+        <p class="section-label">Multiple solutions</p>
+        <h2>Weak, strong, and detached shocks</h2>
+
+        <div class="branch-grid">
+          <div class="branch-card weak">
+            <h3>Weak branch</h3>
+            <p>Smaller \(\beta\), smaller \(M_{n1}\), moderate pressure rise, usually \(M_2>1\).</p>
+          </div>
+          <div class="branch-card strong">
+            <h3>Strong branch</h3>
+            <p>Larger \(\beta\), stronger compression, larger total-pressure loss, normally \(M_2<1\).</p>
+          </div>
+        </div>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 780 390" role="img" aria-label="Weak and strong branches">
+            <line x1="80" y1="325" x2="710" y2="325" stroke="#071d33" stroke-width="3"/>
+            <line x1="80" y1="325" x2="80" y2="50" stroke="#071d33" stroke-width="3"/>
+            <text x="715" y="348" font-size="20" fill="#071d33">θ</text>
+            <text x="45" y="55" font-size="20" fill="#071d33">β</text>
+            <path d="M85 280 C220 255, 400 200, 565 120" fill="none" stroke="#0d568d" stroke-width="6"/>
+            <path d="M85 72 C240 80, 420 90, 565 120" fill="none" stroke="#d67b28" stroke-width="6" stroke-dasharray="10 8"/>
+            <line x1="565" y1="325" x2="565" y2="120" stroke="#607181" stroke-width="2" stroke-dasharray="7 7"/>
+            <text x="565" y="350" text-anchor="middle" font-size="18" fill="#071d33">θmax</text>
+            <text x="270" y="250" font-size="19" fill="#0d568d">weak</text>
+            <text x="270" y="82" font-size="19" fill="#d67b28">strong</text>
+          </svg>
+          <figcaption>
+            Both branches merge at \(\theta_{\max}\). For \(\theta>\theta_{\max}\),
+            no straight attached shock exists.
+          </figcaption>
+        </figure>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>\(M_1\)</th><th>\(\theta_{\max}\), air</th><th>\(\beta\) at maximum</th></tr></thead>
+            <tbody>
+              <tr><td>1.5</td><td>\(12.11^\circ\)</td><td>\(66.59^\circ\)</td></tr>
+              <tr><td>2.0</td><td>\(22.97^\circ\)</td><td>\(64.67^\circ\)</td></tr>
+              <tr><td>2.5</td><td>\(29.80^\circ\)</td><td>\(64.78^\circ\)</td></tr>
+              <tr><td>3.0</td><td>\(34.07^\circ\)</td><td>\(65.24^\circ\)</td></tr>
+              <tr><td>5.0</td><td>\(41.12^\circ\)</td><td>\(66.58^\circ\)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">Engineering workflow</p>
+        <h2>Calculation algorithm</h2>
+
+        <div class="process-flow">
+          <div><strong>1</strong><span>Specify \(M_1,\theta,\gamma\)</span></div>
+          <div><strong>2</strong><span>Compute \(\mu=\sin^{-1}(1/M_1)\)</span></div>
+          <div><strong>3</strong><span>Find \(\theta_{\max}\)</span></div>
+          <div><strong>4</strong><span>Solve θ–β–M for weak/strong \(\beta\)</span></div>
+          <div><strong>5</strong><span>Set \(M_{n1}=M_1\sin\beta\)</span></div>
+          <div><strong>6</strong><span>Apply normal-shock relations</span></div>
+          <div><strong>7</strong><span>Recover \(M_2\)</span></div>
+          <div><strong>8</strong><span>Check branch and pressure loss</span></div>
+        </div>
+
+        <div class="callout warning">
+          When \(\theta>\theta_{\max}\), a numerical root should not be forced.
+          The physical result is a detached shock, outside the straight attached-shock model.
+        </div>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>Weak shock over a \(15^\circ\) wedge</h2>
+
+        <div class="example">
+          <p>
+            Air at \(M_1=2.5\), \(p_1=80\ \text{kPa}\), and \(T_1=250\ \text{K}\)
+            is turned through \(\theta=15^\circ\).
+          </p>
+
+          <div class="solution-step"><span class="solution-step-number">1</span><div>\[\beta_{\mathrm{weak}}\approx36.95^\circ.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">2</span><div>\[M_{n1}=2.5\sin36.95^\circ\approx1.502.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">3</span><div>\[\frac{p_2}{p_1}=2.4675,\quad \frac{\rho_2}{\rho_1}=1.866,\quad \frac{T_2}{T_1}=1.32196.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">4</span><div>\[M_{n2}\approx0.701,\qquad M_2=\frac{0.701}{\sin(36.95^\circ-15^\circ)}\approx1.873.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">5</span><div>\[p_2\approx197.4\ \text{kPa},\qquad T_2\approx330.5\ \text{K},\qquad \frac{p_{0,2}}{p_{0,1}}\approx0.929.\]</div></div>
+
+          <div class="result-box">
+            \[
+            \boxed{
+            \beta\approx36.95^\circ,\quad
+            M_2\approx1.87,\quad
+            p_2\approx197.4\ \text{kPa},\quad
+            T_2\approx330.5\ \text{K}
+            }
+            \]
+          </div>
+        </div>
+
+        <div class="validation-case">
+          <strong>Calculator validation case</strong>
+          <span>Inputs: \(M_1=2.5\), \(\theta=15^\circ\), \(\gamma=1.4\), weak branch.</span>
+        </div>
+      </section>
+
+      <section id="advanced">
+        <p class="section-label">Beyond the core model</p>
+        <h2>Advanced extensions contained in Unit III</h2>
+        <p>
+          The full course script also develops shock polars, wedge wave drag, Taylor–Maccoll
+          cone flow, regular and Mach reflection, intersecting shocks, slip lines, detached
+          bow shocks, and entropy/vorticity generation. These topics will later be separated
+          into advanced supplementary lectures.
+        </p>
+      </section>
+
+      <section id="references" class="references">
+        <h2>References</h2>
+        <ol>
+          <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed., Chapter 9.</li>
+          <li>Anderson, J. D., Jr. <em>Modern Compressible Flow</em>, 3rd ed.</li>
+          <li>Ames Research Staff. <em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135.</li>
+        </ol>
+        <p class="source-note">Adapted from the Aerodynamics II course notes by Carlos Alberto Molina Holguín.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="normal-shocks.html"><span>Previous lecture</span>← Normal Shocks</a>
+        <a class="next-link" href="prandtl-meyer.html"><span>Next lecture</span>Prandtl–Meyer Expansions →</a>
+      </nav>
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+      <section id="physics-es">
+        <p class="section-label">Interpretación física</p>
+        <h2>Compresión supersónica alrededor de una esquina cóncava</h2>
+        <p class="lead">
+          Una corriente supersónica no puede ajustarse suavemente aguas arriba de una compresión
+          finita. Las perturbaciones se acumulan en una onda oblicua que desvía y comprime el flujo.
+        </p>
+        <div class="equation-card">\[\boxed{\mu=\sin^{-1}(1/M_1)}\]</div>
+        <p>Una onda compresiva finita cumple \(\beta>\mu\).</p>
+      </section>
+
+      <section id="geometry-es">
+        <p class="section-label">Descomposición de velocidad</p>
+        <h2>Componentes normal y tangencial</h2>
+        <div class="equation-grid">
+          <div class="equation-card">\[V_{n1}=V_1\sin\beta,\qquad V_{t1}=V_1\cos\beta\]</div>
+          <div class="equation-card">\[V_{n2}=V_2\sin(\beta-\theta),\qquad V_{t2}=V_2\cos(\beta-\theta)\]</div>
+        </div>
+        <div class="equation-card">\[\boxed{M_{n1}=M_1\sin\beta,\qquad M_{n2}=M_2\sin(\beta-\theta)}\]</div>
+        <div class="callout success">
+          <strong>Simplificación central.</strong> \(V_{t1}=V_{t2}\). Las ecuaciones restantes
+          son las de un choque normal aplicadas a \(M_{n1}\).
+        </div>
+      </section>
+
+      <section id="normal-es">
+        <p class="section-label">Relaciones de salto</p>
+        <h2>Choque normal evaluado con el Mach normal</h2>
+        <div class="equation-grid">
+          <div class="equation-card">\[\boxed{\frac{p_2}{p_1}=1+\frac{2\gamma}{\gamma+1}(M_{n1}^2-1)}\]</div>
+          <div class="equation-card">\[\boxed{\frac{\rho_2}{\rho_1}=\frac{(\gamma+1)M_{n1}^2}{2+(\gamma-1)M_{n1}^2}}\]</div>
+          <div class="equation-card">\[\boxed{\frac{T_2}{T_1}=\frac{p_2/p_1}{\rho_2/\rho_1}}\]</div>
+          <div class="equation-card">\[\boxed{M_{n2}^2=\frac{1+\frac{\gamma-1}{2}M_{n1}^2}{\gamma M_{n1}^2-\frac{\gamma-1}{2}}}\]</div>
+        </div>
+        <div class="equation-card">\[\boxed{M_2=\frac{M_{n2}}{\sin(\beta-\theta)}}\]</div>
+      </section>
+
+      <section id="tbm-es">
+        <p class="section-label">Relación central</p>
+        <h2>Ecuación \(\theta\)–\(\beta\)–\(M\)</h2>
+        <div class="equation-card">
+          \[
+          \boxed{
+          \tan\theta =
+          2\cot\beta\,
+          \frac{M_1^2\sin^2\beta-1}
+          {M_1^2[\gamma+\cos(2\beta)]+2}
+          }
+          \]
+        </div>
+        <p>
+          Con \(M_1\) y \(\theta\) conocidos, se obtiene \(\beta\); después se calcula
+          \(M_{n1}\) y se aplican las relaciones de choque normal.
+        </p>
+      </section>
+
+      <section id="branches-es">
+        <p class="section-label">Soluciones múltiples</p>
+        <h2>Ramas débil, fuerte y choque desprendido</h2>
+        <div class="branch-grid">
+          <div class="branch-card weak"><h3>Rama débil</h3><p>Menor \(\beta\), compresión moderada y normalmente \(M_2>1\).</p></div>
+          <div class="branch-card strong"><h3>Rama fuerte</h3><p>Mayor \(\beta\), mayor pérdida de presión total y normalmente \(M_2<1\).</p></div>
+        </div>
+        <div class="callout warning">
+          Si \(\theta>\theta_{\max}\), no existe una solución recta adherida: la onda se desprende.
+        </div>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Procedimiento</p>
+        <h2>Algoritmo de cálculo</h2>
+        <ol>
+          <li>Especificar \(M_1,\theta,\gamma\).</li>
+          <li>Calcular \(\mu\) y \(\theta_{\max}\).</li>
+          <li>Resolver la ecuación \(\theta\)–\(\beta\)–\(M\).</li>
+          <li>Elegir la rama débil o fuerte.</li>
+          <li>Calcular \(M_{n1}=M_1\sin\beta\).</li>
+          <li>Aplicar choque normal.</li>
+          <li>Recuperar \(M_2\) y evaluar la pérdida de \(p_0\).</li>
+        </ol>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>Choque débil sobre una cuña de \(15^\circ\)</h2>
+        <div class="example">
+          <p>\(M_1=2.5\), \(p_1=80\ \text{kPa}\), \(T_1=250\ \text{K}\), \(\theta=15^\circ\).</p>
+          <div class="solution-step"><span class="solution-step-number">1</span><div>\[\beta\approx36.95^\circ,\qquad M_{n1}\approx1.502.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">2</span><div>\[\frac{p_2}{p_1}=2.4675,\quad \frac{\rho_2}{\rho_1}=1.866,\quad \frac{T_2}{T_1}=1.32196.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">3</span><div>\[M_2\approx1.873,\quad p_2\approx197.4\ \text{kPa},\quad T_2\approx330.5\ \text{K}.\]</div></div>
+          <div class="result-box">\[\boxed{\beta\approx36.95^\circ,\quad M_2\approx1.87,\quad p_{0,2}/p_{0,1}\approx0.929}\]</div>
+        </div>
+        <div class="validation-case"><strong>Caso de validación</strong><span>\(M_1=2.5\), \(\theta=15^\circ\), rama débil.</span></div>
+      </section>
+
+      <section id="advanced-es">
+        <p class="section-label">Extensiones</p>
+        <h2>Temas avanzados contenidos en la Unidad III</h2>
+        <p>
+          El script completo también desarrolla polares de choque, cuñas y conos,
+          Taylor–Maccoll, reflexiones regulares y de Mach, intersecciones, líneas de
+          deslizamiento y ondas desprendidas. Se conservarán como lectures complementarias.
+        </p>
+      </section>
+
+      <section id="references-es" class="references">
+        <h2>Referencias</h2>
+        <ol>
+          <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, capítulo 9.</li>
+          <li>Anderson, J. D., Jr. <em>Modern Compressible Flow</em>.</li>
+          <li>Ames Research Staff. NACA Report 1135.</li>
+        </ol>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="normal-shocks.html"><span>Lecture anterior</span>← Choques normales</a>
+        <a class="next-link" href="prandtl-meyer.html"><span>Siguiente lecture</span>Expansiones de Prandtl–Meyer →</a>
+      </nav>
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+      <section>
+        <p class="section-label">Kerninhalt</p>
+        <h2>Schrägstoßwellen</h2>
+        <p class="lead">
+          Ein Schrägstoß wird mit der normalen Machzahl \(M_{n1}=M_1\sin\beta\)
+          auf einen Normalstoß zurückgeführt.
+        </p>
+        <div class="equation-card">\[\boxed{M_{n1}=M_1\sin\beta}\]</div>
+        <div class="equation-card">\[\boxed{\tan\theta=2\cot\beta\frac{M_1^2\sin^2\beta-1}{M_1^2[\gamma+\cos(2\beta)]+2}}\]</div>
+        <div class="equation-card">\[\boxed{M_2=\frac{M_{n2}}{\sin(\beta-\theta)}}\]</div>
+        <div class="de-note">
+          Für \(0<\theta<\theta_{\max}\) existieren eine schwache und eine starke Lösung.
+          Oberhalb von \(\theta_{\max}\) löst sich die Stoßwelle vom Körper ab.
+        </div>
+      </section>
+      <section class="references">
+        <h2>Literatur</h2>
+        <ol><li>Anderson, <em>Fundamentals of Aerodynamics</em>, Kapitel 9.</li><li>NACA Report 1135.</li></ol>
+      </section>
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>© <span id="year"></span> Carlos Alberto Molina Holguín</p>
+    <p>Universidad Autónoma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>
