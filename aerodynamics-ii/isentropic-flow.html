@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Lecture on isentropic compressible flow, static and stagnation properties, Mach number, and worked examples." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Isentropic Flow and Stagnation Properties | Aerodynamics II</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=1" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=1"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html" data-ui-key="course">Aerodynamics II</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="lecture-hero">
+    <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Aerodynamics II · Lecture 02</p>
+        <h1>Isentropic Flow and Stagnation Properties</h1>
+        <p class="hero-copy">
+          Connecting thermodynamics, Mach number, and the conversion between
+          static and total properties in a calorically perfect gas.
+        </p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Aerodinámica II · Lecture 02</p>
+        <h1>Flujo isoentrópico y propiedades de estancamiento</h1>
+        <p class="hero-copy">
+          Conexión entre termodinámica, número de Mach y la conversión entre
+          propiedades estáticas y totales para un gas calóricamente perfecto.
+        </p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Aerodynamik II · Vorlesung 02</p>
+        <h1>Isentrope Strömung und Staugrößen</h1>
+        <p class="hero-copy">
+          Zusammenhang zwischen Thermodynamik, Machzahl sowie statischen Größen und Staugrößen.
+        </p>
+      </div>
+      <div class="hero-meta">
+        <span>Estimated reading: 30 min</span>
+        <span>Level: undergraduate</span>
+        <span>Gas: calorically perfect</span>
+      </div>
+      <div class="button-row">
+        <a class="button secondary" href="index.html" data-ui-key="back">Back to course</a>
+        <a class="button primary" href="../index.html#tools" data-ui-key="calculatorPending">Calculator deployment pending</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links">
+        <a href="#objectives">Objectives</a>
+        <a href="#model">Physical model</a>
+        <a href="#relations">Isentropic relations</a>
+        <a href="#stagnation">Stagnation properties</a>
+        <a href="#critical">Critical state</a>
+        <a href="#example">Worked example</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#references">References</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+      <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <p class="lead">
+          This lecture develops the thermodynamic relations used throughout compressible-flow analysis.
+        </p>
+        <ul>
+          <li>Distinguish static properties from total or stagnation properties.</li>
+          <li>Explain the assumptions behind an isentropic process.</li>
+          <li>Calculate \(T_0/T\), \(p_0/p\), and \(\rho_0/\rho\) from Mach number.</li>
+          <li>Interpret total temperature as an energy quantity and total pressure as an ideal recovery quantity.</li>
+          <li>Recognize when isentropic relations are not valid.</li>
+        </ul>
+      </section>
+
+      <section id="model">
+        <p class="section-label">Physical model</p>
+        <h2>From a moving state to a stagnation state</h2>
+        <p>
+          Static properties \(p\), \(T\), \(\rho\), and \(h\) describe the local thermodynamic
+          state experienced by an observer moving with the fluid. Total properties describe the
+          state obtained when the same fluid element is brought to rest through a specified ideal process.
+        </p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 760 230" role="img" aria-label="Static state brought to a stagnation state">
+            <defs>
+              <marker id="arrowIso" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="#0d568d"></path>
+              </marker>
+            </defs>
+            <rect x="45" y="62" width="235" height="105" rx="14" fill="#eaf4fb" stroke="#0d568d" stroke-width="3"/>
+            <text x="162" y="93" text-anchor="middle" font-size="21" font-weight="700" fill="#071d33">Static state</text>
+            <text x="162" y="126" text-anchor="middle" font-size="18" fill="#344454">p, T, ρ, h, V</text>
+            <line x1="295" y1="114" x2="465" y2="114" stroke="#0d568d" stroke-width="5" marker-end="url(#arrowIso)"/>
+            <text x="380" y="91" text-anchor="middle" font-size="16" fill="#344454">ideal deceleration</text>
+            <rect x="485" y="62" width="235" height="105" rx="14" fill="#ecf8f2" stroke="#176b47" stroke-width="3"/>
+            <text x="602" y="93" text-anchor="middle" font-size="21" font-weight="700" fill="#071d33">Stagnation state</text>
+            <text x="602" y="126" text-anchor="middle" font-size="18" fill="#344454">p₀, T₀, ρ₀, h₀, V = 0</text>
+          </svg>
+          <figcaption>Conceptual definition of static and stagnation properties.</figcaption>
+        </figure>
+
+        <div class="definition-grid">
+          <div class="definition">
+            <strong>Calorically perfect gas</strong>
+            <span>\(p=\rho RT\), \(h=c_pT\), with constant \(c_p\), \(c_v\), and \(\gamma=c_p/c_v\).</span>
+          </div>
+          <div class="definition">
+            <strong>Isentropic process</strong>
+            <span>Adiabatic and reversible, so \(ds=0\). It excludes shocks, viscous dissipation, strong mixing, and heat transfer.</span>
+          </div>
+          <div class="definition">
+            <strong>Speed of sound</strong>
+            <span>\(a=\sqrt{\gamma RT}\) for a calorically perfect gas.</span>
+          </div>
+          <div class="definition">
+            <strong>Mach number</strong>
+            <span>\(M=V/a\), the ratio between flow velocity and the local speed of sound.</span>
+          </div>
+        </div>
+
+        <div class="callout warning">
+          <strong>Validity.</strong> The constant-specific-heat model is a useful first approximation for many
+          aerodynamic problems, but it becomes inadequate when temperatures are high enough for significant
+          vibrational excitation, dissociation, or chemical reactions.
+        </div>
+      </section>
+
+      <section id="relations">
+        <p class="section-label">Thermodynamic relations</p>
+        <h2>Isentropic changes between two equilibrium states</h2>
+        <p>
+          For a calorically perfect gas undergoing an isentropic process, pressure, density,
+          and temperature are not independent. The state ratios satisfy
+        </p>
+
+        <div class="equation-card">
+          <p class="equation-label">Isentropic property relations</p>
+          \[
+          \boxed{
+          \frac{p_2}{p_1}
+          =
+          \left(\frac{\rho_2}{\rho_1}\right)^\gamma
+          =
+          \left(\frac{T_2}{T_1}\right)^{\gamma/(\gamma-1)}
+          }
+          \]
+        </div>
+
+        <p>An equivalent differential-path statement is</p>
+        <div class="equation-card">
+          \[
+          \boxed{\frac{p}{\rho^\gamma}=\text{constant along an isentropic path}.}
+          \]
+        </div>
+
+        <details class="details">
+          <summary>Show a compact derivation from entropy</summary>
+          <div class="details-content">
+            <p>For a calorically perfect gas,</p>
+            \[
+            s_2-s_1
+            =
+            c_p\ln\left(\frac{T_2}{T_1}\right)
+            -
+            R\ln\left(\frac{p_2}{p_1}\right).
+            \]
+            <p>Setting \(s_2-s_1=0\) and using \(c_p/R=\gamma/(\gamma-1)\) gives</p>
+            \[
+            \frac{p_2}{p_1}
+            =
+            \left(\frac{T_2}{T_1}\right)^{\gamma/(\gamma-1)}.
+            \]
+            <p>The density relation follows from the perfect-gas equation.</p>
+          </div>
+        </details>
+
+        <div class="callout">
+          <strong>Physical interpretation.</strong> In an isentropic expansion, pressure and temperature
+          decrease while the flow accelerates. In an isentropic compression, pressure and temperature
+          increase while the flow decelerates.
+        </div>
+      </section>
+
+      <section id="stagnation">
+        <p class="section-label">Total properties</p>
+        <h2>Energy and total–static relations</h2>
+        <p>
+          For steady, adiabatic flow with no shaft work and negligible potential-energy change,
+          the total enthalpy is conserved along a streamline:
+        </p>
+
+        <div class="equation-card">
+          \[
+          \boxed{h_0=h+\frac{V^2}{2}}
+          \]
+        </div>
+
+        <p>For a calorically perfect gas, \(h=c_pT\), so</p>
+
+        <div class="equation-card">
+          \[
+          \boxed{
+          \frac{T_0}{T}
+          =
+          1+\frac{\gamma-1}{2}M^2
+          }
+          \]
+        </div>
+
+        <div class="equation-grid">
+          <div class="equation-card">
+            <p class="equation-label">Total pressure</p>
+            \[
+            \boxed{
+            \frac{p_0}{p}
+            =
+            \left(1+\frac{\gamma-1}{2}M^2\right)^{\gamma/(\gamma-1)}
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            <p class="equation-label">Total density</p>
+            \[
+            \boxed{
+            \frac{\rho_0}{\rho}
+            =
+            \left(1+\frac{\gamma-1}{2}M^2\right)^{1/(\gamma-1)}
+            }
+            \]
+          </div>
+        </div>
+
+        <div class="callout success">
+          <strong>Important distinction.</strong> Total temperature is conserved through an adiabatic
+          shock with no work, but total pressure is not. Irreversibility appears as a loss of \(p_0\).
+        </div>
+      </section>
+
+      <section id="critical">
+        <p class="section-label">Reference state</p>
+        <h2>Sonic or critical conditions</h2>
+        <p>
+          A critical state, denoted by the superscript \(^*\), is a reference state at which \(M=1\).
+          It is not a stagnation state: the flow velocity is nonzero and equals the critical speed of sound.
+        </p>
+
+        <div class="equation-grid">
+          <div class="equation-card">
+            \[
+            \frac{T^*}{T_0}=\frac{2}{\gamma+1}
+            \]
+          </div>
+          <div class="equation-card">
+            \[
+            \frac{p^*}{p_0}
+            =
+            \left(\frac{2}{\gamma+1}\right)^{\gamma/(\gamma-1)}
+            \]
+          </div>
+        </div>
+
+        <div class="callout warning">
+          Do not confuse \(A^*\), the area associated with a sonic state in quasi-one-dimensional
+          flow, with the critical Mach number of an airfoil.
+        </div>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>Static-to-total properties at \(M=2\)</h2>
+        <div class="example">
+          <h3>Problem</h3>
+          <p>
+            Air flows at \(M=2.00\), \(p=50.0\ \text{kPa}\), and \(T=220\ \text{K}\).
+            For \(\gamma=1.4\) and \(R=287\ \text{J/(kg·K)}\), determine
+            \(T_0\), \(p_0\), \(\rho_0/\rho\), the local speed of sound, velocity, and Mach angle.
+          </p>
+
+          <div class="solution-step">
+            <span class="solution-step-number">1</span>
+            <div>
+              \[
+              \frac{T_0}{T}=1+0.2(2)^2=1.8,
+              \qquad
+              T_0=(220)(1.8)=396\ \text{K}.
+              \]
+            </div>
+          </div>
+
+          <div class="solution-step">
+            <span class="solution-step-number">2</span>
+            <div>
+              \[
+              \frac{p_0}{p}=1.8^{3.5}=7.82445,
+              \qquad
+              p_0=(50.0)(7.82445)=391.2\ \text{kPa}.
+              \]
+            </div>
+          </div>
+
+          <div class="solution-step">
+            <span class="solution-step-number">3</span>
+            <div>
+              \[
+              \frac{\rho_0}{\rho}=1.8^{2.5}=4.34692.
+              \]
+            </div>
+          </div>
+
+          <div class="solution-step">
+            <span class="solution-step-number">4</span>
+            <div>
+              \[
+              a=\sqrt{\gamma RT}=297.3\ \text{m/s},
+              \qquad
+              V=Ma=594.6\ \text{m/s}.
+              \]
+            </div>
+          </div>
+
+          <div class="solution-step">
+            <span class="solution-step-number">5</span>
+            <div>
+              \[
+              \mu=\sin^{-1}\left(\frac{1}{M}\right)=30.0^\circ.
+              \]
+            </div>
+          </div>
+
+          <div class="result-box">
+            \[
+            \boxed{
+            T_0=396\ \text{K},\quad
+            p_0=391.2\ \text{kPa},\quad
+            \rho_0/\rho=4.3469,\quad
+            V=594.6\ \text{m/s}
+            }
+            \]
+          </div>
+        </div>
+      </section>
+
+      <section id="mistakes">
+        <p class="section-label">Checks</p>
+        <h2>Common mistakes</h2>
+        <ul>
+          <li>Using total–static relations across a shock as though the shock were isentropic.</li>
+          <li>Assuming that defining \(p_0\) locally guarantees that \(p_0\) is conserved between two points.</li>
+          <li>Using an upstream temperature to calculate the downstream speed of sound.</li>
+          <li>Confusing the sonic state \(^*\) with the stagnation state \(0\).</li>
+          <li>Applying the calorically perfect model at temperatures where specific heats vary strongly.</li>
+        </ul>
+      </section>
+
+      <section id="references" class="references">
+        <h2>References</h2>
+        <ol>
+          <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed., 2017, Chapter 7.</li>
+          <li>Anderson, J. D., Jr. <em>Modern Compressible Flow</em>, 3rd ed.</li>
+          <li>Ames Research Staff. <em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135.</li>
+        </ol>
+        <p class="source-note">Adapted from the Aerodynamics II course notes by Carlos Alberto Molina Holguín.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="index.html"><span>Course index</span>Aerodynamics II</a>
+        <a class="next-link" href="normal-shocks.html"><span>Next lecture</span>Normal Shock Waves →</a>
+      </nav>
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+      <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Lo que debes ser capaz de hacer</h2>
+        <p class="lead">
+          Esta lecture desarrolla las relaciones termodinámicas utilizadas a lo largo del análisis de flujo compresible.
+        </p>
+        <ul>
+          <li>Distinguir propiedades estáticas de propiedades totales o de estancamiento.</li>
+          <li>Explicar las hipótesis de un proceso isoentrópico.</li>
+          <li>Calcular \(T_0/T\), \(p_0/p\) y \(\rho_0/\rho\) a partir del número de Mach.</li>
+          <li>Interpretar la temperatura total como una magnitud energética y la presión total como una medida de recuperación ideal.</li>
+          <li>Reconocer cuándo las relaciones isoentrópicas no son válidas.</li>
+        </ul>
+      </section>
+
+      <section id="model-es">
+        <p class="section-label">Modelo físico</p>
+        <h2>Del estado en movimiento al estado de estancamiento</h2>
+        <p>
+          Las propiedades estáticas \(p\), \(T\), \(\rho\) y \(h\) describen el estado termodinámico
+          local que experimenta un observador que se mueve con el fluido. Las propiedades totales
+          describen el estado obtenido al llevar idealmente ese elemento al reposo mediante un proceso especificado.
+        </p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 760 230" role="img" aria-label="Estado estático llevado a estado de estancamiento">
+            <defs>
+              <marker id="arrowIsoEs" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="#0d568d"></path>
+              </marker>
+            </defs>
+            <rect x="45" y="62" width="235" height="105" rx="14" fill="#eaf4fb" stroke="#0d568d" stroke-width="3"/>
+            <text x="162" y="93" text-anchor="middle" font-size="21" font-weight="700" fill="#071d33">Estado estático</text>
+            <text x="162" y="126" text-anchor="middle" font-size="18" fill="#344454">p, T, ρ, h, V</text>
+            <line x1="295" y1="114" x2="465" y2="114" stroke="#0d568d" stroke-width="5" marker-end="url(#arrowIsoEs)"/>
+            <text x="380" y="91" text-anchor="middle" font-size="16" fill="#344454">desaceleración ideal</text>
+            <rect x="485" y="62" width="235" height="105" rx="14" fill="#ecf8f2" stroke="#176b47" stroke-width="3"/>
+            <text x="602" y="93" text-anchor="middle" font-size="21" font-weight="700" fill="#071d33">Estado total</text>
+            <text x="602" y="126" text-anchor="middle" font-size="18" fill="#344454">p₀, T₀, ρ₀, h₀, V = 0</text>
+          </svg>
+          <figcaption>Definición conceptual de propiedades estáticas y de estancamiento.</figcaption>
+        </figure>
+
+        <div class="definition-grid">
+          <div class="definition"><strong>Gas calóricamente perfecto</strong><span>\(p=\rho RT\), \(h=c_pT\), con \(c_p\), \(c_v\) y \(\gamma\) constantes.</span></div>
+          <div class="definition"><strong>Proceso isoentrópico</strong><span>Adiabático y reversible, por lo que \(ds=0\). Excluye choques, disipación viscosa, mezcla intensa y transferencia de calor.</span></div>
+          <div class="definition"><strong>Velocidad del sonido</strong><span>\(a=\sqrt{\gamma RT}\) para un gas calóricamente perfecto.</span></div>
+          <div class="definition"><strong>Número de Mach</strong><span>\(M=V/a\), razón entre la velocidad del flujo y la velocidad local del sonido.</span></div>
+        </div>
+
+        <div class="callout warning">
+          <strong>Validez.</strong> El modelo de calores específicos constantes es una primera aproximación útil,
+          pero deja de ser adecuado cuando la temperatura activa vibración molecular, disociación o reacciones químicas.
+        </div>
+      </section>
+
+      <section id="relations-es">
+        <p class="section-label">Relaciones termodinámicas</p>
+        <h2>Cambios isoentrópicos entre dos estados</h2>
+        <p>
+          Para un gas calóricamente perfecto en un proceso isoentrópico, presión, densidad
+          y temperatura están relacionadas mediante
+        </p>
+        <div class="equation-card">
+          \[
+          \boxed{
+          \frac{p_2}{p_1}
+          =
+          \left(\frac{\rho_2}{\rho_1}\right)^\gamma
+          =
+          \left(\frac{T_2}{T_1}\right)^{\gamma/(\gamma-1)}
+          }
+          \]
+        </div>
+        <div class="equation-card">
+          \[
+          \boxed{\frac{p}{\rho^\gamma}=\text{constante a lo largo de una trayectoria isoentrópica}.}
+          \]
+        </div>
+
+        <details class="details">
+          <summary>Mostrar deducción compacta a partir de la entropía</summary>
+          <div class="details-content">
+            \[
+            s_2-s_1
+            =
+            c_p\ln\left(\frac{T_2}{T_1}\right)
+            -
+            R\ln\left(\frac{p_2}{p_1}\right).
+            \]
+            <p>Al imponer \(s_2-s_1=0\) y utilizar \(c_p/R=\gamma/(\gamma-1)\), se obtiene la relación presión–temperatura. La densidad se obtiene con la ecuación de estado.</p>
+          </div>
+        </details>
+
+        <div class="callout">
+          <strong>Interpretación física.</strong> En una expansión isoentrópica disminuyen la presión
+          y la temperatura mientras el flujo acelera. En una compresión isoentrópica ocurre lo contrario.
+        </div>
+      </section>
+
+      <section id="stagnation-es">
+        <p class="section-label">Propiedades totales</p>
+        <h2>Relaciones de energía y total–estática</h2>
+        <div class="equation-card">\[\boxed{h_0=h+\frac{V^2}{2}}\]</div>
+        <div class="equation-card">
+          \[
+          \boxed{\frac{T_0}{T}=1+\frac{\gamma-1}{2}M^2}
+          \]
+        </div>
+        <div class="equation-grid">
+          <div class="equation-card">
+            \[
+            \boxed{
+            \frac{p_0}{p}
+            =
+            \left(1+\frac{\gamma-1}{2}M^2\right)^{\gamma/(\gamma-1)}
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            \[
+            \boxed{
+            \frac{\rho_0}{\rho}
+            =
+            \left(1+\frac{\gamma-1}{2}M^2\right)^{1/(\gamma-1)}
+            }
+            \]
+          </div>
+        </div>
+        <div class="callout success">
+          <strong>Distinción importante.</strong> La temperatura total se conserva a través de un choque
+          adiabático sin trabajo, pero la presión total disminuye por irreversibilidad.
+        </div>
+      </section>
+
+      <section id="critical-es">
+        <p class="section-label">Estado de referencia</p>
+        <h2>Condiciones sónicas o críticas</h2>
+        <p>
+          El superíndice \(^*\) identifica un estado de referencia con \(M=1\). No es un estado
+          de estancamiento: la velocidad no es cero, sino \(V=a^*\).
+        </p>
+        <div class="equation-grid">
+          <div class="equation-card">\[\frac{T^*}{T_0}=\frac{2}{\gamma+1}\]</div>
+          <div class="equation-card">\[\frac{p^*}{p_0}=\left(\frac{2}{\gamma+1}\right)^{\gamma/(\gamma-1)}\]</div>
+        </div>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>Propiedades total–estática para \(M=2\)</h2>
+        <div class="example">
+          <h3>Problema</h3>
+          <p>
+            Aire a \(M=2.00\), \(p=50.0\ \text{kPa}\) y \(T=220\ \text{K}\).
+            Determine \(T_0\), \(p_0\), \(\rho_0/\rho\), velocidad del sonido,
+            velocidad del flujo y ángulo de Mach.
+          </p>
+          <div class="solution-step"><span class="solution-step-number">1</span><div>\[\frac{T_0}{T}=1.8,\qquad T_0=396\ \text{K}.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">2</span><div>\[\frac{p_0}{p}=7.82445,\qquad p_0=391.2\ \text{kPa}.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">3</span><div>\[\frac{\rho_0}{\rho}=4.34692.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">4</span><div>\[a=297.3\ \text{m/s},\qquad V=594.6\ \text{m/s}.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">5</span><div>\[\mu=\sin^{-1}(1/M)=30.0^\circ.\]</div></div>
+          <div class="result-box">\[\boxed{T_0=396\ \text{K},\quad p_0=391.2\ \text{kPa},\quad V=594.6\ \text{m/s}}\]</div>
+        </div>
+      </section>
+
+      <section id="mistakes-es">
+        <p class="section-label">Verificaciones</p>
+        <h2>Errores comunes</h2>
+        <ul>
+          <li>Aplicar relaciones isoentrópicas a través de una onda de choque.</li>
+          <li>Confundir la definición local de \(p_0\) con su conservación entre dos puntos.</li>
+          <li>Usar una temperatura de otra región para calcular la velocidad local del sonido.</li>
+          <li>Confundir el estado crítico \(^*\) con el estado de estancamiento \(0\).</li>
+        </ul>
+      </section>
+
+      <section id="references-es" class="references">
+        <h2>Referencias</h2>
+        <ol>
+          <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed., 2017, capítulo 7.</li>
+          <li>Anderson, J. D., Jr. <em>Modern Compressible Flow</em>, 3rd ed.</li>
+          <li>Ames Research Staff. <em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135.</li>
+        </ol>
+        <p class="source-note">Adaptado de los apuntes de Aerodinámica II de Carlos Alberto Molina Holguín.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="index.html"><span>Índice del curso</span>Aerodinámica II</a>
+        <a class="next-link" href="normal-shocks.html"><span>Siguiente lecture</span>Ondas de choque normales →</a>
+      </nav>
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+      <section>
+        <p class="section-label">Lernziele</p>
+        <h2>Isentrope Strömung und Staugrößen</h2>
+        <p class="lead">
+          Diese deutsche Fassung enthält die zentralen Definitionen und Gleichungen.
+          Die ausführlichen Herleitungen und das vollständige Beispiel sind derzeit auf Englisch und Spanisch verfügbar.
+        </p>
+        <div class="de-note">
+          Ein isentroper Prozess ist adiabatisch und reversibel. Stoßwellen, viskose Dissipation
+          und starke Wärmeübertragung sind daher ausgeschlossen.
+        </div>
+        <div class="equation-card">\[\boxed{\frac{T_0}{T}=1+\frac{\gamma-1}{2}M^2}\]</div>
+        <div class="equation-card">\[\boxed{\frac{p_0}{p}=\left(1+\frac{\gamma-1}{2}M^2\right)^{\gamma/(\gamma-1)}}\]</div>
+        <div class="equation-card">\[\boxed{\frac{\rho_0}{\rho}=\left(1+\frac{\gamma-1}{2}M^2\right)^{1/(\gamma-1)}}\]</div>
+        <h3>Wichtige Unterscheidung</h3>
+        <p>
+          Die Stautemperatur bleibt bei einer adiabatischen Stoßwelle ohne Arbeit konstant,
+          der Staudruck nimmt jedoch infolge der Entropieerzeugung ab.
+        </p>
+      </section>
+      <section class="references">
+        <h2>Literatur</h2>
+        <ol>
+          <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, Kapitel 7.</li>
+          <li>Ames Research Staff. NACA Report 1135.</li>
+        </ol>
+      </section>
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>© <span id="year"></span> Carlos Alberto Molina Holguín</p>
+    <p>Universidad Autónoma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>
