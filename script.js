@@ -214,43 +214,84 @@ const translations = {
   }
 };
 
-const html = document.documentElement;
-const menuButton = document.querySelector(".menu-button");
-const siteNav = document.querySelector(".site-nav");
-const langButtons = document.querySelectorAll(".lang-button");
 
-function setLanguage(language) {
-  const dictionary = translations[language] || translations.en;
-  document.querySelectorAll("[data-i18n]").forEach((element) => {
-    const key = element.dataset.i18n;
-    if (dictionary[key]) element.textContent = dictionary[key];
-  });
-  html.lang = language;
-  localStorage.setItem("preferredLanguage", language);
+document.addEventListener("DOMContentLoaded", () => {
+  const html = document.documentElement;
+  const menuButton = document.querySelector(".menu-button");
+  const siteNav = document.querySelector(".site-nav");
+  const langButtons = Array.from(document.querySelectorAll(".lang-button"));
+  const yearElement = document.getElementById("year");
+
+  function readSavedLanguage() {
+    try {
+      return window.localStorage.getItem("preferredLanguage");
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function saveLanguage(language) {
+    try {
+      window.localStorage.setItem("preferredLanguage", language);
+    } catch (error) {
+      // The language selector still works when storage is unavailable.
+    }
+  }
+
+  function setLanguage(language) {
+    const selectedLanguage = translations[language] ? language : "en";
+    const dictionary = translations[selectedLanguage];
+
+    document.querySelectorAll("[data-i18n]").forEach((element) => {
+      const key = element.getAttribute("data-i18n");
+      if (Object.prototype.hasOwnProperty.call(dictionary, key)) {
+        element.textContent = dictionary[key];
+      }
+    });
+
+    html.setAttribute("lang", selectedLanguage);
+    saveLanguage(selectedLanguage);
+
+    langButtons.forEach((button) => {
+      const isActive = button.dataset.lang === selectedLanguage;
+      button.classList.toggle("active", isActive);
+      button.setAttribute("aria-pressed", String(isActive));
+    });
+  }
+
+  if (menuButton && siteNav) {
+    menuButton.addEventListener("click", () => {
+      const isOpen = siteNav.classList.toggle("open");
+      menuButton.setAttribute("aria-expanded", String(isOpen));
+    });
+
+    siteNav.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => {
+        siteNav.classList.remove("open");
+        menuButton.setAttribute("aria-expanded", "false");
+      });
+    });
+  }
+
   langButtons.forEach((button) => {
-    button.classList.toggle("active", button.dataset.lang === language);
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      setLanguage(button.dataset.lang);
+    });
   });
-}
 
-menuButton.addEventListener("click", () => {
-  const isOpen = siteNav.classList.toggle("open");
-  menuButton.setAttribute("aria-expanded", String(isOpen));
+  if (yearElement) {
+    yearElement.textContent = String(new Date().getFullYear());
+  }
+
+  const savedLanguage = readSavedLanguage();
+  const browserLanguage = (navigator.language || "en").slice(0, 2).toLowerCase();
+  const initialLanguage =
+    savedLanguage && translations[savedLanguage]
+      ? savedLanguage
+      : translations[browserLanguage]
+        ? browserLanguage
+        : "en";
+
+  setLanguage(initialLanguage);
 });
-
-document.querySelectorAll(".site-nav a").forEach((link) => {
-  link.addEventListener("click", () => {
-    siteNav.classList.remove("open");
-    menuButton.setAttribute("aria-expanded", "false");
-  });
-});
-
-langButtons.forEach((button) => {
-  button.addEventListener("click", () => setLanguage(button.dataset.lang));
-});
-
-document.getElementById("year").textContent = new Date().getFullYear();
-
-const savedLanguage = localStorage.getItem("preferredLanguage");
-const browserLanguage = navigator.language.slice(0, 2);
-const initialLanguage = savedLanguage || (["en","es","de"].includes(browserLanguage) ? browserLanguage : "en");
-setLanguage(initialLanguage);

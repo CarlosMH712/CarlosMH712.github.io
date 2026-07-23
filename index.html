@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body>
 <header class="site-header">
@@ -26,58 +26,104 @@
       <a href="#contact" data-i18n="nav_contact">Contact</a>
     </nav>
     <div class="language-switcher" aria-label="Language selector">
-      <button type="button" class="lang-button active" data-lang="en">EN</button>
-      <button type="button" class="lang-button" data-lang="es">ES</button>
-      <button type="button" class="lang-button" data-lang="de">DE</button>
+      <button type="button" class="lang-button active" data-lang="en" aria-pressed="true" title="English">EN</button>
+      <button type="button" class="lang-button" data-lang="es" aria-pressed="false" title="Español">ES</button>
+      <button type="button" class="lang-button" data-lang="de" aria-pressed="false" title="Deutsch">DE</button>
     </div>
   </div>
 </header>
 
 <main>
+
 <section id="home" class="hero">
-  <div class="container hero-grid">
+  <div class="container hero-grid hero-grid-single">
     <div class="hero-content">
-      <p class="eyebrow" data-i18n="hero_affiliation">Universidad Autónoma de Chihuahua</p>
-      <h1 data-i18n="hero_title">Aerospace Engineering Education, Computation, and Research</h1>
-      <p class="hero-copy" data-i18n="hero_copy">Teaching resources, computational tools, and research in aerodynamics, propulsion, flight dynamics, fluid mechanics, and numerical methods.</p>
+      <p class="eyebrow" data-i18n="hero_affiliation">
+        Universidad Autónoma de Chihuahua
+      </p>
+
+      <h1 data-i18n="hero_title">
+        Aerospace Engineering Education, Computation, and Research
+      </h1>
+
+      <p class="hero-copy" data-i18n="hero_copy">
+        Teaching resources, computational tools, and research in
+        aerodynamics, propulsion, flight dynamics, fluid mechanics, and
+        numerical methods.
+      </p>
+
       <div class="hero-actions">
-        <a class="button primary" href="#tools" data-i18n="hero_tools">Explore computational tools</a>
-        <a class="button secondary" href="#teaching" data-i18n="hero_teaching">View teaching resources</a>
+        <a class="button primary" href="#tools" data-i18n="hero_tools">
+          Explore computational tools
+        </a>
+        <a class="button secondary" href="#teaching" data-i18n="hero_teaching">
+          View teaching resources
+        </a>
       </div>
+
       <div class="hero-links" aria-label="Academic profiles">
         <a href="mailto:camolina@uach.mx">camolina@uach.mx</a>
-        <a href="https://www.linkedin.com/in/carlos-alberto-molina-holguin" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-        <a href="https://scholar.google.com/citations?user=BAERX9wAAAAJ&hl=en" target="_blank" rel="noopener noreferrer">Google Scholar</a>
+        <a
+          href="https://www.linkedin.com/in/carlos-alberto-molina-holguin"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          LinkedIn
+        </a>
+        <a
+          href="https://scholar.google.com/citations?user=BAERX9wAAAAJ&hl=en"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Google Scholar
+        </a>
       </div>
     </div>
-    <aside class="profile-card">
-      <img src="carlos-molina-profile.jpg" alt="Portrait of Carlos Alberto Molina Holguín">
-      <div class="profile-card-body">
-        <p class="profile-degree">M.Sc.</p>
-        <h2>Carlos Alberto Molina Holguín</h2>
-        <p data-i18n="profile_role">Aerospace Engineering faculty member and researcher</p>
-        <p data-i18n="profile_affiliation">Universidad Autónoma de Chihuahua</p>
-      </div>
-    </aside>
   </div>
 </section>
 
+
 <section id="about" class="section">
-  <div class="container two-column">
-    <div>
+  <div class="container about-layout">
+    <div class="about-profile">
+      <img
+        class="about-photo"
+        src="carlos-molina-profile.jpg"
+        alt="Portrait of Carlos Alberto Molina Holguín"
+      />
+      <div class="about-identity">
+        <p class="profile-degree">M.Sc.</p>
+        <h2 class="about-name">Carlos Alberto Molina Holguín</h2>
+        <p data-i18n="profile_role">
+          Aerospace Engineering faculty member and researcher
+        </p>
+        <p data-i18n="profile_affiliation">
+          Universidad Autónoma de Chihuahua
+        </p>
+      </div>
+    </div>
+
+    <div class="about-content">
       <p class="section-label" data-i18n="about_label">About</p>
       <h2 data-i18n="about_title">Academic profile</h2>
-      <p class="lead" data-i18n="about_text">I teach aerospace engineering and develop educational resources that connect theory, computation, simulation, and engineering practice. My work focuses on making advanced technical concepts accessible through structured notes, interactive calculators, and reproducible computational tools.</p>
-    </div>
-    <div class="info-panel">
-      <h3 data-i18n="about_focus_title">Main areas</h3>
-      <ul>
-        <li data-i18n="about_focus_1">Aerodynamics and compressible flow</li>
-        <li data-i18n="about_focus_2">Aircraft propulsion</li>
-        <li data-i18n="about_focus_3">Flight dynamics and control</li>
-        <li data-i18n="about_focus_4">Numerical methods and scientific computing</li>
-        <li data-i18n="about_focus_5">Mathematical modeling and nonlinear PDEs</li>
-      </ul>
+      <p class="lead" data-i18n="about_text">
+        I teach aerospace engineering and develop educational resources
+        that connect theory, computation, simulation, and engineering
+        practice. My work focuses on making advanced technical concepts
+        accessible through structured notes, interactive calculators, and
+        reproducible computational tools.
+      </p>
+
+      <div class="about-focus">
+        <h3 data-i18n="about_focus_title">Main areas</h3>
+        <ul>
+          <li data-i18n="about_focus_1">Aerodynamics and compressible flow</li>
+          <li data-i18n="about_focus_2">Aircraft propulsion</li>
+          <li data-i18n="about_focus_3">Flight dynamics and control</li>
+          <li data-i18n="about_focus_4">Numerical methods and scientific computing</li>
+          <li data-i18n="about_focus_5">Mathematical modeling and nonlinear PDEs</li>
+        </ul>
+      </div>
     </div>
   </div>
 </section>
@@ -165,6 +211,6 @@
     <p data-i18n="footer_text">Aerospace engineering education, computation, and research</p>
   </div>
 </footer>
-<script src="script.js"></script>
+<script src="script.js?v=3" defer></script>
 </body>
 </html>

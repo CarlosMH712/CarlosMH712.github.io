@@ -38,3 +38,10 @@ https://carlosmh712.github.io/
 - Public Streamlit URL for the compressible-flow calculator
 - Individual course pages
 - Publications page
+
+
+## Version 3
+
+- Fixed multilingual selector initialization.
+- Added cache-busting query parameters.
+- Moved the portrait from the hero to a compact About profile.
