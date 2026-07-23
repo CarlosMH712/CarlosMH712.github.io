@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Recursos docentes, calculadoras y proyectos de Ingeniería Aeroespacial de Carlos Alberto Molina Holguín." />
+  <title>Carlos Molina | Ingeniería Aeroespacial</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="#inicio">Carlos Molina</a>
+      <button class="menu-button" aria-label="Abrir menú" aria-expanded="false">☰</button>
+      <nav class="site-nav">
+        <a href="#inicio">Inicio</a>
+        <a href="#docencia">Docencia</a>
+        <a href="#calculadoras">Calculadoras</a>
+        <a href="#investigacion">Investigación</a>
+        <a href="#proyectos">Proyectos</a>
+        <a href="#contacto">Contacto</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section id="inicio" class="hero">
+      <div class="container hero-grid">
+        <div>
+          <p class="eyebrow">Universidad Autónoma de Chihuahua</p>
+          <h1>Recursos de Ingeniería Aeroespacial</h1>
+          <p class="hero-copy">
+            Material docente, herramientas computacionales, investigación y
+            proyectos para apoyar la formación en ingeniería aeroespacial.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#calculadoras">Ver calculadoras</a>
+            <a class="button secondary" href="#docencia">Explorar materias</a>
+          </div>
+        </div>
+        <div class="hero-panel" aria-label="Resumen del portal">
+          <p class="panel-kicker">M.Sc. Carlos Alberto Molina Holguín</p>
+          <h2>Docencia, simulación e investigación</h2>
+          <ul>
+            <li>Aerodinámica y flujo compresible</li>
+            <li>Propulsión y turbomáquinas</li>
+            <li>Dinámica y control de vuelo</li>
+            <li>Métodos numéricos y simulación</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="docencia" class="section">
+      <div class="container">
+        <p class="section-label">Docencia</p>
+        <h2>Materias y recursos</h2>
+        <p class="section-intro">
+          Esta primera versión presenta la estructura general. Después se podrán
+          agregar apuntes, presentaciones, prácticas, ejercicios y videos.
+        </p>
+
+        <div class="card-grid">
+          <article class="card">
+            <span class="card-number">01</span>
+            <h3>Aerodinámica I</h3>
+            <p>Flujo incompresible, perfiles aerodinámicos, alas finitas y fundamentos experimentales.</p>
+            <a href="#calculadoras">Herramientas de la materia →</a>
+          </article>
+
+          <article class="card">
+            <span class="card-number">02</span>
+            <h3>Aerodinámica II</h3>
+            <p>Flujo compresible, ondas de choque, expansiones, toberas y aplicaciones supersónicas.</p>
+            <a href="#calculadoras">Abrir calculadoras →</a>
+          </article>
+
+          <article class="card">
+            <span class="card-number">03</span>
+            <h3>Propulsión</h3>
+            <p>Ciclos, componentes, empuje, consumo específico, compresores, turbinas y toberas.</p>
+            <a href="#calculadoras">Próximamente →</a>
+          </article>
+
+          <article class="card">
+            <span class="card-number">04</span>
+            <h3>Dinámica y Control de Vuelo</h3>
+            <p>Estabilidad estática, modos dinámicos, modelos lineales y respuesta de aeronaves.</p>
+            <a href="#calculadoras">Próximamente →</a>
+          </article>
+
+          <article class="card">
+            <span class="card-number">05</span>
+            <h3>Mecánica de Fluidos</h3>
+            <p>Conservación, análisis dimensional, flujo interno, pérdidas y sistemas de tuberías.</p>
+            <a href="#calculadoras">Próximamente →</a>
+          </article>
+
+          <article class="card">
+            <span class="card-number">06</span>
+            <h3>Métodos Numéricos</h3>
+            <p>Raíces, interpolación, integración, ecuaciones diferenciales y métodos computacionales.</p>
+            <a href="#calculadoras">Próximamente →</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="calculadoras" class="section section-alt">
+      <div class="container">
+        <p class="section-label">Herramientas interactivas</p>
+        <h2>Calculadoras</h2>
+        <p class="section-intro">
+          Las calculadoras Python se publicarán por separado en Streamlit y se
+          enlazarán desde este portal.
+        </p>
+
+        <div class="tool-card featured">
+          <div>
+            <span class="status">Primera herramienta</span>
+            <h3>Flujo compresible y geometría choque–expansión</h3>
+            <p>
+              Relaciones isoentrópicas, choque normal, choque oblicuo,
+              expansión de Prandtl–Meyer, tubo de Pitot y superficies por segmentos.
+            </p>
+            <div class="tag-row">
+              <span>Streamlit</span>
+              <span>Python</span>
+              <span>Aerodinámica II</span>
+            </div>
+          </div>
+          <div class="tool-actions">
+            <a
+              class="button primary disabled"
+              href="#"
+              aria-disabled="true"
+              title="El enlace se activará después de publicar la app en Streamlit"
+            >
+              Calculadora pendiente de publicación
+            </a>
+            <small>Después sustituiremos este enlace por la dirección de Streamlit.</small>
+          </div>
+        </div>
+
+        <div class="mini-grid">
+          <article class="mini-card">
+            <h3>Atmósfera estándar</h3>
+            <p>Aerodinámica I</p>
+            <span>Planeada</span>
+          </article>
+          <article class="mini-card">
+            <h3>Ciclo Brayton</h3>
+            <p>Propulsión</p>
+            <span>Planeada</span>
+          </article>
+          <article class="mini-card">
+            <h3>Estabilidad longitudinal</h3>
+            <p>Dinámica de Vuelo</p>
+            <span>Planeada</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="investigacion" class="section">
+      <div class="container two-column">
+        <div>
+          <p class="section-label">Investigación</p>
+          <h2>Modelado matemático y métodos numéricos</h2>
+          <p>
+            Investigación enfocada en ecuaciones diferenciales parciales,
+            modelos fraccionarios, sistemas Davey–Stewartson, métodos espectrales
+            y esquemas numéricos conservativos.
+          </p>
+        </div>
+        <div class="info-panel">
+          <h3>Líneas de trabajo</h3>
+          <ul>
+            <li>Ecuaciones diferenciales parciales no lineales</li>
+            <li>Derivadas fraccionarias de Riesz</li>
+            <li>Métodos FFT y splitting</li>
+            <li>Simulación científica en MATLAB y Python</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="proyectos" class="section section-alt">
+      <div class="container">
+        <p class="section-label">Proyectos</p>
+        <h2>Desarrollos académicos</h2>
+        <div class="project-list">
+          <article>
+            <h3>Calculadoras aeroespaciales</h3>
+            <p>Portal de herramientas computacionales para docencia.</p>
+          </article>
+          <article>
+            <h3>Scripts docentes</h3>
+            <p>Apuntes estructurados para Aerodinámica, Propulsión y Dinámica de Vuelo.</p>
+          </article>
+          <article>
+            <h3>Prototipos experimentales</h3>
+            <p>Sistemas Schlieren, instrumentación, impresión 3D y prácticas de laboratorio.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="contacto" class="section contact-section">
+      <div class="container">
+        <p class="section-label">Contacto</p>
+        <h2>Universidad Autónoma de Chihuahua</h2>
+        <p>
+          Facultad de Ingeniería · Programa de Ingeniería Aeroespacial
+        </p>
+        <p class="contact-note">
+          En una siguiente versión se agregarán correo institucional, CV,
+          Google Scholar, ORCID y perfiles académicos.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-wrap">
+      <p>© <span id="year"></span> Carlos Alberto Molina Holguín</p>
+      <p>Portal académico en desarrollo</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
