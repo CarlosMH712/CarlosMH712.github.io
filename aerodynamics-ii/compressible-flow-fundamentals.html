@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Introduction to compressible flow and the governing equations for inviscid compressible aerodynamics." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Compressible-Flow Fundamentals and Governing Equations | Aerodynamics II</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=2" />
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=2"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html" data-ui-key="course">Aerodynamics II</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="lecture-hero">
+  <div class="container hero-inner">
+    <div data-language="en">
+      <p class="eyebrow">Aerodynamics II · Lecture 01</p>
+      <h1>Compressible-Flow Fundamentals and Governing Equations</h1>
+      <p class="hero-copy">Why density, temperature, and energy become essential at high speed, and how conservation laws close an inviscid compressible-flow problem.</p>
+    </div>
+    <div data-language="es" hidden>
+      <p class="eyebrow">Aerodinámica II · Lecture 01</p>
+      <h1>Fundamentos y ecuaciones gobernantes del flujo compresible</h1>
+      <p class="hero-copy">Por qué la densidad, la temperatura y la energía se vuelven esenciales a alta velocidad, y cómo las leyes de conservación cierran el problema.</p>
+    </div>
+    <div data-language="de" hidden>
+      <p class="eyebrow">Aerodynamik II · Vorlesung 01</p>
+      <h1>Grundlagen und Grundgleichungen kompressibler Strömungen</h1>
+      <p class="hero-copy">Dichte, Temperatur und Energie bei hohen Geschwindigkeiten sowie die Erhaltungsgleichungen für kompressible Strömungen.</p>
+    </div>
+    <div class="hero-meta">
+      <span>Estimated reading: 30 min</span>
+      <span>Level: undergraduate</span>
+      <span>Model: inviscid perfect gas</span>
+    </div>
+    <div class="button-row">
+      <a class="button secondary" href="index.html" data-ui-key="back">Back to course</a>
+      <a class="button primary" href="isentropic-flow.html">Next lecture →</a>
+    </div>
+  </div>
+</section>
+
+<div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links">
+      <a href="#transition">Why compressibility matters</a>
+      <a href="#assumptions">Model and assumptions</a>
+      <a href="#closure">System closure</a>
+      <a href="#mass">Mass conservation</a>
+      <a href="#momentum">Momentum conservation</a>
+      <a href="#energy">Energy conservation</a>
+      <a href="#system">Complete system</a>
+      <a href="#bernoulli">Bernoulli limitation</a>
+      <a href="#example">Worked example</a>
+      <a href="#references">References</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="transition">
+      <p class="section-label">Introduction</p>
+      <h2>From incompressible to compressible aerodynamics</h2>
+      <p class="lead">The physical laws do not change when a flow becomes compressible. What changes is the number of variables that must be retained and the strength of the coupling between mechanics and thermodynamics.</p>
+      <p>In an incompressible approximation, density is prescribed and the mechanical problem is often organized around pressure and velocity. At high speed, pressure changes produce significant changes in density and temperature:</p>
+      <div class="equation-card">\[\rho=\text{constant}\qquad\longrightarrow\qquad\rho=\rho(p,T).\]</div>
+      <p>When the flow speed is comparable with the speed of sound, kinetic energy and internal energy may be of the same order of magnitude. Deceleration can produce heating, expansion can produce cooling, and a shock wave can convert organized kinetic energy into internal energy while generating entropy.</p>
+      <figure class="diagram">
+        <svg viewBox="0 0 820 260" role="img" aria-label="Energy conversion in compressible flow">
+          <defs>
+            <marker id="energyArrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#0d568d"/></marker>
+            <marker id="energyArrowOrange" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#d67b28"/></marker>
+          </defs>
+          <rect x="45" y="65" width="255" height="120" rx="16" fill="#eaf4fb" stroke="#0d568d" stroke-width="3"/>
+          <text x="172" y="105" text-anchor="middle" font-size="22" font-weight="700" fill="#071d33">Kinetic energy</text>
+          <text x="172" y="145" text-anchor="middle" font-size="24" fill="#344454">V² / 2</text>
+          <rect x="520" y="65" width="255" height="120" rx="16" fill="#fff7ed" stroke="#d67b28" stroke-width="3"/>
+          <text x="647" y="105" text-anchor="middle" font-size="22" font-weight="700" fill="#071d33">Thermal energy</text>
+          <text x="647" y="145" text-anchor="middle" font-size="22" fill="#344454">e, h, T</text>
+          <line x1="315" y1="100" x2="500" y2="100" stroke="#0d568d" stroke-width="5" marker-end="url(#energyArrow)"/>
+          <text x="407" y="80" text-anchor="middle" font-size="16" fill="#344454">deceleration / compression</text>
+          <line x1="505" y1="165" x2="320" y2="165" stroke="#d67b28" stroke-width="5" marker-end="url(#energyArrowOrange)"/>
+          <text x="412" y="205" text-anchor="middle" font-size="16" fill="#344454">expansion / acceleration</text>
+        </svg>
+        <figcaption>Compressible-flow analysis tracks the conversion between kinetic and thermodynamic forms of energy.</figcaption>
+      </figure>
+      <div class="callout"><strong>Key idea.</strong> A high-speed flow is simultaneously a variable-density flow and a high-energy flow. Thermodynamics is part of the aerodynamic model, not an optional supplement.</div>
+    </section>
+
+    <section id="assumptions">
+      <p class="section-label">Physical model</p>
+      <h2>Variables, constitutive model, and assumptions</h2>
+      <p>Unless otherwise stated, the first modules use the following model:</p>
+      <ul>
+        <li>continuum fluid;</li>
+        <li>perfect-gas equation of state;</li>
+        <li>calorically perfect air with constant \(c_p\), \(c_v\), and \(\gamma\);</li>
+        <li>inviscid principal flow regions;</li>
+        <li>chemical and vibrational high-temperature effects neglected;</li>
+        <li>body forces neglected when their contribution is small;</li>
+        <li>steady flow only when explicitly invoked.</li>
+      </ul>
+      <div class="equation-grid">
+        <div class="equation-card"><p class="equation-label">Perfect-gas equation</p>\[\boxed{p=\rho RT}\]</div>
+        <div class="equation-card"><p class="equation-label">Caloric relation</p>\[\boxed{e=c_vT,\qquad h=c_pT}\]</div>
+      </div>
+      <div class="equation-card">\[\gamma=\frac{c_p}{c_v},\qquad c_p-c_v=R,\qquad c_p=\frac{\gamma R}{\gamma-1},\qquad c_v=\frac{R}{\gamma-1}.\]</div>
+      <div class="callout warning"><strong>Model limitation.</strong> Constant specific heats are a useful first approximation, but this model loses accuracy at sufficiently high temperatures.</div>
+    </section>
+
+    <section id="closure">
+      <p class="section-label">Mathematical closure</p>
+      <h2>What must be solved?</h2>
+      <p>For inviscid compressible flow, the principal dependent-variable families are</p>
+      <div class="equation-card">\[\boxed{p,\qquad \mathbf{V},\qquad \rho,\qquad e,\qquad T.}\]</div>
+      <p>The system is closed by five physical ingredients:</p>
+      <div class="closure-grid">
+        <div class="closure-node"><strong>Mass conservation</strong><span>links \(\rho\) and \(\mathbf{V}\)</span></div>
+        <div class="closure-node"><strong>Momentum conservation</strong><span>links \(p\), \(\rho\), and \(\mathbf{V}\)</span></div>
+        <div class="closure-node"><strong>Energy conservation</strong><span>links \(e\), \(T\), \(p\), and \(\mathbf{V}\)</span></div>
+        <div class="closure-node"><strong>Equation of state</strong><span>\(p=\rho RT\)</span></div>
+        <div class="closure-node"><strong>Caloric relation</strong><span>\(e=c_vT\)</span></div>
+      </div>
+      <div class="callout success">In three dimensions, \(\mathbf{V}=(u,v,w)\). The model contains seven scalar unknowns and seven scalar equations: continuity (1), momentum (3), energy (1), state equation (1), and caloric relation (1).</div>
+    </section>
+
+    <section id="mass">
+      <p class="section-label">Governing equation 1</p>
+      <h2>Conservation of mass</h2>
+      <p>For a fixed control volume \(\mathcal V\) bounded by \(\mathcal S\),</p>
+      <div class="equation-card"><p class="equation-label">Integral form</p>\[\boxed{\frac{\partial}{\partial t}\iiint_{\mathcal V}\rho\,d\mathcal V+\iint_{\mathcal S}\rho\mathbf{V}\cdot d\mathbf{S}=0}\]</div>
+      <p>The first term is mass accumulation inside the control volume; the second is the net mass flux through its boundary.</p>
+      <div class="equation-card"><p class="equation-label">Differential form</p>\[\boxed{\frac{\partial\rho}{\partial t}+\nabla\cdot(\rho\mathbf{V})=0}\]</div>
+      <div class="equation-card"><p class="equation-label">Material-derivative form</p>\[\boxed{\frac{D\rho}{Dt}+\rho\nabla\cdot\mathbf{V}=0}\]</div>
+      <div class="callout">For constant-density incompressible flow, \(D\rho/Dt=0\) and the equation reduces to \(\nabla\cdot\mathbf{V}=0\). This simplification is not generally valid in compressible flow.</div>
+    </section>
+
+    <section id="momentum">
+      <p class="section-label">Governing equation 2</p>
+      <h2>Conservation of momentum</h2>
+      <p>For inviscid flow, the integral momentum balance is</p>
+      <div class="equation-card">\[\boxed{\frac{\partial}{\partial t}\iiint_{\mathcal V}\rho\mathbf{V}\,d\mathcal V+\iint_{\mathcal S}(\rho\mathbf{V}\cdot d\mathbf{S})\mathbf{V}=-\iint_{\mathcal S}p\,d\mathbf{S}+\iiint_{\mathcal V}\rho\mathbf{f}\,d\mathcal V}\]</div>
+      <p>The corresponding differential equation is Euler's equation:</p>
+      <div class="equation-card">\[\boxed{\rho\frac{D\mathbf{V}}{Dt}=-\nabla p+\rho\mathbf{f}}\]</div>
+      <p>Its mathematical form is familiar from incompressible aerodynamics, but density is now a field variable rather than a prescribed constant.</p>
+    </section>
+
+    <section id="energy">
+      <p class="section-label">Governing equation 3</p>
+      <h2>Conservation of energy</h2>
+      <p>Neglecting an explicit gravitational potential-energy term, the specific stored energy is</p>
+      <div class="equation-card">\[e+\frac{V^2}{2}.\]</div>
+      <div class="equation-card"><p class="equation-label">Integral form for an inviscid fluid</p>\[\begin{aligned}\frac{\partial}{\partial t}\iiint_{\mathcal V}\rho\left(e+\frac{V^2}{2}\right)d\mathcal V&+\iint_{\mathcal S}\rho\left(e+\frac{V^2}{2}\right)\mathbf{V}\cdot d\mathbf{S}\\&=-\iint_{\mathcal S}p\mathbf{V}\cdot d\mathbf{S}+\iiint_{\mathcal V}\rho\dot q\,d\mathcal V+\iiint_{\mathcal V}\rho(\mathbf{f}\cdot\mathbf{V})\,d\mathcal V.\end{aligned}\]</div>
+      <div class="equation-card"><p class="equation-label">Differential form</p>\[\boxed{\rho\frac{D}{Dt}\left(e+\frac{V^2}{2}\right)=\rho\dot q-\nabla\cdot(p\mathbf{V})+\rho\mathbf{f}\cdot\mathbf{V}}\]</div>
+      <div class="definition-grid">
+        <div class="definition"><strong>\(\rho\dot q\)</strong><span>heating rate per unit volume</span></div>
+        <div class="definition"><strong>\(-\nabla\cdot(p\mathbf{V})\)</strong><span>pressure-work contribution</span></div>
+        <div class="definition"><strong>\(\rho\mathbf{f}\cdot\mathbf{V}\)</strong><span>power of body forces per unit volume</span></div>
+        <div class="definition"><strong>\(e+V^2/2\)</strong><span>internal plus kinetic energy per unit mass</span></div>
+      </div>
+    </section>
+
+    <section id="system">
+      <p class="section-label">Complete model</p>
+      <h2>Inviscid compressible-flow system</h2>
+      <div class="equation-card governing-system">\[\boxed{\begin{aligned}\frac{\partial\rho}{\partial t}+\nabla\cdot(\rho\mathbf{V})&=0,\\[1mm]\rho\frac{D\mathbf{V}}{Dt}&=-\nabla p+\rho\mathbf{f},\\[1mm]\rho\frac{D}{Dt}\left(e+\frac{V^2}{2}\right)&=\rho\dot q-\nabla\cdot(p\mathbf{V})+\rho\mathbf{f}\cdot\mathbf{V},\\[1mm]p&=\rho RT,\\e&=c_vT.\end{aligned}}\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Relation</th><th>Physical information</th><th>Variables linked</th></tr></thead>
+          <tbody>
+            <tr><td>Continuity</td><td>Mass conservation</td><td>\(\rho,\mathbf{V}\)</td></tr>
+            <tr><td>Momentum</td><td>Newton's second law for the fluid</td><td>\(p,\rho,\mathbf{V}\)</td></tr>
+            <tr><td>Energy</td><td>Conversion and transfer of energy</td><td>\(e,T,p,\mathbf{V}\)</td></tr>
+            <tr><td>Equation of state</td><td>Thermodynamic closure</td><td>\(p,\rho,T\)</td></tr>
+            <tr><td>Caloric relation</td><td>Energy closure</td><td>\(e,T\)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="bernoulli">
+      <p class="section-label">Domain of validity</p>
+      <h2>Why incompressible Bernoulli is not the governing energy equation</h2>
+      <div class="equation-card">\[p+\frac{1}{2}\rho V^2=\text{constant}\]</div>
+      <p>This expression was obtained under a constant-density assumption. It is not a general equation for compressible flow because internal energy and enthalpy change together with pressure, density, temperature, and velocity.</p>
+      <div class="callout warning">The correct response is not to add an arbitrary correction to the dynamic-pressure term. One must use the energy equation together with the thermodynamic closure relations.</div>
+      <p>Under steady, adiabatic, inviscid conditions with no shaft work and negligible body-force contribution, the useful energy relation becomes</p>
+      <div class="equation-card">\[\boxed{h+\frac{V^2}{2}=h_0}\]</div>
+      <p>This relation is developed fully in Lecture 02.</p>
+    </section>
+
+    <section id="example">
+      <p class="section-label">Worked example</p>
+      <h2>Counting equations and unknowns in three dimensions</h2>
+      <div class="example">
+        <h3>Problem</h3>
+        <p>Consider a three-dimensional, inviscid, compressible flow of a calorically perfect gas around a body. Identify the scalar unknowns and verify that the mathematical model supplies the same number of scalar equations.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>The velocity contributes three scalar fields:</p>\[u,\qquad v,\qquad w.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>The thermodynamic fields are</p>\[p,\qquad \rho,\qquad T,\qquad e.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>The equations are continuity (1), momentum (3), energy (1), equation of state (1), and caloric relation (1).</p></div></div>
+        <div class="result-box">\[\boxed{\text{7 scalar unknowns and 7 scalar equations}}\]</div>
+        <p>The equation of state does not replace the energy equation. The former relates thermodynamic variables; the latter enforces energy conservation.</p>
+      </div>
+    </section>
+
+    <section id="references" class="references">
+      <h2>References</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed., McGraw-Hill Education, 2017, Chapter 7.</li>
+        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3rd ed., McGraw-Hill.</li>
+        <li>Ames Research Staff. <em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135, 1953.</li>
+      </ol>
+      <p class="source-note">Adapted from the Aerodynamics II course notes prepared by Carlos Alberto Molina Holguín.</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="index.html"><span>Course index</span>Aerodynamics II</a>
+      <a class="next-link" href="isentropic-flow.html"><span>Next lecture</span>Isentropic Flow →</a>
+    </nav>
+  </article>
+
+  <article class="lecture" data-language="es" hidden>
+    <section id="transition-es">
+      <p class="section-label">Introducción</p>
+      <h2>De la aerodinámica incompresible a la compresible</h2>
+      <p class="lead">Las leyes físicas no cambian al pasar a flujo compresible. Lo que cambia es el número de variables que deben conservarse y el acoplamiento entre mecánica y termodinámica.</p>
+      <p>En la aproximación incompresible, la densidad se prescribe y el problema se organiza principalmente alrededor de presión y velocidad. A alta velocidad, los cambios de presión producen variaciones apreciables de densidad y temperatura:</p>
+      <div class="equation-card">\[\rho=\text{constante}\qquad\longrightarrow\qquad\rho=\rho(p,T).\]</div>
+      <p>La energía cinética y la energía interna pueden ser del mismo orden de magnitud. Una desaceleración puede producir calentamiento, una expansión puede enfriar el gas y una onda de choque puede convertir energía cinética organizada en energía interna mientras genera entropía.</p>
+      <div class="callout"><strong>Idea clave.</strong> Un flujo de alta velocidad es simultáneamente un flujo de densidad variable y un flujo de alta energía. La termodinámica forma parte esencial del modelo.</div>
+    </section>
+
+    <section id="assumptions-es">
+      <p class="section-label">Modelo físico</p>
+      <h2>Variables, relaciones constitutivas e hipótesis</h2>
+      <ul>
+        <li>medio continuo;</li>
+        <li>gas perfecto;</li>
+        <li>aire calóricamente perfecto con \(c_p\), \(c_v\) y \(\gamma\) constantes;</li>
+        <li>regiones principales inviscidas;</li>
+        <li>efectos químicos y vibracionales de alta temperatura despreciables;</li>
+        <li>fuerzas de cuerpo despreciables cuando su contribución sea pequeña;</li>
+        <li>flujo estacionario solamente cuando se declare.</li>
+      </ul>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{p=\rho RT}\]</div>
+        <div class="equation-card">\[\boxed{e=c_vT,\qquad h=c_pT}\]</div>
+      </div>
+      <div class="equation-card">\[\gamma=\frac{c_p}{c_v},\qquad c_p-c_v=R,\qquad c_p=\frac{\gamma R}{\gamma-1},\qquad c_v=\frac{R}{\gamma-1}.\]</div>
+    </section>
+
+    <section id="closure-es">
+      <p class="section-label">Cierre matemático</p>
+      <h2>¿Qué variables deben resolverse?</h2>
+      <div class="equation-card">\[\boxed{p,\qquad \mathbf{V},\qquad \rho,\qquad e,\qquad T.}\]</div>
+      <div class="closure-grid">
+        <div class="closure-node"><strong>Conservación de masa</strong><span>relaciona \(\rho\) y \(\mathbf{V}\)</span></div>
+        <div class="closure-node"><strong>Cantidad de movimiento</strong><span>relaciona \(p,\rho,\mathbf{V}\)</span></div>
+        <div class="closure-node"><strong>Energía</strong><span>relaciona \(e,T,p,\mathbf{V}\)</span></div>
+        <div class="closure-node"><strong>Ecuación de estado</strong><span>\(p=\rho RT\)</span></div>
+        <div class="closure-node"><strong>Relación calórica</strong><span>\(e=c_vT\)</span></div>
+      </div>
+      <div class="callout success">En tres dimensiones existen siete incógnitas escalares: \(u,v,w,p,\rho,T,e\). El sistema proporciona siete ecuaciones escalares.</div>
+    </section>
+
+    <section id="mass-es">
+      <p class="section-label">Ecuación gobernante 1</p>
+      <h2>Conservación de masa</h2>
+      <div class="equation-card"><p class="equation-label">Forma integral</p>\[\boxed{\frac{\partial}{\partial t}\iiint_{\mathcal V}\rho\,d\mathcal V+\iint_{\mathcal S}\rho\mathbf{V}\cdot d\mathbf{S}=0}\]</div>
+      <div class="equation-card"><p class="equation-label">Forma diferencial</p>\[\boxed{\frac{\partial\rho}{\partial t}+\nabla\cdot(\rho\mathbf{V})=0}\]</div>
+      <div class="equation-card"><p class="equation-label">Forma material</p>\[\boxed{\frac{D\rho}{Dt}+\rho\nabla\cdot\mathbf{V}=0}\]</div>
+    </section>
+
+    <section id="momentum-es">
+      <p class="section-label">Ecuación gobernante 2</p>
+      <h2>Conservación de cantidad de movimiento</h2>
+      <div class="equation-card">\[\boxed{\frac{\partial}{\partial t}\iiint_{\mathcal V}\rho\mathbf{V}\,d\mathcal V+\iint_{\mathcal S}(\rho\mathbf{V}\cdot d\mathbf{S})\mathbf{V}=-\iint_{\mathcal S}p\,d\mathbf{S}+\iiint_{\mathcal V}\rho\mathbf{f}\,d\mathcal V}\]</div>
+      <p>La forma diferencial es la ecuación de Euler:</p>
+      <div class="equation-card">\[\boxed{\rho\frac{D\mathbf{V}}{Dt}=-\nabla p+\rho\mathbf{f}}\]</div>
+    </section>
+
+    <section id="energy-es">
+      <p class="section-label">Ecuación gobernante 3</p>
+      <h2>Conservación de energía</h2>
+      <div class="equation-card"><p class="equation-label">Energía específica almacenada</p>\[e+\frac{V^2}{2}.\]</div>
+      <div class="equation-card"><p class="equation-label">Forma diferencial</p>\[\boxed{\rho\frac{D}{Dt}\left(e+\frac{V^2}{2}\right)=\rho\dot q-\nabla\cdot(p\mathbf{V})+\rho\mathbf{f}\cdot\mathbf{V}}\]</div>
+      <div class="definition-grid">
+        <div class="definition"><strong>\(\rho\dot q\)</strong><span>calentamiento por unidad de volumen</span></div>
+        <div class="definition"><strong>\(-\nabla\cdot(p\mathbf{V})\)</strong><span>trabajo de presión</span></div>
+        <div class="definition"><strong>\(\rho\mathbf{f}\cdot\mathbf{V}\)</strong><span>potencia de fuerzas de cuerpo</span></div>
+        <div class="definition"><strong>\(e+V^2/2\)</strong><span>energía interna más cinética</span></div>
+      </div>
+    </section>
+
+    <section id="system-es">
+      <p class="section-label">Modelo completo</p>
+      <h2>Sistema de flujo compresible e inviscido</h2>
+      <div class="equation-card governing-system">\[\boxed{\begin{aligned}\frac{\partial\rho}{\partial t}+\nabla\cdot(\rho\mathbf{V})&=0,\\[1mm]\rho\frac{D\mathbf{V}}{Dt}&=-\nabla p+\rho\mathbf{f},\\[1mm]\rho\frac{D}{Dt}\left(e+\frac{V^2}{2}\right)&=\rho\dot q-\nabla\cdot(p\mathbf{V})+\rho\mathbf{f}\cdot\mathbf{V},\\[1mm]p&=\rho RT,\\e&=c_vT.\end{aligned}}\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Relación</th><th>Información física</th><th>Variables</th></tr></thead>
+          <tbody>
+            <tr><td>Continuidad</td><td>Conservación de masa</td><td>\(\rho,\mathbf{V}\)</td></tr>
+            <tr><td>Momentum</td><td>Segunda ley de Newton</td><td>\(p,\rho,\mathbf{V}\)</td></tr>
+            <tr><td>Energía</td><td>Conversión y transferencia de energía</td><td>\(e,T,p,\mathbf{V}\)</td></tr>
+            <tr><td>Estado</td><td>Cierre termodinámico</td><td>\(p,\rho,T\)</td></tr>
+            <tr><td>Relación calórica</td><td>Cierre energético</td><td>\(e,T\)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="bernoulli-es">
+      <p class="section-label">Dominio de validez</p>
+      <h2>Por qué Bernoulli incompresible no gobierna este problema</h2>
+      <div class="equation-card">\[p+\frac{1}{2}\rho V^2=\text{constante}\]</div>
+      <p>Esta forma se obtuvo suponiendo densidad constante. En flujo compresible cambian la energía interna y la entalpía, junto con presión, densidad, temperatura y velocidad.</p>
+      <div class="callout warning">No debe corregirse arbitrariamente el término dinámico. Se utiliza la ecuación de energía junto con las relaciones termodinámicas.</div>
+      <div class="equation-card">\[\boxed{h+\frac{V^2}{2}=h_0}\]</div>
+      <p>Esta relación se desarrolla con detalle en la Lecture 02.</p>
+    </section>
+
+    <section id="example-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>Conteo de ecuaciones e incógnitas</h2>
+      <div class="example">
+        <p>Para un flujo tridimensional, inviscido y compresible de un gas calóricamente perfecto, las incógnitas escalares son</p>
+        \[u,\quad v,\quad w,\quad p,\quad \rho,\quad T,\quad e.\]
+        <p>Las ecuaciones son continuidad (1), cantidad de movimiento (3), energía (1), ecuación de estado (1) y relación calórica (1).</p>
+        <div class="result-box">\[\boxed{\text{7 incógnitas escalares y 7 ecuaciones escalares}}\]</div>
+        <p>La ecuación de estado no reemplaza la ecuación de energía: ambas cumplen funciones físicas distintas.</p>
+      </div>
+    </section>
+
+    <section id="references-es" class="references">
+      <h2>Referencias</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed., McGraw-Hill Education, 2017, capítulo 7.</li>
+        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow</em>, 3rd ed.</li>
+        <li>Ames Research Staff. <em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135.</li>
+      </ol>
+      <p class="source-note">Adaptado de los apuntes de Aerodinámica II preparados por Carlos Alberto Molina Holguín.</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="index.html"><span>Índice del curso</span>Aerodinámica II</a>
+      <a class="next-link" href="isentropic-flow.html"><span>Siguiente lecture</span>Flujo isoentrópico →</a>
+    </nav>
+  </article>
+
+  <article class="lecture" data-language="de" hidden>
+    <section>
+      <p class="section-label">Einführung</p>
+      <h2>Grundlagen kompressibler Strömungen</h2>
+      <p class="lead">Bei hohen Geschwindigkeiten müssen Dichte, Temperatur und innere Energie als veränderliche Feldgrößen berücksichtigt werden.</p>
+      <div class="equation-card">\[\rho=\rho(p,T),\qquad p=\rho RT,\qquad e=c_vT.\]</div>
+      <h3>Unbekannte Größen</h3>
+      <div class="equation-card">\[p,\qquad \mathbf{V},\qquad \rho,\qquad e,\qquad T.\]</div>
+      <h3>Grundgleichungen</h3>
+      <div class="equation-card">\[\boxed{\frac{\partial\rho}{\partial t}+\nabla\cdot(\rho\mathbf{V})=0}\]</div>
+      <div class="equation-card">\[\boxed{\rho\frac{D\mathbf{V}}{Dt}=-\nabla p+\rho\mathbf{f}}\]</div>
+      <div class="equation-card">\[\boxed{\rho\frac{D}{Dt}\left(e+\frac{V^2}{2}\right)=\rho\dot q-\nabla\cdot(p\mathbf{V})+\rho\mathbf{f}\cdot\mathbf{V}}\]</div>
+      <div class="de-note">Die inkompressible Bernoulli-Gleichung ist keine allgemeine Energiegleichung für kompressible Strömungen. Energiegleichung, Zustandsgleichung und kalorische Beziehung müssen gemeinsam verwendet werden.</div>
+    </section>
+    <section class="references">
+      <h2>Literatur</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, Kapitel 7.</li>
+        <li>Ames Research Staff. NACA Report 1135.</li>
+      </ol>
+    </section>
+  </article>
+</div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>© <span id="year"></span> Carlos Alberto Molina Holguín</p>
+    <p>Universidad Autónoma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

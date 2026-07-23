@@ -749,3 +749,51 @@ footer {
     text-align: center;
   }
 }
+
+/* Version 5: Lecture 01 governing-equation components */
+.closure-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+  margin: 1.5rem 0;
+}
+
+.closure-node {
+  min-height: 105px;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: linear-gradient(145deg, #ffffff, #f6faff);
+}
+
+.closure-node:last-child {
+  grid-column: 1 / -1;
+  width: calc(50% - 0.45rem);
+  justify-self: center;
+}
+
+.closure-node strong {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: var(--navy);
+}
+
+.closure-node span {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.governing-system {
+  padding-block: 1.5rem;
+}
+
+@media (max-width: 650px) {
+  .closure-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .closure-node:last-child {
+    grid-column: auto;
+    width: 100%;
+  }
+}
