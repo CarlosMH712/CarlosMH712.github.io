@@ -13,8 +13,8 @@ document.addEventListener("DOMContentLoaded", () => {
       tools: "Computational tools",
       contents: "On this page",
       back: "Back to course",
-      calculator: "Calculator",
-      calculatorPending: "Calculator deployment pending"
+      calculator: "Open calculator",
+      calculatorDetails: "Calculator overview"
     },
     es: {
       home: "Inicio",
@@ -22,8 +22,8 @@ document.addEventListener("DOMContentLoaded", () => {
       tools: "Herramientas computacionales",
       contents: "En esta página",
       back: "Volver al curso",
-      calculator: "Calculadora",
-      calculatorPending: "Publicación de la calculadora pendiente"
+      calculator: "Abrir calculadora",
+      calculatorDetails: "Información de la calculadora"
     },
     de: {
       home: "Start",
@@ -31,8 +31,8 @@ document.addEventListener("DOMContentLoaded", () => {
       tools: "Rechnergestützte Werkzeuge",
       contents: "Auf dieser Seite",
       back: "Zurück zum Kurs",
-      calculator: "Rechner",
-      calculatorPending: "Veröffentlichung des Rechners ausstehend"
+      calculator: "Rechner öffnen",
+      calculatorDetails: "Rechnerübersicht"
     }
   };
 

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Compressible Flow Calculator: modules, assumptions, validation cases, references, and public Streamlit application." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Compressible Flow Calculator | Carlos Molina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../aerodynamics-ii/lecture.css?v=7" />
+  <link rel="stylesheet" href="tool.css?v=7" />
+  <script defer src="../aerodynamics-ii/lecture.js?v=7"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="../aerodynamics-ii/index.html" data-ui-key="course">Aerodynamics II</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="tool-hero">
+  <div class="container tool-hero-grid">
+    <div>
+      <div data-language="en">
+        <p class="eyebrow">Computational tools · Aerodynamics II</p>
+        <h1>Compressible Flow Calculator</h1>
+        <p class="hero-copy">An interactive academic toolkit for verifying compressible-flow calculations and connecting governing equations with engineering applications.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Herramientas computacionales · Aerodinámica II</p>
+        <h1>Calculadora de flujo compresible</h1>
+        <p class="hero-copy">Herramienta académica interactiva para verificar cálculos de flujo compresible y conectar las ecuaciones gobernantes con aplicaciones de ingeniería.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Rechnergestützte Werkzeuge · Aerodynamik II</p>
+        <h1>Rechner für kompressible Strömungen</h1>
+        <p class="hero-copy">Interaktives Lehrwerkzeug zur Überprüfung kompressibler Strömungsrechnungen und zur Verbindung von Grundgleichungen mit Anwendungen.</p>
+      </div>
+      <div class="button-row">
+        <a class="button primary" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer" data-ui-key="calculator">Open calculator</a>
+        <a class="button secondary" href="https://github.com/CarlosMH712/compressible-flow-calculator" target="_blank" rel="noopener noreferrer">GitHub repository</a>
+      </div>
+    </div>
+    <div class="app-preview" aria-label="Calculator interface preview">
+      <div class="preview-bar"><span></span><span></span><span></span><strong>Compressible Flow Calculator</strong></div>
+      <div class="preview-body">
+        <div class="preview-sidebar"><b>Modules</b><span>Atmosphere</span><span>Isentropic flow</span><span>Shock waves</span><span>Pitot probe</span><span>Geometry</span></div>
+        <div class="preview-main"><small>AERODYNAMICS II</small><h2>Engineering state analysis</h2><div class="preview-metrics"><span><b>Mach</b>3.000</span><span><b>p/p∞</b>1.454</span><span><b>p₀/p₀∞</b>0.995</span></div><div class="preview-chart"><i></i><i></i><i></i></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="modules" class="section">
+  <div class="container">
+    <div data-language="en"><p class="section-label">Included modules</p><h2 class="section-title">One application, seven analysis paths</h2><p class="section-intro">Each module reports dimensionless ratios and, where appropriate, dimensional downstream properties using SI or U.S. customary units.</p></div>
+    <div data-language="es" hidden><p class="section-label">Módulos incluidos</p><h2 class="section-title">Una aplicación, siete rutas de análisis</h2><p class="section-intro">Cada módulo presenta relaciones adimensionales y, cuando corresponde, propiedades dimensionales aguas abajo en unidades SI o inglesas.</p></div>
+    <div data-language="de" hidden><p class="section-label">Enthaltene Module</p><h2 class="section-title">Eine Anwendung, sieben Analysewege</h2><p class="section-intro">Jedes Modul liefert dimensionslose Verhältnisse und bei Bedarf dimensionsbehaftete Zustandsgrößen in SI- oder US-Einheiten.</p></div>
+    <div class="module-grid" data-language="en">
+      <article><span>01</span><h3>U.S. Standard Atmosphere 1976</h3><p>Temperature, pressure, density, speed of sound, viscosity, and gravity versus altitude.</p></article>
+      <article><span>02</span><h3>Isentropic Flow</h3><p>Static-to-total relations, critical conditions, area–Mach inversion, and Mach angle.</p></article>
+      <article><span>03</span><h3>Normal Shock</h3><p>Jump ratios, total-pressure loss, entropy rise, and absolute downstream state.</p></article>
+      <article><span>04</span><h3>Compressible Pitot</h3><p>Subsonic stagnation and supersonic shock-plus-stagnation measurement process.</p></article>
+      <article><span>05</span><h3>Oblique Shock</h3><p>Weak and strong branches, θ–β–M chart, normal components, and attachment limits.</p></article>
+      <article><span>06</span><h3>Prandtl–Meyer Expansion</h3><p>Expansion angle, inverse Mach solution, Mach angles, and isentropic property changes.</p></article>
+      <article><span>07</span><h3>Shock–Expansion Geometry</h3><p>Region-by-region analysis of ramps, diamond profiles, and custom piecewise-linear surfaces.</p></article>
+    </div>
+    <div class="module-grid" data-language="es" hidden>
+      <article><span>01</span><h3>Atmósfera estándar de 1976</h3><p>Temperatura, presión, densidad, velocidad del sonido, viscosidad y gravedad en función de la altitud.</p></article>
+      <article><span>02</span><h3>Flujo isoentrópico</h3><p>Relaciones estáticas y totales, condiciones críticas, inversión área–Mach y ángulo de Mach.</p></article>
+      <article><span>03</span><h3>Choque normal</h3><p>Relaciones de salto, pérdida de presión total, aumento de entropía y estado dimensional aguas abajo.</p></article>
+      <article><span>04</span><h3>Pitot compresible</h3><p>Estancamiento subsónico y proceso supersónico compuesto por choque normal y estancamiento.</p></article>
+      <article><span>05</span><h3>Choque oblicuo</h3><p>Ramas débil y fuerte, diagrama θ–β–M, componentes normales y límite de adherencia.</p></article>
+      <article><span>06</span><h3>Expansión de Prandtl–Meyer</h3><p>Ángulo de expansión, inversión para el Mach, ángulos de Mach y cambios isoentrópicos.</p></article>
+      <article><span>07</span><h3>Geometría choque–expansión</h3><p>Análisis región por región de rampas, perfiles diamante y superficies lineales personalizadas.</p></article>
+    </div>
+    <div class="module-grid" data-language="de" hidden>
+      <article><span>01</span><h3>US-Standardatmosphäre 1976</h3><p>Temperatur, Druck, Dichte, Schallgeschwindigkeit, Viskosität und Schwerkraft über der Höhe.</p></article>
+      <article><span>02</span><h3>Isentrope Strömung</h3><p>Statische und totale Zustände, kritische Verhältnisse, Flächen-Mach-Inversion und Machwinkel.</p></article>
+      <article><span>03</span><h3>Normalstoß</h3><p>Sprungbeziehungen, Totaldruckverlust, Entropiezunahme und Zustand hinter dem Stoß.</p></article>
+      <article><span>04</span><h3>Kompressible Pitot-Messung</h3><p>Unterschall-Staupunkt und Überschallmessung mit Normalstoß und isentroper Verzögerung.</p></article>
+      <article><span>05</span><h3>Schrägstoß</h3><p>Schwache und starke Lösung, θ–β–M-Diagramm, Normalkomponenten und Anlegegrenze.</p></article>
+      <article><span>06</span><h3>Prandtl–Meyer-Expansion</h3><p>Expansionswinkel, Mach-Inversion, Machwinkel und isentrope Zustandsänderungen.</p></article>
+      <article><span>07</span><h3>Stoß–Expansions-Geometrie</h3><p>Gebietsweise Analyse von Rampen, Diamantprofilen und benutzerdefinierten Polygonflächen.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container two-panel-grid" data-language="en">
+    <div><p class="section-label">Model scope</p><h2 class="section-title">Assumptions</h2><ul class="check-list"><li>Calorically perfect gas with configurable γ and gas constant.</li><li>Two-dimensional, inviscid analysis for external shock–expansion geometry.</li><li>Attached oblique shocks unless the detachment limit is exceeded.</li><li>Pitot shock treated as a local diagnostic branch.</li><li>No boundary-layer or wave-interaction corrections.</li></ul></div>
+    <div class="validation-panel"><p class="section-label">Verification</p><h2 class="section-title">Reference cases</h2><div class="validation-row"><b>Isentropic</b><span>M = 2</span></div><div class="validation-row"><b>Normal shock</b><span>M₁ = 2</span></div><div class="validation-row"><b>Oblique shock</b><span>M₁ = 2.5, θ = 15°</span></div><div class="validation-row"><b>Prandtl–Meyer</b><span>M₁ = 2, Δθ = 15°</span></div><div class="validation-row"><b>Geometry</b><span>M∞ = 3, diamond half-angle = 5°</span></div><p class="validation-note">The repository includes an automated test suite covering the principal relations and geometry-state propagation.</p></div>
+  </div>
+  <div class="container two-panel-grid" data-language="es" hidden>
+    <div><p class="section-label">Alcance del modelo</p><h2 class="section-title">Hipótesis</h2><ul class="check-list"><li>Gas calóricamente perfecto con γ y constante del gas configurables.</li><li>Análisis bidimensional e inviscido para la geometría externa choque–expansión.</li><li>Choques oblicuos adheridos mientras no se exceda el límite de desprendimiento.</li><li>El choque del Pitot se trata como una rama diagnóstica local.</li><li>No se incluyen correcciones por capa límite ni interacción entre ondas.</li></ul></div>
+    <div class="validation-panel"><p class="section-label">Verificación</p><h2 class="section-title">Casos de referencia</h2><div class="validation-row"><b>Isoentrópico</b><span>M = 2</span></div><div class="validation-row"><b>Choque normal</b><span>M₁ = 2</span></div><div class="validation-row"><b>Choque oblicuo</b><span>M₁ = 2.5, θ = 15°</span></div><div class="validation-row"><b>Prandtl–Meyer</b><span>M₁ = 2, Δθ = 15°</span></div><div class="validation-row"><b>Geometría</b><span>M∞ = 3, semiángulo = 5°</span></div><p class="validation-note">El repositorio incluye pruebas automatizadas de las relaciones principales y de la propagación de estados en la geometría.</p></div>
+  </div>
+  <div class="container two-panel-grid" data-language="de" hidden>
+    <div><p class="section-label">Modellumfang</p><h2 class="section-title">Annahmen</h2><ul class="check-list"><li>Kalorisch perfektes Gas mit einstellbarem γ und Gaskonstante.</li><li>Zweidimensionale reibungsfreie Stoß–Expansions-Geometrie.</li><li>Anliegende Schrägstöße bis zur Ablösegrenze.</li><li>Der Pitot-Stoß wird als lokaler Diagnosezweig behandelt.</li><li>Keine Grenzschicht- oder Welleninteraktionskorrekturen.</li></ul></div>
+    <div class="validation-panel"><p class="section-label">Überprüfung</p><h2 class="section-title">Referenzfälle</h2><div class="validation-row"><b>Isentrop</b><span>M = 2</span></div><div class="validation-row"><b>Normalstoß</b><span>M₁ = 2</span></div><div class="validation-row"><b>Schrägstoß</b><span>M₁ = 2.5, θ = 15°</span></div><div class="validation-row"><b>Prandtl–Meyer</b><span>M₁ = 2, Δθ = 15°</span></div><div class="validation-row"><b>Geometrie</b><span>M∞ = 3, Halbwinkel = 5°</span></div><p class="validation-note">Das Repository enthält automatisierte Tests für die wichtigsten Beziehungen und die Zustandsfortpflanzung.</p></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div data-language="en"><p class="section-label">Course integration</p><h2 class="section-title">Use it alongside the lectures</h2></div>
+    <div data-language="es" hidden><p class="section-label">Integración con el curso</p><h2 class="section-title">Úsala junto con las lectures</h2></div>
+    <div data-language="de" hidden><p class="section-label">Kursintegration</p><h2 class="section-title">Zusammen mit den Vorlesungen verwenden</h2></div>
+    <div class="lecture-link-grid" data-language="en"><a href="../aerodynamics-ii/isentropic-flow.html"><span>Lecture 02</span><strong>Isentropic Flow</strong></a><a href="../aerodynamics-ii/normal-shocks.html"><span>Lecture 03</span><strong>Normal Shocks and Pitot</strong></a><a href="../aerodynamics-ii/oblique-shocks.html"><span>Lecture 04</span><strong>Oblique Shocks</strong></a><a href="../aerodynamics-ii/prandtl-meyer.html"><span>Lecture 05</span><strong>Prandtl–Meyer Expansions</strong></a><a href="../aerodynamics-ii/shock-expansion.html"><span>Lecture 06</span><strong>Shock–Expansion Analysis</strong></a></div>
+    <div class="lecture-link-grid" data-language="es" hidden><a href="../aerodynamics-ii/isentropic-flow.html"><span>Lecture 02</span><strong>Flujo isoentrópico</strong></a><a href="../aerodynamics-ii/normal-shocks.html"><span>Lecture 03</span><strong>Choques normales y Pitot</strong></a><a href="../aerodynamics-ii/oblique-shocks.html"><span>Lecture 04</span><strong>Choques oblicuos</strong></a><a href="../aerodynamics-ii/prandtl-meyer.html"><span>Lecture 05</span><strong>Expansiones de Prandtl–Meyer</strong></a><a href="../aerodynamics-ii/shock-expansion.html"><span>Lecture 06</span><strong>Análisis choque–expansión</strong></a></div>
+    <div class="lecture-link-grid" data-language="de" hidden><a href="../aerodynamics-ii/isentropic-flow.html"><span>Vorlesung 02</span><strong>Isentrope Strömung</strong></a><a href="../aerodynamics-ii/normal-shocks.html"><span>Vorlesung 03</span><strong>Normalstoß und Pitot</strong></a><a href="../aerodynamics-ii/oblique-shocks.html"><span>Vorlesung 04</span><strong>Schrägstöße</strong></a><a href="../aerodynamics-ii/prandtl-meyer.html"><span>Vorlesung 05</span><strong>Prandtl–Meyer-Expansion</strong></a><a href="../aerodynamics-ii/shock-expansion.html"><span>Vorlesung 06</span><strong>Stoß–Expansions-Analyse</strong></a></div>
+    <div class="launch-panel" data-language="en"><div><strong>Ready to calculate?</strong><p>The application opens in a separate tab so tables and Plotly diagrams can use the full screen.</p></div><a class="button primary" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer" data-ui-key="calculator">Open calculator</a></div>
+    <div class="launch-panel" data-language="es" hidden><div><strong>¿Listo para calcular?</strong><p>La aplicación abre en una pestaña nueva para aprovechar toda la pantalla en tablas y diagramas Plotly.</p></div><a class="button primary" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer" data-ui-key="calculator">Abrir calculadora</a></div>
+    <div class="launch-panel" data-language="de" hidden><div><strong>Bereit zur Berechnung?</strong><p>Die Anwendung öffnet in einem neuen Tab, damit Tabellen und Diagramme den gesamten Bildschirm nutzen.</p></div><a class="button primary" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer" data-ui-key="calculator">Rechner öffnen</a></div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container references"><h2>Primary references</h2><ol><li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>.</li><li>Ames Research Staff. <em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135.</li><li>U.S. Standard Atmosphere, 1976, NOAA-S/T-76-1562 and NASA-TM-X-74335.</li></ol><p class="source-note">Developed by Carlos Alberto Molina Holguín for aerospace-engineering education at Universidad Autónoma de Chihuahua.</p></div>
+</section>
+</main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>

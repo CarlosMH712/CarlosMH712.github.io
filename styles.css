@@ -147,3 +147,16 @@
     margin-inline: auto;
   }
 }
+
+
+/* Version 7: live computational-tool integration */
+.tool-source-link {
+  color: var(--blue);
+  font-size: .84rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+.tool-source-link:hover { text-decoration: underline; }
+.mini-card.available-mini { border-color: #b9d8ec; background: linear-gradient(145deg,#fff,#f1f8fc); }
+.mini-card.available-mini a { display: inline-block; margin-top: .45rem; color: var(--blue); font-size: .84rem; font-weight: 700; text-decoration: none; }
+.mini-card.available-mini a:hover { text-decoration: underline; }

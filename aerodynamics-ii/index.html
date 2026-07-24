@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="lecture.css?v=6" />
+  <link rel="stylesheet" href="lecture.css?v=7" />
 
   <script>
     window.MathJax = {
@@ -24,7 +24,7 @@
     };
   </script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
-  <script defer src="lecture.js?v=6"></script>
+  <script defer src="lecture.js?v=7"></script>
 </head>
 <body>
 
@@ -162,6 +162,35 @@
           <span class="status">Available</span>
           <a href="shock-expansion.html">Open lecture →</a>
         </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section calculator-bridge">
+    <div class="container">
+      <div class="calculator-bridge-card">
+        <div data-language="en">
+          <p class="section-label">Interactive companion</p>
+          <h2 class="section-title">Compressible Flow Calculator</h2>
+          <p class="section-intro">Check hand calculations, compare SI and U.S. customary units, and analyze standard atmosphere, isentropic flow, shocks, Pitot measurements, Prandtl–Meyer expansions, and piecewise-linear geometries.</p>
+        </div>
+        <div data-language="es" hidden>
+          <p class="section-label">Herramienta complementaria</p>
+          <h2 class="section-title">Calculadora de flujo compresible</h2>
+          <p class="section-intro">Verifica cálculos manuales, compara unidades SI e inglesas y analiza atmósfera estándar, flujo isoentrópico, choques, mediciones Pitot, expansiones de Prandtl–Meyer y geometrías lineales por tramos.</p>
+        </div>
+        <div data-language="de" hidden>
+          <p class="section-label">Interaktive Ergänzung</p>
+          <h2 class="section-title">Rechner für kompressible Strömungen</h2>
+          <p class="section-intro">Handrechnungen prüfen und Standardatmosphäre, isentrope Strömung, Stoßwellen, Pitot-Messungen, Prandtl–Meyer-Expansionen und polygonale Geometrien untersuchen.</p>
+        </div>
+        <div class="calculator-module-strip" aria-label="Calculator modules">
+          <span>Atmosphere</span><span>Isentropic</span><span>Normal shock</span><span>Pitot</span><span>Oblique shock</span><span>Prandtl–Meyer</span><span>Geometry</span>
+        </div>
+        <div class="button-row">
+          <a class="button primary" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer" data-ui-key="calculator">Open calculator</a>
+          <a class="button outline" href="../tools/compressible-flow-calculator.html" data-ui-key="calculatorDetails">Calculator overview</a>
+        </div>
       </div>
     </div>
   </section>

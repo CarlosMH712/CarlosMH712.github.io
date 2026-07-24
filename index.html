@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=3">
+  <link rel="stylesheet" href="styles.css?v=7">
 </head>
 <body>
 <header class="site-header">
@@ -157,12 +157,14 @@
         <div class="tag-row"><span>Python</span><span>Streamlit</span><span data-i18n="tool_tag_course">Aerodynamics II</span></div>
       </div>
       <div class="tool-actions">
-        <a class="button primary disabled" href="#" aria-disabled="true" data-i18n="tool_pending">Deployment in progress</a>
-        <small data-i18n="tool_pending_note">The public calculator link will be added after its Streamlit deployment.</small>
+        <a class="button primary" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer" data-i18n="tool_open">Open calculator</a>
+        <a class="button outline" href="tools/compressible-flow-calculator.html" data-i18n="tool_details">Explore modules and validation</a>
+        <a class="tool-source-link" href="https://github.com/CarlosMH712/compressible-flow-calculator" target="_blank" rel="noopener noreferrer" data-i18n="tool_source">View source code on GitHub →</a>
+        <small data-i18n="tool_live_note">Public Streamlit application · SI and U.S. customary units</small>
       </div>
     </div>
     <div class="mini-grid">
-      <article class="mini-card"><h3 data-i18n="tool_atmosphere_title">Standard Atmosphere</h3><p data-i18n="tool_atmosphere_course">Aerodynamics I</p><span data-i18n="status_planned">Planned</span></article>
+      <article class="mini-card available-mini"><h3 data-i18n="tool_atmosphere_title">Standard Atmosphere</h3><p data-i18n="tool_atmosphere_course">Aerodynamics I and II</p><a href="tools/compressible-flow-calculator.html#modules" data-i18n="status_included">Included in the calculator →</a></article>
       <article class="mini-card"><h3 data-i18n="tool_brayton_title">Brayton Cycle</h3><p data-i18n="tool_brayton_course">Propulsion</p><span data-i18n="status_planned">Planned</span></article>
       <article class="mini-card"><h3 data-i18n="tool_stability_title">Longitudinal Stability</h3><p data-i18n="tool_stability_course">Flight Dynamics</p><span data-i18n="status_planned">Planned</span></article>
     </div>
@@ -211,6 +213,6 @@
     <p data-i18n="footer_text">Aerospace engineering education, computation, and research</p>
   </div>
 </footer>
-<script src="script.js?v=3" defer></script>
+<script src="script.js?v=7" defer></script>
 </body>
 </html>
