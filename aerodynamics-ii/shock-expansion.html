@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="lecture.css?v=7" />
+  <link rel="stylesheet" href="lecture.css?v=10" />
 
   <script>
     window.MathJax = {
@@ -26,7 +26,7 @@
     };
   </script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
-  <script defer src="lecture.js?v=7"></script>
+  <script defer src="lecture.js?v=10"></script>
 </head>
 <body>
 
@@ -74,6 +74,7 @@
 
     <div class="button-row">
       <a class="button secondary" href="prandtl-meyer.html">← Previous</a>
+      <a class="button primary" href="nozzle-flow-fundamentals.html">Next lecture →</a>
       <a class="button primary" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer" data-ui-key="calculator">Open calculator</a>
     </div>
   </div>
@@ -129,7 +130,7 @@
         <div class="equation-card">
           \[
           \boxed{
-          \Delta\theta_i=\alpha_i-\alpha_{i-1}
+          \delta_i=\phi_i-\theta_i
           }
           \]
         </div>
@@ -150,9 +151,9 @@
             <polyline points="100,270 330,230 560,300 800,215" fill="none" stroke="#071d33" stroke-width="9"/>
             <line x1="330" y1="230" x2="455" y2="55" stroke="#d67b28" stroke-width="7"/>
             <g stroke="#176b47" stroke-width="3">
-              <line x1="560" y1="300" x2="445" y2="90"/>
-              <line x1="560" y1="300" x2="490" y2="70"/>
-              <line x1="560" y1="300" x2="540" y2="60"/>
+              <line x1="560" y1="300" x2="650" y2="85"/>
+              <line x1="560" y1="300" x2="705" y2="95"/>
+              <line x1="560" y1="300" x2="760" y2="120"/>
             </g>
             <line x1="800" y1="215" x2="700" y2="45" stroke="#d67b28" stroke-width="7"/>
             <g stroke="#0d568d" stroke-width="4" marker-end="url(#se-arrow)">
@@ -178,7 +179,7 @@
           \[
           \mathbf{S}_i=
           \left(
-          M_i,\ p_i,\ T_i,\ \rho_i,\ p_{0,i},\ \alpha_i
+          M_i,\ p_i,\ T_i,\ \rho_i,\ p_{0,i},\ \theta_i
           \right)
           \]
         </div>
@@ -186,12 +187,12 @@
         <div class="wave-table">
           <div>
             <strong>Oblique shock</strong>
-            <span>Input: \(M_i,\theta_i,\gamma\)</span>
+            <span>Input: \(M_i,|\delta_i|,\gamma\)</span>
             <span>Output: \(\beta_i,M_{i+1}\), property ratios, \(p_{0,i+1}/p_{0,i}<1\)</span>
           </div>
           <div>
             <strong>Prandtl–Meyer expansion</strong>
-            <span>Input: \(M_i,\theta_i,\gamma\)</span>
+            <span>Input: \(M_i,|\delta_i|,\gamma\)</span>
             <span>Output: \(M_{i+1}\), isentropic ratios, \(p_{0,i+1}=p_{0,i}\)</span>
           </div>
         </div>
@@ -272,11 +273,13 @@
             <line x1="210" y1="175" x2="340" y2="25" stroke="#d67b28" stroke-width="6"/>
             <line x1="210" y1="175" x2="340" y2="325" stroke="#d67b28" stroke-width="6"/>
             <g stroke="#176b47" stroke-width="3">
-              <line x1="450" y1="95" x2="350" y2="20"/>
-              <line x1="450" y1="95" x2="395" y2="5"/>
-              <line x1="450" y1="255" x2="350" y2="330"/>
-              <line x1="450" y1="255" x2="395" y2="345"/>
+              <line x1="450" y1="95" x2="555" y2="18"/>
+              <line x1="450" y1="95" x2="610" y2="10"/>
+              <line x1="450" y1="255" x2="555" y2="332"/>
+              <line x1="450" y1="255" x2="610" y2="340"/>
             </g>
+            <line x1="690" y1="175" x2="805" y2="65" stroke="#d67b28" stroke-width="5"/>
+            <line x1="690" y1="175" x2="805" y2="285" stroke="#d67b28" stroke-width="5"/>
             <text x="310" y="150" font-size="20" fill="#071d33">p₂</text>
             <text x="590" y="150" font-size="20" fill="#071d33">p₃</text>
           </svg>
@@ -350,7 +353,7 @@
 
       <nav class="next-nav">
         <a class="next-link" href="prandtl-meyer.html"><span>Previous lecture</span>← Prandtl–Meyer</a>
-        <a class="next-link" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer"><span>Interactive application</span>Open Compressible-Flow Calculator →</a>
+        <a class="next-link" href="nozzle-flow-fundamentals.html"><span>Next lecture</span>Quasi-1D Nozzle Flow →</a>
       </nav>
     </article>
 
@@ -371,7 +374,7 @@
       <section id="turns-es">
         <p class="section-label">Convención geométrica</p>
         <h2>Clasificación del giro local</h2>
-        <div class="equation-card">\[\boxed{\Delta\theta_i=\alpha_i-\alpha_{i-1}}\]</div>
+        <div class="equation-card">\[\boxed{\delta_i=\phi_i-\theta_i}\]</div>
         <p>
           El signo debe interpretarse con una convención fija de recorrido y orientación.
           La prueba física robusta es determinar si la línea de corriente gira hacia o
@@ -382,7 +385,7 @@
       <section id="propagation-es">
         <p class="section-label">Vector de estado</p>
         <h2>Propagación región por región</h2>
-        <div class="equation-card">\[\mathbf{S}_i=(M_i,p_i,T_i,\rho_i,p_{0,i},\alpha_i)\]</div>
+        <div class="equation-card">\[\mathbf{S}_i=(M_i,p_i,T_i,\rho_i,p_{0,i},\theta_i)\]</div>
         <div class="equation-card">\[\boxed{\frac{p_{0,f}}{p_{0,1}}=\prod_{j=1}^{N}\left(\frac{p_{0,j+1}}{p_{0,j}}\right)}\]</div>
       </section>
 
@@ -448,7 +451,7 @@
 
       <nav class="next-nav">
         <a class="next-link" href="prandtl-meyer.html"><span>Lecture anterior</span>← Prandtl–Meyer</a>
-        <a class="next-link" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer"><span>Aplicación interactiva</span>Abrir calculadora de flujo compresible →</a>
+        <a class="next-link" href="nozzle-flow-fundamentals.html"><span>Siguiente lecture</span>Flujo cuasi-1D en toberas →</a>
       </nav>
     </article>
 
@@ -461,11 +464,12 @@
           Prandtl–Meyer-Expansion behandelt. Der Ausgangszustand wird zum
           Eingangszustand des nächsten Panels.
         </p>
-        <div class="equation-card">\[\boxed{\Delta\theta_i=\alpha_i-\alpha_{i-1}}\]</div>
+        <div class="equation-card">\[\boxed{\delta_i=\phi_i-\theta_i}\]</div>
         <div class="equation-card">\[\boxed{\frac{p_{0,f}}{p_{0,1}}=\prod_j\frac{p_{0,j+1}}{p_{0,j}}}\]</div>
         <div class="de-note">Das Verfahren bildet die theoretische Grundlage des Geometrie-Rechners.</div>
       </section>
       <section class="references"><h2>Literatur</h2><ol><li>Anderson, Abschnitt 9.7.</li><li>NACA Report 1135.</li></ol></section>
+      <nav class="next-nav"><a class="next-link" href="prandtl-meyer.html"><span>Vorherige Vorlesung</span>← Prandtl–Meyer</a><a class="next-link" href="nozzle-flow-fundamentals.html"><span>Nächste Vorlesung</span>Quasi-1D-Düsenströmung →</a></nav>
     </article>
   </div>
 </main>

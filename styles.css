@@ -160,3 +160,11 @@
 .mini-card.available-mini { border-color: #b9d8ec; background: linear-gradient(145deg,#fff,#f1f8fc); }
 .mini-card.available-mini a { display: inline-block; margin-top: .45rem; color: var(--blue); font-size: .84rem; font-weight: 700; text-decoration: none; }
 .mini-card.available-mini a:hover { text-decoration: underline; }
+
+/* Version 10: multiple live computational tools */
+.tool-stack { display:grid; gap:1.25rem; }
+.tool-card.nozzle-tool { border-color:#e7c39e; background:linear-gradient(135deg,#fff,#fff6ec); }
+.tool-card.nozzle-tool .status { color:#8a4b12; border-color:#e8c6a5; }
+.mini-card.nozzle-mini { border-color:#e7c39e; background:linear-gradient(145deg,#fff,#fff7ef); }
+.mini-card.nozzle-mini a { display:inline-block;margin-top:.45rem;color:var(--blue);font-size:.84rem;font-weight:700;text-decoration:none; }
+.mini-card.nozzle-mini a:hover { text-decoration:underline; }

@@ -1,0 +1,75 @@
+ACADEMIC PORTAL V10 — VALIDATION REPORT
+Date: 2026-08-04
+Result: PASS
+
+AUTOMATED RESULT
+47 of 47 checks passed.
+
+Static checks
+- 13 HTML files parsed without HTML parser errors.
+- No duplicate HTML identifiers were found.
+- All local href/src paths and HTML fragments resolve.
+- Every target="_blank" link includes rel="noopener noreferrer".
+- All local CSS and JavaScript references use v10 cache busting.
+- No obsolete ?v=7, ?v=8, or ?v=9 asset references remain.
+- The nozzle-calculator URL is present in the portal home page, Aerodynamics II index,
+  Lectures 07–09, and the dedicated tool page.
+- JavaScript syntax passed for script.js and aerodynamics-ii/lecture.js.
+
+Multilingual checks
+- Aerodynamics II index language blocks: EN 9, ES 9, DE 9.
+- Course cards: 9 English, 9 Spanish, 9 German.
+- Lecture 07 language blocks: EN 13, ES 13, DE 13.
+- Lecture 08 language blocks: EN 14, ES 14, DE 14.
+- Lecture 09 language blocks: EN 15, ES 15, DE 15.
+- Nozzle Calculator overview blocks: EN 8, ES 8, DE 8.
+- Browser interaction confirmed EN, ES, and DE selection and persistence.
+
+Numerical regression, gamma = 1.4
+- Critical pressure ratio: p*/p0 = 0.5282817877.
+- Area–Mach, A/A* = 2: Msub = 0.3059038342, Msup = 2.1971981217.
+- First choking for Ae/At = 2: pB/p0 = 0.9371625024.
+- Ideal design pressure: pe/p0 = 0.0939326457.
+- Normal shock at exit: pB/p0 = 0.5134007280.
+- Internal shock at As/At = 1.5:
+  M1 = 1.8541235267, M2 = 0.6048430465,
+  Me = 0.4041969520, pe/p0 = 0.7044519779.
+- Inverse shock location for pB/p0 = 0.700:
+  As/At = 1.5100946975, Me = 0.4066880871,
+  pressure closure = 0.7000000000.
+- Critical mass flow example: mdot = 3.2334735915 kg/s.
+
+Browser and responsive QA
+- Desktop viewport checked at 1440 x 900.
+- Mobile viewport checked at 390 x 844.
+- No horizontal overflow on the portal home page, course index, Lecture 07,
+  Lecture 09, or Nozzle Calculator overview.
+- Mobile navigation opens correctly; the lecture contents panel becomes static.
+- The eight-regime strip collapses to one column at phone width.
+- The tool-page interface preview hides at phone width as intended.
+- No browser console warnings or errors were observed on the final mobile tool page.
+- MathJax rendered the lecture equations in the local preview.
+
+Diagram and navigation QA
+- Five Prandtl–Meyer fan characteristics satisfy x2 > x1 and propagate downstream.
+- Fan head and tail labels are present as mu1 and mu2.
+- Sequential shock–expansion fan characteristics propagate downstream.
+- Diamond-airfoil expansion characteristics propagate downstream.
+- Two trailing-edge closing compression waves are present.
+- Lecture 06 links to Lecture 07; Lectures 07–09 form a continuous sequence.
+
+Public application review
+- URL reviewed: https://nozzle-calculator.streamlit.app/
+- Confirmed language modes: English, Spanish, German.
+- Confirmed units: SI and U.S. customary, selectable pressure and temperature units.
+- Confirmed inputs: P0, T0, Ae/At, Ain/At, throat diameter, gamma, R, and pB.
+- Confirmed cases: Custom, Subsonic, Internal shock, Overexpanded,
+  Correct expansion, and Underexpanded.
+- Confirmed outputs: detected regime, choking state, flow-field plot, operating map,
+  exit results, detailed normal-shock location, axial table, and CSV download.
+- Confirmed stated model exclusions: viscosity, boundary-layer separation, heat transfer,
+  external oblique shocks, and wave interactions.
+
+Validation script
+- docs/validate_v10.py
+

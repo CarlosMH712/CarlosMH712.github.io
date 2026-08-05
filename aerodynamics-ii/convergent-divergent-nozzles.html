@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Convergent and convergent-divergent nozzle operation, choking, branch selection, design condition, and exit-property calculations." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Convergent and C–D Nozzles | Aerodynamics II</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=10" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=10"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap"><a class="brand" href="../index.html">Carlos Molina</a><button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button><nav class="site-nav" aria-label="Main navigation"><a href="../index.html" data-ui-key="home">Home</a><a href="index.html" data-ui-key="course">Aerodynamics II</a><a href="../index.html#tools" data-ui-key="tools">Computational tools</a></nav><div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div></div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">Aerodynamics II · Lecture 08</p><h1>Convergent and Convergent–Divergent Nozzles</h1><p class="hero-copy">How pressure ratio selects subsonic flow, choking, or a designed supersonic solution, with a complete exit-state calculation.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">Aerodinámica II · Lecture 08</p><h1>Toberas convergentes y convergentes–divergentes</h1><p class="hero-copy">Cómo la razón de presiones selecciona flujo subsónico, estrangulamiento o una solución supersónica de diseño, con cálculo completo del estado de salida.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">Aerodynamik II · Vorlesung 08</p><h1>Konvergente und konvergent–divergente Düsen</h1><p class="hero-copy">Wie das Druckverhältnis Unterschallströmung, Sperrung oder die ausgelegte Überschalllösung auswählt, einschließlich vollständiger Austrittsrechnung.</p></div>
+  <div class="hero-meta"><span>Convergent</span><span>C–D nozzle</span><span>Design condition</span><span>Exit state</span></div>
+  <div class="button-row"><a class="button secondary" href="nozzle-flow-fundamentals.html">← <span data-ui-key="previous">Previous lecture</span></a><a class="button primary" href="nozzle-back-pressure-thrust.html"><span data-ui-key="next">Next lecture</span> →</a><a class="button calculator-button" href="https://nozzle-calculator.streamlit.app/" target="_blank" rel="noopener noreferrer" data-ui-key="nozzleCalculator">Open nozzle calculator</a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <div data-language="en"><h2>On this page</h2><div class="toc-links"><a href="#convergent">Convergent nozzle</a><a href="#cd">C–D nozzle</a><a href="#branches">Branch selection</a><a href="#design">Design condition</a><a href="#exit">Exit properties</a><a href="#example">Worked example</a><a href="#calculator">Calculator connection</a><a href="#references">References</a></div></div>
+    <div data-language="es" hidden><h2>En esta página</h2><div class="toc-links"><a href="#convergent">Tobera convergente</a><a href="#cd">Tobera C–D</a><a href="#branches">Selección de rama</a><a href="#design">Condición de diseño</a><a href="#exit">Propiedades de salida</a><a href="#example">Ejemplo</a><a href="#calculator">Conexión con la calculadora</a><a href="#references">Referencias</a></div></div>
+    <div data-language="de" hidden><h2>Auf dieser Seite</h2><div class="toc-links"><a href="#convergent">Konvergente Düse</a><a href="#cd">C–D-Düse</a><a href="#branches">Zweigauswahl</a><a href="#design">Auslegungszustand</a><a href="#exit">Austrittsgrößen</a><a href="#example">Beispiel</a><a href="#calculator">Rechnerverbindung</a><a href="#references">Literatur</a></div></div>
+  </aside>
+
+  <article class="lecture">
+    <section id="convergent">
+      <div data-language="en"><p class="section-label">Purely convergent nozzle</p><h2>The exit is the minimum area and cannot sustain internal supersonic flow</h2><p class="lead">With (A_e=A_t), reducing (p_B) accelerates the flow until the exit reaches (M_e=1). A further reduction changes the external jet, not the internal solution.</p></div>
+      <div data-language="es" hidden><p class="section-label">Tobera puramente convergente</p><h2>La salida es el área mínima y no sostiene flujo supersónico interno</h2><p class="lead">Con (A_e=A_t), reducir (p_B) acelera el flujo hasta que la salida alcanza (M_e=1). Una reducción adicional modifica el chorro exterior, no la solución interna.</p></div>
+      <div data-language="de" hidden><p class="section-label">Rein konvergente Düse</p><h2>Der Austritt ist die kleinste Fläche und trägt keine innere Überschallströmung</h2><p class="lead">Für (A_e=A_t) beschleunigt eine Absenkung von (p_B) die Strömung bis (M_e=1). Eine weitere Absenkung verändert den äußeren Strahl, nicht die innere Lösung.</p></div>
+      <div class="equation-card">\[\Pi^*=\frac{p^*}{p_0}=\left(\frac{2}{\gamma+1}\right)^{\gamma/(\gamma-1)}\]</div>
+      <table><thead><tr><th>Condition</th><th>Internal state</th><th>Exit pressure</th></tr></thead><tbody><tr><td>(p_B/p_0&gt;\Pi^*)</td><td>(M_e&lt;1)</td><td>(p_e=p_B)</td></tr><tr><td>(p_B/p_0=\Pi^*)</td><td>(M_e=1)</td><td>(p_e=p^*)</td></tr><tr><td>(p_B/p_0&lt;\Pi^*)</td><td>Choked / estrangulada / gesperrt</td><td>(p_e=p^*&gt;p_B)</td></tr></tbody></table>
+    </section>
+
+    <section id="cd">
+      <div data-language="en"><p class="section-label">Convergent–divergent nozzle</p><h2>A divergent section is required to accelerate beyond Mach one</h2><p>In the isentropic design solution the convergent accelerates subsonically, the throat is sonic, and the divergent accelerates supersonically.</p></div>
+      <div data-language="es" hidden><p class="section-label">Tobera convergente–divergente</p><h2>Se requiere una sección divergente para acelerar más allá de Mach uno</h2><p>En la solución isoentrópica de diseño, la convergente acelera subsónicamente, la garganta es sónica y la divergente acelera supersónicamente.</p></div>
+      <div data-language="de" hidden><p class="section-label">Konvergent–divergente Düse</p><h2>Für die Beschleunigung über Mach eins ist ein divergenter Abschnitt nötig</h2><p>In der isentropen Auslegung beschleunigt der konvergente Teil im Unterschall, der Hals ist sonisch und der divergente Teil beschleunigt im Überschall.</p></div>
+      <figure class="nozzle-figure" aria-label="Ideal convergent-divergent nozzle"><div class="nozzle-channel"><div class="nozzle-wall top"></div><div class="nozzle-wall bottom"></div><div class="flow-axis"></div><div class="throat-line"></div></div><div class="nozzle-labels"><span>(M&lt;1, p\downarrow)</span><span>(M=1, A_t=A^*)</span><span>(M&gt;1, p\downarrow, u\uparrow)</span></div></figure>
+      <div class="callout success" data-language="en"><strong>Ideal internal solution.</strong> Once the nozzle is choked, (M(x)), (p(x)/p_0), and (T(x)/T_0) on an isentropic branch are determined by (A(x)/A^*). Back pressure decides whether that branch can be established without a shock.</div>
+      <div class="callout success" data-language="es" hidden><strong>Solución interna ideal.</strong> Una vez estrangulada, (M(x)), (p(x)/p_0) y (T(x)/T_0) en una rama isoentrópica quedan determinados por (A(x)/A^*). La contrapresión decide si esa rama se establece sin choque.</div>
+      <div class="callout success" data-language="de" hidden><strong>Ideale innere Lösung.</strong> Nach der Sperrung werden (M(x)), (p(x)/p_0) und (T(x)/T_0) auf einem isentropen Zweig durch (A(x)/A^*) bestimmt. Der Gegendruck entscheidet, ob dieser Zweig stoßfrei entsteht.</div>
+    </section>
+
+    <section id="branches">
+      <div data-language="en"><p class="section-label">Mathematical branches</p><h2>Use the physical regime—not geometry alone—to choose the root</h2></div>
+      <div data-language="es" hidden><p class="section-label">Ramas matemáticas</p><h2>Usa el régimen físico —no solo la geometría— para elegir la raíz</h2></div>
+      <div data-language="de" hidden><p class="section-label">Mathematische Zweige</p><h2>Die physikalische Betriebsart — nicht die Geometrie allein — wählt die Wurzel</h2></div>
+      <div class="process-flow"><div><strong>1</strong><span>Specify (p_0,T_0,gamma,R,A_e/A_t)</span></div><div><strong>2</strong><span>Check choking and the back-pressure range</span></div><div><strong>3</strong><span>Select subsonic or supersonic area–Mach root</span></div><div><strong>4</strong><span>Recover dimensional exit properties</span></div></div>
+      <div class="callout warning" data-language="en"><strong>Common mistake.</strong> (A_e/A_t&gt;1) does not prove that the exit is supersonic. The same geometry also admits an entirely subsonic solution and shock-containing solutions.</div>
+      <div class="callout warning" data-language="es" hidden><strong>Error común.</strong> (A_e/A_t&gt;1) no demuestra que la salida sea supersónica. La misma geometría también admite una solución enteramente subsónica y soluciones con choque.</div>
+      <div class="callout warning" data-language="de" hidden><strong>Häufiger Fehler.</strong> (A_e/A_t&gt;1) beweist keinen Überschallaustritt. Dieselbe Geometrie erlaubt auch eine vollständig unterschallschnelle Lösung und Stoßlösungen.</div>
+    </section>
+
+    <section id="design">
+      <div data-language="en"><p class="section-label">Design condition</p><h2>Perfect expansion requires the isentropic exit pressure to match the back pressure</h2></div>
+      <div data-language="es" hidden><p class="section-label">Condición de diseño</p><h2>La expansión perfecta exige que la presión isoentrópica de salida iguale la contrapresión</h2></div>
+      <div data-language="de" hidden><p class="section-label">Auslegungszustand</p><h2>Perfekte Anpassung erfordert Gleichheit von isentropem Austritts- und Gegendruck</h2></div>
+      <div class="equation-card">\[\boxed{p_e=p_B=p_{e,\mathrm{iso}}}\]</div>
+      <p data-language="en">At this one ambient pressure, no internal or external adjustment wave is required. A fixed-area nozzle is perfectly expanded at only one design pressure.</p><p data-language="es" hidden>A esta única presión ambiente no se requieren ondas de ajuste internas ni externas. Una tobera de área fija queda perfectamente adaptada a una sola presión de diseño.</p><p data-language="de" hidden>Bei diesem einen Umgebungsdruck ist keine innere oder äußere Anpassungswelle nötig. Eine Düse mit fester Fläche ist nur bei einem Auslegungsdruck perfekt angepasst.</p>
+    </section>
+
+    <section id="exit">
+      <div data-language="en"><p class="section-label">Exit-state calculation</p><h2>Recover thermodynamic and kinematic properties from (M_e)</h2></div>
+      <div data-language="es" hidden><p class="section-label">Cálculo del estado de salida</p><h2>Recupera propiedades termodinámicas y cinemáticas a partir de (M_e)</h2></div>
+      <div data-language="de" hidden><p class="section-label">Austrittszustand</p><h2>Thermodynamische und kinematische Größen aus (M_e) bestimmen</h2></div>
+      <div class="equation-grid">
+        <div class="equation-card">\[T_e=\frac{T_0}{1+\frac{\gamma-1}{2}M_e^2}\]</div>
+        <div class="equation-card">\[p_e=p_0\left(1+\frac{\gamma-1}{2}M_e^2\right)^{-\gamma/(\gamma-1)}\]</div>
+        <div class="equation-card">\[\rho_e=\frac{p_e}{RT_e}\]</div>
+        <div class="equation-card">\[u_e=M_e\sqrt{\gamma RT_e}\]</div>
+      </div>
+    </section>
+
+    <section id="example">
+      <div data-language="en"><p class="section-label">Worked example</p><h2>Two exit states for (A_e/A_t=2)</h2><p>For air with (p_0=500\,\mathrm{kPa}), (T_0=300\,\mathrm{K}), and a choked throat:</p></div>
+      <div data-language="es" hidden><p class="section-label">Ejemplo resuelto</p><h2>Dos estados de salida para (A_e/A_t=2)</h2><p>Para aire con (p_0=500\,\mathrm{kPa}), (T_0=300\,\mathrm{K}) y garganta estrangulada:</p></div>
+      <div data-language="de" hidden><p class="section-label">Beispiel</p><h2>Zwei Austrittszustände für (A_e/A_t=2)</h2><p>Für Luft mit (p_0=500\,\mathrm{kPa}), (T_0=300\,\mathrm{K}) und gesperrtem Hals:</p></div>
+      <table class="validation-table"><thead><tr><th>Branch</th><th>(M_e)</th><th>(p_e/p_0)</th><th>(T_e/T_0)</th></tr></thead><tbody><tr><td>Subsonic</td><td>0.305904</td><td>0.937163</td><td>0.981633</td></tr><tr><td>Supersonic</td><td>2.197198</td><td>0.093933</td><td>0.508120</td></tr></tbody></table>
+      <p data-language="en">Therefore the ideal supersonic design state is (p_e=46.97\,\mathrm{kPa}), (T_e=152.4\,\mathrm{K}). The back pressure and start history determine which branch occurs.</p><p data-language="es" hidden>Así, el estado supersónico ideal de diseño es (p_e=46.97\,\mathrm{kPa}), (T_e=152.4\,\mathrm{K}). La contrapresión y la historia de arranque determinan qué rama ocurre.</p><p data-language="de" hidden>Damit ist der ideale Überschall-Auslegungszustand (p_e=46.97\,\mathrm{kPa}), (T_e=152.4\,\mathrm{K}). Gegendruck und Anfahrverlauf bestimmen den Zweig.</p>
+    </section>
+
+    <section id="calculator"><div class="calculator-callout"><div><div data-language="en"><h3>Compare subsonic and design cases interactively</h3><p>The application plots the axial flow field and places the selected case on an operating map.</p></div><div data-language="es" hidden><h3>Compara casos subsónicos y de diseño</h3><p>La aplicación grafica el campo axial y ubica el caso seleccionado en un mapa de operación.</p></div><div data-language="de" hidden><h3>Unter- und Auslegungsfall interaktiv vergleichen</h3><p>Die Anwendung zeigt das axiale Strömungsfeld und den Fall im Betriebskennfeld.</p></div></div><a class="button primary" href="https://nozzle-calculator.streamlit.app/" target="_blank" rel="noopener noreferrer" data-ui-key="nozzleCalculator">Open nozzle calculator</a></div><p><a href="../tools/nozzle-calculator.html" data-ui-key="nozzleDetails">Nozzle calculator overview</a></p></section>
+
+    <section id="references" class="references"><h2 data-language="en">References</h2><h2 data-language="es" hidden>Referencias</h2><h2 data-language="de" hidden>Literatur</h2><ol><li>Anderson, J. D., Jr. <em>Modern Compressible Flow</em>, 3rd ed.</li><li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer">NACA Report 1135</a>.</li><li>NASA Glenn. <a href="https://www.grc.nasa.gov/www/k-12/airplane/nozzled.html" target="_blank" rel="noopener noreferrer">Nozzle Design</a> and <a href="https://www.grc.nasa.gov/www/k-12/airplane/isentrop.html" target="_blank" rel="noopener noreferrer">Isentropic Flow</a>.</li></ol><p class="source-note">Equations and example values reconstructed from Unidad IV course notes and checked numerically for (gamma=1.4).</p></section>
+
+    <nav class="next-lecture"><a class="next-link" href="nozzle-flow-fundamentals.html"><span data-ui-key="previous">Previous lecture</span>← Quasi-1D Fundamentals</a><a class="next-link" href="nozzle-back-pressure-thrust.html"><span data-ui-key="next">Next lecture</span>Back Pressure, Shocks, and Thrust →</a></nav>
+  </article>
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>

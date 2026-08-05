@@ -14,7 +14,11 @@ document.addEventListener("DOMContentLoaded", () => {
       contents: "On this page",
       back: "Back to course",
       calculator: "Open calculator",
-      calculatorDetails: "Calculator overview"
+      calculatorDetails: "Calculator overview",
+      nozzleCalculator: "Open nozzle calculator",
+      nozzleDetails: "Nozzle calculator overview",
+      previous: "Previous lecture",
+      next: "Next lecture"
     },
     es: {
       home: "Inicio",
@@ -23,7 +27,11 @@ document.addEventListener("DOMContentLoaded", () => {
       contents: "En esta página",
       back: "Volver al curso",
       calculator: "Abrir calculadora",
-      calculatorDetails: "Información de la calculadora"
+      calculatorDetails: "Información de la calculadora",
+      nozzleCalculator: "Abrir calculadora de toberas",
+      nozzleDetails: "Información de la calculadora de toberas",
+      previous: "Lecture anterior",
+      next: "Siguiente lecture"
     },
     de: {
       home: "Start",
@@ -32,7 +40,11 @@ document.addEventListener("DOMContentLoaded", () => {
       contents: "Auf dieser Seite",
       back: "Zurück zum Kurs",
       calculator: "Rechner öffnen",
-      calculatorDetails: "Rechnerübersicht"
+      calculatorDetails: "Rechnerübersicht",
+      nozzleCalculator: "Düsenrechner öffnen",
+      nozzleDetails: "Übersicht des Düsenrechners",
+      previous: "Vorherige Vorlesung",
+      next: "Nächste Vorlesung"
     }
   };
 

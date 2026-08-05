@@ -2,6 +2,14 @@
 
 Personal academic website of Carlos Alberto Molina Holguín.
 
+## Version 10
+
+The current reconstructed release adds the three-part nozzle unit (Lectures 07–09),
+integrates the public Nozzle Calculator at https://nozzle-calculator.streamlit.app/,
+provides a dedicated trilingual calculator overview, restores downstream expansion-fan
+geometry, and updates all asset cache-busting to `v=10`. See `README-v10.md` and
+`docs/VALIDATION-v10.txt` for the complete record.
+
 ## Features
 
 - English, Spanish, and German interface
