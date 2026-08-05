@@ -142,7 +142,7 @@ for source, document in documents.items():
 
 record("Local paths and fragments", not broken_links, "; ".join(broken_links[:8]))
 record("Safe external-tab links", not unsafe_blank_links, "; ".join(unsafe_blank_links[:8]))
-record("Cache busting v10", not bad_cache_links, "; ".join(bad_cache_links[:8]))
+record("Cache busting v10.1", not bad_cache_links, "; ".join(bad_cache_links[:8]))
 
 for path in REQUIRED_NOZZLE_FILES:
     record(

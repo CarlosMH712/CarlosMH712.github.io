@@ -10,7 +10,9 @@ Static checks
 - No duplicate HTML identifiers were found.
 - All local href/src paths and HTML fragments resolve.
 - Every target="_blank" link includes rel="noopener noreferrer".
-- All local CSS and JavaScript references use v10 cache busting.
+- All local CSS and JavaScript references use v10.1 cache busting.
+- Links that open or return to the Aerodynamics II index include the v10.1 query,
+  preventing the earlier six-lecture index from remaining in the browser cache.
 - No obsolete ?v=7, ?v=8, or ?v=9 asset references remain.
 - The nozzle-calculator URL is present in the portal home page, Aerodynamics II index,
   Lectures 07–09, and the dedicated tool page.
@@ -49,6 +51,11 @@ Browser and responsive QA
 - The tool-page interface preview hides at phone width as intended.
 - No browser console warnings or errors were observed on the final mobile tool page.
 - MathJax rendered the lecture equations in the local preview.
+- Course-index repair rechecked at 1461 x 799 and 390 x 844.
+- Exactly nine visible cards were confirmed in Spanish at both widths.
+- The first and last visible Spanish cards are Lectures 01 and 09 respectively.
+- No availability badge overlaps its lecture link in any of the nine cards.
+- The course index has no horizontal overflow at either width.
 
 Diagram and navigation QA
 - Five Prandtl–Meyer fan characteristics satisfy x2 > x1 and propagate downstream.
@@ -72,4 +79,3 @@ Public application review
 
 Validation script
 - docs/validate_v10.py
-

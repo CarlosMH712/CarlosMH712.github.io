@@ -53,7 +53,12 @@ the local `UnidadIV.tex` course chapter, and the published Nozzle Calculator.
 - Preserved the existing navy, aerodynamic-blue, orange, serif-heading, and card-based
   identity.
 - Added responsive nozzle geometry, operating-regime, calculator, and validation layouts.
-- Updated CSS and JavaScript cache-busting query strings to version 10.
+- Updated CSS and JavaScript cache-busting query strings to version 10.1 after the
+  course index was observed retaining the six-lecture browser cache.
+- Added an explicit nine-lecture count and direct link to the nozzle unit above the
+  course grid in English, Spanish, and German.
+- Reworked course cards as flexible-height columns so long translated titles cannot
+  overlap the availability badge or lecture link.
 - Added `docs/VALIDATION-v10.txt` with the final automated and numerical checks.
 
 ## Deployment
@@ -61,4 +66,3 @@ the local `UnidadIV.tex` course chapter, and the published Nozzle Calculator.
 Upload the contents of this folder to the root of
 `CarlosMH712/CarlosMH712.github.io`. The folder is a static GitHub Pages site; no build
 step is required.
-

@@ -274,17 +274,44 @@ a {
   color: var(--muted);
 }
 
+.module-overview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 1rem;
+  margin-top: 1.1rem;
+}
+
+.module-overview span {
+  padding: 0.38rem 0.7rem;
+  border-radius: 999px;
+  color: var(--success);
+  background: #eaf7f1;
+  font-size: 0.8rem;
+  font-weight: 750;
+}
+
+.module-overview a {
+  color: var(--blue);
+  font-size: 0.88rem;
+  font-weight: 750;
+  text-decoration: none;
+}
+
 .course-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  align-items: stretch;
   gap: 1rem;
   margin-top: 2rem;
 }
 
 .course-card {
-  position: relative;
-  min-height: 290px;
-  padding: 1.6rem;
+  display: flex;
+  min-width: 0;
+  min-height: 245px;
+  flex-direction: column;
+  padding: 1.35rem;
   border: 1px solid var(--line);
   border-radius: 14px;
   background: white;
@@ -303,18 +330,23 @@ a {
 }
 
 .course-card h3 {
-  margin: 0.9rem 0 0.55rem;
+  margin: 0.7rem 0 0.45rem;
   color: var(--navy);
-  font-size: 1.2rem;
+  font-size: 1.08rem;
+  line-height: 1.38;
 }
 
 .course-card p {
+  margin: 0 0 0.75rem;
   color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
 }
 
 .course-card .status {
   display: inline-flex;
-  margin-top: 0.3rem;
+  align-self: flex-start;
+  margin-top: auto;
   padding: 0.28rem 0.58rem;
   border-radius: 999px;
   color: var(--muted);
@@ -329,9 +361,8 @@ a {
 }
 
 .course-card a {
-  position: absolute;
-  left: 1.6rem;
-  bottom: 1.45rem;
+  align-self: flex-start;
+  margin-top: 0.45rem;
   color: var(--blue);
   font-size: 0.86rem;
   font-weight: 750;
@@ -736,7 +767,7 @@ footer {
   }
 
   .course-card {
-    min-height: 260px;
+    min-height: 0;
   }
 
   .toc-links {
