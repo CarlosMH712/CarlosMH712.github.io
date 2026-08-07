@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Turbofan Cycle Calculator: modules, textbook and modern models, assumptions, validation against Hill &amp; Peterson, references, and public Streamlit application." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Turbofan Cycle Calculator | Carlos Molina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../aerodynamics-ii/lecture.css?v=11" />
+  <link rel="stylesheet" href="tool.css?v=11" />
+  <script defer src="../aerodynamics-ii/lecture.js?v=11"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="../index.html#propulsion-tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="tool-hero">
+  <div class="container tool-hero-grid">
+    <div>
+      <div data-language="en">
+        <p class="eyebrow">Computational tools · Propulsion</p>
+        <h1>Turbofan Cycle Calculator</h1>
+        <p class="hero-copy">Cycle analysis of a separate-flow turbofan: stagnation states at every station, specific thrust, fuel consumption, efficiencies, and parametric sweeps in compressor ratio, fan ratio, and bypass ratio.</p>
+        <p class="hero-credit">by M.C. Carlos Molina, with his students Alexa Marlene Pacheco Arreola and Sergio Adrián Rodríguez Rivas</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Herramientas computacionales · Propulsión</p>
+        <h1>Calculadora de ciclo turbofán</h1>
+        <p class="hero-copy">Análisis del ciclo de un turbofán de flujos separados: estados de remanso en cada estación, empuje específico, consumo de combustible, eficiencias y barridos paramétricos en relación del compresor, del fan y de derivación.</p>
+        <p class="hero-credit">por M.C. Carlos Molina, con sus estudiantes Alexa Marlene Pacheco Arreola y Sergio Adrián Rodríguez Rivas</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Rechnergestützte Werkzeuge · Antriebstechnik</p>
+        <h1>Rechner für den Turbofan-Kreisprozess</h1>
+        <p class="hero-copy">Kreisprozessanalyse eines Turbofans mit getrennten Strömen: Ruhezustände an jeder Station, spezifischer Schub, Kraftstoffverbrauch, Wirkungsgrade und Parameterstudien zu Verdichter-, Fan- und Nebenstromverhältnis.</p>
+        <p class="hero-credit">von M.C. Carlos Molina, mit seinen Studierenden Alexa Marlene Pacheco Arreola und Sergio Adrián Rodríguez Rivas</p>
+      </div>
+      <div class="button-row">
+        <a class="button primary" href="https://turbofan-calculator.streamlit.app/" target="_blank" rel="noopener noreferrer" data-ui-key="turbofanCalculator">Open turbofan calculator</a>
+        <a class="button secondary" href="https://github.com/CarlosMH712/turbofan-calculator" target="_blank" rel="noopener noreferrer" data-ui-key="repository">GitHub repository</a>
+      </div>
+    </div>
+    <div class="app-preview engine-preview" aria-label="Turbofan Cycle Calculator interface preview">
+      <div class="preview-bar"><span></span><span></span><span></span><strong>Turbofan Cycle Calculator</strong></div>
+      <div class="preview-body">
+        <div class="preview-sidebar"><b>Inputs</b><span>M, altitude</span><span>p<sub>rc</sub>, p<sub>rf</sub></span><span>bypass B</span><span>T<sub>max</sub></span><span>γ, R, Q<sub>R</sub></span></div>
+        <div class="preview-main">
+          <small>PROPULSION</small>
+          <h2>Design point</h2>
+          <div class="preview-metrics">
+            <span><b>F/ṁ core</b>1140.1</span>
+            <span><b>TSFC</b>2.743e−5</span>
+            <span><b>Overall η</b>0.2063</span>
+          </div>
+          <div class="preview-chart"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="modules" class="section">
+  <div class="container">
+    <div data-language="en">
+      <p class="section-label">Modules</p>
+      <h2 class="section-title">One design point, four sweeps, and a model comparison</h2>
+      <p class="section-intro">The application resolves the cycle at a chosen operating point and then sweeps the parameters that the textbook plots, marking the optimum on each curve.</p>
+    </div>
+    <div data-language="es" hidden>
+      <p class="section-label">Módulos</p>
+      <h2 class="section-title">Un punto de diseño, cuatro barridos y una comparación de modelos</h2>
+      <p class="section-intro">La aplicación resuelve el ciclo en el punto de operación elegido y después barre los parámetros que grafica el libro, marcando el óptimo en cada curva.</p>
+    </div>
+    <div data-language="de" hidden>
+      <p class="section-label">Module</p>
+      <h2 class="section-title">Ein Auslegungspunkt, vier Parameterstudien und ein Modellvergleich</h2>
+      <p class="section-intro">Die Anwendung löst den Kreisprozess im gewählten Betriebspunkt und variiert anschließend die Parameter, die das Lehrbuch aufträgt, mit markiertem Optimum auf jeder Kurve.</p>
+    </div>
+
+    <div class="module-grid engine-modules" data-language="en">
+      <article><span>01</span><h3>Design point</h3><p>Stations, component breakdown with the shaft-balance check, velocities, engine layout, and the full equation summary.</p></article>
+      <article><span>02</span><h3>Compressor pressure ratio</h3><p>Specific thrust and SFC against Fig. 5.30, plus efficiencies against Fig. 5.32, with the optimum marked.</p></article>
+      <article><span>03</span><h3>Fan pressure ratio</h3><p>Jet velocities and the optimum work split between the core and the bypass stream.</p></article>
+      <article><span>04</span><h3>Bypass ratio</h3><p>Both specific-thrust normalisations side by side: per core flow and per total flow.</p></article>
+      <article><span>05</span><h3>Model comparison</h3><p>What each textbook simplification costs, quantified rather than asserted.</p></article>
+      <article><span>06</span><h3>Export</h3><p>Design point as JSON, sweep as CSV.</p></article>
+    </div>
+    <div class="module-grid engine-modules" data-language="es" hidden>
+      <article><span>01</span><h3>Punto de diseño</h3><p>Estaciones, desglose por componente con la verificación del balance de eje, velocidades, esquema del motor y resumen completo de ecuaciones.</p></article>
+      <article><span>02</span><h3>Relación del compresor</h3><p>Empuje específico y consumo frente a la Fig. 5.30, y eficiencias frente a la Fig. 5.32, con el óptimo marcado.</p></article>
+      <article><span>03</span><h3>Relación del fan</h3><p>Velocidades de chorro y reparto óptimo del trabajo entre el núcleo y la corriente derivada.</p></article>
+      <article><span>04</span><h3>Relación de derivación</h3><p>Las dos normalizaciones del empuje específico lado a lado: por gasto del núcleo y por gasto total.</p></article>
+      <article><span>05</span><h3>Comparación de modelos</h3><p>Lo que cuesta cada simplificación del libro, cuantificado en lugar de afirmado.</p></article>
+      <article><span>06</span><h3>Exportar</h3><p>Punto de diseño en JSON y barrido en CSV.</p></article>
+    </div>
+    <div class="module-grid engine-modules" data-language="de" hidden>
+      <article><span>01</span><h3>Auslegungspunkt</h3><p>Stationen, Komponentenaufstellung mit Prüfung der Wellenleistungsbilanz, Geschwindigkeiten, Triebwerksschema und vollständige Gleichungsübersicht.</p></article>
+      <article><span>02</span><h3>Verdichterdruckverhältnis</h3><p>Spezifischer Schub und Verbrauch gegen Abb. 5.30 sowie Wirkungsgrade gegen Abb. 5.32, mit markiertem Optimum.</p></article>
+      <article><span>03</span><h3>Fandruckverhältnis</h3><p>Strahlgeschwindigkeiten und optimale Arbeitsaufteilung zwischen Kern- und Nebenstrom.</p></article>
+      <article><span>04</span><h3>Nebenstromverhältnis</h3><p>Beide Normierungen des spezifischen Schubs nebeneinander: je Kernmassenstrom und je Gesamtmassenstrom.</p></article>
+      <article><span>05</span><h3>Modellvergleich</h3><p>Was jede Vereinfachung des Lehrbuchs kostet — beziffert statt behauptet.</p></article>
+      <article><span>06</span><h3>Export</h3><p>Auslegungspunkt als JSON, Parameterstudie als CSV.</p></article>
+    </div>
+
+    <div class="station-strip" data-language="en">
+      <div><b>a</b><span>Ambient</span></div>
+      <div><b>2</b><span>Diffuser exit, compressor and fan inlet</span></div>
+      <div><b>3</b><span>Compressor exit</span></div>
+      <div><b>4</b><span>Burner exit</span></div>
+      <div><b>5 · 6 · 8</b><span>Turbine exit, core nozzle inlet, fan exit</span></div>
+    </div>
+    <div class="station-strip" data-language="es" hidden>
+      <div><b>a</b><span>Ambiente</span></div>
+      <div><b>2</b><span>Salida del difusor, entrada al compresor y al fan</span></div>
+      <div><b>3</b><span>Salida del compresor</span></div>
+      <div><b>4</b><span>Salida del quemador</span></div>
+      <div><b>5 · 6 · 8</b><span>Salida de turbina, entrada a tobera del núcleo, salida del fan</span></div>
+    </div>
+    <div class="station-strip" data-language="de" hidden>
+      <div><b>a</b><span>Umgebung</span></div>
+      <div><b>2</b><span>Diffusoraustritt, Verdichter- und Fan-Eintritt</span></div>
+      <div><b>3</b><span>Verdichteraustritt</span></div>
+      <div><b>4</b><span>Brennkammeraustritt</span></div>
+      <div><b>5 · 6 · 8</b><span>Turbinenaustritt, Kerndüseneintritt, Fanaustritt</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container" data-language="en">
+    <p class="section-label">Formulation</p>
+    <h2 class="section-title">Two selectable models, never silently substituted</h2>
+    <p class="section-intro">Base formulation: Hill &amp; Peterson, <em>Mechanics and Thermodynamics of Propulsion</em>, 2nd ed., §5.5, Eqs. 5.35–5.51. The <strong>textbook</strong> model reproduces the book so the tool doubles as a graded class exercise; the <strong>modern</strong> model shows what each simplification costs.</p>
+    <div class="table-scroll"><table class="model-table">
+      <thead><tr><th></th><th>textbook</th><th>modern</th></tr></thead>
+      <tbody>
+        <tr><td>Compressor and fan efficiency</td><td>fixed adiabatic (Eq. 5.40)</td><td>polytropic (Mattingly Eqs. 6.14, 6.15)</td></tr>
+        <tr><td>Shaft power balance</td><td>ṁ<sub>t</sub>·c<sub>pt</sub> ≈ ṁ<sub>a</sub>·c<sub>pc</sub> (Eq. 5.51)</td><td>exact, with (1+f), distinct c<sub>p</sub>, and η<sub>m</sub> (Mattingly Eq. 7.44)</td></tr>
+        <tr><td>Nozzles</td><td>full expansion to p<sub>a</sub> (Eqs. 5.45, 5.50)</td><td>convergent, with choking and pressure thrust (Mattingly Eqs. 7.53–7.55)</td></tr>
+      </tbody>
+    </table></div>
+    <p class="scope-note"><strong>One deliberate correction to the textbook procedure.</strong> Eqs. 5.8 and 5.10 are written for a single propellant stream, and the text says so. Applied to a turbofan they inflate η<sub>p</sub> and depress η<sub>th</sub>; the product η<sub>o</sub> still comes out right, because the kinetic-energy term cancels. This module always uses the two-stream form (Mattingly Eqs. 7.52ad–7.52af). For the default cruise case that is η<sub>p</sub> = 0.567 instead of 0.802 and η<sub>th</sub> = 0.364 instead of 0.257.</p>
+  </div>
+  <div class="container" data-language="es" hidden>
+    <p class="section-label">Formulación</p>
+    <h2 class="section-title">Dos modelos seleccionables, nunca sustituidos en silencio</h2>
+    <p class="section-intro">Formulación base: Hill &amp; Peterson, <em>Mechanics and Thermodynamics of Propulsion</em>, 2.ª ed., §5.5, Ecs. 5.35–5.51. El modelo <strong>textbook</strong> reproduce el libro, de modo que la herramienta sirve también como ejercicio calificable; el modelo <strong>modern</strong> muestra lo que cuesta cada simplificación.</p>
+    <div class="table-scroll"><table class="model-table">
+      <thead><tr><th></th><th>textbook</th><th>modern</th></tr></thead>
+      <tbody>
+        <tr><td>Eficiencia de compresor y fan</td><td>adiabática fija (Ec. 5.40)</td><td>politrópica (Mattingly Ecs. 6.14, 6.15)</td></tr>
+        <tr><td>Balance de potencia en el eje</td><td>ṁ<sub>t</sub>·c<sub>pt</sub> ≈ ṁ<sub>a</sub>·c<sub>pc</sub> (Ec. 5.51)</td><td>exacto, con (1+f), c<sub>p</sub> distintos y η<sub>m</sub> (Mattingly Ec. 7.44)</td></tr>
+        <tr><td>Toberas</td><td>expansión completa a p<sub>a</sub> (Ecs. 5.45, 5.50)</td><td>convergentes, con estrangulamiento y empuje de presión (Mattingly Ecs. 7.53–7.55)</td></tr>
+      </tbody>
+    </table></div>
+    <p class="scope-note"><strong>Una corrección deliberada al procedimiento del libro.</strong> Las Ecs. 5.8 y 5.10 están escritas para una sola corriente propulsiva, y el propio texto lo advierte. Aplicadas a un turbofán inflan η<sub>p</sub> y deprimen η<sub>th</sub>; el producto η<sub>o</sub> sale correcto porque el término de energía cinética se cancela. Este módulo usa siempre la forma de dos corrientes (Mattingly Ecs. 7.52ad–7.52af). Para el caso de crucero por omisión eso es η<sub>p</sub> = 0.567 en lugar de 0.802 y η<sub>th</sub> = 0.364 en lugar de 0.257.</p>
+  </div>
+  <div class="container" data-language="de" hidden>
+    <p class="section-label">Formulierung</p>
+    <h2 class="section-title">Zwei wählbare Modelle, nie stillschweigend ersetzt</h2>
+    <p class="section-intro">Grundformulierung: Hill &amp; Peterson, <em>Mechanics and Thermodynamics of Propulsion</em>, 2. Aufl., §5.5, Gl. 5.35–5.51. Das Modell <strong>textbook</strong> gibt das Lehrbuch wieder, sodass das Werkzeug zugleich als bewertete Übung dient; das Modell <strong>modern</strong> zeigt, was jede Vereinfachung kostet.</p>
+    <div class="table-scroll"><table class="model-table">
+      <thead><tr><th></th><th>textbook</th><th>modern</th></tr></thead>
+      <tbody>
+        <tr><td>Wirkungsgrad von Verdichter und Fan</td><td>fest adiabat (Gl. 5.40)</td><td>polytrop (Mattingly Gl. 6.14, 6.15)</td></tr>
+        <tr><td>Wellenleistungsbilanz</td><td>ṁ<sub>t</sub>·c<sub>pt</sub> ≈ ṁ<sub>a</sub>·c<sub>pc</sub> (Gl. 5.51)</td><td>exakt, mit (1+f), getrennten c<sub>p</sub> und η<sub>m</sub> (Mattingly Gl. 7.44)</td></tr>
+        <tr><td>Düsen</td><td>vollständige Expansion auf p<sub>a</sub> (Gl. 5.45, 5.50)</td><td>konvergent, mit Sperrung und Druckschub (Mattingly Gl. 7.53–7.55)</td></tr>
+      </tbody>
+    </table></div>
+    <p class="scope-note"><strong>Eine bewusste Korrektur am Vorgehen des Lehrbuchs.</strong> Gl. 5.8 und 5.10 gelten für einen einzigen Treibstrahl, worauf der Text selbst hinweist. Auf einen Turbofan angewandt überhöhen sie η<sub>p</sub> und senken η<sub>th</sub>; das Produkt η<sub>o</sub> bleibt richtig, weil sich der Term der kinetischen Energie aufhebt. Dieses Modul verwendet stets die Zweistromform (Mattingly Gl. 7.52ad–7.52af). Für den voreingestellten Reiseflugfall bedeutet das η<sub>p</sub> = 0,567 statt 0,802 und η<sub>th</sub> = 0,364 statt 0,257.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container two-panel-grid" data-language="en">
+    <div>
+      <p class="section-label">Inputs and outputs</p>
+      <h2 class="section-title">From flight condition to a full cycle</h2>
+      <ul class="check-list">
+        <li>Inputs: flight Mach and altitude, compressor and fan pressure ratios, bypass ratio, maximum turbine inlet temperature, component efficiencies, γ per component, R, and Q<sub>R</sub>.</li>
+        <li>SI and U.S. customary units, with selectable pressure, temperature, and altitude units.</li>
+        <li>Stagnation temperature and pressure at every station, plus core and fan jet velocities.</li>
+        <li>Specific thrust normalised by core flow (Eq. 5.47) and by total flow, TSFC, and the three efficiencies.</li>
+        <li>Design point exported as JSON and any sweep as CSV.</li>
+      </ul>
+    </div>
+    <div>
+      <p class="section-label">Model scope</p>
+      <h2 class="section-title">Assumptions</h2>
+      <ul class="check-list">
+        <li>Separate (unmixed) exhaust streams expanding independently to ambient pressure.</li>
+        <li>Calorically perfect gas, with a constant specific-heat ratio per component.</li>
+        <li>R adjustable, default 287 J/(kg·K) — the value used throughout Ch. 5. The standard atmosphere is evaluated with 287.05287; switching moves specific thrust by 0.010 %.</li>
+        <li>Default Q<sub>R</sub> = 45 MJ/kg is the Table 5.1 value. Real Jet-A is 42.8–43.2 MJ/kg, so the default makes TSFC roughly 5 % optimistic.</li>
+      </ul>
+      <p class="scope-note"><strong>Deliberately outside the model:</strong> turbine cooling bleed — mandatory at 1700 K, and the largest single omission — customer bleed extraction, bypass-duct losses, variable c<sub>p</sub>(T), and separate high- and low-pressure turbines.</p>
+    </div>
+  </div>
+  <div class="container two-panel-grid" data-language="es" hidden>
+    <div>
+      <p class="section-label">Entradas y resultados</p>
+      <h2 class="section-title">De la condición de vuelo al ciclo completo</h2>
+      <ul class="check-list">
+        <li>Entradas: Mach y altitud de vuelo, relaciones de presión del compresor y del fan, relación de derivación, temperatura máxima de entrada a turbina, eficiencias de componentes, γ por componente, R y Q<sub>R</sub>.</li>
+        <li>Unidades SI e inglesas, con selección de presión, temperatura y altitud.</li>
+        <li>Temperatura y presión de remanso en cada estación, y velocidades de chorro del núcleo y del fan.</li>
+        <li>Empuje específico normalizado con el gasto del núcleo (Ec. 5.47) y con el gasto total, TSFC y las tres eficiencias.</li>
+        <li>Punto de diseño en JSON y cualquier barrido en CSV.</li>
+      </ul>
+    </div>
+    <div>
+      <p class="section-label">Alcance del modelo</p>
+      <h2 class="section-title">Hipótesis</h2>
+      <ul class="check-list">
+        <li>Corrientes de escape separadas (sin mezcla) que expanden de forma independiente hasta la presión ambiente.</li>
+        <li>Gas calóricamente perfecto, con relación de calores específicos constante por componente.</li>
+        <li>R ajustable, por omisión 287 J/(kg·K), el valor que usa todo el Cap. 5. La atmósfera estándar se evalúa con 287.05287; cambiar de uno a otro mueve el empuje específico un 0.010 %.</li>
+        <li>Q<sub>R</sub> = 45 MJ/kg por omisión es el valor de la Tabla 5.1. El Jet-A real está en 42.8–43.2 MJ/kg, así que el valor por omisión hace el TSFC un 5 % optimista.</li>
+      </ul>
+      <p class="scope-note"><strong>Deliberadamente fuera del modelo:</strong> sangrado de refrigeración de turbina —obligatorio a 1700 K y la mayor omisión— extracción de sangrado para el avión, pérdidas del conducto de derivación, c<sub>p</sub>(T) variable y turbinas de alta y baja presión separadas.</p>
+    </div>
+  </div>
+  <div class="container two-panel-grid" data-language="de" hidden>
+    <div>
+      <p class="section-label">Eingaben und Ergebnisse</p>
+      <h2 class="section-title">Vom Flugzustand zum vollständigen Kreisprozess</h2>
+      <ul class="check-list">
+        <li>Eingaben: Flug-Machzahl und Flughöhe, Verdichter- und Fandruckverhältnis, Nebenstromverhältnis, maximale Turbineneintrittstemperatur, Komponentenwirkungsgrade, γ je Komponente, R und Q<sub>R</sub>.</li>
+        <li>SI- und US-Einheiten mit wählbaren Druck-, Temperatur- und Höheneinheiten.</li>
+        <li>Ruhetemperatur und -druck an jeder Station sowie Strahlgeschwindigkeiten von Kern und Fan.</li>
+        <li>Spezifischer Schub, normiert mit dem Kernmassenstrom (Gl. 5.47) und mit dem Gesamtmassenstrom, TSFC und die drei Wirkungsgrade.</li>
+        <li>Auslegungspunkt als JSON und jede Parameterstudie als CSV.</li>
+      </ul>
+    </div>
+    <div>
+      <p class="section-label">Modellumfang</p>
+      <h2 class="section-title">Annahmen</h2>
+      <ul class="check-list">
+        <li>Getrennte (unvermischte) Abgasströme, die unabhängig auf Umgebungsdruck expandieren.</li>
+        <li>Kalorisch ideales Gas mit konstantem Isentropenexponenten je Komponente.</li>
+        <li>R einstellbar, voreingestellt 287 J/(kg·K) — der in Kap. 5 durchgängig verwendete Wert. Die Standardatmosphäre wird mit 287,05287 ausgewertet; der Wechsel verschiebt den spezifischen Schub um 0,010 %.</li>
+        <li>Voreingestelltes Q<sub>R</sub> = 45 MJ/kg ist der Wert aus Tab. 5.1. Reales Jet-A liegt bei 42,8–43,2 MJ/kg, der Vorgabewert macht den TSFC also etwa 5 % zu optimistisch.</li>
+      </ul>
+      <p class="scope-note"><strong>Bewusst außerhalb des Modells:</strong> Turbinenkühlluft — bei 1700 K zwingend und die größte Einzelauslassung — Zapfluftentnahme, Verluste im Nebenstromkanal, veränderliches c<sub>p</sub>(T) sowie getrennte Hoch- und Niederdruckturbinen.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div data-language="en">
+      <p class="section-label">Verification</p>
+      <h2 class="section-title">Validated against the textbook, not against itself</h2>
+      <p class="section-intro">69 automated tests. A test that only checks two functions of the same module against each other passes just as happily when both are wrong, so the suite is anchored to published figures, closed forms, and limit cases.</p>
+    </div>
+    <div data-language="es" hidden>
+      <p class="section-label">Verificación</p>
+      <h2 class="section-title">Validada contra el libro, no contra sí misma</h2>
+      <p class="section-intro">69 pruebas automatizadas. Una prueba que solo compara dos funciones del mismo módulo entre sí pasa igual de contenta cuando ambas están mal, así que la suite se ancla a figuras publicadas, formas cerradas y casos límite.</p>
+    </div>
+    <div data-language="de" hidden>
+      <p class="section-label">Überprüfung</p>
+      <h2 class="section-title">Gegen das Lehrbuch validiert, nicht gegen sich selbst</h2>
+      <p class="section-intro">69 automatisierte Tests. Ein Test, der nur zwei Funktionen desselben Moduls miteinander vergleicht, besteht auch dann, wenn beide falsch sind — die Suite ist daher an veröffentlichte Diagramme, geschlossene Formen und Grenzfälle gebunden.</p>
+    </div>
+
+    <div class="validation-panel" data-language="en">
+      <div class="validation-row"><b>Peak specific thrust and SFC</b><span>Figs. 5.29, 5.30, and 5.32</span></div>
+      <div class="validation-row"><b>Burner energy balance</b><span>re-derived independently</span></div>
+      <div class="validation-row"><b>Optimum work split</b><span>ideal components, f → 0 ⇒ u_e/u_ef = 1</span></div>
+      <div class="validation-row"><b>Bypass ratio → 0</b><span>reproduces the turbojet, bit for bit</span></div>
+      <div class="validation-row"><b>Figure contract</b><span>tests/test_plots.py: shared height, zero-anchored axes, log10 reference lines</span></div>
+    </div>
+    <div class="validation-panel" data-language="es" hidden>
+      <div class="validation-row"><b>Empuje específico y consumo máximos</b><span>Figs. 5.29, 5.30 y 5.32</span></div>
+      <div class="validation-row"><b>Balance energético del quemador</b><span>rededucido de forma independiente</span></div>
+      <div class="validation-row"><b>Reparto óptimo de trabajo</b><span>componentes ideales, f → 0 ⇒ u_e/u_ef = 1</span></div>
+      <div class="validation-row"><b>Relación de derivación → 0</b><span>reproduce el turborreactor, bit a bit</span></div>
+      <div class="validation-row"><b>Contrato de figuras</b><span>tests/test_plots.py: altura común, ejes anclados en cero, líneas de referencia en log10</span></div>
+    </div>
+    <div class="validation-panel" data-language="de" hidden>
+      <div class="validation-row"><b>Maximaler spezifischer Schub und SFC</b><span>Abb. 5.29, 5.30 und 5.32</span></div>
+      <div class="validation-row"><b>Energiebilanz der Brennkammer</b><span>unabhängig neu hergeleitet</span></div>
+      <div class="validation-row"><b>Optimale Arbeitsaufteilung</b><span>ideale Komponenten, f → 0 ⇒ u_e/u_ef = 1</span></div>
+      <div class="validation-row"><b>Nebenstromverhältnis → 0</b><span>reproduziert den Turbojet, Bit für Bit</span></div>
+      <div class="validation-row"><b>Diagrammvorgaben</b><span>tests/test_plots.py: gemeinsame Höhe, bei null verankerte Achsen, log10-Referenzlinien</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div data-language="en">
+      <p class="section-label">The family</p>
+      <h2 class="section-title">Three engines, one physics core</h2>
+      <div class="sibling-grid">
+        <a href="turbojet-calculator.html"><span>Propulsion</span><strong>Turbojet Cycle Calculator</strong></a>
+        <a href="ramjet-calculator.html"><span>Propulsion</span><strong>Ramjet Cycle Calculator</strong></a>
+        <a href="compressible-flow-calculator.html"><span>Aerodynamics II</span><strong>Compressible Flow Calculator</strong></a>
+      </div>
+      <div class="launch-panel">
+        <div><strong>Ready to run the cycle?</strong><p>The Streamlit application opens in a separate tab, in English or Spanish, with SI and U.S. customary units.</p></div>
+        <a class="button primary" href="https://turbofan-calculator.streamlit.app/" target="_blank" rel="noopener noreferrer">Open turbofan calculator</a>
+      </div>
+    </div>
+    <div data-language="es" hidden>
+      <p class="section-label">La familia</p>
+      <h2 class="section-title">Tres motores, un mismo núcleo físico</h2>
+      <div class="sibling-grid">
+        <a href="turbojet-calculator.html"><span>Propulsión</span><strong>Calculadora de ciclo turborreactor</strong></a>
+        <a href="ramjet-calculator.html"><span>Propulsión</span><strong>Calculadora de ciclo estatorreactor</strong></a>
+        <a href="compressible-flow-calculator.html"><span>Aerodinámica II</span><strong>Calculadora de flujo compresible</strong></a>
+      </div>
+      <div class="launch-panel">
+        <div><strong>¿Listo para correr el ciclo?</strong><p>La aplicación abre en otra pestaña, en inglés o español, con unidades SI e inglesas.</p></div>
+        <a class="button primary" href="https://turbofan-calculator.streamlit.app/" target="_blank" rel="noopener noreferrer">Abrir calculadora de turbofán</a>
+      </div>
+    </div>
+    <div data-language="de" hidden>
+      <p class="section-label">Die Familie</p>
+      <h2 class="section-title">Drei Triebwerke, ein physikalischer Kern</h2>
+      <div class="sibling-grid">
+        <a href="turbojet-calculator.html"><span>Antriebstechnik</span><strong>Rechner für den Turbojet-Kreisprozess</strong></a>
+        <a href="ramjet-calculator.html"><span>Antriebstechnik</span><strong>Rechner für den Staustrahl-Kreisprozess</strong></a>
+        <a href="compressible-flow-calculator.html"><span>Aerodynamik II</span><strong>Rechner für kompressible Strömungen</strong></a>
+      </div>
+      <div class="launch-panel">
+        <div><strong>Bereit für den Kreisprozess?</strong><p>Die Anwendung öffnet in einem separaten Tab, auf Englisch oder Spanisch, mit SI- und US-Einheiten.</p></div>
+        <a class="button primary" href="https://turbofan-calculator.streamlit.app/" target="_blank" rel="noopener noreferrer">Turbofan-Rechner öffnen</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container references">
+    <h2>Primary references</h2>
+    <ol>
+      <li>P. Hill and C. Peterson, <em>Mechanics and Thermodynamics of Propulsion</em>, 2nd ed., Ch. 5.</li>
+      <li>J. D. Mattingly, <em>Elements of Propulsion: Gas Turbines and Rockets</em>, Ch. 6–7.</li>
+      <li><em>U.S. Standard Atmosphere, 1976</em>, NOAA-S/T-76-1562 and NASA-TM-X-74335.</li>
+    </ol>
+    <p class="source-note">Developed at the Universidad Autónoma de Chihuahua by Carlos Alberto Molina Holguín, Alexa Marlene Pacheco Arreola, and Sergio Adrián Rodríguez Rivas. Numerical validation is limited to the ideal cycle model described above.</p>
+  </div>
+</section>
+</main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>

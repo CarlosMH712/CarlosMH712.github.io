@@ -17,6 +17,10 @@ document.addEventListener("DOMContentLoaded", () => {
       calculatorDetails: "Calculator overview",
       nozzleCalculator: "Open nozzle calculator",
       nozzleDetails: "Nozzle calculator overview",
+      turbofanCalculator: "Open turbofan calculator",
+      turbojetCalculator: "Open turbojet calculator",
+      ramjetCalculator: "Open ramjet calculator",
+      repository: "GitHub repository",
       previous: "Previous lecture",
       next: "Next lecture"
     },
@@ -30,6 +34,10 @@ document.addEventListener("DOMContentLoaded", () => {
       calculatorDetails: "Información de la calculadora",
       nozzleCalculator: "Abrir calculadora de toberas",
       nozzleDetails: "Información de la calculadora de toberas",
+      turbofanCalculator: "Abrir calculadora de turbofán",
+      turbojetCalculator: "Abrir calculadora de turborreactor",
+      ramjetCalculator: "Abrir calculadora de estatorreactor",
+      repository: "Repositorio en GitHub",
       previous: "Lecture anterior",
       next: "Siguiente lecture"
     },
@@ -43,6 +51,10 @@ document.addEventListener("DOMContentLoaded", () => {
       calculatorDetails: "Rechnerübersicht",
       nozzleCalculator: "Düsenrechner öffnen",
       nozzleDetails: "Übersicht des Düsenrechners",
+      turbofanCalculator: "Turbofan-Rechner öffnen",
+      turbojetCalculator: "Turbojet-Rechner öffnen",
+      ramjetCalculator: "Staustrahlrechner öffnen",
+      repository: "GitHub-Repository",
       previous: "Vorherige Vorlesung",
       next: "Nächste Vorlesung"
     }
