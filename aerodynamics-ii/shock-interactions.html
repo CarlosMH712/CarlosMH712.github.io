@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Shock-wave reflection and interaction: regular reflection from a wall, the criterion for Mach reflection, the triple point and slip line, and shock intersections." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Shock-Wave Reflection and Interaction | Aerodynamics II</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../index.html" data-ui-key="home">Home</a><a href="index.html?v=11" data-ui-key="course">Aerodynamics II</a><a href="../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">Aerodynamics II · Lecture 4.5</p><h1>Shock-Wave Reflection and Interaction</h1><p class="hero-copy">What happens when an oblique shock meets a wall or another shock: regular reflection, the criterion that forces Mach reflection, and the slip lines that interactions leave behind.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">Aerodinámica II · Lecture 4.5</p><h1>Reflexión e interacción de ondas de choque</h1><p class="hero-copy">Qué ocurre cuando un choque oblicuo encuentra una pared u otro choque: reflexión regular, el criterio que obliga a la reflexión de Mach y las líneas de deslizamiento que dejan las interacciones.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">Aerodynamik II · Vorlesung 4.5</p><h1>Reflexion und Wechselwirkung von Stoßwellen</h1><p class="hero-copy">Was geschieht, wenn ein schräger Stoß auf eine Wand oder einen anderen Stoß trifft: reguläre Reflexion, das Kriterium für die Mach-Reflexion und die zurückbleibenden Gleitlinien.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 35 min</span><span data-language="es" hidden>Lectura estimada: 35 min</span><span data-language="de" hidden>Lesedauer: ca. 35 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Model: inviscid, straight shocks</span><span data-language="es" hidden>Modelo: inviscido, choques rectos</span><span data-language="de" hidden>Modell: reibungsfrei, gerade Stöße</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="oblique-shocks.html">← <span data-ui-key="previous">Previous lecture</span></a><a class="button primary" href="prandtl-meyer.html"><span data-ui-key="next">Next lecture</span> →</a><a class="button calculator-button" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer" data-ui-key="calculator">Open calculator</a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Physical picture</a>
+        <a href="#model">Model and assumptions</a>
+        <a href="#regular">Regular reflection</a>
+        <a href="#criterion">When regular reflection fails</a>
+        <a href="#mach">Mach reflection</a>
+        <a href="#intersection">Shock intersection and slip lines</a>
+        <a href="#blunt">Detached bow shocks</a>
+        <a href="#algorithm">Calculation algorithm</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Key equations</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#calculator">Computational tool</a>
+        <a href="#references">Sources</a>
+      </div>
+    <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Panorama físico</a>
+        <a href="#model-es">Modelo e hipótesis</a>
+        <a href="#regular-es">Reflexión regular</a>
+        <a href="#criterion-es">Cuándo falla la reflexión regular</a>
+        <a href="#mach-es">Reflexión de Mach</a>
+        <a href="#intersection-es">Intersección y líneas de deslizamiento</a>
+        <a href="#blunt-es">Ondas de proa desprendidas</a>
+        <a href="#algorithm-es">Algoritmo de cálculo</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Ecuaciones clave</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#calculator-es">Herramienta computacional</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
+    <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Physikalisches Bild</a>
+        <a href="#model-de">Modell und Annahmen</a>
+        <a href="#regular-de">Reguläre Reflexion</a>
+        <a href="#criterion-de">Wann die reguläre Reflexion versagt</a>
+        <a href="#mach-de">Mach-Reflexion</a>
+        <a href="#intersection-de">Stoßschnitt und Gleitlinien</a>
+        <a href="#blunt-de">Abgelöste Kopfstöße</a>
+        <a href="#algorithm-de">Rechenalgorithmus</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Kerngleichungen</a>
+        <a href="#mistakes-de">Häufige Fehler</a>
+        <a href="#calculator-de">Rechenwerkzeug</a>
+        <a href="#references-de">Quellen</a>
+      </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <ul>
+        <li>Explain why an oblique shock cannot simply end at a solid wall.</li>
+        <li>Compute a regular reflection as two sequential oblique shocks.</li>
+        <li>Measure the reflected wave angle from the correct reference and explain why the reflection is not specular.</li>
+        <li>Apply the criterion \(\theta>\theta_{\max}(M_2)\) to decide whether regular reflection is possible.</li>
+        <li>Describe the structure of a Mach reflection: Mach stem, triple point, and slip line.</li>
+        <li>State the two conditions that hold across a slip line, and the quantities that do not match.</li>
+      </ul>
+    </section>
+
+    <section id="physics">
+      <p class="section-label">Physical picture</p>
+      <h2>A shock does not vanish when it reaches a wall</h2>
+      <p class="lead">An oblique shock turns the flow. If that shock runs into a solid surface, the flow behind it is now heading <em>into</em> the wall — which is impossible, because the wall requires the velocity to be tangent to it. Something must turn the flow back, and in a supersonic stream the only thing available is another shock.</p>
+      <figure class="diagram">
+        <svg viewBox="0 0 860 340" role="img" aria-label="Regular reflection of an oblique shock from a wall">
+          <defs>
+            <marker id="ri-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#0d568d"></path></marker>
+          </defs>
+          <rect x="60" y="280" width="740" height="26" fill="#e6edf2" stroke="#071d33" stroke-width="4"/>
+          <line x1="120" y1="40" x2="430" y2="280" stroke="#d67b28" stroke-width="7"/>
+          <line x1="430" y1="280" x2="740" y2="70" stroke="#d67b28" stroke-width="7"/>
+          <g stroke="#0d568d" stroke-width="4" marker-end="url(#ri-arrow)">
+            <line x1="70" y1="120" x2="230" y2="120"/>
+            <line x1="70" y1="200" x2="270" y2="200"/>
+            <line x1="330" y1="150" x2="470" y2="196"/>
+            <line x1="560" y1="215" x2="720" y2="215"/>
+          </g>
+          <text x="150" y="95" font-size="20" fill="#071d33">1</text>
+          <text x="405" y="140" font-size="20" fill="#071d33">2</text>
+          <text x="650" y="180" font-size="20" fill="#071d33">3</text>
+          <text x="150" y="255" font-size="17" fill="#d67b28">incident</text>
+          <text x="655" y="105" font-size="17" fill="#d67b28">reflected</text>
+          <text x="430" y="326" text-anchor="middle" font-size="17" fill="#344454">wall</text>
+        </svg>
+        <figcaption>Region 2 is directed toward the wall; the reflected shock turns it back to tangency in region 3.</figcaption>
+      </figure>
+      <div class="callout success"><strong>The wall sets the boundary condition.</strong> The flow direction in region 3 is not a free result — it is fixed in advance by the requirement that the streamline be parallel to the wall. Everything else follows from that.</div>
+    </section>
+
+    <section id="model">
+      <p class="section-label">Model and assumptions</p>
+      <h2>Straight waves, uniform regions, no viscosity</h2>
+      <ul>
+        <li>steady, inviscid, two-dimensional flow of a calorically perfect gas;</li>
+        <li>straight shocks separating uniform regions, as in Lecture 04;</li>
+        <li>a plane wall parallel to the original stream;</li>
+        <li>the weak solution at every deflection, unless stated otherwise.</li>
+      </ul>
+      <div class="callout warning"><strong>Not included.</strong> The boundary layer on the wall, which in a real reflection thickens under the adverse pressure gradient and may separate, replacing the ideal reflection point with a lambda-foot structure. The curvature of the incident shock and the shape of the Mach stem are also outside the model: this lecture predicts <em>whether</em> a Mach reflection occurs, not the geometry it takes. That prediction requires the three-shock theory of Ben-Dor.</div>
+    </section>
+
+    <section id="regular">
+      <p class="section-label">The simple case</p>
+      <h2>Regular reflection is two shocks in sequence</h2>
+      <p>The incident shock turns the flow by \(\theta\) toward the wall. The reflected shock must turn it back by the same \(\theta\), so that region 3 runs parallel to the wall again. Both are ordinary oblique shocks, and they are solved one after the other:</p>
+      <div class="process-flow">
+        <div><strong>1</strong><span>From \(M_1\) and \(\theta\), solve \(\theta\)–\(\beta\)–\(M\) for \(\beta_1\)</span></div>
+        <div><strong>2</strong><span>Normal-shock relations at \(M_1\sin\beta_1\) give state 2 and \(M_2\)</span></div>
+        <div><strong>3</strong><span>Treat \(M_2\) as the upstream Mach of the reflected shock</span></div>
+        <div><strong>4</strong><span>Apply the same deflection \(\theta\), in the opposite sense, for \(\beta_2\)</span></div>
+        <div><strong>5</strong><span>Normal-shock relations again give state 3</span></div>
+      </div>
+      <p>The angle \(\beta_2\) is measured from the flow direction in region 2, not from the wall. The angle the reflected wave makes with the wall is therefore</p>
+      <div class="equation-card">\[\boxed{\phi=\beta_2-\theta}\]</div>
+      <div class="callout warning"><strong>The reflection is not specular.</strong> In general \(\phi\neq\beta_1\). Light reflects at equal angles; a shock does not, because the wave angle depends on the local Mach number and \(M_2&lt;M_1\). A weaker upstream Mach number needs a <em>steeper</em> wave to produce the same deflection.</div>
+
+      <div class="example">
+        <h3>Worked case — regular reflection at \(M_1=3.6\)</h3>
+        <p>A stream at \(M_1=3.6\) passes a \(10^\circ\) compression corner. The resulting shock strikes a wall parallel to the original flow.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Incident shock, weak root:</p>\[\beta_1=23.90^\circ,\qquad M_2=2.982,\qquad \frac{p_2}{p_1}=2.315,\qquad\frac{T_2}{T_1}=1.293.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>The reflected shock sees \(M_2=2.982\) and must turn the flow back by \(10^\circ\):</p>\[\beta_2=27.51^\circ,\qquad\phi=\beta_2-10^\circ=17.51^\circ.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Downstream of the reflected shock:</p>\[M_3=2.490,\qquad\frac{p_3}{p_2}=2.047,\qquad\frac{p_3}{p_1}=4.739.\]</div></div>
+        <div class="result-box">\[\boxed{\phi\approx17.5^\circ,\qquad M_3\approx2.49}\]</div>
+        <p>Note that \(\phi=17.51^\circ\) while \(\beta_1=23.90^\circ\). The reflected wave lies closer to the wall than the incident one, and the two static-pressure jumps multiply rather than add.</p>
+      </div>
+    </section>
+
+    <section id="criterion">
+      <p class="section-label">The decisive test</p>
+      <h2>When regular reflection becomes impossible</h2>
+      <p>Step 4 of the procedure quietly assumes that the flow in region 2 <em>can</em> be turned by \(\theta\) through an attached straight shock. Lecture 04 established when that is possible: a deflection has an attached solution only if it does not exceed the maximum for the local Mach number. Applied to the reflected shock, the condition is</p>
+      <div class="equation-card">\[\boxed{\theta\le\theta_{\max}(M_2)\quad\Longrightarrow\quad\text{regular reflection exists}}\]</div>
+      <div class="callout"><strong>Why this can fail even when the incident shock is fine.</strong> The incident shock only needs \(\theta\le\theta_{\max}(M_1)\), and \(M_2&lt;M_1\) always. Since \(\theta_{\max}\) falls steeply as the Mach number approaches one, a deflection that the oncoming stream handles comfortably may be far beyond what the post-shock flow can manage. The reflection, not the incidence, is the binding constraint.</div>
+      <p>When the test fails, nature does not abandon the boundary condition — the flow still has to leave the wall tangentially. What it abandons is the assumption of a straight reflected shock meeting the wall at a point.</p>
+    </section>
+
+    <section id="mach">
+      <p class="section-label">The alternative</p>
+      <h2>Mach reflection</h2>
+      <p>If no straight reflected shock can do the job, the incident shock curves as it approaches the wall and meets it through a nearly normal segment called the <strong>Mach stem</strong>. A normal shock can turn the flow through zero degrees while producing a very large pressure rise, which is exactly what the wall region needs.</p>
+      <figure class="diagram">
+        <svg viewBox="0 0 860 360" role="img" aria-label="Mach reflection with triple point, Mach stem, and slip line">
+          <defs>
+            <marker id="mr-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#0d568d"></path></marker>
+          </defs>
+          <rect x="60" y="300" width="740" height="26" fill="#e6edf2" stroke="#071d33" stroke-width="4"/>
+          <path d="M120 40 C300 170, 380 200, 420 205" fill="none" stroke="#d67b28" stroke-width="7"/>
+          <path d="M420 205 C412 250, 414 280, 416 300" fill="none" stroke="#b0400f" stroke-width="9"/>
+          <path d="M420 205 C520 165, 620 120, 720 70" fill="none" stroke="#d67b28" stroke-width="7"/>
+          <path d="M420 205 C520 232, 620 250, 745 258" fill="none" stroke="#176b47" stroke-width="4" stroke-dasharray="12 8"/>
+          <circle cx="420" cy="205" r="9" fill="#071d33"/>
+          <g stroke="#0d568d" stroke-width="4" marker-end="url(#mr-arrow)">
+            <line x1="70" y1="110" x2="215" y2="110"/>
+            <line x1="70" y1="250" x2="270" y2="250"/>
+            <line x1="560" y1="285" x2="700" y2="285"/>
+          </g>
+          <text x="150" y="85" font-size="20" fill="#071d33">1</text>
+          <text x="345" y="130" font-size="20" fill="#071d33">2</text>
+          <text x="600" y="200" font-size="20" fill="#071d33">3</text>
+          <text x="470" y="285" font-size="20" fill="#071d33">4</text>
+          <text x="437" y="196" font-size="16" fill="#071d33">triple point</text>
+          <text x="330" y="290" text-anchor="middle" font-size="16" fill="#b0400f">Mach stem</text>
+          <text x="700" y="240" font-size="16" fill="#176b47">slip line</text>
+          <text x="140" y="240" font-size="16" fill="#d67b28">incident</text>
+        </svg>
+        <figcaption>Three shocks meet at the triple point, and a slip line separates the gas that crossed the stem from the gas that crossed two oblique waves.</figcaption>
+      </figure>
+      <p>The configuration has four elements:</p>
+      <div class="definition-grid">
+        <div class="definition"><strong>Curved incident shock</strong><span>Bends toward the normal as it nears the wall.</span></div>
+        <div class="definition"><strong>Mach stem</strong><span>The nearly normal segment that actually meets the wall. The flow behind it is subsonic.</span></div>
+        <div class="definition"><strong>Reflected shock</strong><span>Springs from the triple point, no longer anchored at the wall.</span></div>
+        <div class="definition"><strong>Slip line</strong><span>Trails from the triple point, separating two streams with different histories.</span></div>
+      </div>
+      <div class="callout success"><strong>Why a slip line has to exist.</strong> Fluid reaching region 3 crossed two oblique shocks; fluid reaching region 4 crossed one nearly normal shock. Two different paths, two different entropy rises. The two streams arrive side by side at the same pressure and moving in the same direction, but with different temperatures, densities, and Mach numbers — so a discontinuity in those quantities must persist downstream.</div>
+      <div class="callout warning">Predicting <em>where</em> the triple point sits and how tall the Mach stem grows is beyond this treatment. That requires solving the three-shock problem with the slip-line conditions imposed, which is the subject of Ben-Dor's monograph. What this lecture gives you is the criterion that tells you a Mach reflection is what you are looking at.</div>
+    </section>
+
+    <section id="intersection">
+      <p class="section-label">Two shocks meeting</p>
+      <h2>Intersection and the slip line</h2>
+      <p>When a left-running shock crosses a right-running one, both waves refract through the intersection. Behind it the flow arrives along two different routes, and again a slip line separates them. The matching conditions are the same two as before:</p>
+      <div class="equation-card">\[\boxed{p_4=p_{4'},\qquad \text{direction}(\mathbf V_4)=\text{direction}(\mathbf V_{4'})}\]</div>
+      <p>Everything else may differ. In general</p>
+      <div class="equation-card">\[s_4\neq s_{4'},\qquad T_4\neq T_{4'},\qquad \rho_4\neq\rho_{4'},\qquad M_4\neq M_{4'},\qquad |\mathbf V_4|\neq|\mathbf V_{4'}|.\]</div>
+      <div class="callout"><strong>Pressure and direction, nothing more.</strong> Equal pressure keeps the slip line in mechanical equilibrium; equal direction keeps it a streamline. Neither requires the two streams to share a thermodynamic state, and in general they do not. Solving an intersection means iterating on the deflection until those two conditions are met simultaneously.</div>
+    </section>
+
+    <section id="blunt">
+      <p class="section-label">The limiting case</p>
+      <h2>Detached bow shocks over blunt bodies</h2>
+      <p>A blunt body presents an effective deflection of \(90^\circ\) at its stagnation streamline, far beyond \(\theta_{\max}\) for any Mach number. No attached shock is possible, so the wave stands off ahead of the body as a curved <strong>bow shock</strong>.</p>
+      <p>Its curvature makes every streamline cross the shock at a different angle, which has a consequence worth stating explicitly:</p>
+      <div class="callout success"><strong>A curved shock generates vorticity.</strong> Adjacent streamlines cross the wave at different local angles, so they experience different total-pressure losses and emerge with different entropies. That transverse entropy gradient is, by Crocco's theorem, a source of vorticity — which is why the flow field behind a bow shock is rotational even though the oncoming stream is not, and why a purely potential-flow treatment fails there.</div>
+      <p>Along the stagnation streamline the shock is locally normal, so the stagnation-point conditions follow from the normal-shock relations of Lecture 03 evaluated at the free-stream Mach number. That is the one place on a bow shock where an exact hand calculation is available, and it is the basis of the supersonic Pitot measurement.</p>
+    </section>
+
+    <section id="algorithm">
+      <p class="section-label">Calculation algorithm</p>
+      <h2>Deciding and computing a reflection</h2>
+      <div class="process-flow">
+        <div><strong>1</strong><span>Specify \(M_1\), \(\theta\), \(\gamma\)</span></div>
+        <div><strong>2</strong><span>Check \(\theta\le\theta_{\max}(M_1)\) for the incident shock</span></div>
+        <div><strong>3</strong><span>Solve \(\theta\)–\(\beta\)–\(M\) for \(\beta_1\); get \(M_2\) and state 2</span></div>
+        <div><strong>4</strong><span>Evaluate \(\theta_{\max}(M_2)\)</span></div>
+        <div><strong>5</strong><span>If \(\theta&gt;\theta_{\max}(M_2)\): Mach reflection — stop and report</span></div>
+        <div><strong>6</strong><span>Otherwise solve for \(\beta_2\) at the same \(\theta\)</span></div>
+        <div><strong>7</strong><span>Report \(\phi=\beta_2-\theta\) and state 3</span></div>
+        <div><strong>8</strong><span>Multiply the total-pressure recoveries</span></div>
+      </div>
+      <div class="callout warning">Step 5 is the one students skip. A solver that jumps from step 3 to step 6 will return a plausible-looking \(\beta_2\) for a case that physically produces a Mach reflection, and nothing in the output will flag it.</div>
+    </section>
+
+    <section id="example">
+      <p class="section-label">Worked example</p>
+      <h2>A Mach reflection at \(M_1=2.0\)</h2>
+      <div class="example">
+        <h3>Problem</h3>
+        <p>A stream at \(M_1=2.0\) is deflected \(18^\circ\) by a compression corner, and the resulting shock strikes a wall parallel to the original flow. Determine whether the reflection is regular, and if not, explain what replaces it.</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>First check the incident shock. For \(M_1=2.0\), \(\theta_{\max}=22.97^\circ\), and \(18^\circ&lt;22.97^\circ\), so the incident shock is attached:</p>\[\beta_1=49.79^\circ,\qquad M_{n1}=2.0\sin49.79^\circ=1.5275.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>State 2 from the normal-shock relations at \(M_{n1}\):</p>\[\frac{p_2}{p_1}=2.5556,\qquad M_{n2}=0.6916,\qquad M_2=\frac{0.6916}{\sin(49.79^\circ-18^\circ)}=1.3131.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Now the decisive test. The reflected shock must turn the flow back by \(18^\circ\), starting from \(M_2=1.3131\). The maximum deflection available at that Mach number is</p>\[\theta_{\max}(1.3131)=7.03^\circ.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Compare:</p>\[18^\circ\;&gt;\;7.03^\circ.\]<p>The required deflection exceeds the maximum by a wide margin. <strong>No attached straight reflected shock exists</strong>, and the reflection cannot be regular.</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>What occurs instead is a Mach reflection: the incident shock curves near the wall and terminates in a nearly normal Mach stem, a reflected shock and a slip line spring from the triple point, and the flow immediately behind the stem is subsonic.</p></div></div>
+
+        <div class="result-box">\[\boxed{\theta_{\max}(M_2)=7.03^\circ\;&lt;\;18^\circ\;\Longrightarrow\;\text{Mach reflection}}\]</div>
+        <p>The contrast with the \(M_1=3.6\) case above is instructive. There the deflection was smaller and the post-shock Mach number much higher, leaving \(\theta_{\max}(M_2)=33.95^\circ\) — ample room for a regular reflection. Here a stronger deflection at a lower Mach number drops \(M_2\) to 1.31, and \(\theta_{\max}\) collapses with it.</p>
+      </div>
+      <div class="validation-case">
+        <strong>Calculator validation case</strong>
+        <span>Inputs: \(M_1=2.0\), \(\theta=18^\circ\), \(\gamma=1.4\), weak branch. Expected: \(\beta_1=49.79^\circ\), \(M_2=1.3131\), and a reflection test that fails because \(\theta_{\max}(M_2)=7.03^\circ\).</span>
+      </div>
+    </section>
+
+    <section id="summary">
+      <p class="section-label">Key equations</p>
+      <h2>At a glance</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Relation</th><th>Expression</th><th>Applies when</th></tr></thead>
+          <tbody>
+            <tr><td>Reflected wave angle</td><td>\(\phi=\beta_2-\theta\)</td><td>regular reflection</td></tr>
+            <tr><td>Reflection criterion</td><td>\(\theta\le\theta_{\max}(M_2)\)</td><td>regular reflection exists</td></tr>
+            <tr><td>Mach reflection</td><td>\(\theta&gt;\theta_{\max}(M_2)\)</td><td>Mach stem forms</td></tr>
+            <tr><td>Slip-line conditions</td><td>\(p_4=p_{4'}\), direction matched</td><td>any interaction</td></tr>
+            <tr><td>Across a slip line</td><td>\(s_4\neq s_{4'}\), \(T_4\neq T_{4'}\), \(M_4\neq M_{4'}\)</td><td>in general</td></tr>
+            <tr><td>Cumulative recovery</td><td>\(p_{0,3}/p_{0,1}=(p_{0,2}/p_{0,1})(p_{0,3}/p_{0,2})\)</td><td>shock sequence</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="mistakes">
+      <p class="section-label">Common mistakes</p>
+      <h2>Common mistakes</h2>
+      <ul class="check-list">
+        <li><strong>Assuming the reflection is specular.</strong> \(\phi=\beta_2-\theta\) and in general \(\phi\neq\beta_1\); the reflected wave is not a mirror image of the incident one.</li>
+        <li><strong>Measuring \(\beta_2\) from the wall.</strong> It is measured from the flow direction in region 2, which is inclined at \(\theta\) to the wall.</li>
+        <li><strong>Using \(M_1\) for the reflected shock.</strong> The reflected wave sees \(M_2\), which is always smaller.</li>
+        <li><strong>Skipping the \(\theta_{\max}(M_2)\) test.</strong> The incident shock being attached says nothing about the reflected one, and this is precisely how Mach reflections get missed.</li>
+        <li><strong>Expecting the flow behind a Mach stem to be supersonic.</strong> The stem is nearly normal, so the flow behind it is subsonic — which is why the stem region cannot be handled by the oblique-shock relations at all.</li>
+        <li><strong>Requiring temperature or density to match across a slip line.</strong> Only pressure and direction match; entropy differs by construction.</li>
+        <li><strong>Treating a bow shock field as irrotational.</strong> Shock curvature produces an entropy gradient and therefore vorticity.</li>
+      </ul>
+    </section>
+
+    <section id="calculator">
+      <p class="section-label">Computational tool</p>
+      <h2>Open calculator</h2>
+      <p>The oblique-shock module solves each of the two shocks in a regular reflection and reports \(\theta_{\max}\) for the local Mach number, which is the quantity the criterion of this lecture needs. Run the incident shock first, read \(M_2\), then re-enter it as the upstream Mach number of the reflected wave — the calculator will refuse the second step for the \(M_1=2.0\), \(\theta=18^\circ\) case, which is the correct answer.</p>
+      <div class="button-row lecture-actions"><a class="button outline" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer">Open calculator</a></div>
+    </section>
+
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed. New York: McGraw-Hill Education, 2017, Chapter 9.</li>
+        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3rd ed. New York: McGraw-Hill, 2003, Chapter 4.</li>
+        <li>Ben-Dor, G. <em>Shock Wave Reflection Phenomena</em>. New York: Springer-Verlag, 1992.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexico, February 2024.</li>
+      </ol>
+      <p class="source-note">Adapted from Unit III of the Aerodynamics II course notes by Carlos Alberto Molina Holguín; the treatment is kept at the level of Anderson's Chapter 9, and all numerical values were independently recomputed for \(\gamma=1.4\).</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="oblique-shocks.html"><span>Previous lecture</span>← Oblique Shock Waves</a>
+      <a class="next-link" href="prandtl-meyer.html"><span>Next lecture</span>Prandtl–Meyer Expansions →</a>
+    </nav>
+  </article>
+
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Lo que debes ser capaz de hacer</h2>
+      <ul>
+        <li>Explicar por qué un choque oblicuo no puede simplemente terminar en una pared sólida.</li>
+        <li>Calcular una reflexión regular como dos choques oblicuos secuenciales.</li>
+        <li>Medir el ángulo de la onda reflejada desde la referencia correcta y explicar por qué la reflexión no es especular.</li>
+        <li>Aplicar el criterio \(\theta>\theta_{\max}(M_2)\) para decidir si la reflexión regular es posible.</li>
+        <li>Describir la estructura de una reflexión de Mach: tallo de Mach, punto triple y línea de deslizamiento.</li>
+        <li>Enunciar las dos condiciones que se cumplen a través de una línea de deslizamiento, y las magnitudes que no coinciden.</li>
+      </ul>
+    </section>
+
+    <section id="physics-es">
+      <p class="section-label">Panorama físico</p>
+      <h2>Un choque no desaparece al llegar a una pared</h2>
+      <p class="lead">Un choque oblicuo gira el flujo. Si ese choque topa con una superficie sólida, el flujo detrás de él va ahora <em>hacia</em> la pared, lo cual es imposible: la pared exige que la velocidad le sea tangente. Algo debe girar el flujo de vuelta, y en una corriente supersónica lo único disponible es otro choque.</p>
+      <figure class="diagram">
+        <svg viewBox="0 0 860 340" role="img" aria-label="Reflexión regular de un choque oblicuo en una pared">
+          <defs>
+            <marker id="ri-arrow-es" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#0d568d"></path></marker>
+          </defs>
+          <rect x="60" y="280" width="740" height="26" fill="#e6edf2" stroke="#071d33" stroke-width="4"/>
+          <line x1="120" y1="40" x2="430" y2="280" stroke="#d67b28" stroke-width="7"/>
+          <line x1="430" y1="280" x2="740" y2="70" stroke="#d67b28" stroke-width="7"/>
+          <g stroke="#0d568d" stroke-width="4" marker-end="url(#ri-arrow-es)">
+            <line x1="70" y1="120" x2="230" y2="120"/>
+            <line x1="70" y1="200" x2="270" y2="200"/>
+            <line x1="330" y1="150" x2="470" y2="196"/>
+            <line x1="560" y1="215" x2="720" y2="215"/>
+          </g>
+          <text x="150" y="95" font-size="20" fill="#071d33">1</text>
+          <text x="405" y="140" font-size="20" fill="#071d33">2</text>
+          <text x="650" y="180" font-size="20" fill="#071d33">3</text>
+          <text x="140" y="255" font-size="17" fill="#d67b28">incidente</text>
+          <text x="645" y="105" font-size="17" fill="#d67b28">reflejado</text>
+          <text x="430" y="326" text-anchor="middle" font-size="17" fill="#344454">pared</text>
+        </svg>
+        <figcaption>La región 2 va dirigida hacia la pared; el choque reflejado la devuelve a la tangencia en la región 3.</figcaption>
+      </figure>
+      <div class="callout success"><strong>La pared fija la condición de frontera.</strong> La dirección del flujo en la región 3 no es un resultado libre: queda fijada de antemano por la exigencia de que la línea de corriente sea paralela a la pared. Todo lo demás se sigue de ahí.</div>
+    </section>
+
+    <section id="model-es">
+      <p class="section-label">Modelo e hipótesis</p>
+      <h2>Ondas rectas, regiones uniformes, sin viscosidad</h2>
+      <ul>
+        <li>flujo estacionario, inviscido y bidimensional de un gas calóricamente perfecto;</li>
+        <li>choques rectos que separan regiones uniformes, como en la Lecture 04;</li>
+        <li>pared plana paralela a la corriente original;</li>
+        <li>solución débil en cada deflexión, salvo que se indique lo contrario.</li>
+      </ul>
+      <div class="callout warning"><strong>No incluido.</strong> La capa límite sobre la pared, que en una reflexión real engrosa bajo el gradiente adverso de presión y puede separarse, sustituyendo el punto ideal de reflexión por una estructura de pie lambda. La curvatura del choque incidente y la forma del tallo de Mach también quedan fuera: esta lecture predice <em>si</em> ocurre una reflexión de Mach, no la geometría que adopta. Esa predicción requiere la teoría de tres choques de Ben-Dor.</div>
+    </section>
+
+    <section id="regular-es">
+      <p class="section-label">El caso simple</p>
+      <h2>La reflexión regular son dos choques en secuencia</h2>
+      <p>El choque incidente gira el flujo un ángulo \(\theta\) hacia la pared. El choque reflejado debe girarlo de vuelta el mismo \(\theta\), de modo que la región 3 corra otra vez paralela a la pared. Ambos son choques oblicuos ordinarios y se resuelven uno tras otro:</p>
+      <div class="process-flow">
+        <div><strong>1</strong><span>Con \(M_1\) y \(\theta\), resolver \(\theta\)–\(\beta\)–\(M\) para \(\beta_1\)</span></div>
+        <div><strong>2</strong><span>Las relaciones de choque normal en \(M_1\sin\beta_1\) dan el estado 2 y \(M_2\)</span></div>
+        <div><strong>3</strong><span>Tratar \(M_2\) como el Mach aguas arriba del choque reflejado</span></div>
+        <div><strong>4</strong><span>Aplicar la misma deflexión \(\theta\), en sentido opuesto, para \(\beta_2\)</span></div>
+        <div><strong>5</strong><span>Las relaciones de choque normal dan de nuevo el estado 3</span></div>
+      </div>
+      <p>El ángulo \(\beta_2\) se mide desde la dirección del flujo en la región 2, no desde la pared. El ángulo que la onda reflejada forma con la pared es por tanto</p>
+      <div class="equation-card">\[\boxed{\phi=\beta_2-\theta}\]</div>
+      <div class="callout warning"><strong>La reflexión no es especular.</strong> En general \(\phi\neq\beta_1\). La luz se refleja con ángulos iguales; un choque no, porque el ángulo de onda depende del Mach local y \(M_2&lt;M_1\). Un Mach aguas arriba menor necesita una onda <em>más inclinada</em> para producir la misma deflexión.</div>
+
+      <div class="example">
+        <h3>Caso resuelto — reflexión regular en \(M_1=3.6\)</h3>
+        <p>Una corriente a \(M_1=3.6\) pasa por una esquina de compresión de \(10^\circ\). El choque resultante incide sobre una pared paralela a la corriente original.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Choque incidente, raíz débil:</p>\[\beta_1=23.90^\circ,\qquad M_2=2.982,\qquad \frac{p_2}{p_1}=2.315,\qquad\frac{T_2}{T_1}=1.293.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>El choque reflejado ve \(M_2=2.982\) y debe girar el flujo de vuelta \(10^\circ\):</p>\[\beta_2=27.51^\circ,\qquad\phi=\beta_2-10^\circ=17.51^\circ.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Aguas abajo del choque reflejado:</p>\[M_3=2.490,\qquad\frac{p_3}{p_2}=2.047,\qquad\frac{p_3}{p_1}=4.739.\]</div></div>
+        <div class="result-box">\[\boxed{\phi\approx17.5^\circ,\qquad M_3\approx2.49}\]</div>
+        <p>Nótese que \(\phi=17.51^\circ\) mientras que \(\beta_1=23.90^\circ\). La onda reflejada queda más cerca de la pared que la incidente, y los dos saltos de presión estática se multiplican en lugar de sumarse.</p>
+      </div>
+    </section>
+
+    <section id="criterion-es">
+      <p class="section-label">La prueba decisiva</p>
+      <h2>Cuándo la reflexión regular se vuelve imposible</h2>
+      <p>El paso 4 del procedimiento supone en silencio que el flujo de la región 2 <em>puede</em> girarse un ángulo \(\theta\) mediante un choque recto adherido. La Lecture 04 estableció cuándo eso es posible: una deflexión tiene solución adherida solo si no excede el máximo para el Mach local. Aplicada al choque reflejado, la condición es</p>
+      <div class="equation-card">\[\boxed{\theta\le\theta_{\max}(M_2)\quad\Longrightarrow\quad\text{existe reflexión regular}}\]</div>
+      <div class="callout"><strong>Por qué puede fallar aunque el choque incidente esté bien.</strong> El choque incidente solo necesita \(\theta\le\theta_{\max}(M_1)\), y siempre \(M_2&lt;M_1\). Como \(\theta_{\max}\) cae abruptamente cuando el Mach se acerca a uno, una deflexión que la corriente entrante maneja con holgura puede quedar muy por encima de lo que el flujo posterior al choque puede soportar. La restricción que manda es la reflexión, no la incidencia.</div>
+      <p>Cuando la prueba falla, la naturaleza no abandona la condición de frontera: el flujo sigue teniendo que salir tangente a la pared. Lo que abandona es la suposición de un choque reflejado recto que llega a la pared en un punto.</p>
+    </section>
+
+    <section id="mach-es">
+      <p class="section-label">La alternativa</p>
+      <h2>Reflexión de Mach</h2>
+      <p>Si ningún choque reflejado recto puede hacer el trabajo, el choque incidente se curva al acercarse a la pared y la encuentra mediante un segmento casi normal llamado <strong>tallo de Mach</strong>. Un choque normal puede girar el flujo cero grados produciendo a la vez un aumento de presión muy grande, que es exactamente lo que la región de pared necesita.</p>
+      <figure class="diagram">
+        <svg viewBox="0 0 860 360" role="img" aria-label="Reflexión de Mach con punto triple, tallo de Mach y línea de deslizamiento">
+          <defs>
+            <marker id="mr-arrow-es" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#0d568d"></path></marker>
+          </defs>
+          <rect x="60" y="300" width="740" height="26" fill="#e6edf2" stroke="#071d33" stroke-width="4"/>
+          <path d="M120 40 C300 170, 380 200, 420 205" fill="none" stroke="#d67b28" stroke-width="7"/>
+          <path d="M420 205 C412 250, 414 280, 416 300" fill="none" stroke="#b0400f" stroke-width="9"/>
+          <path d="M420 205 C520 165, 620 120, 720 70" fill="none" stroke="#d67b28" stroke-width="7"/>
+          <path d="M420 205 C520 232, 620 250, 745 258" fill="none" stroke="#176b47" stroke-width="4" stroke-dasharray="12 8"/>
+          <circle cx="420" cy="205" r="9" fill="#071d33"/>
+          <g stroke="#0d568d" stroke-width="4" marker-end="url(#mr-arrow-es)">
+            <line x1="70" y1="110" x2="215" y2="110"/>
+            <line x1="70" y1="250" x2="270" y2="250"/>
+            <line x1="560" y1="285" x2="700" y2="285"/>
+          </g>
+          <text x="150" y="85" font-size="20" fill="#071d33">1</text>
+          <text x="345" y="130" font-size="20" fill="#071d33">2</text>
+          <text x="600" y="200" font-size="20" fill="#071d33">3</text>
+          <text x="470" y="285" font-size="20" fill="#071d33">4</text>
+          <text x="437" y="196" font-size="16" fill="#071d33">punto triple</text>
+          <text x="320" y="290" text-anchor="middle" font-size="16" fill="#b0400f">tallo de Mach</text>
+          <text x="680" y="240" font-size="16" fill="#176b47">línea de desliz.</text>
+          <text x="130" y="240" font-size="16" fill="#d67b28">incidente</text>
+        </svg>
+        <figcaption>Tres choques se encuentran en el punto triple, y una línea de deslizamiento separa el gas que cruzó el tallo del que cruzó dos ondas oblicuas.</figcaption>
+      </figure>
+      <p>La configuración tiene cuatro elementos:</p>
+      <div class="definition-grid">
+        <div class="definition"><strong>Choque incidente curvo</strong><span>Se inclina hacia la normal conforme se acerca a la pared.</span></div>
+        <div class="definition"><strong>Tallo de Mach</strong><span>El segmento casi normal que realmente llega a la pared. El flujo detrás de él es subsónico.</span></div>
+        <div class="definition"><strong>Choque reflejado</strong><span>Nace del punto triple, ya no anclado en la pared.</span></div>
+        <div class="definition"><strong>Línea de deslizamiento</strong><span>Se desprende del punto triple y separa dos corrientes con historias distintas.</span></div>
+      </div>
+      <div class="callout success"><strong>Por qué tiene que existir una línea de deslizamiento.</strong> El fluido que llega a la región 3 cruzó dos choques oblicuos; el que llega a la región 4 cruzó un solo choque casi normal. Dos caminos distintos, dos aumentos de entropía distintos. Las dos corrientes llegan lado a lado con la misma presión y moviéndose en la misma dirección, pero con temperaturas, densidades y números de Mach distintos, así que una discontinuidad en esas magnitudes debe persistir aguas abajo.</div>
+      <div class="callout warning">Predecir <em>dónde</em> se sitúa el punto triple y cuánto crece el tallo de Mach queda fuera de este tratamiento. Eso exige resolver el problema de tres choques imponiendo las condiciones de la línea de deslizamiento, que es el tema de la monografía de Ben-Dor. Lo que esta lecture te da es el criterio que te dice que lo que estás viendo es una reflexión de Mach.</div>
+    </section>
+
+    <section id="intersection-es">
+      <p class="section-label">Dos choques que se encuentran</p>
+      <h2>Intersección y línea de deslizamiento</h2>
+      <p>Cuando un choque que corre hacia la izquierda cruza uno que corre hacia la derecha, ambas ondas se refractan al atravesar la intersección. Detrás de ella el flujo llega por dos rutas distintas y de nuevo una línea de deslizamiento las separa. Las condiciones de acoplamiento son las mismas dos de antes:</p>
+      <div class="equation-card">\[\boxed{p_4=p_{4'},\qquad \text{dirección}(\mathbf V_4)=\text{dirección}(\mathbf V_{4'})}\]</div>
+      <p>Todo lo demás puede diferir. En general</p>
+      <div class="equation-card">\[s_4\neq s_{4'},\qquad T_4\neq T_{4'},\qquad \rho_4\neq\rho_{4'},\qquad M_4\neq M_{4'},\qquad |\mathbf V_4|\neq|\mathbf V_{4'}|.\]</div>
+      <div class="callout"><strong>Presión y dirección, nada más.</strong> La igualdad de presión mantiene la línea de deslizamiento en equilibrio mecánico; la igualdad de dirección la mantiene como línea de corriente. Ninguna de las dos exige que ambas corrientes compartan estado termodinámico, y en general no lo comparten. Resolver una intersección significa iterar sobre la deflexión hasta cumplir esas dos condiciones simultáneamente.</div>
+    </section>
+
+    <section id="blunt-es">
+      <p class="section-label">El caso límite</p>
+      <h2>Ondas de proa desprendidas en cuerpos romos</h2>
+      <p>Un cuerpo romo presenta una deflexión efectiva de \(90^\circ\) en su línea de corriente de estancamiento, muy por encima de \(\theta_{\max}\) para cualquier número de Mach. No hay choque adherido posible, así que la onda se planta por delante del cuerpo como una <strong>onda de proa</strong> curva.</p>
+      <p>Su curvatura hace que cada línea de corriente cruce el choque con un ángulo distinto, y eso tiene una consecuencia que conviene enunciar explícitamente:</p>
+      <div class="callout success"><strong>Un choque curvo genera vorticidad.</strong> Líneas de corriente adyacentes cruzan la onda con ángulos locales distintos, así que sufren pérdidas de presión total distintas y emergen con entropías distintas. Ese gradiente transversal de entropía es, por el teorema de Crocco, una fuente de vorticidad. Por eso el campo detrás de una onda de proa es rotacional aunque la corriente incidente no lo sea, y por eso un tratamiento de flujo potencial puro falla ahí.</div>
+      <p>A lo largo de la línea de corriente de estancamiento el choque es localmente normal, de modo que las condiciones en el punto de estancamiento se siguen de las relaciones de choque normal de la Lecture 03 evaluadas con el Mach de corriente libre. Ese es el único lugar de una onda de proa donde hay cálculo manual exacto disponible, y es la base de la medición Pitot supersónica.</p>
+    </section>
+
+    <section id="algorithm-es">
+      <p class="section-label">Algoritmo de cálculo</p>
+      <h2>Decidir y calcular una reflexión</h2>
+      <div class="process-flow">
+        <div><strong>1</strong><span>Especificar \(M_1\), \(\theta\), \(\gamma\)</span></div>
+        <div><strong>2</strong><span>Verificar \(\theta\le\theta_{\max}(M_1)\) para el choque incidente</span></div>
+        <div><strong>3</strong><span>Resolver \(\theta\)–\(\beta\)–\(M\) para \(\beta_1\); obtener \(M_2\) y el estado 2</span></div>
+        <div><strong>4</strong><span>Evaluar \(\theta_{\max}(M_2)\)</span></div>
+        <div><strong>5</strong><span>Si \(\theta&gt;\theta_{\max}(M_2)\): reflexión de Mach — detener y reportar</span></div>
+        <div><strong>6</strong><span>Si no, resolver \(\beta_2\) con la misma \(\theta\)</span></div>
+        <div><strong>7</strong><span>Reportar \(\phi=\beta_2-\theta\) y el estado 3</span></div>
+        <div><strong>8</strong><span>Multiplicar las recuperaciones de presión total</span></div>
+      </div>
+      <div class="callout warning">El paso 5 es el que los estudiantes se saltan. Un solucionador que brinca del paso 3 al 6 devolverá un \(\beta_2\) de aspecto plausible para un caso que físicamente produce una reflexión de Mach, y nada en la salida lo delatará.</div>
+    </section>
+
+    <section id="example-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>Una reflexión de Mach en \(M_1=2.0\)</h2>
+      <div class="example">
+        <h3>Problema</h3>
+        <p>Una corriente a \(M_1=2.0\) es deflectada \(18^\circ\) por una esquina de compresión, y el choque resultante incide sobre una pared paralela a la corriente original. Determine si la reflexión es regular y, si no lo es, explique qué la sustituye.</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Primero se verifica el choque incidente. Para \(M_1=2.0\), \(\theta_{\max}=22.97^\circ\), y \(18^\circ&lt;22.97^\circ\), así que el choque incidente está adherido:</p>\[\beta_1=49.79^\circ,\qquad M_{n1}=2.0\sin49.79^\circ=1.5275.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Estado 2 desde las relaciones de choque normal en \(M_{n1}\):</p>\[\frac{p_2}{p_1}=2.5556,\qquad M_{n2}=0.6916,\qquad M_2=\frac{0.6916}{\sin(49.79^\circ-18^\circ)}=1.3131.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Ahora la prueba decisiva. El choque reflejado debe girar el flujo de vuelta \(18^\circ\), partiendo de \(M_2=1.3131\). La deflexión máxima disponible a ese Mach es</p>\[\theta_{\max}(1.3131)=7.03^\circ.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Comparando:</p>\[18^\circ\;&gt;\;7.03^\circ.\]<p>La deflexión requerida excede el máximo por un margen amplio. <strong>No existe choque reflejado recto adherido</strong>, y la reflexión no puede ser regular.</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>Lo que ocurre en su lugar es una reflexión de Mach: el choque incidente se curva cerca de la pared y termina en un tallo de Mach casi normal, del punto triple nacen un choque reflejado y una línea de deslizamiento, y el flujo inmediatamente detrás del tallo es subsónico.</p></div></div>
+
+        <div class="result-box">\[\boxed{\theta_{\max}(M_2)=7.03^\circ\;&lt;\;18^\circ\;\Longrightarrow\;\text{reflexión de Mach}}\]</div>
+        <p>El contraste con el caso \(M_1=3.6\) de arriba es instructivo. Allí la deflexión era menor y el Mach posterior al choque mucho mayor, dejando \(\theta_{\max}(M_2)=33.95^\circ\): margen de sobra para una reflexión regular. Aquí una deflexión más fuerte a un Mach menor baja \(M_2\) a 1.31, y \(\theta_{\max}\) se desploma con él.</p>
+      </div>
+      <div class="validation-case">
+        <strong>Caso de validación de la calculadora</strong>
+        <span>Entradas: \(M_1=2.0\), \(\theta=18^\circ\), \(\gamma=1.4\), rama débil. Esperado: \(\beta_1=49.79^\circ\), \(M_2=1.3131\), y una prueba de reflexión que falla porque \(\theta_{\max}(M_2)=7.03^\circ\).</span>
+      </div>
+    </section>
+
+    <section id="summary-es">
+      <p class="section-label">Ecuaciones clave</p>
+      <h2>En síntesis</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Relación</th><th>Expresión</th><th>Aplica cuando</th></tr></thead>
+          <tbody>
+            <tr><td>Ángulo de la onda reflejada</td><td>\(\phi=\beta_2-\theta\)</td><td>reflexión regular</td></tr>
+            <tr><td>Criterio de reflexión</td><td>\(\theta\le\theta_{\max}(M_2)\)</td><td>existe reflexión regular</td></tr>
+            <tr><td>Reflexión de Mach</td><td>\(\theta&gt;\theta_{\max}(M_2)\)</td><td>se forma tallo de Mach</td></tr>
+            <tr><td>Condiciones de la línea de deslizamiento</td><td>\(p_4=p_{4'}\), dirección acoplada</td><td>cualquier interacción</td></tr>
+            <tr><td>A través de una línea de deslizamiento</td><td>\(s_4\neq s_{4'}\), \(T_4\neq T_{4'}\), \(M_4\neq M_{4'}\)</td><td>en general</td></tr>
+            <tr><td>Recuperación acumulada</td><td>\(p_{0,3}/p_{0,1}=(p_{0,2}/p_{0,1})(p_{0,3}/p_{0,2})\)</td><td>secuencia de choques</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="mistakes-es">
+      <p class="section-label">Errores comunes</p>
+      <h2>Errores comunes</h2>
+      <ul class="check-list">
+        <li><strong>Suponer que la reflexión es especular.</strong> \(\phi=\beta_2-\theta\) y en general \(\phi\neq\beta_1\); la onda reflejada no es imagen especular de la incidente.</li>
+        <li><strong>Medir \(\beta_2\) desde la pared.</strong> Se mide desde la dirección del flujo en la región 2, que está inclinada \(\theta\) respecto a la pared.</li>
+        <li><strong>Usar \(M_1\) para el choque reflejado.</strong> La onda reflejada ve \(M_2\), que siempre es menor.</li>
+        <li><strong>Saltarse la prueba \(\theta_{\max}(M_2)\).</strong> Que el choque incidente esté adherido no dice nada del reflejado, y así es precisamente como se pasan por alto las reflexiones de Mach.</li>
+        <li><strong>Esperar flujo supersónico detrás de un tallo de Mach.</strong> El tallo es casi normal, así que el flujo detrás es subsónico, y por eso la región del tallo no puede tratarse con las relaciones de choque oblicuo.</li>
+        <li><strong>Exigir que la temperatura o la densidad coincidan a través de una línea de deslizamiento.</strong> Solo coinciden presión y dirección; la entropía difiere por construcción.</li>
+        <li><strong>Tratar el campo de una onda de proa como irrotacional.</strong> La curvatura del choque produce un gradiente de entropía y por tanto vorticidad.</li>
+      </ul>
+    </section>
+
+    <section id="calculator-es">
+      <p class="section-label">Herramienta computacional</p>
+      <h2>Abrir calculadora</h2>
+      <p>El módulo de choque oblicuo resuelve cada uno de los dos choques de una reflexión regular y reporta \(\theta_{\max}\) para el Mach local, que es justo la magnitud que necesita el criterio de esta lecture. Corre primero el choque incidente, lee \(M_2\) y vuelve a introducirlo como Mach aguas arriba de la onda reflejada: la calculadora rechazará el segundo paso para el caso \(M_1=2.0\), \(\theta=18^\circ\), que es la respuesta correcta.</p>
+      <div class="button-row lecture-actions"><a class="button outline" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer">Abrir calculadora</a></div>
+    </section>
+
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 9.</li>
+        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3.ª ed. Nueva York: McGraw-Hill, 2003, capítulo 4.</li>
+        <li>Ben-Dor, G. <em>Shock Wave Reflection Phenomena</em>. Nueva York: Springer-Verlag, 1992.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, México, febrero de 2024.</li>
+      </ol>
+      <p class="source-note">Adaptado de la Unidad III de los apuntes de Aerodinámica II de Carlos Alberto Molina Holguín; el tratamiento se mantiene al nivel del capítulo 9 de Anderson, y todos los valores numéricos se recalcularon de forma independiente para \(\gamma=1.4\).</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="oblique-shocks.html"><span>Lecture anterior</span>← Choques oblicuos</a>
+      <a class="next-link" href="prandtl-meyer.html"><span>Siguiente lecture</span>Expansiones de Prandtl–Meyer →</a>
+    </nav>
+  </article>
+
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <ul>
+        <li>Erläutern, warum ein schräger Stoß an einer festen Wand nicht einfach enden kann.</li>
+        <li>Eine reguläre Reflexion als zwei aufeinanderfolgende schräge Stöße berechnen.</li>
+        <li>Den Winkel der reflektierten Welle vom richtigen Bezug aus messen und begründen, warum die Reflexion nicht spiegelnd ist.</li>
+        <li>Das Kriterium \(\theta>\theta_{\max}(M_2)\) anwenden, um über die Möglichkeit einer regulären Reflexion zu entscheiden.</li>
+        <li>Den Aufbau einer Mach-Reflexion beschreiben: Machscher Stamm, Tripelpunkt und Gleitlinie.</li>
+        <li>Die beiden Bedingungen über eine Gleitlinie angeben sowie die Größen, die nicht übereinstimmen.</li>
+      </ul>
+    </section>
+
+    <section id="physics-de">
+      <p class="section-label">Physikalisches Bild</p>
+      <h2>Ein Stoß verschwindet nicht, wenn er eine Wand erreicht</h2>
+      <p class="lead">Ein schräger Stoß lenkt die Strömung um. Trifft dieser Stoß auf eine feste Oberfläche, so strömt das Fluid hinter ihm <em>in</em> die Wand hinein — unmöglich, denn die Wand verlangt eine tangentiale Geschwindigkeit. Etwas muss die Strömung zurücklenken, und in einer Überschallströmung steht dafür nur ein weiterer Stoß zur Verfügung.</p>
+      <figure class="diagram">
+        <svg viewBox="0 0 860 340" role="img" aria-label="Reguläre Reflexion eines schrägen Stoßes an einer Wand">
+          <defs>
+            <marker id="ri-arrow-de" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#0d568d"></path></marker>
+          </defs>
+          <rect x="60" y="280" width="740" height="26" fill="#e6edf2" stroke="#071d33" stroke-width="4"/>
+          <line x1="120" y1="40" x2="430" y2="280" stroke="#d67b28" stroke-width="7"/>
+          <line x1="430" y1="280" x2="740" y2="70" stroke="#d67b28" stroke-width="7"/>
+          <g stroke="#0d568d" stroke-width="4" marker-end="url(#ri-arrow-de)">
+            <line x1="70" y1="120" x2="230" y2="120"/>
+            <line x1="70" y1="200" x2="270" y2="200"/>
+            <line x1="330" y1="150" x2="470" y2="196"/>
+            <line x1="560" y1="215" x2="720" y2="215"/>
+          </g>
+          <text x="150" y="95" font-size="20" fill="#071d33">1</text>
+          <text x="405" y="140" font-size="20" fill="#071d33">2</text>
+          <text x="650" y="180" font-size="20" fill="#071d33">3</text>
+          <text x="135" y="255" font-size="17" fill="#d67b28">einfallend</text>
+          <text x="640" y="105" font-size="17" fill="#d67b28">reflektiert</text>
+          <text x="430" y="326" text-anchor="middle" font-size="17" fill="#344454">Wand</text>
+        </svg>
+        <figcaption>Gebiet 2 ist zur Wand hin gerichtet; der reflektierte Stoß führt es in Gebiet 3 zurück in die Tangentialrichtung.</figcaption>
+      </figure>
+      <div class="callout success"><strong>Die Wand setzt die Randbedingung.</strong> Die Strömungsrichtung in Gebiet 3 ist kein freies Ergebnis, sondern durch die Forderung vorgegeben, dass die Stromlinie parallel zur Wand verläuft. Alles Übrige folgt daraus.</div>
+    </section>
+
+    <section id="model-de">
+      <p class="section-label">Modell und Annahmen</p>
+      <h2>Gerade Wellen, gleichförmige Gebiete, keine Viskosität</h2>
+      <ul>
+        <li>stationäre, reibungsfreie, zweidimensionale Strömung eines kalorisch idealen Gases;</li>
+        <li>gerade Stöße, die gleichförmige Gebiete trennen, wie in Vorlesung 04;</li>
+        <li>ebene Wand parallel zur ursprünglichen Strömung;</li>
+        <li>schwache Lösung bei jeder Umlenkung, sofern nichts anderes angegeben ist.</li>
+      </ul>
+      <div class="callout warning"><strong>Nicht enthalten.</strong> Die Wandgrenzschicht, die bei einer realen Reflexion unter dem ungünstigen Druckgradienten anwächst und ablösen kann, sodass an die Stelle des idealen Reflexionspunkts eine Lambda-Fuß-Struktur tritt. Auch die Krümmung des einfallenden Stoßes und die Gestalt des Machschen Stamms liegen außerhalb: Diese Vorlesung sagt vorher, <em>ob</em> eine Mach-Reflexion auftritt, nicht welche Geometrie sie annimmt. Dafür ist die Dreistoßtheorie von Ben-Dor nötig.</div>
+    </section>
+
+    <section id="regular-de">
+      <p class="section-label">Der einfache Fall</p>
+      <h2>Die reguläre Reflexion sind zwei aufeinanderfolgende Stöße</h2>
+      <p>Der einfallende Stoß lenkt die Strömung um \(\theta\) zur Wand hin um. Der reflektierte Stoß muss sie um dasselbe \(\theta\) zurücklenken, damit Gebiet 3 wieder parallel zur Wand verläuft. Beide sind gewöhnliche schräge Stöße und werden nacheinander gelöst:</p>
+      <div class="process-flow">
+        <div><strong>1</strong><span>Aus \(M_1\) und \(\theta\) die Beziehung \(\theta\)–\(\beta\)–\(M\) nach \(\beta_1\) lösen</span></div>
+        <div><strong>2</strong><span>Normalstoßbeziehungen bei \(M_1\sin\beta_1\) liefern Zustand 2 und \(M_2\)</span></div>
+        <div><strong>3</strong><span>\(M_2\) als Zustrom-Machzahl des reflektierten Stoßes verwenden</span></div>
+        <div><strong>4</strong><span>Dieselbe Umlenkung \(\theta\) im entgegengesetzten Sinn ansetzen, für \(\beta_2\)</span></div>
+        <div><strong>5</strong><span>Normalstoßbeziehungen liefern erneut Zustand 3</span></div>
+      </div>
+      <p>Der Winkel \(\beta_2\) wird von der Strömungsrichtung in Gebiet 2 aus gemessen, nicht von der Wand. Der Winkel der reflektierten Welle zur Wand beträgt daher</p>
+      <div class="equation-card">\[\boxed{\phi=\beta_2-\theta}\]</div>
+      <div class="callout warning"><strong>Die Reflexion ist nicht spiegelnd.</strong> Im Allgemeinen ist \(\phi\neq\beta_1\). Licht wird unter gleichen Winkeln reflektiert, ein Stoß nicht: Der Wellenwinkel hängt von der örtlichen Machzahl ab, und es gilt stets \(M_2&lt;M_1\). Eine kleinere Zustrom-Machzahl erfordert eine <em>steilere</em> Welle für dieselbe Umlenkung.</div>
+
+      <div class="example">
+        <h3>Durchgerechneter Fall — reguläre Reflexion bei \(M_1=3{,}6\)</h3>
+        <p>Eine Strömung mit \(M_1=3{,}6\) passiert eine Verdichtungsecke von \(10^\circ\). Der entstehende Stoß trifft auf eine zur ursprünglichen Strömung parallele Wand.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Einfallender Stoß, schwache Wurzel:</p>\[\beta_1=23{,}90^\circ,\qquad M_2=2{,}982,\qquad \frac{p_2}{p_1}=2{,}315,\qquad\frac{T_2}{T_1}=1{,}293.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Der reflektierte Stoß sieht \(M_2=2{,}982\) und muss die Strömung um \(10^\circ\) zurücklenken:</p>\[\beta_2=27{,}51^\circ,\qquad\phi=\beta_2-10^\circ=17{,}51^\circ.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Stromab des reflektierten Stoßes:</p>\[M_3=2{,}490,\qquad\frac{p_3}{p_2}=2{,}047,\qquad\frac{p_3}{p_1}=4{,}739.\]</div></div>
+        <div class="result-box">\[\boxed{\phi\approx17{,}5^\circ,\qquad M_3\approx2{,}49}\]</div>
+        <p>Man beachte \(\phi=17{,}51^\circ\) gegenüber \(\beta_1=23{,}90^\circ\). Die reflektierte Welle liegt näher an der Wand als die einfallende, und die beiden statischen Drucksprünge multiplizieren sich, statt sich zu addieren.</p>
+      </div>
+    </section>
+
+    <section id="criterion-de">
+      <p class="section-label">Der entscheidende Test</p>
+      <h2>Wann die reguläre Reflexion unmöglich wird</h2>
+      <p>Schritt 4 des Verfahrens setzt stillschweigend voraus, dass sich die Strömung in Gebiet 2 durch einen anliegenden geraden Stoß um \(\theta\) umlenken <em>lässt</em>. Vorlesung 04 hat geklärt, wann das möglich ist: Eine Umlenkung besitzt nur dann eine anliegende Lösung, wenn sie das Maximum zur örtlichen Machzahl nicht überschreitet. Auf den reflektierten Stoß angewandt lautet die Bedingung</p>
+      <div class="equation-card">\[\boxed{\theta\le\theta_{\max}(M_2)\quad\Longrightarrow\quad\text{reguläre Reflexion existiert}}\]</div>
+      <div class="callout"><strong>Warum das versagen kann, obwohl der einfallende Stoß in Ordnung ist.</strong> Der einfallende Stoß verlangt nur \(\theta\le\theta_{\max}(M_1)\), und stets gilt \(M_2&lt;M_1\). Da \(\theta_{\max}\) steil abfällt, wenn die Machzahl gegen eins geht, kann eine Umlenkung, welche die Zuströmung mühelos verkraftet, weit über dem liegen, was die Strömung hinter dem Stoß leisten kann. Die bindende Einschränkung ist die Reflexion, nicht der Einfall.</div>
+      <p>Scheitert der Test, so gibt die Natur die Randbedingung nicht auf — die Strömung muss die Wand weiterhin tangential verlassen. Aufgegeben wird die Annahme eines geraden reflektierten Stoßes, der die Wand in einem Punkt trifft.</p>
+    </section>
+
+    <section id="mach-de">
+      <p class="section-label">Die Alternative</p>
+      <h2>Mach-Reflexion</h2>
+      <p>Kann kein gerader reflektierter Stoß die Aufgabe erfüllen, so krümmt sich der einfallende Stoß in Wandnähe und trifft die Wand über ein nahezu senkrechtes Teilstück, den <strong>Machschen Stamm</strong>. Ein senkrechter Stoß lenkt die Strömung um null Grad um und erzeugt dabei einen sehr großen Druckanstieg — genau das, was das Wandgebiet benötigt.</p>
+      <figure class="diagram">
+        <svg viewBox="0 0 860 360" role="img" aria-label="Mach-Reflexion mit Tripelpunkt, Machschem Stamm und Gleitlinie">
+          <defs>
+            <marker id="mr-arrow-de" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#0d568d"></path></marker>
+          </defs>
+          <rect x="60" y="300" width="740" height="26" fill="#e6edf2" stroke="#071d33" stroke-width="4"/>
+          <path d="M120 40 C300 170, 380 200, 420 205" fill="none" stroke="#d67b28" stroke-width="7"/>
+          <path d="M420 205 C412 250, 414 280, 416 300" fill="none" stroke="#b0400f" stroke-width="9"/>
+          <path d="M420 205 C520 165, 620 120, 720 70" fill="none" stroke="#d67b28" stroke-width="7"/>
+          <path d="M420 205 C520 232, 620 250, 745 258" fill="none" stroke="#176b47" stroke-width="4" stroke-dasharray="12 8"/>
+          <circle cx="420" cy="205" r="9" fill="#071d33"/>
+          <g stroke="#0d568d" stroke-width="4" marker-end="url(#mr-arrow-de)">
+            <line x1="70" y1="110" x2="215" y2="110"/>
+            <line x1="70" y1="250" x2="270" y2="250"/>
+            <line x1="560" y1="285" x2="700" y2="285"/>
+          </g>
+          <text x="150" y="85" font-size="20" fill="#071d33">1</text>
+          <text x="345" y="130" font-size="20" fill="#071d33">2</text>
+          <text x="600" y="200" font-size="20" fill="#071d33">3</text>
+          <text x="470" y="285" font-size="20" fill="#071d33">4</text>
+          <text x="437" y="196" font-size="16" fill="#071d33">Tripelpunkt</text>
+          <text x="315" y="290" text-anchor="middle" font-size="16" fill="#b0400f">Machscher Stamm</text>
+          <text x="690" y="240" font-size="16" fill="#176b47">Gleitlinie</text>
+          <text x="130" y="240" font-size="16" fill="#d67b28">einfallend</text>
+        </svg>
+        <figcaption>Drei Stöße treffen im Tripelpunkt zusammen, und eine Gleitlinie trennt das Gas, das den Stamm durchlief, von jenem, das zwei schräge Wellen durchlief.</figcaption>
+      </figure>
+      <p>Die Konfiguration besteht aus vier Elementen:</p>
+      <div class="definition-grid">
+        <div class="definition"><strong>Gekrümmter einfallender Stoß</strong><span>Neigt sich in Wandnähe zur Normalen hin.</span></div>
+        <div class="definition"><strong>Machscher Stamm</strong><span>Das nahezu senkrechte Teilstück, das die Wand tatsächlich trifft. Dahinter ist die Strömung unterschallschnell.</span></div>
+        <div class="definition"><strong>Reflektierter Stoß</strong><span>Entspringt dem Tripelpunkt und ist nicht mehr an der Wand verankert.</span></div>
+        <div class="definition"><strong>Gleitlinie</strong><span>Geht vom Tripelpunkt aus und trennt zwei Ströme unterschiedlicher Vorgeschichte.</span></div>
+      </div>
+      <div class="callout success"><strong>Warum eine Gleitlinie entstehen muss.</strong> Das Fluid in Gebiet 3 hat zwei schräge Stöße durchlaufen, jenes in Gebiet 4 einen einzigen, nahezu senkrechten. Zwei verschiedene Wege, zwei verschiedene Entropiezunahmen. Beide Ströme treffen nebeneinander mit gleichem Druck und gleicher Richtung ein, jedoch mit verschiedenen Temperaturen, Dichten und Machzahlen — eine Unstetigkeit dieser Größen muss also stromab bestehen bleiben.</div>
+      <div class="callout warning">Vorherzusagen, <em>wo</em> der Tripelpunkt liegt und wie hoch der Machsche Stamm wird, geht über diese Darstellung hinaus. Dafür ist das Dreistoßproblem mit den Gleitlinienbedingungen zu lösen — Gegenstand der Monographie von Ben-Dor. Diese Vorlesung liefert das Kriterium, das Ihnen sagt, dass Sie eine Mach-Reflexion vor sich haben.</div>
+    </section>
+
+    <section id="intersection-de">
+      <p class="section-label">Zwei aufeinandertreffende Stöße</p>
+      <h2>Schnitt und Gleitlinie</h2>
+      <p>Kreuzt ein linkslaufender Stoß einen rechtslaufenden, so werden beide Wellen am Schnittpunkt gebrochen. Dahinter trifft die Strömung über zwei verschiedene Wege ein, und erneut trennt sie eine Gleitlinie. Die Anpassungsbedingungen sind dieselben zwei wie zuvor:</p>
+      <div class="equation-card">\[\boxed{p_4=p_{4'},\qquad \text{Richtung}(\mathbf V_4)=\text{Richtung}(\mathbf V_{4'})}\]</div>
+      <p>Alles Übrige darf abweichen. Im Allgemeinen gilt</p>
+      <div class="equation-card">\[s_4\neq s_{4'},\qquad T_4\neq T_{4'},\qquad \rho_4\neq\rho_{4'},\qquad M_4\neq M_{4'},\qquad |\mathbf V_4|\neq|\mathbf V_{4'}|.\]</div>
+      <div class="callout"><strong>Druck und Richtung, mehr nicht.</strong> Gleicher Druck hält die Gleitlinie im mechanischen Gleichgewicht, gleiche Richtung macht sie zur Stromlinie. Keine der beiden Bedingungen verlangt einen gemeinsamen thermodynamischen Zustand, und im Allgemeinen liegt keiner vor. Einen Schnitt zu lösen heißt, die Umlenkung zu iterieren, bis beide Bedingungen gleichzeitig erfüllt sind.</div>
+    </section>
+
+    <section id="blunt-de">
+      <p class="section-label">Der Grenzfall</p>
+      <h2>Abgelöste Kopfstöße vor stumpfen Körpern</h2>
+      <p>Ein stumpfer Körper stellt entlang seiner Staustromlinie eine wirksame Umlenkung von \(90^\circ\) dar — weit jenseits von \(\theta_{\max}\) für jede Machzahl. Ein anliegender Stoß ist unmöglich, und die Welle stellt sich als gekrümmter <strong>Kopfstoß</strong> vor den Körper.</p>
+      <p>Durch die Krümmung durchläuft jede Stromlinie den Stoß unter einem anderen Winkel, mit einer Folge, die ausdrücklich genannt werden sollte:</p>
+      <div class="callout success"><strong>Ein gekrümmter Stoß erzeugt Wirbelstärke.</strong> Benachbarte Stromlinien durchqueren die Welle unter verschiedenen örtlichen Winkeln, erfahren also verschiedene Totaldruckverluste und treten mit verschiedenen Entropien aus. Dieser transversale Entropiegradient ist nach dem Satz von Crocco eine Quelle von Wirbelstärke — deshalb ist das Feld hinter einem Kopfstoß rotationsbehaftet, obwohl es die Zuströmung nicht ist, und deshalb versagt dort eine reine Potentialtheorie.</div>
+      <p>Längs der Staustromlinie ist der Stoß örtlich senkrecht, sodass die Staupunktbedingungen aus den Normalstoßbeziehungen der Vorlesung 03 bei der Anström-Machzahl folgen. Das ist die einzige Stelle eines Kopfstoßes mit exakter Handrechnung — und die Grundlage der Überschall-Pitot-Messung.</p>
+    </section>
+
+    <section id="algorithm-de">
+      <p class="section-label">Rechenalgorithmus</p>
+      <h2>Eine Reflexion entscheiden und berechnen</h2>
+      <div class="process-flow">
+        <div><strong>1</strong><span>\(M_1\), \(\theta\), \(\gamma\) vorgeben</span></div>
+        <div><strong>2</strong><span>\(\theta\le\theta_{\max}(M_1)\) für den einfallenden Stoß prüfen</span></div>
+        <div><strong>3</strong><span>\(\theta\)–\(\beta\)–\(M\) nach \(\beta_1\) lösen; \(M_2\) und Zustand 2 bestimmen</span></div>
+        <div><strong>4</strong><span>\(\theta_{\max}(M_2)\) auswerten</span></div>
+        <div><strong>5</strong><span>Ist \(\theta&gt;\theta_{\max}(M_2)\): Mach-Reflexion — abbrechen und melden</span></div>
+        <div><strong>6</strong><span>Andernfalls \(\beta_2\) bei gleichem \(\theta\) lösen</span></div>
+        <div><strong>7</strong><span>\(\phi=\beta_2-\theta\) und Zustand 3 angeben</span></div>
+        <div><strong>8</strong><span>Die Totaldruckrückgewinne multiplizieren</span></div>
+      </div>
+      <div class="callout warning">Schritt 5 wird am häufigsten übersprungen. Ein Löser, der von Schritt 3 direkt zu Schritt 6 springt, liefert für einen Fall, der physikalisch eine Mach-Reflexion erzeugt, ein plausibel aussehendes \(\beta_2\) — und nichts in der Ausgabe weist darauf hin.</div>
+    </section>
+
+    <section id="example-de">
+      <p class="section-label">Rechenbeispiel</p>
+      <h2>Eine Mach-Reflexion bei \(M_1=2{,}0\)</h2>
+      <div class="example">
+        <h3>Aufgabe</h3>
+        <p>Eine Strömung mit \(M_1=2{,}0\) wird an einer Verdichtungsecke um \(18^\circ\) umgelenkt; der entstehende Stoß trifft auf eine zur ursprünglichen Strömung parallele Wand. Zu bestimmen ist, ob die Reflexion regulär ist, und andernfalls, was an ihre Stelle tritt.</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Zuerst der einfallende Stoß. Für \(M_1=2{,}0\) ist \(\theta_{\max}=22{,}97^\circ\), und \(18^\circ&lt;22{,}97^\circ\), der einfallende Stoß liegt also an:</p>\[\beta_1=49{,}79^\circ,\qquad M_{n1}=2{,}0\sin49{,}79^\circ=1{,}5275.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Zustand 2 aus den Normalstoßbeziehungen bei \(M_{n1}\):</p>\[\frac{p_2}{p_1}=2{,}5556,\qquad M_{n2}=0{,}6916,\qquad M_2=\frac{0{,}6916}{\sin(49{,}79^\circ-18^\circ)}=1{,}3131.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Nun der entscheidende Test. Der reflektierte Stoß muss die Strömung ausgehend von \(M_2=1{,}3131\) um \(18^\circ\) zurücklenken. Die bei dieser Machzahl verfügbare Maximalumlenkung beträgt</p>\[\theta_{\max}(1{,}3131)=7{,}03^\circ.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Im Vergleich:</p>\[18^\circ\;&gt;\;7{,}03^\circ.\]<p>Die geforderte Umlenkung übersteigt das Maximum deutlich. <strong>Es existiert kein anliegender gerader reflektierter Stoß</strong>, die Reflexion kann nicht regulär sein.</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>Stattdessen tritt eine Mach-Reflexion auf: Der einfallende Stoß krümmt sich in Wandnähe und endet in einem nahezu senkrechten Machschen Stamm; aus dem Tripelpunkt entspringen ein reflektierter Stoß und eine Gleitlinie, und unmittelbar hinter dem Stamm ist die Strömung unterschallschnell.</p></div></div>
+
+        <div class="result-box">\[\boxed{\theta_{\max}(M_2)=7{,}03^\circ\;&lt;\;18^\circ\;\Longrightarrow\;\text{Mach-Reflexion}}\]</div>
+        <p>Der Gegensatz zum Fall \(M_1=3{,}6\) oben ist lehrreich. Dort war die Umlenkung kleiner und die Machzahl hinter dem Stoß deutlich höher, sodass \(\theta_{\max}(M_2)=33{,}95^\circ\) reichlich Spielraum für eine reguläre Reflexion ließ. Hier senkt eine stärkere Umlenkung bei kleinerer Machzahl \(M_2\) auf 1,31, und \(\theta_{\max}\) bricht mit ein.</p>
+      </div>
+      <div class="validation-case">
+        <strong>Validierungsfall für den Rechner</strong>
+        <span>Eingaben: \(M_1=2{,}0\), \(\theta=18^\circ\), \(\gamma=1{,}4\), schwacher Zweig. Erwartet: \(\beta_1=49{,}79^\circ\), \(M_2=1{,}3131\) und ein Reflexionstest, der scheitert, weil \(\theta_{\max}(M_2)=7{,}03^\circ\) ist.</span>
+      </div>
+    </section>
+
+    <section id="summary-de">
+      <p class="section-label">Kerngleichungen</p>
+      <h2>Auf einen Blick</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Beziehung</th><th>Ausdruck</th><th>Gültig wenn</th></tr></thead>
+          <tbody>
+            <tr><td>Winkel der reflektierten Welle</td><td>\(\phi=\beta_2-\theta\)</td><td>reguläre Reflexion</td></tr>
+            <tr><td>Reflexionskriterium</td><td>\(\theta\le\theta_{\max}(M_2)\)</td><td>reguläre Reflexion existiert</td></tr>
+            <tr><td>Mach-Reflexion</td><td>\(\theta&gt;\theta_{\max}(M_2)\)</td><td>Machscher Stamm bildet sich</td></tr>
+            <tr><td>Gleitlinienbedingungen</td><td>\(p_4=p_{4'}\), Richtung angepasst</td><td>jede Wechselwirkung</td></tr>
+            <tr><td>Über eine Gleitlinie</td><td>\(s_4\neq s_{4'}\), \(T_4\neq T_{4'}\), \(M_4\neq M_{4'}\)</td><td>im Allgemeinen</td></tr>
+            <tr><td>Kumulierte Rückgewinnung</td><td>\(p_{0,3}/p_{0,1}=(p_{0,2}/p_{0,1})(p_{0,3}/p_{0,2})\)</td><td>Stoßfolge</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="mistakes-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Häufige Fehler</h2>
+      <ul class="check-list">
+        <li><strong>Die Reflexion für spiegelnd halten.</strong> Es gilt \(\phi=\beta_2-\theta\) und im Allgemeinen \(\phi\neq\beta_1\); die reflektierte Welle ist kein Spiegelbild der einfallenden.</li>
+        <li><strong>\(\beta_2\) von der Wand aus messen.</strong> Es wird von der Strömungsrichtung in Gebiet 2 aus gemessen, die um \(\theta\) gegen die Wand geneigt ist.</li>
+        <li><strong>\(M_1\) für den reflektierten Stoß verwenden.</strong> Die reflektierte Welle sieht \(M_2\), das stets kleiner ist.</li>
+        <li><strong>Den Test \(\theta_{\max}(M_2)\) überspringen.</strong> Dass der einfallende Stoß anliegt, sagt nichts über den reflektierten — und genau so werden Mach-Reflexionen übersehen.</li>
+        <li><strong>Hinter einem Machschen Stamm Überschall erwarten.</strong> Der Stamm ist nahezu senkrecht, dahinter herrscht Unterschall; deshalb lässt sich das Stammgebiet gar nicht mit den Schrägstoßbeziehungen behandeln.</li>
+        <li><strong>Gleiche Temperatur oder Dichte über eine Gleitlinie fordern.</strong> Nur Druck und Richtung stimmen überein; die Entropie unterscheidet sich konstruktionsbedingt.</li>
+        <li><strong>Das Feld eines Kopfstoßes als wirbelfrei behandeln.</strong> Die Stoßkrümmung erzeugt einen Entropiegradienten und damit Wirbelstärke.</li>
+      </ul>
+    </section>
+
+    <section id="calculator-de">
+      <p class="section-label">Rechenwerkzeug</p>
+      <h2>Rechner öffnen</h2>
+      <p>Das Schrägstoß-Modul löst beide Stöße einer regulären Reflexion und gibt \(\theta_{\max}\) zur örtlichen Machzahl aus — genau die Größe, die das Kriterium dieser Vorlesung benötigt. Rechnen Sie zuerst den einfallenden Stoß, lesen Sie \(M_2\) ab und geben Sie es als Zustrom-Machzahl der reflektierten Welle erneut ein: Für den Fall \(M_1=2{,}0\), \(\theta=18^\circ\) verweigert der Rechner den zweiten Schritt — und das ist die richtige Antwort.</p>
+      <div class="button-row lecture-actions"><a class="button outline" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer">Rechner öffnen</a></div>
+    </section>
+
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6. Aufl. New York: McGraw-Hill Education, 2017, Kapitel 9.</li>
+        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3. Aufl. New York: McGraw-Hill, 2003, Kapitel 4.</li>
+        <li>Ben-Dor, G. <em>Shock Wave Reflection Phenomena</em>. New York: Springer-Verlag, 1992.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexiko, Februar 2024.</li>
+      </ol>
+      <p class="source-note">Bearbeitet nach Einheit III des Vorlesungsskripts Aerodynamik II von Carlos Alberto Molina Holguín; die Darstellung bleibt auf dem Niveau von Kapitel 9 bei Anderson, und alle Zahlenwerte wurden für \(\gamma=1{,}4\) unabhängig nachgerechnet.</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="oblique-shocks.html"><span>Vorherige Vorlesung</span>← Schräge Stoßwellen</a>
+      <a class="next-link" href="prandtl-meyer.html"><span>Nächste Vorlesung</span>Prandtl–Meyer-Expansionen →</a>
+    </nav>
+  </article>
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>
