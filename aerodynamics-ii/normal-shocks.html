@@ -75,9 +75,15 @@
         </p>
       </div>
       <div class="hero-meta">
-        <span>Estimated reading: 35 min</span>
-        <span>Upstream condition: M₁ &gt; 1</span>
-        <span>Irreversible process</span>
+        <span data-language="en">Estimated reading: 40 min</span>
+        <span data-language="es" hidden>Lectura estimada: 40 min</span>
+        <span data-language="de" hidden>Lesedauer: ca. 40 min</span>
+        <span data-language="en">Upstream condition: M₁ &gt; 1</span>
+        <span data-language="es" hidden>Condición aguas arriba: M₁ &gt; 1</span>
+        <span data-language="de" hidden>Zustromzustand: M₁ &gt; 1</span>
+        <span data-language="en">Irreversible process</span>
+        <span data-language="es" hidden>Proceso irreversible</span>
+        <span data-language="de" hidden>Irreversibler Prozess</span>
       </div>
       <div class="button-row">
         <a class="button secondary" href="index.html?v=11" data-ui-key="back">Back to course</a>
@@ -89,16 +95,41 @@
   <div class="container lecture-shell">
     <aside class="toc">
       <h2 data-ui-key="contents">On this page</h2>
-      <div class="toc-links">
+      <div class="toc-links" data-language="en">
         <a href="#objectives">Objectives</a>
         <a href="#physics">Physical behavior</a>
         <a href="#conservation">Conservation laws</a>
+        <a href="#prandtl">The Prandtl relation</a>
         <a href="#relations">Shock relations</a>
         <a href="#loss">Entropy and total pressure</a>
         <a href="#pitot">Pitot measurements</a>
         <a href="#example">Worked example</a>
         <a href="#mistakes">Common mistakes</a>
         <a href="#references">References</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Comportamiento físico</a>
+        <a href="#conservation-es">Leyes de conservación</a>
+        <a href="#prandtl-es">La relación de Prandtl</a>
+        <a href="#relations-es">Relaciones de choque</a>
+        <a href="#loss-es">Entropía y presión total</a>
+        <a href="#pitot-es">Medición con Pitot</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#references-es">Referencias</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Physikalisches Verhalten</a>
+        <a href="#conservation-de">Erhaltungssätze</a>
+        <a href="#prandtl-de">Die Prandtl-Beziehung</a>
+        <a href="#relations-de">Stoßbeziehungen</a>
+        <a href="#loss-de">Entropie und Totaldruck</a>
+        <a href="#pitot-de">Pitot-Messung</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#mistakes-de">Häufige Fehler</a>
+        <a href="#references-de">Literatur</a>
       </div>
     </aside>
 
@@ -200,6 +231,37 @@
             </p>
           </div>
         </details>
+      </section>
+
+      <section id="prandtl">
+        <p class="section-label">Key intermediate result</p>
+        <h2>The Prandtl relation</h2>
+        <p>
+          Before solving for individual ratios, the three conservation equations combine into a single
+          remarkably compact statement. Writing the energy equation in terms of the critical speed of
+          sound \(a^*\) introduced in Lecture 02 and eliminating the thermodynamic variables leaves
+        </p>
+        <div class="equation-card">
+          \[\boxed{a^{*2}=u_1u_2}\]
+        </div>
+        <p>
+          Dividing by \(a^{*2}\) and using the characteristic Mach number \(M^*=u/a^*\) gives the same
+          result in its most memorable form:
+        </p>
+        <div class="equation-card">
+          \[\boxed{M_1^*M_2^*=1,\qquad\text{equivalently}\qquad M_2^*=\frac{1}{M_1^*}}\]
+        </div>
+        <div class="callout success">
+          <strong>What it tells you immediately.</strong> Because \(M^*&gt;1\) exactly when \(M&gt;1\),
+          the product being one forces the two sides of the shock into opposite regimes. If the flow
+          enters supersonically it must leave subsonically, and the reverse. No separate argument is
+          needed for that conclusion — it is already contained in the conservation equations.
+        </div>
+        <p>
+          Substituting the \(M^*\)–\(M\) mapping from Lecture 02 into \(M_1^*M_2^*=1\) produces the
+          downstream Mach relation of the next section directly, which is why the Prandtl relation is
+          worth deriving first rather than treating each ratio separately.
+        </p>
       </section>
 
       <section id="relations">
@@ -437,11 +499,12 @@
       <section id="references" class="references">
         <h2>References</h2>
         <ol>
-          <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed., 2017, Chapter 8.</li>
-          <li>Anderson, J. D., Jr. <em>Modern Compressible Flow</em>, 3rd ed.</li>
-          <li>Ames Research Staff. <em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135.</li>
+          <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed. New York: McGraw-Hill Education, 2017, Chapter 8.</li>
+          <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3rd ed. New York: McGraw-Hill, 2003, Chapter 3.</li>
+          <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+          <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexico, February 2024.</li>
         </ol>
-        <p class="source-note">Adapted from the Aerodynamics II course notes by Carlos Alberto Molina Holguín.</p>
+        <p class="source-note">Adapted from Unit II of the Aerodynamics II course notes by Carlos Alberto Molina Holguín.</p>
       </section>
 
       <nav class="next-nav">
@@ -455,11 +518,11 @@
         <p class="section-label">Objetivos de aprendizaje</p>
         <h2>Lo que debes ser capaz de hacer</h2>
         <ul>
-          <li>Aplicar conservación de masa, cantidad de movimiento y energía a una onda normal.</li>
-          <li>Calcular \(M_2\) y las razones de presión, densidad, temperatura y presión total.</li>
-          <li>Explicar por qué una onda normal estacionaria física requiere \(M_1>1\).</li>
+          <li>Aplicar la conservación de masa, cantidad de movimiento y energía a través de un choque normal.</li>
+          <li>Calcular \(M_2\) y las razones de presión, densidad, temperatura y presión total a partir de \(M_1\).</li>
+          <li>Explicar por qué un choque normal estacionario físico requiere \(M_1>1\).</li>
           <li>Distinguir el aumento de presión estática de la pérdida de presión total.</li>
-          <li>Interpretar correctamente una medición Pitot subsónica o supersónica.</li>
+          <li>Interpretar correctamente las mediciones Pitot subsónicas y supersónicas.</li>
         </ul>
       </section>
 
@@ -467,53 +530,187 @@
         <p class="section-label">Comportamiento físico</p>
         <h2>Una compresión abrupta e irreversible</h2>
         <p>
-          Una onda normal es una región extremadamente delgada en la que un flujo supersónico
-          se vuelve subsónico. Aumentan la presión estática, densidad, temperatura y entropía;
-          disminuyen la velocidad y el número de Mach.
+          Un choque normal es una región extremadamente delgada en la que un flujo supersónico se vuelve
+          subsónico. La presión estática, la densidad, la temperatura y la entropía aumentan; la velocidad
+          y el número de Mach disminuyen.
         </p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 800 260" role="img" aria-label="Onda de choque normal">
+            <defs>
+              <marker id="shockArrowEs" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="#0d568d"></path>
+              </marker>
+            </defs>
+            <rect x="35" y="30" width="730" height="190" rx="16" fill="#ffffff" stroke="#d8e2ea" stroke-width="2"/>
+            <g stroke="#0d568d" stroke-width="4" marker-end="url(#shockArrowEs)">
+              <line x1="70" y1="75" x2="315" y2="75"/>
+              <line x1="70" y1="125" x2="315" y2="125"/>
+              <line x1="70" y1="175" x2="315" y2="175"/>
+            </g>
+            <path d="M390 42 L378 58 L400 75 L378 92 L400 109 L378 126 L400 143 L378 160 L400 177 L378 194 L390 214"
+                  fill="none" stroke="#d67b28" stroke-width="6"/>
+            <g stroke="#176b47" stroke-width="3" marker-end="url(#shockArrowEs)">
+              <line x1="440" y1="85" x2="690" y2="85"/>
+              <line x1="440" y1="130" x2="690" y2="130"/>
+              <line x1="440" y1="175" x2="690" y2="175"/>
+            </g>
+            <text x="190" y="55" text-anchor="middle" font-size="18" font-weight="700" fill="#071d33">Región 1</text>
+            <text x="190" y="213" text-anchor="middle" font-size="17" fill="#344454">M₁ &gt; 1, p₁, T₁, ρ₁</text>
+            <text x="565" y="55" text-anchor="middle" font-size="18" font-weight="700" fill="#071d33">Región 2</text>
+            <text x="565" y="213" text-anchor="middle" font-size="17" fill="#344454">M₂ &lt; 1, p₂, T₂, ρ₂</text>
+          </svg>
+          <figcaption>Representación idealizada, con volumen de control, de un choque normal estacionario.</figcaption>
+        </figure>
+
         <div class="equation-grid">
-          <div class="callout success"><strong>Se conservan:</strong> flujo másico, entalpía total y temperatura total para una onda adiabática sin trabajo.</div>
-          <div class="callout warning"><strong>No se conservan:</strong> la entropía aumenta y la presión total disminuye.</div>
+          <div class="callout success">
+            <strong>Se conservan:</strong> el gasto másico, la entalpía total y la temperatura total para un choque adiabático sin trabajo.
+          </div>
+          <div class="callout warning">
+            <strong>No se conservan:</strong> la entropía aumenta y la presión total disminuye.
+          </div>
         </div>
       </section>
 
       <section id="conservation-es">
         <p class="section-label">Volumen de control</p>
         <h2>Tres ecuaciones de conservación</h2>
+        <p>
+          Para flujo estacionario, unidimensional y adiabático a través de un volumen de control de área igual:
+        </p>
+
         <div class="equation-grid">
-          <div class="equation-card">\[\boxed{\rho_1u_1=\rho_2u_2}\]</div>
-          <div class="equation-card">\[\boxed{p_1+\rho_1u_1^2=p_2+\rho_2u_2^2}\]</div>
+          <div class="equation-card">
+            <p class="equation-label">Masa</p>
+            \[
+            \boxed{\rho_1u_1=\rho_2u_2}
+            \]
+          </div>
+          <div class="equation-card">
+            <p class="equation-label">Cantidad de movimiento</p>
+            \[
+            \boxed{p_1+\rho_1u_1^2=p_2+\rho_2u_2^2}
+            \]
+          </div>
         </div>
-        <div class="equation-card">\[\boxed{h_1+\frac{u_1^2}{2}=h_2+\frac{u_2^2}{2}}\]</div>
+        <div class="equation-card">
+          <p class="equation-label">Energía</p>
+          \[
+          \boxed{h_1+\frac{u_1^2}{2}=h_2+\frac{u_2^2}{2}}
+          \]
+        </div>
+
         <details class="details">
-          <summary>¿Por qué la onda es irreversible si las regiones externas se tratan como inviscidas?</summary>
+          <summary>Por qué el choque es irreversible aunque los estados exteriores se traten como inviscidos</summary>
           <div class="details-content">
             <p>
-              Dentro del espesor microscópico de la onda existen gradientes muy intensos.
-              La viscosidad y la conducción térmica generan entropía. El modelo de salto relaciona
-              los estados uniformes sin resolver la estructura interna.
+              Las regiones uniformes aguas arriba y aguas abajo pueden modelarse como inviscidas, pero la
+              estructura interna del choque contiene gradientes enormes de velocidad y temperatura. La
+              viscosidad y la conducción de calor generan entropía dentro de esa capa microscópica. El modelo
+              de salto relaciona los dos estados de equilibrio sin resolver el espesor interno.
             </p>
           </div>
         </details>
       </section>
 
-      <section id="relations-es">
-        <p class="section-label">Solución cerrada</p>
-        <h2>Relaciones de choque normal</h2>
-        <div class="equation-grid">
-          <div class="equation-card">\[\boxed{M_2^2=\frac{1+\frac{\gamma-1}{2}M_1^2}{\gamma M_1^2-\frac{\gamma-1}{2}}}\]</div>
-          <div class="equation-card">\[\boxed{\frac{p_2}{p_1}=1+\frac{2\gamma}{\gamma+1}(M_1^2-1)}\]</div>
-          <div class="equation-card">\[\boxed{\frac{\rho_2}{\rho_1}=\frac{(\gamma+1)M_1^2}{2+(\gamma-1)M_1^2}}\]</div>
-          <div class="equation-card">\[\boxed{\frac{T_2}{T_1}=\frac{p_2/p_1}{\rho_2/\rho_1}}\]</div>
+      <section id="prandtl-es">
+        <p class="section-label">Resultado intermedio clave</p>
+        <h2>La relación de Prandtl</h2>
+        <p>
+          Antes de despejar las razones individuales, las tres ecuaciones de conservación se combinan en un
+          único enunciado notablemente compacto. Escribiendo la ecuación de energía en términos de la
+          velocidad crítica del sonido \(a^*\) introducida en la Lecture 02 y eliminando las variables
+          termodinámicas queda
+        </p>
+        <div class="equation-card">
+          \[\boxed{a^{*2}=u_1u_2}\]
         </div>
+        <p>
+          Dividiendo entre \(a^{*2}\) y usando el número de Mach característico \(M^*=u/a^*\) se obtiene el
+          mismo resultado en su forma más memorable:
+        </p>
+        <div class="equation-card">
+          \[\boxed{M_1^*M_2^*=1,\qquad\text{equivalentemente}\qquad M_2^*=\frac{1}{M_1^*}}\]
+        </div>
+        <div class="callout success">
+          <strong>Lo que dice de inmediato.</strong> Como \(M^*&gt;1\) exactamente cuando \(M&gt;1\), el hecho
+          de que el producto valga uno obliga a que los dos lados del choque estén en regímenes opuestos. Si
+          el flujo entra supersónico debe salir subsónico, y al revés. No hace falta ningún argumento aparte
+          para esa conclusión: ya está contenida en las ecuaciones de conservación.
+        </div>
+        <p>
+          Sustituyendo la correspondencia \(M^*\)–\(M\) de la Lecture 02 en \(M_1^*M_2^*=1\) se obtiene
+          directamente la relación de Mach aguas abajo de la sección siguiente, y por eso conviene deducir
+          primero la relación de Prandtl en lugar de tratar cada razón por separado.
+        </p>
+      </section>
+
+      <section id="relations-es">
+        <p class="section-label">Solución en forma cerrada</p>
+        <h2>Relaciones de choque normal</h2>
+        <p>
+          Para un gas calóricamente perfecto, todas las razones aguas abajo dependen solo de \(M_1\) y \(\gamma\).
+        </p>
+
+        <div class="equation-grid">
+          <div class="equation-card">
+            <p class="equation-label">Mach aguas abajo</p>
+            \[
+            \boxed{
+            M_2^2=
+            \frac{1+\frac{\gamma-1}{2}M_1^2}
+            {\gamma M_1^2-\frac{\gamma-1}{2}}
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            <p class="equation-label">Razón de presiones</p>
+            \[
+            \boxed{
+            \frac{p_2}{p_1}
+            =
+            1+\frac{2\gamma}{\gamma+1}(M_1^2-1)
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            <p class="equation-label">Razón de densidades</p>
+            \[
+            \boxed{
+            \frac{\rho_2}{\rho_1}
+            =
+            \frac{(\gamma+1)M_1^2}
+            {2+(\gamma-1)M_1^2}
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            <p class="equation-label">Razón de temperaturas</p>
+            \[
+            \boxed{
+            \frac{T_2}{T_1}
+            =
+            \frac{p_2/p_1}{\rho_2/\rho_1}
+            }
+            \]
+          </div>
+        </div>
+
         <div class="callout">
-          Para aire con \(\gamma=1.4\), la razón máxima de densidades del modelo es \(6\).
+          Para aire con \(\gamma=1.4\), la razón máxima de densidades en el límite de choque fuerte
+          calóricamente perfecto es \((\gamma+1)/(\gamma-1)=6\).
         </div>
       </section>
 
       <section id="loss-es">
         <p class="section-label">Segunda ley</p>
-        <h2>Entropía y pérdida de presión total</h2>
+        <h2>Generación de entropía y pérdida de presión total</h2>
+        <p>
+          Las ecuaciones de conservación admiten algebraicamente una rama de choque de expansión, pero la
+          segunda ley la rechaza. El choque estacionario físicamente admisible tiene \(M_1>1\), \(M_2<1\) y \(s_2>s_1\).
+        </p>
+
         <div class="equation-card">
           \[
           \boxed{
@@ -525,25 +722,40 @@
           }
           \]
         </div>
+
         <div class="equation-card">
+          <p class="equation-label">Razón de presiones totales</p>
           \[
           \boxed{
           \frac{p_{0,2}}{p_{0,1}}
           =
-          \left[\frac{(\gamma+1)M_1^2}{2+(\gamma-1)M_1^2}\right]^{\gamma/(\gamma-1)}
-          \left[\frac{\gamma+1}{2\gamma M_1^2-(\gamma-1)}\right]^{1/(\gamma-1)}
+          \left[
+          \frac{(\gamma+1)M_1^2}
+          {2+(\gamma-1)M_1^2}
+          \right]^{\gamma/(\gamma-1)}
+          \left[
+          \frac{\gamma+1}
+          {2\gamma M_1^2-(\gamma-1)}
+          \right]^{1/(\gamma-1)}
           }
           \]
         </div>
+
         <div class="callout warning">
-          La presión estática aumenta a través del choque, pero la presión total recuperable disminuye.
+          La presión estática aumenta a través de un choque, pero la presión total recuperable disminuye.
+          Son magnitudes distintas y nunca deben usarse indistintamente.
         </div>
       </section>
 
       <section id="pitot-es">
         <p class="section-label">Instrumentación</p>
         <h2>Mediciones Pitot subsónicas y supersónicas</h2>
+
         <h3>Flujo subsónico</h3>
+        <p>
+          El flujo se desacelera de manera aproximadamente isoentrópica hasta la abertura de la sonda, así
+          que la presión medida es la presión total aguas arriba:
+        </p>
         <div class="equation-card">
           \[
           p_{\mathrm{Pitot}}=p_{0,1},
@@ -555,43 +767,102 @@
           \right].
           \]
         </div>
+
         <h3>Flujo supersónico</h3>
         <p>
-          La línea central cruza una porción localmente normal de la onda de proa y después
-          se desacelera isoentrópicamente. La sonda mide \(p_{0,2}\), no \(p_2\) ni \(p_{0,1}\).
+          Se forma una onda de proa delante de la sonda. A lo largo de la línea central, el flujo atraviesa
+          un choque localmente normal y luego se desacelera isoentrópicamente de la región 2 al punto de estancamiento.
         </p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 850 280" role="img" aria-label="Sonda Pitot supersónica con onda de proa">
+            <defs>
+              <marker id="pitotArrowEs" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="#0d568d"></path>
+              </marker>
+            </defs>
+            <g stroke="#0d568d" stroke-width="4" marker-end="url(#pitotArrowEs)">
+              <line x1="40" y1="80" x2="245" y2="80"/>
+              <line x1="40" y1="140" x2="245" y2="140"/>
+              <line x1="40" y1="200" x2="245" y2="200"/>
+            </g>
+            <path d="M320 35 C280 80, 280 200, 320 245" fill="none" stroke="#d67b28" stroke-width="6"/>
+            <g stroke="#176b47" stroke-width="3" marker-end="url(#pitotArrowEs)">
+              <line x1="345" y1="105" x2="520" y2="125"/>
+              <line x1="345" y1="175" x2="520" y2="155"/>
+            </g>
+            <path d="M555 105 L755 105 L755 175 L555 175 A35 35 0 0 1 555 105"
+                  fill="#eaf4fb" stroke="#0d568d" stroke-width="5"/>
+            <line x1="755" y1="140" x2="825" y2="140" stroke="#0d568d" stroke-width="5"/>
+            <text x="150" y="55" text-anchor="middle" font-size="18" fill="#071d33">M₁ &gt; 1, p₁</text>
+            <text x="405" y="75" text-anchor="middle" font-size="18" fill="#071d33">M₂ &lt; 1, p₂</text>
+            <text x="650" y="88" text-anchor="middle" font-size="18" fill="#071d33">pPitot = p₀,₂</text>
+          </svg>
+          <figcaption>La lectura Pitot supersónica es \(p_{0,2}\), no la presión total aguas arriba \(p_{0,1}\).</figcaption>
+        </figure>
+
         <div class="equation-card">
+          <p class="equation-label">Fórmula de Rayleigh para Pitot</p>
           \[
           \boxed{
           \frac{p_{0,2}}{p_1}
           =
           \left[
-          \frac{(\gamma+1)^2M_1^2}{4\gamma M_1^2-2(\gamma-1)}
+          \frac{(\gamma+1)^2M_1^2}
+          {4\gamma M_1^2-2(\gamma-1)}
           \right]^{\gamma/(\gamma-1)}
           \left[
-          \frac{1-\gamma+2\gamma M_1^2}{\gamma+1}
+          \frac{1-\gamma+2\gamma M_1^2}
+          {\gamma+1}
           \right]
           }
           \]
         </div>
-        <div class="callout">
-          Para aire, \(p_{\mathrm{Pitot}}/p_1=1.8929\) separa las ramas subsónica y supersónica.
+
+        <p>Para aire, la razón de presiones que divide en el punto sónico es</p>
+        <div class="equation-card">
+          \[
+          \left.\frac{p_{\mathrm{Pitot}}}{p_1}\right|_{M=1}=1.8929.
+          \]
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Razón medida</th><th>Régimen</th><th>Modelo</th></tr></thead>
+            <tbody>
+              <tr><td>\(p_{\mathrm{Pitot}}/p_1&lt;1.8929\)</td><td>Subsónico</td><td>Relación isoentrópica total–estática</td></tr>
+              <tr><td>\(=1.8929\)</td><td>Sónico</td><td>\(M=1\)</td></tr>
+              <tr><td>\(&gt;1.8929\)</td><td>Supersónico</td><td>Relación de Rayleigh con choque normal</td></tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
       <section id="example-es">
         <p class="section-label">Ejemplo resuelto</p>
-        <h2>Choque normal para \(M_1=2\)</h2>
+        <h2>Choque normal en \(M_1=2\)</h2>
         <div class="example">
+          <h3>Problema</h3>
           <p>
-            Aire a \(M_1=2.00\), \(p_1=50.0\ \text{kPa}\) y \(T_1=220\ \text{K}\).
+            Aire a \(M_1=2.00\), \(p_1=50.0\ \text{kPa}\) y \(T_1=220\ \text{K}\)
+            atraviesa un choque normal. Determine \(M_2\), \(p_2\), \(T_2\),
+            \(\rho_2/\rho_1\), \(p_{0,2}/p_{0,1}\) y la presión que mediría una sonda Pitot.
           </p>
+
           <div class="solution-step"><span class="solution-step-number">1</span><div>\[M_2=0.57735.\]</div></div>
-          <div class="solution-step"><span class="solution-step-number">2</span><div>\[p_2/p_1=4.5,\qquad p_2=225.0\ \text{kPa}.\]</div></div>
-          <div class="solution-step"><span class="solution-step-number">3</span><div>\[\rho_2/\rho_1=2.66667,\quad T_2/T_1=1.6875,\quad T_2=371.25\ \text{K}.\]</div></div>
-          <div class="solution-step"><span class="solution-step-number">4</span><div>\[p_{0,2}/p_{0,1}=0.720874.\]</div></div>
-          <div class="solution-step"><span class="solution-step-number">5</span><div>\[p_{\mathrm{Pitot}}=p_{0,2}=282.0\ \text{kPa}.\]</div></div>
-          <div class="result-box">\[\boxed{M_2=0.5774,\quad p_2=225.0\ \text{kPa},\quad p_{\mathrm{Pitot}}=282.0\ \text{kPa}}\]</div>
+          <div class="solution-step"><span class="solution-step-number">2</span><div>\[\frac{p_2}{p_1}=4.5,\qquad p_2=225.0\ \text{kPa}.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">3</span><div>\[\frac{\rho_2}{\rho_1}=2.66667,\qquad \frac{T_2}{T_1}=1.6875,\qquad T_2=371.25\ \text{K}.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">4</span><div>\[\frac{p_{0,2}}{p_{0,1}}=0.720874.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">5</span><div>\[\frac{p_{0,2}}{p_1}=5.64044,\qquad p_{\mathrm{Pitot}}=p_{0,2}=282.0\ \text{kPa}.\]</div></div>
+
+          <div class="result-box">
+            \[
+            \boxed{
+            M_2=0.5774,\quad p_2=225.0\ \text{kPa},\quad
+            T_2=371.3\ \text{K},\quad p_{\mathrm{Pitot}}=282.0\ \text{kPa}
+            }
+            \]
+          </div>
         </div>
       </section>
 
@@ -599,57 +870,411 @@
         <p class="section-label">Verificaciones</p>
         <h2>Errores comunes</h2>
         <ul>
-          <li>Reportar \(p_2\) como la lectura del Pitot.</li>
-          <li>Suponer que \(p_{0,2}=p_{0,1}\) porque la onda es adiabática.</li>
-          <li>Usar \(M_1\) en la desaceleración isoentrópica posterior al choque.</li>
-          <li>Aplicar relaciones de choque normal cuando \(M_1\leq1\).</li>
+          <li>Reportar la presión estática aguas abajo \(p_2\) como la lectura del Pitot.</li>
+          <li>Suponer que \(p_{0,2}=p_{0,1}\) porque el choque es adiabático.</li>
+          <li>Usar \(M_1\) en la relación isoentrópica posterior al choque en lugar de \(M_2\).</li>
+          <li>Aplicar las ecuaciones de choque normal cuando \(M_1\leq1\).</li>
+          <li>Confundir el aumento de presión estática con un incremento de energía mecánica disponible.</li>
         </ul>
       </section>
 
       <section id="references-es" class="references">
         <h2>Referencias</h2>
         <ol>
-          <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed., 2017, capítulo 8.</li>
-          <li>Anderson, J. D., Jr. <em>Modern Compressible Flow</em>, 3rd ed.</li>
-          <li>Ames Research Staff. <em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135.</li>
+          <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 8.</li>
+          <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3.ª ed. Nueva York: McGraw-Hill, 2003, capítulo 3.</li>
+          <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+          <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, México, febrero de 2024.</li>
         </ol>
-        <p class="source-note">Adaptado de los apuntes de Aerodinámica II de Carlos Alberto Molina Holguín.</p>
+        <p class="source-note">Adaptado de la Unidad II de los apuntes de Aerodinámica II de Carlos Alberto Molina Holguín.</p>
       </section>
 
       <nav class="next-nav">
         <a class="next-link" href="isentropic-flow.html"><span>Lecture anterior</span>← Flujo isoentrópico</a>
-        <a class="next-link" href="oblique-shocks.html"><span>Siguiente lecture</span>Ondas de choque oblicuas →</a>
+        <a class="next-link" href="oblique-shocks.html"><span>Siguiente lecture</span>Choques oblicuos →</a>
       </nav>
     </article>
 
     <article class="lecture" data-language="de" hidden>
-      <section>
+      <section id="objectives-de">
         <p class="section-label">Lernziele</p>
-        <h2>Normalstoßwellen und Pitot-Messung</h2>
-        <p class="lead">
-          Diese deutsche Kurzfassung enthält die wichtigsten Gleichungen. Die vollständige
-          Herleitung und Beispiele stehen derzeit auf Englisch und Spanisch zur Verfügung.
-        </p>
-        <div class="equation-card">\[\boxed{M_2^2=\frac{1+\frac{\gamma-1}{2}M_1^2}{\gamma M_1^2-\frac{\gamma-1}{2}}}\]</div>
-        <div class="equation-card">\[\boxed{\frac{p_2}{p_1}=1+\frac{2\gamma}{\gamma+1}(M_1^2-1)}\]</div>
-        <div class="equation-card">\[\boxed{\frac{\rho_2}{\rho_1}=\frac{(\gamma+1)M_1^2}{2+(\gamma-1)M_1^2}}\]</div>
-        <div class="de-note">
-          Bei einer adiabatischen Normalstoßwelle bleibt die Stautemperatur konstant,
-          der Totaldruck sinkt jedoch infolge der Entropieerzeugung.
-        </div>
-        <h3>Überschall-Pitot-Sonde</h3>
+        <h2>Was Sie danach können sollten</h2>
+        <ul>
+          <li>Massen-, Impuls- und Energieerhaltung über einen senkrechten Verdichtungsstoß anwenden.</li>
+          <li>\(M_2\) sowie die Verhältnisse von Druck, Dichte, Temperatur und Totaldruck aus \(M_1\) berechnen.</li>
+          <li>Begründen, warum ein physikalischer stationärer senkrechter Stoß \(M_1>1\) erfordert.</li>
+          <li>Den Anstieg des statischen Drucks vom Verlust an Totaldruck unterscheiden.</li>
+          <li>Unterschall- und Überschall-Pitot-Messungen richtig deuten.</li>
+        </ul>
+      </section>
+
+      <section id="physics-de">
+        <p class="section-label">Physikalisches Verhalten</p>
+        <h2>Eine abrupte irreversible Verdichtung</h2>
         <p>
-          Vor der Sonde entsteht eine Bugstoßwelle. Gemessen wird der Totaldruck hinter der
-          Stoßwelle \(p_{0,2}\), nicht der statische Druck \(p_2\).
+          Ein senkrechter Verdichtungsstoß ist ein äußerst dünnes Gebiet, in dem eine Überschallströmung in
+          eine Unterschallströmung übergeht. Statischer Druck, Dichte, Temperatur und Entropie nehmen zu;
+          Geschwindigkeit und Machzahl nehmen ab.
+        </p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 800 260" role="img" aria-label="Senkrechter Verdichtungsstoß">
+            <defs>
+              <marker id="shockArrowDe" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="#0d568d"></path>
+              </marker>
+            </defs>
+            <rect x="35" y="30" width="730" height="190" rx="16" fill="#ffffff" stroke="#d8e2ea" stroke-width="2"/>
+            <g stroke="#0d568d" stroke-width="4" marker-end="url(#shockArrowDe)">
+              <line x1="70" y1="75" x2="315" y2="75"/>
+              <line x1="70" y1="125" x2="315" y2="125"/>
+              <line x1="70" y1="175" x2="315" y2="175"/>
+            </g>
+            <path d="M390 42 L378 58 L400 75 L378 92 L400 109 L378 126 L400 143 L378 160 L400 177 L378 194 L390 214"
+                  fill="none" stroke="#d67b28" stroke-width="6"/>
+            <g stroke="#176b47" stroke-width="3" marker-end="url(#shockArrowDe)">
+              <line x1="440" y1="85" x2="690" y2="85"/>
+              <line x1="440" y1="130" x2="690" y2="130"/>
+              <line x1="440" y1="175" x2="690" y2="175"/>
+            </g>
+            <text x="190" y="55" text-anchor="middle" font-size="18" font-weight="700" fill="#071d33">Gebiet 1</text>
+            <text x="190" y="213" text-anchor="middle" font-size="17" fill="#344454">M₁ &gt; 1, p₁, T₁, ρ₁</text>
+            <text x="565" y="55" text-anchor="middle" font-size="18" font-weight="700" fill="#071d33">Gebiet 2</text>
+            <text x="565" y="213" text-anchor="middle" font-size="17" fill="#344454">M₂ &lt; 1, p₂, T₂, ρ₂</text>
+          </svg>
+          <figcaption>Idealisierte Kontrollvolumen-Darstellung eines stationären senkrechten Stoßes.</figcaption>
+        </figure>
+
+        <div class="equation-grid">
+          <div class="callout success">
+            <strong>Erhalten:</strong> Massenstrom, Totalenthalpie und Totaltemperatur für einen adiabaten Stoß ohne Arbeitszufuhr.
+          </div>
+          <div class="callout warning">
+            <strong>Nicht erhalten:</strong> die Entropie nimmt zu und der Totaldruck ab.
+          </div>
+        </div>
+      </section>
+
+      <section id="conservation-de">
+        <p class="section-label">Kontrollvolumen</p>
+        <h2>Drei Erhaltungsgleichungen</h2>
+        <p>
+          Für stationäre, eindimensionale, adiabate Strömung durch ein Kontrollvolumen konstanter Fläche gilt:
+        </p>
+
+        <div class="equation-grid">
+          <div class="equation-card">
+            <p class="equation-label">Masse</p>
+            \[
+            \boxed{\rho_1u_1=\rho_2u_2}
+            \]
+          </div>
+          <div class="equation-card">
+            <p class="equation-label">Impuls</p>
+            \[
+            \boxed{p_1+\rho_1u_1^2=p_2+\rho_2u_2^2}
+            \]
+          </div>
+        </div>
+        <div class="equation-card">
+          <p class="equation-label">Energie</p>
+          \[
+          \boxed{h_1+\frac{u_1^2}{2}=h_2+\frac{u_2^2}{2}}
+          \]
+        </div>
+
+        <details class="details">
+          <summary>Warum der Stoß irreversibel ist, obwohl die äußeren Zustände als reibungsfrei behandelt werden</summary>
+          <div class="details-content">
+            <p>
+              Die gleichförmigen Gebiete stromauf und stromab dürfen als reibungsfrei modelliert werden, doch
+              die innere Stoßstruktur weist sehr große Geschwindigkeits- und Temperaturgradienten auf.
+              Viskosität und Wärmeleitung erzeugen innerhalb dieser mikroskopischen Schicht Entropie. Das
+              Sprungmodell verknüpft die beiden Gleichgewichtszustände, ohne die innere Dicke aufzulösen.
+            </p>
+          </div>
+        </details>
+      </section>
+
+      <section id="prandtl-de">
+        <p class="section-label">Zentrales Zwischenergebnis</p>
+        <h2>Die Prandtl-Beziehung</h2>
+        <p>
+          Vor dem Auflösen nach einzelnen Verhältnissen lassen sich die drei Erhaltungsgleichungen zu einer
+          einzigen, bemerkenswert kompakten Aussage zusammenfassen. Schreibt man die Energiegleichung mit der
+          in Vorlesung 02 eingeführten kritischen Schallgeschwindigkeit \(a^*\) und eliminiert die
+          thermodynamischen Größen, so bleibt
+        </p>
+        <div class="equation-card">
+          \[\boxed{a^{*2}=u_1u_2}\]
+        </div>
+        <p>
+          Division durch \(a^{*2}\) und Verwendung der charakteristischen Machzahl \(M^*=u/a^*\) liefert
+          dasselbe Ergebnis in seiner einprägsamsten Form:
+        </p>
+        <div class="equation-card">
+          \[\boxed{M_1^*M_2^*=1,\qquad\text{gleichbedeutend}\qquad M_2^*=\frac{1}{M_1^*}}\]
+        </div>
+        <div class="callout success">
+          <strong>Was daraus unmittelbar folgt.</strong> Da \(M^*&gt;1\) genau dann gilt, wenn \(M&gt;1\),
+          erzwingt das Produkt eins, dass beide Seiten des Stoßes in entgegengesetzten Bereichen liegen.
+          Tritt die Strömung mit Überschall ein, so muss sie mit Unterschall austreten, und umgekehrt. Ein
+          gesondertes Argument ist dafür nicht nötig — es steckt bereits in den Erhaltungsgleichungen.
+        </div>
+        <p>
+          Setzt man die \(M^*\)–\(M\)-Zuordnung aus Vorlesung 02 in \(M_1^*M_2^*=1\) ein, ergibt sich
+          unmittelbar die Beziehung für die stromabwärtige Machzahl des nächsten Abschnitts. Deshalb lohnt es
+          sich, zuerst die Prandtl-Beziehung herzuleiten, statt jedes Verhältnis einzeln zu behandeln.
         </p>
       </section>
-      <section class="references">
+
+      <section id="relations-de">
+        <p class="section-label">Geschlossene Lösung</p>
+        <h2>Beziehungen des senkrechten Stoßes</h2>
+        <p>
+          Für ein kalorisch ideales Gas hängen sämtliche stromabwärtigen Verhältnisse nur von \(M_1\) und \(\gamma\) ab.
+        </p>
+
+        <div class="equation-grid">
+          <div class="equation-card">
+            <p class="equation-label">Machzahl stromab</p>
+            \[
+            \boxed{
+            M_2^2=
+            \frac{1+\frac{\gamma-1}{2}M_1^2}
+            {\gamma M_1^2-\frac{\gamma-1}{2}}
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            <p class="equation-label">Druckverhältnis</p>
+            \[
+            \boxed{
+            \frac{p_2}{p_1}
+            =
+            1+\frac{2\gamma}{\gamma+1}(M_1^2-1)
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            <p class="equation-label">Dichteverhältnis</p>
+            \[
+            \boxed{
+            \frac{\rho_2}{\rho_1}
+            =
+            \frac{(\gamma+1)M_1^2}
+            {2+(\gamma-1)M_1^2}
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            <p class="equation-label">Temperaturverhältnis</p>
+            \[
+            \boxed{
+            \frac{T_2}{T_1}
+            =
+            \frac{p_2/p_1}{\rho_2/\rho_1}
+            }
+            \]
+          </div>
+        </div>
+
+        <div class="callout">
+          Für Luft mit \(\gamma=1{,}4\) beträgt das maximale Dichteverhältnis im kalorisch idealen
+          Grenzfall des starken Stoßes \((\gamma+1)/(\gamma-1)=6\).
+        </div>
+      </section>
+
+      <section id="loss-de">
+        <p class="section-label">Zweiter Hauptsatz</p>
+        <h2>Entropieerzeugung und Totaldruckverlust</h2>
+        <p>
+          Die Erhaltungsgleichungen lassen algebraisch auch einen Expansionsstoß-Zweig zu, doch der zweite
+          Hauptsatz verwirft ihn. Der physikalisch zulässige stationäre Stoß besitzt \(M_1>1\), \(M_2<1\) und \(s_2>s_1\).
+        </p>
+
+        <div class="equation-card">
+          \[
+          \boxed{
+          \frac{s_2-s_1}{R}
+          =
+          \frac{\gamma}{\gamma-1}\ln\left(\frac{T_2}{T_1}\right)
+          -
+          \ln\left(\frac{p_2}{p_1}\right)
+          }
+          \]
+        </div>
+
+        <div class="equation-card">
+          <p class="equation-label">Totaldruckverhältnis</p>
+          \[
+          \boxed{
+          \frac{p_{0,2}}{p_{0,1}}
+          =
+          \left[
+          \frac{(\gamma+1)M_1^2}
+          {2+(\gamma-1)M_1^2}
+          \right]^{\gamma/(\gamma-1)}
+          \left[
+          \frac{\gamma+1}
+          {2\gamma M_1^2-(\gamma-1)}
+          \right]^{1/(\gamma-1)}
+          }
+          \]
+        </div>
+
+        <div class="callout warning">
+          Der statische Druck steigt über einen Stoß, der rückgewinnbare Totaldruck sinkt jedoch. Es sind
+          verschiedene Größen, die niemals austauschbar verwendet werden dürfen.
+        </div>
+      </section>
+
+      <section id="pitot-de">
+        <p class="section-label">Messtechnik</p>
+        <h2>Pitot-Messung im Unter- und Überschall</h2>
+
+        <h3>Unterschallströmung</h3>
+        <p>
+          Die Strömung verzögert näherungsweise isentrop bis zur Sondenöffnung, sodass der gemessene Druck
+          der stromaufwärtige Totaldruck ist:
+        </p>
+        <div class="equation-card">
+          \[
+          p_{\mathrm{Pitot}}=p_{0,1},
+          \qquad
+          M_1^2=
+          \frac{2}{\gamma-1}
+          \left[
+          \left(\frac{p_{0,1}}{p_1}\right)^{(\gamma-1)/\gamma}-1
+          \right].
+          \]
+        </div>
+
+        <h3>Überschallströmung</h3>
+        <p>
+          Vor der Sonde bildet sich ein Kopfstoß. Längs der Mittellinie durchläuft die Strömung einen örtlich
+          senkrechten Stoß und verzögert anschließend isentrop von Gebiet 2 bis zum Staupunkt.
+        </p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 850 280" role="img" aria-label="Überschall-Pitotsonde mit Kopfstoß">
+            <defs>
+              <marker id="pitotArrowDe" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="#0d568d"></path>
+              </marker>
+            </defs>
+            <g stroke="#0d568d" stroke-width="4" marker-end="url(#pitotArrowDe)">
+              <line x1="40" y1="80" x2="245" y2="80"/>
+              <line x1="40" y1="140" x2="245" y2="140"/>
+              <line x1="40" y1="200" x2="245" y2="200"/>
+            </g>
+            <path d="M320 35 C280 80, 280 200, 320 245" fill="none" stroke="#d67b28" stroke-width="6"/>
+            <g stroke="#176b47" stroke-width="3" marker-end="url(#pitotArrowDe)">
+              <line x1="345" y1="105" x2="520" y2="125"/>
+              <line x1="345" y1="175" x2="520" y2="155"/>
+            </g>
+            <path d="M555 105 L755 105 L755 175 L555 175 A35 35 0 0 1 555 105"
+                  fill="#eaf4fb" stroke="#0d568d" stroke-width="5"/>
+            <line x1="755" y1="140" x2="825" y2="140" stroke="#0d568d" stroke-width="5"/>
+            <text x="150" y="55" text-anchor="middle" font-size="18" fill="#071d33">M₁ &gt; 1, p₁</text>
+            <text x="405" y="75" text-anchor="middle" font-size="18" fill="#071d33">M₂ &lt; 1, p₂</text>
+            <text x="650" y="88" text-anchor="middle" font-size="18" fill="#071d33">pPitot = p₀,₂</text>
+          </svg>
+          <figcaption>Die Überschall-Pitot-Anzeige ist \(p_{0,2}\), nicht der stromaufwärtige Totaldruck \(p_{0,1}\).</figcaption>
+        </figure>
+
+        <div class="equation-card">
+          <p class="equation-label">Rayleigh-Pitot-Formel</p>
+          \[
+          \boxed{
+          \frac{p_{0,2}}{p_1}
+          =
+          \left[
+          \frac{(\gamma+1)^2M_1^2}
+          {4\gamma M_1^2-2(\gamma-1)}
+          \right]^{\gamma/(\gamma-1)}
+          \left[
+          \frac{1-\gamma+2\gamma M_1^2}
+          {\gamma+1}
+          \right]
+          }
+          \]
+        </div>
+
+        <p>Für Luft lautet das trennende Druckverhältnis im Schallpunkt</p>
+        <div class="equation-card">
+          \[
+          \left.\frac{p_{\mathrm{Pitot}}}{p_1}\right|_{M=1}=1{,}8929.
+          \]
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Gemessenes Verhältnis</th><th>Bereich</th><th>Modell</th></tr></thead>
+            <tbody>
+              <tr><td>\(p_{\mathrm{Pitot}}/p_1&lt;1{,}8929\)</td><td>Unterschall</td><td>Isentrope Total-statisch-Beziehung</td></tr>
+              <tr><td>\(=1{,}8929\)</td><td>Schallgeschwindigkeit</td><td>\(M=1\)</td></tr>
+              <tr><td>\(&gt;1{,}8929\)</td><td>Überschall</td><td>Rayleigh-Beziehung mit senkrechtem Stoß</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Senkrechter Stoß bei \(M_1=2\)</h2>
+        <div class="example">
+          <h3>Aufgabe</h3>
+          <p>
+            Luft mit \(M_1=2{,}00\), \(p_1=50{,}0\ \text{kPa}\) und \(T_1=220\ \text{K}\)
+            durchläuft einen senkrechten Stoß. Zu bestimmen sind \(M_2\), \(p_2\), \(T_2\),
+            \(\rho_2/\rho_1\), \(p_{0,2}/p_{0,1}\) sowie der Druck, den eine Pitotsonde anzeigen würde.
+          </p>
+
+          <div class="solution-step"><span class="solution-step-number">1</span><div>\[M_2=0{,}57735.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">2</span><div>\[\frac{p_2}{p_1}=4{,}5,\qquad p_2=225{,}0\ \text{kPa}.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">3</span><div>\[\frac{\rho_2}{\rho_1}=2{,}66667,\qquad \frac{T_2}{T_1}=1{,}6875,\qquad T_2=371{,}25\ \text{K}.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">4</span><div>\[\frac{p_{0,2}}{p_{0,1}}=0{,}720874.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">5</span><div>\[\frac{p_{0,2}}{p_1}=5{,}64044,\qquad p_{\mathrm{Pitot}}=p_{0,2}=282{,}0\ \text{kPa}.\]</div></div>
+
+          <div class="result-box">
+            \[
+            \boxed{
+            M_2=0{,}5774,\quad p_2=225{,}0\ \text{kPa},\quad
+            T_2=371{,}3\ \text{K},\quad p_{\mathrm{Pitot}}=282{,}0\ \text{kPa}
+            }
+            \]
+          </div>
+        </div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Kontrollen</p>
+        <h2>Häufige Fehler</h2>
+        <ul>
+          <li>Den stromabwärtigen statischen Druck \(p_2\) als Pitot-Anzeige angeben.</li>
+          <li>Annehmen, \(p_{0,2}=p_{0,1}\), weil der Stoß adiabat ist.</li>
+          <li>In der isentropen Beziehung hinter dem Stoß \(M_1\) statt \(M_2\) verwenden.</li>
+          <li>Die Gleichungen des senkrechten Stoßes für \(M_1\leq1\) anwenden.</li>
+          <li>Den Anstieg des statischen Drucks mit einer Zunahme verfügbarer mechanischer Energie verwechseln.</li>
+        </ul>
+      </section>
+
+      <section id="references-de" class="references">
         <h2>Literatur</h2>
         <ol>
-          <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, Kapitel 8.</li>
-          <li>Ames Research Staff. NACA Report 1135.</li>
+          <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6. Aufl. New York: McGraw-Hill Education, 2017, Kapitel 8.</li>
+          <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3. Aufl. New York: McGraw-Hill, 2003, Kapitel 3.</li>
+          <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+          <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexiko, Februar 2024.</li>
         </ol>
+        <p class="source-note">Bearbeitet nach Einheit II des Vorlesungsskripts Aerodynamik II von Carlos Alberto Molina Holguín.</p>
       </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="isentropic-flow.html"><span>Vorherige Vorlesung</span>← Isentrope Strömung</a>
+        <a class="next-link" href="oblique-shocks.html"><span>Nächste Vorlesung</span>Schräge Verdichtungsstöße →</a>
+      </nav>
     </article>
   </div>
 </main>

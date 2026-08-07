@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Introduction to compressible flow and the governing equations for inviscid compressible aerodynamics." />
+  <meta name="description" content="Introduction to compressible flow: compressibility, the M &lt; 0.3 criterion, and the governing equations for inviscid compressible aerodynamics." />
   <meta name="author" content="Carlos Alberto Molina Holguín" />
   <meta name="theme-color" content="#071d33" />
   <title>Compressible-Flow Fundamentals and Governing Equations | Aerodynamics II</title>
@@ -48,26 +48,32 @@
     <div data-language="en">
       <p class="eyebrow">Aerodynamics II · Lecture 01</p>
       <h1>Compressible-Flow Fundamentals and Governing Equations</h1>
-      <p class="hero-copy">Why density, temperature, and energy become essential at high speed, and how conservation laws close an inviscid compressible-flow problem.</p>
+      <p class="hero-copy">Why density, temperature, and energy become essential at high speed, how compressibility is measured, and how the conservation laws close an inviscid compressible-flow problem.</p>
     </div>
     <div data-language="es" hidden>
       <p class="eyebrow">Aerodinámica II · Lecture 01</p>
       <h1>Fundamentos y ecuaciones gobernantes del flujo compresible</h1>
-      <p class="hero-copy">Por qué la densidad, la temperatura y la energía se vuelven esenciales a alta velocidad, y cómo las leyes de conservación cierran el problema.</p>
+      <p class="hero-copy">Por qué la densidad, la temperatura y la energía se vuelven esenciales a alta velocidad, cómo se mide la compresibilidad y cómo las leyes de conservación cierran el problema.</p>
     </div>
     <div data-language="de" hidden>
       <p class="eyebrow">Aerodynamik II · Vorlesung 01</p>
       <h1>Grundlagen und Grundgleichungen kompressibler Strömungen</h1>
-      <p class="hero-copy">Dichte, Temperatur und Energie bei hohen Geschwindigkeiten sowie die Erhaltungsgleichungen für kompressible Strömungen.</p>
+      <p class="hero-copy">Warum Dichte, Temperatur und Energie bei hohen Geschwindigkeiten wesentlich werden, wie Kompressibilität gemessen wird und wie die Erhaltungssätze das reibungsfreie Problem schließen.</p>
     </div>
     <div class="hero-meta">
-      <span>Estimated reading: 30 min</span>
-      <span>Level: undergraduate</span>
-      <span>Model: inviscid perfect gas</span>
+      <span data-language="en">Estimated reading: 35 min</span>
+      <span data-language="es" hidden>Lectura estimada: 35 min</span>
+      <span data-language="de" hidden>Lesedauer: ca. 35 min</span>
+      <span data-language="en">Level: undergraduate</span>
+      <span data-language="es" hidden>Nivel: licenciatura</span>
+      <span data-language="de" hidden>Niveau: Bachelor</span>
+      <span data-language="en">Model: inviscid perfect gas</span>
+      <span data-language="es" hidden>Modelo: gas perfecto inviscido</span>
+      <span data-language="de" hidden>Modell: reibungsfreies ideales Gas</span>
     </div>
     <div class="button-row">
       <a class="button secondary" href="index.html?v=11" data-ui-key="back">Back to course</a>
-      <a class="button primary" href="isentropic-flow.html">Next lecture →</a>
+      <a class="button primary" href="isentropic-flow.html" data-ui-key="next">Next lecture</a>
     </div>
   </div>
 </section>
@@ -75,9 +81,10 @@
 <div class="container lecture-shell">
   <aside class="toc">
     <h2 data-ui-key="contents">On this page</h2>
-    <div class="toc-links">
+    <div class="toc-links" data-language="en">
       <a href="#transition">Why compressibility matters</a>
       <a href="#assumptions">Model and assumptions</a>
+      <a href="#compressibility">Measuring compressibility</a>
       <a href="#closure">System closure</a>
       <a href="#mass">Mass conservation</a>
       <a href="#momentum">Momentum conservation</a>
@@ -85,7 +92,36 @@
       <a href="#system">Complete system</a>
       <a href="#bernoulli">Bernoulli limitation</a>
       <a href="#example">Worked example</a>
+      <a href="#mistakes">Common mistakes</a>
       <a href="#references">References</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#transition-es">Por qué importa la compresibilidad</a>
+      <a href="#assumptions-es">Modelo e hipótesis</a>
+      <a href="#compressibility-es">Cómo se mide la compresibilidad</a>
+      <a href="#closure-es">Cierre del sistema</a>
+      <a href="#mass-es">Conservación de masa</a>
+      <a href="#momentum-es">Cantidad de movimiento</a>
+      <a href="#energy-es">Conservación de energía</a>
+      <a href="#system-es">Sistema completo</a>
+      <a href="#bernoulli-es">Limitación de Bernoulli</a>
+      <a href="#example-es">Ejemplo resuelto</a>
+      <a href="#mistakes-es">Errores comunes</a>
+      <a href="#references-es">Referencias</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#transition-de">Warum Kompressibilität zählt</a>
+      <a href="#assumptions-de">Modell und Annahmen</a>
+      <a href="#compressibility-de">Kompressibilität messen</a>
+      <a href="#closure-de">Schließung des Systems</a>
+      <a href="#mass-de">Massenerhaltung</a>
+      <a href="#momentum-de">Impulserhaltung</a>
+      <a href="#energy-de">Energieerhaltung</a>
+      <a href="#system-de">Vollständiges System</a>
+      <a href="#bernoulli-de">Grenzen von Bernoulli</a>
+      <a href="#example-de">Rechenbeispiel</a>
+      <a href="#mistakes-de">Häufige Fehler</a>
+      <a href="#references-de">Literatur</a>
     </div>
   </aside>
 
@@ -137,7 +173,34 @@
         <div class="equation-card"><p class="equation-label">Caloric relation</p>\[\boxed{e=c_vT,\qquad h=c_pT}\]</div>
       </div>
       <div class="equation-card">\[\gamma=\frac{c_p}{c_v},\qquad c_p-c_v=R,\qquad c_p=\frac{\gamma R}{\gamma-1},\qquad c_v=\frac{R}{\gamma-1}.\]</div>
-      <div class="callout warning"><strong>Model limitation.</strong> Constant specific heats are a useful first approximation, but this model loses accuracy at sufficiently high temperatures.</div>
+      <div class="callout warning"><strong>Model limitation.</strong> Constant specific heats are a useful first approximation, but this model loses accuracy at sufficiently high temperatures, where vibrational excitation and dissociation make \(c_p\) and \(c_v\) functions of temperature.</div>
+    </section>
+
+    <section id="compressibility">
+      <p class="section-label">Definition</p>
+      <h2>How compressibility is measured</h2>
+      <p>Consider a fluid element of specific volume \(v\) under a uniform pressure \(p\). If the pressure rises by a differential amount \(dp&gt;0\), the specific volume decreases, so \(dv&lt;0\). Compressibility is defined as</p>
+      <div class="equation-card">\[\boxed{\tau=-\frac{1}{v}\frac{dv}{dp}}\]</div>
+      <p>The negative sign makes \(\tau&gt;0\) for an ordinary substance. Its units are \(\mathrm{Pa^{-1}}\), and its reciprocal is the bulk modulus \(K=1/\tau\), which has units of pressure.</p>
+      <p>The definition is incomplete until one states which property is held constant during the compression. Two cases matter here:</p>
+      <div class="equation-grid">
+        <div class="equation-card"><p class="equation-label">Isothermal</p>\[\boxed{\tau_T=-\frac{1}{v}\left(\frac{\partial v}{\partial p}\right)_T}\]</div>
+        <div class="equation-card"><p class="equation-label">Isentropic</p>\[\boxed{\tau_s=-\frac{1}{v}\left(\frac{\partial v}{\partial p}\right)_s}\]</div>
+      </div>
+      <p>For a perfect gas both evaluate in closed form. Isothermally, \(v=RT/p\) with \(R\) and \(T\) constant gives \((\partial v/\partial p)_T=-v/p\), and isentropically \(p=C\rho^\gamma\) gives an extra factor \(\gamma\):</p>
+      <div class="equation-card">\[\boxed{\tau_T=\frac{1}{p},\qquad\tau_s=\frac{1}{\gamma p}}\]</div>
+      <div class="callout"><strong>Reading the result.</strong> A gas is more compressible at low pressure, and an isentropic compression is stiffer than an isothermal one by exactly the factor \(\gamma\). A liquid, by contrast, has a compressibility several orders of magnitude smaller, which is why liquid flows are treated as incompressible over an enormous range of conditions.</div>
+
+      <h3>The practical criterion: \(M &lt; 0.3\)</h3>
+      <p>Compressibility alone does not decide whether a given <em>flow</em> must be treated as compressible: a gas is always compressible, yet a slow gas flow behaves as if it were not. The convenient parameter is the Mach number,</p>
+      <div class="equation-card">\[\boxed{M\equiv\frac{V}{a}}\]</div>
+      <p>where \(a\) is the local speed of sound, derived in Lecture 03. For an isentropic acceleration from a stagnation state, a result established in Lecture 02 gives</p>
+      <div class="equation-card">\[\frac{\rho}{\rho_0}=\left[1+\frac{\gamma-1}{2}M^2\right]^{-1/(\gamma-1)}.\]</div>
+      <p>It is quoted here only to quantify the criterion. With \(\gamma=1.4\) and \(M=0.3\),</p>
+      <div class="equation-card">\[\frac{\rho}{\rho_0}=\left[1+0.2(0.3)^2\right]^{-2.5}=0.9564,\qquad\frac{\rho_0-\rho}{\rho_0}=0.0436.\]</div>
+      <p>The local density therefore differs from the stagnation density by about \(4.36\,\%\). This motivates the working rule</p>
+      <div class="equation-card">\[\boxed{M&lt;0.3\quad\Longrightarrow\quad\text{the incompressible approximation is usually acceptable}}\]</div>
+      <div class="callout warning"><strong>Not a physical boundary.</strong> \(M=0.3\) is a tolerance on density change, not a discontinuity in the physics. Nothing happens to the gas at \(M=0.3\). The percentage must always name its reference property — here it is measured against \(\rho_0\) — and a high-accuracy application may well demand a stricter threshold.</div>
     </section>
 
     <section id="closure">
@@ -174,7 +237,7 @@
       <div class="equation-card">\[\boxed{\frac{\partial}{\partial t}\iiint_{\mathcal V}\rho\mathbf{V}\,d\mathcal V+\iint_{\mathcal S}(\rho\mathbf{V}\cdot d\mathbf{S})\mathbf{V}=-\iint_{\mathcal S}p\,d\mathbf{S}+\iiint_{\mathcal V}\rho\mathbf{f}\,d\mathcal V}\]</div>
       <p>The corresponding differential equation is Euler's equation:</p>
       <div class="equation-card">\[\boxed{\rho\frac{D\mathbf{V}}{Dt}=-\nabla p+\rho\mathbf{f}}\]</div>
-      <p>Its mathematical form is familiar from incompressible aerodynamics, but density is now a field variable rather than a prescribed constant.</p>
+      <p>Its mathematical form is familiar from incompressible aerodynamics, but density is now a field variable rather than a prescribed constant, so the momentum equation can no longer be solved on its own.</p>
     </section>
 
     <section id="energy">
@@ -190,6 +253,7 @@
         <div class="definition"><strong>\(\rho\mathbf{f}\cdot\mathbf{V}\)</strong><span>power of body forces per unit volume</span></div>
         <div class="definition"><strong>\(e+V^2/2\)</strong><span>internal plus kinetic energy per unit mass</span></div>
       </div>
+      <div class="callout">This is the equation that has no counterpart in incompressible aerodynamics. It is what couples the thermodynamic state to the velocity field, and omitting it is the most common way to under-determine a compressible problem.</div>
     </section>
 
     <section id="system">
@@ -235,14 +299,32 @@
       </div>
     </section>
 
+    <section id="mistakes">
+      <p class="section-label">Diagnosis</p>
+      <h2>Common mistakes</h2>
+      <ul class="check-list">
+        <li><strong>Confusing a perfect gas with a calorically perfect gas.</strong> \(p=\rho RT\) does not by itself imply that \(c_p\) and \(c_v\) are constant.</li>
+        <li><strong>Reading \(c_p\) and \(c_v\) as process restrictions.</strong> For a calorically perfect gas, \(h=c_pT\) and \(e=c_vT\) are state relations; they hold whatever the process.</li>
+        <li><strong>Using Celsius in thermodynamic equations.</strong> Temperature must be absolute.</li>
+        <li><strong>Claiming every adiabatic process is isentropic.</strong> An adiabatic process may still generate entropy — a shock wave is the standard counterexample.</li>
+        <li><strong>Applying incompressible Bernoulli where density varies.</strong> \(p+\rho V^2/2=\text{constant}\) is not a general compressible-flow equation.</li>
+        <li><strong>Reading the subscript \(0\) as an initial state.</strong> In this course \(0\) denotes a total or stagnation property.</li>
+        <li><strong>Assuming \(p_0\) is conserved in any adiabatic flow.</strong> Conservation of \(p_0\) requires an isentropic process.</li>
+        <li><strong>Treating \(M=0.3\) as a physical discontinuity.</strong> It is an approximate criterion tied to a density-change tolerance.</li>
+        <li><strong>Omitting the energy equation from the closure.</strong> The equation of state does not replace the energy balance.</li>
+        <li><strong>Placing dimensional quantities inside logarithms.</strong> Entropy expressions contain ratios of properties.</li>
+      </ul>
+    </section>
+
     <section id="references" class="references">
       <h2>References</h2>
       <ol>
-        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed., McGraw-Hill Education, 2017, Chapter 7.</li>
-        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3rd ed., McGraw-Hill.</li>
-        <li>Ames Research Staff. <em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135, 1953.</li>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed. New York: McGraw-Hill Education, 2017, Chapter 7.</li>
+        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3rd ed. New York: McGraw-Hill, 2003, Chapters 1–2.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexico, February 2024.</li>
       </ol>
-      <p class="source-note">Adapted from the Aerodynamics II course notes prepared by Carlos Alberto Molina Holguín.</p>
+      <p class="source-note">Adapted from Unit I of the Aerodynamics II course notes by Carlos Alberto Molina Holguín.</p>
     </section>
 
     <nav class="next-nav">
@@ -255,87 +337,145 @@
     <section id="transition-es">
       <p class="section-label">Introducción</p>
       <h2>De la aerodinámica incompresible a la compresible</h2>
-      <p class="lead">Las leyes físicas no cambian al pasar a flujo compresible. Lo que cambia es el número de variables que deben conservarse y el acoplamiento entre mecánica y termodinámica.</p>
+      <p class="lead">Las leyes físicas no cambian al pasar a flujo compresible. Lo que cambia es el número de variables que deben conservarse y la intensidad del acoplamiento entre mecánica y termodinámica.</p>
       <p>En la aproximación incompresible, la densidad se prescribe y el problema se organiza principalmente alrededor de presión y velocidad. A alta velocidad, los cambios de presión producen variaciones apreciables de densidad y temperatura:</p>
       <div class="equation-card">\[\rho=\text{constante}\qquad\longrightarrow\qquad\rho=\rho(p,T).\]</div>
-      <p>La energía cinética y la energía interna pueden ser del mismo orden de magnitud. Una desaceleración puede producir calentamiento, una expansión puede enfriar el gas y una onda de choque puede convertir energía cinética organizada en energía interna mientras genera entropía.</p>
-      <div class="callout"><strong>Idea clave.</strong> Un flujo de alta velocidad es simultáneamente un flujo de densidad variable y un flujo de alta energía. La termodinámica forma parte esencial del modelo.</div>
+      <p>Cuando la rapidez del flujo es comparable con la del sonido, la energía cinética y la energía interna pueden ser del mismo orden de magnitud. Una desaceleración puede producir calentamiento, una expansión puede enfriar el gas y una onda de choque puede convertir energía cinética organizada en energía interna mientras genera entropía.</p>
+      <figure class="diagram">
+        <svg viewBox="0 0 820 260" role="img" aria-label="Conversión de energía en flujo compresible">
+          <defs>
+            <marker id="energyArrowEs" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#0d568d"/></marker>
+            <marker id="energyArrowOrangeEs" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#d67b28"/></marker>
+          </defs>
+          <rect x="45" y="65" width="255" height="120" rx="16" fill="#eaf4fb" stroke="#0d568d" stroke-width="3"/>
+          <text x="172" y="105" text-anchor="middle" font-size="22" font-weight="700" fill="#071d33">Energía cinética</text>
+          <text x="172" y="145" text-anchor="middle" font-size="24" fill="#344454">V² / 2</text>
+          <rect x="520" y="65" width="255" height="120" rx="16" fill="#fff7ed" stroke="#d67b28" stroke-width="3"/>
+          <text x="647" y="105" text-anchor="middle" font-size="22" font-weight="700" fill="#071d33">Energía térmica</text>
+          <text x="647" y="145" text-anchor="middle" font-size="22" fill="#344454">e, h, T</text>
+          <line x1="315" y1="100" x2="500" y2="100" stroke="#0d568d" stroke-width="5" marker-end="url(#energyArrowEs)"/>
+          <text x="407" y="80" text-anchor="middle" font-size="16" fill="#344454">desaceleración / compresión</text>
+          <line x1="505" y1="165" x2="320" y2="165" stroke="#d67b28" stroke-width="5" marker-end="url(#energyArrowOrangeEs)"/>
+          <text x="412" y="205" text-anchor="middle" font-size="16" fill="#344454">expansión / aceleración</text>
+        </svg>
+        <figcaption>El análisis de flujo compresible sigue la conversión entre formas cinética y termodinámica de la energía.</figcaption>
+      </figure>
+      <div class="callout"><strong>Idea clave.</strong> Un flujo de alta velocidad es simultáneamente un flujo de densidad variable y un flujo de alta energía. La termodinámica forma parte del modelo aerodinámico, no es un complemento opcional.</div>
     </section>
 
     <section id="assumptions-es">
       <p class="section-label">Modelo físico</p>
       <h2>Variables, relaciones constitutivas e hipótesis</h2>
+      <p>Salvo que se indique lo contrario, los primeros módulos emplean el siguiente modelo:</p>
       <ul>
         <li>medio continuo;</li>
-        <li>gas perfecto;</li>
+        <li>ecuación de estado de gas perfecto;</li>
         <li>aire calóricamente perfecto con \(c_p\), \(c_v\) y \(\gamma\) constantes;</li>
-        <li>regiones principales inviscidas;</li>
-        <li>efectos químicos y vibracionales de alta temperatura despreciables;</li>
-        <li>fuerzas de cuerpo despreciables cuando su contribución sea pequeña;</li>
-        <li>flujo estacionario solamente cuando se declare.</li>
+        <li>regiones principales del flujo inviscidas;</li>
+        <li>efectos químicos y vibracionales de alta temperatura despreciados;</li>
+        <li>fuerzas de cuerpo despreciadas cuando su contribución sea pequeña;</li>
+        <li>flujo estacionario solamente cuando se declare de manera explícita.</li>
       </ul>
       <div class="equation-grid">
-        <div class="equation-card">\[\boxed{p=\rho RT}\]</div>
-        <div class="equation-card">\[\boxed{e=c_vT,\qquad h=c_pT}\]</div>
+        <div class="equation-card"><p class="equation-label">Ecuación de gas perfecto</p>\[\boxed{p=\rho RT}\]</div>
+        <div class="equation-card"><p class="equation-label">Relación calórica</p>\[\boxed{e=c_vT,\qquad h=c_pT}\]</div>
       </div>
       <div class="equation-card">\[\gamma=\frac{c_p}{c_v},\qquad c_p-c_v=R,\qquad c_p=\frac{\gamma R}{\gamma-1},\qquad c_v=\frac{R}{\gamma-1}.\]</div>
+      <div class="callout warning"><strong>Limitación del modelo.</strong> Los calores específicos constantes son una primera aproximación útil, pero el modelo pierde exactitud a temperaturas suficientemente altas, donde la excitación vibracional y la disociación vuelven \(c_p\) y \(c_v\) funciones de la temperatura.</div>
+    </section>
+
+    <section id="compressibility-es">
+      <p class="section-label">Definición</p>
+      <h2>Cómo se mide la compresibilidad</h2>
+      <p>Considere un elemento de fluido de volumen específico \(v\) sometido a una presión uniforme \(p\). Si la presión aumenta en una cantidad diferencial \(dp&gt;0\), el volumen específico disminuye, de modo que \(dv&lt;0\). La compresibilidad se define como</p>
+      <div class="equation-card">\[\boxed{\tau=-\frac{1}{v}\frac{dv}{dp}}\]</div>
+      <p>El signo negativo garantiza que \(\tau&gt;0\) para una sustancia ordinaria. Sus unidades son \(\mathrm{Pa^{-1}}\) y su inverso es el módulo volumétrico \(K=1/\tau\), con unidades de presión.</p>
+      <p>La definición queda incompleta mientras no se precise qué propiedad permanece constante durante la variación de presión. Dos casos importan aquí:</p>
+      <div class="equation-grid">
+        <div class="equation-card"><p class="equation-label">Isotérmica</p>\[\boxed{\tau_T=-\frac{1}{v}\left(\frac{\partial v}{\partial p}\right)_T}\]</div>
+        <div class="equation-card"><p class="equation-label">Isoentrópica</p>\[\boxed{\tau_s=-\frac{1}{v}\left(\frac{\partial v}{\partial p}\right)_s}\]</div>
+      </div>
+      <p>Para un gas perfecto ambas se evalúan en forma cerrada. En el caso isotérmico, \(v=RT/p\) con \(R\) y \(T\) constantes da \((\partial v/\partial p)_T=-v/p\); en el isoentrópico, \(p=C\rho^\gamma\) introduce un factor \(\gamma\) adicional:</p>
+      <div class="equation-card">\[\boxed{\tau_T=\frac{1}{p},\qquad\tau_s=\frac{1}{\gamma p}}\]</div>
+      <div class="callout"><strong>Cómo leer el resultado.</strong> Un gas es más compresible a baja presión, y una compresión isoentrópica es más rígida que una isotérmica exactamente por el factor \(\gamma\). Un líquido, en cambio, tiene una compresibilidad varios órdenes de magnitud menor, y por eso sus flujos se tratan como incompresibles en un rango enorme de condiciones.</div>
+
+      <h3>El criterio práctico: \(M &lt; 0.3\)</h3>
+      <p>La compresibilidad por sí sola no decide si un <em>flujo</em> debe tratarse como compresible: un gas siempre es compresible, y aun así un flujo lento de gas se comporta como si no lo fuera. El parámetro conveniente es el número de Mach,</p>
+      <div class="equation-card">\[\boxed{M\equiv\frac{V}{a}}\]</div>
+      <p>donde \(a\) es la velocidad local del sonido, deducida en la Lecture 03. Para una aceleración isoentrópica desde un estado de estancamiento, un resultado que se establece en la Lecture 02 da</p>
+      <div class="equation-card">\[\frac{\rho}{\rho_0}=\left[1+\frac{\gamma-1}{2}M^2\right]^{-1/(\gamma-1)}.\]</div>
+      <p>Se cita aquí solo para cuantificar el criterio. Con \(\gamma=1.4\) y \(M=0.3\),</p>
+      <div class="equation-card">\[\frac{\rho}{\rho_0}=\left[1+0.2(0.3)^2\right]^{-2.5}=0.9564,\qquad\frac{\rho_0-\rho}{\rho_0}=0.0436.\]</div>
+      <p>La densidad local difiere entonces de la de estancamiento en aproximadamente \(4.36\,\%\). Esto motiva la regla práctica</p>
+      <div class="equation-card">\[\boxed{M&lt;0.3\quad\Longrightarrow\quad\text{la aproximación incompresible suele ser aceptable}}\]</div>
+      <div class="callout warning"><strong>No es una frontera física.</strong> \(M=0.3\) es una tolerancia sobre el cambio de densidad, no una discontinuidad de la física. Al gas no le ocurre nada en \(M=0.3\). El porcentaje debe indicar siempre su propiedad de referencia —aquí se mide respecto a \(\rho_0\)— y una aplicación de alta precisión puede exigir un umbral más estricto.</div>
     </section>
 
     <section id="closure-es">
       <p class="section-label">Cierre matemático</p>
       <h2>¿Qué variables deben resolverse?</h2>
+      <p>Para flujo compresible inviscido, las familias principales de variables dependientes son</p>
       <div class="equation-card">\[\boxed{p,\qquad \mathbf{V},\qquad \rho,\qquad e,\qquad T.}\]</div>
+      <p>El sistema se cierra con cinco ingredientes físicos:</p>
       <div class="closure-grid">
-        <div class="closure-node"><strong>Conservación de masa</strong><span>relaciona \(\rho\) y \(\mathbf{V}\)</span></div>
-        <div class="closure-node"><strong>Cantidad de movimiento</strong><span>relaciona \(p,\rho,\mathbf{V}\)</span></div>
-        <div class="closure-node"><strong>Energía</strong><span>relaciona \(e,T,p,\mathbf{V}\)</span></div>
+        <div class="closure-node"><strong>Conservación de masa</strong><span>vincula \(\rho\) y \(\mathbf{V}\)</span></div>
+        <div class="closure-node"><strong>Cantidad de movimiento</strong><span>vincula \(p\), \(\rho\) y \(\mathbf{V}\)</span></div>
+        <div class="closure-node"><strong>Conservación de energía</strong><span>vincula \(e\), \(T\), \(p\) y \(\mathbf{V}\)</span></div>
         <div class="closure-node"><strong>Ecuación de estado</strong><span>\(p=\rho RT\)</span></div>
         <div class="closure-node"><strong>Relación calórica</strong><span>\(e=c_vT\)</span></div>
       </div>
-      <div class="callout success">En tres dimensiones existen siete incógnitas escalares: \(u,v,w,p,\rho,T,e\). El sistema proporciona siete ecuaciones escalares.</div>
+      <div class="callout success">En tres dimensiones, \(\mathbf{V}=(u,v,w)\). El modelo contiene siete incógnitas escalares y siete ecuaciones escalares: continuidad (1), cantidad de movimiento (3), energía (1), ecuación de estado (1) y relación calórica (1).</div>
     </section>
 
     <section id="mass-es">
       <p class="section-label">Ecuación gobernante 1</p>
       <h2>Conservación de masa</h2>
+      <p>Para un volumen de control fijo \(\mathcal V\) limitado por \(\mathcal S\),</p>
       <div class="equation-card"><p class="equation-label">Forma integral</p>\[\boxed{\frac{\partial}{\partial t}\iiint_{\mathcal V}\rho\,d\mathcal V+\iint_{\mathcal S}\rho\mathbf{V}\cdot d\mathbf{S}=0}\]</div>
+      <p>El primer término es la acumulación de masa dentro del volumen de control; el segundo, el flujo neto de masa a través de su frontera.</p>
       <div class="equation-card"><p class="equation-label">Forma diferencial</p>\[\boxed{\frac{\partial\rho}{\partial t}+\nabla\cdot(\rho\mathbf{V})=0}\]</div>
-      <div class="equation-card"><p class="equation-label">Forma material</p>\[\boxed{\frac{D\rho}{Dt}+\rho\nabla\cdot\mathbf{V}=0}\]</div>
+      <div class="equation-card"><p class="equation-label">Forma con derivada material</p>\[\boxed{\frac{D\rho}{Dt}+\rho\nabla\cdot\mathbf{V}=0}\]</div>
+      <div class="callout">Para flujo incompresible de densidad constante, \(D\rho/Dt=0\) y la ecuación se reduce a \(\nabla\cdot\mathbf{V}=0\). Esta simplificación no es válida en general en flujo compresible.</div>
     </section>
 
     <section id="momentum-es">
       <p class="section-label">Ecuación gobernante 2</p>
       <h2>Conservación de cantidad de movimiento</h2>
+      <p>Para flujo inviscido, el balance integral de cantidad de movimiento es</p>
       <div class="equation-card">\[\boxed{\frac{\partial}{\partial t}\iiint_{\mathcal V}\rho\mathbf{V}\,d\mathcal V+\iint_{\mathcal S}(\rho\mathbf{V}\cdot d\mathbf{S})\mathbf{V}=-\iint_{\mathcal S}p\,d\mathbf{S}+\iiint_{\mathcal V}\rho\mathbf{f}\,d\mathcal V}\]</div>
-      <p>La forma diferencial es la ecuación de Euler:</p>
+      <p>La ecuación diferencial correspondiente es la ecuación de Euler:</p>
       <div class="equation-card">\[\boxed{\rho\frac{D\mathbf{V}}{Dt}=-\nabla p+\rho\mathbf{f}}\]</div>
+      <p>Su forma matemática resulta familiar desde la aerodinámica incompresible, pero la densidad es ahora una variable de campo y no una constante prescrita, de modo que la ecuación de cantidad de movimiento ya no puede resolverse por sí sola.</p>
     </section>
 
     <section id="energy-es">
       <p class="section-label">Ecuación gobernante 3</p>
       <h2>Conservación de energía</h2>
-      <div class="equation-card"><p class="equation-label">Energía específica almacenada</p>\[e+\frac{V^2}{2}.\]</div>
+      <p>Despreciando un término explícito de energía potencial gravitatoria, la energía específica almacenada es</p>
+      <div class="equation-card">\[e+\frac{V^2}{2}.\]</div>
+      <div class="equation-card"><p class="equation-label">Forma integral para un fluido inviscido</p>\[\begin{aligned}\frac{\partial}{\partial t}\iiint_{\mathcal V}\rho\left(e+\frac{V^2}{2}\right)d\mathcal V&+\iint_{\mathcal S}\rho\left(e+\frac{V^2}{2}\right)\mathbf{V}\cdot d\mathbf{S}\\&=-\iint_{\mathcal S}p\mathbf{V}\cdot d\mathbf{S}+\iiint_{\mathcal V}\rho\dot q\,d\mathcal V+\iiint_{\mathcal V}\rho(\mathbf{f}\cdot\mathbf{V})\,d\mathcal V.\end{aligned}\]</div>
       <div class="equation-card"><p class="equation-label">Forma diferencial</p>\[\boxed{\rho\frac{D}{Dt}\left(e+\frac{V^2}{2}\right)=\rho\dot q-\nabla\cdot(p\mathbf{V})+\rho\mathbf{f}\cdot\mathbf{V}}\]</div>
       <div class="definition-grid">
-        <div class="definition"><strong>\(\rho\dot q\)</strong><span>calentamiento por unidad de volumen</span></div>
-        <div class="definition"><strong>\(-\nabla\cdot(p\mathbf{V})\)</strong><span>trabajo de presión</span></div>
-        <div class="definition"><strong>\(\rho\mathbf{f}\cdot\mathbf{V}\)</strong><span>potencia de fuerzas de cuerpo</span></div>
-        <div class="definition"><strong>\(e+V^2/2\)</strong><span>energía interna más cinética</span></div>
+        <div class="definition"><strong>\(\rho\dot q\)</strong><span>tasa de calentamiento por unidad de volumen</span></div>
+        <div class="definition"><strong>\(-\nabla\cdot(p\mathbf{V})\)</strong><span>contribución del trabajo de presión</span></div>
+        <div class="definition"><strong>\(\rho\mathbf{f}\cdot\mathbf{V}\)</strong><span>potencia de las fuerzas de cuerpo por unidad de volumen</span></div>
+        <div class="definition"><strong>\(e+V^2/2\)</strong><span>energía interna más cinética por unidad de masa</span></div>
       </div>
+      <div class="callout">Esta es la ecuación que no tiene contraparte en aerodinámica incompresible. Es la que acopla el estado termodinámico con el campo de velocidad, y omitirla es la manera más común de dejar indeterminado un problema compresible.</div>
     </section>
 
     <section id="system-es">
       <p class="section-label">Modelo completo</p>
-      <h2>Sistema de flujo compresible e inviscido</h2>
+      <h2>Sistema de flujo compresible inviscido</h2>
       <div class="equation-card governing-system">\[\boxed{\begin{aligned}\frac{\partial\rho}{\partial t}+\nabla\cdot(\rho\mathbf{V})&=0,\\[1mm]\rho\frac{D\mathbf{V}}{Dt}&=-\nabla p+\rho\mathbf{f},\\[1mm]\rho\frac{D}{Dt}\left(e+\frac{V^2}{2}\right)&=\rho\dot q-\nabla\cdot(p\mathbf{V})+\rho\mathbf{f}\cdot\mathbf{V},\\[1mm]p&=\rho RT,\\e&=c_vT.\end{aligned}}\]</div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Relación</th><th>Información física</th><th>Variables</th></tr></thead>
+          <thead><tr><th>Relación</th><th>Información física</th><th>Variables vinculadas</th></tr></thead>
           <tbody>
             <tr><td>Continuidad</td><td>Conservación de masa</td><td>\(\rho,\mathbf{V}\)</td></tr>
-            <tr><td>Momentum</td><td>Segunda ley de Newton</td><td>\(p,\rho,\mathbf{V}\)</td></tr>
+            <tr><td>Cantidad de movimiento</td><td>Segunda ley de Newton para el fluido</td><td>\(p,\rho,\mathbf{V}\)</td></tr>
             <tr><td>Energía</td><td>Conversión y transferencia de energía</td><td>\(e,T,p,\mathbf{V}\)</td></tr>
-            <tr><td>Estado</td><td>Cierre termodinámico</td><td>\(p,\rho,T\)</td></tr>
+            <tr><td>Ecuación de estado</td><td>Cierre termodinámico</td><td>\(p,\rho,T\)</td></tr>
             <tr><td>Relación calórica</td><td>Cierre energético</td><td>\(e,T\)</td></tr>
           </tbody>
         </table>
@@ -344,34 +484,55 @@
 
     <section id="bernoulli-es">
       <p class="section-label">Dominio de validez</p>
-      <h2>Por qué Bernoulli incompresible no gobierna este problema</h2>
+      <h2>Por qué Bernoulli incompresible no es la ecuación de energía</h2>
       <div class="equation-card">\[p+\frac{1}{2}\rho V^2=\text{constante}\]</div>
-      <p>Esta forma se obtuvo suponiendo densidad constante. En flujo compresible cambian la energía interna y la entalpía, junto con presión, densidad, temperatura y velocidad.</p>
-      <div class="callout warning">No debe corregirse arbitrariamente el término dinámico. Se utiliza la ecuación de energía junto con las relaciones termodinámicas.</div>
+      <p>Esta expresión se obtuvo bajo la hipótesis de densidad constante. No es una ecuación general de flujo compresible porque la energía interna y la entalpía cambian junto con la presión, la densidad, la temperatura y la velocidad.</p>
+      <div class="callout warning">La respuesta correcta no es agregar una corrección arbitraria al término de presión dinámica. Hay que usar la ecuación de energía junto con las relaciones termodinámicas de cierre.</div>
+      <p>En condiciones estacionarias, adiabáticas e inviscidas, sin trabajo de eje y con contribución despreciable de fuerzas de cuerpo, la relación energética útil es</p>
       <div class="equation-card">\[\boxed{h+\frac{V^2}{2}=h_0}\]</div>
-      <p>Esta relación se desarrolla con detalle en la Lecture 02.</p>
+      <p>Esta relación se desarrolla por completo en la Lecture 02.</p>
     </section>
 
     <section id="example-es">
       <p class="section-label">Ejemplo resuelto</p>
-      <h2>Conteo de ecuaciones e incógnitas</h2>
+      <h2>Conteo de ecuaciones e incógnitas en tres dimensiones</h2>
       <div class="example">
-        <p>Para un flujo tridimensional, inviscido y compresible de un gas calóricamente perfecto, las incógnitas escalares son</p>
-        \[u,\quad v,\quad w,\quad p,\quad \rho,\quad T,\quad e.\]
-        <p>Las ecuaciones son continuidad (1), cantidad de movimiento (3), energía (1), ecuación de estado (1) y relación calórica (1).</p>
+        <h3>Problema</h3>
+        <p>Considere un flujo tridimensional, inviscido y compresible de un gas calóricamente perfecto alrededor de un cuerpo. Identifique las incógnitas escalares y verifique que el modelo matemático aporta el mismo número de ecuaciones escalares.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>La velocidad aporta tres campos escalares:</p>\[u,\qquad v,\qquad w.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Los campos termodinámicos son</p>\[p,\qquad \rho,\qquad T,\qquad e.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Las ecuaciones son continuidad (1), cantidad de movimiento (3), energía (1), ecuación de estado (1) y relación calórica (1).</p></div></div>
         <div class="result-box">\[\boxed{\text{7 incógnitas escalares y 7 ecuaciones escalares}}\]</div>
-        <p>La ecuación de estado no reemplaza la ecuación de energía: ambas cumplen funciones físicas distintas.</p>
+        <p>La ecuación de estado no sustituye a la ecuación de energía. La primera relaciona variables termodinámicas; la segunda impone la conservación de la energía.</p>
       </div>
+    </section>
+
+    <section id="mistakes-es">
+      <p class="section-label">Diagnóstico</p>
+      <h2>Errores comunes</h2>
+      <ul class="check-list">
+        <li><strong>Confundir gas perfecto con gas calóricamente perfecto.</strong> \(p=\rho RT\) no implica por sí sola que \(c_p\) y \(c_v\) sean constantes.</li>
+        <li><strong>Interpretar \(c_p\) y \(c_v\) como restricciones de proceso.</strong> Para un gas calóricamente perfecto, \(h=c_pT\) y \(e=c_vT\) son relaciones de estado: valen sea cual sea el proceso.</li>
+        <li><strong>Usar temperatura Celsius en ecuaciones termodinámicas.</strong> La temperatura debe ser absoluta.</li>
+        <li><strong>Afirmar que todo proceso adiabático es isoentrópico.</strong> Un proceso adiabático puede generar entropía; la onda de choque es el contraejemplo estándar.</li>
+        <li><strong>Aplicar Bernoulli incompresible cuando la densidad cambia.</strong> \(p+\rho V^2/2=\text{constante}\) no es una ecuación general de flujo compresible.</li>
+        <li><strong>Confundir el subíndice \(0\) con el estado inicial.</strong> En esta materia, \(0\) identifica una propiedad total o de estancamiento.</li>
+        <li><strong>Suponer que \(p_0\) se conserva en cualquier flujo adiabático.</strong> La conservación de \(p_0\) requiere un proceso isoentrópico.</li>
+        <li><strong>Interpretar \(M=0.3\) como una discontinuidad física.</strong> Es un criterio aproximado asociado con una tolerancia de cambio de densidad.</li>
+        <li><strong>Omitir la ecuación de energía en el cierre.</strong> La ecuación de estado no reemplaza el balance energético.</li>
+        <li><strong>Introducir magnitudes dimensionales en logaritmos.</strong> Las ecuaciones de entropía contienen razones de propiedades.</li>
+      </ul>
     </section>
 
     <section id="references-es" class="references">
       <h2>Referencias</h2>
       <ol>
-        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed., McGraw-Hill Education, 2017, capítulo 7.</li>
-        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow</em>, 3rd ed.</li>
-        <li>Ames Research Staff. <em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135.</li>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 7.</li>
+        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3.ª ed. Nueva York: McGraw-Hill, 2003, capítulos 1–2.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, México, febrero de 2024.</li>
       </ol>
-      <p class="source-note">Adaptado de los apuntes de Aerodinámica II preparados por Carlos Alberto Molina Holguín.</p>
+      <p class="source-note">Adaptado de la Unidad I de los apuntes de Aerodinámica II de Carlos Alberto Molina Holguín.</p>
     </section>
 
     <nav class="next-nav">
@@ -381,29 +542,213 @@
   </article>
 
   <article class="lecture" data-language="de" hidden>
-    <section>
+    <section id="transition-de">
       <p class="section-label">Einführung</p>
-      <h2>Grundlagen kompressibler Strömungen</h2>
-      <p class="lead">Bei hohen Geschwindigkeiten müssen Dichte, Temperatur und innere Energie als veränderliche Feldgrößen berücksichtigt werden.</p>
-      <div class="equation-card">\[\rho=\rho(p,T),\qquad p=\rho RT,\qquad e=c_vT.\]</div>
-      <h3>Unbekannte Größen</h3>
-      <div class="equation-card">\[p,\qquad \mathbf{V},\qquad \rho,\qquad e,\qquad T.\]</div>
-      <h3>Grundgleichungen</h3>
-      <div class="equation-card">\[\boxed{\frac{\partial\rho}{\partial t}+\nabla\cdot(\rho\mathbf{V})=0}\]</div>
-      <div class="equation-card">\[\boxed{\rho\frac{D\mathbf{V}}{Dt}=-\nabla p+\rho\mathbf{f}}\]</div>
-      <div class="equation-card">\[\boxed{\rho\frac{D}{Dt}\left(e+\frac{V^2}{2}\right)=\rho\dot q-\nabla\cdot(p\mathbf{V})+\rho\mathbf{f}\cdot\mathbf{V}}\]</div>
-      <div class="de-note">Die inkompressible Bernoulli-Gleichung ist keine allgemeine Energiegleichung für kompressible Strömungen. Energiegleichung, Zustandsgleichung und kalorische Beziehung müssen gemeinsam verwendet werden.</div>
+      <h2>Von der inkompressiblen zur kompressiblen Aerodynamik</h2>
+      <p class="lead">Die physikalischen Gesetze ändern sich nicht, wenn eine Strömung kompressibel wird. Was sich ändert, ist die Anzahl der Variablen, die mitgeführt werden müssen, und die Stärke der Kopplung zwischen Mechanik und Thermodynamik.</p>
+      <p>In der inkompressiblen Näherung wird die Dichte vorgegeben, und das mechanische Problem lässt sich weitgehend über Druck und Geschwindigkeit ordnen. Bei hoher Geschwindigkeit erzeugen Druckänderungen jedoch merkliche Änderungen von Dichte und Temperatur:</p>
+      <div class="equation-card">\[\rho=\text{konstant}\qquad\longrightarrow\qquad\rho=\rho(p,T).\]</div>
+      <p>Ist die Strömungsgeschwindigkeit mit der Schallgeschwindigkeit vergleichbar, können kinetische und innere Energie dieselbe Größenordnung erreichen. Eine Verzögerung kann Erwärmung bewirken, eine Expansion Abkühlung, und eine Stoßwelle wandelt geordnete kinetische Energie in innere Energie um, während sie Entropie erzeugt.</p>
+      <figure class="diagram">
+        <svg viewBox="0 0 820 260" role="img" aria-label="Energieumwandlung in kompressibler Strömung">
+          <defs>
+            <marker id="energyArrowDe" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#0d568d"/></marker>
+            <marker id="energyArrowOrangeDe" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#d67b28"/></marker>
+          </defs>
+          <rect x="45" y="65" width="255" height="120" rx="16" fill="#eaf4fb" stroke="#0d568d" stroke-width="3"/>
+          <text x="172" y="105" text-anchor="middle" font-size="22" font-weight="700" fill="#071d33">Kinetische Energie</text>
+          <text x="172" y="145" text-anchor="middle" font-size="24" fill="#344454">V² / 2</text>
+          <rect x="520" y="65" width="255" height="120" rx="16" fill="#fff7ed" stroke="#d67b28" stroke-width="3"/>
+          <text x="647" y="105" text-anchor="middle" font-size="22" font-weight="700" fill="#071d33">Thermische Energie</text>
+          <text x="647" y="145" text-anchor="middle" font-size="22" fill="#344454">e, h, T</text>
+          <line x1="315" y1="100" x2="500" y2="100" stroke="#0d568d" stroke-width="5" marker-end="url(#energyArrowDe)"/>
+          <text x="407" y="80" text-anchor="middle" font-size="16" fill="#344454">Verzögerung / Verdichtung</text>
+          <line x1="505" y1="165" x2="320" y2="165" stroke="#d67b28" stroke-width="5" marker-end="url(#energyArrowOrangeDe)"/>
+          <text x="412" y="205" text-anchor="middle" font-size="16" fill="#344454">Expansion / Beschleunigung</text>
+        </svg>
+        <figcaption>Die Analyse kompressibler Strömungen verfolgt die Umwandlung zwischen kinetischer und thermodynamischer Energieform.</figcaption>
+      </figure>
+      <div class="callout"><strong>Kernaussage.</strong> Eine Hochgeschwindigkeitsströmung ist zugleich eine Strömung veränderlicher Dichte und eine energiereiche Strömung. Die Thermodynamik gehört zum aerodynamischen Modell, sie ist keine optionale Ergänzung.</div>
     </section>
-    <section class="references">
+
+    <section id="assumptions-de">
+      <p class="section-label">Physikalisches Modell</p>
+      <h2>Variablen, Stoffmodell und Annahmen</h2>
+      <p>Sofern nichts anderes angegeben ist, verwenden die ersten Module folgendes Modell:</p>
+      <ul>
+        <li>Kontinuum;</li>
+        <li>Zustandsgleichung des idealen Gases;</li>
+        <li>kalorisch ideale Luft mit konstantem \(c_p\), \(c_v\) und \(\gamma\);</li>
+        <li>reibungsfreie Hauptströmungsgebiete;</li>
+        <li>chemische und vibratorische Hochtemperatureffekte vernachlässigt;</li>
+        <li>Volumenkräfte vernachlässigt, wenn ihr Beitrag klein ist;</li>
+        <li>stationäre Strömung nur, wenn ausdrücklich vorausgesetzt.</li>
+      </ul>
+      <div class="equation-grid">
+        <div class="equation-card"><p class="equation-label">Zustandsgleichung</p>\[\boxed{p=\rho RT}\]</div>
+        <div class="equation-card"><p class="equation-label">Kalorische Beziehung</p>\[\boxed{e=c_vT,\qquad h=c_pT}\]</div>
+      </div>
+      <div class="equation-card">\[\gamma=\frac{c_p}{c_v},\qquad c_p-c_v=R,\qquad c_p=\frac{\gamma R}{\gamma-1},\qquad c_v=\frac{R}{\gamma-1}.\]</div>
+      <div class="callout warning"><strong>Modellgrenze.</strong> Konstante spezifische Wärmekapazitäten sind eine brauchbare erste Näherung, doch das Modell verliert bei hinreichend hohen Temperaturen an Genauigkeit: Schwingungsanregung und Dissoziation machen \(c_p\) und \(c_v\) zu Funktionen der Temperatur.</div>
+    </section>
+
+    <section id="compressibility-de">
+      <p class="section-label">Definition</p>
+      <h2>Wie Kompressibilität gemessen wird</h2>
+      <p>Betrachtet wird ein Fluidelement mit spezifischem Volumen \(v\) unter gleichförmigem Druck \(p\). Steigt der Druck um einen differentiellen Betrag \(dp&gt;0\), so nimmt das spezifische Volumen ab, also \(dv&lt;0\). Die Kompressibilität ist definiert als</p>
+      <div class="equation-card">\[\boxed{\tau=-\frac{1}{v}\frac{dv}{dp}}\]</div>
+      <p>Das negative Vorzeichen sichert \(\tau&gt;0\) für einen gewöhnlichen Stoff. Die Einheit ist \(\mathrm{Pa^{-1}}\); der Kehrwert ist der Kompressionsmodul \(K=1/\tau\) mit der Einheit eines Drucks.</p>
+      <p>Die Definition bleibt unvollständig, solange nicht angegeben ist, welche Größe während der Druckänderung konstant gehalten wird. Zwei Fälle sind hier maßgeblich:</p>
+      <div class="equation-grid">
+        <div class="equation-card"><p class="equation-label">Isotherm</p>\[\boxed{\tau_T=-\frac{1}{v}\left(\frac{\partial v}{\partial p}\right)_T}\]</div>
+        <div class="equation-card"><p class="equation-label">Isentrop</p>\[\boxed{\tau_s=-\frac{1}{v}\left(\frac{\partial v}{\partial p}\right)_s}\]</div>
+      </div>
+      <p>Für ein ideales Gas lassen sich beide geschlossen auswerten. Isotherm liefert \(v=RT/p\) mit konstantem \(R\) und \(T\) den Ausdruck \((\partial v/\partial p)_T=-v/p\); isentrop bringt \(p=C\rho^\gamma\) einen zusätzlichen Faktor \(\gamma\):</p>
+      <div class="equation-card">\[\boxed{\tau_T=\frac{1}{p},\qquad\tau_s=\frac{1}{\gamma p}}\]</div>
+      <div class="callout"><strong>Deutung des Ergebnisses.</strong> Ein Gas ist bei niedrigem Druck stärker kompressibel, und eine isentrope Verdichtung ist genau um den Faktor \(\gamma\) steifer als eine isotherme. Eine Flüssigkeit besitzt dagegen eine um mehrere Größenordnungen kleinere Kompressibilität — deshalb werden Flüssigkeitsströmungen über einen enormen Bereich als inkompressibel behandelt.</div>
+
+      <h3>Das praktische Kriterium: \(M &lt; 0{,}3\)</h3>
+      <p>Die Kompressibilität allein entscheidet nicht, ob eine <em>Strömung</em> als kompressibel behandelt werden muss: ein Gas ist stets kompressibel, und dennoch verhält sich eine langsame Gasströmung, als wäre es das nicht. Der geeignete Parameter ist die Machzahl,</p>
+      <div class="equation-card">\[\boxed{M\equiv\frac{V}{a}}\]</div>
+      <p>wobei \(a\) die örtliche Schallgeschwindigkeit ist, hergeleitet in Vorlesung 03. Für eine isentrope Beschleunigung aus dem Ruhezustand liefert ein in Vorlesung 02 hergeleitetes Ergebnis</p>
+      <div class="equation-card">\[\frac{\rho}{\rho_0}=\left[1+\frac{\gamma-1}{2}M^2\right]^{-1/(\gamma-1)}.\]</div>
+      <p>Sie wird hier nur zitiert, um das Kriterium zu beziffern. Mit \(\gamma=1{,}4\) und \(M=0{,}3\) ergibt sich</p>
+      <div class="equation-card">\[\frac{\rho}{\rho_0}=\left[1+0{,}2(0{,}3)^2\right]^{-2{,}5}=0{,}9564,\qquad\frac{\rho_0-\rho}{\rho_0}=0{,}0436.\]</div>
+      <p>Die örtliche Dichte weicht also um etwa \(4{,}36\,\%\) von der Ruhedichte ab. Daraus folgt die Faustregel</p>
+      <div class="equation-card">\[\boxed{M&lt;0{,}3\quad\Longrightarrow\quad\text{die inkompressible Näherung ist meist zulässig}}\]</div>
+      <div class="callout warning"><strong>Keine physikalische Grenze.</strong> \(M=0{,}3\) ist eine Toleranz für die Dichteänderung, keine Unstetigkeit der Physik. Bei \(M=0{,}3\) geschieht mit dem Gas nichts. Der Prozentwert muss stets seine Bezugsgröße nennen — hier wird gegen \(\rho_0\) gemessen — und eine Anwendung mit hoher Genauigkeitsforderung kann eine strengere Schranke verlangen.</div>
+    </section>
+
+    <section id="closure-de">
+      <p class="section-label">Mathematische Schließung</p>
+      <h2>Welche Größen sind zu bestimmen?</h2>
+      <p>Für reibungsfreie kompressible Strömung sind die wesentlichen abhängigen Variablen</p>
+      <div class="equation-card">\[\boxed{p,\qquad \mathbf{V},\qquad \rho,\qquad e,\qquad T.}\]</div>
+      <p>Das System wird durch fünf physikalische Bestandteile geschlossen:</p>
+      <div class="closure-grid">
+        <div class="closure-node"><strong>Massenerhaltung</strong><span>verknüpft \(\rho\) und \(\mathbf{V}\)</span></div>
+        <div class="closure-node"><strong>Impulserhaltung</strong><span>verknüpft \(p\), \(\rho\) und \(\mathbf{V}\)</span></div>
+        <div class="closure-node"><strong>Energieerhaltung</strong><span>verknüpft \(e\), \(T\), \(p\) und \(\mathbf{V}\)</span></div>
+        <div class="closure-node"><strong>Zustandsgleichung</strong><span>\(p=\rho RT\)</span></div>
+        <div class="closure-node"><strong>Kalorische Beziehung</strong><span>\(e=c_vT\)</span></div>
+      </div>
+      <div class="callout success">In drei Dimensionen ist \(\mathbf{V}=(u,v,w)\). Das Modell umfasst sieben skalare Unbekannte und sieben skalare Gleichungen: Kontinuität (1), Impuls (3), Energie (1), Zustandsgleichung (1) und kalorische Beziehung (1).</div>
+    </section>
+
+    <section id="mass-de">
+      <p class="section-label">Grundgleichung 1</p>
+      <h2>Massenerhaltung</h2>
+      <p>Für ein ortsfestes Kontrollvolumen \(\mathcal V\) mit Berandung \(\mathcal S\) gilt</p>
+      <div class="equation-card"><p class="equation-label">Integralform</p>\[\boxed{\frac{\partial}{\partial t}\iiint_{\mathcal V}\rho\,d\mathcal V+\iint_{\mathcal S}\rho\mathbf{V}\cdot d\mathbf{S}=0}\]</div>
+      <p>Der erste Term beschreibt die Massenansammlung im Kontrollvolumen, der zweite den Nettomassenstrom über seine Berandung.</p>
+      <div class="equation-card"><p class="equation-label">Differentialform</p>\[\boxed{\frac{\partial\rho}{\partial t}+\nabla\cdot(\rho\mathbf{V})=0}\]</div>
+      <div class="equation-card"><p class="equation-label">Form mit substantieller Ableitung</p>\[\boxed{\frac{D\rho}{Dt}+\rho\nabla\cdot\mathbf{V}=0}\]</div>
+      <div class="callout">Für inkompressible Strömung konstanter Dichte ist \(D\rho/Dt=0\), und die Gleichung reduziert sich auf \(\nabla\cdot\mathbf{V}=0\). Diese Vereinfachung gilt in kompressibler Strömung im Allgemeinen nicht.</div>
+    </section>
+
+    <section id="momentum-de">
+      <p class="section-label">Grundgleichung 2</p>
+      <h2>Impulserhaltung</h2>
+      <p>Für reibungsfreie Strömung lautet die integrale Impulsbilanz</p>
+      <div class="equation-card">\[\boxed{\frac{\partial}{\partial t}\iiint_{\mathcal V}\rho\mathbf{V}\,d\mathcal V+\iint_{\mathcal S}(\rho\mathbf{V}\cdot d\mathbf{S})\mathbf{V}=-\iint_{\mathcal S}p\,d\mathbf{S}+\iiint_{\mathcal V}\rho\mathbf{f}\,d\mathcal V}\]</div>
+      <p>Die zugehörige Differentialgleichung ist die Euler-Gleichung:</p>
+      <div class="equation-card">\[\boxed{\rho\frac{D\mathbf{V}}{Dt}=-\nabla p+\rho\mathbf{f}}\]</div>
+      <p>Ihre mathematische Gestalt ist aus der inkompressiblen Aerodynamik vertraut, doch die Dichte ist nun eine Feldgröße und keine vorgegebene Konstante, sodass sich die Impulsgleichung nicht mehr für sich allein lösen lässt.</p>
+    </section>
+
+    <section id="energy-de">
+      <p class="section-label">Grundgleichung 3</p>
+      <h2>Energieerhaltung</h2>
+      <p>Unter Vernachlässigung eines expliziten Terms der potentiellen Energie im Schwerefeld lautet die gespeicherte spezifische Energie</p>
+      <div class="equation-card">\[e+\frac{V^2}{2}.\]</div>
+      <div class="equation-card"><p class="equation-label">Integralform für ein reibungsfreies Fluid</p>\[\begin{aligned}\frac{\partial}{\partial t}\iiint_{\mathcal V}\rho\left(e+\frac{V^2}{2}\right)d\mathcal V&+\iint_{\mathcal S}\rho\left(e+\frac{V^2}{2}\right)\mathbf{V}\cdot d\mathbf{S}\\&=-\iint_{\mathcal S}p\mathbf{V}\cdot d\mathbf{S}+\iiint_{\mathcal V}\rho\dot q\,d\mathcal V+\iiint_{\mathcal V}\rho(\mathbf{f}\cdot\mathbf{V})\,d\mathcal V.\end{aligned}\]</div>
+      <div class="equation-card"><p class="equation-label">Differentialform</p>\[\boxed{\rho\frac{D}{Dt}\left(e+\frac{V^2}{2}\right)=\rho\dot q-\nabla\cdot(p\mathbf{V})+\rho\mathbf{f}\cdot\mathbf{V}}\]</div>
+      <div class="definition-grid">
+        <div class="definition"><strong>\(\rho\dot q\)</strong><span>Wärmezufuhr je Volumeneinheit</span></div>
+        <div class="definition"><strong>\(-\nabla\cdot(p\mathbf{V})\)</strong><span>Beitrag der Druckarbeit</span></div>
+        <div class="definition"><strong>\(\rho\mathbf{f}\cdot\mathbf{V}\)</strong><span>Leistung der Volumenkräfte je Volumeneinheit</span></div>
+        <div class="definition"><strong>\(e+V^2/2\)</strong><span>innere plus kinetische Energie je Masseneinheit</span></div>
+      </div>
+      <div class="callout">Dies ist die Gleichung ohne Gegenstück in der inkompressiblen Aerodynamik. Sie koppelt den thermodynamischen Zustand an das Geschwindigkeitsfeld; sie wegzulassen ist der häufigste Weg, ein kompressibles Problem unterbestimmt zu lassen.</div>
+    </section>
+
+    <section id="system-de">
+      <p class="section-label">Vollständiges Modell</p>
+      <h2>System der reibungsfreien kompressiblen Strömung</h2>
+      <div class="equation-card governing-system">\[\boxed{\begin{aligned}\frac{\partial\rho}{\partial t}+\nabla\cdot(\rho\mathbf{V})&=0,\\[1mm]\rho\frac{D\mathbf{V}}{Dt}&=-\nabla p+\rho\mathbf{f},\\[1mm]\rho\frac{D}{Dt}\left(e+\frac{V^2}{2}\right)&=\rho\dot q-\nabla\cdot(p\mathbf{V})+\rho\mathbf{f}\cdot\mathbf{V},\\[1mm]p&=\rho RT,\\e&=c_vT.\end{aligned}}\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Beziehung</th><th>Physikalischer Inhalt</th><th>Verknüpfte Größen</th></tr></thead>
+          <tbody>
+            <tr><td>Kontinuität</td><td>Massenerhaltung</td><td>\(\rho,\mathbf{V}\)</td></tr>
+            <tr><td>Impuls</td><td>Newtons zweites Gesetz für das Fluid</td><td>\(p,\rho,\mathbf{V}\)</td></tr>
+            <tr><td>Energie</td><td>Umwandlung und Transport von Energie</td><td>\(e,T,p,\mathbf{V}\)</td></tr>
+            <tr><td>Zustandsgleichung</td><td>Thermodynamische Schließung</td><td>\(p,\rho,T\)</td></tr>
+            <tr><td>Kalorische Beziehung</td><td>Energetische Schließung</td><td>\(e,T\)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="bernoulli-de">
+      <p class="section-label">Gültigkeitsbereich</p>
+      <h2>Warum die inkompressible Bernoulli-Gleichung nicht die Energiegleichung ist</h2>
+      <div class="equation-card">\[p+\frac{1}{2}\rho V^2=\text{konstant}\]</div>
+      <p>Dieser Ausdruck wurde unter der Annahme konstanter Dichte gewonnen. Er ist keine allgemeine Gleichung kompressibler Strömung, da innere Energie und Enthalpie sich zusammen mit Druck, Dichte, Temperatur und Geschwindigkeit ändern.</p>
+      <div class="callout warning">Die richtige Antwort besteht nicht darin, dem Staudruckterm eine willkürliche Korrektur hinzuzufügen. Zu verwenden ist die Energiegleichung zusammen mit den thermodynamischen Schließungsbeziehungen.</div>
+      <p>Unter stationären, adiabaten und reibungsfreien Bedingungen ohne Wellenarbeit und mit vernachlässigbarem Beitrag der Volumenkräfte lautet die brauchbare Energiebeziehung</p>
+      <div class="equation-card">\[\boxed{h+\frac{V^2}{2}=h_0}\]</div>
+      <p>Diese Beziehung wird in Vorlesung 02 vollständig entwickelt.</p>
+    </section>
+
+    <section id="example-de">
+      <p class="section-label">Rechenbeispiel</p>
+      <h2>Gleichungen und Unbekannte in drei Dimensionen abzählen</h2>
+      <div class="example">
+        <h3>Aufgabe</h3>
+        <p>Betrachtet wird eine dreidimensionale, reibungsfreie, kompressible Strömung eines kalorisch idealen Gases um einen Körper. Man bestimme die skalaren Unbekannten und weise nach, dass das mathematische Modell ebenso viele skalare Gleichungen bereitstellt.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Die Geschwindigkeit liefert drei skalare Felder:</p>\[u,\qquad v,\qquad w.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Die thermodynamischen Felder sind</p>\[p,\qquad \rho,\qquad T,\qquad e.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Die Gleichungen sind Kontinuität (1), Impuls (3), Energie (1), Zustandsgleichung (1) und kalorische Beziehung (1).</p></div></div>
+        <div class="result-box">\[\boxed{\text{7 skalare Unbekannte und 7 skalare Gleichungen}}\]</div>
+        <p>Die Zustandsgleichung ersetzt die Energiegleichung nicht. Erstere verknüpft thermodynamische Größen, letztere erzwingt die Energieerhaltung.</p>
+      </div>
+    </section>
+
+    <section id="mistakes-de">
+      <p class="section-label">Diagnose</p>
+      <h2>Häufige Fehler</h2>
+      <ul class="check-list">
+        <li><strong>Ideales Gas mit kalorisch idealem Gas verwechseln.</strong> \(p=\rho RT\) impliziert für sich genommen nicht, dass \(c_p\) und \(c_v\) konstant sind.</li>
+        <li><strong>\(c_p\) und \(c_v\) als Prozessbedingungen lesen.</strong> Für ein kalorisch ideales Gas sind \(h=c_pT\) und \(e=c_vT\) Zustandsbeziehungen; sie gelten unabhängig vom Prozess.</li>
+        <li><strong>Celsius-Temperaturen in thermodynamischen Gleichungen verwenden.</strong> Die Temperatur muss absolut sein.</li>
+        <li><strong>Jeden adiabaten Prozess für isentrop halten.</strong> Ein adiabater Prozess kann Entropie erzeugen; die Stoßwelle ist das Standardgegenbeispiel.</li>
+        <li><strong>Inkompressibles Bernoulli bei veränderlicher Dichte anwenden.</strong> \(p+\rho V^2/2=\text{konstant}\) ist keine allgemeine Gleichung kompressibler Strömung.</li>
+        <li><strong>Den Index \(0\) als Anfangszustand lesen.</strong> In diesem Kurs bezeichnet \(0\) eine Total- oder Ruhegröße.</li>
+        <li><strong>Annehmen, \(p_0\) bleibe in jeder adiabaten Strömung erhalten.</strong> Die Erhaltung von \(p_0\) setzt einen isentropen Prozess voraus.</li>
+        <li><strong>\(M=0{,}3\) als physikalische Unstetigkeit deuten.</strong> Es ist ein Näherungskriterium, gebunden an eine Toleranz der Dichteänderung.</li>
+        <li><strong>Die Energiegleichung in der Schließung weglassen.</strong> Die Zustandsgleichung ersetzt die Energiebilanz nicht.</li>
+        <li><strong>Dimensionsbehaftete Größen in Logarithmen einsetzen.</strong> Entropieausdrücke enthalten Verhältnisse von Zustandsgrößen.</li>
+      </ul>
+    </section>
+
+    <section id="references-de" class="references">
       <h2>Literatur</h2>
       <ol>
-        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, Kapitel 7.</li>
-        <li>Ames Research Staff. NACA Report 1135.</li>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6. Aufl. New York: McGraw-Hill Education, 2017, Kapitel 7.</li>
+        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3. Aufl. New York: McGraw-Hill, 2003, Kapitel 1–2.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexiko, Februar 2024.</li>
       </ol>
+      <p class="source-note">Bearbeitet nach Einheit I des Vorlesungsskripts Aerodynamik II von Carlos Alberto Molina Holguín.</p>
     </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="index.html?v=11"><span>Kursübersicht</span>Aerodynamik II</a>
+      <a class="next-link" href="isentropic-flow.html"><span>Nächste Vorlesung</span>Isentrope Strömung →</a>
+    </nav>
   </article>
-</div>
-</main>
+</div></main>
 
 <footer>
   <div class="container footer-wrap">

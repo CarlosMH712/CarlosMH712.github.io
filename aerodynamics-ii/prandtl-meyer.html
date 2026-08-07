@@ -70,7 +70,7 @@
       <p class="hero-copy">Kontinuierliche isentrope Umlenkung an einer konvexen Ecke und die Prandtl–Meyer-Funktion.</p>
     </div>
 
-    <div class="hero-meta"><span>Estimated reading: 35 min</span><span>M₁ > 1</span><span>Convex turn</span><span>Isentropic</span></div>
+    <div class="hero-meta"><span data-language="en">Estimated reading: 35 min</span><span data-language="es" hidden>Lectura estimada: 35 min</span><span data-language="de" hidden>Lesedauer: ca. 35 min</span><span>M₁ &gt; 1</span><span data-language="en">Convex turn</span><span data-language="es" hidden>Viraje convexo</span><span data-language="de" hidden>Konvexe Umlenkung</span><span data-language="en">Isentropic</span><span data-language="es" hidden>Isoentrópico</span><span data-language="de" hidden>Isentrop</span></div>
 
     <div class="button-row">
       <a class="button secondary" href="oblique-shocks.html">← Previous</a>
@@ -84,7 +84,7 @@
   <div class="container lecture-shell">
     <aside class="toc">
       <h2 data-ui-key="contents">On this page</h2>
-      <div class="toc-links">
+      <div class="toc-links" data-language="en">
         <a href="#physics">Physical picture</a>
         <a href="#infinitesimal">Infinitesimal expansion</a>
         <a href="#function">Prandtl–Meyer function</a>
@@ -93,7 +93,32 @@
         <a href="#algorithm">Calculation algorithm</a>
         <a href="#example">Worked example</a>
         <a href="#comparison">Shock vs expansion</a>
+        <a href="#mistakes">Common mistakes</a>
         <a href="#references">References</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#physics-es">Panorama físico</a>
+        <a href="#infinitesimal-es">Expansión infinitesimal</a>
+        <a href="#function-es">Función de Prandtl–Meyer</a>
+        <a href="#fan-es">Abanico centrado finito</a>
+        <a href="#properties-es">Cambios de propiedades</a>
+        <a href="#algorithm-es">Algoritmo de cálculo</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#comparison-es">Choque frente a expansión</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#references-es">Referencias</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#physics-de">Physikalisches Bild</a>
+        <a href="#infinitesimal-de">Infinitesimale Expansion</a>
+        <a href="#function-de">Prandtl–Meyer-Funktion</a>
+        <a href="#fan-de">Endlicher zentrierter Fächer</a>
+        <a href="#properties-de">Zustandsänderungen</a>
+        <a href="#algorithm-de">Rechenalgorithmus</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#comparison-de">Stoß und Expansion im Vergleich</a>
+        <a href="#mistakes-de">Häufige Fehler</a>
+        <a href="#references-de">Literatur</a>
       </div>
     </aside>
 
@@ -362,14 +387,29 @@
         </div>
       </section>
 
+      <section id="mistakes">
+        <p class="section-label">Checks</p>
+        <h2>Common mistakes</h2>
+        <ul class="check-list">
+          <li><strong>Applying \(\nu(M)\) to a compression.</strong> The Prandtl–Meyer function describes isentropic <em>expansions</em> only; a concave turn produces an oblique shock and is handled with θ–β–M.</li>
+          <li><strong>Believing an expansion lowers total pressure.</strong> In the ideal model the fan is isentropic, so \(p_{0}\) is conserved. Only the static properties fall.</li>
+          <li><strong>Reading \(\nu\) as a Mach number.</strong> \(\nu\) is an accumulated turning angle measured from \(M=1\); it is not itself a Mach number and has units of degrees.</li>
+          <li><strong>Adding \(\theta\) to \(M\) instead of to \(\nu\).</strong> The turn angle adds to the Prandtl–Meyer function, not to the Mach number: \(\nu(M_2)=\nu(M_1)+\theta\).</li>
+          <li><strong>Ignoring the \(\nu_{\max}\) ceiling.</strong> If \(\nu(M_1)+\theta\) exceeds \(130.45^\circ\) for air, the requested turn is impossible: the gas would need to expand to zero pressure, and a vacuum region forms instead.</li>
+          <li><strong>Expecting \(\nu_{\max}\) to be reachable in practice.</strong> It corresponds to \(M\to\infty\) with \(p\to0\), where the calorically perfect model has long since stopped applying.</li>
+          <li><strong>Using an expansion shock.</strong> There is no such thing: it would decrease entropy and the second law forbids it.</li>
+        </ul>
+      </section>
+
       <section id="references" class="references">
         <h2>References</h2>
         <ol>
-          <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed., Chapter 9.</li>
-          <li>Anderson, J. D., Jr. <em>Modern Compressible Flow</em>.</li>
-          <li>Ames Research Staff. NACA Report 1135.</li>
+          <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed. New York: McGraw-Hill Education, 2017, Chapter 9.</li>
+          <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3rd ed. New York: McGraw-Hill, 2003, Chapter 4.</li>
+          <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+          <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexico, February 2024.</li>
         </ol>
-        <p class="source-note">Adapted from the Aerodynamics II course notes by Carlos Alberto Molina Holguín.</p>
+        <p class="source-note">Adapted from Unit III of the Aerodynamics II course notes by Carlos Alberto Molina Holguín.</p>
       </section>
 
       <nav class="next-nav">
@@ -380,36 +420,107 @@
 
     <article class="lecture" data-language="es" hidden>
       <section id="physics-es">
-        <p class="section-label">Interpretación física</p>
-        <h2>Una esquina convexa genera un abanico continuo</h2>
+        <p class="section-label">Panorama físico</p>
+        <h2>Una esquina convexa genera un abanico de expansión continuo</h2>
         <p class="lead">
-          Al girar alejándose de sí misma, una corriente supersónica se expande mediante
-          una familia continua de ondas de Mach, no mediante un choque expansivo.
+          Cuando una corriente supersónica gira alejándose de sí misma, el ajuste de presión no puede
+          ocurrir mediante un choque de expansión. En su lugar, una familia continua de ondas de Mach
+          forma un abanico centrado de Prandtl–Meyer.
         </p>
+        <figure class="diagram">
+          <svg viewBox="0 0 850 350" role="img" aria-label="Abanico centrado de Prandtl-Meyer">
+            <defs>
+              <marker id="pm-arrow-es" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="#0d568d"></path>
+              </marker>
+            </defs>
+            <polyline points="70,230 390,230 760,315" fill="none" stroke="#071d33" stroke-width="8"/>
+            <g stroke="#d67b28" stroke-width="3">
+              <line x1="390" y1="230" x2="505" y2="35"/>
+              <line x1="390" y1="230" x2="565" y2="40"/>
+              <line x1="390" y1="230" x2="625" y2="58"/>
+              <line x1="390" y1="230" x2="685" y2="82"/>
+              <line x1="390" y1="230" x2="745" y2="115"/>
+            </g>
+            <g stroke="#0d568d" stroke-width="4" marker-end="url(#pm-arrow-es)">
+              <line x1="80" y1="120" x2="315" y2="120"/>
+              <line x1="80" y1="175" x2="315" y2="175"/>
+              <line x1="480" y1="230" x2="695" y2="280"/>
+            </g>
+            <text x="170" y="95" font-size="21" fill="#071d33">M₁, p₁, T₁</text>
+            <text x="650" y="220" font-size="21" fill="#071d33">M₂, p₂, T₂</text>
+            <text x="510" y="25" font-size="18" fill="#d67b28">cabeza μ₁</text>
+            <text x="675" y="132" font-size="18" fill="#d67b28">cola μ₂</text>
+          </svg>
+          <figcaption>
+            Las propiedades cambian de forma continua a través del abanico; no hay discontinuidad finita.
+          </figcaption>
+        </figure>
         <div class="callout success">
-          El Mach aumenta; presión, temperatura y densidad estáticas disminuyen;
-          \(T_0\) y \(p_0\) permanecen constantes.
+          <strong>Comportamiento de la expansión.</strong> El número de Mach aumenta, mientras que la
+          presión, la temperatura y la densidad estáticas disminuyen. La temperatura total y la presión
+          total permanecen constantes.
         </div>
       </section>
 
       <section id="infinitesimal-es">
         <p class="section-label">Relación diferencial</p>
-        <h2>Expansión infinitesimal</h2>
-        <div class="equation-card">\[\boxed{d\theta=\sqrt{M^2-1}\frac{dV}{V}}\]</div>
-        <div class="equation-card">\[\boxed{d\theta=\frac{\sqrt{M^2-1}}{1+\frac{\gamma-1}{2}M^2}\frac{dM}{M}}\]</div>
+        <h2>Un viraje infinitesimal a través de una onda de Mach</h2>
+        <p>Para una expansión infinitesimal \(d\theta\), la velocidad y el Mach satisfacen</p>
+        <div class="equation-card">
+          \[
+          \boxed{
+          d\theta
+          =
+          \sqrt{M^2-1}\frac{dV}{V}
+          }
+          \]
+        </div>
+        <div class="equation-card">
+          \[
+          \boxed{
+          d\theta=
+          \frac{\sqrt{M^2-1}}
+          {1+\frac{\gamma-1}{2}M^2}
+          \frac{dM}{M}
+          }
+          \]
+        </div>
+        <p>
+          Esta relación diferencial se integra desde el estado sónico para definir la función de
+          Prandtl–Meyer.
+        </p>
       </section>
 
       <section id="function-es">
         <p class="section-label">Función central</p>
-        <h2>Función de Prandtl–Meyer</h2>
+        <h2>La función de Prandtl–Meyer</h2>
         <div class="equation-card">
           \[
           \boxed{
           \nu(M)=
           \sqrt{\frac{\gamma+1}{\gamma-1}}
-          \tan^{-1}\left[\sqrt{\frac{\gamma-1}{\gamma+1}(M^2-1)}\right]
+          \tan^{-1}\left[
+          \sqrt{\frac{\gamma-1}{\gamma+1}(M^2-1)}
+          \right]
           -
           \tan^{-1}\left(\sqrt{M^2-1}\right)
+          }
+          \]
+        </div>
+        <p>
+          La función mide el viraje isoentrópico acumulado desde \(M=1\), donde \(\nu(1)=0\), hasta el
+          número de Mach especificado.
+        </p>
+        <div class="equation-card">
+          \[
+          \boxed{
+          \nu_{\max}
+          =
+          \frac{\pi}{2}
+          \left(
+          \sqrt{\frac{\gamma+1}{\gamma-1}}-1
+          \right)
           }
           \]
         </div>
@@ -417,71 +528,163 @@
       </section>
 
       <section id="fan-es">
-        <p class="section-label">Giro finito</p>
-        <h2>Abanico centrado</h2>
-        <div class="equation-card">\[\boxed{\theta=\nu(M_2)-\nu(M_1)}\]</div>
-        <div class="equation-card">\[\boxed{\nu(M_2)=\nu(M_1)+\theta}\]</div>
-        <p>La inversión de \(\nu(M)\) requiere tablas o un algoritmo numérico.</p>
+        <p class="section-label">Viraje finito</p>
+        <h2>Un abanico centrado conecta dos estados supersónicos uniformes</h2>
+        <div class="equation-card">
+          \[
+          \boxed{
+          \theta=\nu(M_2)-\nu(M_1)
+          }
+          \]
+        </div>
+        <p>Para un estado aguas arriba conocido y un ángulo de viraje dado,</p>
+        <div class="equation-card">
+          \[
+          \boxed{
+          \nu(M_2)=\nu(M_1)+\theta
+          }
+          \]
+        </div>
+        <p>
+          El problema inverso \(M=\nu^{-1}(\nu)\) no tiene una forma cerrada elemental sencilla, de modo
+          que se resuelve con tabla o con un buscador numérico de raíces.
+        </p>
+        <div class="definition-grid">
+          <div class="definition"><strong>Primera característica</strong><span>\(\mu_1=\sin^{-1}(1/M_1)\)</span></div>
+          <div class="definition"><strong>Última característica</strong><span>\(\mu_2=\sin^{-1}(1/M_2)\)</span></div>
+        </div>
       </section>
 
       <section id="properties-es">
-        <p class="section-label">Cambios isoentrópicos</p>
-        <h2>Relaciones de propiedades</h2>
+        <p class="section-label">Cambios isoentrópicos de propiedades</p>
+        <h2>Razones de presión, temperatura y densidad</h2>
         <div class="equation-grid">
-          <div class="equation-card">\[\boxed{\frac{T_2}{T_1}=\frac{1+\frac{\gamma-1}{2}M_1^2}{1+\frac{\gamma-1}{2}M_2^2}}\]</div>
-          <div class="equation-card">\[\boxed{\frac{p_2}{p_1}=\left(\frac{T_2}{T_1}\right)^{\gamma/(\gamma-1)}}\]</div>
-          <div class="equation-card">\[\boxed{\frac{\rho_2}{\rho_1}=\left(\frac{T_2}{T_1}\right)^{1/(\gamma-1)}}\]</div>
-          <div class="equation-card">\[\boxed{T_{0,2}=T_{0,1},\qquad p_{0,2}=p_{0,1}}\]</div>
+          <div class="equation-card">
+            \[
+            \boxed{
+            \frac{T_2}{T_1}
+            =
+            \frac{1+\frac{\gamma-1}{2}M_1^2}
+            {1+\frac{\gamma-1}{2}M_2^2}
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            \[
+            \boxed{
+            \frac{p_2}{p_1}
+            =
+            \left(\frac{T_2}{T_1}\right)^{\gamma/(\gamma-1)}
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            \[
+            \boxed{
+            \frac{\rho_2}{\rho_1}
+            =
+            \left(\frac{T_2}{T_1}\right)^{1/(\gamma-1)}
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            \[
+            \boxed{
+            T_{0,2}=T_{0,1},
+            \qquad
+            p_{0,2}=p_{0,1}
+            }
+            \]
+          </div>
         </div>
       </section>
 
       <section id="algorithm-es">
-        <p class="section-label">Procedimiento</p>
+        <p class="section-label">Flujo de trabajo</p>
         <h2>Algoritmo de cálculo</h2>
-        <ol>
-          <li>Calcular \(\nu_1=\nu(M_1)\).</li>
-          <li>Formar \(\nu_2=\nu_1+\theta\).</li>
-          <li>Verificar \(\nu_2<\nu_{\max}\).</li>
-          <li>Resolver \(\nu(M_2)=\nu_2\).</li>
-          <li>Calcular las razones de propiedades.</li>
-          <li>Comprobar \(M_2>M_1\) y conservación de \(p_0\).</li>
-        </ol>
+        <div class="process-flow">
+          <div><strong>1</strong><span>Especificar \(M_1,\theta,\gamma\)</span></div>
+          <div><strong>2</strong><span>Calcular \(\nu_1=\nu(M_1)\)</span></div>
+          <div><strong>3</strong><span>Fijar \(\nu_2=\nu_1+\theta\)</span></div>
+          <div><strong>4</strong><span>Verificar \(\nu_2<\nu_{\max}\)</span></div>
+          <div><strong>5</strong><span>Resolver \(\nu(M_2)=\nu_2\)</span></div>
+          <div><strong>6</strong><span>Calcular \(T_2/T_1\)</span></div>
+          <div><strong>7</strong><span>Calcular \(p_2/p_1,\rho_2/\rho_1\)</span></div>
+          <div><strong>8</strong><span>Verificar \(M_2>M_1\) y \(p_{0,2}=p_{0,1}\)</span></div>
+        </div>
       </section>
 
       <section id="example-es">
         <p class="section-label">Ejemplo resuelto</p>
-        <h2>Expansión de \(15^\circ\) desde \(M_1=2\)</h2>
+        <h2>Una expansión de \(15^\circ\) desde \(M_1=2\)</h2>
         <div class="example">
-          <p>\(M_1=2.0\), \(p_1=120\ \text{kPa}\), \(T_1=300\ \text{K}\), \(\theta=15^\circ\).</p>
-          <div class="solution-step"><span class="solution-step-number">1</span><div>\[\nu_1=26.38^\circ,\qquad \nu_2=41.38^\circ.\]</div></div>
-          <div class="solution-step"><span class="solution-step-number">2</span><div>\[M_2\approx2.59845.\]</div></div>
-          <div class="solution-step"><span class="solution-step-number">3</span><div>\[\frac{T_2}{T_1}=0.76583,\qquad T_2\approx229.7\ \text{K}.\]</div></div>
-          <div class="solution-step"><span class="solution-step-number">4</span><div>\[\frac{p_2}{p_1}=0.39307,\qquad p_2\approx47.2\ \text{kPa}.\]</div></div>
-          <div class="result-box">\[\boxed{M_2\approx2.598,\quad T_2\approx229.7\ \text{K},\quad p_2\approx47.2\ \text{kPa}}\]</div>
+          <p>
+            Aire a \(M_1=2.0\), \(p_1=120\ \text{kPa}\) y \(T_1=300\ \text{K}\)
+            se expande un ángulo \(\theta=15^\circ\).
+          </p>
+          <div class="solution-step"><span class="solution-step-number">1</span><div>\[\nu(M_1)=26.38^\circ.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">2</span><div>\[\nu(M_2)=26.38^\circ+15^\circ=41.38^\circ.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">3</span><div>\[M_2\approx2.59845.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">4</span><div>\[\frac{T_2}{T_1}=0.76583,\qquad T_2\approx229.7\ \text{K}.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">5</span><div>\[\frac{p_2}{p_1}=0.39307,\qquad p_2\approx47.2\ \text{kPa}.\]</div></div>
+          <div class="result-box">
+            \[
+            \boxed{
+            M_2\approx2.598,\quad
+            T_2\approx229.7\ \text{K},\quad
+            p_2\approx47.2\ \text{kPa}
+            }
+            \]
+          </div>
         </div>
-        <div class="validation-case"><strong>Caso de validación</strong><span>\(M_1=2.0\), expansión de \(15^\circ\).</span></div>
+        <div class="validation-case">
+          <strong>Caso de validación de la calculadora</strong>
+          <span>Entradas: \(M_1=2.0\), expansión \(\theta=15^\circ\), \(\gamma=1.4\).</span>
+        </div>
       </section>
 
       <section id="comparison-es">
-        <p class="section-label">Comparación</p>
-        <h2>Choque oblicuo frente a expansión</h2>
+        <p class="section-label">Comparación conceptual</p>
+        <h2>Choque de compresión frente a abanico de expansión</h2>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Característica</th><th>Choque oblicuo</th><th>Expansión</th></tr></thead>
+            <thead><tr><th>Característica</th><th>Choque oblicuo</th><th>Abanico de Prandtl–Meyer</th></tr></thead>
             <tbody>
               <tr><td>Cambio</td><td>Discontinuo</td><td>Continuo</td></tr>
-              <tr><td>Naturaleza</td><td>Irreversible</td><td>Isoentrópica</td></tr>
+              <tr><td>Termodinámica</td><td>Adiabático, irreversible</td><td>Isoentrópico</td></tr>
               <tr><td>Mach</td><td>Disminuye</td><td>Aumenta</td></tr>
               <tr><td>Presión estática</td><td>Aumenta</td><td>Disminuye</td></tr>
+              <tr><td>Temperatura estática</td><td>Aumenta</td><td>Disminuye</td></tr>
               <tr><td>Presión total</td><td>Disminuye</td><td>Constante</td></tr>
+              <tr><td>Relación central</td><td>θ–β–M</td><td>\(\nu(M_2)-\nu(M_1)=\theta\)</td></tr>
             </tbody>
           </table>
         </div>
       </section>
 
+      <section id="mistakes-es">
+        <p class="section-label">Verificaciones</p>
+        <h2>Errores comunes</h2>
+        <ul class="check-list">
+          <li><strong>Aplicar \(\nu(M)\) a una compresión.</strong> La función de Prandtl–Meyer describe solo <em>expansiones</em> isoentrópicas; un viraje cóncavo produce un choque oblicuo y se trata con θ–β–M.</li>
+          <li><strong>Creer que una expansión baja la presión total.</strong> En el modelo ideal el abanico es isoentrópico, así que \(p_{0}\) se conserva. Solo caen las propiedades estáticas.</li>
+          <li><strong>Leer \(\nu\) como un número de Mach.</strong> \(\nu\) es un ángulo de viraje acumulado medido desde \(M=1\); no es un Mach y tiene unidades de grados.</li>
+          <li><strong>Sumar \(\theta\) a \(M\) en lugar de a \(\nu\).</strong> El ángulo de viraje se suma a la función de Prandtl–Meyer, no al número de Mach: \(\nu(M_2)=\nu(M_1)+\theta\).</li>
+          <li><strong>Ignorar el techo \(\nu_{\max}\).</strong> Si \(\nu(M_1)+\theta\) supera los \(130.45^\circ\) para aire, el viraje pedido es imposible: el gas tendría que expandirse a presión cero, y en su lugar se forma una región de vacío.</li>
+          <li><strong>Esperar que \(\nu_{\max}\) sea alcanzable en la práctica.</strong> Corresponde a \(M\to\infty\) con \(p\to0\), donde el modelo calóricamente perfecto dejó de aplicar hace mucho.</li>
+          <li><strong>Usar un choque de expansión.</strong> No existe: disminuiría la entropía y la segunda ley lo prohíbe.</li>
+        </ul>
+      </section>
+
       <section id="references-es" class="references">
         <h2>Referencias</h2>
-        <ol><li>Anderson, <em>Fundamentals of Aerodynamics</em>, capítulo 9.</li><li>Anderson, <em>Modern Compressible Flow</em>.</li><li>NACA Report 1135.</li></ol>
+        <ol>
+          <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 9.</li>
+          <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3.ª ed. Nueva York: McGraw-Hill, 2003, capítulo 4.</li>
+          <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+          <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, México, febrero de 2024.</li>
+        </ol>
+        <p class="source-note">Adaptado de la Unidad III de los apuntes de Aerodinámica II de Carlos Alberto Molina Holguín.</p>
       </section>
 
       <nav class="next-nav">
@@ -491,15 +694,277 @@
     </article>
 
     <article class="lecture" data-language="de" hidden>
-      <section>
-        <p class="section-label">Kerninhalt</p>
-        <h2>Prandtl–Meyer-Expansion</h2>
-        <p class="lead">Eine konvexe Ecke erzeugt einen kontinuierlichen isentropen Expansionsfächer.</p>
-        <div class="equation-card">\[\boxed{\theta=\nu(M_2)-\nu(M_1)}\]</div>
-        <div class="equation-card">\[\boxed{\nu(M)=\sqrt{\frac{\gamma+1}{\gamma-1}}\tan^{-1}\sqrt{\frac{\gamma-1}{\gamma+1}(M^2-1)}-\tan^{-1}\sqrt{M^2-1}}\]</div>
-        <div class="de-note">Die Machzahl steigt; statischer Druck und Temperatur sinken; der Totaldruck bleibt konstant.</div>
+      <section id="physics-de">
+        <p class="section-label">Physikalisches Bild</p>
+        <h2>Eine konvexe Ecke erzeugt einen kontinuierlichen Expansionsfächer</h2>
+        <p class="lead">
+          Wenn eine Überschallströmung von sich weg umgelenkt wird, kann der Druckausgleich nicht über
+          einen Expansionsstoß erfolgen. Stattdessen bildet eine kontinuierliche Schar von Machwellen
+          einen zentrierten Prandtl–Meyer-Fächer.
+        </p>
+        <figure class="diagram">
+          <svg viewBox="0 0 850 350" role="img" aria-label="Zentrierter Prandtl-Meyer-Fächer">
+            <defs>
+              <marker id="pm-arrow-de" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="#0d568d"></path>
+              </marker>
+            </defs>
+            <polyline points="70,230 390,230 760,315" fill="none" stroke="#071d33" stroke-width="8"/>
+            <g stroke="#d67b28" stroke-width="3">
+              <line x1="390" y1="230" x2="505" y2="35"/>
+              <line x1="390" y1="230" x2="565" y2="40"/>
+              <line x1="390" y1="230" x2="625" y2="58"/>
+              <line x1="390" y1="230" x2="685" y2="82"/>
+              <line x1="390" y1="230" x2="745" y2="115"/>
+            </g>
+            <g stroke="#0d568d" stroke-width="4" marker-end="url(#pm-arrow-de)">
+              <line x1="80" y1="120" x2="315" y2="120"/>
+              <line x1="80" y1="175" x2="315" y2="175"/>
+              <line x1="480" y1="230" x2="695" y2="280"/>
+            </g>
+            <text x="170" y="95" font-size="21" fill="#071d33">M₁, p₁, T₁</text>
+            <text x="650" y="220" font-size="21" fill="#071d33">M₂, p₂, T₂</text>
+            <text x="505" y="25" font-size="18" fill="#d67b28">Kopf μ₁</text>
+            <text x="675" y="132" font-size="18" fill="#d67b28">Ende μ₂</text>
+          </svg>
+          <figcaption>
+            Die Zustandsgrößen ändern sich im Fächer stetig; es tritt keine endliche Unstetigkeit auf.
+          </figcaption>
+        </figure>
+        <div class="callout success">
+          <strong>Verhalten der Expansion.</strong> Die Machzahl nimmt zu, während statischer Druck,
+          Temperatur und Dichte abnehmen. Totaltemperatur und Totaldruck bleiben konstant.
+        </div>
       </section>
-      <section class="references"><h2>Literatur</h2><ol><li>Anderson, Kapitel 9.</li><li>NACA Report 1135.</li></ol></section>
+
+      <section id="infinitesimal-de">
+        <p class="section-label">Differentielle Beziehung</p>
+        <h2>Eine infinitesimale Umlenkung über eine Machwelle</h2>
+        <p>Für eine infinitesimale Expansion \(d\theta\) erfüllen Geschwindigkeit und Machzahl</p>
+        <div class="equation-card">
+          \[
+          \boxed{
+          d\theta
+          =
+          \sqrt{M^2-1}\frac{dV}{V}
+          }
+          \]
+        </div>
+        <div class="equation-card">
+          \[
+          \boxed{
+          d\theta=
+          \frac{\sqrt{M^2-1}}
+          {1+\frac{\gamma-1}{2}M^2}
+          \frac{dM}{M}
+          }
+          \]
+        </div>
+        <p>
+          Diese differentielle Beziehung wird vom Schallzustand aus integriert und definiert damit die
+          Prandtl–Meyer-Funktion.
+        </p>
+      </section>
+
+      <section id="function-de">
+        <p class="section-label">Zentrale Funktion</p>
+        <h2>Die Prandtl–Meyer-Funktion</h2>
+        <div class="equation-card">
+          \[
+          \boxed{
+          \nu(M)=
+          \sqrt{\frac{\gamma+1}{\gamma-1}}
+          \tan^{-1}\left[
+          \sqrt{\frac{\gamma-1}{\gamma+1}(M^2-1)}
+          \right]
+          -
+          \tan^{-1}\left(\sqrt{M^2-1}\right)
+          }
+          \]
+        </div>
+        <p>
+          Die Funktion misst die vom Zustand \(M=1\) mit \(\nu(1)=0\) an aufsummierte isentrope Umlenkung
+          bis zur angegebenen Machzahl.
+        </p>
+        <div class="equation-card">
+          \[
+          \boxed{
+          \nu_{\max}
+          =
+          \frac{\pi}{2}
+          \left(
+          \sqrt{\frac{\gamma+1}{\gamma-1}}-1
+          \right)
+          }
+          \]
+        </div>
+        <p>Für Luft ist \(\nu_{\max}=130{,}45^\circ\).</p>
+      </section>
+
+      <section id="fan-de">
+        <p class="section-label">Endliche Umlenkung</p>
+        <h2>Ein zentrierter Fächer verbindet zwei gleichförmige Überschallzustände</h2>
+        <div class="equation-card">
+          \[
+          \boxed{
+          \theta=\nu(M_2)-\nu(M_1)
+          }
+          \]
+        </div>
+        <p>Bei bekanntem Zustand stromauf und gegebenem Umlenkwinkel gilt</p>
+        <div class="equation-card">
+          \[
+          \boxed{
+          \nu(M_2)=\nu(M_1)+\theta
+          }
+          \]
+        </div>
+        <p>
+          Das inverse Problem \(M=\nu^{-1}(\nu)\) besitzt keine einfache elementare geschlossene Form und
+          wird daher mit einer Tabelle oder einem numerischen Nullstellenverfahren gelöst.
+        </p>
+        <div class="definition-grid">
+          <div class="definition"><strong>Erste Charakteristik</strong><span>\(\mu_1=\sin^{-1}(1/M_1)\)</span></div>
+          <div class="definition"><strong>Letzte Charakteristik</strong><span>\(\mu_2=\sin^{-1}(1/M_2)\)</span></div>
+        </div>
+      </section>
+
+      <section id="properties-de">
+        <p class="section-label">Isentrope Zustandsänderungen</p>
+        <h2>Druck-, Temperatur- und Dichteverhältnisse</h2>
+        <div class="equation-grid">
+          <div class="equation-card">
+            \[
+            \boxed{
+            \frac{T_2}{T_1}
+            =
+            \frac{1+\frac{\gamma-1}{2}M_1^2}
+            {1+\frac{\gamma-1}{2}M_2^2}
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            \[
+            \boxed{
+            \frac{p_2}{p_1}
+            =
+            \left(\frac{T_2}{T_1}\right)^{\gamma/(\gamma-1)}
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            \[
+            \boxed{
+            \frac{\rho_2}{\rho_1}
+            =
+            \left(\frac{T_2}{T_1}\right)^{1/(\gamma-1)}
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            \[
+            \boxed{
+            T_{0,2}=T_{0,1},
+            \qquad
+            p_{0,2}=p_{0,1}
+            }
+            \]
+          </div>
+        </div>
+      </section>
+
+      <section id="algorithm-de">
+        <p class="section-label">Vorgehensweise</p>
+        <h2>Rechenalgorithmus</h2>
+        <div class="process-flow">
+          <div><strong>1</strong><span>\(M_1,\theta,\gamma\) vorgeben</span></div>
+          <div><strong>2</strong><span>\(\nu_1=\nu(M_1)\) berechnen</span></div>
+          <div><strong>3</strong><span>\(\nu_2=\nu_1+\theta\) setzen</span></div>
+          <div><strong>4</strong><span>\(\nu_2<\nu_{\max}\) prüfen</span></div>
+          <div><strong>5</strong><span>\(\nu(M_2)=\nu_2\) lösen</span></div>
+          <div><strong>6</strong><span>\(T_2/T_1\) berechnen</span></div>
+          <div><strong>7</strong><span>\(p_2/p_1,\rho_2/\rho_1\) berechnen</span></div>
+          <div><strong>8</strong><span>\(M_2>M_1\) und \(p_{0,2}=p_{0,1}\) prüfen</span></div>
+        </div>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Eine \(15^\circ\)-Expansion von \(M_1=2\)</h2>
+        <div class="example">
+          <p>
+            Luft mit \(M_1=2{,}0\), \(p_1=120\ \text{kPa}\) und \(T_1=300\ \text{K}\)
+            expandiert um \(\theta=15^\circ\).
+          </p>
+          <div class="solution-step"><span class="solution-step-number">1</span><div>\[\nu(M_1)=26{,}38^\circ.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">2</span><div>\[\nu(M_2)=26{,}38^\circ+15^\circ=41{,}38^\circ.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">3</span><div>\[M_2\approx2{,}59845.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">4</span><div>\[\frac{T_2}{T_1}=0{,}76583,\qquad T_2\approx229{,}7\ \text{K}.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">5</span><div>\[\frac{p_2}{p_1}=0{,}39307,\qquad p_2\approx47{,}2\ \text{kPa}.\]</div></div>
+          <div class="result-box">
+            \[
+            \boxed{
+            M_2\approx2{,}598,\quad
+            T_2\approx229{,}7\ \text{K},\quad
+            p_2\approx47{,}2\ \text{kPa}
+            }
+            \]
+          </div>
+        </div>
+        <div class="validation-case">
+          <strong>Validierungsfall für den Rechner</strong>
+          <span>Eingaben: \(M_1=2{,}0\), Expansion \(\theta=15^\circ\), \(\gamma=1{,}4\).</span>
+        </div>
+      </section>
+
+      <section id="comparison-de">
+        <p class="section-label">Begrifflicher Vergleich</p>
+        <h2>Verdichtungsstoß und Expansionsfächer im Vergleich</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Merkmal</th><th>Schräger Stoß</th><th>Prandtl–Meyer-Fächer</th></tr></thead>
+            <tbody>
+              <tr><td>Änderung</td><td>Unstetig</td><td>Stetig</td></tr>
+              <tr><td>Thermodynamik</td><td>Adiabat, irreversibel</td><td>Isentrop</td></tr>
+              <tr><td>Machzahl</td><td>Nimmt ab</td><td>Nimmt zu</td></tr>
+              <tr><td>Statischer Druck</td><td>Nimmt zu</td><td>Nimmt ab</td></tr>
+              <tr><td>Statische Temperatur</td><td>Nimmt zu</td><td>Nimmt ab</td></tr>
+              <tr><td>Totaldruck</td><td>Nimmt ab</td><td>Konstant</td></tr>
+              <tr><td>Zentrale Beziehung</td><td>θ–β–M</td><td>\(\nu(M_2)-\nu(M_1)=\theta\)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Kontrollen</p>
+        <h2>Häufige Fehler</h2>
+        <ul class="check-list">
+          <li><strong>\(\nu(M)\) auf eine Verdichtung anwenden.</strong> Die Prandtl–Meyer-Funktion beschreibt ausschließlich isentrope <em>Expansionen</em>; eine konkave Umlenkung erzeugt einen schrägen Stoß und wird mit θ–β–M behandelt.</li>
+          <li><strong>Glauben, eine Expansion senke den Totaldruck.</strong> Im idealen Modell ist der Fächer isentrop, \(p_{0}\) bleibt also erhalten. Nur die statischen Größen sinken.</li>
+          <li><strong>\(\nu\) als Machzahl lesen.</strong> \(\nu\) ist ein von \(M=1\) an aufsummierter Umlenkwinkel; es ist selbst keine Machzahl und wird in Grad angegeben.</li>
+          <li><strong>\(\theta\) zu \(M\) statt zu \(\nu\) addieren.</strong> Der Umlenkwinkel addiert sich zur Prandtl–Meyer-Funktion, nicht zur Machzahl: \(\nu(M_2)=\nu(M_1)+\theta\).</li>
+          <li><strong>Die Schranke \(\nu_{\max}\) übergehen.</strong> Überschreitet \(\nu(M_1)+\theta\) für Luft \(130{,}45^\circ\), ist die verlangte Umlenkung unmöglich: das Gas müsste auf Druck null expandieren, und es bildet sich stattdessen ein Vakuumgebiet.</li>
+          <li><strong>Erwarten, dass \(\nu_{\max}\) praktisch erreichbar ist.</strong> Es entspricht \(M\to\infty\) mit \(p\to0\), wo das kalorisch ideale Modell längst nicht mehr gilt.</li>
+          <li><strong>Einen Expansionsstoß verwenden.</strong> Einen solchen gibt es nicht: er würde die Entropie verringern, was der zweite Hauptsatz verbietet.</li>
+        </ul>
+      </section>
+
+      <section id="references-de" class="references">
+        <h2>Literatur</h2>
+        <ol>
+          <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6. Aufl. New York: McGraw-Hill Education, 2017, Kapitel 9.</li>
+          <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3. Aufl. New York: McGraw-Hill, 2003, Kapitel 4.</li>
+          <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+          <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexiko, Februar 2024.</li>
+        </ol>
+        <p class="source-note">Bearbeitet nach Einheit III des Vorlesungsskripts Aerodynamik II von Carlos Alberto Molina Holguín.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="oblique-shocks.html"><span>Vorherige Vorlesung</span>← Schräge Stöße</a>
+        <a class="next-link" href="shock-expansion.html"><span>Nächste Vorlesung</span>Stoß–Expansions-Analyse →</a>
+      </nav>
     </article>
   </div>
 </main>

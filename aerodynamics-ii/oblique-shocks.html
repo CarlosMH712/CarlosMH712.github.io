@@ -70,7 +70,7 @@
       <p class="hero-copy">Normalkomponente, θ–β–M-Beziehung, schwache und starke Lösung sowie Anlegegrenzen.</p>
     </div>
 
-    <div class="hero-meta"><span>Estimated reading: 40 min</span><span>M₁ > 1</span><span>Compression turn</span><span>Irreversible</span></div>
+    <div class="hero-meta"><span data-language="en">Estimated reading: 40 min</span><span data-language="es" hidden>Lectura estimada: 40 min</span><span data-language="de" hidden>Lesedauer: ca. 40 min</span><span>M₁ &gt; 1</span><span data-language="en">Compression turn</span><span data-language="es" hidden>Viraje de compresión</span><span data-language="de" hidden>Verdichtungsumlenkung</span><span data-language="en">Irreversible</span><span data-language="es" hidden>Irreversible</span><span data-language="de" hidden>Irreversibel</span></div>
 
     <div class="button-row">
       <a class="button secondary" href="normal-shocks.html">← Previous</a>
@@ -84,7 +84,7 @@
   <div class="container lecture-shell">
     <aside class="toc">
       <h2 data-ui-key="contents">On this page</h2>
-      <div class="toc-links">
+      <div class="toc-links" data-language="en">
         <a href="#physics">Physical picture</a>
         <a href="#geometry">Geometry</a>
         <a href="#normal">Normal-component method</a>
@@ -92,8 +92,33 @@
         <a href="#branches">Weak and strong branches</a>
         <a href="#algorithm">Calculation algorithm</a>
         <a href="#example">Worked example</a>
+        <a href="#mistakes">Common mistakes</a>
         <a href="#advanced">Advanced extensions</a>
         <a href="#references">References</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#physics-es">Panorama físico</a>
+        <a href="#geometry-es">Geometría</a>
+        <a href="#normal-es">Método de la componente normal</a>
+        <a href="#tbm-es">Relación θ–β–M</a>
+        <a href="#branches-es">Ramas débil y fuerte</a>
+        <a href="#algorithm-es">Algoritmo de cálculo</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#advanced-es">Extensiones avanzadas</a>
+        <a href="#references-es">Referencias</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#physics-de">Physikalisches Bild</a>
+        <a href="#geometry-de">Geometrie</a>
+        <a href="#normal-de">Methode der Normalkomponente</a>
+        <a href="#tbm-de">θ–β–M-Beziehung</a>
+        <a href="#branches-de">Schwacher und starker Zweig</a>
+        <a href="#algorithm-de">Rechenalgorithmus</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#mistakes-de">Häufige Fehler</a>
+        <a href="#advanced-de">Weiterführende Themen</a>
+        <a href="#references-de">Literatur</a>
       </div>
     </aside>
 
@@ -383,6 +408,21 @@
         </div>
       </section>
 
+      <section id="mistakes">
+        <p class="section-label">Checks</p>
+        <h2>Common mistakes</h2>
+        <ul class="check-list">
+          <li><strong>Feeding the full Mach number into the normal-shock relations.</strong> They must be evaluated with \(M_{n1}=M_1\sin\beta\).</li>
+          <li><strong>Forgetting that the \(\theta\)–\(\beta\)–\(M\) equation has two roots.</strong> Unless the problem states otherwise, the weak solution is the one that occurs.</li>
+          <li><strong>Assuming every oblique shock leaves \(M_2&lt;1\).</strong> What becomes subsonic is the <em>normal component</em>; the full Mach number is usually still supersonic on the weak branch.</li>
+          <li><strong>Confusing the wave angle \(\beta\) with the Mach angle \(\mu\).</strong> They coincide only in the limit of an infinitely weak shock.</li>
+          <li><strong>Ignoring the detachment limit.</strong> If \(\theta&gt;\theta_{\max}\) there is no valid attached straight shock, and the wave detaches into a curved bow shock.</li>
+          <li><strong>Measuring a reflected shock angle from the wall.</strong> The second root \(\beta_2\) is measured from the <em>local</em> stream of region 2; relative to a wall parallel to the original stream the angle is \(\beta_2-\theta\).</li>
+          <li><strong>Taking \(p_{0,2}/p_1\) from a normal-shock table at \(M_{n1}\).</strong> For an oblique shock it is the ratio \(p_{0,2}/p_{0,1}\) that transfers directly, not the tabulated total–static ratio.</li>
+          <li><strong>Treating a cone as a wedge.</strong> Three-dimensional relief makes the conical field non-uniform and requires the Taylor–Maccoll solution instead.</li>
+        </ul>
+      </section>
+
       <section id="advanced">
         <p class="section-label">Beyond the core model</p>
         <h2>Advanced extensions contained in Unit III</h2>
@@ -397,9 +437,11 @@
       <section id="references" class="references">
         <h2>References</h2>
         <ol>
-          <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed., Chapter 9.</li>
-          <li>Anderson, J. D., Jr. <em>Modern Compressible Flow</em>, 3rd ed.</li>
-          <li>Ames Research Staff. <em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135.</li>
+          <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed. New York: McGraw-Hill Education, 2017, Chapter 9.</li>
+          <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3rd ed. New York: McGraw-Hill, 2003, Chapter 4.</li>
+          <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+          <li>Ben-Dor, G. <em>Shock Wave Reflection Phenomena</em>. New York: Springer-Verlag, 1992.</li>
+          <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexico, February 2024.</li>
         </ol>
         <p class="source-note">Adapted from the Aerodynamics II course notes by Carlos Alberto Molina Holguín.</p>
       </section>
@@ -412,45 +454,153 @@
 
     <article class="lecture" data-language="es" hidden>
       <section id="physics-es">
-        <p class="section-label">Interpretación física</p>
-        <h2>Compresión supersónica alrededor de una esquina cóncava</h2>
+        <p class="section-label">Panorama físico</p>
+        <h2>Compresión supersónica en una esquina cóncava</h2>
         <p class="lead">
-          Una corriente supersónica no puede ajustarse suavemente aguas arriba de una compresión
-          finita. Las perturbaciones se acumulan en una onda oblicua que desvía y comprime el flujo.
+          Una corriente supersónica no puede ajustarse suavemente aguas arriba de una esquina de
+          compresión finita. Las perturbaciones se acumulan en un choque oblicuo que gira y comprime el flujo.
         </p>
-        <div class="equation-card">\[\boxed{\mu=\sin^{-1}(1/M_1)}\]</div>
-        <p>Una onda compresiva finita cumple \(\beta>\mu\).</p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 840 330" role="img" aria-label="Choque oblicuo sobre una cuña">
+            <defs>
+              <marker id="obs-arrow-es" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="#0d568d"></path>
+              </marker>
+            </defs>
+            <line x1="55" y1="215" x2="760" y2="215" stroke="#607181" stroke-width="2" stroke-dasharray="8 8"/>
+            <polyline points="380,215 760,300" fill="none" stroke="#071d33" stroke-width="8"/>
+            <line x1="380" y1="215" x2="585" y2="55" stroke="#d67b28" stroke-width="7"/>
+            <g stroke="#0d568d" stroke-width="4" marker-end="url(#obs-arrow-es)">
+              <line x1="65" y1="120" x2="315" y2="120"/>
+              <line x1="65" y1="170" x2="315" y2="170"/>
+              <line x1="460" y1="205" x2="690" y2="257"/>
+            </g>
+            <path d="M285 215 A95 95 0 0 1 318 141" fill="none" stroke="#0d568d" stroke-width="3"/>
+            <text x="292" y="164" font-size="21" fill="#071d33">β</text>
+            <path d="M470 215 A90 90 0 0 1 468 235" fill="none" stroke="#176b47" stroke-width="3"/>
+            <text x="505" y="246" font-size="21" fill="#071d33">θ</text>
+            <text x="190" y="93" font-size="21" fill="#071d33">M₁, p₁, T₁</text>
+            <text x="620" y="195" font-size="21" fill="#071d33">M₂, p₂, T₂</text>
+            <text x="545" y="55" font-size="19" fill="#d67b28">choque oblicuo</text>
+          </svg>
+          <figcaption>
+            El ángulo de onda es \(\beta\); el flujo gira un ángulo \(\theta\).
+          </figcaption>
+        </figure>
+
+        <div class="equation-card">
+          \[
+          \boxed{\mu=\sin^{-1}\left(\frac{1}{M_1}\right)}
+          \]
+        </div>
+
+        <p>
+          El ángulo de Mach \(\mu\) es el ángulo de onda límite para una perturbación infinitesimal.
+          Un choque compresivo finito satisface \(\beta>\mu\).
+        </p>
       </section>
 
       <section id="geometry-es">
-        <p class="section-label">Descomposición de velocidad</p>
+        <p class="section-label">Descomposición de la velocidad</p>
         <h2>Componentes normal y tangencial</h2>
+
         <div class="equation-grid">
-          <div class="equation-card">\[V_{n1}=V_1\sin\beta,\qquad V_{t1}=V_1\cos\beta\]</div>
-          <div class="equation-card">\[V_{n2}=V_2\sin(\beta-\theta),\qquad V_{t2}=V_2\cos(\beta-\theta)\]</div>
+          <div class="equation-card">
+            \[
+            V_{n1}=V_1\sin\beta,
+            \qquad
+            V_{t1}=V_1\cos\beta
+            \]
+          </div>
+          <div class="equation-card">
+            \[
+            V_{n2}=V_2\sin(\beta-\theta),
+            \qquad
+            V_{t2}=V_2\cos(\beta-\theta)
+            \]
+          </div>
         </div>
-        <div class="equation-card">\[\boxed{M_{n1}=M_1\sin\beta,\qquad M_{n2}=M_2\sin(\beta-\theta)}\]</div>
+
+        <div class="equation-card">
+          \[
+          \boxed{
+          M_{n1}=M_1\sin\beta,
+          \qquad
+          M_{n2}=M_2\sin(\beta-\theta)
+          }
+          \]
+        </div>
+
         <div class="callout success">
-          <strong>Simplificación central.</strong> \(V_{t1}=V_{t2}\). Las ecuaciones restantes
-          son las de un choque normal aplicadas a \(M_{n1}\).
+          <strong>Simplificación central.</strong> La velocidad tangencial permanece constante,
+          \(V_{t1}=V_{t2}\). La masa, la cantidad de movimiento normal y la energía se reducen entonces
+          exactamente a las ecuaciones de choque normal aplicadas a \(M_{n1}\).
         </div>
       </section>
 
       <section id="normal-es">
         <p class="section-label">Relaciones de salto</p>
-        <h2>Choque normal evaluado con el Mach normal</h2>
+        <h2>Ecuaciones de choque normal evaluadas con \(M_{n1}\)</h2>
+
         <div class="equation-grid">
-          <div class="equation-card">\[\boxed{\frac{p_2}{p_1}=1+\frac{2\gamma}{\gamma+1}(M_{n1}^2-1)}\]</div>
-          <div class="equation-card">\[\boxed{\frac{\rho_2}{\rho_1}=\frac{(\gamma+1)M_{n1}^2}{2+(\gamma-1)M_{n1}^2}}\]</div>
-          <div class="equation-card">\[\boxed{\frac{T_2}{T_1}=\frac{p_2/p_1}{\rho_2/\rho_1}}\]</div>
-          <div class="equation-card">\[\boxed{M_{n2}^2=\frac{1+\frac{\gamma-1}{2}M_{n1}^2}{\gamma M_{n1}^2-\frac{\gamma-1}{2}}}\]</div>
+          <div class="equation-card">
+            \[
+            \boxed{
+            \frac{p_2}{p_1}
+            =
+            1+\frac{2\gamma}{\gamma+1}(M_{n1}^2-1)
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            \[
+            \boxed{
+            \frac{\rho_2}{\rho_1}
+            =
+            \frac{(\gamma+1)M_{n1}^2}
+            {2+(\gamma-1)M_{n1}^2}
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            \[
+            \boxed{
+            \frac{T_2}{T_1}
+            =
+            \frac{p_2/p_1}{\rho_2/\rho_1}
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            \[
+            \boxed{
+            M_{n2}^2=
+            \frac{1+\frac{\gamma-1}{2}M_{n1}^2}
+            {\gamma M_{n1}^2-\frac{\gamma-1}{2}}
+            }
+            \]
+          </div>
         </div>
-        <div class="equation-card">\[\boxed{M_2=\frac{M_{n2}}{\sin(\beta-\theta)}}\]</div>
+
+        <div class="equation-card">
+          \[
+          \boxed{
+          M_2=\frac{M_{n2}}{\sin(\beta-\theta)}
+          }
+          \]
+        </div>
+
+        <p>
+          La razón de presiones totales también se obtiene de la relación de choque normal evaluada
+          en \(M_{n1}\). La temperatura total permanece constante, pero \(p_0\) disminuye.
+        </p>
       </section>
 
       <section id="tbm-es">
         <p class="section-label">Relación central</p>
-        <h2>Ecuación \(\theta\)–\(\beta\)–\(M\)</h2>
+        <h2>La ecuación \(\theta\)–\(\beta\)–\(M\)</h2>
+
         <div class="equation-card">
           \[
           \boxed{
@@ -461,96 +611,496 @@
           }
           \]
         </div>
+
         <p>
-          Con \(M_1\) y \(\theta\) conocidos, se obtiene \(\beta\); después se calcula
-          \(M_{n1}\) y se aplican las relaciones de choque normal.
+          Dados \(M_1\) y la deflexión requerida \(\theta\), esta relación no lineal proporciona los
+          ángulos de choque \(\beta\) admisibles. Una vez conocido \(\beta\), el método de la componente
+          normal determina por completo el estado aguas abajo.
         </p>
+
+        <details class="details">
+          <summary>Deducción geométrica compacta</summary>
+          <div class="details-content">
+            \[
+            \tan\beta=\frac{V_{n1}}{V_{t1}},
+            \qquad
+            \tan(\beta-\theta)=\frac{V_{n2}}{V_{t2}}.
+            \]
+            <p>Como \(V_{t1}=V_{t2}\) y la continuidad da \(V_{n2}/V_{n1}=\rho_1/\rho_2\),</p>
+            \[
+            \tan(\beta-\theta)=\frac{\rho_1}{\rho_2}\tan\beta.
+            \]
+            <p>Sustituyendo la razón de densidades del choque normal se obtiene la ecuación clásica.</p>
+          </div>
+        </details>
       </section>
 
       <section id="branches-es">
         <p class="section-label">Soluciones múltiples</p>
-        <h2>Ramas débil, fuerte y choque desprendido</h2>
+        <h2>Choques débil, fuerte y desprendido</h2>
+
         <div class="branch-grid">
-          <div class="branch-card weak"><h3>Rama débil</h3><p>Menor \(\beta\), compresión moderada y normalmente \(M_2>1\).</p></div>
-          <div class="branch-card strong"><h3>Rama fuerte</h3><p>Mayor \(\beta\), mayor pérdida de presión total y normalmente \(M_2<1\).</p></div>
+          <div class="branch-card weak">
+            <h3>Rama débil</h3>
+            <p>\(\beta\) menor, \(M_{n1}\) menor, aumento de presión moderado, habitualmente \(M_2>1\).</p>
+          </div>
+          <div class="branch-card strong">
+            <h3>Rama fuerte</h3>
+            <p>\(\beta\) mayor, compresión más intensa, mayor pérdida de presión total, normalmente \(M_2<1\).</p>
+          </div>
         </div>
-        <div class="callout warning">
-          Si \(\theta>\theta_{\max}\), no existe una solución recta adherida: la onda se desprende.
+
+        <figure class="diagram">
+          <svg viewBox="0 0 780 390" role="img" aria-label="Ramas débil y fuerte">
+            <line x1="80" y1="325" x2="710" y2="325" stroke="#071d33" stroke-width="3"/>
+            <line x1="80" y1="325" x2="80" y2="50" stroke="#071d33" stroke-width="3"/>
+            <text x="715" y="348" font-size="20" fill="#071d33">θ</text>
+            <text x="45" y="55" font-size="20" fill="#071d33">β</text>
+            <path d="M85 280 C220 255, 400 200, 565 120" fill="none" stroke="#0d568d" stroke-width="6"/>
+            <path d="M85 72 C240 80, 420 90, 565 120" fill="none" stroke="#d67b28" stroke-width="6" stroke-dasharray="10 8"/>
+            <line x1="565" y1="325" x2="565" y2="120" stroke="#607181" stroke-width="2" stroke-dasharray="7 7"/>
+            <text x="565" y="350" text-anchor="middle" font-size="18" fill="#071d33">θmax</text>
+            <text x="265" y="250" font-size="19" fill="#0d568d">débil</text>
+            <text x="265" y="82" font-size="19" fill="#d67b28">fuerte</text>
+          </svg>
+          <figcaption>
+            Ambas ramas se unen en \(\theta_{\max}\). Para \(\theta>\theta_{\max}\)
+            no existe un choque recto adherido.
+          </figcaption>
+        </figure>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>\(M_1\)</th><th>\(\theta_{\max}\), aire</th><th>\(\beta\) en el máximo</th></tr></thead>
+            <tbody>
+              <tr><td>1.5</td><td>\(12.11^\circ\)</td><td>\(66.59^\circ\)</td></tr>
+              <tr><td>2.0</td><td>\(22.97^\circ\)</td><td>\(64.67^\circ\)</td></tr>
+              <tr><td>2.5</td><td>\(29.80^\circ\)</td><td>\(64.78^\circ\)</td></tr>
+              <tr><td>3.0</td><td>\(34.07^\circ\)</td><td>\(65.24^\circ\)</td></tr>
+              <tr><td>5.0</td><td>\(41.12^\circ\)</td><td>\(66.58^\circ\)</td></tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
       <section id="algorithm-es">
-        <p class="section-label">Procedimiento</p>
+        <p class="section-label">Flujo de trabajo</p>
         <h2>Algoritmo de cálculo</h2>
-        <ol>
-          <li>Especificar \(M_1,\theta,\gamma\).</li>
-          <li>Calcular \(\mu\) y \(\theta_{\max}\).</li>
-          <li>Resolver la ecuación \(\theta\)–\(\beta\)–\(M\).</li>
-          <li>Elegir la rama débil o fuerte.</li>
-          <li>Calcular \(M_{n1}=M_1\sin\beta\).</li>
-          <li>Aplicar choque normal.</li>
-          <li>Recuperar \(M_2\) y evaluar la pérdida de \(p_0\).</li>
-        </ol>
+
+        <div class="process-flow">
+          <div><strong>1</strong><span>Especificar \(M_1,\theta,\gamma\)</span></div>
+          <div><strong>2</strong><span>Calcular \(\mu=\sin^{-1}(1/M_1)\)</span></div>
+          <div><strong>3</strong><span>Hallar \(\theta_{\max}\)</span></div>
+          <div><strong>4</strong><span>Resolver θ–β–M para \(\beta\) débil/fuerte</span></div>
+          <div><strong>5</strong><span>Fijar \(M_{n1}=M_1\sin\beta\)</span></div>
+          <div><strong>6</strong><span>Aplicar relaciones de choque normal</span></div>
+          <div><strong>7</strong><span>Recuperar \(M_2\)</span></div>
+          <div><strong>8</strong><span>Verificar rama y pérdida de presión</span></div>
+        </div>
       </section>
 
       <section id="example-es">
         <p class="section-label">Ejemplo resuelto</p>
         <h2>Choque débil sobre una cuña de \(15^\circ\)</h2>
+
         <div class="example">
-          <p>\(M_1=2.5\), \(p_1=80\ \text{kPa}\), \(T_1=250\ \text{K}\), \(\theta=15^\circ\).</p>
-          <div class="solution-step"><span class="solution-step-number">1</span><div>\[\beta\approx36.95^\circ,\qquad M_{n1}\approx1.502.\]</div></div>
-          <div class="solution-step"><span class="solution-step-number">2</span><div>\[\frac{p_2}{p_1}=2.4675,\quad \frac{\rho_2}{\rho_1}=1.866,\quad \frac{T_2}{T_1}=1.32196.\]</div></div>
-          <div class="solution-step"><span class="solution-step-number">3</span><div>\[M_2\approx1.873,\quad p_2\approx197.4\ \text{kPa},\quad T_2\approx330.5\ \text{K}.\]</div></div>
-          <div class="result-box">\[\boxed{\beta\approx36.95^\circ,\quad M_2\approx1.87,\quad p_{0,2}/p_{0,1}\approx0.929}\]</div>
+          <p>
+            Aire a \(M_1=2.5\), \(p_1=80\ \text{kPa}\) y \(T_1=250\ \text{K}\)
+            gira un ángulo \(\theta=15^\circ\).
+          </p>
+
+          <div class="solution-step"><span class="solution-step-number">1</span><div>\[\beta_{\mathrm{d\acute ebil}}\approx36.95^\circ.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">2</span><div>\[M_{n1}=2.5\sin36.95^\circ\approx1.502.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">3</span><div>\[\frac{p_2}{p_1}=2.4675,\quad \frac{\rho_2}{\rho_1}=1.866,\quad \frac{T_2}{T_1}=1.32196.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">4</span><div>\[M_{n2}\approx0.701,\qquad M_2=\frac{0.701}{\sin(36.95^\circ-15^\circ)}\approx1.873.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">5</span><div>\[p_2\approx197.4\ \text{kPa},\qquad T_2\approx330.5\ \text{K},\qquad \frac{p_{0,2}}{p_{0,1}}\approx0.929.\]</div></div>
+
+          <div class="result-box">
+            \[
+            \boxed{
+            \beta\approx36.95^\circ,\quad
+            M_2\approx1.87,\quad
+            p_2\approx197.4\ \text{kPa},\quad
+            T_2\approx330.5\ \text{K}
+            }
+            \]
+          </div>
         </div>
-        <div class="validation-case"><strong>Caso de validación</strong><span>\(M_1=2.5\), \(\theta=15^\circ\), rama débil.</span></div>
+
+        <div class="validation-case">
+          <strong>Caso de validación de la calculadora</strong>
+          <span>Entradas: \(M_1=2.5\), \(\theta=15^\circ\), \(\gamma=1.4\), rama débil.</span>
+        </div>
+      </section>
+
+      <section id="mistakes-es">
+        <p class="section-label">Verificaciones</p>
+        <h2>Errores comunes</h2>
+        <ul class="check-list">
+          <li><strong>Meter el Mach total en las relaciones de choque normal.</strong> Deben evaluarse con \(M_{n1}=M_1\sin\beta\).</li>
+          <li><strong>Olvidar que la ecuación \(\theta\)–\(\beta\)–\(M\) tiene dos raíces.</strong> Si el problema no indica otra cosa, la que ocurre es la solución débil.</li>
+          <li><strong>Suponer que todo choque oblicuo deja \(M_2&lt;1\).</strong> Lo que pasa a subsónico es la <em>componente normal</em>; el Mach total suele seguir siendo supersónico en la rama débil.</li>
+          <li><strong>Confundir el ángulo de onda \(\beta\) con el ángulo de Mach \(\mu\).</strong> Solo coinciden en el límite de choque infinitamente débil.</li>
+          <li><strong>Ignorar el límite de desprendimiento.</strong> Si \(\theta&gt;\theta_{\max}\) no hay choque recto adherido válido, y la onda se desprende en una onda de proa curva.</li>
+          <li><strong>Medir el ángulo del choque reflejado respecto a la pared.</strong> La segunda raíz \(\beta_2\) se mide respecto a la corriente <em>local</em> de la región 2; frente a una pared paralela a la corriente original el ángulo es \(\beta_2-\theta\).</li>
+          <li><strong>Tomar \(p_{0,2}/p_1\) de una tabla de choque normal con \(M_{n1}\).</strong> Para un choque oblicuo lo que se transfiere directamente es la razón \(p_{0,2}/p_{0,1}\), no la razón total–estática tabulada.</li>
+          <li><strong>Tratar un cono como si fuera una cuña.</strong> El alivio tridimensional hace que el campo cónico no sea uniforme y exige la solución de Taylor–Maccoll.</li>
+        </ul>
       </section>
 
       <section id="advanced-es">
-        <p class="section-label">Extensiones</p>
-        <h2>Temas avanzados contenidos en la Unidad III</h2>
+        <p class="section-label">Más allá del modelo básico</p>
+        <h2>Extensiones avanzadas contenidas en la Unidad III</h2>
         <p>
-          El script completo también desarrolla polares de choque, cuñas y conos,
-          Taylor–Maccoll, reflexiones regulares y de Mach, intersecciones, líneas de
-          deslizamiento y ondas desprendidas. Se conservarán como lectures complementarias.
+          El script completo del curso desarrolla además polares de choque, arrastre de onda de una cuña,
+          flujo cónico de Taylor–Maccoll, reflexión regular y de Mach, intersección de choques, líneas de
+          deslizamiento, ondas de proa desprendidas y generación de entropía y vorticidad. Estos temas se
+          separarán más adelante en lectures complementarias avanzadas.
         </p>
       </section>
 
       <section id="references-es" class="references">
         <h2>Referencias</h2>
         <ol>
-          <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, capítulo 9.</li>
-          <li>Anderson, J. D., Jr. <em>Modern Compressible Flow</em>.</li>
-          <li>Ames Research Staff. NACA Report 1135.</li>
+          <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 9.</li>
+          <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3.ª ed. Nueva York: McGraw-Hill, 2003, capítulo 4.</li>
+          <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+          <li>Ben-Dor, G. <em>Shock Wave Reflection Phenomena</em>. Nueva York: Springer-Verlag, 1992.</li>
+          <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, México, febrero de 2024.</li>
         </ol>
+        <p class="source-note">Adaptado de la Unidad III de los apuntes de Aerodinámica II de Carlos Alberto Molina Holguín.</p>
       </section>
 
       <nav class="next-nav">
         <a class="next-link" href="normal-shocks.html"><span>Lecture anterior</span>← Choques normales</a>
-        <a class="next-link" href="prandtl-meyer.html"><span>Siguiente lecture</span>Expansiones de Prandtl–Meyer →</a>
+        <a class="next-link" href="prandtl-meyer.html"><span>Siguiente lecture</span>Expansión de Prandtl–Meyer →</a>
       </nav>
     </article>
 
     <article class="lecture" data-language="de" hidden>
-      <section>
-        <p class="section-label">Kerninhalt</p>
-        <h2>Schrägstoßwellen</h2>
+      <section id="physics-de">
+        <p class="section-label">Physikalisches Bild</p>
+        <h2>Überschallverdichtung an einer konkaven Ecke</h2>
         <p class="lead">
-          Ein Schrägstoß wird mit der normalen Machzahl \(M_{n1}=M_1\sin\beta\)
-          auf einen Normalstoß zurückgeführt.
+          Eine Überschallströmung kann sich stromauf einer endlichen Verdichtungsecke nicht stetig
+          anpassen. Die Störungen sammeln sich zu einem schrägen Verdichtungsstoß, der die Strömung
+          umlenkt und verdichtet.
         </p>
-        <div class="equation-card">\[\boxed{M_{n1}=M_1\sin\beta}\]</div>
-        <div class="equation-card">\[\boxed{\tan\theta=2\cot\beta\frac{M_1^2\sin^2\beta-1}{M_1^2[\gamma+\cos(2\beta)]+2}}\]</div>
-        <div class="equation-card">\[\boxed{M_2=\frac{M_{n2}}{\sin(\beta-\theta)}}\]</div>
-        <div class="de-note">
-          Für \(0<\theta<\theta_{\max}\) existieren eine schwache und eine starke Lösung.
-          Oberhalb von \(\theta_{\max}\) löst sich die Stoßwelle vom Körper ab.
+
+        <figure class="diagram">
+          <svg viewBox="0 0 840 330" role="img" aria-label="Schräger Verdichtungsstoß an einem Keil">
+            <defs>
+              <marker id="obs-arrow-de" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="#0d568d"></path>
+              </marker>
+            </defs>
+            <line x1="55" y1="215" x2="760" y2="215" stroke="#607181" stroke-width="2" stroke-dasharray="8 8"/>
+            <polyline points="380,215 760,300" fill="none" stroke="#071d33" stroke-width="8"/>
+            <line x1="380" y1="215" x2="585" y2="55" stroke="#d67b28" stroke-width="7"/>
+            <g stroke="#0d568d" stroke-width="4" marker-end="url(#obs-arrow-de)">
+              <line x1="65" y1="120" x2="315" y2="120"/>
+              <line x1="65" y1="170" x2="315" y2="170"/>
+              <line x1="460" y1="205" x2="690" y2="257"/>
+            </g>
+            <path d="M285 215 A95 95 0 0 1 318 141" fill="none" stroke="#0d568d" stroke-width="3"/>
+            <text x="292" y="164" font-size="21" fill="#071d33">β</text>
+            <path d="M470 215 A90 90 0 0 1 468 235" fill="none" stroke="#176b47" stroke-width="3"/>
+            <text x="505" y="246" font-size="21" fill="#071d33">θ</text>
+            <text x="190" y="93" font-size="21" fill="#071d33">M₁, p₁, T₁</text>
+            <text x="620" y="195" font-size="21" fill="#071d33">M₂, p₂, T₂</text>
+            <text x="535" y="55" font-size="19" fill="#d67b28">schräger Stoß</text>
+          </svg>
+          <figcaption>
+            Der Wellenwinkel ist \(\beta\); die Strömung wird um \(\theta\) umgelenkt.
+          </figcaption>
+        </figure>
+
+        <div class="equation-card">
+          \[
+          \boxed{\mu=\sin^{-1}\left(\frac{1}{M_1}\right)}
+          \]
+        </div>
+
+        <p>
+          Der Machsche Winkel \(\mu\) ist der Grenzwellenwinkel einer infinitesimalen Störung.
+          Ein endlicher Verdichtungsstoß erfüllt \(\beta>\mu\).
+        </p>
+      </section>
+
+      <section id="geometry-de">
+        <p class="section-label">Geschwindigkeitszerlegung</p>
+        <h2>Normal- und Tangentialkomponente</h2>
+
+        <div class="equation-grid">
+          <div class="equation-card">
+            \[
+            V_{n1}=V_1\sin\beta,
+            \qquad
+            V_{t1}=V_1\cos\beta
+            \]
+          </div>
+          <div class="equation-card">
+            \[
+            V_{n2}=V_2\sin(\beta-\theta),
+            \qquad
+            V_{t2}=V_2\cos(\beta-\theta)
+            \]
+          </div>
+        </div>
+
+        <div class="equation-card">
+          \[
+          \boxed{
+          M_{n1}=M_1\sin\beta,
+          \qquad
+          M_{n2}=M_2\sin(\beta-\theta)
+          }
+          \]
+        </div>
+
+        <div class="callout success">
+          <strong>Zentrale Vereinfachung.</strong> Die Tangentialgeschwindigkeit bleibt unverändert,
+          \(V_{t1}=V_{t2}\). Masse, Normalimpuls und Energie reduzieren sich damit exakt auf die
+          Gleichungen des senkrechten Stoßes, angewandt auf \(M_{n1}\).
         </div>
       </section>
-      <section class="references">
-        <h2>Literatur</h2>
-        <ol><li>Anderson, <em>Fundamentals of Aerodynamics</em>, Kapitel 9.</li><li>NACA Report 1135.</li></ol>
+
+      <section id="normal-de">
+        <p class="section-label">Sprungbeziehungen</p>
+        <h2>Gleichungen des senkrechten Stoßes, ausgewertet mit \(M_{n1}\)</h2>
+
+        <div class="equation-grid">
+          <div class="equation-card">
+            \[
+            \boxed{
+            \frac{p_2}{p_1}
+            =
+            1+\frac{2\gamma}{\gamma+1}(M_{n1}^2-1)
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            \[
+            \boxed{
+            \frac{\rho_2}{\rho_1}
+            =
+            \frac{(\gamma+1)M_{n1}^2}
+            {2+(\gamma-1)M_{n1}^2}
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            \[
+            \boxed{
+            \frac{T_2}{T_1}
+            =
+            \frac{p_2/p_1}{\rho_2/\rho_1}
+            }
+            \]
+          </div>
+          <div class="equation-card">
+            \[
+            \boxed{
+            M_{n2}^2=
+            \frac{1+\frac{\gamma-1}{2}M_{n1}^2}
+            {\gamma M_{n1}^2-\frac{\gamma-1}{2}}
+            }
+            \]
+          </div>
+        </div>
+
+        <div class="equation-card">
+          \[
+          \boxed{
+          M_2=\frac{M_{n2}}{\sin(\beta-\theta)}
+          }
+          \]
+        </div>
+
+        <p>
+          Auch das Totaldruckverhältnis folgt aus der bei \(M_{n1}\) ausgewerteten Beziehung des
+          senkrechten Stoßes. Die Totaltemperatur bleibt konstant, \(p_0\) nimmt jedoch ab.
+        </p>
       </section>
+
+      <section id="tbm-de">
+        <p class="section-label">Zentrale Beziehung</p>
+        <h2>Die \(\theta\)–\(\beta\)–\(M\)-Gleichung</h2>
+
+        <div class="equation-card">
+          \[
+          \boxed{
+          \tan\theta =
+          2\cot\beta\,
+          \frac{M_1^2\sin^2\beta-1}
+          {M_1^2[\gamma+\cos(2\beta)]+2}
+          }
+          \]
+        </div>
+
+        <p>
+          Bei gegebenem \(M_1\) und geforderter Umlenkung \(\theta\) liefert diese nichtlineare Beziehung
+          die zulässigen Stoßwinkel \(\beta\). Ist \(\beta\) bekannt, bestimmt die Methode der
+          Normalkomponente den vollständigen stromabwärtigen Zustand.
+        </p>
+
+        <details class="details">
+          <summary>Kompakte geometrische Herleitung</summary>
+          <div class="details-content">
+            \[
+            \tan\beta=\frac{V_{n1}}{V_{t1}},
+            \qquad
+            \tan(\beta-\theta)=\frac{V_{n2}}{V_{t2}}.
+            \]
+            <p>Da \(V_{t1}=V_{t2}\) gilt und die Kontinuität \(V_{n2}/V_{n1}=\rho_1/\rho_2\) liefert, folgt</p>
+            \[
+            \tan(\beta-\theta)=\frac{\rho_1}{\rho_2}\tan\beta.
+            \]
+            <p>Einsetzen des Dichteverhältnisses des senkrechten Stoßes ergibt die klassische Gleichung.</p>
+          </div>
+        </details>
+      </section>
+
+      <section id="branches-de">
+        <p class="section-label">Mehrfachlösungen</p>
+        <h2>Schwacher, starker und abgelöster Stoß</h2>
+
+        <div class="branch-grid">
+          <div class="branch-card weak">
+            <h3>Schwacher Zweig</h3>
+            <p>Kleineres \(\beta\), kleineres \(M_{n1}\), mäßiger Druckanstieg, meist \(M_2>1\).</p>
+          </div>
+          <div class="branch-card strong">
+            <h3>Starker Zweig</h3>
+            <p>Größeres \(\beta\), stärkere Verdichtung, größerer Totaldruckverlust, in der Regel \(M_2<1\).</p>
+          </div>
+        </div>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 780 390" role="img" aria-label="Schwacher und starker Zweig">
+            <line x1="80" y1="325" x2="710" y2="325" stroke="#071d33" stroke-width="3"/>
+            <line x1="80" y1="325" x2="80" y2="50" stroke="#071d33" stroke-width="3"/>
+            <text x="715" y="348" font-size="20" fill="#071d33">θ</text>
+            <text x="45" y="55" font-size="20" fill="#071d33">β</text>
+            <path d="M85 280 C220 255, 400 200, 565 120" fill="none" stroke="#0d568d" stroke-width="6"/>
+            <path d="M85 72 C240 80, 420 90, 565 120" fill="none" stroke="#d67b28" stroke-width="6" stroke-dasharray="10 8"/>
+            <line x1="565" y1="325" x2="565" y2="120" stroke="#607181" stroke-width="2" stroke-dasharray="7 7"/>
+            <text x="565" y="350" text-anchor="middle" font-size="18" fill="#071d33">θmax</text>
+            <text x="258" y="250" font-size="19" fill="#0d568d">schwach</text>
+            <text x="268" y="82" font-size="19" fill="#d67b28">stark</text>
+          </svg>
+          <figcaption>
+            Beide Zweige treffen bei \(\theta_{\max}\) zusammen. Für \(\theta>\theta_{\max}\)
+            existiert kein gerader anliegender Stoß.
+          </figcaption>
+        </figure>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>\(M_1\)</th><th>\(\theta_{\max}\), Luft</th><th>\(\beta\) im Maximum</th></tr></thead>
+            <tbody>
+              <tr><td>1,5</td><td>\(12{,}11^\circ\)</td><td>\(66{,}59^\circ\)</td></tr>
+              <tr><td>2,0</td><td>\(22{,}97^\circ\)</td><td>\(64{,}67^\circ\)</td></tr>
+              <tr><td>2,5</td><td>\(29{,}80^\circ\)</td><td>\(64{,}78^\circ\)</td></tr>
+              <tr><td>3,0</td><td>\(34{,}07^\circ\)</td><td>\(65{,}24^\circ\)</td></tr>
+              <tr><td>5,0</td><td>\(41{,}12^\circ\)</td><td>\(66{,}58^\circ\)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="algorithm-de">
+        <p class="section-label">Vorgehensweise</p>
+        <h2>Rechenalgorithmus</h2>
+
+        <div class="process-flow">
+          <div><strong>1</strong><span>\(M_1,\theta,\gamma\) vorgeben</span></div>
+          <div><strong>2</strong><span>\(\mu=\sin^{-1}(1/M_1)\) berechnen</span></div>
+          <div><strong>3</strong><span>\(\theta_{\max}\) bestimmen</span></div>
+          <div><strong>4</strong><span>θ–β–M nach schwachem/starkem \(\beta\) lösen</span></div>
+          <div><strong>5</strong><span>\(M_{n1}=M_1\sin\beta\) setzen</span></div>
+          <div><strong>6</strong><span>Beziehungen des senkrechten Stoßes anwenden</span></div>
+          <div><strong>7</strong><span>\(M_2\) zurückrechnen</span></div>
+          <div><strong>8</strong><span>Zweig und Druckverlust prüfen</span></div>
+        </div>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Schwacher Stoß an einem \(15^\circ\)-Keil</h2>
+
+        <div class="example">
+          <p>
+            Luft mit \(M_1=2{,}5\), \(p_1=80\ \text{kPa}\) und \(T_1=250\ \text{K}\)
+            wird um \(\theta=15^\circ\) umgelenkt.
+          </p>
+
+          <div class="solution-step"><span class="solution-step-number">1</span><div>\[\beta_{\mathrm{schwach}}\approx36{,}95^\circ.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">2</span><div>\[M_{n1}=2{,}5\sin36{,}95^\circ\approx1{,}502.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">3</span><div>\[\frac{p_2}{p_1}=2{,}4675,\quad \frac{\rho_2}{\rho_1}=1{,}866,\quad \frac{T_2}{T_1}=1{,}32196.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">4</span><div>\[M_{n2}\approx0{,}701,\qquad M_2=\frac{0{,}701}{\sin(36{,}95^\circ-15^\circ)}\approx1{,}873.\]</div></div>
+          <div class="solution-step"><span class="solution-step-number">5</span><div>\[p_2\approx197{,}4\ \text{kPa},\qquad T_2\approx330{,}5\ \text{K},\qquad \frac{p_{0,2}}{p_{0,1}}\approx0{,}929.\]</div></div>
+
+          <div class="result-box">
+            \[
+            \boxed{
+            \beta\approx36{,}95^\circ,\quad
+            M_2\approx1{,}87,\quad
+            p_2\approx197{,}4\ \text{kPa},\quad
+            T_2\approx330{,}5\ \text{K}
+            }
+            \]
+          </div>
+        </div>
+
+        <div class="validation-case">
+          <strong>Validierungsfall für den Rechner</strong>
+          <span>Eingaben: \(M_1=2{,}5\), \(\theta=15^\circ\), \(\gamma=1{,}4\), schwacher Zweig.</span>
+        </div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Kontrollen</p>
+        <h2>Häufige Fehler</h2>
+        <ul class="check-list">
+          <li><strong>Die volle Machzahl in die Beziehungen des senkrechten Stoßes einsetzen.</strong> Sie sind mit \(M_{n1}=M_1\sin\beta\) auszuwerten.</li>
+          <li><strong>Vergessen, dass die \(\theta\)–\(\beta\)–\(M\)-Gleichung zwei Wurzeln hat.</strong> Sofern die Aufgabe nichts anderes angibt, tritt die schwache Lösung auf.</li>
+          <li><strong>Annehmen, jeder schräge Stoß hinterlasse \(M_2&lt;1\).</strong> Unterschall wird die <em>Normalkomponente</em>; die volle Machzahl bleibt im schwachen Zweig meist überschallschnell.</li>
+          <li><strong>Den Wellenwinkel \(\beta\) mit dem Machschen Winkel \(\mu\) verwechseln.</strong> Sie stimmen nur im Grenzfall des unendlich schwachen Stoßes überein.</li>
+          <li><strong>Die Ablösegrenze übergehen.</strong> Für \(\theta&gt;\theta_{\max}\) existiert kein gültiger anliegender gerader Stoß; die Welle löst sich zu einem gekrümmten Kopfstoß ab.</li>
+          <li><strong>Den Winkel eines reflektierten Stoßes von der Wand aus messen.</strong> Die zweite Wurzel \(\beta_2\) bezieht sich auf die <em>örtliche</em> Strömung des Gebiets 2; gegenüber einer zur ursprünglichen Strömung parallelen Wand beträgt der Winkel \(\beta_2-\theta\).</li>
+          <li><strong>\(p_{0,2}/p_1\) einer Normalstoßtabelle bei \(M_{n1}\) entnehmen.</strong> Beim schrägen Stoß überträgt sich unmittelbar das Verhältnis \(p_{0,2}/p_{0,1}\), nicht das tabellierte Total-statisch-Verhältnis.</li>
+          <li><strong>Einen Kegel wie einen Keil behandeln.</strong> Die dreidimensionale Entlastung macht das Kegelfeld ungleichförmig und erfordert die Taylor–Maccoll-Lösung.</li>
+        </ul>
+      </section>
+
+      <section id="advanced-de">
+        <p class="section-label">Über das Grundmodell hinaus</p>
+        <h2>Weiterführende Themen der Einheit III</h2>
+        <p>
+          Das vollständige Vorlesungsskript behandelt darüber hinaus Stoßpolaren, den Wellenwiderstand
+          eines Keils, die Kegelströmung nach Taylor–Maccoll, reguläre und Mach-Reflexion, sich
+          schneidende Stöße, Gleitlinien, abgelöste Kopfstöße sowie die Erzeugung von Entropie und
+          Wirbelstärke. Diese Themen werden später in weiterführende Ergänzungsvorlesungen ausgegliedert.
+        </p>
+      </section>
+
+      <section id="references-de" class="references">
+        <h2>Literatur</h2>
+        <ol>
+          <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6. Aufl. New York: McGraw-Hill Education, 2017, Kapitel 9.</li>
+          <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3. Aufl. New York: McGraw-Hill, 2003, Kapitel 4.</li>
+          <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+          <li>Ben-Dor, G. <em>Shock Wave Reflection Phenomena</em>. New York: Springer-Verlag, 1992.</li>
+          <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexiko, Februar 2024.</li>
+        </ol>
+        <p class="source-note">Bearbeitet nach Einheit III des Vorlesungsskripts Aerodynamik II von Carlos Alberto Molina Holguín.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="normal-shocks.html"><span>Vorherige Vorlesung</span>← Senkrechte Stöße</a>
+        <a class="next-link" href="prandtl-meyer.html"><span>Nächste Vorlesung</span>Prandtl–Meyer-Expansion →</a>
+      </nav>
     </article>
   </div>
 </main>
