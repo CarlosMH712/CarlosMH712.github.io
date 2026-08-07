@@ -22,81 +22,518 @@
   <div data-language="en"><p class="eyebrow">Aerodynamics II · Lecture 08</p><h1>Convergent and Convergent–Divergent Nozzles</h1><p class="hero-copy">How pressure ratio selects subsonic flow, choking, or a designed supersonic solution, with a complete exit-state calculation.</p></div>
   <div data-language="es" hidden><p class="eyebrow">Aerodinámica II · Lecture 08</p><h1>Toberas convergentes y convergentes–divergentes</h1><p class="hero-copy">Cómo la razón de presiones selecciona flujo subsónico, estrangulamiento o una solución supersónica de diseño, con cálculo completo del estado de salida.</p></div>
   <div data-language="de" hidden><p class="eyebrow">Aerodynamik II · Vorlesung 08</p><h1>Konvergente und konvergent–divergente Düsen</h1><p class="hero-copy">Wie das Druckverhältnis Unterschallströmung, Sperrung oder die ausgelegte Überschalllösung auswählt, einschließlich vollständiger Austrittsrechnung.</p></div>
-  <div class="hero-meta"><span>Convergent</span><span>C–D nozzle</span><span>Design condition</span><span>Exit state</span></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 40 min</span><span data-language="es" hidden>Lectura estimada: 40 min</span><span data-language="de" hidden>Lesedauer: ca. 40 min</span>
+    <span data-language="en">Convergent and C–D</span><span data-language="es" hidden>Convergente y C–D</span><span data-language="de" hidden>Konvergent und C–D</span>
+    <span data-language="en">Design condition</span><span data-language="es" hidden>Condición de diseño</span><span data-language="de" hidden>Auslegungspunkt</span>
+    <span>\(p^*/p_0=0.5283\)</span>
+  </div>
   <div class="button-row"><a class="button secondary" href="nozzle-flow-fundamentals.html">← <span data-ui-key="previous">Previous lecture</span></a><a class="button primary" href="nozzle-back-pressure-thrust.html"><span data-ui-key="next">Next lecture</span> →</a><a class="button calculator-button" href="https://nozzle-calculator.streamlit.app/" target="_blank" rel="noopener noreferrer" data-ui-key="nozzleCalculator">Open nozzle calculator</a></div>
 </div></section>
 
 <main><div class="container lecture-shell">
   <aside class="toc">
-    <div data-language="en"><h2>On this page</h2><div class="toc-links"><a href="#convergent">Convergent nozzle</a><a href="#cd">C–D nozzle</a><a href="#branches">Branch selection</a><a href="#design">Design condition</a><a href="#exit">Exit properties</a><a href="#example">Worked example</a><a href="#calculator">Calculator connection</a><a href="#references">References</a></div></div>
-    <div data-language="es" hidden><h2>En esta página</h2><div class="toc-links"><a href="#convergent">Tobera convergente</a><a href="#cd">Tobera C–D</a><a href="#branches">Selección de rama</a><a href="#design">Condición de diseño</a><a href="#exit">Propiedades de salida</a><a href="#example">Ejemplo</a><a href="#calculator">Conexión con la calculadora</a><a href="#references">Referencias</a></div></div>
-    <div data-language="de" hidden><h2>Auf dieser Seite</h2><div class="toc-links"><a href="#convergent">Konvergente Düse</a><a href="#cd">C–D-Düse</a><a href="#branches">Zweigauswahl</a><a href="#design">Auslegungszustand</a><a href="#exit">Austrittsgrößen</a><a href="#example">Beispiel</a><a href="#calculator">Rechnerverbindung</a><a href="#references">Literatur</a></div></div>
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#convergent">Purely convergent nozzle</a>
+      <a href="#cd">Convergent&ndash;divergent nozzle</a>
+      <a href="#branches">Subsonic and supersonic branch</a>
+      <a href="#characteristic">Three characteristic back pressures</a>
+      <a href="#design">Area ratio and design</a>
+      <a href="#massflow-curve">Mass-flow curve</a>
+      <a href="#example">Worked example</a>
+      <a href="#mistakes">Common mistakes</a>
+      <a href="#references">References</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#convergent-es">Tobera puramente convergente</a>
+      <a href="#cd-es">Tobera convergente&ndash;divergente</a>
+      <a href="#branches-es">Ramas subs&oacute;nica y supers&oacute;nica</a>
+      <a href="#characteristic-es">Tres contrapresiones caracter&iacute;sticas</a>
+      <a href="#design-es">Raz&oacute;n de &aacute;reas y dise&ntilde;o</a>
+      <a href="#massflow-curve-es">Curva de gasto m&aacute;sico</a>
+      <a href="#example-es">Ejemplo resuelto</a>
+      <a href="#mistakes-es">Errores comunes</a>
+      <a href="#references-es">Referencias</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#convergent-de">Rein konvergente D&uuml;se</a>
+      <a href="#cd-de">Konvergent&ndash;divergente D&uuml;se</a>
+      <a href="#branches-de">Unterschall- und &Uuml;berschallzweig</a>
+      <a href="#characteristic-de">Drei charakteristische Gegendr&uuml;cke</a>
+      <a href="#design-de">Fl&auml;chenverh&auml;ltnis und Auslegung</a>
+      <a href="#massflow-curve-de">Massenstromkurve</a>
+      <a href="#example-de">Rechenbeispiel</a>
+      <a href="#mistakes-de">H&auml;ufige Fehler</a>
+      <a href="#references-de">Literatur</a>
+    </div>
   </aside>
 
-  <article class="lecture">
+  <article class="lecture" data-language="en">
     <section id="convergent">
-      <div data-language="en"><p class="section-label">Purely convergent nozzle</p><h2>The exit is the minimum area and cannot sustain internal supersonic flow</h2><p class="lead">With (A_e=A_t), reducing (p_B) accelerates the flow until the exit reaches (M_e=1). A further reduction changes the external jet, not the internal solution.</p></div>
-      <div data-language="es" hidden><p class="section-label">Tobera puramente convergente</p><h2>La salida es el área mínima y no sostiene flujo supersónico interno</h2><p class="lead">Con (A_e=A_t), reducir (p_B) acelera el flujo hasta que la salida alcanza (M_e=1). Una reducción adicional modifica el chorro exterior, no la solución interna.</p></div>
-      <div data-language="de" hidden><p class="section-label">Rein konvergente Düse</p><h2>Der Austritt ist die kleinste Fläche und trägt keine innere Überschallströmung</h2><p class="lead">Für (A_e=A_t) beschleunigt eine Absenkung von (p_B) die Strömung bis (M_e=1). Eine weitere Absenkung verändert den äußeren Strahl, nicht die innere Lösung.</p></div>
-      <div class="equation-card">\[\Pi^*=\frac{p^*}{p_0}=\left(\frac{2}{\gamma+1}\right)^{\gamma/(\gamma-1)}\]</div>
-      <table><thead><tr><th>Condition</th><th>Internal state</th><th>Exit pressure</th></tr></thead><tbody><tr><td>(p_B/p_0&gt;\Pi^*)</td><td>(M_e&lt;1)</td><td>(p_e=p_B)</td></tr><tr><td>(p_B/p_0=\Pi^*)</td><td>(M_e=1)</td><td>(p_e=p^*)</td></tr><tr><td>(p_B/p_0&lt;\Pi^*)</td><td>Choked / estrangulada / gesperrt</td><td>(p_e=p^*&gt;p_B)</td></tr></tbody></table>
+      <p class="section-label">Simplest case</p>
+      <h2>A purely convergent nozzle cannot exceed Mach one</h2>
+      <p class="lead">When the exit <em>is</em> the minimum area, \(A_e=A_t\), the area–velocity relation of Lecture 07 leaves no room for supersonic flow inside the duct. Lowering the back pressure \(p_B\) accelerates the flow until the exit reaches \(M_e=1\), and no further.</p>
+      <div class="equation-card">\[\Pi^*=\frac{p^*}{p_0}=\left(\frac{2}{\gamma+1}\right)^{\gamma/(\gamma-1)}=0.528282\quad(\gamma=1.4)\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Condition</th><th>Internal state</th><th>Exit pressure</th><th>Mass flow</th></tr></thead>
+          <tbody>
+            <tr><td>\(p_B/p_0&gt;\Pi^*\)</td><td>\(M_e&lt;1\), unchoked</td><td>\(p_e=p_B\)</td><td>rises as \(p_B\) falls</td></tr>
+            <tr><td>\(p_B/p_0=\Pi^*\)</td><td>\(M_e=1\), just choked</td><td>\(p_e=p^*\)</td><td>maximum</td></tr>
+            <tr><td>\(p_B/p_0&lt;\Pi^*\)</td><td>\(M_e=1\), choked</td><td>\(p_e=p^*&gt;p_B\)</td><td>frozen at maximum</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout success"><strong>The exit stops listening.</strong> While the exit is subsonic, pressure information travels upstream and the nozzle adjusts: \(p_e\) tracks \(p_B\). Once the exit is sonic, disturbances can no longer propagate upstream against the flow. The interior is sealed off from the ambient, \(p_e\) sticks at \(p^*\), and the remaining expansion from \(p^*\) down to \(p_B\) happens outside the nozzle as an underexpanded jet.</div>
+      <div class="callout warning">A convergent nozzle discharging to vacuum still produces only \(M_e=1\). Extra pressure ratio buys nothing internally — which is exactly why a divergent section has to be added.</div>
     </section>
 
     <section id="cd">
-      <div data-language="en"><p class="section-label">Convergent–divergent nozzle</p><h2>A divergent section is required to accelerate beyond Mach one</h2><p>In the isentropic design solution the convergent accelerates subsonically, the throat is sonic, and the divergent accelerates supersonically.</p></div>
-      <div data-language="es" hidden><p class="section-label">Tobera convergente–divergente</p><h2>Se requiere una sección divergente para acelerar más allá de Mach uno</h2><p>En la solución isoentrópica de diseño, la convergente acelera subsónicamente, la garganta es sónica y la divergente acelera supersónicamente.</p></div>
-      <div data-language="de" hidden><p class="section-label">Konvergent–divergente Düse</p><h2>Für die Beschleunigung über Mach eins ist ein divergenter Abschnitt nötig</h2><p>In der isentropen Auslegung beschleunigt der konvergente Teil im Unterschall, der Hals ist sonisch und der divergente Teil beschleunigt im Überschall.</p></div>
-      <figure class="nozzle-figure" aria-label="Ideal convergent-divergent nozzle"><div class="nozzle-channel"><div class="nozzle-wall top"></div><div class="nozzle-wall bottom"></div><div class="flow-axis"></div><div class="throat-line"></div></div><div class="nozzle-labels"><span>(M&lt;1, p\downarrow)</span><span>(M=1, A_t=A^*)</span><span>(M&gt;1, p\downarrow, u\uparrow)</span></div></figure>
-      <div class="callout success" data-language="en"><strong>Ideal internal solution.</strong> Once the nozzle is choked, (M(x)), (p(x)/p_0), and (T(x)/T_0) on an isentropic branch are determined by (A(x)/A^*). Back pressure decides whether that branch can be established without a shock.</div>
-      <div class="callout success" data-language="es" hidden><strong>Solución interna ideal.</strong> Una vez estrangulada, (M(x)), (p(x)/p_0) y (T(x)/T_0) en una rama isoentrópica quedan determinados por (A(x)/A^*). La contrapresión decide si esa rama se establece sin choque.</div>
-      <div class="callout success" data-language="de" hidden><strong>Ideale innere Lösung.</strong> Nach der Sperrung werden (M(x)), (p(x)/p_0) und (T(x)/T_0) auf einem isentropen Zweig durch (A(x)/A^*) bestimmt. Der Gegendruck entscheidet, ob dieser Zweig stoßfrei entsteht.</div>
+      <p class="section-label">Adding a divergent section</p>
+      <h2>The isentropic design solution</h2>
+      <p>With a convergent–divergent shape, the convergent accelerates subsonically, the throat becomes sonic, and the divergent accelerates the flow supersonically. Once the throat is choked, \(A^*=A_t\) is fixed, and the entire internal solution follows from geometry alone:</p>
+      <div class="equation-card">\[\frac{A(x)}{A^*}=\frac{A(x)}{A_t}\;\Longrightarrow\;M(x)\;\Longrightarrow\;\frac{p(x)}{p_0},\ \frac{T(x)}{T_0},\ \frac{\rho(x)}{\rho_0}.\]</div>
+      <div class="callout"><strong>What geometry does and does not fix.</strong> Once choked, the <em>shape</em> of the solution along a given isentropic branch is locked in by \(A(x)/A^*\). What the back pressure still decides is whether that branch can be established at all without a shock appearing somewhere inside.</div>
     </section>
 
     <section id="branches">
-      <div data-language="en"><p class="section-label">Mathematical branches</p><h2>Use the physical regime—not geometry alone—to choose the root</h2></div>
-      <div data-language="es" hidden><p class="section-label">Ramas matemáticas</p><h2>Usa el régimen físico —no solo la geometría— para elegir la raíz</h2></div>
-      <div data-language="de" hidden><p class="section-label">Mathematische Zweige</p><h2>Die physikalische Betriebsart — nicht die Geometrie allein — wählt die Wurzel</h2></div>
-      <div class="process-flow"><div><strong>1</strong><span>Specify (p_0,T_0,gamma,R,A_e/A_t)</span></div><div><strong>2</strong><span>Check choking and the back-pressure range</span></div><div><strong>3</strong><span>Select subsonic or supersonic area–Mach root</span></div><div><strong>4</strong><span>Recover dimensional exit properties</span></div></div>
-      <div class="callout warning" data-language="en"><strong>Common mistake.</strong> (A_e/A_t&gt;1) does not prove that the exit is supersonic. The same geometry also admits an entirely subsonic solution and shock-containing solutions.</div>
-      <div class="callout warning" data-language="es" hidden><strong>Error común.</strong> (A_e/A_t&gt;1) no demuestra que la salida sea supersónica. La misma geometría también admite una solución enteramente subsónica y soluciones con choque.</div>
-      <div class="callout warning" data-language="de" hidden><strong>Häufiger Fehler.</strong> (A_e/A_t&gt;1) beweist keinen Überschallaustritt. Dieselbe Geometrie erlaubt auch eine vollständig unterschallschnelle Lösung und Stoßlösungen.</div>
+      <p class="section-label">Two roots</p>
+      <h2>Choosing between the subsonic and supersonic branch</h2>
+      <p>For every station with \(A/A^*&gt;1\) the area–Mach relation returns two Mach numbers. In the divergent section both are geometrically admissible, and the physical regime — not the algebra — selects the root:</p>
+      <div class="branch-grid">
+        <div class="branch-card weak">
+          <h3>Subsonic branch</h3>
+          <p>The divergent acts as a <em>diffuser</em>: the flow decelerates and the pressure recovers toward \(p_B\). This is the branch taken when the back pressure is high.</p>
+        </div>
+        <div class="branch-card strong">
+          <h3>Supersonic branch</h3>
+          <p>The divergent acts as a <em>nozzle</em>: the flow keeps accelerating and the pressure keeps falling. This branch requires a sufficiently low back pressure.</p>
+        </div>
+      </div>
+      <div class="callout warning">Both branches share the same throat, the same \(A^*\), and therefore the <em>same mass flow</em>. Mass flow alone can never tell you which branch a choked nozzle is running on.</div>
+    </section>
+
+    <section id="characteristic">
+      <p class="section-label">Operating map</p>
+      <h2>Three back pressures that organise everything</h2>
+      <p>For a given area ratio there are three special values of \(p_B/p_0\). They partition the whole operating range, and every regime discussed in Lecture 09 lives between two of them.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Meaning</th><th>\(A_e/A_t=2\), \(\gamma=1.4\)</th></tr></thead>
+          <tbody>
+            <tr><td>\(p_{B1}/p_0\)</td><td>First choking — subsonic branch throughout, throat just sonic</td><td>0.937162</td></tr>
+            <tr><td>\(p_{B2}/p_0\)</td><td>Normal shock standing exactly in the exit plane</td><td>0.513401</td></tr>
+            <tr><td>\(p_{B3}/p_0\)</td><td>Design condition — supersonic branch, perfectly expanded</td><td>0.093933</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="definition-grid">
+        <div class="definition"><strong>\(p_B/p_0&gt;0.937162\)</strong><span>Entirely subsonic, unchoked. Mass flow still depends on \(p_B\).</span></div>
+        <div class="definition"><strong>\(0.513401&lt;p_B/p_0&lt;0.937162\)</strong><span>Choked, with a normal shock inside the divergent section.</span></div>
+        <div class="definition"><strong>\(0.093933&lt;p_B/p_0&lt;0.513401\)</strong><span>Shock has left the nozzle; the jet is overexpanded, with oblique waves outside.</span></div>
+        <div class="definition"><strong>\(p_B/p_0&lt;0.093933\)</strong><span>Underexpanded; the jet expands further outside through expansion fans.</span></div>
+      </div>
+      <p>Note that \(p_{B2}\) is obtained by taking the design exit state and applying a normal shock to it: \(p_{B2}/p_0=(p_{e}/p_0)_{\text{design}}\times(p_2/p_1)_{M_e}\). For \(A_e/A_t=2\) that is \(0.093933\times5.46563=0.513401\).</p>
+      <div class="callout warning">Only \(p_{B1}\) and \(p_{B3}\) are isentropic solutions. Between them the nozzle is choked but <em>not</em> isentropic: a shock is present, and total pressure is lost.</div>
     </section>
 
     <section id="design">
-      <div data-language="en"><p class="section-label">Design condition</p><h2>Perfect expansion requires the isentropic exit pressure to match the back pressure</h2></div>
-      <div data-language="es" hidden><p class="section-label">Condición de diseño</p><h2>La expansión perfecta exige que la presión isoentrópica de salida iguale la contrapresión</h2></div>
-      <div data-language="de" hidden><p class="section-label">Auslegungszustand</p><h2>Perfekte Anpassung erfordert Gleichheit von isentropem Austritts- und Gegendruck</h2></div>
-      <div class="equation-card">\[\boxed{p_e=p_B=p_{e,\mathrm{iso}}}\]</div>
-      <p data-language="en">At this one ambient pressure, no internal or external adjustment wave is required. A fixed-area nozzle is perfectly expanded at only one design pressure.</p><p data-language="es" hidden>A esta única presión ambiente no se requieren ondas de ajuste internas ni externas. Una tobera de área fija queda perfectamente adaptada a una sola presión de diseño.</p><p data-language="de" hidden>Bei diesem einen Umgebungsdruck ist keine innere oder äußere Anpassungswelle nötig. Eine Düse mit fester Fläche ist nur bei einem Auslegungsdruck perfekt angepasst.</p>
+      <p class="section-label">Sizing</p>
+      <h2>Area ratio sets the design pressure ratio</h2>
+      <p>Designing a supersonic nozzle means choosing \(A_e/A_t\) so that the fully expanded exit pressure equals the ambient pressure it will operate against:</p>
+      <div class="equation-card">\[\frac{A_e}{A_t}=\frac{1}{M_e}\left[\frac{2}{\gamma+1}\left(1+\frac{\gamma-1}{2}M_e^2\right)\right]^{\frac{\gamma+1}{2(\gamma-1)}},\qquad\frac{p_e}{p_0}=\left(1+\frac{\gamma-1}{2}M_e^2\right)^{-\gamma/(\gamma-1)}.\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(A_e/A_t\)</th><th>\(M_e\) design</th><th>\(p_e/p_0\)</th><th>Required \(p_0/p_e\)</th></tr></thead>
+          <tbody>
+            <tr><td>1.5</td><td>1.8541</td><td>0.160176</td><td>6.2</td></tr>
+            <tr><td>2.0</td><td>2.1972</td><td>0.093933</td><td>10.6</td></tr>
+            <tr><td>3.0</td><td>2.6374</td><td>0.047299</td><td>21.1</td></tr>
+            <tr><td>4.0</td><td>2.9402</td><td>0.029787</td><td>33.6</td></tr>
+            <tr><td>6.0</td><td>3.3679</td><td>0.015841</td><td>63.1</td></tr>
+            <tr><td>10.0</td><td>3.9226</td><td>0.007306</td><td>136.9</td></tr>
+            <tr><td>25.0</td><td>5.0000</td><td>0.001890</td><td>529.1</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout"><strong>Why exit Mach number is expensive.</strong> The area ratio grows sharply with \(M_e\), and the required pressure ratio grows faster still: reaching \(M_e=5\) needs a supply 529 times the ambient pressure. This is why a launch vehicle's first-stage nozzle is comparatively short — it must work at sea level — while an upper-stage nozzle, expanding into near-vacuum, can afford a very large bell.</div>
     </section>
 
-    <section id="exit">
-      <div data-language="en"><p class="section-label">Exit-state calculation</p><h2>Recover thermodynamic and kinematic properties from (M_e)</h2></div>
-      <div data-language="es" hidden><p class="section-label">Cálculo del estado de salida</p><h2>Recupera propiedades termodinámicas y cinemáticas a partir de (M_e)</h2></div>
-      <div data-language="de" hidden><p class="section-label">Austrittszustand</p><h2>Thermodynamische und kinematische Größen aus (M_e) bestimmen</h2></div>
-      <div class="equation-grid">
-        <div class="equation-card">\[T_e=\frac{T_0}{1+\frac{\gamma-1}{2}M_e^2}\]</div>
-        <div class="equation-card">\[p_e=p_0\left(1+\frac{\gamma-1}{2}M_e^2\right)^{-\gamma/(\gamma-1)}\]</div>
-        <div class="equation-card">\[\rho_e=\frac{p_e}{RT_e}\]</div>
-        <div class="equation-card">\[u_e=M_e\sqrt{\gamma RT_e}\]</div>
+    <section id="massflow-curve">
+      <p class="section-label">A useful diagnostic</p>
+      <h2>The mass-flow curve and what it hides</h2>
+      <p>Plotting \(\dot m\) against \(p_B/p_0\) gives a curve with a sharp change of character:</p>
+      <div class="definition-grid">
+        <div class="definition"><strong>Above \(p_{B1}\)</strong><span>\(\dot m\) increases as \(p_B\) falls. The nozzle is unchoked and responsive.</span></div>
+        <div class="definition"><strong>Below \(p_{B1}\)</strong><span>\(\dot m\) is constant. The curve is flat all the way to vacuum.</span></div>
       </div>
+      <div class="callout warning"><strong>The flat part is the whole difficulty.</strong> Everything interesting in Lecture 09 — internal shocks, over- and underexpansion, thrust variation — happens along that flat segment, where the mass flow gives no information whatsoever about what the nozzle is doing internally. Diagnosing a choked nozzle requires the exit pressure or a wall-pressure trace, never the flow rate alone.</div>
     </section>
 
     <section id="example">
-      <div data-language="en"><p class="section-label">Worked example</p><h2>Two exit states for (A_e/A_t=2)</h2><p>For air with (p_0=500\,\mathrm{kPa}), (T_0=300\,\mathrm{K}), and a choked throat:</p></div>
-      <div data-language="es" hidden><p class="section-label">Ejemplo resuelto</p><h2>Dos estados de salida para (A_e/A_t=2)</h2><p>Para aire con (p_0=500\,\mathrm{kPa}), (T_0=300\,\mathrm{K}) y garganta estrangulada:</p></div>
-      <div data-language="de" hidden><p class="section-label">Beispiel</p><h2>Zwei Austrittszustände für (A_e/A_t=2)</h2><p>Für Luft mit (p_0=500\,\mathrm{kPa}), (T_0=300\,\mathrm{K}) und gesperrtem Hals:</p></div>
-      <table class="validation-table"><thead><tr><th>Branch</th><th>(M_e)</th><th>(p_e/p_0)</th><th>(T_e/T_0)</th></tr></thead><tbody><tr><td>Subsonic</td><td>0.305904</td><td>0.937163</td><td>0.981633</td></tr><tr><td>Supersonic</td><td>2.197198</td><td>0.093933</td><td>0.508120</td></tr></tbody></table>
-      <p data-language="en">Therefore the ideal supersonic design state is (p_e=46.97\,\mathrm{kPa}), (T_e=152.4\,\mathrm{K}). The back pressure and start history determine which branch occurs.</p><p data-language="es" hidden>Así, el estado supersónico ideal de diseño es (p_e=46.97\,\mathrm{kPa}), (T_e=152.4\,\mathrm{K}). La contrapresión y la historia de arranque determinan qué rama ocurre.</p><p data-language="de" hidden>Damit ist der ideale Überschall-Auslegungszustand (p_e=46.97\,\mathrm{kPa}), (T_e=152.4\,\mathrm{K}). Gegendruck und Anfahrverlauf bestimmen den Zweig.</p>
+      <p class="section-label">Worked example</p>
+      <h2>Mapping the operating range of an \(A_e/A_t=2\) nozzle</h2>
+      <div class="example">
+        <h3>Problem</h3>
+        <p>Air expands from \(p_0=500\ \text{kPa}\), \(T_0=400\ \text{K}\) through a C–D nozzle with \(A_e/A_t=2\). Determine the three characteristic back pressures and classify the operation at \(p_B=300\ \text{kPa}\) and at \(p_B=30\ \text{kPa}\).</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>The two isentropic roots at \(A_e/A^*=2\):</p>\[M_{\text{sub}}=0.305904,\qquad M_{\text{sup}}=2.197198.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>First choking and design pressures:</p>\[p_{B1}=0.937162\,p_0=468.6\ \text{kPa},\qquad p_{B3}=0.093933\,p_0=47.0\ \text{kPa}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Normal shock at the exit plane, applied to \(M_e=2.197198\):</p>\[\frac{p_2}{p_1}=5.46563,\qquad p_{B2}=0.093933\times5.46563\,p_0=0.513401\,p_0=256.7\ \text{kPa}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>\(p_B=300\ \text{kPa}\) gives \(p_B/p_0=0.600\), which falls between \(p_{B2}\) and \(p_{B1}\):</p><p><strong>choked, with a normal shock standing inside the divergent section.</strong></p></div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>\(p_B=30\ \text{kPa}\) gives \(p_B/p_0=0.060&lt;0.093933\):</p><p><strong>choked and underexpanded</strong> — the internal solution is the full supersonic branch and the jet continues to expand outside.</p></div></div>
+
+        <div class="result-box">\[\boxed{p_{B1}=468.6,\quad p_{B2}=256.7,\quad p_{B3}=47.0\ \text{kPa}}\]</div>
+        <p>The mass flow is \(1.2698\ \text{kg/s}\) in both cases, and in every case below \(468.6\ \text{kPa}\). Only the exit pressure distinguishes them.</p>
+      </div>
+      <div class="validation-case">
+        <strong>Calculator validation case</strong>
+        <span>The three ratios 0.937163, 0.513401, and 0.093933 for \(A_e/A_t=2\), \(\gamma=1.4\) are regression targets of the nozzle calculator.</span>
+      </div>
     </section>
 
-    <section id="calculator"><div class="calculator-callout"><div><div data-language="en"><h3>Compare subsonic and design cases interactively</h3><p>The application plots the axial flow field and places the selected case on an operating map.</p></div><div data-language="es" hidden><h3>Compara casos subsónicos y de diseño</h3><p>La aplicación grafica el campo axial y ubica el caso seleccionado en un mapa de operación.</p></div><div data-language="de" hidden><h3>Unter- und Auslegungsfall interaktiv vergleichen</h3><p>Die Anwendung zeigt das axiale Strömungsfeld und den Fall im Betriebskennfeld.</p></div></div><a class="button primary" href="https://nozzle-calculator.streamlit.app/" target="_blank" rel="noopener noreferrer" data-ui-key="nozzleCalculator">Open nozzle calculator</a></div><p><a href="../tools/nozzle-calculator.html" data-ui-key="nozzleDetails">Nozzle calculator overview</a></p></section>
+    <section id="mistakes">
+      <p class="section-label">Checks</p>
+      <h2>Common mistakes</h2>
+      <ul class="check-list">
+        <li><strong>Expecting a convergent nozzle to go supersonic.</strong> No pressure ratio, however large, produces \(M_e&gt;1\) when the exit is the minimum area.</li>
+        <li><strong>Assuming \(p_e=p_B\) always.</strong> That holds only while the nozzle is unchoked. Once choked, the exit pressure is set by the internal solution and may differ from ambient in either direction.</li>
+        <li><strong>Choosing the supersonic branch because the nozzle "is a supersonic nozzle".</strong> Geometry permits both roots; the back pressure decides.</li>
+        <li><strong>Using mass flow to identify the regime.</strong> Every choked condition carries the same \(\dot m\).</li>
+        <li><strong>Applying isentropic relations between \(p_{B2}\) and \(p_{B1}\).</strong> A shock lives inside the nozzle there, so \(p_0\) is not conserved from throat to exit.</li>
+        <li><strong>Confusing \(p_{B2}\) with \(p^*\).</strong> \(p^*/p_0=0.528282\) is the sonic-throat ratio and is a property of \(\gamma\) alone; \(p_{B2}/p_0=0.513401\) is the shock-at-exit back pressure and depends on the area ratio.</li>
+        <li><strong>Designing for sea level and expecting vacuum performance.</strong> A fixed area ratio is optimal at exactly one ambient pressure.</li>
+      </ul>
+    </section>
 
-    <section id="references" class="references"><h2 data-language="en">References</h2><h2 data-language="es" hidden>Referencias</h2><h2 data-language="de" hidden>Literatur</h2><ol><li>Anderson, J. D., Jr. <em>Modern Compressible Flow</em>, 3rd ed.</li><li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer">NACA Report 1135</a>.</li><li>NASA Glenn. <a href="https://www.grc.nasa.gov/www/k-12/airplane/nozzled.html" target="_blank" rel="noopener noreferrer">Nozzle Design</a> and <a href="https://www.grc.nasa.gov/www/k-12/airplane/isentrop.html" target="_blank" rel="noopener noreferrer">Isentropic Flow</a>.</li></ol><p class="source-note">Equations and example values reconstructed from Unidad IV course notes and checked numerically for (gamma=1.4).</p></section>
+    <section id="references" class="references">
+      <h2>References</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3rd ed. New York: McGraw-Hill, 2003, Chapter 5.</li>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed. New York: McGraw-Hill Education, 2017, Chapter 10.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexico, February 2024.</li>
+      </ol>
+      <p class="source-note">Adapted from Unit IV of the Aerodynamics II course notes by Carlos Alberto Molina Holguín; numerical values independently recomputed for \(\gamma=1.4\).</p>
+    </section>
 
-    <nav class="next-lecture"><a class="next-link" href="nozzle-flow-fundamentals.html"><span data-ui-key="previous">Previous lecture</span>← Quasi-1D Fundamentals</a><a class="next-link" href="nozzle-back-pressure-thrust.html"><span data-ui-key="next">Next lecture</span>Back Pressure, Shocks, and Thrust →</a></nav>
+    <nav class="next-nav">
+      <a class="next-link" href="nozzle-flow-fundamentals.html"><span>Previous lecture</span>← Quasi-1D Nozzle Flow</a>
+      <a class="next-link" href="nozzle-back-pressure-thrust.html"><span>Next lecture</span>Back Pressure, Shocks, and Thrust →</a>
+    </nav>
+  </article>
+
+  <article class="lecture" data-language="es" hidden>
+    <section id="convergent-es">
+      <p class="section-label">El caso más simple</p>
+      <h2>Una tobera puramente convergente no puede pasar de Mach uno</h2>
+      <p class="lead">Cuando la salida <em>es</em> el área mínima, \(A_e=A_t\), la relación área–velocidad de la Lecture 07 no deja espacio para flujo supersónico dentro del conducto. Bajar la contrapresión \(p_B\) acelera el flujo hasta que la salida alcanza \(M_e=1\), y de ahí no pasa.</p>
+      <div class="equation-card">\[\Pi^*=\frac{p^*}{p_0}=\left(\frac{2}{\gamma+1}\right)^{\gamma/(\gamma-1)}=0.528282\quad(\gamma=1.4)\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Condición</th><th>Estado interno</th><th>Presión de salida</th><th>Gasto</th></tr></thead>
+          <tbody>
+            <tr><td>\(p_B/p_0&gt;\Pi^*\)</td><td>\(M_e&lt;1\), sin estrangular</td><td>\(p_e=p_B\)</td><td>crece al bajar \(p_B\)</td></tr>
+            <tr><td>\(p_B/p_0=\Pi^*\)</td><td>\(M_e=1\), recién estrangulada</td><td>\(p_e=p^*\)</td><td>máximo</td></tr>
+            <tr><td>\(p_B/p_0&lt;\Pi^*\)</td><td>\(M_e=1\), estrangulada</td><td>\(p_e=p^*&gt;p_B\)</td><td>congelado en el máximo</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout success"><strong>La salida deja de escuchar.</strong> Mientras la salida es subsónica, la información de presión viaja aguas arriba y la tobera se ajusta: \(p_e\) sigue a \(p_B\). Una vez que la salida es sónica, las perturbaciones ya no pueden propagarse aguas arriba contra el flujo. El interior queda aislado del ambiente, \(p_e\) se queda en \(p^*\), y la expansión restante desde \(p^*\) hasta \(p_B\) ocurre fuera de la tobera, como chorro subexpandido.</div>
+      <div class="callout warning">Una tobera convergente que descarga al vacío sigue produciendo solo \(M_e=1\). La razón de presiones adicional no compra nada internamente, y por eso hay que agregar una sección divergente.</div>
+    </section>
+
+    <section id="cd-es">
+      <p class="section-label">Agregar una sección divergente</p>
+      <h2>La solución isoentrópica de diseño</h2>
+      <p>Con forma convergente–divergente, la convergente acelera subsónicamente, la garganta se vuelve sónica y la divergente acelera el flujo supersónicamente. Una vez estrangulada la garganta, \(A^*=A_t\) queda fijo y toda la solución interna se sigue solo de la geometría:</p>
+      <div class="equation-card">\[\frac{A(x)}{A^*}=\frac{A(x)}{A_t}\;\Longrightarrow\;M(x)\;\Longrightarrow\;\frac{p(x)}{p_0},\ \frac{T(x)}{T_0},\ \frac{\rho(x)}{\rho_0}.\]</div>
+      <div class="callout"><strong>Qué fija la geometría y qué no.</strong> Una vez estrangulada, la <em>forma</em> de la solución a lo largo de una rama isoentrópica dada queda determinada por \(A(x)/A^*\). Lo que la contrapresión todavía decide es si esa rama puede establecerse sin que aparezca un choque en algún punto interior.</div>
+    </section>
+
+    <section id="branches-es">
+      <p class="section-label">Dos raíces</p>
+      <h2>Elegir entre la rama subsónica y la supersónica</h2>
+      <p>Para cada estación con \(A/A^*&gt;1\), la relación área–Mach devuelve dos números de Mach. En la sección divergente ambos son geométricamente admisibles, y el régimen físico —no el álgebra— selecciona la raíz:</p>
+      <div class="branch-grid">
+        <div class="branch-card weak">
+          <h3>Rama subsónica</h3>
+          <p>La divergente actúa como <em>difusor</em>: el flujo se desacelera y la presión se recupera hacia \(p_B\). Es la rama que se toma cuando la contrapresión es alta.</p>
+        </div>
+        <div class="branch-card strong">
+          <h3>Rama supersónica</h3>
+          <p>La divergente actúa como <em>tobera</em>: el flujo sigue acelerando y la presión sigue cayendo. Esta rama exige una contrapresión suficientemente baja.</p>
+        </div>
+      </div>
+      <div class="callout warning">Ambas ramas comparten la misma garganta, la misma \(A^*\) y por tanto el <em>mismo gasto másico</em>. El gasto por sí solo nunca puede decirte en qué rama opera una tobera estrangulada.</div>
+    </section>
+
+    <section id="characteristic-es">
+      <p class="section-label">Mapa de operación</p>
+      <h2>Tres contrapresiones que lo organizan todo</h2>
+      <p>Para una razón de áreas dada existen tres valores especiales de \(p_B/p_0\). Particionan todo el rango de operación, y cada régimen que se discute en la Lecture 09 vive entre dos de ellos.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Significado</th><th>\(A_e/A_t=2\), \(\gamma=1.4\)</th></tr></thead>
+          <tbody>
+            <tr><td>\(p_{B1}/p_0\)</td><td>Primer estrangulamiento — rama subsónica en todo el conducto, garganta apenas sónica</td><td>0.937162</td></tr>
+            <tr><td>\(p_{B2}/p_0\)</td><td>Choque normal justo en el plano de salida</td><td>0.513401</td></tr>
+            <tr><td>\(p_{B3}/p_0\)</td><td>Condición de diseño — rama supersónica, expansión perfecta</td><td>0.093933</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="definition-grid">
+        <div class="definition"><strong>\(p_B/p_0&gt;0.937162\)</strong><span>Enteramente subsónica, sin estrangular. El gasto todavía depende de \(p_B\).</span></div>
+        <div class="definition"><strong>\(0.513401&lt;p_B/p_0&lt;0.937162\)</strong><span>Estrangulada, con un choque normal dentro de la divergente.</span></div>
+        <div class="definition"><strong>\(0.093933&lt;p_B/p_0&lt;0.513401\)</strong><span>El choque salió de la tobera; el chorro está sobreexpandido, con ondas oblicuas afuera.</span></div>
+        <div class="definition"><strong>\(p_B/p_0&lt;0.093933\)</strong><span>Subexpandida; el chorro sigue expandiéndose afuera mediante abanicos de expansión.</span></div>
+      </div>
+      <p>Nótese que \(p_{B2}\) se obtiene tomando el estado de salida de diseño y aplicándole un choque normal: \(p_{B2}/p_0=(p_{e}/p_0)_{\text{diseño}}\times(p_2/p_1)_{M_e}\). Para \(A_e/A_t=2\) eso es \(0.093933\times5.46563=0.513401\).</p>
+      <div class="callout warning">Solo \(p_{B1}\) y \(p_{B3}\) son soluciones isoentrópicas. Entre ellas la tobera está estrangulada pero <em>no</em> es isoentrópica: hay un choque presente y se pierde presión total.</div>
+    </section>
+
+    <section id="design-es">
+      <p class="section-label">Dimensionamiento</p>
+      <h2>La razón de áreas fija la razón de presiones de diseño</h2>
+      <p>Diseñar una tobera supersónica significa elegir \(A_e/A_t\) de modo que la presión de salida completamente expandida iguale la presión ambiente contra la que va a operar:</p>
+      <div class="equation-card">\[\frac{A_e}{A_t}=\frac{1}{M_e}\left[\frac{2}{\gamma+1}\left(1+\frac{\gamma-1}{2}M_e^2\right)\right]^{\frac{\gamma+1}{2(\gamma-1)}},\qquad\frac{p_e}{p_0}=\left(1+\frac{\gamma-1}{2}M_e^2\right)^{-\gamma/(\gamma-1)}.\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(A_e/A_t\)</th><th>\(M_e\) de diseño</th><th>\(p_e/p_0\)</th><th>\(p_0/p_e\) requerida</th></tr></thead>
+          <tbody>
+            <tr><td>1.5</td><td>1.8541</td><td>0.160176</td><td>6.2</td></tr>
+            <tr><td>2.0</td><td>2.1972</td><td>0.093933</td><td>10.6</td></tr>
+            <tr><td>3.0</td><td>2.6374</td><td>0.047299</td><td>21.1</td></tr>
+            <tr><td>4.0</td><td>2.9402</td><td>0.029787</td><td>33.6</td></tr>
+            <tr><td>6.0</td><td>3.3679</td><td>0.015841</td><td>63.1</td></tr>
+            <tr><td>10.0</td><td>3.9226</td><td>0.007306</td><td>136.9</td></tr>
+            <tr><td>25.0</td><td>5.0000</td><td>0.001890</td><td>529.1</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout"><strong>Por qué el Mach de salida sale caro.</strong> La razón de áreas crece rápidamente con \(M_e\), y la razón de presiones requerida crece aún más rápido: llegar a \(M_e=5\) exige un suministro 529 veces la presión ambiente. Por eso la tobera de primera etapa de un lanzador es comparativamente corta —tiene que funcionar a nivel del mar— mientras que una de etapa superior, que expande casi al vacío, puede permitirse una campana enorme.</div>
+    </section>
+
+    <section id="massflow-curve-es">
+      <p class="section-label">Un diagnóstico útil</p>
+      <h2>La curva de gasto másico y lo que esconde</h2>
+      <p>Graficar \(\dot m\) frente a \(p_B/p_0\) da una curva con un cambio brusco de carácter:</p>
+      <div class="definition-grid">
+        <div class="definition"><strong>Por encima de \(p_{B1}\)</strong><span>\(\dot m\) aumenta conforme cae \(p_B\). La tobera no está estrangulada y responde.</span></div>
+        <div class="definition"><strong>Por debajo de \(p_{B1}\)</strong><span>\(\dot m\) es constante. La curva es plana hasta el vacío.</span></div>
+      </div>
+      <div class="callout warning"><strong>La parte plana es toda la dificultad.</strong> Todo lo interesante de la Lecture 09 —choques internos, sobre y subexpansión, variación de empuje— ocurre a lo largo de ese tramo plano, donde el gasto no da información alguna sobre lo que la tobera hace por dentro. Diagnosticar una tobera estrangulada requiere la presión de salida o una traza de presión en la pared, nunca el gasto por sí solo.</div>
+    </section>
+
+    <section id="example-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>Mapa de operación de una tobera con \(A_e/A_t=2\)</h2>
+      <div class="example">
+        <h3>Problema</h3>
+        <p>Aire se expande desde \(p_0=500\ \text{kPa}\), \(T_0=400\ \text{K}\) a través de una tobera C–D con \(A_e/A_t=2\). Determine las tres contrapresiones características y clasifique la operación en \(p_B=300\ \text{kPa}\) y en \(p_B=30\ \text{kPa}\).</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Las dos raíces isoentrópicas en \(A_e/A^*=2\):</p>\[M_{\text{sub}}=0.305904,\qquad M_{\text{sup}}=2.197198.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Presiones de primer estrangulamiento y de diseño:</p>\[p_{B1}=0.937162\,p_0=468.6\ \text{kPa},\qquad p_{B3}=0.093933\,p_0=47.0\ \text{kPa}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Choque normal en el plano de salida, aplicado a \(M_e=2.197198\):</p>\[\frac{p_2}{p_1}=5.46563,\qquad p_{B2}=0.093933\times5.46563\,p_0=0.513401\,p_0=256.7\ \text{kPa}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>\(p_B=300\ \text{kPa}\) da \(p_B/p_0=0.600\), que cae entre \(p_{B2}\) y \(p_{B1}\):</p><p><strong>estrangulada, con un choque normal dentro de la sección divergente.</strong></p></div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>\(p_B=30\ \text{kPa}\) da \(p_B/p_0=0.060&lt;0.093933\):</p><p><strong>estrangulada y subexpandida</strong>: la solución interna es la rama supersónica completa y el chorro sigue expandiéndose afuera.</p></div></div>
+
+        <div class="result-box">\[\boxed{p_{B1}=468.6,\quad p_{B2}=256.7,\quad p_{B3}=47.0\ \text{kPa}}\]</div>
+        <p>El gasto es \(1.2698\ \text{kg/s}\) en ambos casos, y en todos los casos por debajo de \(468.6\ \text{kPa}\). Solo la presión de salida los distingue.</p>
+      </div>
+      <div class="validation-case">
+        <strong>Caso de validación de la calculadora</strong>
+        <span>Las tres razones 0.937163, 0.513401 y 0.093933 para \(A_e/A_t=2\), \(\gamma=1.4\) son objetivos de regresión de la calculadora de toberas.</span>
+      </div>
+    </section>
+
+    <section id="mistakes-es">
+      <p class="section-label">Verificaciones</p>
+      <h2>Errores comunes</h2>
+      <ul class="check-list">
+        <li><strong>Esperar que una tobera convergente pase a supersónico.</strong> Ninguna razón de presiones, por grande que sea, produce \(M_e&gt;1\) cuando la salida es el área mínima.</li>
+        <li><strong>Suponer que siempre \(p_e=p_B\).</strong> Eso vale solo mientras la tobera no está estrangulada. Una vez estrangulada, la presión de salida la fija la solución interna y puede diferir del ambiente en cualquier sentido.</li>
+        <li><strong>Elegir la rama supersónica porque la tobera «es supersónica».</strong> La geometría admite ambas raíces; decide la contrapresión.</li>
+        <li><strong>Usar el gasto para identificar el régimen.</strong> Toda condición estrangulada lleva el mismo \(\dot m\).</li>
+        <li><strong>Aplicar relaciones isoentrópicas entre \(p_{B2}\) y \(p_{B1}\).</strong> Ahí vive un choque dentro de la tobera, así que \(p_0\) no se conserva de garganta a salida.</li>
+        <li><strong>Confundir \(p_{B2}\) con \(p^*\).</strong> \(p^*/p_0=0.528282\) es la razón de garganta sónica y solo depende de \(\gamma\); \(p_{B2}/p_0=0.513401\) es la contrapresión de choque en la salida y depende de la razón de áreas.</li>
+        <li><strong>Diseñar para nivel del mar y esperar desempeño de vacío.</strong> Una razón de áreas fija es óptima en exactamente una presión ambiente.</li>
+      </ul>
+    </section>
+
+    <section id="references-es" class="references">
+      <h2>Referencias</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3.ª ed. Nueva York: McGraw-Hill, 2003, capítulo 5.</li>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 10.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, México, febrero de 2024.</li>
+      </ol>
+      <p class="source-note">Adaptado de la Unidad IV de los apuntes de Aerodinámica II de Carlos Alberto Molina Holguín; los valores numéricos se recalcularon de forma independiente para \(\gamma=1.4\).</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="nozzle-flow-fundamentals.html"><span>Lecture anterior</span>← Flujo cuasi-1D</a>
+      <a class="next-link" href="nozzle-back-pressure-thrust.html"><span>Siguiente lecture</span>Contrapresión, choques y empuje →</a>
+    </nav>
+  </article>
+
+  <article class="lecture" data-language="de" hidden>
+    <section id="convergent-de">
+      <p class="section-label">Der einfachste Fall</p>
+      <h2>Eine rein konvergente Düse kann Mach eins nicht überschreiten</h2>
+      <p class="lead">Wenn der Austritt <em>zugleich</em> die kleinste Fläche ist, \(A_e=A_t\), lässt die Flächen–Geschwindigkeits-Beziehung aus Vorlesung 07 keinen Raum für Überschallströmung im Kanal. Ein Absenken des Gegendrucks \(p_B\) beschleunigt die Strömung, bis der Austritt \(M_e=1\) erreicht — und nicht weiter.</p>
+      <div class="equation-card">\[\Pi^*=\frac{p^*}{p_0}=\left(\frac{2}{\gamma+1}\right)^{\gamma/(\gamma-1)}=0{,}528282\quad(\gamma=1{,}4)\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Bedingung</th><th>Innerer Zustand</th><th>Austrittsdruck</th><th>Massenstrom</th></tr></thead>
+          <tbody>
+            <tr><td>\(p_B/p_0&gt;\Pi^*\)</td><td>\(M_e&lt;1\), ungesperrt</td><td>\(p_e=p_B\)</td><td>steigt mit fallendem \(p_B\)</td></tr>
+            <tr><td>\(p_B/p_0=\Pi^*\)</td><td>\(M_e=1\), gerade gesperrt</td><td>\(p_e=p^*\)</td><td>maximal</td></tr>
+            <tr><td>\(p_B/p_0&lt;\Pi^*\)</td><td>\(M_e=1\), gesperrt</td><td>\(p_e=p^*&gt;p_B\)</td><td>auf dem Maximum eingefroren</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout success"><strong>Der Austritt hört auf zuzuhören.</strong> Solange der Austritt unterschallschnell ist, wandert Druckinformation stromauf und die Düse passt sich an: \(p_e\) folgt \(p_B\). Sobald der Austritt schallschnell ist, können sich Störungen nicht mehr gegen die Strömung stromauf ausbreiten. Das Innere ist von der Umgebung abgeschnitten, \(p_e\) bleibt bei \(p^*\), und die restliche Expansion von \(p^*\) auf \(p_B\) findet außerhalb der Düse als unterexpandierter Freistrahl statt.</div>
+      <div class="callout warning">Eine konvergente Düse, die ins Vakuum ausbläst, erzeugt weiterhin nur \(M_e=1\). Zusätzliches Druckverhältnis bringt innen nichts — genau deshalb muss ein divergenter Abschnitt hinzukommen.</div>
+    </section>
+
+    <section id="cd-de">
+      <p class="section-label">Der divergente Abschnitt</p>
+      <h2>Die isentrope Auslegungslösung</h2>
+      <p>Bei konvergent–divergenter Form beschleunigt der konvergente Teil im Unterschall, der Hals wird schallschnell, und der divergente Teil beschleunigt die Strömung im Überschall. Ist der Hals einmal gesperrt, liegt \(A^*=A_t\) fest, und die gesamte innere Lösung folgt allein aus der Geometrie:</p>
+      <div class="equation-card">\[\frac{A(x)}{A^*}=\frac{A(x)}{A_t}\;\Longrightarrow\;M(x)\;\Longrightarrow\;\frac{p(x)}{p_0},\ \frac{T(x)}{T_0},\ \frac{\rho(x)}{\rho_0}.\]</div>
+      <div class="callout"><strong>Was die Geometrie festlegt und was nicht.</strong> Nach der Sperrung ist die <em>Gestalt</em> der Lösung entlang eines gegebenen isentropen Zweigs durch \(A(x)/A^*\) bestimmt. Der Gegendruck entscheidet weiterhin darüber, ob sich dieser Zweig überhaupt ohne einen Stoß im Inneren einstellen kann.</div>
+    </section>
+
+    <section id="branches-de">
+      <p class="section-label">Zwei Wurzeln</p>
+      <h2>Die Wahl zwischen Unterschall- und Überschallzweig</h2>
+      <p>Für jede Station mit \(A/A^*&gt;1\) liefert die Flächen–Mach-Beziehung zwei Machzahlen. Im divergenten Teil sind beide geometrisch zulässig, und der physikalische Betriebszustand — nicht die Algebra — wählt die Wurzel:</p>
+      <div class="branch-grid">
+        <div class="branch-card weak">
+          <h3>Unterschallzweig</h3>
+          <p>Der divergente Teil wirkt als <em>Diffusor</em>: die Strömung verzögert und der Druck erholt sich in Richtung \(p_B\). Dieser Zweig stellt sich bei hohem Gegendruck ein.</p>
+        </div>
+        <div class="branch-card strong">
+          <h3>Überschallzweig</h3>
+          <p>Der divergente Teil wirkt als <em>Düse</em>: die Strömung beschleunigt weiter und der Druck fällt weiter. Dieser Zweig verlangt einen hinreichend niedrigen Gegendruck.</p>
+        </div>
+      </div>
+      <div class="callout warning">Beide Zweige teilen denselben Hals, dasselbe \(A^*\) und damit <em>denselben Massenstrom</em>. Der Massenstrom allein kann nie verraten, auf welchem Zweig eine gesperrte Düse arbeitet.</div>
+    </section>
+
+    <section id="characteristic-de">
+      <p class="section-label">Betriebskennfeld</p>
+      <h2>Drei Gegendrücke, die alles ordnen</h2>
+      <p>Zu einem gegebenen Flächenverhältnis gehören drei besondere Werte von \(p_B/p_0\). Sie teilen den gesamten Betriebsbereich, und jeder in Vorlesung 09 besprochene Zustand liegt zwischen zweien von ihnen.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Bedeutung</th><th>\(A_e/A_t=2\), \(\gamma=1{,}4\)</th></tr></thead>
+          <tbody>
+            <tr><td>\(p_{B1}/p_0\)</td><td>Erste Sperrung — durchweg Unterschallzweig, Hals gerade schallschnell</td><td>0,937162</td></tr>
+            <tr><td>\(p_{B2}/p_0\)</td><td>Senkrechter Stoß genau in der Austrittsebene</td><td>0,513401</td></tr>
+            <tr><td>\(p_{B3}/p_0\)</td><td>Auslegungspunkt — Überschallzweig, angepasste Expansion</td><td>0,093933</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="definition-grid">
+        <div class="definition"><strong>\(p_B/p_0&gt;0{,}937162\)</strong><span>Durchweg unterschallschnell, ungesperrt. Der Massenstrom hängt noch von \(p_B\) ab.</span></div>
+        <div class="definition"><strong>\(0{,}513401&lt;p_B/p_0&lt;0{,}937162\)</strong><span>Gesperrt, mit einem senkrechten Stoß im divergenten Teil.</span></div>
+        <div class="definition"><strong>\(0{,}093933&lt;p_B/p_0&lt;0{,}513401\)</strong><span>Der Stoß hat die Düse verlassen; der Strahl ist überexpandiert, mit Schrägwellen außerhalb.</span></div>
+        <div class="definition"><strong>\(p_B/p_0&lt;0{,}093933\)</strong><span>Unterexpandiert; der Strahl expandiert außerhalb über Expansionsfächer weiter.</span></div>
+      </div>
+      <p>\(p_{B2}\) ergibt sich, indem man auf den Auslegungs-Austrittszustand einen senkrechten Stoß anwendet: \(p_{B2}/p_0=(p_{e}/p_0)_{\text{Auslegung}}\times(p_2/p_1)_{M_e}\). Für \(A_e/A_t=2\) ist das \(0{,}093933\times5{,}46563=0{,}513401\).</p>
+      <div class="callout warning">Nur \(p_{B1}\) und \(p_{B3}\) sind isentrope Lösungen. Dazwischen ist die Düse gesperrt, aber <em>nicht</em> isentrop: ein Stoß ist vorhanden, und Totaldruck geht verloren.</div>
+    </section>
+
+    <section id="design-de">
+      <p class="section-label">Auslegung</p>
+      <h2>Das Flächenverhältnis legt das Auslegungsdruckverhältnis fest</h2>
+      <p>Eine Überschalldüse auszulegen heißt, \(A_e/A_t\) so zu wählen, dass der vollständig expandierte Austrittsdruck dem Umgebungsdruck entspricht, gegen den sie arbeiten wird:</p>
+      <div class="equation-card">\[\frac{A_e}{A_t}=\frac{1}{M_e}\left[\frac{2}{\gamma+1}\left(1+\frac{\gamma-1}{2}M_e^2\right)\right]^{\frac{\gamma+1}{2(\gamma-1)}},\qquad\frac{p_e}{p_0}=\left(1+\frac{\gamma-1}{2}M_e^2\right)^{-\gamma/(\gamma-1)}.\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(A_e/A_t\)</th><th>\(M_e\) Auslegung</th><th>\(p_e/p_0\)</th><th>Erforderliches \(p_0/p_e\)</th></tr></thead>
+          <tbody>
+            <tr><td>1,5</td><td>1,8541</td><td>0,160176</td><td>6,2</td></tr>
+            <tr><td>2,0</td><td>2,1972</td><td>0,093933</td><td>10,6</td></tr>
+            <tr><td>3,0</td><td>2,6374</td><td>0,047299</td><td>21,1</td></tr>
+            <tr><td>4,0</td><td>2,9402</td><td>0,029787</td><td>33,6</td></tr>
+            <tr><td>6,0</td><td>3,3679</td><td>0,015841</td><td>63,1</td></tr>
+            <tr><td>10,0</td><td>3,9226</td><td>0,007306</td><td>136,9</td></tr>
+            <tr><td>25,0</td><td>5,0000</td><td>0,001890</td><td>529,1</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout"><strong>Warum eine hohe Austrittsmachzahl teuer ist.</strong> Das Flächenverhältnis wächst mit \(M_e\) stark an, und das erforderliche Druckverhältnis noch stärker: \(M_e=5\) verlangt einen Vorratsdruck vom 529-fachen des Umgebungsdrucks. Deshalb ist die Erststufendüse eines Trägers vergleichsweise kurz — sie muss auf Meereshöhe arbeiten —, während eine Oberstufendüse, die nahezu ins Vakuum expandiert, sich eine sehr große Glocke leisten kann.</div>
+    </section>
+
+    <section id="massflow-curve-de">
+      <p class="section-label">Eine nützliche Diagnose</p>
+      <h2>Die Massenstromkurve und was sie verbirgt</h2>
+      <p>Trägt man \(\dot m\) über \(p_B/p_0\) auf, ergibt sich eine Kurve mit scharfem Charakterwechsel:</p>
+      <div class="definition-grid">
+        <div class="definition"><strong>Oberhalb von \(p_{B1}\)</strong><span>\(\dot m\) steigt, während \(p_B\) fällt. Die Düse ist ungesperrt und reagiert.</span></div>
+        <div class="definition"><strong>Unterhalb von \(p_{B1}\)</strong><span>\(\dot m\) ist konstant. Die Kurve verläuft bis zum Vakuum flach.</span></div>
+      </div>
+      <div class="callout warning"><strong>Der flache Teil ist die eigentliche Schwierigkeit.</strong> Alles Interessante aus Vorlesung 09 — innere Stöße, Über- und Unterexpansion, Schubänderung — spielt sich auf diesem flachen Abschnitt ab, auf dem der Massenstrom keinerlei Auskunft darüber gibt, was die Düse innen tut. Die Diagnose einer gesperrten Düse verlangt den Austrittsdruck oder einen Wanddruckverlauf, niemals den Durchsatz allein.</div>
+    </section>
+
+    <section id="example-de">
+      <p class="section-label">Rechenbeispiel</p>
+      <h2>Betriebsbereich einer Düse mit \(A_e/A_t=2\)</h2>
+      <div class="example">
+        <h3>Aufgabe</h3>
+        <p>Luft expandiert von \(p_0=500\ \text{kPa}\), \(T_0=400\ \text{K}\) durch eine C–D-Düse mit \(A_e/A_t=2\). Zu bestimmen sind die drei charakteristischen Gegendrücke sowie die Einordnung des Betriebs bei \(p_B=300\ \text{kPa}\) und bei \(p_B=30\ \text{kPa}\).</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Die beiden isentropen Wurzeln bei \(A_e/A^*=2\):</p>\[M_{\text{sub}}=0{,}305904,\qquad M_{\text{sup}}=2{,}197198.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Drücke der ersten Sperrung und der Auslegung:</p>\[p_{B1}=0{,}937162\,p_0=468{,}6\ \text{kPa},\qquad p_{B3}=0{,}093933\,p_0=47{,}0\ \text{kPa}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Senkrechter Stoß in der Austrittsebene, angewandt auf \(M_e=2{,}197198\):</p>\[\frac{p_2}{p_1}=5{,}46563,\qquad p_{B2}=0{,}093933\times5{,}46563\,p_0=0{,}513401\,p_0=256{,}7\ \text{kPa}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>\(p_B=300\ \text{kPa}\) ergibt \(p_B/p_0=0{,}600\), also zwischen \(p_{B2}\) und \(p_{B1}\):</p><p><strong>gesperrt, mit einem senkrechten Stoß im divergenten Teil.</strong></p></div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>\(p_B=30\ \text{kPa}\) ergibt \(p_B/p_0=0{,}060&lt;0{,}093933\):</p><p><strong>gesperrt und unterexpandiert</strong> — die innere Lösung ist der vollständige Überschallzweig, und der Strahl expandiert außerhalb weiter.</p></div></div>
+
+        <div class="result-box">\[\boxed{p_{B1}=468{,}6,\quad p_{B2}=256{,}7,\quad p_{B3}=47{,}0\ \text{kPa}}\]</div>
+        <p>Der Massenstrom beträgt in beiden Fällen \(1{,}2698\ \text{kg/s}\), und ebenso in jedem Fall unterhalb von \(468{,}6\ \text{kPa}\). Nur der Austrittsdruck unterscheidet sie.</p>
+      </div>
+      <div class="validation-case">
+        <strong>Validierungsfall für den Rechner</strong>
+        <span>Die drei Verhältnisse 0,937163, 0,513401 und 0,093933 für \(A_e/A_t=2\), \(\gamma=1{,}4\) sind Regressionsziele des Düsenrechners.</span>
+      </div>
+    </section>
+
+    <section id="mistakes-de">
+      <p class="section-label">Kontrollen</p>
+      <h2>Häufige Fehler</h2>
+      <ul class="check-list">
+        <li><strong>Von einer konvergenten Düse Überschall erwarten.</strong> Kein noch so großes Druckverhältnis erzeugt \(M_e&gt;1\), wenn der Austritt die kleinste Fläche ist.</li>
+        <li><strong>Stets \(p_e=p_B\) annehmen.</strong> Das gilt nur, solange die Düse ungesperrt ist. Nach der Sperrung legt die innere Lösung den Austrittsdruck fest; er kann in beide Richtungen von der Umgebung abweichen.</li>
+        <li><strong>Den Überschallzweig wählen, weil die Düse „eine Überschalldüse ist“.</strong> Die Geometrie lässt beide Wurzeln zu; der Gegendruck entscheidet.</li>
+        <li><strong>Den Massenstrom zur Zustandsbestimmung heranziehen.</strong> Jeder gesperrte Zustand führt denselben \(\dot m\).</li>
+        <li><strong>Isentrope Beziehungen zwischen \(p_{B2}\) und \(p_{B1}\) anwenden.</strong> Dort steht ein Stoß in der Düse, sodass \(p_0\) vom Hals bis zum Austritt nicht erhalten bleibt.</li>
+        <li><strong>\(p_{B2}\) mit \(p^*\) verwechseln.</strong> \(p^*/p_0=0{,}528282\) ist das Verhältnis am schallschnellen Hals und hängt nur von \(\gamma\) ab; \(p_{B2}/p_0=0{,}513401\) ist der Gegendruck für den Stoß im Austritt und hängt vom Flächenverhältnis ab.</li>
+        <li><strong>Für Meereshöhe auslegen und Vakuumleistung erwarten.</strong> Ein festes Flächenverhältnis ist bei genau einem Umgebungsdruck optimal.</li>
+      </ul>
+    </section>
+
+    <section id="references-de" class="references">
+      <h2>Literatur</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3. Aufl. New York: McGraw-Hill, 2003, Kapitel 5.</li>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6. Aufl. New York: McGraw-Hill Education, 2017, Kapitel 10.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexiko, Februar 2024.</li>
+      </ol>
+      <p class="source-note">Bearbeitet nach Einheit IV des Vorlesungsskripts Aerodynamik II von Carlos Alberto Molina Holguín; die Zahlenwerte wurden für \(\gamma=1{,}4\) unabhängig nachgerechnet.</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="nozzle-flow-fundamentals.html"><span>Vorherige Vorlesung</span>← Quasi-1D-Düsenströmung</a>
+      <a class="next-link" href="nozzle-back-pressure-thrust.html"><span>Nächste Vorlesung</span>Gegendruck, Stöße und Schub →</a>
+    </nav>
   </article>
 </div></main>
-<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+<footer><div class="container footer-wrap"><p>&copy; <span id="year"></span> Carlos Alberto Molina Holgu&iacute;n</p><p>Universidad Aut&oacute;noma de Chihuahua</p></div></footer>
 </body>
 </html>

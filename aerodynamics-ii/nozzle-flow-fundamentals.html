@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Quasi-one-dimensional nozzle flow, area–velocity and area–Mach relations, mass flow, critical conditions, and choking." />
+  <meta name="description" content="Quasi-one-dimensional nozzle flow: area–velocity and area–Mach relations, the mass-flow function, critical conditions, and choking." />
   <meta name="author" content="Carlos Alberto Molina Holguín" />
   <meta name="theme-color" content="#071d33" />
   <title>Quasi-1D Nozzle Flow | Aerodynamics II</title>
@@ -24,95 +24,555 @@
 </div></header>
 
 <section class="lecture-hero"><div class="container hero-inner">
-  <div data-language="en"><p class="eyebrow">Aerodynamics II · Lecture 07</p><h1>Quasi-One-Dimensional Flow and Nozzle Fundamentals</h1><p class="hero-copy">Conservation laws for variable-area ducts, the area–velocity and area–Mach relations, critical states, mass flow, and choking.</p></div>
-  <div data-language="es" hidden><p class="eyebrow">Aerodinámica II · Lecture 07</p><h1>Flujo cuasiunidimensional y fundamentos de toberas</h1><p class="hero-copy">Leyes de conservación en conductos de área variable, relaciones área–velocidad y área–Mach, estados críticos, gasto másico y estrangulamiento.</p></div>
-  <div data-language="de" hidden><p class="eyebrow">Aerodynamik II · Vorlesung 07</p><h1>Quasi-eindimensionale Strömung und Düsengrundlagen</h1><p class="hero-copy">Erhaltungssätze in Kanälen mit veränderlicher Fläche, Flächen–Geschwindigkeits- und Flächen–Mach-Beziehung, kritischer Zustand und Sperrung.</p></div>
-  <div class="hero-meta"><span>Quasi-1D</span><span>Perfect gas</span><span>ṁ = constant</span><span>M = 1 at A*</span></div>
+  <div data-language="en"><p class="eyebrow">Aerodynamics II · Lecture 07</p><h1>Quasi-One-Dimensional Flow and Nozzle Fundamentals</h1><p class="hero-copy">Conservation laws for variable-area ducts, the area–velocity and area–Mach relations, the mass-flow function, critical states, and choking.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">Aerodinámica II · Lecture 07</p><h1>Flujo cuasiunidimensional y fundamentos de toberas</h1><p class="hero-copy">Leyes de conservación en conductos de área variable, relaciones área–velocidad y área–Mach, función de gasto másico, estados críticos y estrangulamiento.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">Aerodynamik II · Vorlesung 07</p><h1>Quasi-eindimensionale Strömung und Düsengrundlagen</h1><p class="hero-copy">Erhaltungssätze in Kanälen veränderlicher Fläche, Flächen–Geschwindigkeits- und Flächen–Mach-Beziehung, Massenstromfunktion, kritischer Zustand und Sperrung.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 40 min</span><span data-language="es" hidden>Lectura estimada: 40 min</span><span data-language="de" hidden>Lesedauer: ca. 40 min</span>
+    <span>Quasi-1D</span>
+    <span data-language="en">Perfect gas</span><span data-language="es" hidden>Gas perfecto</span><span data-language="de" hidden>Ideales Gas</span>
+    <span>\(M=1\) at \(A^*\)</span>
+  </div>
   <div class="button-row"><a class="button secondary" href="shock-expansion.html">← <span data-ui-key="previous">Previous lecture</span></a><a class="button primary" href="convergent-divergent-nozzles.html"><span data-ui-key="next">Next lecture</span> →</a><a class="button calculator-button" href="https://nozzle-calculator.streamlit.app/" target="_blank" rel="noopener noreferrer" data-ui-key="nozzleCalculator">Open nozzle calculator</a></div>
 </div></section>
 
 <main><div class="container lecture-shell">
   <aside class="toc">
-    <div data-language="en"><h2>On this page</h2><div class="toc-links"><a href="#model">Model and assumptions</a><a href="#conservation">Conservation laws</a><a href="#area-velocity">Area–velocity relation</a><a href="#area-mach">Area–Mach relation</a><a href="#choking">Mass flow and choking</a><a href="#example">Worked example</a><a href="#calculator">Calculator connection</a><a href="#references">References</a></div></div>
-    <div data-language="es" hidden><h2>En esta página</h2><div class="toc-links"><a href="#model">Modelo e hipótesis</a><a href="#conservation">Leyes de conservación</a><a href="#area-velocity">Relación área–velocidad</a><a href="#area-mach">Relación área–Mach</a><a href="#choking">Gasto y estrangulamiento</a><a href="#example">Ejemplo</a><a href="#calculator">Conexión con la calculadora</a><a href="#references">Referencias</a></div></div>
-    <div data-language="de" hidden><h2>Auf dieser Seite</h2><div class="toc-links"><a href="#model">Modell und Annahmen</a><a href="#conservation">Erhaltungssätze</a><a href="#area-velocity">Fläche–Geschwindigkeit</a><a href="#area-mach">Fläche–Mach</a><a href="#choking">Massenstrom und Sperrung</a><a href="#example">Beispiel</a><a href="#calculator">Rechnerverbindung</a><a href="#references">Literatur</a></div></div>
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#model">Model and assumptions</a>
+      <a href="#conservation">Conservation laws</a>
+      <a href="#area-velocity">Area–velocity relation</a>
+      <a href="#area-mach">Area–Mach relation</a>
+      <a href="#massflow">The mass-flow function</a>
+      <a href="#choking">Choking and critical ratios</a>
+      <a href="#example">Worked example</a>
+      <a href="#mistakes">Common mistakes</a>
+      <a href="#references">References</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#model-es">Modelo e hipótesis</a>
+      <a href="#conservation-es">Leyes de conservación</a>
+      <a href="#area-velocity-es">Relación área–velocidad</a>
+      <a href="#area-mach-es">Relación área–Mach</a>
+      <a href="#massflow-es">La función de gasto másico</a>
+      <a href="#choking-es">Estrangulamiento y razones críticas</a>
+      <a href="#example-es">Ejemplo resuelto</a>
+      <a href="#mistakes-es">Errores comunes</a>
+      <a href="#references-es">Referencias</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#model-de">Modell und Annahmen</a>
+      <a href="#conservation-de">Erhaltungssätze</a>
+      <a href="#area-velocity-de">Fläche–Geschwindigkeit</a>
+      <a href="#area-mach-de">Fläche–Mach</a>
+      <a href="#massflow-de">Die Massenstromfunktion</a>
+      <a href="#choking-de">Sperrung und kritische Verhältnisse</a>
+      <a href="#example-de">Rechenbeispiel</a>
+      <a href="#mistakes-de">Häufige Fehler</a>
+      <a href="#references-de">Literatur</a>
+    </div>
   </aside>
 
-  <article class="lecture">
+  <article class="lecture" data-language="en">
     <section id="model">
-      <div data-language="en"><p class="section-label">Model scope</p><h2>Mean properties represent every cross-section</h2><p class="lead">The quasi-one-dimensional approximation permits (A=A(x)) while treating (p,ho,T,u), and (M) as section-averaged functions of (x). It is useful when wall curvature is gradual and the core flow remains mainly axial.</p></div>
-      <div data-language="es" hidden><p class="section-label">Alcance del modelo</p><h2>Propiedades medias representan cada sección</h2><p class="lead">La aproximación cuasiunidimensional permite (A=A(x)) y representa (p,ho,T,u) y (M) mediante valores medios en cada sección. Es útil cuando la curvatura es suave y el flujo central permanece principalmente axial.</p></div>
-      <div data-language="de" hidden><p class="section-label">Modellumfang</p><h2>Mittlere Größen beschreiben jeden Querschnitt</h2><p class="lead">Die quasi-eindimensionale Näherung erlaubt (A=A(x)), während (p,ho,T,u) und (M) als Querschnittsmittelwerte behandelt werden. Sie gilt bei allmählicher Wandkrümmung und überwiegend axialer Kernströmung.</p></div>
-      <figure class="nozzle-figure" aria-label="Convergent-divergent nozzle geometry"><div class="nozzle-channel"><div class="nozzle-wall top"></div><div class="nozzle-wall bottom"></div><div class="flow-axis"></div><div class="throat-line"></div></div><div class="nozzle-labels"><span>Inlet · entrada · Eintritt</span><span>Throat (A_t) · garganta · Hals</span><span>Exit (A_e) · salida · Austritt</span></div></figure>
-      <div class="callout warning" data-language="en"><strong>Not included.</strong> Transverse profiles, viscosity, boundary layers, separation, heat transfer, chemistry, external oblique shocks, and wave interactions.</div>
-      <div class="callout warning" data-language="es" hidden><strong>No incluido.</strong> Perfiles transversales, viscosidad, capa límite, separación, transferencia de calor, química, choques oblicuos externos e interacción de ondas.</div>
-      <div class="callout warning" data-language="de" hidden><strong>Nicht enthalten.</strong> Querprofile, Viskosität, Grenzschicht, Ablösung, Wärmeübertragung, Chemie, äußere Schrägstöße und Welleninteraktionen.</div>
+      <p class="section-label">Model scope</p>
+      <h2>Mean properties represent every cross-section</h2>
+      <p class="lead">The quasi-one-dimensional approximation permits \(A=A(x)\) while treating \(p\), \(\rho\), \(T\), \(u\), and \(M\) as section-averaged functions of \(x\) alone. It is useful when the wall curvature is gradual and the core flow remains mainly axial.</p>
+      <figure class="nozzle-figure" aria-label="Convergent-divergent nozzle geometry">
+        <div class="nozzle-channel"><div class="nozzle-wall top"></div><div class="nozzle-wall bottom"></div><div class="flow-axis"></div><div class="throat-line"></div></div>
+        <div class="nozzle-labels"><span>Inlet</span><span>Throat \(A_t\)</span><span>Exit \(A_e\)</span></div>
+      </figure>
+      <div class="callout warning"><strong>Not included.</strong> Transverse profiles, viscosity, boundary layers, separation, heat transfer, chemistry, external oblique shocks, and wave interactions. The model is an ideal reference, not a substitute for viscous CFD.</div>
+      <div class="callout"><strong>Why it still works.</strong> In a well-designed nozzle the boundary layer is thin and the core is nearly uniform, so a one-dimensional average reproduces mass flow and thrust to within a few per cent. The approximation fails precisely where the assumptions do: at sharp corners, in strongly overexpanded nozzles where the boundary layer separates, and near the wall.</div>
     </section>
 
     <section id="conservation">
-      <div data-language="en"><p class="section-label">Governing equations</p><h2>Mass, momentum, and energy close the one-dimensional model</h2><p>For steady, adiabatic, inviscid flow without shaft work or relevant potential-energy change:</p></div>
-      <div data-language="es" hidden><p class="section-label">Ecuaciones gobernantes</p><h2>Masa, cantidad de movimiento y energía cierran el modelo</h2><p>Para flujo estacionario, adiabático e inviscido, sin trabajo de eje ni cambio relevante de energía potencial:</p></div>
-      <div data-language="de" hidden><p class="section-label">Grundgleichungen</p><h2>Masse, Impuls und Energie schließen das Modell</h2><p>Für stationäre, adiabate und reibungsfreie Strömung ohne Wellenarbeit oder relevante Änderung der potenziellen Energie gilt:</p></div>
-      <div class="equation-grid"><div class="equation-card">\[\boxed{\rho uA=\dot m=\mathrm{constant}}\]</div><div class="equation-card">\[\boxed{dp=-\rho u\,du}\]</div><div class="equation-card">\[\boxed{h+\frac{u^2}{2}=h_0}\]</div><div class="equation-card">\[\boxed{T_0=T\left(1+\frac{\gamma-1}{2}M^2\right)}\]</div></div>
+      <p class="section-label">Governing equations</p>
+      <h2>Conservation laws for a variable-area duct</h2>
+      <p>For steady, adiabatic, inviscid flow between two stations of a stream tube,</p>
+      <div class="equation-grid">
+        <div class="equation-card"><p class="equation-label">Mass</p>\[\boxed{\rho_1u_1A_1=\rho_2u_2A_2=\dot m}\]</div>
+        <div class="equation-card"><p class="equation-label">Energy</p>\[\boxed{h_1+\frac{u_1^2}{2}=h_2+\frac{u_2^2}{2}=h_0}\]</div>
+      </div>
+      <p>Momentum requires care, because the wall is no longer parallel to the axis and exerts an axial pressure force on the fluid:</p>
+      <div class="equation-card">\[\boxed{p_1A_1+\rho_1u_1^2A_1+\int_{A_1}^{A_2}p\,dA=p_2A_2+\rho_2u_2^2A_2}\]</div>
+      <p>In differential form the same three statements become</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\frac{d\rho}{\rho}+\frac{du}{u}+\frac{dA}{A}=0\]</div>
+        <div class="equation-card">\[dp=-\rho u\,du\]</div>
+        <div class="equation-card">\[dh+u\,du=0\]</div>
+      </div>
+      <div class="callout success">The differential continuity equation is the one that carries the geometry. Everything distinctive about nozzle flow follows from the fact that \(dA/A\) appears there and nowhere else.</div>
     </section>
 
     <section id="area-velocity">
-      <div data-language="en"><p class="section-label">Area–velocity relation</p><h2>A change in area has opposite effects below and above Mach one</h2></div>
-      <div data-language="es" hidden><p class="section-label">Relación área–velocidad</p><h2>Un cambio de área tiene efectos opuestos debajo y encima de Mach uno</h2></div>
-      <div data-language="de" hidden><p class="section-label">Flächen–Geschwindigkeits-Beziehung</p><h2>Eine Flächenänderung wirkt unter und über Mach eins entgegengesetzt</h2></div>
+      <p class="section-label">Central result</p>
+      <h2>A change in area has opposite effects below and above Mach one</h2>
+      <p>For an isentropic process \(dp=a^2d\rho\). Combining this with the Euler equation gives</p>
+      <div class="equation-card">\[\frac{d\rho}{\rho}=-\frac{u\,du}{a^2}=-M^2\frac{du}{u}.\]</div>
+      <p>Substituting into differential continuity eliminates the density and leaves the area–velocity relation:</p>
       <div class="equation-card">\[\boxed{\frac{dA}{A}=(M^2-1)\frac{du}{u}}\]</div>
       <div class="definition-grid">
-        <div class="definition"><strong>Subsonic · Subsónico · Unterschall</strong><span>(M&lt;1): convergence accelerates; divergence decelerates.</span></div>
-        <div class="definition"><strong>Supersonic · Supersónico · Überschall</strong><span>(M&gt;1): convergence decelerates; divergence accelerates.</span></div>
+        <div class="definition"><strong>Subsonic, \(M&lt;1\)</strong><span>\(M^2-1&lt;0\): a convergence accelerates the flow, a divergence decelerates it — the familiar incompressible behaviour.</span></div>
+        <div class="definition"><strong>Supersonic, \(M&gt;1\)</strong><span>\(M^2-1&gt;0\): the sign reverses. A convergence <em>decelerates</em> and a divergence <em>accelerates</em>.</span></div>
+        <div class="definition"><strong>Sonic, \(M=1\)</strong><span>\(M^2-1=0\): the equation forces \(dA=0\) for any finite \(du\).</span></div>
       </div>
-      <div class="callout success" data-language="en"><strong>Sonic regularity.</strong> In a smooth nozzle with finite (du/dx), (M=1) requires (dA/dx=0); acceleration from subsonic to supersonic therefore passes through a throat.</div>
-      <div class="callout success" data-language="es" hidden><strong>Regularidad sónica.</strong> En una tobera suave con (du/dx) finito, (M=1) exige (dA/dx=0); la aceleración subsónica–supersónica pasa por una garganta.</div>
-      <div class="callout success" data-language="de" hidden><strong>Sonische Regularität.</strong> In einer glatten Düse mit endlichem (du/dx) erfordert (M=1) die Bedingung (dA/dx=0); der Übergang verläuft daher durch einen Hals.</div>
+      <div class="callout success"><strong>Why the sonic point must sit at the throat.</strong> At \(M=1\) the relation reads \(dA/A=0\). In a smooth nozzle with finite \(du/dx\), this requires \(dA/dx=0\) — an area extremum. Accelerating a flow from subsonic to supersonic therefore <em>demands</em> a convergent–divergent shape, and the sonic point can only occur at the throat. This single line of algebra is why rocket and supersonic wind-tunnel nozzles look the way they do.</div>
+      <div class="callout warning"><strong>The converse is not true.</strong> \(dA=0\) does not imply \(M=1\). A throat may be entirely subsonic, in which case the flow reaches a maximum Mach number there and decelerates again. The throat is a <em>necessary</em> location for sonic flow, not a sufficient condition for it.</div>
     </section>
 
     <section id="area-mach">
-      <div data-language="en"><p class="section-label">Area–Mach relation</p><h2>The same area ratio admits two Mach-number branches</h2></div>
-      <div data-language="es" hidden><p class="section-label">Relación área–Mach</p><h2>La misma razón de áreas admite dos ramas de Mach</h2></div>
-      <div data-language="de" hidden><p class="section-label">Flächen–Mach-Beziehung</p><h2>Dasselbe Flächenverhältnis besitzt zwei Machzahlzweige</h2></div>
+      <p class="section-label">Integrated form</p>
+      <h2>The same area ratio admits two Mach-number branches</h2>
+      <p>Integrating the differential relations with the isentropic and total-property relations of Lecture 02 yields the area–Mach relation,</p>
       <div class="equation-card">\[\boxed{\frac{A}{A^*}=\frac{1}{M}\left[\frac{2}{\gamma+1}\left(1+\frac{\gamma-1}{2}M^2\right)\right]^{\frac{\gamma+1}{2(\gamma-1)}}}\]</div>
-      <p data-language="en">Here (A^*) is the critical area associated with (M=1) for the same (p_0,T_0). When (A/A^*&gt;1), a subsonic and a supersonic root exist. Geometry alone cannot select the physical branch.</p>
-      <p data-language="es" hidden>(A^*) es el área crítica asociada con (M=1) para los mismos (p_0,T_0). Si (A/A^*&gt;1), existen una raíz subsónica y otra supersónica. La geometría no selecciona por sí sola la rama física.</p>
-      <p data-language="de" hidden>(A^*) ist die kritische Fläche für (M=1) bei denselben (p_0,T_0). Für (A/A^*&gt;1) existieren ein Unter- und ein Überschallzweig. Die Geometrie allein wählt die physikalische Lösung nicht aus.</p>
-      <table><thead><tr><th>(A/A^*)</th><th>(M_{sub})</th><th>(M_{sup})</th></tr></thead><tbody><tr><td>2.000000</td><td>0.305904</td><td>2.197198</td></tr></tbody></table>
+      <p>Here \(A^*\) is the critical area associated with \(M=1\) for the same \(p_0\) and \(T_0\). It is a <em>reference</em> area: it need not exist physically anywhere in the duct.</p>
+      <p>The function has a minimum of \(A/A^*=1\) at \(M=1\) and rises on both sides. Consequently, for every \(A/A^*&gt;1\) there are exactly two solutions — one subsonic and one supersonic:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(A/A^*\)</th><th>\(M_{\text{sub}}\)</th><th>\(M_{\text{sup}}\)</th></tr></thead>
+          <tbody>
+            <tr><td>1.0</td><td>1.000000</td><td>1.000000</td></tr>
+            <tr><td>1.2</td><td>0.590249</td><td>1.534150</td></tr>
+            <tr><td>1.5</td><td>0.430262</td><td>1.854124</td></tr>
+            <tr><td>2.0</td><td>0.305904</td><td>2.197198</td></tr>
+            <tr><td>2.5</td><td>0.239543</td><td>2.442765</td></tr>
+            <tr><td>3.0</td><td>0.197449</td><td>2.637416</td></tr>
+            <tr><td>5.0</td><td>0.116689</td><td>3.174780</td></tr>
+            <tr><td>10.0</td><td>0.057987</td><td>3.922552</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning"><strong>Geometry alone cannot choose.</strong> The area ratio fixes the pair of candidate Mach numbers; it does not say which one occurs. That is decided by the back pressure, and it is the entire subject of Lectures 08 and 09.</div>
+    </section>
+
+    <section id="massflow">
+      <p class="section-label">Where choking comes from</p>
+      <h2>The mass-flow function and its maximum</h2>
+      <p>Start from \(\dot m=\rho uA\) and express every factor through the total state and the Mach number, using \(u=M\sqrt{\gamma RT}\) together with the total–static relations:</p>
+      <div class="equation-card">\[\boxed{\dot m=\frac{p_0A}{\sqrt{T_0}}\sqrt{\frac{\gamma}{R}}\;M\left(1+\frac{\gamma-1}{2}M^2\right)^{-\frac{\gamma+1}{2(\gamma-1)}}}\]</div>
+      <p>For a fixed total state and a fixed area, all the Mach dependence sits in the dimensionless mass-flow function</p>
+      <div class="equation-card">\[G(M)=M\left(1+\frac{\gamma-1}{2}M^2\right)^{-\frac{\gamma+1}{2(\gamma-1)}}.\]</div>
+      <details class="details">
+        <summary>Show that \(G\) is maximum exactly at \(M=1\)</summary>
+        <div class="details-content">
+          <p>Differentiating the logarithm of \(G\),</p>
+          \[\frac{1}{G}\frac{dG}{dM}=\frac{1}{M}-\frac{\gamma+1}{2}\frac{M}{1+\frac{\gamma-1}{2}M^2}=\frac{1-M^2}{M\left(1+\frac{\gamma-1}{2}M^2\right)}.\]
+          <p>For \(M&gt;0\) the denominator is positive, so the sign of the derivative is the sign of \(1-M^2\): positive below one, zero at one, negative above. The single stationary point is therefore</p>
+          \[\boxed{M=1.}\]
+        </div>
+      </details>
+      <div class="callout success"><strong>This is the origin of choking.</strong> Nothing was assumed about geometry or back pressure. Given \(p_0\), \(T_0\), and a cross-section \(A\), the largest mass flow that section can pass occurs when it is sonic. A duct cannot be persuaded to swallow more by lowering the pressure downstream, because the section is already carrying the maximum its own thermodynamics allows.</div>
     </section>
 
     <section id="choking">
-      <div data-language="en"><p class="section-label">Mass flow</p><h2>For fixed total state and area, mass flow is maximum at (M=1)</h2></div>
-      <div data-language="es" hidden><p class="section-label">Gasto másico</p><h2>Para estado total y área fijos, el gasto es máximo en (M=1)</h2></div>
-      <div data-language="de" hidden><p class="section-label">Massenstrom</p><h2>Bei festem Gesamtzustand und Querschnitt ist der Massenstrom bei (M=1) maximal</h2></div>
-      <div class="equation-card">\[\dot m=\frac{p_0A}{\sqrt{T_0}}\sqrt{\frac{\gamma}{R}}M\left(1+\frac{\gamma-1}{2}M^2\right)^{-\frac{\gamma+1}{2(\gamma-1)}}\]</div>
-      <div class="equation-card">\[\boxed{\dot m_{max}=\frac{p_0A^*}{\sqrt{T_0}}\sqrt{\frac{\gamma}{R}}\left(\frac{2}{\gamma+1}\right)^{\frac{\gamma+1}{2(\gamma-1)}}}\]</div>
-      <div class="equation-grid"><div class="equation-card">\[\frac{T^*}{T_0}=\frac{2}{\gamma+1}=0.833333\]</div><div class="equation-card">\[\frac{p^*}{p_0}=\left(\frac{2}{\gamma+1}\right)^{\gamma/(\gamma-1)}=0.528282\]</div></div>
+      <p class="section-label">Critical state</p>
+      <h2>Choked mass flow and the critical ratios</h2>
+      <p>Evaluating the mass-flow expression at \(M=1\) and \(A=A^*\) gives the choked mass flow:</p>
+      <div class="equation-card">\[\boxed{\dot m_{\max}=\frac{p_0A^*}{\sqrt{T_0}}\sqrt{\frac{\gamma}{R}}\left(\frac{2}{\gamma+1}\right)^{\frac{\gamma+1}{2(\gamma-1)}}}\]</div>
+      <p>For air with \(\gamma=1.4\) and \(R=287\ \mathrm{J/(kg\cdot K)}\) the numerical coefficient collapses to</p>
+      <div class="equation-card">\[\dot m_{\max}\approx0.040418\,\frac{p_0A^*}{\sqrt{T_0}}\qquad(\text{SI units}).\]</div>
+      <p>The critical ratios follow from setting \(M=1\) in the total–static relations, exactly as in Lecture 02:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Ratio</th><th>General \(\gamma\)</th><th>Air, \(\gamma=1.4\)</th></tr></thead>
+          <tbody>
+            <tr><td>\(T^*/T_0\)</td><td>\(2/(\gamma+1)\)</td><td>0.833333</td></tr>
+            <tr><td>\(p^*/p_0\)</td><td>\(\left[2/(\gamma+1)\right]^{\gamma/(\gamma-1)}\)</td><td>0.528282</td></tr>
+            <tr><td>\(\rho^*/\rho_0\)</td><td>\(\left[2/(\gamma+1)\right]^{1/(\gamma-1)}\)</td><td>0.633938</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout"><strong>Reading \(p^*/p_0=0.528\).</strong> A convergent nozzle discharging air chokes as soon as the pressure ratio across it reaches about \(1.89\). Beyond that, lowering the ambient pressure further changes nothing upstream of the exit plane: the mass flow, the exit Mach number, and the exit pressure all stay put. The extra expansion happens outside the nozzle, in the jet.</div>
+      <div class="callout warning">\(\dot m_{\max}\) scales with \(p_0\) and with \(1/\sqrt{T_0}\). Heating the supply gas <em>reduces</em> the mass flow a choked nozzle passes, which is why a turbine nozzle passes less air as the combustor temperature rises.</div>
     </section>
 
     <section id="example">
-      <div data-language="en"><p class="section-label">Worked example</p><h2>Critical mass flow for air</h2><p>For (p_0=800\,\mathrm{kPa}), (T_0=400\,\mathrm{K}), (A_t=2.0\times10^{-3}\,\mathrm{m^2}), (gamma=1.4), and (R=287\,\mathrm{J/(kg\,K)}):</p></div>
-      <div data-language="es" hidden><p class="section-label">Ejemplo resuelto</p><h2>Gasto crítico para aire</h2><p>Para (p_0=800\,\mathrm{kPa}), (T_0=400\,\mathrm{K}), (A_t=2.0\times10^{-3}\,\mathrm{m^2}), (gamma=1.4) y (R=287\,\mathrm{J/(kg\,K)}):</p></div>
-      <div data-language="de" hidden><p class="section-label">Beispiel</p><h2>Kritischer Luftmassenstrom</h2><p>Für (p_0=800\,\mathrm{kPa}), (T_0=400\,\mathrm{K}), (A_t=2.0\times10^{-3}\,\mathrm{m^2}), (gamma=1.4) und (R=287\,\mathrm{J/(kg\,K)}):</p></div>
-      <div class="equation-card">\[\boxed{\dot m_{max}=3.23347\ \mathrm{kg/s}}\]</div>
+      <p class="section-label">Worked example</p>
+      <h2>Choked flow and the two exit branches</h2>
+      <div class="example">
+        <h3>Problem</h3>
+        <p>A convergent–divergent nozzle carries air from a reservoir at \(p_0=500\ \text{kPa}\) and \(T_0=400\ \text{K}\). The throat diameter is \(D_t=40\ \text{mm}\) and the area ratio is \(A_e/A_t=2\). With \(\gamma=1.4\) and \(R=287\ \mathrm{J/(kg\cdot K)}\), find the choked mass flow and both isentropic exit solutions.</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Throat area:</p>\[A_t=\frac{\pi D_t^2}{4}=1.2566\times10^{-3}\ \text{m}^2.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Once choked, \(A^*=A_t\), so</p>\[\dot m_{\max}=0.040418\frac{(500\times10^3)(1.2566\times10^{-3})}{\sqrt{400}}=1.2698\ \text{kg/s}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>With \(A_e/A^*=2\), the area–Mach relation gives two roots:</p>\[M_{\text{sub}}=0.305904,\qquad M_{\text{sup}}=2.197198.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Subsonic branch — the first choked condition:</p>\[\frac{p_e}{p_0}=0.937162,\qquad p_e=468.6\ \text{kPa},\qquad T_e=392.7\ \text{K}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>Supersonic branch — the design condition:</p>\[\frac{p_e}{p_0}=0.093933,\qquad p_e=47.0\ \text{kPa},\qquad T_e=203.5\ \text{K},\qquad u_e=628.3\ \text{m/s}.\]</div></div>
+
+        <div class="result-box">\[\boxed{\dot m=1.2698\ \text{kg/s},\quad p_{e,\text{sub}}=468.6\ \text{kPa},\quad p_{e,\text{sup}}=47.0\ \text{kPa}}\]</div>
+        <p>Both solutions carry the <em>same</em> mass flow, because both have a sonic throat. What distinguishes them is the back pressure the nozzle is discharging into — the subject of Lecture 08.</p>
+      </div>
+      <div class="validation-case">
+        <strong>Calculator validation case</strong>
+        <span>Inputs: \(p_0=500\ \text{kPa}\), \(T_0=400\ \text{K}\), \(D_t=40\ \text{mm}\), \(A_e/A_t=2\), \(\gamma=1.4\). The two exit pressure ratios 0.937162 and 0.093933 are regression targets of the nozzle calculator.</span>
+      </div>
     </section>
 
-    <section id="calculator">
-      <div class="calculator-callout"><div>
-        <div data-language="en"><h3>Check both area–Mach branches in the nozzle calculator</h3><p>Set the total state, (A_e/A_t), throat diameter, (gamma), (R), units, and the desired operating case.</p></div>
-        <div data-language="es" hidden><h3>Verifica ambas ramas área–Mach en la calculadora</h3><p>Define el estado total, (A_e/A_t), diámetro de garganta, (gamma), (R), unidades y caso de operación.</p></div>
-        <div data-language="de" hidden><h3>Beide Flächen–Mach-Zweige im Düsenrechner prüfen</h3><p>Gesamtzustand, (A_e/A_t), Halsdurchmesser, (gamma), (R), Einheiten und Betriebsfall festlegen.</p></div>
-      </div><a class="button primary" href="https://nozzle-calculator.streamlit.app/" target="_blank" rel="noopener noreferrer" data-ui-key="nozzleCalculator">Open nozzle calculator</a></div>
-      <p><a href="../tools/nozzle-calculator.html" data-ui-key="nozzleDetails">Nozzle calculator overview</a></p>
+    <section id="mistakes">
+      <p class="section-label">Checks</p>
+      <h2>Common mistakes</h2>
+      <ul class="check-list">
+        <li><strong>Assuming a throat is always sonic.</strong> \(dA=0\) is necessary for \(M=1\), not sufficient. An entirely subsonic nozzle has a throat that never reaches Mach one.</li>
+        <li><strong>Treating \(A^*\) as a physical area.</strong> It is the area the stream <em>would</em> have at \(M=1\) for the same total state. In an unchoked duct no section equals it.</li>
+        <li><strong>Carrying one \(A^*\) across a shock.</strong> \(A^*\) is tied to \(p_0\); when a shock destroys total pressure, \(A^*\) changes. Downstream of a shock, \(A_2^*/A_1^*=p_{0,1}/p_{0,2}\).</li>
+        <li><strong>Picking the branch from geometry.</strong> The area ratio gives two Mach numbers; only the back pressure decides which one the nozzle actually runs at.</li>
+        <li><strong>Expecting more mass flow from a lower back pressure once choked.</strong> Below the choking point the exit plane no longer communicates upstream.</li>
+        <li><strong>Using the incompressible intuition in the divergent section.</strong> Above Mach one a widening duct accelerates the flow.</li>
+        <li><strong>Forgetting that \(\dot m_{\max}\propto1/\sqrt{T_0}\).</strong> Hotter supply gas means less mass flow through the same choked throat.</li>
+      </ul>
     </section>
 
     <section id="references" class="references">
-      <h2 data-language="en">References and validation basis</h2><h2 data-language="es" hidden>Referencias y base de validación</h2><h2 data-language="de" hidden>Literatur und Validierungsgrundlage</h2>
-      <ol><li>Anderson, J. D., Jr. <em>Modern Compressible Flow</em>, 3rd ed., Chapter 5 and nozzle-flow chapters.</li><li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>.</li><li>NASA Glenn. <a href="https://www.grc.nasa.gov/www/k-12/airplane/isentrop.html" target="_blank" rel="noopener noreferrer">Isentropic Flow Equations</a> and <a href="https://www.grc.nasa.gov/www/k-12/airplane/mflchk.html" target="_blank" rel="noopener noreferrer">Mass Flow Choking</a>.</li></ol>
-      <p class="source-note">Reconstructed from Unidad IV course notes by Carlos Alberto Molina Holguín; numerical values independently recomputed for (gamma=1.4).</p>
+      <h2>References</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3rd ed. New York: McGraw-Hill, 2003, Chapter 5.</li>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed. New York: McGraw-Hill Education, 2017, Chapter 10.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexico, February 2024.</li>
+      </ol>
+      <p class="source-note">Adapted from Unit IV of the Aerodynamics II course notes by Carlos Alberto Molina Holguín; numerical values independently recomputed for \(\gamma=1.4\).</p>
     </section>
 
-    <nav class="next-lecture"><a class="next-link" href="shock-expansion.html"><span data-ui-key="previous">Previous lecture</span>← Shock–Expansion</a><a class="next-link" href="convergent-divergent-nozzles.html"><span data-ui-key="next">Next lecture</span>Convergent and C–D Nozzles →</a></nav>
+    <nav class="next-nav">
+      <a class="next-link" href="shock-expansion.html"><span>Previous lecture</span>← Shock–Expansion</a>
+      <a class="next-link" href="convergent-divergent-nozzles.html"><span>Next lecture</span>Convergent and C–D Nozzles →</a>
+    </nav>
+  </article>
+
+  <article class="lecture" data-language="es" hidden>
+    <section id="model-es">
+      <p class="section-label">Alcance del modelo</p>
+      <h2>Las propiedades medias representan cada sección</h2>
+      <p class="lead">La aproximación cuasiunidimensional permite \(A=A(x)\) y trata \(p\), \(\rho\), \(T\), \(u\) y \(M\) como valores medios en cada sección, función únicamente de \(x\). Es útil cuando la curvatura de la pared es suave y el flujo central permanece principalmente axial.</p>
+      <figure class="nozzle-figure" aria-label="Geometría de tobera convergente-divergente">
+        <div class="nozzle-channel"><div class="nozzle-wall top"></div><div class="nozzle-wall bottom"></div><div class="flow-axis"></div><div class="throat-line"></div></div>
+        <div class="nozzle-labels"><span>Entrada</span><span>Garganta \(A_t\)</span><span>Salida \(A_e\)</span></div>
+      </figure>
+      <div class="callout warning"><strong>No incluido.</strong> Perfiles transversales, viscosidad, capa límite, separación, transferencia de calor, química, choques oblicuos externos e interacción de ondas. El modelo es una referencia ideal, no un sustituto del CFD viscoso.</div>
+      <div class="callout"><strong>Por qué aun así funciona.</strong> En una tobera bien diseñada la capa límite es delgada y el núcleo es casi uniforme, de modo que un promedio unidimensional reproduce el gasto y el empuje con un error de pocos por ciento. La aproximación falla justo donde fallan sus hipótesis: en esquinas vivas, en toberas muy sobreexpandidas donde la capa límite se separa, y cerca de la pared.</div>
+    </section>
+
+    <section id="conservation-es">
+      <p class="section-label">Ecuaciones gobernantes</p>
+      <h2>Leyes de conservación en un conducto de área variable</h2>
+      <p>Para flujo estacionario, adiabático e inviscido entre dos estaciones de un tubo de corriente,</p>
+      <div class="equation-grid">
+        <div class="equation-card"><p class="equation-label">Masa</p>\[\boxed{\rho_1u_1A_1=\rho_2u_2A_2=\dot m}\]</div>
+        <div class="equation-card"><p class="equation-label">Energía</p>\[\boxed{h_1+\frac{u_1^2}{2}=h_2+\frac{u_2^2}{2}=h_0}\]</div>
+      </div>
+      <p>La cantidad de movimiento exige cuidado, porque la pared ya no es paralela al eje y ejerce una fuerza axial de presión sobre el fluido:</p>
+      <div class="equation-card">\[\boxed{p_1A_1+\rho_1u_1^2A_1+\int_{A_1}^{A_2}p\,dA=p_2A_2+\rho_2u_2^2A_2}\]</div>
+      <p>En forma diferencial, esos mismos tres enunciados quedan</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\frac{d\rho}{\rho}+\frac{du}{u}+\frac{dA}{A}=0\]</div>
+        <div class="equation-card">\[dp=-\rho u\,du\]</div>
+        <div class="equation-card">\[dh+u\,du=0\]</div>
+      </div>
+      <div class="callout success">La continuidad diferencial es la ecuación que carga con la geometría. Todo lo distintivo del flujo en toberas se sigue de que \(dA/A\) aparece ahí y en ningún otro lugar.</div>
+    </section>
+
+    <section id="area-velocity-es">
+      <p class="section-label">Resultado central</p>
+      <h2>Un cambio de área tiene efectos opuestos debajo y encima de Mach uno</h2>
+      <p>Para un proceso isoentrópico \(dp=a^2d\rho\). Combinando esto con la ecuación de Euler,</p>
+      <div class="equation-card">\[\frac{d\rho}{\rho}=-\frac{u\,du}{a^2}=-M^2\frac{du}{u}.\]</div>
+      <p>Sustituyendo en la continuidad diferencial se elimina la densidad y queda la relación área–velocidad:</p>
+      <div class="equation-card">\[\boxed{\frac{dA}{A}=(M^2-1)\frac{du}{u}}\]</div>
+      <div class="definition-grid">
+        <div class="definition"><strong>Subsónico, \(M&lt;1\)</strong><span>\(M^2-1&lt;0\): una convergencia acelera el flujo y una divergencia lo desacelera — el comportamiento incompresible familiar.</span></div>
+        <div class="definition"><strong>Supersónico, \(M&gt;1\)</strong><span>\(M^2-1&gt;0\): el signo se invierte. Una convergencia <em>desacelera</em> y una divergencia <em>acelera</em>.</span></div>
+        <div class="definition"><strong>Sónico, \(M=1\)</strong><span>\(M^2-1=0\): la ecuación obliga a \(dA=0\) para cualquier \(du\) finito.</span></div>
+      </div>
+      <div class="callout success"><strong>Por qué el punto sónico debe estar en la garganta.</strong> En \(M=1\) la relación dice \(dA/A=0\). En una tobera suave con \(du/dx\) finito, eso exige \(dA/dx=0\), es decir un extremo de área. Acelerar un flujo de subsónico a supersónico <em>obliga</em> entonces a una forma convergente–divergente, y el punto sónico solo puede ocurrir en la garganta. Esta única línea de álgebra explica por qué las toberas de cohete y de túnel supersónico tienen la forma que tienen.</div>
+      <div class="callout warning"><strong>El recíproco no es cierto.</strong> \(dA=0\) no implica \(M=1\). Una garganta puede ser enteramente subsónica, y entonces el flujo alcanza ahí un Mach máximo y vuelve a desacelerarse. La garganta es una ubicación <em>necesaria</em> para el flujo sónico, no una condición suficiente.</div>
+    </section>
+
+    <section id="area-mach-es">
+      <p class="section-label">Forma integrada</p>
+      <h2>La misma razón de áreas admite dos ramas de Mach</h2>
+      <p>Integrando las relaciones diferenciales junto con las relaciones isoentrópicas y de propiedades totales de la Lecture 02 se obtiene la relación área–Mach,</p>
+      <div class="equation-card">\[\boxed{\frac{A}{A^*}=\frac{1}{M}\left[\frac{2}{\gamma+1}\left(1+\frac{\gamma-1}{2}M^2\right)\right]^{\frac{\gamma+1}{2(\gamma-1)}}}\]</div>
+      <p>Aquí \(A^*\) es el área crítica asociada con \(M=1\) para los mismos \(p_0\) y \(T_0\). Es un área de <em>referencia</em>: no tiene por qué existir físicamente en ningún punto del conducto.</p>
+      <p>La función tiene un mínimo \(A/A^*=1\) en \(M=1\) y crece a ambos lados. En consecuencia, para cada \(A/A^*&gt;1\) hay exactamente dos soluciones, una subsónica y una supersónica:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(A/A^*\)</th><th>\(M_{\text{sub}}\)</th><th>\(M_{\text{sup}}\)</th></tr></thead>
+          <tbody>
+            <tr><td>1.0</td><td>1.000000</td><td>1.000000</td></tr>
+            <tr><td>1.2</td><td>0.590249</td><td>1.534150</td></tr>
+            <tr><td>1.5</td><td>0.430262</td><td>1.854124</td></tr>
+            <tr><td>2.0</td><td>0.305904</td><td>2.197198</td></tr>
+            <tr><td>2.5</td><td>0.239543</td><td>2.442765</td></tr>
+            <tr><td>3.0</td><td>0.197449</td><td>2.637416</td></tr>
+            <tr><td>5.0</td><td>0.116689</td><td>3.174780</td></tr>
+            <tr><td>10.0</td><td>0.057987</td><td>3.922552</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning"><strong>La geometría por sí sola no elige.</strong> La razón de áreas fija el par de números de Mach candidatos; no dice cuál ocurre. Eso lo decide la contrapresión, y es el tema completo de las Lectures 08 y 09.</div>
+    </section>
+
+    <section id="massflow-es">
+      <p class="section-label">De dónde sale el estrangulamiento</p>
+      <h2>La función de gasto másico y su máximo</h2>
+      <p>Partiendo de \(\dot m=\rho uA\) y expresando cada factor mediante el estado total y el número de Mach, con \(u=M\sqrt{\gamma RT}\) y las relaciones total–estática:</p>
+      <div class="equation-card">\[\boxed{\dot m=\frac{p_0A}{\sqrt{T_0}}\sqrt{\frac{\gamma}{R}}\;M\left(1+\frac{\gamma-1}{2}M^2\right)^{-\frac{\gamma+1}{2(\gamma-1)}}}\]</div>
+      <p>Para un estado total fijo y un área fija, toda la dependencia con el Mach vive en la función adimensional de gasto</p>
+      <div class="equation-card">\[G(M)=M\left(1+\frac{\gamma-1}{2}M^2\right)^{-\frac{\gamma+1}{2(\gamma-1)}}.\]</div>
+      <details class="details">
+        <summary>Demostrar que \(G\) es máxima exactamente en \(M=1\)</summary>
+        <div class="details-content">
+          <p>Derivando el logaritmo de \(G\),</p>
+          \[\frac{1}{G}\frac{dG}{dM}=\frac{1}{M}-\frac{\gamma+1}{2}\frac{M}{1+\frac{\gamma-1}{2}M^2}=\frac{1-M^2}{M\left(1+\frac{\gamma-1}{2}M^2\right)}.\]
+          <p>Para \(M&gt;0\) el denominador es positivo, así que el signo de la derivada es el de \(1-M^2\): positivo por debajo de uno, nulo en uno y negativo por encima. El único punto estacionario es entonces</p>
+          \[\boxed{M=1.}\]
+        </div>
+      </details>
+      <div class="callout success"><strong>Este es el origen del estrangulamiento.</strong> No se supuso nada sobre la geometría ni sobre la contrapresión. Dados \(p_0\), \(T_0\) y una sección \(A\), el mayor gasto que esa sección puede pasar ocurre cuando es sónica. A un conducto no se le convence de tragar más bajando la presión aguas abajo, porque la sección ya lleva el máximo que su propia termodinámica permite.</div>
+    </section>
+
+    <section id="choking-es">
+      <p class="section-label">Estado crítico</p>
+      <h2>Gasto estrangulado y razones críticas</h2>
+      <p>Evaluando la expresión del gasto en \(M=1\) y \(A=A^*\) se obtiene el gasto estrangulado:</p>
+      <div class="equation-card">\[\boxed{\dot m_{\max}=\frac{p_0A^*}{\sqrt{T_0}}\sqrt{\frac{\gamma}{R}}\left(\frac{2}{\gamma+1}\right)^{\frac{\gamma+1}{2(\gamma-1)}}}\]</div>
+      <p>Para aire con \(\gamma=1.4\) y \(R=287\ \mathrm{J/(kg\cdot K)}\) el coeficiente numérico se reduce a</p>
+      <div class="equation-card">\[\dot m_{\max}\approx0.040418\,\frac{p_0A^*}{\sqrt{T_0}}\qquad(\text{unidades SI}).\]</div>
+      <p>Las razones críticas se siguen de hacer \(M=1\) en las relaciones total–estática, igual que en la Lecture 02:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Razón</th><th>\(\gamma\) general</th><th>Aire, \(\gamma=1.4\)</th></tr></thead>
+          <tbody>
+            <tr><td>\(T^*/T_0\)</td><td>\(2/(\gamma+1)\)</td><td>0.833333</td></tr>
+            <tr><td>\(p^*/p_0\)</td><td>\(\left[2/(\gamma+1)\right]^{\gamma/(\gamma-1)}\)</td><td>0.528282</td></tr>
+            <tr><td>\(\rho^*/\rho_0\)</td><td>\(\left[2/(\gamma+1)\right]^{1/(\gamma-1)}\)</td><td>0.633938</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout"><strong>Cómo leer \(p^*/p_0=0.528\).</strong> Una tobera convergente que descarga aire se estrangula en cuanto la razón de presiones a través de ella alcanza aproximadamente \(1.89\). Más allá de eso, seguir bajando la presión ambiente no cambia nada aguas arriba del plano de salida: el gasto, el Mach de salida y la presión de salida se quedan fijos. La expansión adicional ocurre fuera de la tobera, en el chorro.</div>
+      <div class="callout warning">\(\dot m_{\max}\) escala con \(p_0\) y con \(1/\sqrt{T_0}\). Calentar el gas de suministro <em>reduce</em> el gasto que pasa una tobera estrangulada, y por eso una tobera de turbina pasa menos aire conforme sube la temperatura de la cámara de combustión.</div>
+    </section>
+
+    <section id="example-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>Flujo estrangulado y las dos ramas de salida</h2>
+      <div class="example">
+        <h3>Problema</h3>
+        <p>Una tobera convergente–divergente conduce aire desde un depósito a \(p_0=500\ \text{kPa}\) y \(T_0=400\ \text{K}\). El diámetro de garganta es \(D_t=40\ \text{mm}\) y la razón de áreas es \(A_e/A_t=2\). Con \(\gamma=1.4\) y \(R=287\ \mathrm{J/(kg\cdot K)}\), halle el gasto estrangulado y las dos soluciones isoentrópicas de salida.</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Área de garganta:</p>\[A_t=\frac{\pi D_t^2}{4}=1.2566\times10^{-3}\ \text{m}^2.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Una vez estrangulada, \(A^*=A_t\), así que</p>\[\dot m_{\max}=0.040418\frac{(500\times10^3)(1.2566\times10^{-3})}{\sqrt{400}}=1.2698\ \text{kg/s}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Con \(A_e/A^*=2\), la relación área–Mach da dos raíces:</p>\[M_{\text{sub}}=0.305904,\qquad M_{\text{sup}}=2.197198.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Rama subsónica — primer estado estrangulado:</p>\[\frac{p_e}{p_0}=0.937162,\qquad p_e=468.6\ \text{kPa},\qquad T_e=392.7\ \text{K}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>Rama supersónica — condición de diseño:</p>\[\frac{p_e}{p_0}=0.093933,\qquad p_e=47.0\ \text{kPa},\qquad T_e=203.5\ \text{K},\qquad u_e=628.3\ \text{m/s}.\]</div></div>
+
+        <div class="result-box">\[\boxed{\dot m=1.2698\ \text{kg/s},\quad p_{e,\text{sub}}=468.6\ \text{kPa},\quad p_{e,\text{sup}}=47.0\ \text{kPa}}\]</div>
+        <p>Ambas soluciones llevan el <em>mismo</em> gasto, porque ambas tienen garganta sónica. Lo que las distingue es la contrapresión contra la que descarga la tobera — el tema de la Lecture 08.</p>
+      </div>
+      <div class="validation-case">
+        <strong>Caso de validación de la calculadora</strong>
+        <span>Entradas: \(p_0=500\ \text{kPa}\), \(T_0=400\ \text{K}\), \(D_t=40\ \text{mm}\), \(A_e/A_t=2\), \(\gamma=1.4\). Las dos razones de presión de salida 0.937162 y 0.093933 son objetivos de regresión de la calculadora de toberas.</span>
+      </div>
+    </section>
+
+    <section id="mistakes-es">
+      <p class="section-label">Verificaciones</p>
+      <h2>Errores comunes</h2>
+      <ul class="check-list">
+        <li><strong>Suponer que una garganta siempre es sónica.</strong> \(dA=0\) es necesario para \(M=1\), no suficiente. Una tobera enteramente subsónica tiene una garganta que nunca llega a Mach uno.</li>
+        <li><strong>Tratar \(A^*\) como un área física.</strong> Es el área que <em>tendría</em> la corriente en \(M=1\) para el mismo estado total. En un conducto no estrangulado ninguna sección la iguala.</li>
+        <li><strong>Arrastrar un mismo \(A^*\) a través de un choque.</strong> \(A^*\) está ligada a \(p_0\); cuando un choque destruye presión total, \(A^*\) cambia. Aguas abajo de un choque, \(A_2^*/A_1^*=p_{0,1}/p_{0,2}\).</li>
+        <li><strong>Elegir la rama por geometría.</strong> La razón de áreas da dos números de Mach; solo la contrapresión decide en cuál opera realmente la tobera.</li>
+        <li><strong>Esperar más gasto de una contrapresión menor una vez estrangulada.</strong> Por debajo del punto de estrangulamiento el plano de salida ya no se comunica aguas arriba.</li>
+        <li><strong>Usar la intuición incompresible en la sección divergente.</strong> Por encima de Mach uno un conducto que se ensancha acelera el flujo.</li>
+        <li><strong>Olvidar que \(\dot m_{\max}\propto1/\sqrt{T_0}\).</strong> Gas de suministro más caliente significa menos gasto por la misma garganta estrangulada.</li>
+      </ul>
+    </section>
+
+    <section id="references-es" class="references">
+      <h2>Referencias</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3.ª ed. Nueva York: McGraw-Hill, 2003, capítulo 5.</li>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 10.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, México, febrero de 2024.</li>
+      </ol>
+      <p class="source-note">Adaptado de la Unidad IV de los apuntes de Aerodinámica II de Carlos Alberto Molina Holguín; los valores numéricos se recalcularon de forma independiente para \(\gamma=1.4\).</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="shock-expansion.html"><span>Lecture anterior</span>← Choque–expansión</a>
+      <a class="next-link" href="convergent-divergent-nozzles.html"><span>Siguiente lecture</span>Toberas convergentes y C–D →</a>
+    </nav>
+  </article>
+
+  <article class="lecture" data-language="de" hidden>
+    <section id="model-de">
+      <p class="section-label">Modellumfang</p>
+      <h2>Mittlere Größen beschreiben jeden Querschnitt</h2>
+      <p class="lead">Die quasi-eindimensionale Näherung lässt \(A=A(x)\) zu und behandelt \(p\), \(\rho\), \(T\), \(u\) und \(M\) als Querschnittsmittelwerte, die allein von \(x\) abhängen. Sie ist brauchbar, wenn die Wandkrümmung allmählich verläuft und die Kernströmung überwiegend axial bleibt.</p>
+      <figure class="nozzle-figure" aria-label="Geometrie einer konvergent-divergenten Düse">
+        <div class="nozzle-channel"><div class="nozzle-wall top"></div><div class="nozzle-wall bottom"></div><div class="flow-axis"></div><div class="throat-line"></div></div>
+        <div class="nozzle-labels"><span>Eintritt</span><span>Hals \(A_t\)</span><span>Austritt \(A_e\)</span></div>
+      </figure>
+      <div class="callout warning"><strong>Nicht enthalten.</strong> Querprofile, Viskosität, Grenzschichten, Ablösung, Wärmeübertragung, Chemie, äußere Schrägstöße und Wellenwechselwirkungen. Das Modell ist eine ideale Referenz, kein Ersatz für viskose CFD.</div>
+      <div class="callout"><strong>Warum es dennoch trägt.</strong> In einer gut ausgelegten Düse ist die Grenzschicht dünn und der Kern nahezu gleichförmig, sodass ein eindimensionaler Mittelwert Massenstrom und Schub auf wenige Prozent genau wiedergibt. Die Näherung versagt genau dort, wo ihre Annahmen versagen: an scharfen Ecken, in stark überexpandierten Düsen mit Grenzschichtablösung und in Wandnähe.</div>
+    </section>
+
+    <section id="conservation-de">
+      <p class="section-label">Grundgleichungen</p>
+      <h2>Erhaltungssätze für einen Kanal veränderlicher Fläche</h2>
+      <p>Für stationäre, adiabate, reibungsfreie Strömung zwischen zwei Stationen einer Stromröhre gilt</p>
+      <div class="equation-grid">
+        <div class="equation-card"><p class="equation-label">Masse</p>\[\boxed{\rho_1u_1A_1=\rho_2u_2A_2=\dot m}\]</div>
+        <div class="equation-card"><p class="equation-label">Energie</p>\[\boxed{h_1+\frac{u_1^2}{2}=h_2+\frac{u_2^2}{2}=h_0}\]</div>
+      </div>
+      <p>Der Impulssatz erfordert Sorgfalt, denn die Wand verläuft nicht mehr parallel zur Achse und übt eine axiale Druckkraft auf das Fluid aus:</p>
+      <div class="equation-card">\[\boxed{p_1A_1+\rho_1u_1^2A_1+\int_{A_1}^{A_2}p\,dA=p_2A_2+\rho_2u_2^2A_2}\]</div>
+      <p>In differentieller Form lauten dieselben drei Aussagen</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\frac{d\rho}{\rho}+\frac{du}{u}+\frac{dA}{A}=0\]</div>
+        <div class="equation-card">\[dp=-\rho u\,du\]</div>
+        <div class="equation-card">\[dh+u\,du=0\]</div>
+      </div>
+      <div class="callout success">Die differentielle Kontinuitätsgleichung trägt die Geometrie. Alles Kennzeichnende der Düsenströmung folgt daraus, dass \(dA/A\) dort und nirgends sonst auftritt.</div>
+    </section>
+
+    <section id="area-velocity-de">
+      <p class="section-label">Zentrales Ergebnis</p>
+      <h2>Eine Flächenänderung wirkt unter und über Mach eins entgegengesetzt</h2>
+      <p>Für einen isentropen Prozess gilt \(dp=a^2d\rho\). Zusammen mit der Euler-Gleichung folgt</p>
+      <div class="equation-card">\[\frac{d\rho}{\rho}=-\frac{u\,du}{a^2}=-M^2\frac{du}{u}.\]</div>
+      <p>Eingesetzt in die differentielle Kontinuität entfällt die Dichte, und es bleibt die Flächen–Geschwindigkeits-Beziehung:</p>
+      <div class="equation-card">\[\boxed{\frac{dA}{A}=(M^2-1)\frac{du}{u}}\]</div>
+      <div class="definition-grid">
+        <div class="definition"><strong>Unterschall, \(M&lt;1\)</strong><span>\(M^2-1&lt;0\): eine Verengung beschleunigt, eine Erweiterung verzögert — das vertraute inkompressible Verhalten.</span></div>
+        <div class="definition"><strong>Überschall, \(M&gt;1\)</strong><span>\(M^2-1&gt;0\): das Vorzeichen kehrt sich um. Eine Verengung <em>verzögert</em>, eine Erweiterung <em>beschleunigt</em>.</span></div>
+        <div class="definition"><strong>Schallgeschwindigkeit, \(M=1\)</strong><span>\(M^2-1=0\): die Gleichung erzwingt \(dA=0\) für jedes endliche \(du\).</span></div>
+      </div>
+      <div class="callout success"><strong>Warum der Schallpunkt im Hals liegen muss.</strong> Bei \(M=1\) lautet die Beziehung \(dA/A=0\). In einer glatten Düse mit endlichem \(du/dx\) erfordert das \(dA/dx=0\), also ein Flächenextremum. Eine Strömung vom Unter- in den Überschall zu beschleunigen <em>verlangt</em> daher eine konvergent–divergente Form, und der Schallpunkt kann nur im Hals auftreten. Diese eine Zeile Algebra erklärt, warum Raketen- und Überschallwindkanaldüsen so aussehen, wie sie aussehen.</div>
+      <div class="callout warning"><strong>Die Umkehrung gilt nicht.</strong> \(dA=0\) impliziert nicht \(M=1\). Ein Hals kann durchweg unterschallschnell sein; dann erreicht die Strömung dort ein Machzahlmaximum und verzögert wieder. Der Hals ist ein <em>notwendiger</em> Ort für Schallgeschwindigkeit, keine hinreichende Bedingung dafür.</div>
+    </section>
+
+    <section id="area-mach-de">
+      <p class="section-label">Integrierte Form</p>
+      <h2>Dasselbe Flächenverhältnis besitzt zwei Machzahlzweige</h2>
+      <p>Integriert man die differentiellen Beziehungen zusammen mit den isentropen und den Totalgrößenbeziehungen aus Vorlesung 02, so ergibt sich die Flächen–Mach-Beziehung</p>
+      <div class="equation-card">\[\boxed{\frac{A}{A^*}=\frac{1}{M}\left[\frac{2}{\gamma+1}\left(1+\frac{\gamma-1}{2}M^2\right)\right]^{\frac{\gamma+1}{2(\gamma-1)}}}\]</div>
+      <p>Dabei ist \(A^*\) die kritische Fläche zu \(M=1\) bei gleichem \(p_0\) und \(T_0\). Sie ist eine <em>Bezugsfläche</em> und muss im Kanal physikalisch nirgends vorkommen.</p>
+      <p>Die Funktion hat ihr Minimum \(A/A^*=1\) bei \(M=1\) und wächst nach beiden Seiten. Zu jedem \(A/A^*&gt;1\) gibt es folglich genau zwei Lösungen, eine unterschall- und eine überschallschnelle:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(A/A^*\)</th><th>\(M_{\text{sub}}\)</th><th>\(M_{\text{sup}}\)</th></tr></thead>
+          <tbody>
+            <tr><td>1,0</td><td>1,000000</td><td>1,000000</td></tr>
+            <tr><td>1,2</td><td>0,590249</td><td>1,534150</td></tr>
+            <tr><td>1,5</td><td>0,430262</td><td>1,854124</td></tr>
+            <tr><td>2,0</td><td>0,305904</td><td>2,197198</td></tr>
+            <tr><td>2,5</td><td>0,239543</td><td>2,442765</td></tr>
+            <tr><td>3,0</td><td>0,197449</td><td>2,637416</td></tr>
+            <tr><td>5,0</td><td>0,116689</td><td>3,174780</td></tr>
+            <tr><td>10,0</td><td>0,057987</td><td>3,922552</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning"><strong>Die Geometrie allein entscheidet nicht.</strong> Das Flächenverhältnis legt das Paar möglicher Machzahlen fest, sagt aber nicht, welche auftritt. Das bestimmt der Gegendruck — das gesamte Thema der Vorlesungen 08 und 09.</div>
+    </section>
+
+    <section id="massflow-de">
+      <p class="section-label">Woher die Sperrung kommt</p>
+      <h2>Die Massenstromfunktion und ihr Maximum</h2>
+      <p>Ausgehend von \(\dot m=\rho uA\) und Ausdrücken jedes Faktors über den Ruhezustand und die Machzahl, mit \(u=M\sqrt{\gamma RT}\) und den Total-statisch-Beziehungen:</p>
+      <div class="equation-card">\[\boxed{\dot m=\frac{p_0A}{\sqrt{T_0}}\sqrt{\frac{\gamma}{R}}\;M\left(1+\frac{\gamma-1}{2}M^2\right)^{-\frac{\gamma+1}{2(\gamma-1)}}}\]</div>
+      <p>Bei festem Ruhezustand und fester Fläche steckt die gesamte Machzahlabhängigkeit in der dimensionslosen Massenstromfunktion</p>
+      <div class="equation-card">\[G(M)=M\left(1+\frac{\gamma-1}{2}M^2\right)^{-\frac{\gamma+1}{2(\gamma-1)}}.\]</div>
+      <details class="details">
+        <summary>Nachweis, dass \(G\) genau bei \(M=1\) maximal ist</summary>
+        <div class="details-content">
+          <p>Ableiten des Logarithmus von \(G\) liefert</p>
+          \[\frac{1}{G}\frac{dG}{dM}=\frac{1}{M}-\frac{\gamma+1}{2}\frac{M}{1+\frac{\gamma-1}{2}M^2}=\frac{1-M^2}{M\left(1+\frac{\gamma-1}{2}M^2\right)}.\]
+          <p>Für \(M&gt;0\) ist der Nenner positiv, sodass das Vorzeichen der Ableitung dem von \(1-M^2\) folgt: positiv unterhalb eins, null bei eins, negativ darüber. Der einzige stationäre Punkt ist somit</p>
+          \[\boxed{M=1.}\]
+        </div>
+      </details>
+      <div class="callout success"><strong>Das ist der Ursprung der Sperrung.</strong> Über Geometrie oder Gegendruck wurde nichts vorausgesetzt. Bei gegebenem \(p_0\), \(T_0\) und Querschnitt \(A\) tritt der größte durchsetzbare Massenstrom auf, wenn der Querschnitt schallschnell ist. Ein Kanal lässt sich nicht durch Absenken des Drucks stromab zu mehr Durchsatz überreden, weil der Querschnitt bereits das Maximum führt, das seine eigene Thermodynamik zulässt.</div>
+    </section>
+
+    <section id="choking-de">
+      <p class="section-label">Kritischer Zustand</p>
+      <h2>Gesperrter Massenstrom und kritische Verhältnisse</h2>
+      <p>Auswerten des Massenstromausdrucks bei \(M=1\) und \(A=A^*\) ergibt den gesperrten Massenstrom:</p>
+      <div class="equation-card">\[\boxed{\dot m_{\max}=\frac{p_0A^*}{\sqrt{T_0}}\sqrt{\frac{\gamma}{R}}\left(\frac{2}{\gamma+1}\right)^{\frac{\gamma+1}{2(\gamma-1)}}}\]</div>
+      <p>Für Luft mit \(\gamma=1{,}4\) und \(R=287\ \mathrm{J/(kg\cdot K)}\) reduziert sich der Zahlenkoeffizient auf</p>
+      <div class="equation-card">\[\dot m_{\max}\approx0{,}040418\,\frac{p_0A^*}{\sqrt{T_0}}\qquad(\text{SI-Einheiten}).\]</div>
+      <p>Die kritischen Verhältnisse folgen aus \(M=1\) in den Total-statisch-Beziehungen, genau wie in Vorlesung 02:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Verhältnis</th><th>Allgemeines \(\gamma\)</th><th>Luft, \(\gamma=1{,}4\)</th></tr></thead>
+          <tbody>
+            <tr><td>\(T^*/T_0\)</td><td>\(2/(\gamma+1)\)</td><td>0,833333</td></tr>
+            <tr><td>\(p^*/p_0\)</td><td>\(\left[2/(\gamma+1)\right]^{\gamma/(\gamma-1)}\)</td><td>0,528282</td></tr>
+            <tr><td>\(\rho^*/\rho_0\)</td><td>\(\left[2/(\gamma+1)\right]^{1/(\gamma-1)}\)</td><td>0,633938</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout"><strong>Wie \(p^*/p_0=0{,}528\) zu lesen ist.</strong> Eine konvergente Düse, die Luft ausbläst, sperrt, sobald das Druckverhältnis über sie etwa \(1{,}89\) erreicht. Danach ändert weiteres Absenken des Umgebungsdrucks stromauf der Austrittsebene nichts mehr: Massenstrom, Austrittsmachzahl und Austrittsdruck bleiben unverändert. Die zusätzliche Expansion findet außerhalb der Düse im Freistrahl statt.</div>
+      <div class="callout warning">\(\dot m_{\max}\) skaliert mit \(p_0\) und mit \(1/\sqrt{T_0}\). Erwärmen des Zuluftgases <em>verringert</em> den Massenstrom durch eine gesperrte Düse — deshalb setzt eine Turbinendüse weniger Luft durch, wenn die Brennkammertemperatur steigt.</div>
+    </section>
+
+    <section id="example-de">
+      <p class="section-label">Rechenbeispiel</p>
+      <h2>Gesperrte Strömung und die beiden Austrittszweige</h2>
+      <div class="example">
+        <h3>Aufgabe</h3>
+        <p>Eine konvergent–divergente Düse führt Luft aus einem Behälter mit \(p_0=500\ \text{kPa}\) und \(T_0=400\ \text{K}\). Der Halsdurchmesser beträgt \(D_t=40\ \text{mm}\), das Flächenverhältnis \(A_e/A_t=2\). Mit \(\gamma=1{,}4\) und \(R=287\ \mathrm{J/(kg\cdot K)}\) sind der gesperrte Massenstrom und beide isentropen Austrittslösungen zu bestimmen.</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Halsfläche:</p>\[A_t=\frac{\pi D_t^2}{4}=1{,}2566\times10^{-3}\ \text{m}^2.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Im gesperrten Zustand ist \(A^*=A_t\), also</p>\[\dot m_{\max}=0{,}040418\frac{(500\times10^3)(1{,}2566\times10^{-3})}{\sqrt{400}}=1{,}2698\ \text{kg/s}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Mit \(A_e/A^*=2\) liefert die Flächen–Mach-Beziehung zwei Wurzeln:</p>\[M_{\text{sub}}=0{,}305904,\qquad M_{\text{sup}}=2{,}197198.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Unterschallzweig — erster gesperrter Zustand:</p>\[\frac{p_e}{p_0}=0{,}937162,\qquad p_e=468{,}6\ \text{kPa},\qquad T_e=392{,}7\ \text{K}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>Überschallzweig — Auslegungszustand:</p>\[\frac{p_e}{p_0}=0{,}093933,\qquad p_e=47{,}0\ \text{kPa},\qquad T_e=203{,}5\ \text{K},\qquad u_e=628{,}3\ \text{m/s}.\]</div></div>
+
+        <div class="result-box">\[\boxed{\dot m=1{,}2698\ \text{kg/s},\quad p_{e,\text{sub}}=468{,}6\ \text{kPa},\quad p_{e,\text{sup}}=47{,}0\ \text{kPa}}\]</div>
+        <p>Beide Lösungen führen <em>denselben</em> Massenstrom, da beide einen schallschnellen Hals besitzen. Unterschieden werden sie durch den Gegendruck, gegen den die Düse ausbläst — das Thema von Vorlesung 08.</p>
+      </div>
+      <div class="validation-case">
+        <strong>Validierungsfall für den Rechner</strong>
+        <span>Eingaben: \(p_0=500\ \text{kPa}\), \(T_0=400\ \text{K}\), \(D_t=40\ \text{mm}\), \(A_e/A_t=2\), \(\gamma=1{,}4\). Die beiden Austrittsdruckverhältnisse 0,937162 und 0,093933 sind Regressionsziele des Düsenrechners.</span>
+      </div>
+    </section>
+
+    <section id="mistakes-de">
+      <p class="section-label">Kontrollen</p>
+      <h2>Häufige Fehler</h2>
+      <ul class="check-list">
+        <li><strong>Annehmen, ein Hals sei stets schallschnell.</strong> \(dA=0\) ist für \(M=1\) notwendig, nicht hinreichend. Eine durchweg unterschallschnelle Düse hat einen Hals, der Mach eins nie erreicht.</li>
+        <li><strong>\(A^*\) als physikalische Fläche behandeln.</strong> Sie ist die Fläche, die der Strom bei \(M=1\) im selben Ruhezustand <em>hätte</em>. In einem ungesperrten Kanal stimmt kein Querschnitt mit ihr überein.</li>
+        <li><strong>Ein und dasselbe \(A^*\) über einen Stoß hinweg mitführen.</strong> \(A^*\) ist an \(p_0\) gebunden; zerstört ein Stoß Totaldruck, so ändert sich \(A^*\). Stromab eines Stoßes gilt \(A_2^*/A_1^*=p_{0,1}/p_{0,2}\).</li>
+        <li><strong>Den Zweig aus der Geometrie wählen.</strong> Das Flächenverhältnis liefert zwei Machzahlen; nur der Gegendruck entscheidet, in welchem Zustand die Düse tatsächlich arbeitet.</li>
+        <li><strong>Nach der Sperrung mehr Massenstrom von geringerem Gegendruck erwarten.</strong> Unterhalb des Sperrpunkts steht die Austrittsebene nicht mehr mit dem Zustrom in Verbindung.</li>
+        <li><strong>Die inkompressible Anschauung im divergenten Teil verwenden.</strong> Oberhalb von Mach eins beschleunigt ein sich erweiternder Kanal die Strömung.</li>
+        <li><strong>Vergessen, dass \(\dot m_{\max}\propto1/\sqrt{T_0}\).</strong> Heißeres Zuluftgas bedeutet weniger Massenstrom durch denselben gesperrten Hals.</li>
+      </ul>
+    </section>
+
+    <section id="references-de" class="references">
+      <h2>Literatur</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3. Aufl. New York: McGraw-Hill, 2003, Kapitel 5.</li>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6. Aufl. New York: McGraw-Hill Education, 2017, Kapitel 10.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexiko, Februar 2024.</li>
+      </ol>
+      <p class="source-note">Bearbeitet nach Einheit IV des Vorlesungsskripts Aerodynamik II von Carlos Alberto Molina Holguín; die Zahlenwerte wurden für \(\gamma=1{,}4\) unabhängig nachgerechnet.</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="shock-expansion.html"><span>Vorherige Vorlesung</span>← Stoß–Expansion</a>
+      <a class="next-link" href="convergent-divergent-nozzles.html"><span>Nächste Vorlesung</span>Konvergente und C–D-Düsen →</a>
+    </nav>
   </article>
 </div></main>
 <footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
