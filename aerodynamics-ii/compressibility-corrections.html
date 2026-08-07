@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Karman-Tsien and Laitone compressibility corrections, the exact pressure-coefficient relation, the critical pressure coefficient, and estimation of the critical Mach number." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Compressibility Corrections and the Critical Mach Number | Aerodynamics II</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../index.html" data-ui-key="home">Home</a><a href="index.html?v=11" data-ui-key="course">Aerodynamics II</a><a href="../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">Aerodynamics II · Lecture 11</p><h1>Compressibility Corrections and the Critical Mach Number</h1><p class="hero-copy">Kármán–Tsien and Laitone against Prandtl–Glauert, the exact relation between \(C_p\) and local Mach number, and the speed at which an airfoil first goes sonic.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">Aerodinámica II · Lecture 11</p><h1>Correcciones de compresibilidad y número de Mach crítico</h1><p class="hero-copy">Kármán–Tsien y Laitone frente a Prandtl–Glauert, la relación exacta entre \(C_p\) y el Mach local, y la velocidad a la que un perfil se vuelve sónico por primera vez.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">Aerodynamik II · Vorlesung 11</p><h1>Kompressibilitätskorrekturen und die kritische Machzahl</h1><p class="hero-copy">Kármán–Tsien und Laitone gegen Prandtl–Glauert, der exakte Zusammenhang zwischen \(C_p\) und örtlicher Machzahl, und die Geschwindigkeit, bei der ein Profil erstmals Schallgeschwindigkeit erreicht.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 40 min</span><span data-language="es" hidden>Lectura estimada: 40 min</span><span data-language="de" hidden>Lesedauer: ca. 40 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Model: subsonic, thin airfoil</span><span data-language="es" hidden>Modelo: subsónico, perfil delgado</span><span data-language="de" hidden>Modell: Unterschall, schlankes Profil</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="subsonic-linearized-flow.html">← <span data-ui-key="previous">Previous lecture</span></a><a class="button primary" href="index.html?v=11" data-ui-key="back">Back to course</a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#physics">Physical picture</a><a href="#model">Model and assumptions</a><a href="#corrections">Kármán–Tsien and Laitone</a><a href="#comparison">Comparing the three</a><a href="#exactcp">Exact \(C_p\) and local Mach</a><a href="#critical">The critical pressure coefficient</a><a href="#algorithm">Calculation algorithm</a><a href="#example">Worked example</a><a href="#summary">Key equations</a><a href="#mistakes">Common mistakes</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#physics-es">Panorama físico</a><a href="#model-es">Modelo e hipótesis</a><a href="#corrections-es">Kármán–Tsien y Laitone</a><a href="#comparison-es">Comparación de las tres</a><a href="#exactcp-es">\(C_p\) exacto y Mach local</a><a href="#critical-es">El coeficiente de presión crítico</a><a href="#algorithm-es">Algoritmo de cálculo</a><a href="#example-es">Ejemplo resuelto</a><a href="#summary-es">Ecuaciones clave</a><a href="#mistakes-es">Errores comunes</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#physics-de">Physikalisches Bild</a><a href="#model-de">Modell und Annahmen</a><a href="#corrections-de">Kármán–Tsien und Laitone</a><a href="#comparison-de">Die drei im Vergleich</a><a href="#exactcp-de">Exaktes \(C_p\) und örtliche Machzahl</a><a href="#critical-de">Der kritische Druckbeiwert</a><a href="#algorithm-de">Rechenalgorithmus</a><a href="#example-de">Rechenbeispiel</a><a href="#summary-de">Kerngleichungen</a><a href="#mistakes-de">Häufige Fehler</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <ul>
+        <li>Apply the Kármán–Tsien and Laitone corrections and explain how they differ from Prandtl–Glauert.</li>
+        <li>Predict which of the three gives the largest suction and say why.</li>
+        <li>Derive the exact relation between \(C_p\) and the local Mach number.</li>
+        <li>Obtain the critical pressure coefficient \(C_{p,\mathrm{cr}}\) by setting the local Mach number to one.</li>
+        <li>Estimate the critical Mach number of an airfoil from its low-speed pressure distribution.</li>
+        <li>Explain why \(M_{\mathrm{cr}}\) matters and what happens just above it.</li>
+      </ul>
+    </section>
+
+    <section id="physics">
+      <p class="section-label">Physical picture</p>
+      <h2>The airfoil goes sonic before the aircraft does</h2>
+      <p class="lead">The flow accelerates over the upper surface of an airfoil, so the local Mach number there is always higher than the free-stream value. As the aircraft speeds up, some point on the surface reaches \(M=1\) while the aircraft itself is still comfortably subsonic. The free-stream Mach number at which that first happens is the <strong>critical Mach number</strong>, and it is the practical speed limit of a subsonic design.</p>
+      <div class="callout success"><strong>Why it is the number that matters.</strong> Below \(M_{\mathrm{cr}}\) nothing dramatic occurs. Above it a supersonic pocket grows on the surface, and it must end somewhere — it ends in a shock. That shock brings wave drag and, if it is strong enough, boundary-layer separation. Drag divergence follows shortly after, which is why \(M_{\mathrm{cr}}\) appears in the design requirements of every transport aircraft.</div>
+    </section>
+
+    <section id="model">
+      <p class="section-label">Model and assumptions</p>
+      <h2>Still thin, still subsonic, still isentropic</h2>
+      <ul>
+        <li>the linearized subsonic framework of Lecture 10, with all of its assumptions;</li>
+        <li>an incompressible pressure distribution known for the same airfoil, from experiment or from potential theory;</li>
+        <li>isentropic flow up to the point where the local Mach number reaches one;</li>
+        <li>\(\gamma=1.4\) throughout the numerical work.</li>
+      </ul>
+      <div class="callout warning"><strong>Not included.</strong> Anything above \(M_{\mathrm{cr}}\). Once a supersonic pocket exists, the terminating shock destroys the isentropic premise and every relation here stops applying. The corrections are also purely algebraic fixes to a linear theory: they improve the numbers without repairing the theory's structure, so none of them survives into the transonic regime. Drag-divergence Mach number, buffet onset, and supercritical airfoil design all lie outside.</div>
+    </section>
+
+    <section id="corrections">
+      <p class="section-label">Two better formulas</p>
+      <h2>Kármán–Tsien and Laitone</h2>
+      <p>Prandtl–Glauert scales \(C_{p,0}\) by \(1/\beta\) and nothing else. Both improved corrections keep that leading behaviour but add a term that depends on \(C_{p,0}\) itself, so that the correction grows where the suction is already strong.</p>
+      <div class="equation-card"><p class="equation-label">Kármán–Tsien</p>\[\boxed{C_p=\frac{C_{p,0}}{\beta+\dfrac{M_\infty^2}{1+\beta}\dfrac{C_{p,0}}{2}}}\]</div>
+      <div class="equation-card"><p class="equation-label">Laitone</p>\[\boxed{C_p=\frac{C_{p,0}}{\beta+\dfrac{M_\infty^2}{2\beta}\left(1+\dfrac{\gamma-1}{2}M_\infty^2\right)C_{p,0}}}\]</div>
+      <div class="callout"><strong>Why they predict stronger suction.</strong> On the upper surface \(C_{p,0}&lt;0\), so the extra term in each denominator is negative and makes the denominator smaller than \(\beta\) alone. A smaller denominator means a larger magnitude. Both corrections therefore sit below Prandtl–Glauert, and Laitone — which carries the additional \(\gamma\)-dependent factor — sits below Kármán–Tsien.</div>
+      <div class="callout success"><strong>They all agree at low speed.</strong> As \(M_\infty\to0\), \(\beta\to1\) and the extra terms vanish, so all three collapse to \(C_p=C_{p,0}\). The differences only open up as the compressibility effect itself becomes significant, which is the sensible behaviour for a correction.</div>
+    </section>
+
+    <section id="comparison">
+      <p class="section-label">Side by side</p>
+      <h2>How far apart the three answers are</h2>
+      <p>For a point with \(C_{p,0}=-0.50\):</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>Prandtl–Glauert</th><th>Kármán–Tsien</th><th>Laitone</th></tr></thead>
+          <tbody>
+            <tr><td>0.2</td><td>−0.5103</td><td>−0.5130</td><td>−0.5157</td></tr>
+            <tr><td>0.4</td><td>−0.5455</td><td>−0.5583</td><td>−0.5737</td></tr>
+            <tr><td>0.6</td><td>−0.6250</td><td>−0.6667</td><td>−0.7359</td></tr>
+            <tr><td>0.7</td><td>−0.7001</td><td>−0.7780</td><td>−0.9509</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout"><strong>Reading the table.</strong> At \(M_\infty=0.2\) the three agree to within one per cent and the choice is irrelevant. At \(M_\infty=0.7\) Laitone predicts 36 % more suction than Prandtl–Glauert. Experiment generally falls between Kármán–Tsien and Laitone, closer to Kármán–Tsien, which is why it is the one most often used in practice.</div>
+      <div class="callout warning">None of the three is exact, and their spread at high subsonic Mach number is itself the warning: when three reasonable corrections to the same theory disagree by a third, the underlying linear theory is being pushed past where it belongs.</div>
+    </section>
+
+    <section id="exactcp">
+      <p class="section-label">Exact relation</p>
+      <h2>Pressure coefficient and local Mach number</h2>
+      <p>To locate where the flow first goes sonic we need an exact statement, not a correction. Since the flow is isentropic up to that point, both the local and free-stream states connect to the same stagnation pressure:</p>
+      <div class="equation-card">\[\frac{p}{p_0}=\left(1+\frac{\gamma-1}{2}M^2\right)^{-\gamma/(\gamma-1)},\qquad\frac{p_\infty}{p_0}=\left(1+\frac{\gamma-1}{2}M_\infty^2\right)^{-\gamma/(\gamma-1)}.\]</div>
+      <p>Dividing one by the other eliminates \(p_0\), and substituting into \(C_p=\dfrac{2}{\gamma M_\infty^2}\left(\dfrac{p}{p_\infty}-1\right)\) gives</p>
+      <div class="equation-card">\[\boxed{C_p=\frac{2}{\gamma M_\infty^2}\left[\left(\frac{1+\frac{\gamma-1}{2}M_\infty^2}{1+\frac{\gamma-1}{2}M^2}\right)^{\gamma/(\gamma-1)}-1\right]}\]</div>
+      <div class="callout success">This is exact within the isentropic model — no thin-body assumption, no linearization. It maps a local Mach number to the pressure coefficient that would be measured there, for a given free stream.</div>
+    </section>
+
+    <section id="critical">
+      <p class="section-label">The definition</p>
+      <h2>The critical pressure coefficient</h2>
+      <p>Setting \(M=1\) in the exact relation defines the pressure coefficient that corresponds to sonic flow at a point, as a function of the free-stream Mach number alone:</p>
+      <div class="equation-card">\[\boxed{C_{p,\mathrm{cr}}=\frac{2}{\gamma M_\infty^2}\left[\left(\frac{1+\frac{\gamma-1}{2}M_\infty^2}{1+\frac{\gamma-1}{2}}\right)^{\gamma/(\gamma-1)}-1\right]}\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>0.5</th><th>0.6</th><th>0.7</th><th>0.8</th><th>0.9</th></tr></thead>
+          <tbody><tr><td>\(C_{p,\mathrm{cr}}\)</td><td>−2.1334</td><td>−1.2943</td><td>−0.7791</td><td>−0.4346</td><td>−0.1879</td></tr></tbody>
+        </table>
+      </div>
+      <div class="callout"><strong>A curve, not a number.</strong> \(C_{p,\mathrm{cr}}\) is a property of the free stream, not of the airfoil. It becomes less negative as \(M_\infty\) rises, because a faster free stream needs less local acceleration to reach sonic conditions. Plotted against \(M_\infty\) it is a monotonic curve rising toward zero at \(M_\infty=1\).</div>
+    </section>
+
+    <section id="algorithm">
+      <p class="section-label">Calculation algorithm</p>
+      <h2>Estimating the critical Mach number</h2>
+      <p>The airfoil supplies one curve and the free stream supplies another. \(M_{\mathrm{cr}}\) is where they cross.</p>
+      <div class="process-flow">
+        <div><strong>1</strong><span>Obtain \((C_{p,0})_{\min}\) for the airfoil at low speed</span></div>
+        <div><strong>2</strong><span>Choose a correction to carry it to Mach number \(M_\infty\)</span></div>
+        <div><strong>3</strong><span>Evaluate \(C_{p,\mathrm{cr}}(M_\infty)\) from the exact relation</span></div>
+        <div><strong>4</strong><span>Compare the two at that \(M_\infty\)</span></div>
+        <div><strong>5</strong><span>Iterate on \(M_\infty\) until they are equal</span></div>
+        <div><strong>6</strong><span>That value is \(M_{\mathrm{cr}}\)</span></div>
+      </div>
+      <p>With Prandtl–Glauert as the correction, the condition to solve is simply</p>
+      <div class="equation-card">\[\boxed{\frac{(C_{p,0})_{\min}}{\sqrt{1-M_{\mathrm{cr}}^2}}=C_{p,\mathrm{cr}}(M_{\mathrm{cr}})}\]</div>
+      <div class="callout warning">Both sides depend on \(M_{\mathrm{cr}}\), so this is a root-finding problem, not a formula. It is well behaved: the left side falls steeply while the right side rises, so they cross once and a bisection converges quickly.</div>
+    </section>
+
+    <section id="example">
+      <p class="section-label">Worked example</p>
+      <h2>Critical Mach number of a NACA 0012</h2>
+      <div class="example">
+        <h3>Problem</h3>
+        <p>A NACA 0012 at \(\alpha=0^\circ\) has a minimum low-speed pressure coefficient of \((C_{p,0})_{\min}=-0.43\). Estimate its critical Mach number using the Prandtl–Glauert correction, with \(\gamma=1.4\).</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Try \(M_\infty=0.70\). The corrected minimum is</p>\[\frac{-0.43}{\sqrt{1-0.49}}=-0.6021,\]<p>while the sonic requirement is \(C_{p,\mathrm{cr}}(0.70)=-0.7791\). The airfoil suction is weaker than needed, so the flow is not yet sonic.</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Try \(M_\infty=0.75\):</p>\[\frac{-0.43}{\sqrt{1-0.5625}}=-0.6501,\qquad C_{p,\mathrm{cr}}(0.75)=-0.5912.\]<p>Now the suction is <em>stronger</em> than the sonic requirement, so the crossing has been passed.</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Converging between the two:</p>\[\boxed{M_{\mathrm{cr}}=0.7371},\qquad C_p=C_{p,\mathrm{cr}}=-0.6363.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Sanity check on the correction used. At \(M_\infty=0.7371\) the implied perturbation is \(\hat u/V_\infty=0.318\), and the linearization criterion of Lecture 10 gives \((\gamma+1)M_\infty^2\hat u/V_\infty=0.415\) against \(|1-M_\infty^2|=0.457\) — comparable, not small. The estimate is usable but is working at the edge of its own validity.</p></div></div>
+
+        <div class="result-box">\[\boxed{M_{\mathrm{cr}}\approx0.737}\]</div>
+        <p>The value agrees with the figure usually quoted for this section. Note the direction of the sensitivity: a thicker airfoil has a more negative \((C_{p,0})_{\min}\) and therefore a <em>lower</em> \(M_{\mathrm{cr}}\). This is the whole reason high-subsonic transports use thin wings and, later, supercritical sections.</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\((C_{p,0})_{\min}\)</th><th>−0.43</th><th>−0.50</th><th>−0.60</th><th>−0.80</th><th>−1.20</th></tr></thead>
+          <tbody><tr><td>\(M_{\mathrm{cr}}\)</td><td>0.7371</td><td>0.7157</td><td>0.6886</td><td>0.6430</td><td>0.5748</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="summary">
+      <p class="section-label">Key equations</p>
+      <h2>At a glance</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Relation</th><th>Expression</th><th>Applies when</th></tr></thead>
+          <tbody>
+            <tr><td>Prandtl–Glauert</td><td>\(C_p=C_{p,0}/\beta\)</td><td>weak suction, moderate \(M_\infty\)</td></tr>
+            <tr><td>Kármán–Tsien</td><td>\(C_p=C_{p,0}\big/\left[\beta+\frac{M_\infty^2}{1+\beta}\frac{C_{p,0}}{2}\right]\)</td><td>usually closest to experiment</td></tr>
+            <tr><td>Laitone</td><td>\(C_p=C_{p,0}\big/\left[\beta+\frac{M_\infty^2}{2\beta}\left(1+\frac{\gamma-1}{2}M_\infty^2\right)C_{p,0}\right]\)</td><td>largest predicted suction</td></tr>
+            <tr><td>Exact \(C_p\)</td><td>\(C_p=\frac{2}{\gamma M_\infty^2}\left[\left(\frac{1+\frac{\gamma-1}{2}M_\infty^2}{1+\frac{\gamma-1}{2}M^2}\right)^{\gamma/(\gamma-1)}-1\right]\)</td><td>isentropic, any thickness</td></tr>
+            <tr><td>Critical \(C_p\)</td><td>set \(M=1\) above</td><td>defines sonic condition</td></tr>
+            <tr><td>Critical Mach</td><td>\((C_{p,0})_{\min}/\beta=C_{p,\mathrm{cr}}(M_{\mathrm{cr}})\)</td><td>solve by iteration</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="mistakes">
+      <p class="section-label">Common mistakes</p>
+      <h2>Common mistakes</h2>
+      <ul class="check-list">
+        <li><strong>Treating \(C_{p,\mathrm{cr}}\) as a property of the airfoil.</strong> It depends only on \(M_\infty\) and \(\gamma\). The airfoil enters through \((C_{p,0})_{\min}\).</li>
+        <li><strong>Solving for \(M_{\mathrm{cr}}\) with a formula.</strong> Both sides depend on it; it is a root, found by iteration.</li>
+        <li><strong>Using the mean or trailing-edge \(C_{p,0}\).</strong> The flow goes sonic first at the point of <em>minimum</em> pressure, so the minimum is the one that matters.</li>
+        <li><strong>Believing \(M_{\mathrm{cr}}\) is where drag rises.</strong> Drag divergence occurs somewhat <em>above</em> \(M_{\mathrm{cr}}\), once the supersonic pocket is large enough for its terminating shock to matter.</li>
+        <li><strong>Applying any of the three corrections above \(M_{\mathrm{cr}}\).</strong> The shock makes the flow non-isentropic and all of them lose their basis.</li>
+        <li><strong>Assuming Laitone is best because it is most elaborate.</strong> Experiment usually falls nearer Kármán–Tsien; Laitone tends to over-predict the suction.</li>
+        <li><strong>Forgetting that a thicker section lowers \(M_{\mathrm{cr}}\).</strong> More thickness means more acceleration, stronger suction, and sonic conditions sooner.</li>
+      </ul>
+    </section>
+
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed. New York: McGraw-Hill Education, 2017, Sections 11.4–11.6.</li>
+        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3rd ed. New York: McGraw-Hill, 2003, Chapter 9.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexico, February 2024.</li>
+      </ol>
+      <p class="source-note">Adapted from Unit V of the Aerodynamics II course notes by Carlos Alberto Molina Holguín; all numerical values were independently recomputed for \(\gamma=1.4\).</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="subsonic-linearized-flow.html"><span>Previous lecture</span>← Linearized Subsonic Flow</a>
+      <a class="next-link" href="index.html?v=11"><span>Course index</span>Aerodynamics II</a>
+    </nav>
+  </article>
+
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Lo que debes ser capaz de hacer</h2>
+      <ul>
+        <li>Aplicar las correcciones de Kármán–Tsien y de Laitone y explicar en qué difieren de Prandtl–Glauert.</li>
+        <li>Predecir cuál de las tres da la mayor succión y decir por qué.</li>
+        <li>Deducir la relación exacta entre \(C_p\) y el número de Mach local.</li>
+        <li>Obtener el coeficiente de presión crítico \(C_{p,\mathrm{cr}}\) haciendo el Mach local igual a uno.</li>
+        <li>Estimar el número de Mach crítico de un perfil a partir de su distribución de presión de baja velocidad.</li>
+        <li>Explicar por qué importa \(M_{\mathrm{cr}}\) y qué ocurre justo por encima.</li>
+      </ul>
+    </section>
+
+    <section id="physics-es">
+      <p class="section-label">Panorama físico</p>
+      <h2>El perfil se vuelve sónico antes que el avión</h2>
+      <p class="lead">El flujo se acelera sobre el extradós de un perfil, así que el Mach local ahí es siempre mayor que el de corriente libre. Conforme el avión gana velocidad, algún punto de la superficie alcanza \(M=1\) mientras el avión sigue cómodamente subsónico. El Mach de corriente libre al que eso ocurre por primera vez es el <strong>número de Mach crítico</strong>, y es el límite práctico de velocidad de un diseño subsónico.</p>
+      <div class="callout success"><strong>Por qué es el número que importa.</strong> Por debajo de \(M_{\mathrm{cr}}\) no ocurre nada dramático. Por encima crece una burbuja supersónica sobre la superficie, y tiene que terminar en algún lado: termina en un choque. Ese choque trae arrastre de onda y, si es lo bastante fuerte, separación de capa límite. La divergencia de arrastre llega poco después, y por eso \(M_{\mathrm{cr}}\) aparece en los requisitos de diseño de todo avión de transporte.</div>
+    </section>
+
+    <section id="model-es">
+      <p class="section-label">Modelo e hipótesis</p>
+      <h2>Sigue siendo delgado, subsónico e isoentrópico</h2>
+      <ul>
+        <li>el marco subsónico linealizado de la Lecture 10, con todas sus hipótesis;</li>
+        <li>una distribución de presión incompresible conocida para el mismo perfil, de experimento o de teoría potencial;</li>
+        <li>flujo isoentrópico hasta el punto en que el Mach local alcanza uno;</li>
+        <li>\(\gamma=1.4\) en todo el trabajo numérico.</li>
+      </ul>
+      <div class="callout warning"><strong>No incluido.</strong> Nada por encima de \(M_{\mathrm{cr}}\). Una vez que existe una burbuja supersónica, el choque que la cierra destruye la premisa isoentrópica y toda relación de aquí deja de aplicar. Las correcciones son además parches puramente algebraicos a una teoría lineal: mejoran los números sin reparar la estructura de la teoría, así que ninguna sobrevive al régimen transónico. El Mach de divergencia de arrastre, el inicio del buffet y el diseño de perfiles supercríticos quedan todos fuera.</div>
+    </section>
+
+    <section id="corrections-es">
+      <p class="section-label">Dos fórmulas mejores</p>
+      <h2>Kármán–Tsien y Laitone</h2>
+      <p>Prandtl–Glauert escala \(C_{p,0}\) por \(1/\beta\) y nada más. Ambas correcciones mejoradas conservan ese comportamiento dominante pero añaden un término que depende del propio \(C_{p,0}\), de modo que la corrección crece donde la succión ya es fuerte.</p>
+      <div class="equation-card"><p class="equation-label">Kármán–Tsien</p>\[\boxed{C_p=\frac{C_{p,0}}{\beta+\dfrac{M_\infty^2}{1+\beta}\dfrac{C_{p,0}}{2}}}\]</div>
+      <div class="equation-card"><p class="equation-label">Laitone</p>\[\boxed{C_p=\frac{C_{p,0}}{\beta+\dfrac{M_\infty^2}{2\beta}\left(1+\dfrac{\gamma-1}{2}M_\infty^2\right)C_{p,0}}}\]</div>
+      <div class="callout"><strong>Por qué predicen más succión.</strong> En el extradós \(C_{p,0}&lt;0\), así que el término extra de cada denominador es negativo y hace el denominador menor que \(\beta\) solo. Denominador menor significa magnitud mayor. Ambas correcciones quedan por tanto por debajo de Prandtl–Glauert, y Laitone —que lleva el factor adicional dependiente de \(\gamma\)— queda por debajo de Kármán–Tsien.</div>
+      <div class="callout success"><strong>Las tres coinciden a baja velocidad.</strong> Cuando \(M_\infty\to0\), \(\beta\to1\) y los términos extra se anulan, así que las tres colapsan a \(C_p=C_{p,0}\). Las diferencias solo se abren cuando el efecto de compresibilidad se vuelve significativo, que es el comportamiento sensato para una corrección.</div>
+    </section>
+
+    <section id="comparison-es">
+      <p class="section-label">Lado a lado</p>
+      <h2>Qué tan separadas están las tres respuestas</h2>
+      <p>Para un punto con \(C_{p,0}=-0.50\):</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>Prandtl–Glauert</th><th>Kármán–Tsien</th><th>Laitone</th></tr></thead>
+          <tbody>
+            <tr><td>0.2</td><td>−0.5103</td><td>−0.5130</td><td>−0.5157</td></tr>
+            <tr><td>0.4</td><td>−0.5455</td><td>−0.5583</td><td>−0.5737</td></tr>
+            <tr><td>0.6</td><td>−0.6250</td><td>−0.6667</td><td>−0.7359</td></tr>
+            <tr><td>0.7</td><td>−0.7001</td><td>−0.7780</td><td>−0.9509</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout"><strong>Cómo leer la tabla.</strong> En \(M_\infty=0.2\) las tres coinciden dentro del uno por ciento y la elección es irrelevante. En \(M_\infty=0.7\) Laitone predice 36 % más succión que Prandtl–Glauert. El experimento suele caer entre Kármán–Tsien y Laitone, más cerca de Kármán–Tsien, que por eso es la más usada en la práctica.</div>
+      <div class="callout warning">Ninguna de las tres es exacta, y su dispersión a alto Mach subsónico es en sí misma la advertencia: cuando tres correcciones razonables a la misma teoría discrepan en un tercio, la teoría lineal de fondo está siendo llevada más allá de donde le corresponde.</div>
+    </section>
+
+    <section id="exactcp-es">
+      <p class="section-label">Relación exacta</p>
+      <h2>Coeficiente de presión y Mach local</h2>
+      <p>Para localizar dónde el flujo se vuelve sónico por primera vez hace falta un enunciado exacto, no una corrección. Como el flujo es isoentrópico hasta ese punto, tanto el estado local como el de corriente libre se conectan con la misma presión de estancamiento:</p>
+      <div class="equation-card">\[\frac{p}{p_0}=\left(1+\frac{\gamma-1}{2}M^2\right)^{-\gamma/(\gamma-1)},\qquad\frac{p_\infty}{p_0}=\left(1+\frac{\gamma-1}{2}M_\infty^2\right)^{-\gamma/(\gamma-1)}.\]</div>
+      <p>Dividiendo una entre otra se elimina \(p_0\), y sustituyendo en \(C_p=\dfrac{2}{\gamma M_\infty^2}\left(\dfrac{p}{p_\infty}-1\right)\) resulta</p>
+      <div class="equation-card">\[\boxed{C_p=\frac{2}{\gamma M_\infty^2}\left[\left(\frac{1+\frac{\gamma-1}{2}M_\infty^2}{1+\frac{\gamma-1}{2}M^2}\right)^{\gamma/(\gamma-1)}-1\right]}\]</div>
+      <div class="callout success">Esto es exacto dentro del modelo isoentrópico: sin hipótesis de cuerpo delgado, sin linealización. Mapea un Mach local al coeficiente de presión que se mediría ahí, para una corriente libre dada.</div>
+    </section>
+
+    <section id="critical-es">
+      <p class="section-label">La definición</p>
+      <h2>El coeficiente de presión crítico</h2>
+      <p>Haciendo \(M=1\) en la relación exacta se define el coeficiente de presión que corresponde a flujo sónico en un punto, como función solo del Mach de corriente libre:</p>
+      <div class="equation-card">\[\boxed{C_{p,\mathrm{cr}}=\frac{2}{\gamma M_\infty^2}\left[\left(\frac{1+\frac{\gamma-1}{2}M_\infty^2}{1+\frac{\gamma-1}{2}}\right)^{\gamma/(\gamma-1)}-1\right]}\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>0.5</th><th>0.6</th><th>0.7</th><th>0.8</th><th>0.9</th></tr></thead>
+          <tbody><tr><td>\(C_{p,\mathrm{cr}}\)</td><td>−2.1334</td><td>−1.2943</td><td>−0.7791</td><td>−0.4346</td><td>−0.1879</td></tr></tbody>
+        </table>
+      </div>
+      <div class="callout"><strong>Una curva, no un número.</strong> \(C_{p,\mathrm{cr}}\) es una propiedad de la corriente libre, no del perfil. Se hace menos negativo conforme sube \(M_\infty\), porque una corriente libre más rápida necesita menos aceleración local para llegar a condiciones sónicas. Graficado frente a \(M_\infty\) es una curva monótona que sube hacia cero en \(M_\infty=1\).</div>
+    </section>
+
+    <section id="algorithm-es">
+      <p class="section-label">Algoritmo de cálculo</p>
+      <h2>Estimar el número de Mach crítico</h2>
+      <p>El perfil aporta una curva y la corriente libre aporta otra. \(M_{\mathrm{cr}}\) es donde se cruzan.</p>
+      <div class="process-flow">
+        <div><strong>1</strong><span>Obtener \((C_{p,0})_{\min}\) del perfil a baja velocidad</span></div>
+        <div><strong>2</strong><span>Elegir una corrección para llevarlo al Mach \(M_\infty\)</span></div>
+        <div><strong>3</strong><span>Evaluar \(C_{p,\mathrm{cr}}(M_\infty)\) con la relación exacta</span></div>
+        <div><strong>4</strong><span>Comparar ambos en ese \(M_\infty\)</span></div>
+        <div><strong>5</strong><span>Iterar sobre \(M_\infty\) hasta igualarlos</span></div>
+        <div><strong>6</strong><span>Ese valor es \(M_{\mathrm{cr}}\)</span></div>
+      </div>
+      <p>Con Prandtl–Glauert como corrección, la condición a resolver es simplemente</p>
+      <div class="equation-card">\[\boxed{\frac{(C_{p,0})_{\min}}{\sqrt{1-M_{\mathrm{cr}}^2}}=C_{p,\mathrm{cr}}(M_{\mathrm{cr}})}\]</div>
+      <div class="callout warning">Ambos lados dependen de \(M_{\mathrm{cr}}\), así que esto es un problema de búsqueda de raíz, no una fórmula. Está bien portado: el lado izquierdo cae abruptamente mientras el derecho sube, así que se cruzan una sola vez y una bisección converge rápido.</div>
+    </section>
+
+    <section id="example-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>Número de Mach crítico de un NACA 0012</h2>
+      <div class="example">
+        <h3>Problema</h3>
+        <p>Un NACA 0012 a \(\alpha=0^\circ\) tiene un coeficiente de presión mínimo de baja velocidad \((C_{p,0})_{\min}=-0.43\). Estime su número de Mach crítico usando la corrección de Prandtl–Glauert, con \(\gamma=1.4\).</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Probemos \(M_\infty=0.70\). El mínimo corregido es</p>\[\frac{-0.43}{\sqrt{1-0.49}}=-0.6021,\]<p>mientras que el requisito sónico es \(C_{p,\mathrm{cr}}(0.70)=-0.7791\). La succión del perfil es más débil que la necesaria, así que el flujo aún no es sónico.</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Probemos \(M_\infty=0.75\):</p>\[\frac{-0.43}{\sqrt{1-0.5625}}=-0.6501,\qquad C_{p,\mathrm{cr}}(0.75)=-0.5912.\]<p>Ahora la succión es <em>más fuerte</em> que el requisito sónico, así que el cruce ya se pasó.</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Convergiendo entre ambos:</p>\[\boxed{M_{\mathrm{cr}}=0.7371},\qquad C_p=C_{p,\mathrm{cr}}=-0.6363.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Verificación de la corrección empleada. En \(M_\infty=0.7371\) la perturbación implícita es \(\hat u/V_\infty=0.318\), y el criterio de linealización de la Lecture 10 da \((\gamma+1)M_\infty^2\hat u/V_\infty=0.415\) frente a \(|1-M_\infty^2|=0.457\): comparables, no pequeños. La estimación es utilizable pero trabaja al borde de su propia validez.</p></div></div>
+
+        <div class="result-box">\[\boxed{M_{\mathrm{cr}}\approx0.737}\]</div>
+        <p>El valor coincide con la cifra que suele citarse para este perfil. Nótese la dirección de la sensibilidad: un perfil más grueso tiene un \((C_{p,0})_{\min}\) más negativo y por tanto un \(M_{\mathrm{cr}}\) <em>menor</em>. Esta es toda la razón por la que los transportes de alto subsónico usan alas delgadas y, más adelante, perfiles supercríticos.</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\((C_{p,0})_{\min}\)</th><th>−0.43</th><th>−0.50</th><th>−0.60</th><th>−0.80</th><th>−1.20</th></tr></thead>
+          <tbody><tr><td>\(M_{\mathrm{cr}}\)</td><td>0.7371</td><td>0.7157</td><td>0.6886</td><td>0.6430</td><td>0.5748</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="summary-es">
+      <p class="section-label">Ecuaciones clave</p>
+      <h2>En síntesis</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Relación</th><th>Expresión</th><th>Aplica cuando</th></tr></thead>
+          <tbody>
+            <tr><td>Prandtl–Glauert</td><td>\(C_p=C_{p,0}/\beta\)</td><td>succión débil, \(M_\infty\) moderado</td></tr>
+            <tr><td>Kármán–Tsien</td><td>\(C_p=C_{p,0}\big/\left[\beta+\frac{M_\infty^2}{1+\beta}\frac{C_{p,0}}{2}\right]\)</td><td>habitualmente la más cercana al experimento</td></tr>
+            <tr><td>Laitone</td><td>\(C_p=C_{p,0}\big/\left[\beta+\frac{M_\infty^2}{2\beta}\left(1+\frac{\gamma-1}{2}M_\infty^2\right)C_{p,0}\right]\)</td><td>mayor succión predicha</td></tr>
+            <tr><td>\(C_p\) exacto</td><td>\(C_p=\frac{2}{\gamma M_\infty^2}\left[\left(\frac{1+\frac{\gamma-1}{2}M_\infty^2}{1+\frac{\gamma-1}{2}M^2}\right)^{\gamma/(\gamma-1)}-1\right]\)</td><td>isoentrópico, cualquier espesor</td></tr>
+            <tr><td>\(C_p\) crítico</td><td>hacer \(M=1\) arriba</td><td>define la condición sónica</td></tr>
+            <tr><td>Mach crítico</td><td>\((C_{p,0})_{\min}/\beta=C_{p,\mathrm{cr}}(M_{\mathrm{cr}})\)</td><td>resolver por iteración</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="mistakes-es">
+      <p class="section-label">Errores comunes</p>
+      <h2>Errores comunes</h2>
+      <ul class="check-list">
+        <li><strong>Tratar \(C_{p,\mathrm{cr}}\) como propiedad del perfil.</strong> Depende solo de \(M_\infty\) y \(\gamma\). El perfil entra por \((C_{p,0})_{\min}\).</li>
+        <li><strong>Despejar \(M_{\mathrm{cr}}\) con una fórmula.</strong> Ambos lados dependen de él; es una raíz que se halla iterando.</li>
+        <li><strong>Usar el \(C_{p,0}\) medio o el del borde de salida.</strong> El flujo se vuelve sónico primero en el punto de presión <em>mínima</em>, así que ese es el que importa.</li>
+        <li><strong>Creer que \(M_{\mathrm{cr}}\) es donde sube el arrastre.</strong> La divergencia de arrastre ocurre algo <em>por encima</em> de \(M_{\mathrm{cr}}\), cuando la burbuja supersónica ya es lo bastante grande para que su choque de cierre cuente.</li>
+        <li><strong>Aplicar cualquiera de las tres correcciones por encima de \(M_{\mathrm{cr}}\).</strong> El choque vuelve el flujo no isoentrópico y todas pierden su fundamento.</li>
+        <li><strong>Suponer que Laitone es la mejor por ser la más elaborada.</strong> El experimento suele caer más cerca de Kármán–Tsien; Laitone tiende a sobreestimar la succión.</li>
+        <li><strong>Olvidar que más espesor baja \(M_{\mathrm{cr}}\).</strong> Más espesor significa más aceleración, succión más fuerte y condiciones sónicas antes.</li>
+      </ul>
+    </section>
+
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, secciones 11.4–11.6.</li>
+        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3.ª ed. Nueva York: McGraw-Hill, 2003, capítulo 9.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, México, febrero de 2024.</li>
+      </ol>
+      <p class="source-note">Adaptado de la Unidad V de los apuntes de Aerodinámica II de Carlos Alberto Molina Holguín; todos los valores numéricos se recalcularon de forma independiente para \(\gamma=1.4\).</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="subsonic-linearized-flow.html"><span>Lecture anterior</span>← Flujo subsónico linealizado</a>
+      <a class="next-link" href="index.html?v=11"><span>Índice del curso</span>Aerodinámica II</a>
+    </nav>
+  </article>
+
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <ul>
+        <li>Die Korrekturen nach Kármán–Tsien und Laitone anwenden und ihren Unterschied zu Prandtl–Glauert erläutern.</li>
+        <li>Vorhersagen, welche der drei den größten Unterdruck liefert, und begründen, warum.</li>
+        <li>Den exakten Zusammenhang zwischen \(C_p\) und der örtlichen Machzahl herleiten.</li>
+        <li>Den kritischen Druckbeiwert \(C_{p,\mathrm{cr}}\) durch Setzen der örtlichen Machzahl auf eins gewinnen.</li>
+        <li>Die kritische Machzahl eines Profils aus seiner Niedergeschwindigkeits-Druckverteilung abschätzen.</li>
+        <li>Erläutern, warum \(M_{\mathrm{cr}}\) wichtig ist und was knapp darüber geschieht.</li>
+      </ul>
+    </section>
+
+    <section id="physics-de">
+      <p class="section-label">Physikalisches Bild</p>
+      <h2>Das Profil erreicht Schallgeschwindigkeit vor dem Flugzeug</h2>
+      <p class="lead">Die Strömung beschleunigt über der Profiloberseite, sodass die örtliche Machzahl dort stets über dem Anströmwert liegt. Nimmt das Flugzeug Fahrt auf, erreicht irgendein Oberflächenpunkt \(M=1\), während das Flugzeug selbst noch bequem im Unterschall fliegt. Die Anström-Machzahl, bei der das erstmals geschieht, ist die <strong>kritische Machzahl</strong> und bildet die praktische Geschwindigkeitsgrenze eines Unterschallentwurfs.</p>
+      <div class="callout success"><strong>Warum das die maßgebliche Zahl ist.</strong> Unterhalb von \(M_{\mathrm{cr}}\) geschieht nichts Dramatisches. Oberhalb wächst auf der Oberfläche ein Überschallgebiet, das irgendwo enden muss — es endet in einem Stoß. Dieser Stoß bringt Wellenwiderstand und, wenn er stark genug ist, Grenzschichtablösung. Kurz darauf folgt die Widerstandsdivergenz; deshalb steht \(M_{\mathrm{cr}}\) in den Entwurfsanforderungen jedes Verkehrsflugzeugs.</div>
+    </section>
+
+    <section id="model-de">
+      <p class="section-label">Modell und Annahmen</p>
+      <h2>Weiterhin schlank, unterschallschnell und isentrop</h2>
+      <ul>
+        <li>der linearisierte Unterschallrahmen aus Vorlesung 10 mit all seinen Annahmen;</li>
+        <li>eine bekannte inkompressible Druckverteilung desselben Profils, aus Versuch oder Potentialtheorie;</li>
+        <li>isentrope Strömung bis zu dem Punkt, an dem die örtliche Machzahl eins erreicht;</li>
+        <li>durchgehend \(\gamma=1{,}4\) in den Zahlenrechnungen.</li>
+      </ul>
+      <div class="callout warning"><strong>Nicht enthalten.</strong> Alles oberhalb von \(M_{\mathrm{cr}}\). Sobald ein Überschallgebiet besteht, zerstört der abschließende Stoß die isentrope Voraussetzung, und sämtliche Beziehungen hier verlieren ihre Gültigkeit. Die Korrekturen sind zudem rein algebraische Reparaturen einer linearen Theorie: Sie verbessern die Zahlen, ohne die Struktur der Theorie zu heilen, und keine übersteht den transsonischen Bereich. Widerstandsdivergenz-Machzahl, Buffet-Beginn und der Entwurf superkritischer Profile liegen sämtlich außerhalb.</div>
+    </section>
+
+    <section id="corrections-de">
+      <p class="section-label">Zwei bessere Formeln</p>
+      <h2>Kármán–Tsien und Laitone</h2>
+      <p>Prandtl–Glauert skaliert \(C_{p,0}\) mit \(1/\beta\) und sonst nichts. Beide verbesserten Korrekturen behalten dieses führende Verhalten, fügen aber einen von \(C_{p,0}\) selbst abhängigen Term hinzu, sodass die Korrektur dort wächst, wo der Unterdruck bereits stark ist.</p>
+      <div class="equation-card"><p class="equation-label">Kármán–Tsien</p>\[\boxed{C_p=\frac{C_{p,0}}{\beta+\dfrac{M_\infty^2}{1+\beta}\dfrac{C_{p,0}}{2}}}\]</div>
+      <div class="equation-card"><p class="equation-label">Laitone</p>\[\boxed{C_p=\frac{C_{p,0}}{\beta+\dfrac{M_\infty^2}{2\beta}\left(1+\dfrac{\gamma-1}{2}M_\infty^2\right)C_{p,0}}}\]</div>
+      <div class="callout"><strong>Warum sie stärkeren Unterdruck vorhersagen.</strong> Auf der Oberseite ist \(C_{p,0}&lt;0\), der Zusatzterm in jedem Nenner also negativ, was den Nenner kleiner macht als \(\beta\) allein. Ein kleinerer Nenner bedeutet einen größeren Betrag. Beide Korrekturen liegen daher unterhalb von Prandtl–Glauert, und Laitone — mit dem zusätzlichen \(\gamma\)-abhängigen Faktor — unterhalb von Kármán–Tsien.</div>
+      <div class="callout success"><strong>Bei niedriger Geschwindigkeit stimmen alle drei überein.</strong> Für \(M_\infty\to0\) geht \(\beta\to1\), die Zusatzterme verschwinden, und alle drei fallen auf \(C_p=C_{p,0}\) zusammen. Die Unterschiede öffnen sich erst, wenn der Kompressibilitätseinfluss selbst bedeutsam wird — das sinnvolle Verhalten einer Korrektur.</div>
+    </section>
+
+    <section id="comparison-de">
+      <p class="section-label">Nebeneinander</p>
+      <h2>Wie weit die drei Antworten auseinanderliegen</h2>
+      <p>Für einen Punkt mit \(C_{p,0}=-0{,}50\):</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>Prandtl–Glauert</th><th>Kármán–Tsien</th><th>Laitone</th></tr></thead>
+          <tbody>
+            <tr><td>0,2</td><td>−0,5103</td><td>−0,5130</td><td>−0,5157</td></tr>
+            <tr><td>0,4</td><td>−0,5455</td><td>−0,5583</td><td>−0,5737</td></tr>
+            <tr><td>0,6</td><td>−0,6250</td><td>−0,6667</td><td>−0,7359</td></tr>
+            <tr><td>0,7</td><td>−0,7001</td><td>−0,7780</td><td>−0,9509</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout"><strong>Wie die Tabelle zu lesen ist.</strong> Bei \(M_\infty=0{,}2\) stimmen die drei auf ein Prozent überein, die Wahl ist belanglos. Bei \(M_\infty=0{,}7\) sagt Laitone 36 % mehr Unterdruck voraus als Prandtl–Glauert. Der Versuch liegt meist zwischen Kármán–Tsien und Laitone, näher bei Kármán–Tsien — deshalb wird diese in der Praxis am häufigsten verwendet.</div>
+      <div class="callout warning">Keine der drei ist exakt, und ihre Streuung bei hoher Unterschall-Machzahl ist selbst die Warnung: Wenn drei vernünftige Korrekturen derselben Theorie um ein Drittel auseinanderliegen, wird die zugrunde liegende lineare Theorie über ihren Geltungsbereich hinaus beansprucht.</div>
+    </section>
+
+    <section id="exactcp-de">
+      <p class="section-label">Exakte Beziehung</p>
+      <h2>Druckbeiwert und örtliche Machzahl</h2>
+      <p>Um zu bestimmen, wo die Strömung erstmals Schallgeschwindigkeit erreicht, braucht es eine exakte Aussage, keine Korrektur. Da die Strömung bis dorthin isentrop ist, verbinden sich örtlicher Zustand und Anströmzustand mit demselben Ruhedruck:</p>
+      <div class="equation-card">\[\frac{p}{p_0}=\left(1+\frac{\gamma-1}{2}M^2\right)^{-\gamma/(\gamma-1)},\qquad\frac{p_\infty}{p_0}=\left(1+\frac{\gamma-1}{2}M_\infty^2\right)^{-\gamma/(\gamma-1)}.\]</div>
+      <p>Division der einen durch die andere eliminiert \(p_0\); Einsetzen in \(C_p=\dfrac{2}{\gamma M_\infty^2}\left(\dfrac{p}{p_\infty}-1\right)\) liefert</p>
+      <div class="equation-card">\[\boxed{C_p=\frac{2}{\gamma M_\infty^2}\left[\left(\frac{1+\frac{\gamma-1}{2}M_\infty^2}{1+\frac{\gamma-1}{2}M^2}\right)^{\gamma/(\gamma-1)}-1\right]}\]</div>
+      <div class="callout success">Dies ist im isentropen Modell exakt — ohne Schlankheitsannahme, ohne Linearisierung. Es bildet eine örtliche Machzahl auf den dort messbaren Druckbeiwert ab, zu gegebener Anströmung.</div>
+    </section>
+
+    <section id="critical-de">
+      <p class="section-label">Die Definition</p>
+      <h2>Der kritische Druckbeiwert</h2>
+      <p>Setzt man \(M=1\) in die exakte Beziehung, so ist der Druckbeiwert definiert, der örtlicher Schallgeschwindigkeit entspricht — allein als Funktion der Anström-Machzahl:</p>
+      <div class="equation-card">\[\boxed{C_{p,\mathrm{cr}}=\frac{2}{\gamma M_\infty^2}\left[\left(\frac{1+\frac{\gamma-1}{2}M_\infty^2}{1+\frac{\gamma-1}{2}}\right)^{\gamma/(\gamma-1)}-1\right]}\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>0,5</th><th>0,6</th><th>0,7</th><th>0,8</th><th>0,9</th></tr></thead>
+          <tbody><tr><td>\(C_{p,\mathrm{cr}}\)</td><td>−2,1334</td><td>−1,2943</td><td>−0,7791</td><td>−0,4346</td><td>−0,1879</td></tr></tbody>
+        </table>
+      </div>
+      <div class="callout"><strong>Eine Kurve, keine Zahl.</strong> \(C_{p,\mathrm{cr}}\) ist eine Eigenschaft der Anströmung, nicht des Profils. Mit steigendem \(M_\infty\) wird der Wert weniger negativ, denn eine schnellere Anströmung braucht weniger örtliche Beschleunigung bis zur Schallgeschwindigkeit. Über \(M_\infty\) aufgetragen ist es eine monoton gegen null bei \(M_\infty=1\) steigende Kurve.</div>
+    </section>
+
+    <section id="algorithm-de">
+      <p class="section-label">Rechenalgorithmus</p>
+      <h2>Die kritische Machzahl abschätzen</h2>
+      <p>Das Profil liefert die eine Kurve, die Anströmung die andere. \(M_{\mathrm{cr}}\) liegt im Schnittpunkt.</p>
+      <div class="process-flow">
+        <div><strong>1</strong><span>\((C_{p,0})_{\min}\) des Profils bei niedriger Geschwindigkeit bestimmen</span></div>
+        <div><strong>2</strong><span>Eine Korrektur wählen, um es auf \(M_\infty\) zu bringen</span></div>
+        <div><strong>3</strong><span>\(C_{p,\mathrm{cr}}(M_\infty)\) aus der exakten Beziehung auswerten</span></div>
+        <div><strong>4</strong><span>Beide bei diesem \(M_\infty\) vergleichen</span></div>
+        <div><strong>5</strong><span>Über \(M_\infty\) iterieren, bis sie gleich sind</span></div>
+        <div><strong>6</strong><span>Dieser Wert ist \(M_{\mathrm{cr}}\)</span></div>
+      </div>
+      <p>Mit Prandtl–Glauert als Korrektur lautet die zu lösende Bedingung schlicht</p>
+      <div class="equation-card">\[\boxed{\frac{(C_{p,0})_{\min}}{\sqrt{1-M_{\mathrm{cr}}^2}}=C_{p,\mathrm{cr}}(M_{\mathrm{cr}})}\]</div>
+      <div class="callout warning">Beide Seiten hängen von \(M_{\mathrm{cr}}\) ab; es handelt sich also um eine Nullstellensuche, nicht um eine Formel. Sie ist gutartig: Die linke Seite fällt steil, die rechte steigt, sie schneiden sich genau einmal, und eine Bisektion konvergiert rasch.</div>
+    </section>
+
+    <section id="example-de">
+      <p class="section-label">Rechenbeispiel</p>
+      <h2>Kritische Machzahl eines NACA 0012</h2>
+      <div class="example">
+        <h3>Aufgabe</h3>
+        <p>Ein NACA 0012 bei \(\alpha=0^\circ\) besitzt einen minimalen Niedergeschwindigkeits-Druckbeiwert \((C_{p,0})_{\min}=-0{,}43\). Zu schätzen ist seine kritische Machzahl mit der Prandtl–Glauert-Korrektur und \(\gamma=1{,}4\).</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Versuch mit \(M_\infty=0{,}70\). Das korrigierte Minimum lautet</p>\[\frac{-0{,}43}{\sqrt{1-0{,}49}}=-0{,}6021,\]<p>während die Schallbedingung \(C_{p,\mathrm{cr}}(0{,}70)=-0{,}7791\) verlangt. Der Unterdruck des Profils ist schwächer als nötig, die Strömung ist also noch nicht schallschnell.</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Versuch mit \(M_\infty=0{,}75\):</p>\[\frac{-0{,}43}{\sqrt{1-0{,}5625}}=-0{,}6501,\qquad C_{p,\mathrm{cr}}(0{,}75)=-0{,}5912.\]<p>Nun ist der Unterdruck <em>stärker</em> als die Schallbedingung; der Schnittpunkt wurde überschritten.</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Konvergenz zwischen beiden:</p>\[\boxed{M_{\mathrm{cr}}=0{,}7371},\qquad C_p=C_{p,\mathrm{cr}}=-0{,}6363.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Prüfung der verwendeten Korrektur. Bei \(M_\infty=0{,}7371\) beträgt die implizierte Störung \(\hat u/V_\infty=0{,}318\), und das Linearisierungskriterium aus Vorlesung 10 liefert \((\gamma+1)M_\infty^2\hat u/V_\infty=0{,}415\) gegenüber \(|1-M_\infty^2|=0{,}457\) — vergleichbar, nicht klein. Die Abschätzung ist brauchbar, arbeitet aber am Rand ihrer eigenen Gültigkeit.</p></div></div>
+
+        <div class="result-box">\[\boxed{M_{\mathrm{cr}}\approx0{,}737}\]</div>
+        <p>Der Wert stimmt mit der für dieses Profil üblicherweise genannten Zahl überein. Man beachte die Richtung der Empfindlichkeit: Ein dickeres Profil hat ein stärker negatives \((C_{p,0})_{\min}\) und damit ein <em>kleineres</em> \(M_{\mathrm{cr}}\). Genau deshalb verwenden Verkehrsflugzeuge im hohen Unterschall dünne Flügel und später superkritische Profile.</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\((C_{p,0})_{\min}\)</th><th>−0,43</th><th>−0,50</th><th>−0,60</th><th>−0,80</th><th>−1,20</th></tr></thead>
+          <tbody><tr><td>\(M_{\mathrm{cr}}\)</td><td>0,7371</td><td>0,7157</td><td>0,6886</td><td>0,6430</td><td>0,5748</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="summary-de">
+      <p class="section-label">Kerngleichungen</p>
+      <h2>Auf einen Blick</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Beziehung</th><th>Ausdruck</th><th>Gültig wenn</th></tr></thead>
+          <tbody>
+            <tr><td>Prandtl–Glauert</td><td>\(C_p=C_{p,0}/\beta\)</td><td>schwacher Unterdruck, mäßiges \(M_\infty\)</td></tr>
+            <tr><td>Kármán–Tsien</td><td>\(C_p=C_{p,0}\big/\left[\beta+\frac{M_\infty^2}{1+\beta}\frac{C_{p,0}}{2}\right]\)</td><td>meist am nächsten am Versuch</td></tr>
+            <tr><td>Laitone</td><td>\(C_p=C_{p,0}\big/\left[\beta+\frac{M_\infty^2}{2\beta}\left(1+\frac{\gamma-1}{2}M_\infty^2\right)C_{p,0}\right]\)</td><td>größter vorhergesagter Unterdruck</td></tr>
+            <tr><td>Exaktes \(C_p\)</td><td>\(C_p=\frac{2}{\gamma M_\infty^2}\left[\left(\frac{1+\frac{\gamma-1}{2}M_\infty^2}{1+\frac{\gamma-1}{2}M^2}\right)^{\gamma/(\gamma-1)}-1\right]\)</td><td>isentrop, beliebige Dicke</td></tr>
+            <tr><td>Kritisches \(C_p\)</td><td>oben \(M=1\) setzen</td><td>definiert die Schallbedingung</td></tr>
+            <tr><td>Kritische Machzahl</td><td>\((C_{p,0})_{\min}/\beta=C_{p,\mathrm{cr}}(M_{\mathrm{cr}})\)</td><td>iterativ lösen</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="mistakes-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Häufige Fehler</h2>
+      <ul class="check-list">
+        <li><strong>\(C_{p,\mathrm{cr}}\) für eine Profileigenschaft halten.</strong> Es hängt nur von \(M_\infty\) und \(\gamma\) ab. Das Profil geht über \((C_{p,0})_{\min}\) ein.</li>
+        <li><strong>\(M_{\mathrm{cr}}\) mit einer Formel auflösen wollen.</strong> Beide Seiten hängen davon ab; es ist eine iterativ zu findende Nullstelle.</li>
+        <li><strong>Das mittlere oder das Hinterkanten-\(C_{p,0}\) verwenden.</strong> Schallgeschwindigkeit tritt zuerst am Punkt <em>minimalen</em> Drucks auf; dieser zählt.</li>
+        <li><strong>Glauben, bei \(M_{\mathrm{cr}}\) steige der Widerstand.</strong> Die Widerstandsdivergenz liegt etwas <em>oberhalb</em> von \(M_{\mathrm{cr}}\), sobald das Überschallgebiet groß genug ist, dass sein abschließender Stoß ins Gewicht fällt.</li>
+        <li><strong>Eine der drei Korrekturen oberhalb von \(M_{\mathrm{cr}}\) anwenden.</strong> Der Stoß macht die Strömung nichtisentrop, und alle verlieren ihre Grundlage.</li>
+        <li><strong>Laitone für die beste halten, weil sie die aufwendigste ist.</strong> Der Versuch liegt meist näher bei Kármán–Tsien; Laitone überschätzt den Unterdruck tendenziell.</li>
+        <li><strong>Vergessen, dass größere Dicke \(M_{\mathrm{cr}}\) senkt.</strong> Mehr Dicke bedeutet mehr Beschleunigung, stärkeren Unterdruck und früher Schallbedingungen.</li>
+      </ul>
+    </section>
+
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6. Aufl. New York: McGraw-Hill Education, 2017, Abschnitte 11.4–11.6.</li>
+        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3. Aufl. New York: McGraw-Hill, 2003, Kapitel 9.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexiko, Februar 2024.</li>
+      </ol>
+      <p class="source-note">Bearbeitet nach Einheit V des Vorlesungsskripts Aerodynamik II von Carlos Alberto Molina Holguín; alle Zahlenwerte wurden für \(\gamma=1{,}4\) unabhängig nachgerechnet.</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="subsonic-linearized-flow.html"><span>Vorherige Vorlesung</span>← Linearisierte Unterschallströmung</a>
+      <a class="next-link" href="index.html?v=11"><span>Kursübersicht</span>Aerodynamik II</a>
+    </nav>
+  </article>
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>

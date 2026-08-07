@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Linearized subsonic compressible flow: the exact velocity-potential equation, the small-perturbation approximation, the linearized pressure coefficient, and the Prandtl-Glauert rule." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Linearized Subsonic Flow and Prandtl–Glauert | Aerodynamics II</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../index.html" data-ui-key="home">Home</a><a href="index.html?v=11" data-ui-key="course">Aerodynamics II</a><a href="../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">Aerodynamics II · Lecture 10</p><h1>Linearized Subsonic Flow and the Prandtl–Glauert Rule</h1><p class="hero-copy">From the exact velocity-potential equation to a linear one: what the small-perturbation assumption buys, what it costs, and how a single factor \(\beta\) converts an incompressible solution into a compressible one.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">Aerodinámica II · Lecture 10</p><h1>Flujo subsónico linealizado y la regla de Prandtl–Glauert</h1><p class="hero-copy">De la ecuación exacta del potencial a una lineal: qué compra la hipótesis de pequeñas perturbaciones, qué cuesta, y cómo un solo factor \(\beta\) convierte una solución incompresible en una compresible.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">Aerodynamik II · Vorlesung 10</p><h1>Linearisierte Unterschallströmung und die Prandtl–Glauert-Regel</h1><p class="hero-copy">Von der exakten Potentialgleichung zu einer linearen: Was die Annahme kleiner Störungen einbringt, was sie kostet, und wie ein einziger Faktor \(\beta\) eine inkompressible Lösung in eine kompressible überführt.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 45 min</span><span data-language="es" hidden>Lectura estimada: 45 min</span><span data-language="de" hidden>Lesedauer: ca. 45 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Model: thin body, small perturbation</span><span data-language="es" hidden>Modelo: cuerpo delgado, pequeña perturbación</span><span data-language="de" hidden>Modell: schlanker Körper, kleine Störung</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="nozzle-back-pressure-thrust.html">← <span data-ui-key="previous">Previous lecture</span></a><a class="button primary" href="compressibility-corrections.html"><span data-ui-key="next">Next lecture</span> →</a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#physics">Physical picture</a><a href="#model">Model and assumptions</a><a href="#exact">The exact potential equation</a><a href="#perturbation">Perturbation potential</a><a href="#linearized">The linearized equation</a><a href="#boundary">Boundary conditions</a><a href="#cp">Linearized pressure coefficient</a><a href="#transform">The Prandtl–Glauert transformation</a><a href="#rule">The Prandtl–Glauert rule</a><a href="#example">Worked example</a><a href="#summary">Key equations</a><a href="#mistakes">Common mistakes</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#physics-es">Panorama físico</a><a href="#model-es">Modelo e hipótesis</a><a href="#exact-es">La ecuación exacta del potencial</a><a href="#perturbation-es">Potencial de perturbación</a><a href="#linearized-es">La ecuación linealizada</a><a href="#boundary-es">Condiciones de frontera</a><a href="#cp-es">Coeficiente de presión linealizado</a><a href="#transform-es">La transformación de Prandtl–Glauert</a><a href="#rule-es">La regla de Prandtl–Glauert</a><a href="#example-es">Ejemplo resuelto</a><a href="#summary-es">Ecuaciones clave</a><a href="#mistakes-es">Errores comunes</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#physics-de">Physikalisches Bild</a><a href="#model-de">Modell und Annahmen</a><a href="#exact-de">Die exakte Potentialgleichung</a><a href="#perturbation-de">Störpotential</a><a href="#linearized-de">Die linearisierte Gleichung</a><a href="#boundary-de">Randbedingungen</a><a href="#cp-de">Linearisierter Druckbeiwert</a><a href="#transform-de">Die Prandtl–Glauert-Transformation</a><a href="#rule-de">Die Prandtl–Glauert-Regel</a><a href="#example-de">Rechenbeispiel</a><a href="#summary-de">Kerngleichungen</a><a href="#mistakes-de">Häufige Fehler</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <ul>
+        <li>State the conditions under which a velocity potential exists and write the exact potential equation.</li>
+        <li>Decompose the velocity field into a free stream plus a perturbation.</li>
+        <li>Apply the small-perturbation assumption and obtain \(\beta^2\hat\phi_{xx}+\hat\phi_{yy}=0\).</li>
+        <li>Classify the linearized equation by \(M_\infty\) and explain what the change of type means physically.</li>
+        <li>Derive and use the linearized pressure coefficient \(C_p=-2\hat u/V_\infty\).</li>
+        <li>Apply the Prandtl–Glauert rule and check its own validity criterion before trusting the answer.</li>
+      </ul>
+    </section>
+
+    <section id="physics">
+      <p class="section-label">Physical picture</p>
+      <h2>A thin body barely disturbs the stream</h2>
+      <p class="lead">Everything so far in this course has dealt with strong disturbances: shocks, expansion fans, choked nozzles. A thin airfoil at a small angle of attack is the opposite case. It perturbs the oncoming flow only slightly, and that weakness is not a limitation to apologise for — it is the structural fact that makes an otherwise intractable equation solvable in closed form.</p>
+      <div class="callout success"><strong>The payoff.</strong> If the perturbations are small, the governing equation becomes <em>linear</em>. Solutions can then be superposed, an incompressible result can be stretched into a compressible one, and the whole apparatus of potential theory from Aerodynamics I becomes available again — now with a Mach number in it.</div>
+    </section>
+
+    <section id="model">
+      <p class="section-label">Model and assumptions</p>
+      <h2>Irrotational, isentropic, and slightly disturbed</h2>
+      <ul>
+        <li>steady, inviscid, two-dimensional flow of a calorically perfect gas;</li>
+        <li>irrotational flow, so a velocity potential \(\phi\) exists with \(\mathbf V=\nabla\phi\);</li>
+        <li>isentropic throughout — no shocks anywhere in the field;</li>
+        <li>a thin body at a small angle of attack, so that perturbations are small compared with \(V_\infty\);</li>
+        <li>subsonic free stream, \(M_\infty&lt;1\), and not close to one.</li>
+      </ul>
+      <div class="callout warning"><strong>Not included.</strong> Transonic flow, where a local supersonic pocket and its terminating shock make the flow non-isentropic and the equation nonlinear again; thick bodies and large angles of attack, where the perturbations are not small; and the immediate neighbourhood of a leading edge, where the thin-body assumption fails locally no matter how thin the airfoil is. The theory says nothing about drag either: within this model a two-dimensional body in subsonic flow has none.</div>
+    </section>
+
+    <section id="exact">
+      <p class="section-label">Starting point</p>
+      <h2>The exact velocity-potential equation</h2>
+      <p>Irrotationality lets the two velocity components be written from a single scalar,</p>
+      <div class="equation-card">\[u=\frac{\partial\phi}{\partial x},\qquad v=\frac{\partial\phi}{\partial y},\]</div>
+      <p>and continuity, momentum, and the isentropic relation combine into one equation for \(\phi\) alone:</p>
+      <div class="equation-card">\[\boxed{\left(1-\frac{\phi_x^2}{a^2}\right)\phi_{xx}+\left(1-\frac{\phi_y^2}{a^2}\right)\phi_{yy}-\frac{2\phi_x\phi_y}{a^2}\phi_{xy}=0}\]</div>
+      <p>with the local speed of sound itself a function of the potential,</p>
+      <div class="equation-card">\[a^2=a_0^2-\frac{\gamma-1}{2}\left(\phi_x^2+\phi_y^2\right).\]</div>
+      <div class="callout warning"><strong>Why this cannot be solved as it stands.</strong> The equation is nonlinear — the coefficients contain the unknown itself through \(a\) — so solutions cannot be superposed. Worse, its <em>type</em> changes with the local Mach number: elliptic where the flow is subsonic, hyperbolic where it is supersonic. A single equation that changes character within its own domain is not something classical methods handle.</div>
+    </section>
+
+    <section id="perturbation">
+      <p class="section-label">Change of variable</p>
+      <h2>Splitting off the free stream</h2>
+      <p>Write the velocity as the undisturbed stream plus a perturbation:</p>
+      <div class="equation-card">\[u=V_\infty+\hat u,\qquad v=\hat v,\qquad \phi=V_\infty x+\hat\phi,\]</div>
+      <p>so that \(\hat u=\hat\phi_x\) and \(\hat v=\hat\phi_y\). This is an exact change of variable, not yet an approximation. Substituting into the exact equation and grouping terms gives an equation for \(\hat\phi\) in which the free-stream contribution appears explicitly — and, crucially, in which the troublesome terms are all quadratic in the perturbations.</p>
+      <div class="callout"><strong>What has been gained so far.</strong> Nothing yet, in terms of difficulty. The point of the substitution is that it isolates exactly which terms are small when the body is thin, so the approximation can be made in a controlled way instead of by inspection.</div>
+    </section>
+
+    <section id="linearized">
+      <p class="section-label">The approximation</p>
+      <h2>Small perturbations and the linearized equation</h2>
+      <p>The assumption is that the body disturbs the stream only slightly:</p>
+      <div class="equation-card">\[\boxed{\left|\frac{\hat u}{V_\infty}\right|\ll1,\qquad\left|\frac{\hat v}{V_\infty}\right|\ll1}\]</div>
+      <p>Products such as \(\hat u^2/V_\infty^2\), \(\hat v^2/V_\infty^2\), and \(\hat u\hat v/V_\infty^2\) are then second-order and are dropped. What survives is strikingly simple:</p>
+      <div class="equation-card">\[\boxed{\left(1-M_\infty^2\right)\hat\phi_{xx}+\hat\phi_{yy}=0}\]</div>
+      <p>and, writing \(\beta^2=1-M_\infty^2\),</p>
+      <div class="equation-card">\[\boxed{\beta^2\hat\phi_{xx}+\hat\phi_{yy}=0}\]</div>
+      <div class="callout success"><strong>Three things happened at once.</strong> The equation became linear, so solutions superpose. Its coefficients became constants, fixed by the free-stream Mach number alone rather than by the local one. And its type stopped varying from point to point: for a given \(M_\infty\) the whole field is elliptic or the whole field is hyperbolic.</div>
+
+      <h3>The type, and what it means</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>\(\beta^2\)</th><th>Type</th><th>Physical meaning</th></tr></thead>
+          <tbody>
+            <tr><td>\(M_\infty&lt;1\)</td><td>\(&gt;0\)</td><td>elliptic</td><td>Disturbances reach every point; the body is felt upstream.</td></tr>
+            <tr><td>\(M_\infty=1\)</td><td>\(=0\)</td><td>degenerate</td><td>The axial term vanishes and the linear equation ceases to be valid.</td></tr>
+            <tr><td>\(M_\infty&gt;1\)</td><td>\(&lt;0\)</td><td>hyperbolic</td><td>Disturbances propagate along Mach lines; nothing is felt upstream.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Dropping the quadratic terms is legitimate only while they are genuinely small next to the retained ones, which requires</p>
+      <div class="equation-card">\[(\gamma+1)M_\infty^2\frac{\hat u}{V_\infty}\ \ll\ \left|1-M_\infty^2\right|.\]</div>
+      <div class="callout warning"><strong>The criterion the approximation imposes on itself.</strong> As \(M_\infty\to1\) the right-hand side collapses while the left does not. That is the analytical statement of why linearized theory fails transonically, and it is a test you can run on your own answer — as the worked example does.</div>
+    </section>
+
+    <section id="boundary">
+      <p class="section-label">Closing the problem</p>
+      <h2>The flow-tangency condition, moved to the axis</h2>
+      <p>For a surface \(y=f(x)\), exact tangency requires \(v/u=df/dx\). With \(u=V_\infty+\hat u\) and \(v=\hat v\),</p>
+      <div class="equation-card">\[\frac{\hat v}{V_\infty+\hat u}=\frac{df}{dx}.\]</div>
+      <p>Since \(\hat u\ll V_\infty\), the denominator is replaced by \(V_\infty\), and the condition is applied on the axis rather than on the true surface:</p>
+      <div class="equation-card">\[\boxed{\hat v(x,0)=V_\infty\frac{df}{dx}}\]</div>
+      <div class="callout"><strong>Two approximations, not one.</strong> Linearizing the ratio is the first; transferring the condition from \(y=f(x)\) to \(y=0\) is the second, and it is what makes the problem solvable on a fixed domain. Both are consistent with thin-body ordering, and both fail at a blunt leading edge.</div>
+      <p>Far from the body the perturbation must die out, \(\hat\phi\to\text{constant}\), which supplies the remaining condition.</p>
+    </section>
+
+    <section id="cp">
+      <p class="section-label">Getting pressure back</p>
+      <h2>The linearized pressure coefficient</h2>
+      <p>The pressure coefficient is defined as</p>
+      <div class="equation-card">\[C_p=\frac{p-p_\infty}{q_\infty},\qquad q_\infty=\tfrac12\rho_\infty V_\infty^2=\frac{\gamma}{2}p_\infty M_\infty^2.\]</div>
+      <p>Expanding the isentropic pressure relation for small perturbations and keeping first-order terms leaves a remarkably compact result:</p>
+      <div class="equation-card">\[\boxed{C_p=-2\frac{\hat u}{V_\infty}=-\frac{2}{V_\infty}\hat\phi_x}\]</div>
+      <div class="callout success"><strong>Formally identical to the incompressible case.</strong> The same expression appears in incompressible thin-airfoil theory. Compressibility has <em>not</em> disappeared — it lives in the equation that determines \(\hat\phi\), through \(\beta^2\), not in the formula that converts \(\hat\phi\) into \(C_p\). This is why the whole compressibility effect can ultimately be packaged into a single multiplying factor.</div>
+      <div class="example">
+        <h3>Quick check</h3>
+        <p>At a point on a thin airfoil the axial perturbation is \(\hat u/V_\infty=0.075\). Then</p>
+        <div class="result-box">\[C_p=-2(0.075)=-0.150\]</div>
+        <p>A positive axial perturbation means the local flow has accelerated relative to the free stream, so the static pressure drops and \(C_p\) is negative.</p>
+      </div>
+    </section>
+
+    <section id="transform">
+      <p class="section-label">The trick</p>
+      <h2>Stretching the coordinates</h2>
+      <p>With \(\beta=\sqrt{1-M_\infty^2}&gt;0\), define a transformed problem by</p>
+      <div class="equation-card">\[\boxed{\xi=x,\qquad \eta=\beta y,\qquad \overline\phi(\xi,\eta)=\beta\hat\phi(x,y)}\]</div>
+      <p>Working the derivatives through gives \(\hat\phi_{xx}=\overline\phi_{\xi\xi}/\beta\) and \(\hat\phi_{yy}=\beta\overline\phi_{\eta\eta}\). Substituting into \(\beta^2\hat\phi_{xx}+\hat\phi_{yy}=0\) and dividing by \(\beta\):</p>
+      <div class="equation-card">\[\boxed{\overline\phi_{\xi\xi}+\overline\phi_{\eta\eta}=0}\]</div>
+      <div class="callout success"><strong>Laplace's equation.</strong> The compressible subsonic problem has been converted into an incompressible one. Every technique from Aerodynamics I — thin-airfoil theory, conformal mapping, panel methods — applies in the transformed plane without modification.</div>
+      <p>The transformation also leaves the body shape alone. Applying the boundary condition in both planes gives \(V_\infty\,df/dx=\overline\phi_\eta\) and \(V_\infty\,dq/d\xi=\overline\phi_\eta\), hence</p>
+      <div class="equation-card">\[\frac{df}{dx}=\frac{dq}{d\xi}.\]</div>
+      <p>The transformed airfoil has the same slope distribution, and therefore the same shape, as the physical one. Nothing has to be re-drawn.</p>
+    </section>
+
+    <section id="rule">
+      <p class="section-label">The result</p>
+      <h2>The Prandtl–Glauert rule</h2>
+      <p>From \(\hat\phi_x=\overline\phi_\xi/\beta\) and the linearized pressure relation,</p>
+      <div class="equation-card">\[C_p=-\frac{2}{V_\infty}\hat\phi_x=-\frac{2}{\beta V_\infty}\overline\phi_\xi=\frac{1}{\beta}\,C_{p,0},\]</div>
+      <p>where \(C_{p,0}=-(2/V_\infty)\overline\phi_\xi\) is the pressure coefficient of the <em>same</em> airfoil in incompressible flow. Therefore</p>
+      <div class="equation-card">\[\boxed{C_p=\frac{C_{p,0}}{\sqrt{1-M_\infty^2}}}\]</div>
+      <p>and, integrating over the surface, the same factor carries through to the force coefficients:</p>
+      <div class="equation-card">\[\boxed{c_l=\frac{c_{l,0}}{\sqrt{1-M_\infty^2}},\qquad c_{m}=\frac{c_{m,0}}{\sqrt{1-M_\infty^2}}}\]</div>
+      <div class="callout"><strong>What the rule actually says.</strong> Compressibility does not change the <em>shape</em> of the pressure distribution over a thin airfoil in subsonic flow — it amplifies all of it by one common factor. Suctions get stronger, the lift-curve slope steepens, and the centre of pressure does not move.</div>
+      <div class="callout warning"><strong>And what it cannot say.</strong> The factor \(1/\beta\) grows without bound as \(M_\infty\to1\), predicting infinite \(C_p\). Nothing physical does that. The divergence is the theory announcing its own breakdown, not a phenomenon: long before \(M_\infty=1\) a local supersonic pocket appears on the airfoil, a shock terminates it, and the isentropic irrotational premise is gone. Locating that onset is the subject of Lecture 11.</div>
+    </section>
+
+    <section id="example">
+      <p class="section-label">Worked example</p>
+      <h2>Correcting a pressure coefficient, and checking whether you may</h2>
+      <div class="example">
+        <h3>Problem</h3>
+        <p>A thin airfoil has a minimum pressure coefficient of \(C_{p,0}=-0.43\) in incompressible flow. Estimate \(C_p\) at \(M_\infty=0.6\) and at \(M_\infty=0.8\), and in each case test whether the small-perturbation assumption is still justified. Take \(\gamma=1.4\).</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Compressibility factors:</p>\[\beta(0.6)=\sqrt{1-0.36}=0.8000,\qquad\beta(0.8)=\sqrt{1-0.64}=0.6000.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Prandtl–Glauert:</p>\[C_p(0.6)=\frac{-0.43}{0.8000}=-0.5375,\qquad C_p(0.8)=\frac{-0.43}{0.6000}=-0.7167.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Recover the implied axial perturbation from \(C_p=-2\hat u/V_\infty\):</p>\[\left.\frac{\hat u}{V_\infty}\right|_{0.6}=0.2687,\qquad\left.\frac{\hat u}{V_\infty}\right|_{0.8}=0.3583.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Apply the validity criterion \((\gamma+1)M_\infty^2\,\hat u/V_\infty\ll|1-M_\infty^2|\):</p>\[M_\infty=0.6:\quad 0.2322\ \text{vs}\ 0.6400\quad\text{(ratio 0.36)}\]\[M_\infty=0.8:\quad 0.5504\ \text{vs}\ 0.3600\quad\text{(ratio 1.53)}\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>At \(M_\infty=0.6\) the neglected terms are about a third of the retained ones — acceptable for an estimate. At \(M_\infty=0.8\) they are <em>larger</em> than the terms kept, so the linearization has failed and the number \(-0.7167\) should not be used.</p></div></div>
+
+        <div class="result-box">\[\boxed{C_p(0.6)=-0.538\ \text{(usable)},\qquad C_p(0.8)=-0.717\ \text{(not trustworthy)}}\]</div>
+        <p>Notice that the formula returns a perfectly clean number in both cases. Nothing in \(C_{p,0}/\beta\) warns you that the second one is meaningless. The criterion has to be applied deliberately, which is exactly why it is worth carrying alongside the rule.</p>
+      </div>
+    </section>
+
+    <section id="summary">
+      <p class="section-label">Key equations</p>
+      <h2>At a glance</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Relation</th><th>Expression</th><th>Applies when</th></tr></thead>
+          <tbody>
+            <tr><td>Exact potential equation</td><td>\(\left(1-\phi_x^2/a^2\right)\phi_{xx}+\left(1-\phi_y^2/a^2\right)\phi_{yy}-\dfrac{2\phi_x\phi_y}{a^2}\phi_{xy}=0\)</td><td>irrotational, isentropic</td></tr>
+            <tr><td>Linearized equation</td><td>\(\beta^2\hat\phi_{xx}+\hat\phi_{yy}=0\), \(\beta^2=1-M_\infty^2\)</td><td>small perturbations</td></tr>
+            <tr><td>Boundary condition</td><td>\(\hat v(x,0)=V_\infty\,df/dx\)</td><td>thin body</td></tr>
+            <tr><td>Pressure coefficient</td><td>\(C_p=-2\hat u/V_\infty\)</td><td>first order</td></tr>
+            <tr><td>Transformation</td><td>\(\xi=x,\ \eta=\beta y,\ \overline\phi=\beta\hat\phi\)</td><td>\(M_\infty&lt;1\)</td></tr>
+            <tr><td>Prandtl–Glauert rule</td><td>\(C_p=C_{p,0}/\sqrt{1-M_\infty^2}\)</td><td>subsonic, thin, attached</td></tr>
+            <tr><td>Validity criterion</td><td>\((\gamma+1)M_\infty^2\,\hat u/V_\infty\ll|1-M_\infty^2|\)</td><td>always check it</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="mistakes">
+      <p class="section-label">Common mistakes</p>
+      <h2>Common mistakes</h2>
+      <ul class="check-list">
+        <li><strong>Using Prandtl–Glauert close to \(M_\infty=1\).</strong> The factor diverges, and the theory's own criterion fails well before that. The divergence is a warning, not a prediction.</li>
+        <li><strong>Applying it to a thick airfoil or a large angle of attack.</strong> The perturbations are then not small and the linearization was never valid, whatever \(M_\infty\) is.</li>
+        <li><strong>Concluding that compressibility dropped out of \(C_p=-2\hat u/V_\infty\).</strong> It is in the equation that determines \(\hat\phi\), through \(\beta^2\).</li>
+        <li><strong>Correcting a measured compressible \(C_p\) by multiplying by \(\beta\) in the wrong direction.</strong> The rule converts <em>incompressible to compressible</em>; going back divides.</li>
+        <li><strong>Expecting the centre of pressure to move.</strong> A single common factor scales every point of the distribution equally, so it does not.</li>
+        <li><strong>Expecting the theory to give drag.</strong> A two-dimensional subsonic body in this model has zero drag; wave drag needs Lecture 12 and friction needs a viscous treatment.</li>
+        <li><strong>Applying the boundary condition on the true surface.</strong> Within the linearized model it belongs on \(y=0\); using the exact surface mixes orders inconsistently.</li>
+      </ul>
+    </section>
+
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed. New York: McGraw-Hill Education, 2017, Chapter 11.</li>
+        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3rd ed. New York: McGraw-Hill, 2003, Chapter 9.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexico, February 2024.</li>
+      </ol>
+      <p class="source-note">Adapted from Unit V of the Aerodynamics II course notes by Carlos Alberto Molina Holguín; all numerical values were independently recomputed for \(\gamma=1.4\).</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="nozzle-back-pressure-thrust.html"><span>Previous lecture</span>← Back Pressure and Thrust</a>
+      <a class="next-link" href="compressibility-corrections.html"><span>Next lecture</span>Compressibility Corrections and \(M_{cr}\) →</a>
+    </nav>
+  </article>
+
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Lo que debes ser capaz de hacer</h2>
+      <ul>
+        <li>Enunciar las condiciones bajo las que existe un potencial de velocidad y escribir la ecuación exacta del potencial.</li>
+        <li>Descomponer el campo de velocidad en corriente libre más perturbación.</li>
+        <li>Aplicar la hipótesis de pequeñas perturbaciones y obtener \(\beta^2\hat\phi_{xx}+\hat\phi_{yy}=0\).</li>
+        <li>Clasificar la ecuación linealizada según \(M_\infty\) y explicar qué significa físicamente el cambio de tipo.</li>
+        <li>Deducir y usar el coeficiente de presión linealizado \(C_p=-2\hat u/V_\infty\).</li>
+        <li>Aplicar la regla de Prandtl–Glauert y verificar su propio criterio de validez antes de confiar en el resultado.</li>
+      </ul>
+    </section>
+
+    <section id="physics-es">
+      <p class="section-label">Panorama físico</p>
+      <h2>Un cuerpo delgado apenas perturba la corriente</h2>
+      <p class="lead">Todo lo visto hasta aquí en el curso trata perturbaciones fuertes: choques, abanicos de expansión, toberas estranguladas. Un perfil delgado a ángulo de ataque pequeño es el caso opuesto. Perturba la corriente incidente solo levemente, y esa debilidad no es una limitación que haya que disculpar: es el hecho estructural que vuelve resoluble en forma cerrada una ecuación que de otro modo sería intratable.</p>
+      <div class="callout success"><strong>La recompensa.</strong> Si las perturbaciones son pequeñas, la ecuación gobernante se vuelve <em>lineal</em>. Las soluciones pueden superponerse, un resultado incompresible puede estirarse hasta uno compresible, y todo el aparato de teoría potencial de Aerodinámica I vuelve a estar disponible, ahora con un número de Mach adentro.</div>
+    </section>
+
+    <section id="model-es">
+      <p class="section-label">Modelo e hipótesis</p>
+      <h2>Irrotacional, isoentrópico y levemente perturbado</h2>
+      <ul>
+        <li>flujo estacionario, inviscido y bidimensional de un gas calóricamente perfecto;</li>
+        <li>flujo irrotacional, de modo que existe un potencial \(\phi\) con \(\mathbf V=\nabla\phi\);</li>
+        <li>isoentrópico en todo el campo: sin choques en ninguna parte;</li>
+        <li>cuerpo delgado a ángulo de ataque pequeño, de modo que las perturbaciones sean pequeñas frente a \(V_\infty\);</li>
+        <li>corriente libre subsónica, \(M_\infty&lt;1\), y no cercana a uno.</li>
+      </ul>
+      <div class="callout warning"><strong>No incluido.</strong> El flujo transónico, donde una burbuja supersónica local y el choque que la cierra vuelven el flujo no isoentrópico y la ecuación otra vez no lineal; los cuerpos gruesos y los ángulos de ataque grandes, donde las perturbaciones no son pequeñas; y la vecindad inmediata del borde de ataque, donde la hipótesis de cuerpo delgado falla localmente por delgado que sea el perfil. La teoría tampoco dice nada del arrastre: dentro de este modelo un cuerpo bidimensional en flujo subsónico no tiene.</div>
+    </section>
+
+    <section id="exact-es">
+      <p class="section-label">Punto de partida</p>
+      <h2>La ecuación exacta del potencial de velocidad</h2>
+      <p>La irrotacionalidad permite escribir las dos componentes de velocidad a partir de un solo escalar,</p>
+      <div class="equation-card">\[u=\frac{\partial\phi}{\partial x},\qquad v=\frac{\partial\phi}{\partial y},\]</div>
+      <p>y la continuidad, la cantidad de movimiento y la relación isoentrópica se combinan en una sola ecuación para \(\phi\):</p>
+      <div class="equation-card">\[\boxed{\left(1-\frac{\phi_x^2}{a^2}\right)\phi_{xx}+\left(1-\frac{\phi_y^2}{a^2}\right)\phi_{yy}-\frac{2\phi_x\phi_y}{a^2}\phi_{xy}=0}\]</div>
+      <p>con la velocidad local del sonido a su vez función del potencial,</p>
+      <div class="equation-card">\[a^2=a_0^2-\frac{\gamma-1}{2}\left(\phi_x^2+\phi_y^2\right).\]</div>
+      <div class="callout warning"><strong>Por qué no puede resolverse tal cual.</strong> La ecuación es no lineal —sus coeficientes contienen la propia incógnita a través de \(a\)— así que las soluciones no se superponen. Peor aún, su <em>tipo</em> cambia con el Mach local: elíptica donde el flujo es subsónico, hiperbólica donde es supersónico. Una sola ecuación que cambia de carácter dentro de su propio dominio no es algo que los métodos clásicos manejen.</div>
+    </section>
+
+    <section id="perturbation-es">
+      <p class="section-label">Cambio de variable</p>
+      <h2>Separar la corriente libre</h2>
+      <p>Escribimos la velocidad como la corriente no perturbada más una perturbación:</p>
+      <div class="equation-card">\[u=V_\infty+\hat u,\qquad v=\hat v,\qquad \phi=V_\infty x+\hat\phi,\]</div>
+      <p>de modo que \(\hat u=\hat\phi_x\) y \(\hat v=\hat\phi_y\). Este es un cambio de variable exacto, todavía no una aproximación. Sustituyendo en la ecuación exacta y agrupando términos se obtiene una ecuación para \(\hat\phi\) en la que la contribución de la corriente libre aparece explícita y, sobre todo, en la que los términos problemáticos son todos cuadráticos en las perturbaciones.</p>
+      <div class="callout"><strong>Qué se ha ganado hasta aquí.</strong> Nada todavía, en cuanto a dificultad. El objetivo de la sustitución es aislar exactamente qué términos son pequeños cuando el cuerpo es delgado, para que la aproximación pueda hacerse de forma controlada y no por inspección.</div>
+    </section>
+
+    <section id="linearized-es">
+      <p class="section-label">La aproximación</p>
+      <h2>Pequeñas perturbaciones y la ecuación linealizada</h2>
+      <p>La hipótesis es que el cuerpo perturba la corriente solo levemente:</p>
+      <div class="equation-card">\[\boxed{\left|\frac{\hat u}{V_\infty}\right|\ll1,\qquad\left|\frac{\hat v}{V_\infty}\right|\ll1}\]</div>
+      <p>Productos como \(\hat u^2/V_\infty^2\), \(\hat v^2/V_\infty^2\) y \(\hat u\hat v/V_\infty^2\) son entonces de segundo orden y se descartan. Lo que sobrevive es notablemente simple:</p>
+      <div class="equation-card">\[\boxed{\left(1-M_\infty^2\right)\hat\phi_{xx}+\hat\phi_{yy}=0}\]</div>
+      <p>y, escribiendo \(\beta^2=1-M_\infty^2\),</p>
+      <div class="equation-card">\[\boxed{\beta^2\hat\phi_{xx}+\hat\phi_{yy}=0}\]</div>
+      <div class="callout success"><strong>Tres cosas ocurrieron a la vez.</strong> La ecuación se volvió lineal, así que las soluciones se superponen. Sus coeficientes se volvieron constantes, fijados solo por el Mach de corriente libre y no por el local. Y su tipo dejó de variar de punto a punto: para un \(M_\infty\) dado, o todo el campo es elíptico o todo es hiperbólico.</div>
+
+      <h3>El tipo, y qué significa</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>\(\beta^2\)</th><th>Tipo</th><th>Significado físico</th></tr></thead>
+          <tbody>
+            <tr><td>\(M_\infty&lt;1\)</td><td>\(&gt;0\)</td><td>elíptica</td><td>Las perturbaciones alcanzan todo punto; el cuerpo se siente aguas arriba.</td></tr>
+            <tr><td>\(M_\infty=1\)</td><td>\(=0\)</td><td>degenerada</td><td>El término axial se anula y la ecuación lineal deja de ser válida.</td></tr>
+            <tr><td>\(M_\infty&gt;1\)</td><td>\(&lt;0\)</td><td>hiperbólica</td><td>Las perturbaciones viajan por líneas de Mach; nada se siente aguas arriba.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Descartar los términos cuadráticos es legítimo solo mientras sean genuinamente pequeños frente a los retenidos, lo cual exige</p>
+      <div class="equation-card">\[(\gamma+1)M_\infty^2\frac{\hat u}{V_\infty}\ \ll\ \left|1-M_\infty^2\right|.\]</div>
+      <div class="callout warning"><strong>El criterio que la aproximación se impone a sí misma.</strong> Cuando \(M_\infty\to1\) el lado derecho se desploma y el izquierdo no. Ese es el enunciado analítico de por qué la teoría linealizada falla transónicamente, y es una prueba que puedes correr sobre tu propia respuesta, como hace el ejemplo resuelto.</div>
+    </section>
+
+    <section id="boundary-es">
+      <p class="section-label">Cerrar el problema</p>
+      <h2>La condición de tangencia, trasladada al eje</h2>
+      <p>Para una superficie \(y=f(x)\), la tangencia exacta exige \(v/u=df/dx\). Con \(u=V_\infty+\hat u\) y \(v=\hat v\),</p>
+      <div class="equation-card">\[\frac{\hat v}{V_\infty+\hat u}=\frac{df}{dx}.\]</div>
+      <p>Como \(\hat u\ll V_\infty\), el denominador se reemplaza por \(V_\infty\), y la condición se impone sobre el eje en lugar de sobre la superficie verdadera:</p>
+      <div class="equation-card">\[\boxed{\hat v(x,0)=V_\infty\frac{df}{dx}}\]</div>
+      <div class="callout"><strong>Dos aproximaciones, no una.</strong> Linealizar el cociente es la primera; trasladar la condición de \(y=f(x)\) a \(y=0\) es la segunda, y es la que permite resolver el problema en un dominio fijo. Ambas son consistentes con el orden de cuerpo delgado, y ambas fallan en un borde de ataque romo.</div>
+      <p>Lejos del cuerpo la perturbación debe extinguirse, \(\hat\phi\to\text{constante}\), lo que aporta la condición restante.</p>
+    </section>
+
+    <section id="cp-es">
+      <p class="section-label">Recuperar la presión</p>
+      <h2>El coeficiente de presión linealizado</h2>
+      <p>El coeficiente de presión se define como</p>
+      <div class="equation-card">\[C_p=\frac{p-p_\infty}{q_\infty},\qquad q_\infty=\tfrac12\rho_\infty V_\infty^2=\frac{\gamma}{2}p_\infty M_\infty^2.\]</div>
+      <p>Desarrollando la relación isoentrópica de presión para pequeñas perturbaciones y reteniendo el primer orden queda un resultado notablemente compacto:</p>
+      <div class="equation-card">\[\boxed{C_p=-2\frac{\hat u}{V_\infty}=-\frac{2}{V_\infty}\hat\phi_x}\]</div>
+      <div class="callout success"><strong>Formalmente idéntico al caso incompresible.</strong> La misma expresión aparece en la teoría incompresible de perfiles delgados. La compresibilidad <em>no</em> desapareció: vive en la ecuación que determina \(\hat\phi\), a través de \(\beta^2\), no en la fórmula que convierte \(\hat\phi\) en \(C_p\). Por eso todo el efecto de compresibilidad puede acabar empaquetado en un solo factor multiplicativo.</div>
+      <div class="example">
+        <h3>Verificación rápida</h3>
+        <p>En un punto sobre un perfil delgado la perturbación axial es \(\hat u/V_\infty=0.075\). Entonces</p>
+        <div class="result-box">\[C_p=-2(0.075)=-0.150\]</div>
+        <p>Una perturbación axial positiva significa que el flujo local se aceleró respecto a la corriente libre, así que la presión estática baja y \(C_p\) es negativo.</p>
+      </div>
+    </section>
+
+    <section id="transform-es">
+      <p class="section-label">El truco</p>
+      <h2>Estirar las coordenadas</h2>
+      <p>Con \(\beta=\sqrt{1-M_\infty^2}&gt;0\), se define un problema transformado mediante</p>
+      <div class="equation-card">\[\boxed{\xi=x,\qquad \eta=\beta y,\qquad \overline\phi(\xi,\eta)=\beta\hat\phi(x,y)}\]</div>
+      <p>Trabajando las derivadas se obtiene \(\hat\phi_{xx}=\overline\phi_{\xi\xi}/\beta\) y \(\hat\phi_{yy}=\beta\overline\phi_{\eta\eta}\). Sustituyendo en \(\beta^2\hat\phi_{xx}+\hat\phi_{yy}=0\) y dividiendo entre \(\beta\):</p>
+      <div class="equation-card">\[\boxed{\overline\phi_{\xi\xi}+\overline\phi_{\eta\eta}=0}\]</div>
+      <div class="callout success"><strong>La ecuación de Laplace.</strong> El problema compresible subsónico se ha convertido en uno incompresible. Toda técnica de Aerodinámica I —teoría de perfiles delgados, mapeo conforme, métodos de paneles— aplica en el plano transformado sin modificación.</div>
+      <p>La transformación además deja intacta la forma del perfil. Imponiendo la condición de frontera en ambos planos se obtiene \(V_\infty\,df/dx=\overline\phi_\eta\) y \(V_\infty\,dq/d\xi=\overline\phi_\eta\), de donde</p>
+      <div class="equation-card">\[\frac{df}{dx}=\frac{dq}{d\xi}.\]</div>
+      <p>El perfil transformado tiene la misma distribución de pendientes y por tanto la misma forma que el físico. No hay que volver a dibujar nada.</p>
+    </section>
+
+    <section id="rule-es">
+      <p class="section-label">El resultado</p>
+      <h2>La regla de Prandtl–Glauert</h2>
+      <p>De \(\hat\phi_x=\overline\phi_\xi/\beta\) y la relación linealizada de presión,</p>
+      <div class="equation-card">\[C_p=-\frac{2}{V_\infty}\hat\phi_x=-\frac{2}{\beta V_\infty}\overline\phi_\xi=\frac{1}{\beta}\,C_{p,0},\]</div>
+      <p>donde \(C_{p,0}=-(2/V_\infty)\overline\phi_\xi\) es el coeficiente de presión del <em>mismo</em> perfil en flujo incompresible. Por tanto</p>
+      <div class="equation-card">\[\boxed{C_p=\frac{C_{p,0}}{\sqrt{1-M_\infty^2}}}\]</div>
+      <p>e, integrando sobre la superficie, el mismo factor se traslada a los coeficientes de fuerza:</p>
+      <div class="equation-card">\[\boxed{c_l=\frac{c_{l,0}}{\sqrt{1-M_\infty^2}},\qquad c_{m}=\frac{c_{m,0}}{\sqrt{1-M_\infty^2}}}\]</div>
+      <div class="callout"><strong>Lo que la regla dice realmente.</strong> La compresibilidad no cambia la <em>forma</em> de la distribución de presión sobre un perfil delgado en flujo subsónico: la amplifica toda por un mismo factor. Las succiones se hacen más fuertes, la pendiente de la curva de sustentación se empina, y el centro de presión no se mueve.</div>
+      <div class="callout warning"><strong>Y lo que no puede decir.</strong> El factor \(1/\beta\) crece sin cota cuando \(M_\infty\to1\), prediciendo \(C_p\) infinito. Nada físico hace eso. La divergencia es la teoría anunciando su propia ruptura, no un fenómeno: mucho antes de \(M_\infty=1\) aparece una burbuja supersónica local sobre el perfil, un choque la cierra, y la premisa isoentrópica e irrotacional se acabó. Localizar ese inicio es el tema de la Lecture 11.</div>
+    </section>
+
+    <section id="example-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>Corregir un coeficiente de presión, y verificar si se puede</h2>
+      <div class="example">
+        <h3>Problema</h3>
+        <p>Un perfil delgado tiene un coeficiente de presión mínimo \(C_{p,0}=-0.43\) en flujo incompresible. Estime \(C_p\) en \(M_\infty=0.6\) y en \(M_\infty=0.8\), y en cada caso pruebe si la hipótesis de pequeñas perturbaciones sigue justificada. Tome \(\gamma=1.4\).</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Factores de compresibilidad:</p>\[\beta(0.6)=\sqrt{1-0.36}=0.8000,\qquad\beta(0.8)=\sqrt{1-0.64}=0.6000.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Prandtl–Glauert:</p>\[C_p(0.6)=\frac{-0.43}{0.8000}=-0.5375,\qquad C_p(0.8)=\frac{-0.43}{0.6000}=-0.7167.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Se recupera la perturbación axial implícita a partir de \(C_p=-2\hat u/V_\infty\):</p>\[\left.\frac{\hat u}{V_\infty}\right|_{0.6}=0.2687,\qquad\left.\frac{\hat u}{V_\infty}\right|_{0.8}=0.3583.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Se aplica el criterio de validez \((\gamma+1)M_\infty^2\,\hat u/V_\infty\ll|1-M_\infty^2|\):</p>\[M_\infty=0.6:\quad 0.2322\ \text{frente a}\ 0.6400\quad\text{(razón 0.36)}\]\[M_\infty=0.8:\quad 0.5504\ \text{frente a}\ 0.3600\quad\text{(razón 1.53)}\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>En \(M_\infty=0.6\) los términos despreciados son alrededor de un tercio de los retenidos: aceptable para una estimación. En \(M_\infty=0.8\) son <em>mayores</em> que los que se conservaron, así que la linealización falló y el número \(-0.7167\) no debe usarse.</p></div></div>
+
+        <div class="result-box">\[\boxed{C_p(0.6)=-0.538\ \text{(utilizable)},\qquad C_p(0.8)=-0.717\ \text{(no confiable)}}\]</div>
+        <p>Nótese que la fórmula devuelve un número perfectamente limpio en ambos casos. Nada en \(C_{p,0}/\beta\) te avisa de que el segundo carece de sentido. El criterio hay que aplicarlo deliberadamente, y por eso vale la pena llevarlo junto a la regla.</p>
+      </div>
+    </section>
+
+    <section id="summary-es">
+      <p class="section-label">Ecuaciones clave</p>
+      <h2>En síntesis</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Relación</th><th>Expresión</th><th>Aplica cuando</th></tr></thead>
+          <tbody>
+            <tr><td>Ecuación exacta del potencial</td><td>\(\left(1-\phi_x^2/a^2\right)\phi_{xx}+\left(1-\phi_y^2/a^2\right)\phi_{yy}-\dfrac{2\phi_x\phi_y}{a^2}\phi_{xy}=0\)</td><td>irrotacional, isoentrópico</td></tr>
+            <tr><td>Ecuación linealizada</td><td>\(\beta^2\hat\phi_{xx}+\hat\phi_{yy}=0\), \(\beta^2=1-M_\infty^2\)</td><td>pequeñas perturbaciones</td></tr>
+            <tr><td>Condición de frontera</td><td>\(\hat v(x,0)=V_\infty\,df/dx\)</td><td>cuerpo delgado</td></tr>
+            <tr><td>Coeficiente de presión</td><td>\(C_p=-2\hat u/V_\infty\)</td><td>primer orden</td></tr>
+            <tr><td>Transformación</td><td>\(\xi=x,\ \eta=\beta y,\ \overline\phi=\beta\hat\phi\)</td><td>\(M_\infty&lt;1\)</td></tr>
+            <tr><td>Regla de Prandtl–Glauert</td><td>\(C_p=C_{p,0}/\sqrt{1-M_\infty^2}\)</td><td>subsónico, delgado, adherido</td></tr>
+            <tr><td>Criterio de validez</td><td>\((\gamma+1)M_\infty^2\,\hat u/V_\infty\ll|1-M_\infty^2|\)</td><td>verifícalo siempre</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="mistakes-es">
+      <p class="section-label">Errores comunes</p>
+      <h2>Errores comunes</h2>
+      <ul class="check-list">
+        <li><strong>Usar Prandtl–Glauert cerca de \(M_\infty=1\).</strong> El factor diverge, y el propio criterio de la teoría falla mucho antes. La divergencia es una advertencia, no una predicción.</li>
+        <li><strong>Aplicarla a un perfil grueso o a ángulo de ataque grande.</strong> Las perturbaciones no son entonces pequeñas y la linealización nunca fue válida, sea cual sea \(M_\infty\).</li>
+        <li><strong>Concluir que la compresibilidad desapareció de \(C_p=-2\hat u/V_\infty\).</strong> Está en la ecuación que determina \(\hat\phi\), a través de \(\beta^2\).</li>
+        <li><strong>Corregir un \(C_p\) compresible medido multiplicando por \(\beta\) en la dirección equivocada.</strong> La regla convierte <em>incompresible a compresible</em>; el camino de vuelta divide.</li>
+        <li><strong>Esperar que el centro de presión se mueva.</strong> Un solo factor común escala por igual cada punto de la distribución, así que no se mueve.</li>
+        <li><strong>Esperar que la teoría dé arrastre.</strong> Un cuerpo bidimensional subsónico en este modelo tiene arrastre nulo; el arrastre de onda necesita la Lecture 12 y la fricción un tratamiento viscoso.</li>
+        <li><strong>Imponer la condición de frontera sobre la superficie verdadera.</strong> Dentro del modelo linealizado va en \(y=0\); usar la superficie exacta mezcla órdenes de forma inconsistente.</li>
+      </ul>
+    </section>
+
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 11.</li>
+        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3.ª ed. Nueva York: McGraw-Hill, 2003, capítulo 9.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, México, febrero de 2024.</li>
+      </ol>
+      <p class="source-note">Adaptado de la Unidad V de los apuntes de Aerodinámica II de Carlos Alberto Molina Holguín; todos los valores numéricos se recalcularon de forma independiente para \(\gamma=1.4\).</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="nozzle-back-pressure-thrust.html"><span>Lecture anterior</span>← Contrapresión y empuje</a>
+      <a class="next-link" href="compressibility-corrections.html"><span>Siguiente lecture</span>Correcciones y \(M_{cr}\) →</a>
+    </nav>
+  </article>
+
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <ul>
+        <li>Die Bedingungen angeben, unter denen ein Geschwindigkeitspotential existiert, und die exakte Potentialgleichung aufstellen.</li>
+        <li>Das Geschwindigkeitsfeld in Anströmung plus Störung zerlegen.</li>
+        <li>Die Annahme kleiner Störungen anwenden und \(\beta^2\hat\phi_{xx}+\hat\phi_{yy}=0\) herleiten.</li>
+        <li>Die linearisierte Gleichung nach \(M_\infty\) klassifizieren und die physikalische Bedeutung des Typwechsels erläutern.</li>
+        <li>Den linearisierten Druckbeiwert \(C_p=-2\hat u/V_\infty\) herleiten und anwenden.</li>
+        <li>Die Prandtl–Glauert-Regel anwenden und ihr eigenes Gültigkeitskriterium prüfen, bevor man dem Ergebnis traut.</li>
+      </ul>
+    </section>
+
+    <section id="physics-de">
+      <p class="section-label">Physikalisches Bild</p>
+      <h2>Ein schlanker Körper stört die Strömung kaum</h2>
+      <p class="lead">Alles bisher in diesem Kurs betraf starke Störungen: Stöße, Expansionsfächer, gesperrte Düsen. Ein schlankes Profil bei kleinem Anstellwinkel ist der entgegengesetzte Fall. Es stört die Anströmung nur geringfügig, und diese Schwäche ist keine zu entschuldigende Einschränkung — sie ist die strukturelle Tatsache, die eine sonst unlösbare Gleichung in geschlossener Form lösbar macht.</p>
+      <div class="callout success"><strong>Der Gewinn.</strong> Sind die Störungen klein, so wird die Grundgleichung <em>linear</em>. Lösungen lassen sich überlagern, ein inkompressibles Ergebnis lässt sich in ein kompressibles dehnen, und der gesamte Apparat der Potentialtheorie aus Aerodynamik I steht wieder zur Verfügung — nun mit einer Machzahl darin.</div>
+    </section>
+
+    <section id="model-de">
+      <p class="section-label">Modell und Annahmen</p>
+      <h2>Wirbelfrei, isentrop und schwach gestört</h2>
+      <ul>
+        <li>stationäre, reibungsfreie, zweidimensionale Strömung eines kalorisch idealen Gases;</li>
+        <li>wirbelfreie Strömung, sodass ein Potential \(\phi\) mit \(\mathbf V=\nabla\phi\) existiert;</li>
+        <li>durchweg isentrop — nirgends im Feld ein Stoß;</li>
+        <li>schlanker Körper bei kleinem Anstellwinkel, sodass die Störungen klein gegen \(V_\infty\) sind;</li>
+        <li>unterschallschnelle Anströmung, \(M_\infty&lt;1\), und nicht nahe bei eins.</li>
+      </ul>
+      <div class="callout warning"><strong>Nicht enthalten.</strong> Transsonische Strömung, in der ein örtliches Überschallgebiet und der es abschließende Stoß die Strömung nichtisentrop und die Gleichung wieder nichtlinear machen; dicke Körper und große Anstellwinkel, bei denen die Störungen nicht klein sind; sowie die unmittelbare Umgebung der Vorderkante, wo die Schlankheitsannahme örtlich versagt, wie dünn das Profil auch sei. Die Theorie sagt auch nichts über Widerstand: In diesem Modell hat ein zweidimensionaler Körper in Unterschallströmung keinen.</div>
+    </section>
+
+    <section id="exact-de">
+      <p class="section-label">Ausgangspunkt</p>
+      <h2>Die exakte Potentialgleichung</h2>
+      <p>Die Wirbelfreiheit erlaubt, beide Geschwindigkeitskomponenten aus einem einzigen Skalar zu schreiben,</p>
+      <div class="equation-card">\[u=\frac{\partial\phi}{\partial x},\qquad v=\frac{\partial\phi}{\partial y},\]</div>
+      <p>und Kontinuität, Impuls und die isentrope Beziehung fügen sich zu einer einzigen Gleichung für \(\phi\) zusammen:</p>
+      <div class="equation-card">\[\boxed{\left(1-\frac{\phi_x^2}{a^2}\right)\phi_{xx}+\left(1-\frac{\phi_y^2}{a^2}\right)\phi_{yy}-\frac{2\phi_x\phi_y}{a^2}\phi_{xy}=0}\]</div>
+      <p>wobei die örtliche Schallgeschwindigkeit selbst eine Funktion des Potentials ist,</p>
+      <div class="equation-card">\[a^2=a_0^2-\frac{\gamma-1}{2}\left(\phi_x^2+\phi_y^2\right).\]</div>
+      <div class="callout warning"><strong>Warum sich das so nicht lösen lässt.</strong> Die Gleichung ist nichtlinear — ihre Koeffizienten enthalten über \(a\) die Unbekannte selbst — Lösungen lassen sich also nicht überlagern. Schlimmer noch: Ihr <em>Typ</em> wechselt mit der örtlichen Machzahl, elliptisch im Unterschall, hyperbolisch im Überschall. Eine Gleichung, die innerhalb ihres eigenen Gebiets den Charakter wechselt, beherrschen klassische Verfahren nicht.</div>
+    </section>
+
+    <section id="perturbation-de">
+      <p class="section-label">Variablenwechsel</p>
+      <h2>Die Anströmung abspalten</h2>
+      <p>Man schreibt die Geschwindigkeit als ungestörte Anströmung plus Störung:</p>
+      <div class="equation-card">\[u=V_\infty+\hat u,\qquad v=\hat v,\qquad \phi=V_\infty x+\hat\phi,\]</div>
+      <p>sodass \(\hat u=\hat\phi_x\) und \(\hat v=\hat\phi_y\). Das ist ein exakter Variablenwechsel, noch keine Näherung. Einsetzen in die exakte Gleichung und Ordnen der Terme liefert eine Gleichung für \(\hat\phi\), in der der Anströmungsanteil explizit erscheint und — entscheidend — in der die störenden Terme sämtlich quadratisch in den Störungen sind.</p>
+      <div class="callout"><strong>Was bisher gewonnen ist.</strong> An Schwierigkeit noch nichts. Der Zweck der Substitution ist, genau jene Terme zu isolieren, die bei schlankem Körper klein sind, damit die Näherung kontrolliert und nicht nach Augenmaß erfolgen kann.</div>
+    </section>
+
+    <section id="linearized-de">
+      <p class="section-label">Die Näherung</p>
+      <h2>Kleine Störungen und die linearisierte Gleichung</h2>
+      <p>Die Annahme lautet, dass der Körper die Strömung nur geringfügig stört:</p>
+      <div class="equation-card">\[\boxed{\left|\frac{\hat u}{V_\infty}\right|\ll1,\qquad\left|\frac{\hat v}{V_\infty}\right|\ll1}\]</div>
+      <p>Produkte wie \(\hat u^2/V_\infty^2\), \(\hat v^2/V_\infty^2\) und \(\hat u\hat v/V_\infty^2\) sind dann von zweiter Ordnung und entfallen. Was übrig bleibt, ist bemerkenswert einfach:</p>
+      <div class="equation-card">\[\boxed{\left(1-M_\infty^2\right)\hat\phi_{xx}+\hat\phi_{yy}=0}\]</div>
+      <p>und mit \(\beta^2=1-M_\infty^2\)</p>
+      <div class="equation-card">\[\boxed{\beta^2\hat\phi_{xx}+\hat\phi_{yy}=0}\]</div>
+      <div class="callout success"><strong>Drei Dinge geschahen zugleich.</strong> Die Gleichung wurde linear, Lösungen überlagern sich also. Ihre Koeffizienten wurden konstant, festgelegt allein durch die Anström-Machzahl statt durch die örtliche. Und ihr Typ wechselt nicht mehr von Punkt zu Punkt: Zu gegebenem \(M_\infty\) ist entweder das ganze Feld elliptisch oder das ganze hyperbolisch.</div>
+
+      <h3>Der Typ und seine Bedeutung</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>\(\beta^2\)</th><th>Typ</th><th>Physikalische Bedeutung</th></tr></thead>
+          <tbody>
+            <tr><td>\(M_\infty&lt;1\)</td><td>\(&gt;0\)</td><td>elliptisch</td><td>Störungen erreichen jeden Punkt; der Körper wird stromauf gespürt.</td></tr>
+            <tr><td>\(M_\infty=1\)</td><td>\(=0\)</td><td>entartet</td><td>Der axiale Term verschwindet, die lineare Gleichung verliert ihre Gültigkeit.</td></tr>
+            <tr><td>\(M_\infty&gt;1\)</td><td>\(&lt;0\)</td><td>hyperbolisch</td><td>Störungen laufen längs Machlinien; stromauf wird nichts gespürt.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Das Weglassen der quadratischen Terme ist nur zulässig, solange sie gegenüber den beibehaltenen wirklich klein sind, was</p>
+      <div class="equation-card">\[(\gamma+1)M_\infty^2\frac{\hat u}{V_\infty}\ \ll\ \left|1-M_\infty^2\right|\]</div>
+      <p>verlangt.</p>
+      <div class="callout warning"><strong>Das Kriterium, das sich die Näherung selbst auferlegt.</strong> Für \(M_\infty\to1\) bricht die rechte Seite ein, die linke nicht. Das ist die analytische Aussage darüber, warum die linearisierte Theorie transsonisch versagt — und ein Test, den Sie an Ihrem eigenen Ergebnis durchführen können, wie es das Rechenbeispiel vorführt.</div>
+    </section>
+
+    <section id="boundary-de">
+      <p class="section-label">Das Problem schließen</p>
+      <h2>Die Tangentialbedingung, auf die Achse verlegt</h2>
+      <p>Für eine Oberfläche \(y=f(x)\) verlangt exakte Tangentialität \(v/u=df/dx\). Mit \(u=V_\infty+\hat u\) und \(v=\hat v\) gilt</p>
+      <div class="equation-card">\[\frac{\hat v}{V_\infty+\hat u}=\frac{df}{dx}.\]</div>
+      <p>Da \(\hat u\ll V_\infty\), wird der Nenner durch \(V_\infty\) ersetzt, und die Bedingung wird auf der Achse statt auf der wahren Oberfläche gestellt:</p>
+      <div class="equation-card">\[\boxed{\hat v(x,0)=V_\infty\frac{df}{dx}}\]</div>
+      <div class="callout"><strong>Zwei Näherungen, nicht eine.</strong> Die Linearisierung des Quotienten ist die erste; die Verlagerung der Bedingung von \(y=f(x)\) auf \(y=0\) ist die zweite und macht das Problem auf einem festen Gebiet lösbar. Beide sind mit der Schlankheitsordnung verträglich, und beide versagen an einer stumpfen Vorderkante.</div>
+      <p>Fern des Körpers muss die Störung abklingen, \(\hat\phi\to\text{konstant}\), was die verbleibende Bedingung liefert.</p>
+    </section>
+
+    <section id="cp-de">
+      <p class="section-label">Den Druck zurückgewinnen</p>
+      <h2>Der linearisierte Druckbeiwert</h2>
+      <p>Der Druckbeiwert ist definiert als</p>
+      <div class="equation-card">\[C_p=\frac{p-p_\infty}{q_\infty},\qquad q_\infty=\tfrac12\rho_\infty V_\infty^2=\frac{\gamma}{2}p_\infty M_\infty^2.\]</div>
+      <p>Entwickelt man die isentrope Druckbeziehung für kleine Störungen und behält die erste Ordnung, so bleibt ein bemerkenswert kompaktes Ergebnis:</p>
+      <div class="equation-card">\[\boxed{C_p=-2\frac{\hat u}{V_\infty}=-\frac{2}{V_\infty}\hat\phi_x}\]</div>
+      <div class="callout success"><strong>Formal identisch zum inkompressiblen Fall.</strong> Derselbe Ausdruck tritt in der inkompressiblen Theorie schlanker Profile auf. Die Kompressibilität ist <em>nicht</em> verschwunden — sie steckt über \(\beta^2\) in der Gleichung für \(\hat\phi\), nicht in der Formel, die \(\hat\phi\) in \(C_p\) überführt. Deshalb lässt sich der gesamte Kompressibilitätseinfluss letztlich in einen einzigen Faktor packen.</div>
+      <div class="example">
+        <h3>Schnellprüfung</h3>
+        <p>An einem Punkt eines schlanken Profils beträgt die axiale Störung \(\hat u/V_\infty=0{,}075\). Dann ist</p>
+        <div class="result-box">\[C_p=-2(0{,}075)=-0{,}150\]</div>
+        <p>Eine positive axiale Störung bedeutet, dass die örtliche Strömung gegenüber der Anströmung beschleunigt ist; der statische Druck sinkt, und \(C_p\) wird negativ.</p>
+      </div>
+    </section>
+
+    <section id="transform-de">
+      <p class="section-label">Der Kunstgriff</p>
+      <h2>Die Koordinaten dehnen</h2>
+      <p>Mit \(\beta=\sqrt{1-M_\infty^2}&gt;0\) definiert man ein transformiertes Problem durch</p>
+      <div class="equation-card">\[\boxed{\xi=x,\qquad \eta=\beta y,\qquad \overline\phi(\xi,\eta)=\beta\hat\phi(x,y)}\]</div>
+      <p>Ausführen der Ableitungen liefert \(\hat\phi_{xx}=\overline\phi_{\xi\xi}/\beta\) und \(\hat\phi_{yy}=\beta\overline\phi_{\eta\eta}\). Einsetzen in \(\beta^2\hat\phi_{xx}+\hat\phi_{yy}=0\) und Division durch \(\beta\) ergibt</p>
+      <div class="equation-card">\[\boxed{\overline\phi_{\xi\xi}+\overline\phi_{\eta\eta}=0}\]</div>
+      <div class="callout success"><strong>Die Laplace-Gleichung.</strong> Das kompressible Unterschallproblem ist in ein inkompressibles überführt. Jede Technik aus Aerodynamik I — Theorie schlanker Profile, konforme Abbildung, Panelverfahren — gilt in der transformierten Ebene unverändert.</div>
+      <p>Die Transformation lässt zudem die Körperform unangetastet. Stellt man die Randbedingung in beiden Ebenen auf, so folgt \(V_\infty\,df/dx=\overline\phi_\eta\) und \(V_\infty\,dq/d\xi=\overline\phi_\eta\), also</p>
+      <div class="equation-card">\[\frac{df}{dx}=\frac{dq}{d\xi}.\]</div>
+      <p>Das transformierte Profil hat dieselbe Steigungsverteilung und damit dieselbe Form wie das physikalische. Nichts muss neu gezeichnet werden.</p>
+    </section>
+
+    <section id="rule-de">
+      <p class="section-label">Das Ergebnis</p>
+      <h2>Die Prandtl–Glauert-Regel</h2>
+      <p>Aus \(\hat\phi_x=\overline\phi_\xi/\beta\) und der linearisierten Druckbeziehung folgt</p>
+      <div class="equation-card">\[C_p=-\frac{2}{V_\infty}\hat\phi_x=-\frac{2}{\beta V_\infty}\overline\phi_\xi=\frac{1}{\beta}\,C_{p,0},\]</div>
+      <p>worin \(C_{p,0}=-(2/V_\infty)\overline\phi_\xi\) der Druckbeiwert <em>desselben</em> Profils in inkompressibler Strömung ist. Somit gilt</p>
+      <div class="equation-card">\[\boxed{C_p=\frac{C_{p,0}}{\sqrt{1-M_\infty^2}}}\]</div>
+      <p>und nach Integration über die Oberfläche überträgt sich derselbe Faktor auf die Beiwerte:</p>
+      <div class="equation-card">\[\boxed{c_l=\frac{c_{l,0}}{\sqrt{1-M_\infty^2}},\qquad c_{m}=\frac{c_{m,0}}{\sqrt{1-M_\infty^2}}}\]</div>
+      <div class="callout"><strong>Was die Regel tatsächlich aussagt.</strong> Die Kompressibilität ändert nicht die <em>Gestalt</em> der Druckverteilung über einem schlanken Profil im Unterschall — sie verstärkt sie insgesamt um einen gemeinsamen Faktor. Die Unterdrücke werden stärker, der Auftriebsanstieg steiler, und der Druckpunkt wandert nicht.</div>
+      <div class="callout warning"><strong>Und was sie nicht sagen kann.</strong> Der Faktor \(1/\beta\) wächst für \(M_\infty\to1\) unbeschränkt und sagt ein unendliches \(C_p\) voraus. Nichts Physikalisches tut das. Die Divergenz ist die Ankündigung des eigenen Zusammenbruchs, kein Phänomen: Lange vor \(M_\infty=1\) entsteht auf dem Profil ein örtliches Überschallgebiet, ein Stoß schließt es ab, und die isentrope, wirbelfreie Voraussetzung ist dahin. Diesen Einsatzpunkt zu bestimmen ist Gegenstand von Vorlesung 11.</div>
+    </section>
+
+    <section id="example-de">
+      <p class="section-label">Rechenbeispiel</p>
+      <h2>Einen Druckbeiwert korrigieren — und prüfen, ob man darf</h2>
+      <div class="example">
+        <h3>Aufgabe</h3>
+        <p>Ein schlankes Profil besitzt in inkompressibler Strömung einen minimalen Druckbeiwert \(C_{p,0}=-0{,}43\). Zu schätzen ist \(C_p\) bei \(M_\infty=0{,}6\) und bei \(M_\infty=0{,}8\); in beiden Fällen ist zu prüfen, ob die Annahme kleiner Störungen noch gerechtfertigt ist. Es sei \(\gamma=1{,}4\).</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Kompressibilitätsfaktoren:</p>\[\beta(0{,}6)=\sqrt{1-0{,}36}=0{,}8000,\qquad\beta(0{,}8)=\sqrt{1-0{,}64}=0{,}6000.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Prandtl–Glauert:</p>\[C_p(0{,}6)=\frac{-0{,}43}{0{,}8000}=-0{,}5375,\qquad C_p(0{,}8)=\frac{-0{,}43}{0{,}6000}=-0{,}7167.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Aus \(C_p=-2\hat u/V_\infty\) folgt die implizierte axiale Störung:</p>\[\left.\frac{\hat u}{V_\infty}\right|_{0{,}6}=0{,}2687,\qquad\left.\frac{\hat u}{V_\infty}\right|_{0{,}8}=0{,}3583.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Anwendung des Gültigkeitskriteriums \((\gamma+1)M_\infty^2\,\hat u/V_\infty\ll|1-M_\infty^2|\):</p>\[M_\infty=0{,}6:\quad 0{,}2322\ \text{gegen}\ 0{,}6400\quad\text{(Verhältnis 0,36)}\]\[M_\infty=0{,}8:\quad 0{,}5504\ \text{gegen}\ 0{,}3600\quad\text{(Verhältnis 1,53)}\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>Bei \(M_\infty=0{,}6\) betragen die vernachlässigten Terme etwa ein Drittel der beibehaltenen — für eine Abschätzung akzeptabel. Bei \(M_\infty=0{,}8\) sind sie <em>größer</em> als die beibehaltenen; die Linearisierung ist gescheitert, und der Wert \(-0{,}7167\) darf nicht verwendet werden.</p></div></div>
+
+        <div class="result-box">\[\boxed{C_p(0{,}6)=-0{,}538\ \text{(brauchbar)},\qquad C_p(0{,}8)=-0{,}717\ \text{(nicht belastbar)}}\]</div>
+        <p>Man beachte, dass die Formel in beiden Fällen eine tadellos saubere Zahl liefert. Nichts an \(C_{p,0}/\beta\) warnt davor, dass die zweite bedeutungslos ist. Das Kriterium muss bewusst angewandt werden — genau deshalb lohnt es sich, es neben der Regel mitzuführen.</p>
+      </div>
+    </section>
+
+    <section id="summary-de">
+      <p class="section-label">Kerngleichungen</p>
+      <h2>Auf einen Blick</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Beziehung</th><th>Ausdruck</th><th>Gültig wenn</th></tr></thead>
+          <tbody>
+            <tr><td>Exakte Potentialgleichung</td><td>\(\left(1-\phi_x^2/a^2\right)\phi_{xx}+\left(1-\phi_y^2/a^2\right)\phi_{yy}-\dfrac{2\phi_x\phi_y}{a^2}\phi_{xy}=0\)</td><td>wirbelfrei, isentrop</td></tr>
+            <tr><td>Linearisierte Gleichung</td><td>\(\beta^2\hat\phi_{xx}+\hat\phi_{yy}=0\), \(\beta^2=1-M_\infty^2\)</td><td>kleine Störungen</td></tr>
+            <tr><td>Randbedingung</td><td>\(\hat v(x,0)=V_\infty\,df/dx\)</td><td>schlanker Körper</td></tr>
+            <tr><td>Druckbeiwert</td><td>\(C_p=-2\hat u/V_\infty\)</td><td>erste Ordnung</td></tr>
+            <tr><td>Transformation</td><td>\(\xi=x,\ \eta=\beta y,\ \overline\phi=\beta\hat\phi\)</td><td>\(M_\infty&lt;1\)</td></tr>
+            <tr><td>Prandtl–Glauert-Regel</td><td>\(C_p=C_{p,0}/\sqrt{1-M_\infty^2}\)</td><td>Unterschall, schlank, anliegend</td></tr>
+            <tr><td>Gültigkeitskriterium</td><td>\((\gamma+1)M_\infty^2\,\hat u/V_\infty\ll|1-M_\infty^2|\)</td><td>stets prüfen</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="mistakes-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Häufige Fehler</h2>
+      <ul class="check-list">
+        <li><strong>Prandtl–Glauert nahe \(M_\infty=1\) verwenden.</strong> Der Faktor divergiert, und das eigene Kriterium der Theorie versagt weit vorher. Die Divergenz ist eine Warnung, keine Vorhersage.</li>
+        <li><strong>Die Regel auf ein dickes Profil oder großen Anstellwinkel anwenden.</strong> Dann sind die Störungen nicht klein, und die Linearisierung war nie gültig — unabhängig von \(M_\infty\).</li>
+        <li><strong>Schließen, die Kompressibilität sei aus \(C_p=-2\hat u/V_\infty\) verschwunden.</strong> Sie steckt über \(\beta^2\) in der Gleichung für \(\hat\phi\).</li>
+        <li><strong>Einen gemessenen kompressiblen \(C_p\) in der falschen Richtung mit \(\beta\) umrechnen.</strong> Die Regel führt von <em>inkompressibel zu kompressibel</em>; der Rückweg dividiert.</li>
+        <li><strong>Erwarten, dass der Druckpunkt wandert.</strong> Ein einziger gemeinsamer Faktor skaliert jeden Punkt der Verteilung gleich, also wandert er nicht.</li>
+        <li><strong>Von der Theorie Widerstand erwarten.</strong> Ein zweidimensionaler Unterschallkörper hat in diesem Modell keinen; Wellenwiderstand braucht Vorlesung 12, Reibung eine viskose Behandlung.</li>
+        <li><strong>Die Randbedingung auf der wahren Oberfläche stellen.</strong> Im linearisierten Modell gehört sie auf \(y=0\); die exakte Oberfläche mischt Ordnungen inkonsistent.</li>
+      </ul>
+    </section>
+
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6. Aufl. New York: McGraw-Hill Education, 2017, Kapitel 11.</li>
+        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3. Aufl. New York: McGraw-Hill, 2003, Kapitel 9.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexiko, Februar 2024.</li>
+      </ol>
+      <p class="source-note">Bearbeitet nach Einheit V des Vorlesungsskripts Aerodynamik II von Carlos Alberto Molina Holguín; alle Zahlenwerte wurden für \(\gamma=1{,}4\) unabhängig nachgerechnet.</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="nozzle-back-pressure-thrust.html"><span>Vorherige Vorlesung</span>← Gegendruck und Schub</a>
+      <a class="next-link" href="compressibility-corrections.html"><span>Nächste Vorlesung</span>Korrekturen und \(M_{cr}\) →</a>
+    </nav>
+  </article>
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>
