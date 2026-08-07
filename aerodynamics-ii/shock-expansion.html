@@ -70,9 +70,12 @@
       <p class="hero-copy">Gebietsweise Berechnung polygonaler Überschallgeometrien mit Schrägstößen und Expansionen.</p>
     </div>
 
-    <div class="hero-meta"><span data-language="en">Estimated reading: 40 min</span><span data-language="es" hidden>Lectura estimada: 40 min</span><span data-language="de" hidden>Lesedauer: ca. 40 min</span><span data-language="en">Piecewise-linear geometry</span><span data-language="es" hidden>Geometría lineal por tramos</span><span data-language="de" hidden>Stückweise lineare Geometrie</span><span data-language="en">Sequential states</span><span data-language="es" hidden>Estados secuenciales</span><span data-language="de" hidden>Aufeinanderfolgende Zustände</span></div>
-
-    <div class="button-row">
+    <div class="hero-meta">
+    <span data-language="en">Estimated reading: 40 min</span><span data-language="es" hidden>Lectura estimada: 40 min</span><span data-language="de" hidden>Lesedauer: ca. 40 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Model: inviscid polygonal body</span><span data-language="es" hidden>Modelo: cuerpo poligonal inviscido</span><span data-language="de" hidden>Modell: reibungsfreier Polygonkörper</span>
+  </div>
+  <div class="button-row">
       <a class="button secondary" href="prandtl-meyer.html">← Previous</a>
       <a class="button primary" href="nozzle-flow-fundamentals.html">Next lecture →</a>
       <a class="button primary" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer" data-ui-key="calculator">Open calculator</a>
@@ -85,43 +88,70 @@
     <aside class="toc">
       <h2 data-ui-key="contents">On this page</h2>
       <div class="toc-links" data-language="en">
-        <a href="#principle">Core principle</a>
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Physical picture</a>
+        <a href="#model">Model and assumptions</a>
         <a href="#turns">Classifying turns</a>
         <a href="#propagation">State propagation</a>
-        <a href="#algorithm">General algorithm</a>
+        <a href="#algorithm">Calculation algorithm</a>
         <a href="#plate">Flat plate</a>
         <a href="#diamond">Diamond airfoil</a>
         <a href="#comparison">Shock vs expansion</a>
-        <a href="#calculator">Calculator specification</a>
-        <a href="#references">References</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Key equations</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#calculator">Computational tool</a>
+        <a href="#references">Sources</a>
       </div>
       <div class="toc-links" data-language="es" hidden>
-        <a href="#principle-es">Principio central</a>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Panorama físico</a>
+        <a href="#model-es">Modelo e hipótesis</a>
         <a href="#turns-es">Clasificación de virajes</a>
         <a href="#propagation-es">Propagación de estados</a>
-        <a href="#algorithm-es">Algoritmo general</a>
+        <a href="#algorithm-es">Algoritmo de cálculo</a>
         <a href="#plate-es">Placa plana</a>
         <a href="#diamond-es">Perfil rómbico</a>
         <a href="#comparison-es">Choque frente a expansión</a>
-        <a href="#calculator-es">Especificación de la calculadora</a>
-        <a href="#references-es">Referencias</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Ecuaciones clave</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#calculator-es">Herramienta computacional</a>
+        <a href="#references-es">Fuentes</a>
       </div>
       <div class="toc-links" data-language="de" hidden>
-        <a href="#principle-de">Grundprinzip</a>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Physikalisches Bild</a>
+        <a href="#model-de">Modell und Annahmen</a>
         <a href="#turns-de">Einordnung der Umlenkungen</a>
         <a href="#propagation-de">Zustandsfortschreibung</a>
-        <a href="#algorithm-de">Allgemeiner Algorithmus</a>
+        <a href="#algorithm-de">Rechenalgorithmus</a>
         <a href="#plate-de">Ebene Platte</a>
         <a href="#diamond-de">Rautenprofil</a>
         <a href="#comparison-de">Stoß und Expansion</a>
-        <a href="#calculator-de">Spezifikation des Rechners</a>
-        <a href="#references-de">Literatur</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Kerngleichungen</a>
+        <a href="#mistakes-de">Häufige Fehler</a>
+        <a href="#calculator-de">Rechenwerkzeug</a>
+        <a href="#references-de">Quellen</a>
       </div>
     </aside>
 
     <article class="lecture" data-language="en">
-      <section id="principle">
-        <p class="section-label">Core principle</p>
+            <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul>
+          <li>Classify each corner of a polygonal body as a compression or an expansion turn.</li>
+          <li>Propagate the state vector from one uniform region to the next.</li>
+          <li>Compute lift and wave drag on a flat plate at supersonic angle of attack.</li>
+          <li>Compute the wave drag of a symmetric diamond airfoil.</li>
+          <li>State the assumptions that bound the method and recognise when they fail.</li>
+        </ul>
+      </section>
+
+<section id="physics">
+        <p class="section-label">Physical picture</p>
         <h2>Each corner creates a new flow region</h2>
         <p class="lead">
           Shock–expansion theory gives the inviscid two-dimensional solution over bodies made
@@ -144,6 +174,18 @@
           The downstream state from one corner becomes the upstream state for the next.
         </p>
       </section>
+      <section id="model">
+        <p class="section-label">Model and assumptions</p>
+        <h2>Straight panels, attached waves, no interaction</h2>
+        <ul>
+          <li>steady, inviscid, two-dimensional supersonic flow of a calorically perfect gas;</li>
+          <li>a body made of straight panels, so each corner produces a single wave;</li>
+          <li>all shocks attached, so \(\theta<\theta_{\max}\) at every compression corner;</li>
+          <li>waves that do not intersect one another over the body surface.</li>
+        </ul>
+        <div class="callout warning"><strong>Not included.</strong> The method is exact for the ideal model but assumes each panel sees a uniform upstream state. Wave reflections from the jet boundary, shock–shock intersections, viscous drag, and base drag are all excluded. The result is therefore a pressure distribution and a wave drag, not a total drag.</div>
+      </section>
+
 
       <section id="turns">
         <p class="section-label">Geometry convention</p>
@@ -234,7 +276,7 @@
       </section>
 
       <section id="algorithm">
-        <p class="section-label">General method</p>
+        <p class="section-label">Calculation algorithm</p>
         <h2>Algorithm for a polygonal body</h2>
 
         <div class="process-flow">
@@ -274,7 +316,7 @@
         <div class="example">
           <h3>Mach 3, \(\alpha=5^\circ\)</h3>
           <p>Upper expansion: \(M_u\approx3.27\), \(p_u/p_\infty\approx0.668\).</p>
-          <p>Lower weak shock: \(p_l/p_\infty\approx1.458\).</p>
+          <p>Lower weak shock: \(p_l/p_\infty\approx1.454\).</p>
           <div class="result-box">\[\boxed{c_l\approx0.125,\qquad c_d\approx0.0109}\]</div>
         </div>
       </section>
@@ -336,9 +378,57 @@
           </table>
         </div>
       </section>
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>Flat plate at \(M_\infty=3\), \(\alpha=5^\circ\)</h2>
+        <div class="example">
+          <h3>Problem</h3>
+          <p>A flat plate is at \(\alpha=5^\circ\) in a stream at \(M_\infty=3\). Compute the pressure on both surfaces and the lift and wave-drag coefficients.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Upper surface — an expansion of \(5^\circ\). From \(\nu(3)=49.757^\circ\), \[\nu(M_u)=49.757^\circ+5^\circ=54.757^\circ\;\Longrightarrow\;M_u=3.2731.\]</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Isentropic ratio on the upper surface: \[\frac{p_u}{p_\infty}=\left(\frac{1+0.2M_\infty^2}{1+0.2M_u^2}\right)^{3.5}=0.66761.\]</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Lower surface — a weak oblique shock of \(5^\circ\). Solving \(\theta\)–\(\beta\)–\(M\), \[\beta=23.133^\circ,\qquad M_{n1}=3\sin\beta=1.17861.\]</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Static-pressure jump across that shock: \[\frac{p_l}{p_\infty}=1+\frac{2\gamma}{\gamma+1}(M_{n1}^2-1)=1.45398.\]</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>With \(q_\infty=\tfrac{\gamma}{2}p_\infty M_\infty^2\), \[c_l=\frac{(p_l-p_u)\cos\alpha}{q_\infty}=0.12435,\qquad c_d=\frac{(p_l-p_u)\sin\alpha}{q_\infty}=0.010879.\]</p></div></div>
+          <div class="result-box">\[\boxed{M_u=3.273,\quad p_l/p_\infty=1.454,\quad c_l=0.1244,\quad c_d=0.01088}\]</div>
+          <p>As a check, \(c_d/c_l=0.087489\) and \(\tan5^\circ=0.087489\). The identity \(c_d/c_l=\tan\alpha\) holds because both forces come from the same pressure difference acting on the same plate; it is a useful test that the two surfaces were solved consistently.</p>
+        </div>
+        <div class="validation-case"><strong>Calculator validation case</strong><span>Inputs: \(M_\infty=3\), flat plate at \(\alpha=5^\circ\), \(\gamma=1.4\); expansion on the upper surface, weak shock on the lower.</span></div>
+      </section>
+      <section id="summary">
+        <p class="section-label">Key equations</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Relation</th><th>Expression</th><th>Applies when</th></tr></thead>
+          <tbody>
+            <tr><td>Local turn</td><td>\(\delta_i=\phi_i-\theta_i\)</td><td>straight panels</td></tr>
+            <tr><td>Compression corner</td><td>\(\theta\text{–}\beta\text{–}M\;\Rightarrow\;\beta,\;M_{i+1},\;p_{0,i+1}<p_{0,i}\)</td><td>\(\theta<\theta_{\max}\)</td></tr>
+            <tr><td>Expansion corner</td><td>\(\nu(M_{i+1})=\nu(M_i)+|\delta_i|,\;p_{0,i+1}=p_{0,i}\)</td><td>convex turn</td></tr>
+            <tr><td>Cumulative recovery</td><td>\(p_{0,f}/p_{0,1}=\prod_j\left(p_{0,j+1}/p_{0,j}\right)\)</td><td>shock sequence</td></tr>
+            <tr><td>Flat plate</td><td>\(c_d/c_l=\tan\alpha\)</td><td>thin plate</td></tr>
+            <tr><td>Diamond airfoil</td><td>\(D'=(p_2-p_3)\,t\)</td><td>\(\alpha=0\)</td></tr>
+          </tbody>
+          </table>
+        </div>
+      </section>
+
+
+      <section id="mistakes">
+        <p class="section-label">Common mistakes</p>
+        <h2>Common mistakes</h2>
+        <ul class="check-list">
+          <li><strong>Deciding the turn from the panel angle alone.</strong> The sign of \(\delta_i\) depends on the traversal convention. The robust test is whether the streamline turns toward or away from the local surface.</li>
+          <li><strong>Using the Prandtl–Meyer function on a compression corner.</strong> \(\nu(M)\) describes expansions only; a concave corner needs \(\theta\)–\(\beta\)–\(M\).</li>
+          <li><strong>Carrying one \(p_0\) through the whole body.</strong> Every shock lowers it, and the recoveries multiply. Expansions leave it unchanged.</li>
+          <li><strong>Not checking \(\theta_{\max}\) at each compression corner.</strong> One detached corner invalidates the march from that point downstream.</li>
+          <li><strong>Reporting wave drag as total drag.</strong> The method gives the pressure contribution only; friction and base drag are absent.</li>
+          <li><strong>Applying the method to a curved surface.</strong> Panels must be straight for the pressure to be uniform between waves.</li>
+        </ul>
+      </section>
+
 
       <section id="calculator">
-        <p class="section-label">Software specification</p>
+        <p class="section-label">Computational tool</p>
         <h2>What the geometry calculator must implement</h2>
 
         <ul class="check-list">
@@ -364,6 +454,7 @@
       </section>
 
       <section id="references" class="references">
+        <p class="section-label">Sources</p>
         <h2>References</h2>
         <ol>
           <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed. New York: McGraw-Hill Education, 2017, Section 9.7.</li>
@@ -381,8 +472,20 @@
     </article>
 
     <article class="lecture" data-language="es" hidden>
-      <section id="principle-es">
-        <p class="section-label">Principio central</p>
+            <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Lo que debes ser capaz de hacer</h2>
+        <ul>
+          <li>Clasificar cada esquina de un cuerpo poligonal como viraje de compresión o de expansión.</li>
+          <li>Propagar el vector de estado de una región uniforme a la siguiente.</li>
+          <li>Calcular sustentación y arrastre de onda en una placa plana a ángulo de ataque supersónico.</li>
+          <li>Calcular el arrastre de onda de un perfil rómbico simétrico.</li>
+          <li>Enunciar las hipótesis que acotan el método y reconocer cuándo fallan.</li>
+        </ul>
+      </section>
+
+<section id="physics-es">
+        <p class="section-label">Panorama físico</p>
         <h2>Cada esquina crea una región de flujo nueva</h2>
         <p class="lead">
           La teoría de choque–expansión da la solución inviscida bidimensional sobre cuerpos formados
@@ -404,6 +507,18 @@
           El estado aguas abajo de una esquina se convierte en el estado aguas arriba de la siguiente.
         </p>
       </section>
+      <section id="model-es">
+        <p class="section-label">Modelo e hipótesis</p>
+        <h2>Paneles rectos, ondas adheridas, sin interacción</h2>
+        <ul>
+          <li>flujo supersónico estacionario, inviscido y bidimensional de un gas calóricamente perfecto;</li>
+          <li>cuerpo formado por paneles rectos, de modo que cada esquina produce una sola onda;</li>
+          <li>todos los choques adheridos, es decir \(\theta<\theta_{\max}\) en cada esquina de compresión;</li>
+          <li>ondas que no se intersecan entre sí sobre la superficie del cuerpo.</li>
+        </ul>
+        <div class="callout warning"><strong>No incluido.</strong> El método es exacto para el modelo ideal, pero supone que cada panel ve un estado aguas arriba uniforme. Las reflexiones de onda en la frontera del chorro, las intersecciones choque–choque, el arrastre viscoso y el arrastre de base quedan todos excluidos. El resultado es por tanto una distribución de presión y un arrastre de onda, no un arrastre total.</div>
+      </section>
+
 
       <section id="turns-es">
         <p class="section-label">Convención geométrica</p>
@@ -487,7 +602,7 @@
       </section>
 
       <section id="algorithm-es">
-        <p class="section-label">Método general</p>
+        <p class="section-label">Algoritmo de cálculo</p>
         <h2>Algoritmo para un cuerpo poligonal</h2>
         <div class="process-flow">
           <div><strong>1</strong><span>Recorrer la superficie desde el borde de ataque</span></div>
@@ -521,7 +636,7 @@
         <div class="example">
           <h3>Mach 3, \(\alpha=5^\circ\)</h3>
           <p>Expansión superior: \(M_u\approx3.27\), \(p_u/p_\infty\approx0.668\).</p>
-          <p>Choque débil inferior: \(p_l/p_\infty\approx1.458\).</p>
+          <p>Choque débil inferior: \(p_l/p_\infty\approx1.454\).</p>
           <div class="result-box">\[\boxed{c_l\approx0.125,\qquad c_d\approx0.0109}\]</div>
         </div>
       </section>
@@ -578,9 +693,57 @@
           </table>
         </div>
       </section>
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>Placa plana a \(M_\infty=3\), \(\alpha=5^\circ\)</h2>
+        <div class="example">
+          <h3>Problema</h3>
+          <p>Una placa plana está a \(\alpha=5^\circ\) en una corriente a \(M_\infty=3\). Calcule la presión en ambas superficies y los coeficientes de sustentación y de arrastre de onda.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Superficie superior: expansión de \(5^\circ\). Desde \(\nu(3)=49.757^\circ\), \[\nu(M_u)=49.757^\circ+5^\circ=54.757^\circ\;\Longrightarrow\;M_u=3.2731.\]</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Razón isoentrópica en la superficie superior: \[\frac{p_u}{p_\infty}=\left(\frac{1+0.2M_\infty^2}{1+0.2M_u^2}\right)^{3.5}=0.66761.\]</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Superficie inferior: choque oblicuo débil de \(5^\circ\). Resolviendo \(\theta\)–\(\beta\)–\(M\), \[\beta=23.133^\circ,\qquad M_{n1}=3\sin\beta=1.17861.\]</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Salto de presión estática a través de ese choque: \[\frac{p_l}{p_\infty}=1+\frac{2\gamma}{\gamma+1}(M_{n1}^2-1)=1.45398.\]</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>Con \(q_\infty=\tfrac{\gamma}{2}p_\infty M_\infty^2\), \[c_l=\frac{(p_l-p_u)\cos\alpha}{q_\infty}=0.12435,\qquad c_d=\frac{(p_l-p_u)\sin\alpha}{q_\infty}=0.010879.\]</p></div></div>
+          <div class="result-box">\[\boxed{M_u=3.273,\quad p_l/p_\infty=1.454,\quad c_l=0.1244,\quad c_d=0.01088}\]</div>
+          <p>Como verificación, \(c_d/c_l=0.087489\) y \(\tan5^\circ=0.087489\). La identidad \(c_d/c_l=\tan\alpha\) se cumple porque ambas fuerzas provienen de la misma diferencia de presión actuando sobre la misma placa; es una prueba útil de que las dos superficies se resolvieron de forma consistente.</p>
+        </div>
+        <div class="validation-case"><strong>Caso de validación de la calculadora</strong><span>Entradas: \(M_\infty=3\), placa plana a \(\alpha=5^\circ\), \(\gamma=1.4\); expansión en la superficie superior, choque débil en la inferior.</span></div>
+      </section>
+      <section id="summary-es">
+        <p class="section-label">Ecuaciones clave</p>
+        <h2>En síntesis</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Relación</th><th>Expresión</th><th>Aplica cuando</th></tr></thead>
+          <tbody>
+            <tr><td>Viraje local</td><td>\(\delta_i=\phi_i-\theta_i\)</td><td>paneles rectos</td></tr>
+            <tr><td>Esquina de compresión</td><td>\(\theta\text{–}\beta\text{–}M\;\Rightarrow\;\beta,\;M_{i+1},\;p_{0,i+1}<p_{0,i}\)</td><td>\(\theta<\theta_{\max}\)</td></tr>
+            <tr><td>Esquina de expansión</td><td>\(\nu(M_{i+1})=\nu(M_i)+|\delta_i|,\;p_{0,i+1}=p_{0,i}\)</td><td>viraje convexo</td></tr>
+            <tr><td>Recuperación acumulada</td><td>\(p_{0,f}/p_{0,1}=\prod_j\left(p_{0,j+1}/p_{0,j}\right)\)</td><td>secuencia de choques</td></tr>
+            <tr><td>Placa plana</td><td>\(c_d/c_l=\tan\alpha\)</td><td>placa delgada</td></tr>
+            <tr><td>Perfil rómbico</td><td>\(D'=(p_2-p_3)\,t\)</td><td>\(\alpha=0\)</td></tr>
+          </tbody>
+          </table>
+        </div>
+      </section>
+
+
+      <section id="mistakes-es">
+        <p class="section-label">Errores comunes</p>
+        <h2>Errores comunes</h2>
+        <ul class="check-list">
+          <li><strong>Decidir el viraje solo por el ángulo del panel.</strong> El signo de \(\delta_i\) depende de la convención de recorrido. La prueba robusta es si la línea de corriente gira hacia la superficie local o alejándose de ella.</li>
+          <li><strong>Usar la función de Prandtl–Meyer en una esquina de compresión.</strong> \(\nu(M)\) describe solo expansiones; una esquina cóncava necesita \(\theta\)–\(\beta\)–\(M\).</li>
+          <li><strong>Arrastrar una sola \(p_0\) por todo el cuerpo.</strong> Cada choque la baja, y las recuperaciones se multiplican. Las expansiones la dejan intacta.</li>
+          <li><strong>No verificar \(\theta_{\max}\) en cada esquina de compresión.</strong> Una sola esquina desprendida invalida la marcha desde ese punto aguas abajo.</li>
+          <li><strong>Reportar el arrastre de onda como arrastre total.</strong> El método da solo la contribución de presión; falta fricción y arrastre de base.</li>
+          <li><strong>Aplicar el método a una superficie curva.</strong> Los paneles deben ser rectos para que la presión sea uniforme entre ondas.</li>
+        </ul>
+      </section>
+
 
       <section id="calculator-es">
-        <p class="section-label">Especificación de software</p>
+        <p class="section-label">Herramienta computacional</p>
         <h2>Qué debe implementar la calculadora de geometrías</h2>
         <ul class="check-list">
           <li>Convención consistente de ángulo de panel y viraje del flujo.</li>
@@ -603,6 +766,7 @@
       </section>
 
       <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
         <h2>Referencias</h2>
         <ol>
           <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, sección 9.7.</li>
@@ -620,8 +784,20 @@
     </article>
 
     <article class="lecture" data-language="de" hidden>
-      <section id="principle-de">
-        <p class="section-label">Grundprinzip</p>
+            <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie danach können sollten</h2>
+        <ul>
+          <li>Jede Ecke eines Polygonkörpers als Verdichtungs- oder Expansionsumlenkung einordnen.</li>
+          <li>Den Zustandsvektor von einem gleichförmigen Gebiet zum nächsten fortschreiben.</li>
+          <li>Auftrieb und Wellenwiderstand einer ebenen Platte bei Überschallanstellung berechnen.</li>
+          <li>Den Wellenwiderstand eines symmetrischen Rautenprofils berechnen.</li>
+          <li>Die Annahmen des Verfahrens benennen und erkennen, wann sie versagen.</li>
+        </ul>
+      </section>
+
+<section id="physics-de">
+        <p class="section-label">Physikalisches Bild</p>
         <h2>Jede Ecke erzeugt ein neues Strömungsgebiet</h2>
         <p class="lead">
           Die Stoß–Expansions-Theorie liefert die reibungsfreie zweidimensionale Lösung für Körper aus
@@ -642,6 +818,18 @@
           Der Zustand stromab einer Ecke wird zum Zustand stromauf der nächsten.
         </p>
       </section>
+      <section id="model-de">
+        <p class="section-label">Modell und Annahmen</p>
+        <h2>Gerade Segmente, anliegende Wellen, keine Wechselwirkung</h2>
+        <ul>
+          <li>stationäre, reibungsfreie, zweidimensionale Überschallströmung eines kalorisch idealen Gases;</li>
+          <li>aus geraden Segmenten aufgebauter Körper, sodass jede Ecke genau eine Welle erzeugt;</li>
+          <li>durchweg anliegende Stöße, also \(\theta<\theta_{\max}\) an jeder Verdichtungsecke;</li>
+          <li>Wellen, die einander über der Körperoberfläche nicht schneiden.</li>
+        </ul>
+        <div class="callout warning"><strong>Nicht enthalten.</strong> Das Verfahren ist für das ideale Modell exakt, setzt aber voraus, dass jedes Segment einen gleichförmigen Zustrom sieht. Wellenreflexionen am Strahlrand, Stoß–Stoß-Schnitte, Reibungswiderstand und Basiswiderstand bleiben ausgeschlossen. Das Ergebnis ist daher eine Druckverteilung und ein Wellenwiderstand, kein Gesamtwiderstand.</div>
+      </section>
+
 
       <section id="turns-de">
         <p class="section-label">Geometrische Konvention</p>
@@ -725,7 +913,7 @@
       </section>
 
       <section id="algorithm-de">
-        <p class="section-label">Allgemeines Verfahren</p>
+        <p class="section-label">Rechenalgorithmus</p>
         <h2>Algorithmus für einen Polygonkörper</h2>
         <div class="process-flow">
           <div><strong>1</strong><span>Oberfläche ab der Vorderkante durchlaufen</span></div>
@@ -759,7 +947,7 @@
         <div class="example">
           <h3>Mach 3, \(\alpha=5^\circ\)</h3>
           <p>Expansion oben: \(M_u\approx3{,}27\), \(p_u/p_\infty\approx0{,}668\).</p>
-          <p>Schwacher Stoß unten: \(p_l/p_\infty\approx1{,}458\).</p>
+          <p>Schwacher Stoß unten: \(p_l/p_\infty\approx1{,}454\).</p>
           <div class="result-box">\[\boxed{c_l\approx0{,}125,\qquad c_d\approx0{,}0109}\]</div>
         </div>
       </section>
@@ -816,9 +1004,57 @@
           </table>
         </div>
       </section>
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Ebene Platte bei \(M_\infty=3\), \(\alpha=5^\circ\)</h2>
+        <div class="example">
+          <h3>Aufgabe</h3>
+          <p>Eine ebene Platte steht unter \(\alpha=5^\circ\) in einer Strömung mit \(M_\infty=3\). Zu berechnen sind die Drücke auf beiden Seiten sowie Auftriebs- und Wellenwiderstandsbeiwert.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Oberseite — eine Expansion um \(5^\circ\). Aus \(\nu(3)=49{,}757^\circ\) folgt \[\nu(M_u)=49{,}757^\circ+5^\circ=54{,}757^\circ\;\Longrightarrow\;M_u=3{,}2731.\]</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Isentropes Verhältnis auf der Oberseite: \[\frac{p_u}{p_\infty}=\left(\frac{1+0{,}2M_\infty^2}{1+0{,}2M_u^2}\right)^{3{,}5}=0{,}66761.\]</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Unterseite — ein schwacher schräger Stoß um \(5^\circ\). Lösen von \(\theta\)–\(\beta\)–\(M\) liefert \[\beta=23{,}133^\circ,\qquad M_{n1}=3\sin\beta=1{,}17861.\]</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Statischer Drucksprung über diesen Stoß: \[\frac{p_l}{p_\infty}=1+\frac{2\gamma}{\gamma+1}(M_{n1}^2-1)=1{,}45398.\]</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>Mit \(q_\infty=\tfrac{\gamma}{2}p_\infty M_\infty^2\) ergibt sich \[c_l=\frac{(p_l-p_u)\cos\alpha}{q_\infty}=0{,}12435,\qquad c_d=\frac{(p_l-p_u)\sin\alpha}{q_\infty}=0{,}010879.\]</p></div></div>
+          <div class="result-box">\[\boxed{M_u=3{,}273,\quad p_l/p_\infty=1{,}454,\quad c_l=0{,}1244,\quad c_d=0{,}01088}\]</div>
+          <p>Zur Kontrolle: \(c_d/c_l=0{,}087489\) und \(\tan5^\circ=0{,}087489\). Die Identität \(c_d/c_l=\tan\alpha\) gilt, weil beide Kräfte aus derselben Druckdifferenz an derselben Platte stammen; sie prüft zuverlässig, ob beide Seiten konsistent gelöst wurden.</p>
+        </div>
+        <div class="validation-case"><strong>Validierungsfall für den Rechner</strong><span>Eingaben: \(M_\infty=3\), ebene Platte bei \(\alpha=5^\circ\), \(\gamma=1{,}4\); Expansion auf der Oberseite, schwacher Stoß auf der Unterseite.</span></div>
+      </section>
+      <section id="summary-de">
+        <p class="section-label">Kerngleichungen</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Beziehung</th><th>Ausdruck</th><th>Gültig wenn</th></tr></thead>
+          <tbody>
+            <tr><td>Örtliche Umlenkung</td><td>\(\delta_i=\phi_i-\theta_i\)</td><td>gerade Segmente</td></tr>
+            <tr><td>Verdichtungsecke</td><td>\(\theta\text{–}\beta\text{–}M\;\Rightarrow\;\beta,\;M_{i+1},\;p_{0,i+1}<p_{0,i}\)</td><td>\(\theta<\theta_{\max}\)</td></tr>
+            <tr><td>Expansionsecke</td><td>\(\nu(M_{i+1})=\nu(M_i)+|\delta_i|,\;p_{0,i+1}=p_{0,i}\)</td><td>konvexe Umlenkung</td></tr>
+            <tr><td>Kumulierte Rückgewinnung</td><td>\(p_{0,f}/p_{0,1}=\prod_j\left(p_{0,j+1}/p_{0,j}\right)\)</td><td>Stoßfolge</td></tr>
+            <tr><td>Ebene Platte</td><td>\(c_d/c_l=\tan\alpha\)</td><td>dünne Platte</td></tr>
+            <tr><td>Rautenprofil</td><td>\(D'=(p_2-p_3)\,t\)</td><td>\(\alpha=0\)</td></tr>
+          </tbody>
+          </table>
+        </div>
+      </section>
+
+
+      <section id="mistakes-de">
+        <p class="section-label">Häufige Fehler</p>
+        <h2>Häufige Fehler</h2>
+        <ul class="check-list">
+          <li><strong>Die Umlenkung allein aus dem Segmentwinkel bestimmen.</strong> Das Vorzeichen von \(\delta_i\) hängt von der Durchlaufrichtung ab. Robust ist der Test, ob die Stromlinie zur örtlichen Oberfläche hin oder von ihr weg umgelenkt wird.</li>
+          <li><strong>Die Prandtl–Meyer-Funktion an einer Verdichtungsecke verwenden.</strong> \(\nu(M)\) beschreibt nur Expansionen; eine konkave Ecke erfordert \(\theta\)–\(\beta\)–\(M\).</li>
+          <li><strong>Ein einziges \(p_0\) über den ganzen Körper mitführen.</strong> Jeder Stoß senkt es, und die Rückgewinne multiplizieren sich. Expansionen lassen es unverändert.</li>
+          <li><strong>\(\theta_{\max}\) nicht an jeder Verdichtungsecke prüfen.</strong> Eine einzige abgelöste Ecke entwertet den Durchlauf ab dort stromab.</li>
+          <li><strong>Wellenwiderstand als Gesamtwiderstand angeben.</strong> Das Verfahren liefert nur den Druckanteil; Reibungs- und Basiswiderstand fehlen.</li>
+          <li><strong>Das Verfahren auf eine gekrümmte Oberfläche anwenden.</strong> Die Segmente müssen gerade sein, damit der Druck zwischen den Wellen gleichförmig ist.</li>
+        </ul>
+      </section>
+
 
       <section id="calculator-de">
-        <p class="section-label">Software-Spezifikation</p>
+        <p class="section-label">Rechenwerkzeug</p>
         <h2>Was der Geometrierechner leisten muss</h2>
         <ul class="check-list">
           <li>Konsistente Konvention für Segmentwinkel und Strömungsumlenkung.</li>
@@ -841,6 +1077,7 @@
       </section>
 
       <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
         <h2>Literatur</h2>
         <ol>
           <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6. Aufl. New York: McGraw-Hill Education, 2017, Abschnitt 9.7.</li>

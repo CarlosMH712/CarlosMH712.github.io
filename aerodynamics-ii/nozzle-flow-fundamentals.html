@@ -28,10 +28,9 @@
   <div data-language="es" hidden><p class="eyebrow">Aerodinámica II · Lecture 07</p><h1>Flujo cuasiunidimensional y fundamentos de toberas</h1><p class="hero-copy">Leyes de conservación en conductos de área variable, relaciones área–velocidad y área–Mach, función de gasto másico, estados críticos y estrangulamiento.</p></div>
   <div data-language="de" hidden><p class="eyebrow">Aerodynamik II · Vorlesung 07</p><h1>Quasi-eindimensionale Strömung und Düsengrundlagen</h1><p class="hero-copy">Erhaltungssätze in Kanälen veränderlicher Fläche, Flächen–Geschwindigkeits- und Flächen–Mach-Beziehung, Massenstromfunktion, kritischer Zustand und Sperrung.</p></div>
   <div class="hero-meta">
-    <span data-language="en">Estimated reading: 40 min</span><span data-language="es" hidden>Lectura estimada: 40 min</span><span data-language="de" hidden>Lesedauer: ca. 40 min</span>
-    <span>Quasi-1D</span>
-    <span data-language="en">Perfect gas</span><span data-language="es" hidden>Gas perfecto</span><span data-language="de" hidden>Ideales Gas</span>
-    <span>\(M=1\) at \(A^*\)</span>
+    <span data-language="en">Estimated reading: 45 min</span><span data-language="es" hidden>Lectura estimada: 45 min</span><span data-language="de" hidden>Lesedauer: ca. 45 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Model: quasi-1D isentropic</span><span data-language="es" hidden>Modelo: cuasi-1D isoentrópico</span><span data-language="de" hidden>Modell: quasi-1D isentrop</span>
   </div>
   <div class="button-row"><a class="button secondary" href="shock-expansion.html">← <span data-ui-key="previous">Previous lecture</span></a><a class="button primary" href="convergent-divergent-nozzles.html"><span data-ui-key="next">Next lecture</span> →</a><a class="button calculator-button" href="https://nozzle-calculator.streamlit.app/" target="_blank" rel="noopener noreferrer" data-ui-key="nozzleCalculator">Open nozzle calculator</a></div>
 </div></section>
@@ -40,43 +39,73 @@
   <aside class="toc">
     <h2 data-ui-key="contents">On this page</h2>
     <div class="toc-links" data-language="en">
-      <a href="#model">Model and assumptions</a>
-      <a href="#conservation">Conservation laws</a>
-      <a href="#area-velocity">Area–velocity relation</a>
-      <a href="#area-mach">Area–Mach relation</a>
-      <a href="#massflow">The mass-flow function</a>
-      <a href="#choking">Choking and critical ratios</a>
-      <a href="#example">Worked example</a>
-      <a href="#mistakes">Common mistakes</a>
-      <a href="#references">References</a>
-    </div>
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Physical picture</a>
+        <a href="#model">Model and assumptions</a>
+        <a href="#conservation">Conservation laws</a>
+        <a href="#area-velocity">Area–velocity relation</a>
+        <a href="#area-mach">Area–Mach relation</a>
+        <a href="#massflow">The mass-flow function</a>
+        <a href="#choking">Choking and critical ratios</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Key equations</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#calculator">Computational tool</a>
+        <a href="#references">Sources</a>
+      </div>
     <div class="toc-links" data-language="es" hidden>
-      <a href="#model-es">Modelo e hipótesis</a>
-      <a href="#conservation-es">Leyes de conservación</a>
-      <a href="#area-velocity-es">Relación área–velocidad</a>
-      <a href="#area-mach-es">Relación área–Mach</a>
-      <a href="#massflow-es">La función de gasto másico</a>
-      <a href="#choking-es">Estrangulamiento y razones críticas</a>
-      <a href="#example-es">Ejemplo resuelto</a>
-      <a href="#mistakes-es">Errores comunes</a>
-      <a href="#references-es">Referencias</a>
-    </div>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Panorama físico</a>
+        <a href="#model-es">Modelo e hipótesis</a>
+        <a href="#conservation-es">Leyes de conservación</a>
+        <a href="#area-velocity-es">Relación área–velocidad</a>
+        <a href="#area-mach-es">Relación área–Mach</a>
+        <a href="#massflow-es">La función de gasto másico</a>
+        <a href="#choking-es">Estrangulamiento y razones críticas</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Ecuaciones clave</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#calculator-es">Herramienta computacional</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
     <div class="toc-links" data-language="de" hidden>
-      <a href="#model-de">Modell und Annahmen</a>
-      <a href="#conservation-de">Erhaltungssätze</a>
-      <a href="#area-velocity-de">Fläche–Geschwindigkeit</a>
-      <a href="#area-mach-de">Fläche–Mach</a>
-      <a href="#massflow-de">Die Massenstromfunktion</a>
-      <a href="#choking-de">Sperrung und kritische Verhältnisse</a>
-      <a href="#example-de">Rechenbeispiel</a>
-      <a href="#mistakes-de">Häufige Fehler</a>
-      <a href="#references-de">Literatur</a>
-    </div>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Physikalisches Bild</a>
+        <a href="#model-de">Modell und Annahmen</a>
+        <a href="#conservation-de">Erhaltungssätze</a>
+        <a href="#area-velocity-de">Fläche–Geschwindigkeit</a>
+        <a href="#area-mach-de">Fläche–Mach</a>
+        <a href="#massflow-de">Die Massenstromfunktion</a>
+        <a href="#choking-de">Sperrung und kritische Verhältnisse</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Kerngleichungen</a>
+        <a href="#mistakes-de">Häufige Fehler</a>
+        <a href="#calculator-de">Rechenwerkzeug</a>
+        <a href="#references-de">Quellen</a>
+      </div>
   </aside>
 
   <article class="lecture" data-language="en">
-    <section id="model">
-      <p class="section-label">Model scope</p>
+          <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul>
+          <li>State the quasi-one-dimensional approximation and the conditions under which it holds.</li>
+          <li>Derive the area–velocity relation and explain the sign reversal at \(M=1\).</li>
+          <li>Explain why a sonic point can only occur at a throat.</li>
+          <li>Use the area–Mach relation and recognise that it has two roots.</li>
+          <li>Compute the choked mass flow and the critical property ratios.</li>
+        </ul>
+      </section>
+      <section id="physics">
+        <p class="section-label">Physical picture</p>
+        <h2>A duct that trades area for speed</h2>
+        <p class="lead">A nozzle does one thing: it converts the stored thermal energy of a gas at rest into directed kinetic energy, using nothing but a change of cross-section. What makes it interesting is that the rule connecting area to speed <em>reverses</em> at Mach one, so the shape that accelerates a subsonic stream decelerates a supersonic one. Everything in this lecture follows from locating that reversal.</p>
+      </section>
+
+
+<section id="model">
+      <p class="section-label">Model and assumptions</p>
       <h2>Mean properties represent every cross-section</h2>
       <p class="lead">The quasi-one-dimensional approximation permits \(A=A(x)\) while treating \(p\), \(\rho\), \(T\), \(u\), and \(M\) as section-averaged functions of \(x\) alone. It is useful when the wall curvature is gradual and the core flow remains mainly axial.</p>
       <figure class="nozzle-figure" aria-label="Convergent-divergent nozzle geometry">
@@ -209,9 +238,27 @@
         <span>Inputs: \(p_0=500\ \text{kPa}\), \(T_0=400\ \text{K}\), \(D_t=40\ \text{mm}\), \(A_e/A_t=2\), \(\gamma=1.4\). The two exit pressure ratios 0.937162 and 0.093933 are regression targets of the nozzle calculator.</span>
       </div>
     </section>
+      <section id="summary">
+        <p class="section-label">Key equations</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Relation</th><th>Expression</th><th>Applies when</th></tr></thead>
+          <tbody>
+            <tr><td>Area–velocity</td><td>\(dA/A=(M^2-1)\,du/u\)</td><td>quasi-1D isentropic</td></tr>
+            <tr><td>Sonic point</td><td>\(M=1\;\Rightarrow\;dA=0\)</td><td>smooth nozzle</td></tr>
+            <tr><td>Area–Mach</td><td>\(\frac{A}{A^*}=\frac{1}{M}\left[\frac{2}{\gamma+1}\left(1+\tfrac{\gamma-1}{2}M^2\right)\right]^{\frac{\gamma+1}{2(\gamma-1)}}\)</td><td>two roots for \(A/A^*>1\)</td></tr>
+            <tr><td>Mass flow</td><td>\(\dot m=\frac{p_0A}{\sqrt{T_0}}\sqrt{\tfrac{\gamma}{R}}\,M\left(1+\tfrac{\gamma-1}{2}M^2\right)^{-\frac{\gamma+1}{2(\gamma-1)}}\)</td><td>always</td></tr>
+            <tr><td>Choked mass flow</td><td>\(\dot m_{\max}\approx0.040418\,p_0A^*/\sqrt{T_0}\)</td><td>air, SI</td></tr>
+            <tr><td>Critical ratios</td><td>\(T^*/T_0=0.833333,\;p^*/p_0=0.528282\)</td><td>\(\gamma=1.4\)</td></tr>
+          </tbody>
+          </table>
+        </div>
+      </section>
+
 
     <section id="mistakes">
-      <p class="section-label">Checks</p>
+      <p class="section-label">Common mistakes</p>
       <h2>Common mistakes</h2>
       <ul class="check-list">
         <li><strong>Assuming a throat is always sonic.</strong> \(dA=0\) is necessary for \(M=1\), not sufficient. An entirely subsonic nozzle has a throat that never reaches Mach one.</li>
@@ -223,9 +270,16 @@
         <li><strong>Forgetting that \(\dot m_{\max}\propto1/\sqrt{T_0}\).</strong> Hotter supply gas means less mass flow through the same choked throat.</li>
       </ul>
     </section>
+      <section id="calculator">
+        <p class="section-label">Computational tool</p>
+        <h2>Open nozzle calculator</h2>
+        <p>The nozzle calculator solves the area–Mach relation on both branches, reports the choked mass flow, and detects the operating regime. The two exit pressure ratios of the worked example are regression targets of its test suite.</p>
+        <div class="button-row lecture-actions"><a class="button outline" href="https://nozzle-calculator.streamlit.app/" target="_blank" rel="noopener noreferrer">Open nozzle calculator</a></div>
+      </section>
 
     <section id="references" class="references">
-      <h2>References</h2>
+      <p class="section-label">Sources</p>
+        <h2>References</h2>
       <ol>
         <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3rd ed. New York: McGraw-Hill, 2003, Chapter 5.</li>
         <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed. New York: McGraw-Hill Education, 2017, Chapter 10.</li>
@@ -242,8 +296,26 @@
   </article>
 
   <article class="lecture" data-language="es" hidden>
-    <section id="model-es">
-      <p class="section-label">Alcance del modelo</p>
+          <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Lo que debes ser capaz de hacer</h2>
+        <ul>
+          <li>Enunciar la aproximación cuasiunidimensional y las condiciones en que es válida.</li>
+          <li>Deducir la relación área–velocidad y explicar la inversión de signo en \(M=1\).</li>
+          <li>Explicar por qué un punto sónico solo puede ocurrir en una garganta.</li>
+          <li>Usar la relación área–Mach y reconocer que tiene dos raíces.</li>
+          <li>Calcular el gasto estrangulado y las razones críticas de propiedades.</li>
+        </ul>
+      </section>
+      <section id="physics-es">
+        <p class="section-label">Panorama físico</p>
+        <h2>Un conducto que cambia área por velocidad</h2>
+        <p class="lead">Una tobera hace una sola cosa: convierte la energía térmica almacenada de un gas en reposo en energía cinética dirigida, sin más recurso que un cambio de sección. Lo interesante es que la regla que liga área con velocidad se <em>invierte</em> en Mach uno, de modo que la forma que acelera una corriente subsónica desacelera una supersónica. Todo en esta lecture se sigue de localizar esa inversión.</p>
+      </section>
+
+
+<section id="model-es">
+      <p class="section-label">Modelo e hipótesis</p>
       <h2>Las propiedades medias representan cada sección</h2>
       <p class="lead">La aproximación cuasiunidimensional permite \(A=A(x)\) y trata \(p\), \(\rho\), \(T\), \(u\) y \(M\) como valores medios en cada sección, función únicamente de \(x\). Es útil cuando la curvatura de la pared es suave y el flujo central permanece principalmente axial.</p>
       <figure class="nozzle-figure" aria-label="Geometría de tobera convergente-divergente">
@@ -376,9 +448,27 @@
         <span>Entradas: \(p_0=500\ \text{kPa}\), \(T_0=400\ \text{K}\), \(D_t=40\ \text{mm}\), \(A_e/A_t=2\), \(\gamma=1.4\). Las dos razones de presión de salida 0.937162 y 0.093933 son objetivos de regresión de la calculadora de toberas.</span>
       </div>
     </section>
+      <section id="summary-es">
+        <p class="section-label">Ecuaciones clave</p>
+        <h2>En síntesis</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Relación</th><th>Expresión</th><th>Aplica cuando</th></tr></thead>
+          <tbody>
+            <tr><td>Área–velocidad</td><td>\(dA/A=(M^2-1)\,du/u\)</td><td>cuasi-1D isoentrópico</td></tr>
+            <tr><td>Punto sónico</td><td>\(M=1\;\Rightarrow\;dA=0\)</td><td>tobera suave</td></tr>
+            <tr><td>Área–Mach</td><td>\(\frac{A}{A^*}=\frac{1}{M}\left[\frac{2}{\gamma+1}\left(1+\tfrac{\gamma-1}{2}M^2\right)\right]^{\frac{\gamma+1}{2(\gamma-1)}}\)</td><td>dos raíces si \(A/A^*>1\)</td></tr>
+            <tr><td>Gasto másico</td><td>\(\dot m=\frac{p_0A}{\sqrt{T_0}}\sqrt{\tfrac{\gamma}{R}}\,M\left(1+\tfrac{\gamma-1}{2}M^2\right)^{-\frac{\gamma+1}{2(\gamma-1)}}\)</td><td>siempre</td></tr>
+            <tr><td>Gasto estrangulado</td><td>\(\dot m_{\max}\approx0.040418\,p_0A^*/\sqrt{T_0}\)</td><td>aire, SI</td></tr>
+            <tr><td>Razones críticas</td><td>\(T^*/T_0=0.833333,\;p^*/p_0=0.528282\)</td><td>\(\gamma=1.4\)</td></tr>
+          </tbody>
+          </table>
+        </div>
+      </section>
+
 
     <section id="mistakes-es">
-      <p class="section-label">Verificaciones</p>
+      <p class="section-label">Errores comunes</p>
       <h2>Errores comunes</h2>
       <ul class="check-list">
         <li><strong>Suponer que una garganta siempre es sónica.</strong> \(dA=0\) es necesario para \(M=1\), no suficiente. Una tobera enteramente subsónica tiene una garganta que nunca llega a Mach uno.</li>
@@ -390,9 +480,16 @@
         <li><strong>Olvidar que \(\dot m_{\max}\propto1/\sqrt{T_0}\).</strong> Gas de suministro más caliente significa menos gasto por la misma garganta estrangulada.</li>
       </ul>
     </section>
+      <section id="calculator-es">
+        <p class="section-label">Herramienta computacional</p>
+        <h2>Abrir calculadora de toberas</h2>
+        <p>La calculadora de toberas resuelve la relación área–Mach en ambas ramas, reporta el gasto estrangulado y detecta el régimen de operación. Las dos razones de presión de salida del ejemplo resuelto son objetivos de regresión de su suite de pruebas.</p>
+        <div class="button-row lecture-actions"><a class="button outline" href="https://nozzle-calculator.streamlit.app/" target="_blank" rel="noopener noreferrer">Abrir calculadora de toberas</a></div>
+      </section>
 
     <section id="references-es" class="references">
-      <h2>Referencias</h2>
+      <p class="section-label">Fuentes</p>
+        <h2>Referencias</h2>
       <ol>
         <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3.ª ed. Nueva York: McGraw-Hill, 2003, capítulo 5.</li>
         <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 10.</li>
@@ -409,8 +506,26 @@
   </article>
 
   <article class="lecture" data-language="de" hidden>
-    <section id="model-de">
-      <p class="section-label">Modellumfang</p>
+          <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie danach können sollten</h2>
+        <ul>
+          <li>Die quasi-eindimensionale Näherung und ihre Gültigkeitsbedingungen angeben.</li>
+          <li>Die Flächen–Geschwindigkeits-Beziehung herleiten und den Vorzeichenwechsel bei \(M=1\) erklären.</li>
+          <li>Begründen, warum ein Schallpunkt nur in einem Hals auftreten kann.</li>
+          <li>Die Flächen–Mach-Beziehung anwenden und ihre zwei Wurzeln erkennen.</li>
+          <li>Den gesperrten Massenstrom und die kritischen Zustandsverhältnisse berechnen.</li>
+        </ul>
+      </section>
+      <section id="physics-de">
+        <p class="section-label">Physikalisches Bild</p>
+        <h2>Ein Kanal, der Fläche gegen Geschwindigkeit tauscht</h2>
+        <p class="lead">Eine Düse leistet genau eines: Sie wandelt die gespeicherte thermische Energie eines ruhenden Gases in gerichtete kinetische Energie um, allein durch eine Änderung des Querschnitts. Bemerkenswert ist, dass sich die Regel zwischen Fläche und Geschwindigkeit bei Mach eins <em>umkehrt</em>: Die Form, die eine Unterschallströmung beschleunigt, verzögert eine überschallschnelle. Alles in dieser Vorlesung folgt daraus, diese Umkehr zu lokalisieren.</p>
+      </section>
+
+
+<section id="model-de">
+      <p class="section-label">Modell und Annahmen</p>
       <h2>Mittlere Größen beschreiben jeden Querschnitt</h2>
       <p class="lead">Die quasi-eindimensionale Näherung lässt \(A=A(x)\) zu und behandelt \(p\), \(\rho\), \(T\), \(u\) und \(M\) als Querschnittsmittelwerte, die allein von \(x\) abhängen. Sie ist brauchbar, wenn die Wandkrümmung allmählich verläuft und die Kernströmung überwiegend axial bleibt.</p>
       <figure class="nozzle-figure" aria-label="Geometrie einer konvergent-divergenten Düse">
@@ -543,9 +658,27 @@
         <span>Eingaben: \(p_0=500\ \text{kPa}\), \(T_0=400\ \text{K}\), \(D_t=40\ \text{mm}\), \(A_e/A_t=2\), \(\gamma=1{,}4\). Die beiden Austrittsdruckverhältnisse 0,937162 und 0,093933 sind Regressionsziele des Düsenrechners.</span>
       </div>
     </section>
+      <section id="summary-de">
+        <p class="section-label">Kerngleichungen</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Beziehung</th><th>Ausdruck</th><th>Gültig wenn</th></tr></thead>
+          <tbody>
+            <tr><td>Fläche–Geschwindigkeit</td><td>\(dA/A=(M^2-1)\,du/u\)</td><td>quasi-1D isentrop</td></tr>
+            <tr><td>Schallpunkt</td><td>\(M=1\;\Rightarrow\;dA=0\)</td><td>glatte Düse</td></tr>
+            <tr><td>Fläche–Mach</td><td>\(\frac{A}{A^*}=\frac{1}{M}\left[\frac{2}{\gamma+1}\left(1+\tfrac{\gamma-1}{2}M^2\right)\right]^{\frac{\gamma+1}{2(\gamma-1)}}\)</td><td>zwei Wurzeln für \(A/A^*>1\)</td></tr>
+            <tr><td>Massenstrom</td><td>\(\dot m=\frac{p_0A}{\sqrt{T_0}}\sqrt{\tfrac{\gamma}{R}}\,M\left(1+\tfrac{\gamma-1}{2}M^2\right)^{-\frac{\gamma+1}{2(\gamma-1)}}\)</td><td>stets</td></tr>
+            <tr><td>Gesperrter Massenstrom</td><td>\(\dot m_{\max}\approx0{,}040418\,p_0A^*/\sqrt{T_0}\)</td><td>Luft, SI</td></tr>
+            <tr><td>Kritische Verhältnisse</td><td>\(T^*/T_0=0{,}833333,\;p^*/p_0=0{,}528282\)</td><td>\(\gamma=1{,}4\)</td></tr>
+          </tbody>
+          </table>
+        </div>
+      </section>
+
 
     <section id="mistakes-de">
-      <p class="section-label">Kontrollen</p>
+      <p class="section-label">Häufige Fehler</p>
       <h2>Häufige Fehler</h2>
       <ul class="check-list">
         <li><strong>Annehmen, ein Hals sei stets schallschnell.</strong> \(dA=0\) ist für \(M=1\) notwendig, nicht hinreichend. Eine durchweg unterschallschnelle Düse hat einen Hals, der Mach eins nie erreicht.</li>
@@ -557,9 +690,16 @@
         <li><strong>Vergessen, dass \(\dot m_{\max}\propto1/\sqrt{T_0}\).</strong> Heißeres Zuluftgas bedeutet weniger Massenstrom durch denselben gesperrten Hals.</li>
       </ul>
     </section>
+      <section id="calculator-de">
+        <p class="section-label">Rechenwerkzeug</p>
+        <h2>Düsenrechner öffnen</h2>
+        <p>Der Düsenrechner löst die Flächen–Mach-Beziehung auf beiden Zweigen, gibt den gesperrten Massenstrom aus und erkennt den Betriebszustand. Die beiden Austrittsdruckverhältnisse des Rechenbeispiels sind Regressionsziele seiner Testsuite.</p>
+        <div class="button-row lecture-actions"><a class="button outline" href="https://nozzle-calculator.streamlit.app/" target="_blank" rel="noopener noreferrer">Düsenrechner öffnen</a></div>
+      </section>
 
     <section id="references-de" class="references">
-      <h2>Literatur</h2>
+      <p class="section-label">Quellen</p>
+        <h2>Literatur</h2>
       <ol>
         <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3. Aufl. New York: McGraw-Hill, 2003, Kapitel 5.</li>
         <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6. Aufl. New York: McGraw-Hill Education, 2017, Kapitel 10.</li>

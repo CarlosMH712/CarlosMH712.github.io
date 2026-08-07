@@ -70,9 +70,12 @@
       <p class="hero-copy">Normalkomponente, θ–β–M-Beziehung, schwache und starke Lösung sowie Anlegegrenzen.</p>
     </div>
 
-    <div class="hero-meta"><span data-language="en">Estimated reading: 40 min</span><span data-language="es" hidden>Lectura estimada: 40 min</span><span data-language="de" hidden>Lesedauer: ca. 40 min</span><span>M₁ &gt; 1</span><span data-language="en">Compression turn</span><span data-language="es" hidden>Viraje de compresión</span><span data-language="de" hidden>Verdichtungsumlenkung</span><span data-language="en">Irreversible</span><span data-language="es" hidden>Irreversible</span><span data-language="de" hidden>Irreversibel</span></div>
-
-    <div class="button-row">
+    <div class="hero-meta">
+    <span data-language="en">Estimated reading: 40 min</span><span data-language="es" hidden>Lectura estimada: 40 min</span><span data-language="de" hidden>Lesedauer: ca. 40 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Model: attached straight shock</span><span data-language="es" hidden>Modelo: choque recto adherido</span><span data-language="de" hidden>Modell: anliegender gerader Stoß</span>
+  </div>
+  <div class="button-row">
       <a class="button secondary" href="normal-shocks.html">← Previous</a>
       <a class="button primary" href="prandtl-meyer.html">Next lecture →</a>
       <a class="button calculator-button" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer" data-ui-key="calculator">Open calculator</a>
@@ -85,45 +88,69 @@
     <aside class="toc">
       <h2 data-ui-key="contents">On this page</h2>
       <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
         <a href="#physics">Physical picture</a>
+        <a href="#model">Model and assumptions</a>
         <a href="#geometry">Geometry</a>
         <a href="#normal">Normal-component method</a>
         <a href="#tbm">θ–β–M relation</a>
         <a href="#branches">Weak and strong branches</a>
         <a href="#algorithm">Calculation algorithm</a>
         <a href="#example">Worked example</a>
+        <a href="#summary">Key equations</a>
         <a href="#mistakes">Common mistakes</a>
-        <a href="#advanced">Advanced extensions</a>
-        <a href="#references">References</a>
+        <a href="#advanced">Further topics</a>
+        <a href="#calculator">Computational tool</a>
+        <a href="#references">Sources</a>
       </div>
       <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
         <a href="#physics-es">Panorama físico</a>
+        <a href="#model-es">Modelo e hipótesis</a>
         <a href="#geometry-es">Geometría</a>
         <a href="#normal-es">Método de la componente normal</a>
         <a href="#tbm-es">Relación θ–β–M</a>
         <a href="#branches-es">Ramas débil y fuerte</a>
         <a href="#algorithm-es">Algoritmo de cálculo</a>
         <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Ecuaciones clave</a>
         <a href="#mistakes-es">Errores comunes</a>
-        <a href="#advanced-es">Extensiones avanzadas</a>
-        <a href="#references-es">Referencias</a>
+        <a href="#advanced-es">Temas complementarios</a>
+        <a href="#calculator-es">Herramienta computacional</a>
+        <a href="#references-es">Fuentes</a>
       </div>
       <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
         <a href="#physics-de">Physikalisches Bild</a>
+        <a href="#model-de">Modell und Annahmen</a>
         <a href="#geometry-de">Geometrie</a>
         <a href="#normal-de">Methode der Normalkomponente</a>
         <a href="#tbm-de">θ–β–M-Beziehung</a>
         <a href="#branches-de">Schwacher und starker Zweig</a>
         <a href="#algorithm-de">Rechenalgorithmus</a>
         <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Kerngleichungen</a>
         <a href="#mistakes-de">Häufige Fehler</a>
         <a href="#advanced-de">Weiterführende Themen</a>
-        <a href="#references-de">Literatur</a>
+        <a href="#calculator-de">Rechenwerkzeug</a>
+        <a href="#references-de">Quellen</a>
       </div>
     </aside>
 
     <article class="lecture" data-language="en">
-      <section id="physics">
+            <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul>
+          <li>Decompose the velocity into normal and tangential components across an oblique shock.</li>
+          <li>Reduce an oblique shock to a normal shock evaluated at \(M_{n1}\).</li>
+          <li>Solve the \(\theta\)–\(\beta\)–\(M\) relation for the weak and strong roots.</li>
+          <li>Determine whether an attached shock exists for a required deflection.</li>
+          <li>Compute the downstream state and the total-pressure loss.</li>
+        </ul>
+      </section>
+
+<section id="physics">
         <p class="section-label">Physical picture</p>
         <h2>Supersonic compression around a concave corner</h2>
         <p class="lead">
@@ -170,6 +197,18 @@
           A finite compressive shock satisfies \(\beta>\mu\).
         </p>
       </section>
+      <section id="model">
+        <p class="section-label">Model and assumptions</p>
+        <h2>Straight, attached, and two-dimensional</h2>
+        <ul>
+          <li>steady, inviscid, two-dimensional flow of a calorically perfect gas;</li>
+          <li>a straight shock attached to a sharp corner or wedge apex;</li>
+          <li>uniform states upstream and downstream of the wave;</li>
+          <li>supersonic upstream flow, \(M_1>1\).</li>
+        </ul>
+        <div class="callout warning"><strong>Not included.</strong> Curved and detached bow shocks, three-dimensional relief on cones, shock–boundary-layer interaction, and reflections from walls or free boundaries are all outside this model. When \(\theta>\theta_{\max}\) the attached solution simply ceases to exist, and the calculator must say so rather than return a number.</div>
+      </section>
+
 
       <section id="geometry">
         <p class="section-label">Velocity decomposition</p>
@@ -354,7 +393,7 @@
       </section>
 
       <section id="algorithm">
-        <p class="section-label">Engineering workflow</p>
+        <p class="section-label">Calculation algorithm</p>
         <h2>Calculation algorithm</h2>
 
         <div class="process-flow">
@@ -407,9 +446,26 @@
           <span>Inputs: \(M_1=2.5\), \(\theta=15^\circ\), \(\gamma=1.4\), weak branch.</span>
         </div>
       </section>
+      <section id="summary">
+        <p class="section-label">Key equations</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Relation</th><th>Expression</th><th>Applies when</th></tr></thead>
+          <tbody>
+            <tr><td>Mach angle</td><td>\(\mu=\sin^{-1}(1/M_1)\)</td><td>weak limit</td></tr>
+            <tr><td>Normal component</td><td>\(M_{n1}=M_1\sin\beta,\quad M_2=M_{n2}/\sin(\beta-\theta)\)</td><td>always</td></tr>
+            <tr><td>\(\theta\)–\(\beta\)–\(M\)</td><td>\(\tan\theta=2\cot\beta\,\frac{M_1^2\sin^2\beta-1}{M_1^2[\gamma+\cos2\beta]+2}\)</td><td>attached shock</td></tr>
+            <tr><td>Detachment</td><td>\(\theta>\theta_{\max}\;\Rightarrow\;\text{no attached solution}\)</td><td>\(\theta_{\max}=22.97^\circ\) at \(M_1=2\)</td></tr>
+            <tr><td>Jump relations</td><td>\(\text{normal-shock relations evaluated at }M_{n1}\)</td><td>always</td></tr>
+          </tbody>
+          </table>
+        </div>
+      </section>
+
 
       <section id="mistakes">
-        <p class="section-label">Checks</p>
+        <p class="section-label">Common mistakes</p>
         <h2>Common mistakes</h2>
         <ul class="check-list">
           <li><strong>Feeding the full Mach number into the normal-shock relations.</strong> They must be evaluated with \(M_{n1}=M_1\sin\beta\).</li>
@@ -424,7 +480,7 @@
       </section>
 
       <section id="advanced">
-        <p class="section-label">Beyond the core model</p>
+        <p class="section-label">Further topics</p>
         <h2>Advanced extensions contained in Unit III</h2>
         <p>
           The full course script also develops shock polars, wedge wave drag, Taylor–Maccoll
@@ -433,8 +489,15 @@
           into advanced supplementary lectures.
         </p>
       </section>
+      <section id="calculator">
+        <p class="section-label">Computational tool</p>
+        <h2>Open calculator</h2>
+        <p>The oblique-shock module solves \(\theta\)–\(\beta\)–\(M\) for both roots, reports \(\theta_{\max}\), and refuses to return a number when the shock would detach. The worked example above is one of its regression cases.</p>
+        <div class="button-row lecture-actions"><a class="button outline" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer">Open calculator</a></div>
+      </section>
 
       <section id="references" class="references">
+        <p class="section-label">Sources</p>
         <h2>References</h2>
         <ol>
           <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed. New York: McGraw-Hill Education, 2017, Chapter 9.</li>
@@ -453,7 +516,19 @@
     </article>
 
     <article class="lecture" data-language="es" hidden>
-      <section id="physics-es">
+            <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Lo que debes ser capaz de hacer</h2>
+        <ul>
+          <li>Descomponer la velocidad en componentes normal y tangencial a través de un choque oblicuo.</li>
+          <li>Reducir un choque oblicuo a un choque normal evaluado en \(M_{n1}\).</li>
+          <li>Resolver la relación \(\theta\)–\(\beta\)–\(M\) para las raíces débil y fuerte.</li>
+          <li>Determinar si existe choque adherido para una deflexión requerida.</li>
+          <li>Calcular el estado aguas abajo y la pérdida de presión total.</li>
+        </ul>
+      </section>
+
+<section id="physics-es">
         <p class="section-label">Panorama físico</p>
         <h2>Compresión supersónica en una esquina cóncava</h2>
         <p class="lead">
@@ -500,6 +575,18 @@
           Un choque compresivo finito satisface \(\beta>\mu\).
         </p>
       </section>
+      <section id="model-es">
+        <p class="section-label">Modelo e hipótesis</p>
+        <h2>Recto, adherido y bidimensional</h2>
+        <ul>
+          <li>flujo estacionario, inviscido y bidimensional de un gas calóricamente perfecto;</li>
+          <li>choque recto adherido a una esquina viva o al vértice de una cuña;</li>
+          <li>estados uniformes aguas arriba y aguas abajo de la onda;</li>
+          <li>flujo supersónico aguas arriba, \(M_1>1\).</li>
+        </ul>
+        <div class="callout warning"><strong>No incluido.</strong> Las ondas de proa curvas y desprendidas, el alivio tridimensional en conos, la interacción choque–capa límite y las reflexiones en paredes o fronteras libres quedan todas fuera de este modelo. Cuando \(\theta>\theta_{\max}\) la solución adherida simplemente deja de existir, y la calculadora debe decirlo en lugar de devolver un número.</div>
+      </section>
+
 
       <section id="geometry-es">
         <p class="section-label">Descomposición de la velocidad</p>
@@ -684,7 +771,7 @@
       </section>
 
       <section id="algorithm-es">
-        <p class="section-label">Flujo de trabajo</p>
+        <p class="section-label">Algoritmo de cálculo</p>
         <h2>Algoritmo de cálculo</h2>
 
         <div class="process-flow">
@@ -732,9 +819,26 @@
           <span>Entradas: \(M_1=2.5\), \(\theta=15^\circ\), \(\gamma=1.4\), rama débil.</span>
         </div>
       </section>
+      <section id="summary-es">
+        <p class="section-label">Ecuaciones clave</p>
+        <h2>En síntesis</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Relación</th><th>Expresión</th><th>Aplica cuando</th></tr></thead>
+          <tbody>
+            <tr><td>Ángulo de Mach</td><td>\(\mu=\sin^{-1}(1/M_1)\)</td><td>límite débil</td></tr>
+            <tr><td>Componente normal</td><td>\(M_{n1}=M_1\sin\beta,\quad M_2=M_{n2}/\sin(\beta-\theta)\)</td><td>siempre</td></tr>
+            <tr><td>\(\theta\)–\(\beta\)–\(M\)</td><td>\(\tan\theta=2\cot\beta\,\frac{M_1^2\sin^2\beta-1}{M_1^2[\gamma+\cos2\beta]+2}\)</td><td>choque adherido</td></tr>
+            <tr><td>Desprendimiento</td><td>\(\theta>\theta_{\max}\;\Rightarrow\;\text{no attached solution}\)</td><td>\(\theta_{\max}=22.97^\circ\) en \(M_1=2\)</td></tr>
+            <tr><td>Relaciones de salto</td><td>\(\text{normal-shock relations evaluated at }M_{n1}\)</td><td>siempre</td></tr>
+          </tbody>
+          </table>
+        </div>
+      </section>
+
 
       <section id="mistakes-es">
-        <p class="section-label">Verificaciones</p>
+        <p class="section-label">Errores comunes</p>
         <h2>Errores comunes</h2>
         <ul class="check-list">
           <li><strong>Meter el Mach total en las relaciones de choque normal.</strong> Deben evaluarse con \(M_{n1}=M_1\sin\beta\).</li>
@@ -749,7 +853,7 @@
       </section>
 
       <section id="advanced-es">
-        <p class="section-label">Más allá del modelo básico</p>
+        <p class="section-label">Temas complementarios</p>
         <h2>Extensiones avanzadas contenidas en la Unidad III</h2>
         <p>
           El script completo del curso desarrolla además polares de choque, arrastre de onda de una cuña,
@@ -758,8 +862,15 @@
           separarán más adelante en lectures complementarias avanzadas.
         </p>
       </section>
+      <section id="calculator-es">
+        <p class="section-label">Herramienta computacional</p>
+        <h2>Abrir calculadora</h2>
+        <p>El módulo de choque oblicuo resuelve \(\theta\)–\(\beta\)–\(M\) para ambas raíces, reporta \(\theta_{\max}\) y se niega a devolver un número cuando el choque se desprendería. El ejemplo resuelto de arriba es uno de sus casos de regresión.</p>
+        <div class="button-row lecture-actions"><a class="button outline" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer">Abrir calculadora</a></div>
+      </section>
 
       <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
         <h2>Referencias</h2>
         <ol>
           <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 9.</li>
@@ -778,7 +889,19 @@
     </article>
 
     <article class="lecture" data-language="de" hidden>
-      <section id="physics-de">
+            <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie danach können sollten</h2>
+        <ul>
+          <li>Die Geschwindigkeit über einen schrägen Stoß in Normal- und Tangentialkomponente zerlegen.</li>
+          <li>Einen schrägen Stoß auf einen senkrechten Stoß bei \(M_{n1}\) zurückführen.</li>
+          <li>Die \(\theta\)–\(\beta\)–\(M\)-Beziehung nach der schwachen und der starken Wurzel lösen.</li>
+          <li>Feststellen, ob für eine geforderte Umlenkung ein anliegender Stoß existiert.</li>
+          <li>Den stromabwärtigen Zustand und den Totaldruckverlust berechnen.</li>
+        </ul>
+      </section>
+
+<section id="physics-de">
         <p class="section-label">Physikalisches Bild</p>
         <h2>Überschallverdichtung an einer konkaven Ecke</h2>
         <p class="lead">
@@ -826,6 +949,18 @@
           Ein endlicher Verdichtungsstoß erfüllt \(\beta>\mu\).
         </p>
       </section>
+      <section id="model-de">
+        <p class="section-label">Modell und Annahmen</p>
+        <h2>Gerade, anliegend und zweidimensional</h2>
+        <ul>
+          <li>stationäre, reibungsfreie, zweidimensionale Strömung eines kalorisch idealen Gases;</li>
+          <li>gerader, an einer scharfen Ecke oder Keilspitze anliegender Stoß;</li>
+          <li>gleichförmige Zustände stromauf und stromab der Welle;</li>
+          <li>überschallschnelle Zuströmung, \(M_1>1\).</li>
+        </ul>
+        <div class="callout warning"><strong>Nicht enthalten.</strong> Gekrümmte und abgelöste Kopfstöße, dreidimensionale Entlastung an Kegeln, Stoß–Grenzschicht-Wechselwirkung sowie Reflexionen an Wänden oder freien Rändern liegen alle außerhalb dieses Modells. Für \(\theta>\theta_{\max}\) existiert die anliegende Lösung schlicht nicht mehr, und der Rechner muss das melden, statt eine Zahl zurückzugeben.</div>
+      </section>
+
 
       <section id="geometry-de">
         <p class="section-label">Geschwindigkeitszerlegung</p>
@@ -1010,7 +1145,7 @@
       </section>
 
       <section id="algorithm-de">
-        <p class="section-label">Vorgehensweise</p>
+        <p class="section-label">Rechenalgorithmus</p>
         <h2>Rechenalgorithmus</h2>
 
         <div class="process-flow">
@@ -1058,9 +1193,26 @@
           <span>Eingaben: \(M_1=2{,}5\), \(\theta=15^\circ\), \(\gamma=1{,}4\), schwacher Zweig.</span>
         </div>
       </section>
+      <section id="summary-de">
+        <p class="section-label">Kerngleichungen</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Beziehung</th><th>Ausdruck</th><th>Gültig wenn</th></tr></thead>
+          <tbody>
+            <tr><td>Machscher Winkel</td><td>\(\mu=\sin^{-1}(1/M_1)\)</td><td>schwacher Grenzfall</td></tr>
+            <tr><td>Normalkomponente</td><td>\(M_{n1}=M_1\sin\beta,\quad M_2=M_{n2}/\sin(\beta-\theta)\)</td><td>stets</td></tr>
+            <tr><td>\(\theta\)–\(\beta\)–\(M\)</td><td>\(\tan\theta=2\cot\beta\,\frac{M_1^2\sin^2\beta-1}{M_1^2[\gamma+\cos2\beta]+2}\)</td><td>anliegender Stoß</td></tr>
+            <tr><td>Ablösung</td><td>\(\theta>\theta_{\max}\;\Rightarrow\;\text{no attached solution}\)</td><td>\(\theta_{\max}=22{,}97^\circ\) bei \(M_1=2\)</td></tr>
+            <tr><td>Sprungbeziehungen</td><td>\(\text{normal-shock relations evaluated at }M_{n1}\)</td><td>stets</td></tr>
+          </tbody>
+          </table>
+        </div>
+      </section>
+
 
       <section id="mistakes-de">
-        <p class="section-label">Kontrollen</p>
+        <p class="section-label">Häufige Fehler</p>
         <h2>Häufige Fehler</h2>
         <ul class="check-list">
           <li><strong>Die volle Machzahl in die Beziehungen des senkrechten Stoßes einsetzen.</strong> Sie sind mit \(M_{n1}=M_1\sin\beta\) auszuwerten.</li>
@@ -1075,7 +1227,7 @@
       </section>
 
       <section id="advanced-de">
-        <p class="section-label">Über das Grundmodell hinaus</p>
+        <p class="section-label">Weiterführende Themen</p>
         <h2>Weiterführende Themen der Einheit III</h2>
         <p>
           Das vollständige Vorlesungsskript behandelt darüber hinaus Stoßpolaren, den Wellenwiderstand
@@ -1084,8 +1236,15 @@
           Wirbelstärke. Diese Themen werden später in weiterführende Ergänzungsvorlesungen ausgegliedert.
         </p>
       </section>
+      <section id="calculator-de">
+        <p class="section-label">Rechenwerkzeug</p>
+        <h2>Rechner öffnen</h2>
+        <p>Das Schrägstoß-Modul löst \(\theta\)–\(\beta\)–\(M\) für beide Wurzeln, gibt \(\theta_{\max}\) aus und verweigert eine Zahl, wenn der Stoß ablösen würde. Das obige Rechenbeispiel ist einer seiner Regressionsfälle.</p>
+        <div class="button-row lecture-actions"><a class="button outline" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer">Rechner öffnen</a></div>
+      </section>
 
       <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
         <h2>Literatur</h2>
         <ol>
           <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6. Aufl. New York: McGraw-Hill Education, 2017, Kapitel 9.</li>

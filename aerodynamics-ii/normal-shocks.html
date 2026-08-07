@@ -75,17 +75,11 @@
         </p>
       </div>
       <div class="hero-meta">
-        <span data-language="en">Estimated reading: 40 min</span>
-        <span data-language="es" hidden>Lectura estimada: 40 min</span>
-        <span data-language="de" hidden>Lesedauer: ca. 40 min</span>
-        <span data-language="en">Upstream condition: M₁ &gt; 1</span>
-        <span data-language="es" hidden>Condición aguas arriba: M₁ &gt; 1</span>
-        <span data-language="de" hidden>Zustromzustand: M₁ &gt; 1</span>
-        <span data-language="en">Irreversible process</span>
-        <span data-language="es" hidden>Proceso irreversible</span>
-        <span data-language="de" hidden>Irreversibler Prozess</span>
-      </div>
-      <div class="button-row">
+    <span data-language="en">Estimated reading: 40 min</span><span data-language="es" hidden>Lectura estimada: 40 min</span><span data-language="de" hidden>Lesedauer: ca. 40 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Model: adiabatic jump, \(M_1>1\)</span><span data-language="es" hidden>Modelo: salto adiabático, \(M_1>1\)</span><span data-language="de" hidden>Modell: adiabater Sprung, \(M_1>1\)</span>
+  </div>
+  <div class="button-row">
         <a class="button secondary" href="index.html?v=11" data-ui-key="back">Back to course</a>
         <a class="button primary" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer" data-ui-key="calculator">Open calculator</a>
       </div>
@@ -97,39 +91,48 @@
       <h2 data-ui-key="contents">On this page</h2>
       <div class="toc-links" data-language="en">
         <a href="#objectives">Objectives</a>
-        <a href="#physics">Physical behavior</a>
+        <a href="#physics">Physical picture</a>
+        <a href="#model">Model and assumptions</a>
         <a href="#conservation">Conservation laws</a>
         <a href="#prandtl">The Prandtl relation</a>
         <a href="#relations">Shock relations</a>
         <a href="#loss">Entropy and total pressure</a>
         <a href="#pitot">Pitot measurements</a>
         <a href="#example">Worked example</a>
+        <a href="#summary">Key equations</a>
         <a href="#mistakes">Common mistakes</a>
-        <a href="#references">References</a>
+        <a href="#calculator">Computational tool</a>
+        <a href="#references">Sources</a>
       </div>
       <div class="toc-links" data-language="es" hidden>
         <a href="#objectives-es">Objetivos</a>
-        <a href="#physics-es">Comportamiento físico</a>
+        <a href="#physics-es">Panorama físico</a>
+        <a href="#model-es">Modelo e hipótesis</a>
         <a href="#conservation-es">Leyes de conservación</a>
         <a href="#prandtl-es">La relación de Prandtl</a>
         <a href="#relations-es">Relaciones de choque</a>
         <a href="#loss-es">Entropía y presión total</a>
         <a href="#pitot-es">Medición con Pitot</a>
         <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Ecuaciones clave</a>
         <a href="#mistakes-es">Errores comunes</a>
-        <a href="#references-es">Referencias</a>
+        <a href="#calculator-es">Herramienta computacional</a>
+        <a href="#references-es">Fuentes</a>
       </div>
       <div class="toc-links" data-language="de" hidden>
         <a href="#objectives-de">Lernziele</a>
-        <a href="#physics-de">Physikalisches Verhalten</a>
+        <a href="#physics-de">Physikalisches Bild</a>
+        <a href="#model-de">Modell und Annahmen</a>
         <a href="#conservation-de">Erhaltungssätze</a>
         <a href="#prandtl-de">Die Prandtl-Beziehung</a>
         <a href="#relations-de">Stoßbeziehungen</a>
         <a href="#loss-de">Entropie und Totaldruck</a>
         <a href="#pitot-de">Pitot-Messung</a>
         <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Kerngleichungen</a>
         <a href="#mistakes-de">Häufige Fehler</a>
-        <a href="#references-de">Literatur</a>
+        <a href="#calculator-de">Rechenwerkzeug</a>
+        <a href="#references-de">Quellen</a>
       </div>
     </aside>
 
@@ -147,7 +150,7 @@
       </section>
 
       <section id="physics">
-        <p class="section-label">Physical behavior</p>
+        <p class="section-label">Physical picture</p>
         <h2>An abrupt irreversible compression</h2>
         <p>
           A normal shock is an extremely thin region in which a supersonic flow becomes subsonic.
@@ -191,6 +194,18 @@
           </div>
         </div>
       </section>
+      <section id="model">
+        <p class="section-label">Model and assumptions</p>
+        <h2>A jump between two equilibrium states</h2>
+        <ul>
+          <li>steady, one-dimensional flow through a constant-area control volume;</li>
+          <li>calorically perfect gas;</li>
+          <li>adiabatic with no shaft work, so \(T_0\) is conserved;</li>
+          <li>uniform equilibrium states upstream and downstream of the jump.</li>
+        </ul>
+        <div class="callout warning"><strong>Not included.</strong> The internal structure of the shock is <em>not</em> resolved. Its thickness is of the order of a few mean free paths, and inside it viscosity and heat conduction generate the entropy the model accounts for only as a jump. The relations connect the two states; they say nothing about what happens between them.</div>
+      </section>
+
 
       <section id="conservation">
         <p class="section-label">Control volume</p>
@@ -483,9 +498,26 @@
           </div>
         </div>
       </section>
+      <section id="summary">
+        <p class="section-label">Key equations</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Relation</th><th>Expression</th><th>Applies when</th></tr></thead>
+          <tbody>
+            <tr><td>Prandtl relation</td><td>\(a^{*2}=u_1u_2\;\Longleftrightarrow\;M_1^*M_2^*=1\)</td><td>always</td></tr>
+            <tr><td>Downstream Mach</td><td>\(M_2^2=\frac{1+\frac{\gamma-1}{2}M_1^2}{\gamma M_1^2-\frac{\gamma-1}{2}}\)</td><td>\(M_1>1\)</td></tr>
+            <tr><td>Pressure ratio</td><td>\(p_2/p_1=1+\tfrac{2\gamma}{\gamma+1}(M_1^2-1)\)</td><td>\(M_1>1\)</td></tr>
+            <tr><td>Density ratio</td><td>\(\rho_2/\rho_1=\frac{(\gamma+1)M_1^2}{2+(\gamma-1)M_1^2}\;\to\;6\)</td><td>limit \(M_1\to\infty\)</td></tr>
+            <tr><td>Sonic Pitot ratio</td><td>\(p_{\mathrm{Pitot}}/p_1=1.8929\)</td><td>\(M=1\), air</td></tr>
+          </tbody>
+          </table>
+        </div>
+      </section>
+
 
       <section id="mistakes">
-        <p class="section-label">Checks</p>
+        <p class="section-label">Common mistakes</p>
         <h2>Common mistakes</h2>
         <ul>
           <li>Reporting the downstream static pressure \(p_2\) as the Pitot reading.</li>
@@ -495,8 +527,15 @@
           <li>Confusing the rise in static pressure with an increase in available mechanical energy.</li>
         </ul>
       </section>
+      <section id="calculator">
+        <p class="section-label">Computational tool</p>
+        <h2>Open calculator</h2>
+        <p>The normal-shock module returns \(M_2\) and every property ratio from \(M_1\), and the Pitot module distinguishes the subsonic from the supersonic branch using the \(1.8929\) threshold derived above.</p>
+        <div class="button-row lecture-actions"><a class="button outline" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer">Open calculator</a></div>
+      </section>
 
       <section id="references" class="references">
+        <p class="section-label">Sources</p>
         <h2>References</h2>
         <ol>
           <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed. New York: McGraw-Hill Education, 2017, Chapter 8.</li>
@@ -527,7 +566,7 @@
       </section>
 
       <section id="physics-es">
-        <p class="section-label">Comportamiento físico</p>
+        <p class="section-label">Panorama físico</p>
         <h2>Una compresión abrupta e irreversible</h2>
         <p>
           Un choque normal es una región extremadamente delgada en la que un flujo supersónico se vuelve
@@ -572,6 +611,18 @@
           </div>
         </div>
       </section>
+      <section id="model-es">
+        <p class="section-label">Modelo e hipótesis</p>
+        <h2>Un salto entre dos estados de equilibrio</h2>
+        <ul>
+          <li>flujo estacionario y unidimensional a través de un volumen de control de área constante;</li>
+          <li>gas calóricamente perfecto;</li>
+          <li>adiabático y sin trabajo de eje, de modo que \(T_0\) se conserva;</li>
+          <li>estados de equilibrio uniformes aguas arriba y aguas abajo del salto.</li>
+        </ul>
+        <div class="callout warning"><strong>No incluido.</strong> La estructura interna del choque <em>no</em> se resuelve. Su espesor es del orden de unos pocos recorridos libres medios, y dentro de él la viscosidad y la conducción de calor generan la entropía que el modelo contabiliza solo como salto. Las relaciones conectan los dos estados; no dicen nada de lo que ocurre entre ellos.</div>
+      </section>
+
 
       <section id="conservation-es">
         <p class="section-label">Volumen de control</p>
@@ -865,9 +916,26 @@
           </div>
         </div>
       </section>
+      <section id="summary-es">
+        <p class="section-label">Ecuaciones clave</p>
+        <h2>En síntesis</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Relación</th><th>Expresión</th><th>Aplica cuando</th></tr></thead>
+          <tbody>
+            <tr><td>Relación de Prandtl</td><td>\(a^{*2}=u_1u_2\;\Longleftrightarrow\;M_1^*M_2^*=1\)</td><td>siempre</td></tr>
+            <tr><td>Mach aguas abajo</td><td>\(M_2^2=\frac{1+\frac{\gamma-1}{2}M_1^2}{\gamma M_1^2-\frac{\gamma-1}{2}}\)</td><td>\(M_1>1\)</td></tr>
+            <tr><td>Razón de presiones</td><td>\(p_2/p_1=1+\tfrac{2\gamma}{\gamma+1}(M_1^2-1)\)</td><td>\(M_1>1\)</td></tr>
+            <tr><td>Razón de densidades</td><td>\(\rho_2/\rho_1=\frac{(\gamma+1)M_1^2}{2+(\gamma-1)M_1^2}\;\to\;6\)</td><td>límite \(M_1\to\infty\)</td></tr>
+            <tr><td>Razón Pitot sónica</td><td>\(p_{\mathrm{Pitot}}/p_1=1.8929\)</td><td>\(M=1\), aire</td></tr>
+          </tbody>
+          </table>
+        </div>
+      </section>
+
 
       <section id="mistakes-es">
-        <p class="section-label">Verificaciones</p>
+        <p class="section-label">Errores comunes</p>
         <h2>Errores comunes</h2>
         <ul>
           <li>Reportar la presión estática aguas abajo \(p_2\) como la lectura del Pitot.</li>
@@ -877,8 +945,15 @@
           <li>Confundir el aumento de presión estática con un incremento de energía mecánica disponible.</li>
         </ul>
       </section>
+      <section id="calculator-es">
+        <p class="section-label">Herramienta computacional</p>
+        <h2>Abrir calculadora</h2>
+        <p>El módulo de choque normal devuelve \(M_2\) y todas las razones de propiedades a partir de \(M_1\), y el módulo Pitot distingue la rama subsónica de la supersónica usando el umbral \(1.8929\) deducido arriba.</p>
+        <div class="button-row lecture-actions"><a class="button outline" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer">Abrir calculadora</a></div>
+      </section>
 
       <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
         <h2>Referencias</h2>
         <ol>
           <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 8.</li>
@@ -909,7 +984,7 @@
       </section>
 
       <section id="physics-de">
-        <p class="section-label">Physikalisches Verhalten</p>
+        <p class="section-label">Physikalisches Bild</p>
         <h2>Eine abrupte irreversible Verdichtung</h2>
         <p>
           Ein senkrechter Verdichtungsstoß ist ein äußerst dünnes Gebiet, in dem eine Überschallströmung in
@@ -954,6 +1029,18 @@
           </div>
         </div>
       </section>
+      <section id="model-de">
+        <p class="section-label">Modell und Annahmen</p>
+        <h2>Ein Sprung zwischen zwei Gleichgewichtszuständen</h2>
+        <ul>
+          <li>stationäre, eindimensionale Strömung durch ein Kontrollvolumen konstanter Fläche;</li>
+          <li>kalorisch ideales Gas;</li>
+          <li>adiabat und ohne Wellenarbeit, sodass \(T_0\) erhalten bleibt;</li>
+          <li>gleichförmige Gleichgewichtszustände stromauf und stromab des Sprungs.</li>
+        </ul>
+        <div class="callout warning"><strong>Nicht enthalten.</strong> Die innere Struktur des Stoßes wird <em>nicht</em> aufgelöst. Seine Dicke liegt in der Größenordnung einiger mittlerer freier Weglängen; darin erzeugen Viskosität und Wärmeleitung jene Entropie, die das Modell nur als Sprung bilanziert. Die Beziehungen verknüpfen die beiden Zustände, sagen aber nichts über das Dazwischen.</div>
+      </section>
+
 
       <section id="conservation-de">
         <p class="section-label">Kontrollvolumen</p>
@@ -1247,9 +1334,26 @@
           </div>
         </div>
       </section>
+      <section id="summary-de">
+        <p class="section-label">Kerngleichungen</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Beziehung</th><th>Ausdruck</th><th>Gültig wenn</th></tr></thead>
+          <tbody>
+            <tr><td>Prandtl-Beziehung</td><td>\(a^{*2}=u_1u_2\;\Longleftrightarrow\;M_1^*M_2^*=1\)</td><td>stets</td></tr>
+            <tr><td>Machzahl stromab</td><td>\(M_2^2=\frac{1+\frac{\gamma-1}{2}M_1^2}{\gamma M_1^2-\frac{\gamma-1}{2}}\)</td><td>\(M_1>1\)</td></tr>
+            <tr><td>Druckverhältnis</td><td>\(p_2/p_1=1+\tfrac{2\gamma}{\gamma+1}(M_1^2-1)\)</td><td>\(M_1>1\)</td></tr>
+            <tr><td>Dichteverhältnis</td><td>\(\rho_2/\rho_1=\frac{(\gamma+1)M_1^2}{2+(\gamma-1)M_1^2}\;\to\;6\)</td><td>Grenzfall \(M_1\to\infty\)</td></tr>
+            <tr><td>Pitot-Verhältnis bei \(M=1\)</td><td>\(p_{\mathrm{Pitot}}/p_1=1.8929\)</td><td>\(M=1\), Luft</td></tr>
+          </tbody>
+          </table>
+        </div>
+      </section>
+
 
       <section id="mistakes-de">
-        <p class="section-label">Kontrollen</p>
+        <p class="section-label">Häufige Fehler</p>
         <h2>Häufige Fehler</h2>
         <ul>
           <li>Den stromabwärtigen statischen Druck \(p_2\) als Pitot-Anzeige angeben.</li>
@@ -1259,8 +1363,15 @@
           <li>Den Anstieg des statischen Drucks mit einer Zunahme verfügbarer mechanischer Energie verwechseln.</li>
         </ul>
       </section>
+      <section id="calculator-de">
+        <p class="section-label">Rechenwerkzeug</p>
+        <h2>Rechner öffnen</h2>
+        <p>Das Normalstoß-Modul liefert \(M_2\) und sämtliche Zustandsverhältnisse aus \(M_1\); das Pitot-Modul unterscheidet den Unterschall- vom Überschallzweig anhand der oben hergeleiteten Schwelle \(1{,}8929\).</p>
+        <div class="button-row lecture-actions"><a class="button outline" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer">Rechner öffnen</a></div>
+      </section>
 
       <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
         <h2>Literatur</h2>
         <ol>
           <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6. Aufl. New York: McGraw-Hill Education, 2017, Kapitel 8.</li>

@@ -70,9 +70,12 @@
       <p class="hero-copy">Kontinuierliche isentrope Umlenkung an einer konvexen Ecke und die Prandtl–Meyer-Funktion.</p>
     </div>
 
-    <div class="hero-meta"><span data-language="en">Estimated reading: 35 min</span><span data-language="es" hidden>Lectura estimada: 35 min</span><span data-language="de" hidden>Lesedauer: ca. 35 min</span><span>M₁ &gt; 1</span><span data-language="en">Convex turn</span><span data-language="es" hidden>Viraje convexo</span><span data-language="de" hidden>Konvexe Umlenkung</span><span data-language="en">Isentropic</span><span data-language="es" hidden>Isoentrópico</span><span data-language="de" hidden>Isentrop</span></div>
-
-    <div class="button-row">
+    <div class="hero-meta">
+    <span data-language="en">Estimated reading: 35 min</span><span data-language="es" hidden>Lectura estimada: 35 min</span><span data-language="de" hidden>Lesedauer: ca. 35 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Model: isentropic centred fan</span><span data-language="es" hidden>Modelo: abanico centrado isoentrópico</span><span data-language="de" hidden>Modell: zentrierter isentroper Fächer</span>
+  </div>
+  <div class="button-row">
       <a class="button secondary" href="oblique-shocks.html">← Previous</a>
       <a class="button primary" href="shock-expansion.html">Next lecture →</a>
       <a class="button calculator-button" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer" data-ui-key="calculator">Open calculator</a>
@@ -85,45 +88,69 @@
     <aside class="toc">
       <h2 data-ui-key="contents">On this page</h2>
       <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
         <a href="#physics">Physical picture</a>
+        <a href="#model">Model and assumptions</a>
         <a href="#infinitesimal">Infinitesimal expansion</a>
         <a href="#function">Prandtl–Meyer function</a>
         <a href="#fan">Finite centered fan</a>
         <a href="#properties">Property changes</a>
         <a href="#algorithm">Calculation algorithm</a>
         <a href="#example">Worked example</a>
+        <a href="#summary">Key equations</a>
         <a href="#comparison">Shock vs expansion</a>
         <a href="#mistakes">Common mistakes</a>
-        <a href="#references">References</a>
+        <a href="#calculator">Computational tool</a>
+        <a href="#references">Sources</a>
       </div>
       <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
         <a href="#physics-es">Panorama físico</a>
+        <a href="#model-es">Modelo e hipótesis</a>
         <a href="#infinitesimal-es">Expansión infinitesimal</a>
         <a href="#function-es">Función de Prandtl–Meyer</a>
         <a href="#fan-es">Abanico centrado finito</a>
         <a href="#properties-es">Cambios de propiedades</a>
         <a href="#algorithm-es">Algoritmo de cálculo</a>
         <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Ecuaciones clave</a>
         <a href="#comparison-es">Choque frente a expansión</a>
         <a href="#mistakes-es">Errores comunes</a>
-        <a href="#references-es">Referencias</a>
+        <a href="#calculator-es">Herramienta computacional</a>
+        <a href="#references-es">Fuentes</a>
       </div>
       <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
         <a href="#physics-de">Physikalisches Bild</a>
+        <a href="#model-de">Modell und Annahmen</a>
         <a href="#infinitesimal-de">Infinitesimale Expansion</a>
         <a href="#function-de">Prandtl–Meyer-Funktion</a>
         <a href="#fan-de">Endlicher zentrierter Fächer</a>
         <a href="#properties-de">Zustandsänderungen</a>
         <a href="#algorithm-de">Rechenalgorithmus</a>
         <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Kerngleichungen</a>
         <a href="#comparison-de">Stoß und Expansion im Vergleich</a>
         <a href="#mistakes-de">Häufige Fehler</a>
-        <a href="#references-de">Literatur</a>
+        <a href="#calculator-de">Rechenwerkzeug</a>
+        <a href="#references-de">Quellen</a>
       </div>
     </aside>
 
     <article class="lecture" data-language="en">
-      <section id="physics">
+            <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul>
+          <li>Explain why a convex turn produces a continuous fan rather than an expansion shock.</li>
+          <li>Evaluate the Prandtl–Meyer function \(\nu(M)\).</li>
+          <li>Solve \(\nu(M_2)=\nu(M_1)+\theta\) for the downstream Mach number.</li>
+          <li>Compute the isentropic property ratios across a centred fan.</li>
+          <li>Recognise the \(\nu_{\max}\) ceiling and say what it means physically.</li>
+        </ul>
+      </section>
+
+<section id="physics">
         <p class="section-label">Physical picture</p>
         <h2>A convex corner creates a continuous expansion fan</h2>
         <p class="lead">
@@ -167,6 +194,18 @@
           temperature, and density decrease. Total temperature and total pressure remain constant.
         </div>
       </section>
+      <section id="model">
+        <p class="section-label">Model and assumptions</p>
+        <h2>An isentropic turn with no length scale</h2>
+        <ul>
+          <li>steady, inviscid, two-dimensional flow of a calorically perfect gas;</li>
+          <li>supersonic flow turning away from itself around a convex corner;</li>
+          <li>isentropic throughout, so \(p_0\) and \(T_0\) are both conserved;</li>
+          <li>a centred fan, with all Mach waves emanating from the corner.</li>
+        </ul>
+        <div class="callout warning"><strong>Not included.</strong> A real corner has a finite radius, so the fan is not exactly centred and the waves do not all originate from one point. The model also ignores the boundary layer, which near the wall smears the first characteristics. Neither affects the far-field turn angle appreciably, which is why the idealisation survives.</div>
+      </section>
+
 
       <section id="infinitesimal">
         <p class="section-label">Differential relation</p>
@@ -319,7 +358,7 @@
       </section>
 
       <section id="algorithm">
-        <p class="section-label">Engineering workflow</p>
+        <p class="section-label">Calculation algorithm</p>
         <h2>Calculation algorithm</h2>
 
         <div class="process-flow">
@@ -331,6 +370,27 @@
           <div><strong>6</strong><span>Compute \(T_2/T_1\)</span></div>
           <div><strong>7</strong><span>Compute \(p_2/p_1,\rho_2/\rho_1\)</span></div>
           <div><strong>8</strong><span>Verify \(M_2>M_1\) and \(p_{0,2}=p_{0,1}\)</span></div>
+        </div>
+      </section>
+
+
+      <section id="comparison">
+        <p class="section-label">Conceptual comparison</p>
+        <h2>Compression shock versus expansion fan</h2>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Feature</th><th>Oblique shock</th><th>Prandtl–Meyer fan</th></tr></thead>
+            <tbody>
+              <tr><td>Change</td><td>Discontinuous</td><td>Continuous</td></tr>
+              <tr><td>Thermodynamics</td><td>Adiabatic, irreversible</td><td>Isentropic</td></tr>
+              <tr><td>Mach</td><td>Decreases</td><td>Increases</td></tr>
+              <tr><td>Static pressure</td><td>Increases</td><td>Decreases</td></tr>
+              <tr><td>Static temperature</td><td>Increases</td><td>Decreases</td></tr>
+              <tr><td>Total pressure</td><td>Decreases</td><td>Constant</td></tr>
+              <tr><td>Central relation</td><td>θ–β–M</td><td>\(\nu(M_2)-\nu(M_1)=\theta\)</td></tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
@@ -366,29 +426,25 @@
           <span>Inputs: \(M_1=2.0\), expansion \(\theta=15^\circ\), \(\gamma=1.4\).</span>
         </div>
       </section>
-
-      <section id="comparison">
-        <p class="section-label">Conceptual comparison</p>
-        <h2>Compression shock versus expansion fan</h2>
-
+      <section id="summary">
+        <p class="section-label">Key equations</p>
+        <h2>At a glance</h2>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Feature</th><th>Oblique shock</th><th>Prandtl–Meyer fan</th></tr></thead>
-            <tbody>
-              <tr><td>Change</td><td>Discontinuous</td><td>Continuous</td></tr>
-              <tr><td>Thermodynamics</td><td>Adiabatic, irreversible</td><td>Isentropic</td></tr>
-              <tr><td>Mach</td><td>Decreases</td><td>Increases</td></tr>
-              <tr><td>Static pressure</td><td>Increases</td><td>Decreases</td></tr>
-              <tr><td>Static temperature</td><td>Increases</td><td>Decreases</td></tr>
-              <tr><td>Total pressure</td><td>Decreases</td><td>Constant</td></tr>
-              <tr><td>Central relation</td><td>θ–β–M</td><td>\(\nu(M_2)-\nu(M_1)=\theta\)</td></tr>
-            </tbody>
+            <thead><tr><th>Relation</th><th>Expression</th><th>Applies when</th></tr></thead>
+          <tbody>
+            <tr><td>Prandtl–Meyer function</td><td>\(\nu(M)=\sqrt{\tfrac{\gamma+1}{\gamma-1}}\tan^{-1}\!\sqrt{\tfrac{\gamma-1}{\gamma+1}(M^2-1)}-\tan^{-1}\!\sqrt{M^2-1}\)</td><td>\(M\ge1\)</td></tr>
+            <tr><td>Finite turn</td><td>\(\nu(M_2)=\nu(M_1)+\theta\)</td><td>expansion only</td></tr>
+            <tr><td>Maximum turn</td><td>\(\nu_{\max}=\tfrac{\pi}{2}\left(\sqrt{\tfrac{\gamma+1}{\gamma-1}}-1\right)=130.45^\circ\)</td><td>air, \(\gamma=1.4\)</td></tr>
+            <tr><td>Property ratios</td><td>\(T_2/T_1=\frac{1+\frac{\gamma-1}{2}M_1^2}{1+\frac{\gamma-1}{2}M_2^2},\quad p_2/p_1=(T_2/T_1)^{\gamma/(\gamma-1)}\)</td><td>isentropic</td></tr>
+            <tr><td>Totals</td><td>\(p_{0,2}=p_{0,1},\qquad T_{0,2}=T_{0,1}\)</td><td>ideal fan</td></tr>
+          </tbody>
           </table>
         </div>
       </section>
 
       <section id="mistakes">
-        <p class="section-label">Checks</p>
+        <p class="section-label">Common mistakes</p>
         <h2>Common mistakes</h2>
         <ul class="check-list">
           <li><strong>Applying \(\nu(M)\) to a compression.</strong> The Prandtl–Meyer function describes isentropic <em>expansions</em> only; a concave turn produces an oblique shock and is handled with θ–β–M.</li>
@@ -400,8 +456,15 @@
           <li><strong>Using an expansion shock.</strong> There is no such thing: it would decrease entropy and the second law forbids it.</li>
         </ul>
       </section>
+      <section id="calculator">
+        <p class="section-label">Computational tool</p>
+        <h2>Open calculator</h2>
+        <p>The expansion module inverts \(\nu(M)\) numerically and flags a requested turn that would exceed \(\nu_{\max}\). Combined with the oblique-shock module it forms the sequential solver used in Lecture 06.</p>
+        <div class="button-row lecture-actions"><a class="button outline" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer">Open calculator</a></div>
+      </section>
 
       <section id="references" class="references">
+        <p class="section-label">Sources</p>
         <h2>References</h2>
         <ol>
           <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed. New York: McGraw-Hill Education, 2017, Chapter 9.</li>
@@ -419,7 +482,19 @@
     </article>
 
     <article class="lecture" data-language="es" hidden>
-      <section id="physics-es">
+            <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Lo que debes ser capaz de hacer</h2>
+        <ul>
+          <li>Explicar por qué un viraje convexo produce un abanico continuo y no un choque de expansión.</li>
+          <li>Evaluar la función de Prandtl–Meyer \(\nu(M)\).</li>
+          <li>Resolver \(\nu(M_2)=\nu(M_1)+\theta\) para el Mach aguas abajo.</li>
+          <li>Calcular las razones isoentrópicas de propiedades a través de un abanico centrado.</li>
+          <li>Reconocer el techo \(\nu_{\max}\) y decir qué significa físicamente.</li>
+        </ul>
+      </section>
+
+<section id="physics-es">
         <p class="section-label">Panorama físico</p>
         <h2>Una esquina convexa genera un abanico de expansión continuo</h2>
         <p class="lead">
@@ -462,6 +537,18 @@
           total permanecen constantes.
         </div>
       </section>
+      <section id="model-es">
+        <p class="section-label">Modelo e hipótesis</p>
+        <h2>Un viraje isoentrópico sin escala de longitud</h2>
+        <ul>
+          <li>flujo estacionario, inviscido y bidimensional de un gas calóricamente perfecto;</li>
+          <li>flujo supersónico que gira alejándose de sí mismo en una esquina convexa;</li>
+          <li>isoentrópico en todo el proceso, de modo que \(p_0\) y \(T_0\) se conservan;</li>
+          <li>abanico centrado, con todas las ondas de Mach emanando de la esquina.</li>
+        </ul>
+        <div class="callout warning"><strong>No incluido.</strong> Una esquina real tiene radio finito, así que el abanico no está exactamente centrado y las ondas no salen todas de un punto. El modelo también ignora la capa límite, que cerca de la pared difumina las primeras características. Ninguna de las dos afecta apreciablemente al ángulo de giro en campo lejano, y por eso la idealización sobrevive.</div>
+      </section>
+
 
       <section id="infinitesimal-es">
         <p class="section-label">Relación diferencial</p>
@@ -600,7 +687,7 @@
       </section>
 
       <section id="algorithm-es">
-        <p class="section-label">Flujo de trabajo</p>
+        <p class="section-label">Algoritmo de cálculo</p>
         <h2>Algoritmo de cálculo</h2>
         <div class="process-flow">
           <div><strong>1</strong><span>Especificar \(M_1,\theta,\gamma\)</span></div>
@@ -611,6 +698,26 @@
           <div><strong>6</strong><span>Calcular \(T_2/T_1\)</span></div>
           <div><strong>7</strong><span>Calcular \(p_2/p_1,\rho_2/\rho_1\)</span></div>
           <div><strong>8</strong><span>Verificar \(M_2>M_1\) y \(p_{0,2}=p_{0,1}\)</span></div>
+        </div>
+      </section>
+
+
+      <section id="comparison-es">
+        <p class="section-label">Comparación conceptual</p>
+        <h2>Choque de compresión frente a abanico de expansión</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Característica</th><th>Choque oblicuo</th><th>Abanico de Prandtl–Meyer</th></tr></thead>
+            <tbody>
+              <tr><td>Cambio</td><td>Discontinuo</td><td>Continuo</td></tr>
+              <tr><td>Termodinámica</td><td>Adiabático, irreversible</td><td>Isoentrópico</td></tr>
+              <tr><td>Mach</td><td>Disminuye</td><td>Aumenta</td></tr>
+              <tr><td>Presión estática</td><td>Aumenta</td><td>Disminuye</td></tr>
+              <tr><td>Temperatura estática</td><td>Aumenta</td><td>Disminuye</td></tr>
+              <tr><td>Presión total</td><td>Disminuye</td><td>Constante</td></tr>
+              <tr><td>Relación central</td><td>θ–β–M</td><td>\(\nu(M_2)-\nu(M_1)=\theta\)</td></tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
@@ -642,28 +749,25 @@
           <span>Entradas: \(M_1=2.0\), expansión \(\theta=15^\circ\), \(\gamma=1.4\).</span>
         </div>
       </section>
-
-      <section id="comparison-es">
-        <p class="section-label">Comparación conceptual</p>
-        <h2>Choque de compresión frente a abanico de expansión</h2>
+      <section id="summary-es">
+        <p class="section-label">Ecuaciones clave</p>
+        <h2>En síntesis</h2>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Característica</th><th>Choque oblicuo</th><th>Abanico de Prandtl–Meyer</th></tr></thead>
-            <tbody>
-              <tr><td>Cambio</td><td>Discontinuo</td><td>Continuo</td></tr>
-              <tr><td>Termodinámica</td><td>Adiabático, irreversible</td><td>Isoentrópico</td></tr>
-              <tr><td>Mach</td><td>Disminuye</td><td>Aumenta</td></tr>
-              <tr><td>Presión estática</td><td>Aumenta</td><td>Disminuye</td></tr>
-              <tr><td>Temperatura estática</td><td>Aumenta</td><td>Disminuye</td></tr>
-              <tr><td>Presión total</td><td>Disminuye</td><td>Constante</td></tr>
-              <tr><td>Relación central</td><td>θ–β–M</td><td>\(\nu(M_2)-\nu(M_1)=\theta\)</td></tr>
-            </tbody>
+            <thead><tr><th>Relación</th><th>Expresión</th><th>Aplica cuando</th></tr></thead>
+          <tbody>
+            <tr><td>Función de Prandtl–Meyer</td><td>\(\nu(M)=\sqrt{\tfrac{\gamma+1}{\gamma-1}}\tan^{-1}\!\sqrt{\tfrac{\gamma-1}{\gamma+1}(M^2-1)}-\tan^{-1}\!\sqrt{M^2-1}\)</td><td>\(M\ge1\)</td></tr>
+            <tr><td>Viraje finito</td><td>\(\nu(M_2)=\nu(M_1)+\theta\)</td><td>solo expansión</td></tr>
+            <tr><td>Giro máximo</td><td>\(\nu_{\max}=\tfrac{\pi}{2}\left(\sqrt{\tfrac{\gamma+1}{\gamma-1}}-1\right)=130.45^\circ\)</td><td>aire, \(\gamma=1.4\)</td></tr>
+            <tr><td>Razones de propiedades</td><td>\(T_2/T_1=\frac{1+\frac{\gamma-1}{2}M_1^2}{1+\frac{\gamma-1}{2}M_2^2},\quad p_2/p_1=(T_2/T_1)^{\gamma/(\gamma-1)}\)</td><td>isoentrópico</td></tr>
+            <tr><td>Totales</td><td>\(p_{0,2}=p_{0,1},\qquad T_{0,2}=T_{0,1}\)</td><td>abanico ideal</td></tr>
+          </tbody>
           </table>
         </div>
       </section>
 
       <section id="mistakes-es">
-        <p class="section-label">Verificaciones</p>
+        <p class="section-label">Errores comunes</p>
         <h2>Errores comunes</h2>
         <ul class="check-list">
           <li><strong>Aplicar \(\nu(M)\) a una compresión.</strong> La función de Prandtl–Meyer describe solo <em>expansiones</em> isoentrópicas; un viraje cóncavo produce un choque oblicuo y se trata con θ–β–M.</li>
@@ -675,8 +779,15 @@
           <li><strong>Usar un choque de expansión.</strong> No existe: disminuiría la entropía y la segunda ley lo prohíbe.</li>
         </ul>
       </section>
+      <section id="calculator-es">
+        <p class="section-label">Herramienta computacional</p>
+        <h2>Abrir calculadora</h2>
+        <p>El módulo de expansión invierte \(\nu(M)\) numéricamente y marca un viraje pedido que excedería \(\nu_{\max}\). Combinado con el de choque oblicuo forma el solucionador secuencial que usa la Lecture 06.</p>
+        <div class="button-row lecture-actions"><a class="button outline" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer">Abrir calculadora</a></div>
+      </section>
 
       <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
         <h2>Referencias</h2>
         <ol>
           <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 9.</li>
@@ -694,7 +805,19 @@
     </article>
 
     <article class="lecture" data-language="de" hidden>
-      <section id="physics-de">
+            <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie danach können sollten</h2>
+        <ul>
+          <li>Erläutern, warum eine konvexe Umlenkung einen stetigen Fächer und keinen Expansionsstoß erzeugt.</li>
+          <li>Die Prandtl–Meyer-Funktion \(\nu(M)\) auswerten.</li>
+          <li>\(\nu(M_2)=\nu(M_1)+\theta\) nach der stromabwärtigen Machzahl lösen.</li>
+          <li>Die isentropen Zustandsverhältnisse über einen zentrierten Fächer berechnen.</li>
+          <li>Die Schranke \(\nu_{\max}\) erkennen und ihre physikalische Bedeutung angeben.</li>
+        </ul>
+      </section>
+
+<section id="physics-de">
         <p class="section-label">Physikalisches Bild</p>
         <h2>Eine konvexe Ecke erzeugt einen kontinuierlichen Expansionsfächer</h2>
         <p class="lead">
@@ -736,6 +859,18 @@
           Temperatur und Dichte abnehmen. Totaltemperatur und Totaldruck bleiben konstant.
         </div>
       </section>
+      <section id="model-de">
+        <p class="section-label">Modell und Annahmen</p>
+        <h2>Eine isentrope Umlenkung ohne Längenmaßstab</h2>
+        <ul>
+          <li>stationäre, reibungsfreie, zweidimensionale Strömung eines kalorisch idealen Gases;</li>
+          <li>überschallschnelle Strömung, die an einer konvexen Ecke von sich weg umgelenkt wird;</li>
+          <li>durchgehend isentrop, sodass \(p_0\) und \(T_0\) erhalten bleiben;</li>
+          <li>zentrierter Fächer, dessen Machwellen sämtlich von der Ecke ausgehen.</li>
+        </ul>
+        <div class="callout warning"><strong>Nicht enthalten.</strong> Eine reale Ecke besitzt einen endlichen Radius, sodass der Fächer nicht exakt zentriert ist und die Wellen nicht alle aus einem Punkt entspringen. Das Modell vernachlässigt zudem die Grenzschicht, die wandnah die ersten Charakteristiken verschmiert. Beides beeinflusst den Umlenkwinkel im Fernfeld kaum — deshalb hält die Idealisierung stand.</div>
+      </section>
+
 
       <section id="infinitesimal-de">
         <p class="section-label">Differentielle Beziehung</p>
@@ -874,7 +1009,7 @@
       </section>
 
       <section id="algorithm-de">
-        <p class="section-label">Vorgehensweise</p>
+        <p class="section-label">Rechenalgorithmus</p>
         <h2>Rechenalgorithmus</h2>
         <div class="process-flow">
           <div><strong>1</strong><span>\(M_1,\theta,\gamma\) vorgeben</span></div>
@@ -885,6 +1020,26 @@
           <div><strong>6</strong><span>\(T_2/T_1\) berechnen</span></div>
           <div><strong>7</strong><span>\(p_2/p_1,\rho_2/\rho_1\) berechnen</span></div>
           <div><strong>8</strong><span>\(M_2>M_1\) und \(p_{0,2}=p_{0,1}\) prüfen</span></div>
+        </div>
+      </section>
+
+
+      <section id="comparison-de">
+        <p class="section-label">Begrifflicher Vergleich</p>
+        <h2>Verdichtungsstoß und Expansionsfächer im Vergleich</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Merkmal</th><th>Schräger Stoß</th><th>Prandtl–Meyer-Fächer</th></tr></thead>
+            <tbody>
+              <tr><td>Änderung</td><td>Unstetig</td><td>Stetig</td></tr>
+              <tr><td>Thermodynamik</td><td>Adiabat, irreversibel</td><td>Isentrop</td></tr>
+              <tr><td>Machzahl</td><td>Nimmt ab</td><td>Nimmt zu</td></tr>
+              <tr><td>Statischer Druck</td><td>Nimmt zu</td><td>Nimmt ab</td></tr>
+              <tr><td>Statische Temperatur</td><td>Nimmt zu</td><td>Nimmt ab</td></tr>
+              <tr><td>Totaldruck</td><td>Nimmt ab</td><td>Konstant</td></tr>
+              <tr><td>Zentrale Beziehung</td><td>θ–β–M</td><td>\(\nu(M_2)-\nu(M_1)=\theta\)</td></tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
@@ -916,28 +1071,25 @@
           <span>Eingaben: \(M_1=2{,}0\), Expansion \(\theta=15^\circ\), \(\gamma=1{,}4\).</span>
         </div>
       </section>
-
-      <section id="comparison-de">
-        <p class="section-label">Begrifflicher Vergleich</p>
-        <h2>Verdichtungsstoß und Expansionsfächer im Vergleich</h2>
+      <section id="summary-de">
+        <p class="section-label">Kerngleichungen</p>
+        <h2>Auf einen Blick</h2>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Merkmal</th><th>Schräger Stoß</th><th>Prandtl–Meyer-Fächer</th></tr></thead>
-            <tbody>
-              <tr><td>Änderung</td><td>Unstetig</td><td>Stetig</td></tr>
-              <tr><td>Thermodynamik</td><td>Adiabat, irreversibel</td><td>Isentrop</td></tr>
-              <tr><td>Machzahl</td><td>Nimmt ab</td><td>Nimmt zu</td></tr>
-              <tr><td>Statischer Druck</td><td>Nimmt zu</td><td>Nimmt ab</td></tr>
-              <tr><td>Statische Temperatur</td><td>Nimmt zu</td><td>Nimmt ab</td></tr>
-              <tr><td>Totaldruck</td><td>Nimmt ab</td><td>Konstant</td></tr>
-              <tr><td>Zentrale Beziehung</td><td>θ–β–M</td><td>\(\nu(M_2)-\nu(M_1)=\theta\)</td></tr>
-            </tbody>
+            <thead><tr><th>Beziehung</th><th>Ausdruck</th><th>Gültig wenn</th></tr></thead>
+          <tbody>
+            <tr><td>Prandtl–Meyer-Funktion</td><td>\(\nu(M)=\sqrt{\tfrac{\gamma+1}{\gamma-1}}\tan^{-1}\!\sqrt{\tfrac{\gamma-1}{\gamma+1}(M^2-1)}-\tan^{-1}\!\sqrt{M^2-1}\)</td><td>\(M\ge1\)</td></tr>
+            <tr><td>Endliche Umlenkung</td><td>\(\nu(M_2)=\nu(M_1)+\theta\)</td><td>nur Expansion</td></tr>
+            <tr><td>Maximale Umlenkung</td><td>\(\nu_{\max}=\tfrac{\pi}{2}\left(\sqrt{\tfrac{\gamma+1}{\gamma-1}}-1\right)=130{,}45^\circ\)</td><td>Luft, \(\gamma=1{,}4\)</td></tr>
+            <tr><td>Zustandsverhältnisse</td><td>\(T_2/T_1=\frac{1+\frac{\gamma-1}{2}M_1^2}{1+\frac{\gamma-1}{2}M_2^2},\quad p_2/p_1=(T_2/T_1)^{\gamma/(\gamma-1)}\)</td><td>isentrop</td></tr>
+            <tr><td>Totalgrößen</td><td>\(p_{0,2}=p_{0,1},\qquad T_{0,2}=T_{0,1}\)</td><td>idealer Fächer</td></tr>
+          </tbody>
           </table>
         </div>
       </section>
 
       <section id="mistakes-de">
-        <p class="section-label">Kontrollen</p>
+        <p class="section-label">Häufige Fehler</p>
         <h2>Häufige Fehler</h2>
         <ul class="check-list">
           <li><strong>\(\nu(M)\) auf eine Verdichtung anwenden.</strong> Die Prandtl–Meyer-Funktion beschreibt ausschließlich isentrope <em>Expansionen</em>; eine konkave Umlenkung erzeugt einen schrägen Stoß und wird mit θ–β–M behandelt.</li>
@@ -949,8 +1101,15 @@
           <li><strong>Einen Expansionsstoß verwenden.</strong> Einen solchen gibt es nicht: er würde die Entropie verringern, was der zweite Hauptsatz verbietet.</li>
         </ul>
       </section>
+      <section id="calculator-de">
+        <p class="section-label">Rechenwerkzeug</p>
+        <h2>Rechner öffnen</h2>
+        <p>Das Expansionsmodul invertiert \(\nu(M)\) numerisch und meldet eine geforderte Umlenkung, die \(\nu_{\max}\) überschreiten würde. Zusammen mit dem Schrägstoß-Modul bildet es den sequenziellen Löser aus Vorlesung 06.</p>
+        <div class="button-row lecture-actions"><a class="button outline" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer">Rechner öffnen</a></div>
+      </section>
 
       <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
         <h2>Literatur</h2>
         <ol>
           <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6. Aufl. New York: McGraw-Hill Education, 2017, Kapitel 9.</li>

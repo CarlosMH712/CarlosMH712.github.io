@@ -75,17 +75,11 @@
         </p>
       </div>
       <div class="hero-meta">
-        <span data-language="en">Estimated reading: 35 min</span>
-        <span data-language="es" hidden>Lectura estimada: 35 min</span>
-        <span data-language="de" hidden>Lesedauer: ca. 35 min</span>
-        <span data-language="en">Level: undergraduate</span>
-        <span data-language="es" hidden>Nivel: licenciatura</span>
-        <span data-language="de" hidden>Niveau: Bachelor</span>
-        <span data-language="en">Gas: calorically perfect</span>
-        <span data-language="es" hidden>Gas: calóricamente perfecto</span>
-        <span data-language="de" hidden>Gas: kalorisch ideal</span>
-      </div>
-      <div class="button-row">
+    <span data-language="en">Estimated reading: 35 min</span><span data-language="es" hidden>Lectura estimada: 35 min</span><span data-language="de" hidden>Lesedauer: ca. 35 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Model: isentropic, calorically perfect</span><span data-language="es" hidden>Modelo: isoentrópico, calóricamente perfecto</span><span data-language="de" hidden>Modell: isentrop, kalorisch ideal</span>
+  </div>
+  <div class="button-row">
         <a class="button secondary" href="index.html?v=11" data-ui-key="back">Back to course</a>
         <a class="button primary" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer" data-ui-key="calculator">Open calculator</a>
       </div>
@@ -97,36 +91,45 @@
       <h2 data-ui-key="contents">On this page</h2>
       <div class="toc-links" data-language="en">
         <a href="#objectives">Objectives</a>
-        <a href="#model">Physical model</a>
+        <a href="#physics">Physical picture</a>
+        <a href="#model">Model and assumptions</a>
         <a href="#relations">Isentropic relations</a>
         <a href="#stagnation">Stagnation properties</a>
         <a href="#local">Local definition vs conservation</a>
         <a href="#critical">Critical state and \(M^*\)</a>
         <a href="#example">Worked example</a>
+        <a href="#summary">Key equations</a>
         <a href="#mistakes">Common mistakes</a>
-        <a href="#references">References</a>
+        <a href="#calculator">Computational tool</a>
+        <a href="#references">Sources</a>
       </div>
       <div class="toc-links" data-language="es" hidden>
         <a href="#objectives-es">Objetivos</a>
-        <a href="#model-es">Modelo físico</a>
+        <a href="#physics-es">Panorama físico</a>
+        <a href="#model-es">Modelo e hipótesis</a>
         <a href="#relations-es">Relaciones isoentrópicas</a>
         <a href="#stagnation-es">Propiedades de estancamiento</a>
         <a href="#local-es">Definición local frente a conservación</a>
         <a href="#critical-es">Estado crítico y \(M^*\)</a>
         <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Ecuaciones clave</a>
         <a href="#mistakes-es">Errores comunes</a>
-        <a href="#references-es">Referencias</a>
+        <a href="#calculator-es">Herramienta computacional</a>
+        <a href="#references-es">Fuentes</a>
       </div>
       <div class="toc-links" data-language="de" hidden>
         <a href="#objectives-de">Lernziele</a>
-        <a href="#model-de">Physikalisches Modell</a>
+        <a href="#physics-de">Physikalisches Bild</a>
+        <a href="#model-de">Modell und Annahmen</a>
         <a href="#relations-de">Isentrope Beziehungen</a>
         <a href="#stagnation-de">Staugrößen</a>
         <a href="#local-de">Lokale Definition und Erhaltung</a>
         <a href="#critical-de">Kritischer Zustand und \(M^*\)</a>
         <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Kerngleichungen</a>
         <a href="#mistakes-de">Häufige Fehler</a>
-        <a href="#references-de">Literatur</a>
+        <a href="#calculator-de">Rechenwerkzeug</a>
+        <a href="#references-de">Quellen</a>
       </div>
     </aside>
 
@@ -146,8 +149,8 @@
         </ul>
       </section>
 
-      <section id="model">
-        <p class="section-label">Physical model</p>
+      <section id="physics">
+        <p class="section-label">Physical picture</p>
         <h2>From a moving state to a stagnation state</h2>
         <p>
           Static properties \(p\), \(T\), \(\rho\), and \(h\) describe the local thermodynamic
@@ -199,6 +202,18 @@
           vibrational excitation, dissociation, or chemical reactions.
         </div>
       </section>
+      <section id="model">
+        <p class="section-label">Model and assumptions</p>
+        <h2>Calorically perfect gas, reversible and adiabatic</h2>
+        <ul>
+          <li>continuum, calorically perfect gas with constant \(c_p\), \(c_v\), and \(\gamma\);</li>
+          <li>adiabatic and reversible process, so \(ds=0\);</li>
+          <li>no shaft work and negligible potential-energy change;</li>
+          <li>steady flow along the streamline considered.</li>
+        </ul>
+        <div class="callout warning"><strong>Not included.</strong> Shocks, viscous dissipation, strong mixing, and heat transfer all violate \(ds=0\). Total temperature may still be conserved in those cases, but total pressure is not, and the relations of this lecture cannot be carried across them.</div>
+      </section>
+
 
       <section id="relations">
         <p class="section-label">Thermodynamic relations</p>
@@ -504,9 +519,26 @@
           </div>
         </div>
       </section>
+      <section id="summary">
+        <p class="section-label">Key equations</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Relation</th><th>Expression</th><th>Applies when</th></tr></thead>
+          <tbody>
+            <tr><td>Isentropic ratios</td><td>\(p_2/p_1=(\rho_2/\rho_1)^\gamma=(T_2/T_1)^{\gamma/(\gamma-1)}\)</td><td>\(ds=0\)</td></tr>
+            <tr><td>Total temperature</td><td>\(T_0/T=1+\tfrac{\gamma-1}{2}M^2\)</td><td>adiabatic</td></tr>
+            <tr><td>Total pressure</td><td>\(p_0/p=\left(1+\tfrac{\gamma-1}{2}M^2\right)^{\gamma/(\gamma-1)}\)</td><td>isentropic</td></tr>
+            <tr><td>Critical ratios</td><td>\(T^*/T_0=0.833333,\;p^*/p_0=0.528282,\;\rho^*/\rho_0=0.633938\)</td><td>\(M=1\), \(\gamma=1.4\)</td></tr>
+            <tr><td>Characteristic Mach</td><td>\(M^{*2}=\frac{(\gamma+1)M^2}{2+(\gamma-1)M^2},\quad M^*_{\max}=\sqrt{6}\)</td><td>along one streamline</td></tr>
+          </tbody>
+          </table>
+        </div>
+      </section>
+
 
       <section id="mistakes">
-        <p class="section-label">Checks</p>
+        <p class="section-label">Common mistakes</p>
         <h2>Common mistakes</h2>
         <ul>
           <li>Using total–static relations across a shock as though the shock were isentropic.</li>
@@ -517,8 +549,15 @@
           <li>Applying the calorically perfect model at temperatures where specific heats vary strongly.</li>
         </ul>
       </section>
+      <section id="calculator">
+        <p class="section-label">Computational tool</p>
+        <h2>Open calculator</h2>
+        <p>The isentropic module takes any one of \(M\), \(p_0/p\), \(T_0/T\), or \(A/A^*\) and returns the complete state, including \(M^*\) and the critical ratios. Use it to check the worked example above before trusting it on a new problem.</p>
+        <div class="button-row lecture-actions"><a class="button outline" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer">Open calculator</a></div>
+      </section>
 
       <section id="references" class="references">
+        <p class="section-label">Sources</p>
         <h2>References</h2>
         <ol>
           <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed. New York: McGraw-Hill Education, 2017, Chapter 7.</li>
@@ -551,8 +590,8 @@
         </ul>
       </section>
 
-      <section id="model-es">
-        <p class="section-label">Modelo físico</p>
+      <section id="physics-es">
+        <p class="section-label">Panorama físico</p>
         <h2>Del estado en movimiento al estado de estancamiento</h2>
         <p>
           Las propiedades estáticas \(p\), \(T\), \(\rho\) y \(h\) describen el estado termodinámico local
@@ -604,6 +643,18 @@
           altas para que haya excitación vibracional, disociación o reacciones químicas apreciables.
         </div>
       </section>
+      <section id="model-es">
+        <p class="section-label">Modelo e hipótesis</p>
+        <h2>Gas calóricamente perfecto, reversible y adiabático</h2>
+        <ul>
+          <li>medio continuo, gas calóricamente perfecto con \(c_p\), \(c_v\) y \(\gamma\) constantes;</li>
+          <li>proceso adiabático y reversible, de modo que \(ds=0\);</li>
+          <li>sin trabajo de eje y con cambio despreciable de energía potencial;</li>
+          <li>flujo estacionario a lo largo de la línea de corriente considerada.</li>
+        </ul>
+        <div class="callout warning"><strong>No incluido.</strong> Los choques, la disipación viscosa, la mezcla intensa y la transferencia de calor violan todos \(ds=0\). En esos casos la temperatura total puede seguir conservándose, pero la presión total no, y las relaciones de esta lecture no pueden arrastrarse a través de ellos.</div>
+      </section>
+
 
       <section id="relations-es">
         <p class="section-label">Relaciones termodinámicas</p>
@@ -910,9 +961,26 @@
           </div>
         </div>
       </section>
+      <section id="summary-es">
+        <p class="section-label">Ecuaciones clave</p>
+        <h2>En síntesis</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Relación</th><th>Expresión</th><th>Aplica cuando</th></tr></thead>
+          <tbody>
+            <tr><td>Razones isoentrópicas</td><td>\(p_2/p_1=(\rho_2/\rho_1)^\gamma=(T_2/T_1)^{\gamma/(\gamma-1)}\)</td><td>\(ds=0\)</td></tr>
+            <tr><td>Temperatura total</td><td>\(T_0/T=1+\tfrac{\gamma-1}{2}M^2\)</td><td>adiabático</td></tr>
+            <tr><td>Presión total</td><td>\(p_0/p=\left(1+\tfrac{\gamma-1}{2}M^2\right)^{\gamma/(\gamma-1)}\)</td><td>isoentrópico</td></tr>
+            <tr><td>Razones críticas</td><td>\(T^*/T_0=0.833333,\;p^*/p_0=0.528282,\;\rho^*/\rho_0=0.633938\)</td><td>\(M=1\), \(\gamma=1.4\)</td></tr>
+            <tr><td>Mach característico</td><td>\(M^{*2}=\frac{(\gamma+1)M^2}{2+(\gamma-1)M^2},\quad M^*_{\max}=\sqrt{6}\)</td><td>en una línea de corriente</td></tr>
+          </tbody>
+          </table>
+        </div>
+      </section>
+
 
       <section id="mistakes-es">
-        <p class="section-label">Verificaciones</p>
+        <p class="section-label">Errores comunes</p>
         <h2>Errores comunes</h2>
         <ul>
           <li>Usar relaciones total–estática a través de un choque como si el choque fuera isoentrópico.</li>
@@ -923,8 +991,15 @@
           <li>Aplicar el modelo calóricamente perfecto a temperaturas donde los calores específicos varían mucho.</li>
         </ul>
       </section>
+      <section id="calculator-es">
+        <p class="section-label">Herramienta computacional</p>
+        <h2>Abrir calculadora</h2>
+        <p>El módulo isoentrópico toma cualquiera de \(M\), \(p_0/p\), \(T_0/T\) o \(A/A^*\) y devuelve el estado completo, incluidos \(M^*\) y las razones críticas. Úsalo para verificar el ejemplo resuelto de arriba antes de confiar en él con un problema nuevo.</p>
+        <div class="button-row lecture-actions"><a class="button outline" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer">Abrir calculadora</a></div>
+      </section>
 
       <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
         <h2>Referencias</h2>
         <ol>
           <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 7.</li>
@@ -958,8 +1033,8 @@
         </ul>
       </section>
 
-      <section id="model-de">
-        <p class="section-label">Physikalisches Modell</p>
+      <section id="physics-de">
+        <p class="section-label">Physikalisches Bild</p>
         <h2>Vom bewegten Zustand zum Ruhezustand</h2>
         <p>
           Die statischen Größen \(p\), \(T\), \(\rho\) und \(h\) beschreiben den örtlichen thermodynamischen
@@ -1012,6 +1087,18 @@
           Temperaturen hoch genug für merkliche Schwingungsanregung, Dissoziation oder chemische Reaktionen sind.
         </div>
       </section>
+      <section id="model-de">
+        <p class="section-label">Modell und Annahmen</p>
+        <h2>Kalorisch ideales Gas, reversibel und adiabat</h2>
+        <ul>
+          <li>Kontinuum, kalorisch ideales Gas mit konstantem \(c_p\), \(c_v\) und \(\gamma\);</li>
+          <li>adiabater und reversibler Prozess, also \(ds=0\);</li>
+          <li>keine Wellenarbeit, vernachlässigbare Änderung der potentiellen Energie;</li>
+          <li>stationäre Strömung längs der betrachteten Stromlinie.</li>
+        </ul>
+        <div class="callout warning"><strong>Nicht enthalten.</strong> Stöße, viskose Dissipation, starke Vermischung und Wärmeübertragung verletzen sämtlich \(ds=0\). Die Totaltemperatur kann dann erhalten bleiben, der Totaldruck jedoch nicht, und die Beziehungen dieser Vorlesung dürfen nicht darüber hinweg fortgeführt werden.</div>
+      </section>
+
 
       <section id="relations-de">
         <p class="section-label">Thermodynamische Beziehungen</p>
@@ -1321,9 +1408,26 @@
           </div>
         </div>
       </section>
+      <section id="summary-de">
+        <p class="section-label">Kerngleichungen</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Beziehung</th><th>Ausdruck</th><th>Gültig wenn</th></tr></thead>
+          <tbody>
+            <tr><td>Isentrope Verhältnisse</td><td>\(p_2/p_1=(\rho_2/\rho_1)^\gamma=(T_2/T_1)^{\gamma/(\gamma-1)}\)</td><td>\(ds=0\)</td></tr>
+            <tr><td>Totaltemperatur</td><td>\(T_0/T=1+\tfrac{\gamma-1}{2}M^2\)</td><td>adiabat</td></tr>
+            <tr><td>Totaldruck</td><td>\(p_0/p=\left(1+\tfrac{\gamma-1}{2}M^2\right)^{\gamma/(\gamma-1)}\)</td><td>isentrop</td></tr>
+            <tr><td>Kritische Verhältnisse</td><td>\(T^*/T_0=0{,}833333,\;p^*/p_0=0{,}528282,\;\rho^*/\rho_0=0{,}633938\)</td><td>\(M=1\), \(\gamma=1{,}4\)</td></tr>
+            <tr><td>Charakteristische Machzahl</td><td>\(M^{*2}=\frac{(\gamma+1)M^2}{2+(\gamma-1)M^2},\quad M^*_{\max}=\sqrt{6}\)</td><td>längs einer Stromlinie</td></tr>
+          </tbody>
+          </table>
+        </div>
+      </section>
+
 
       <section id="mistakes-de">
-        <p class="section-label">Kontrollen</p>
+        <p class="section-label">Häufige Fehler</p>
         <h2>Häufige Fehler</h2>
         <ul>
           <li>Total-statisch-Beziehungen über einen Stoß hinweg anwenden, als wäre der Stoß isentrop.</li>
@@ -1334,8 +1438,15 @@
           <li>Das kalorisch ideale Modell bei Temperaturen anwenden, bei denen die spezifischen Wärmekapazitäten stark variieren.</li>
         </ul>
       </section>
+      <section id="calculator-de">
+        <p class="section-label">Rechenwerkzeug</p>
+        <h2>Rechner öffnen</h2>
+        <p>Das isentrope Modul nimmt eine der Größen \(M\), \(p_0/p\), \(T_0/T\) oder \(A/A^*\) entgegen und liefert den vollständigen Zustand einschließlich \(M^*\) und der kritischen Verhältnisse. Prüfen Sie damit zuerst das obige Rechenbeispiel.</p>
+        <div class="button-row lecture-actions"><a class="button outline" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer">Rechner öffnen</a></div>
+      </section>
 
       <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
         <h2>Literatur</h2>
         <ol>
           <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6. Aufl. New York: McGraw-Hill Education, 2017, Kapitel 7.</li>

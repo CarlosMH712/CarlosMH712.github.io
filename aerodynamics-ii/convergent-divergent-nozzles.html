@@ -23,10 +23,9 @@
   <div data-language="es" hidden><p class="eyebrow">Aerodinámica II · Lecture 08</p><h1>Toberas convergentes y convergentes–divergentes</h1><p class="hero-copy">Cómo la razón de presiones selecciona flujo subsónico, estrangulamiento o una solución supersónica de diseño, con cálculo completo del estado de salida.</p></div>
   <div data-language="de" hidden><p class="eyebrow">Aerodynamik II · Vorlesung 08</p><h1>Konvergente und konvergent–divergente Düsen</h1><p class="hero-copy">Wie das Druckverhältnis Unterschallströmung, Sperrung oder die ausgelegte Überschalllösung auswählt, einschließlich vollständiger Austrittsrechnung.</p></div>
   <div class="hero-meta">
-    <span data-language="en">Estimated reading: 40 min</span><span data-language="es" hidden>Lectura estimada: 40 min</span><span data-language="de" hidden>Lesedauer: ca. 40 min</span>
-    <span data-language="en">Convergent and C–D</span><span data-language="es" hidden>Convergente y C–D</span><span data-language="de" hidden>Konvergent und C–D</span>
-    <span data-language="en">Design condition</span><span data-language="es" hidden>Condición de diseño</span><span data-language="de" hidden>Auslegungspunkt</span>
-    <span>\(p^*/p_0=0.5283\)</span>
+    <span data-language="en">Estimated reading: 45 min</span><span data-language="es" hidden>Lectura estimada: 45 min</span><span data-language="de" hidden>Lesedauer: ca. 45 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Model: quasi-1D, one throat</span><span data-language="es" hidden>Modelo: cuasi-1D, una garganta</span><span data-language="de" hidden>Modell: quasi-1D, ein Hals</span>
   </div>
   <div class="button-row"><a class="button secondary" href="nozzle-flow-fundamentals.html">← <span data-ui-key="previous">Previous lecture</span></a><a class="button primary" href="nozzle-back-pressure-thrust.html"><span data-ui-key="next">Next lecture</span> →</a><a class="button calculator-button" href="https://nozzle-calculator.streamlit.app/" target="_blank" rel="noopener noreferrer" data-ui-key="nozzleCalculator">Open nozzle calculator</a></div>
 </div></section>
@@ -35,42 +34,87 @@
   <aside class="toc">
     <h2 data-ui-key="contents">On this page</h2>
     <div class="toc-links" data-language="en">
-      <a href="#convergent">Purely convergent nozzle</a>
-      <a href="#cd">Convergent&ndash;divergent nozzle</a>
-      <a href="#branches">Subsonic and supersonic branch</a>
-      <a href="#characteristic">Three characteristic back pressures</a>
-      <a href="#design">Area ratio and design</a>
-      <a href="#massflow-curve">Mass-flow curve</a>
-      <a href="#example">Worked example</a>
-      <a href="#mistakes">Common mistakes</a>
-      <a href="#references">References</a>
-    </div>
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Physical picture</a>
+        <a href="#model">Model and assumptions</a>
+        <a href="#convergent">Purely convergent nozzle</a>
+        <a href="#cd">Convergent&ndash;divergent nozzle</a>
+        <a href="#branches">Subsonic and supersonic branch</a>
+        <a href="#characteristic">Three characteristic back pressures</a>
+        <a href="#design">Area ratio and design</a>
+        <a href="#massflow-curve">Mass-flow curve</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Key equations</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#calculator">Computational tool</a>
+        <a href="#references">Sources</a>
+      </div>
     <div class="toc-links" data-language="es" hidden>
-      <a href="#convergent-es">Tobera puramente convergente</a>
-      <a href="#cd-es">Tobera convergente&ndash;divergente</a>
-      <a href="#branches-es">Ramas subs&oacute;nica y supers&oacute;nica</a>
-      <a href="#characteristic-es">Tres contrapresiones caracter&iacute;sticas</a>
-      <a href="#design-es">Raz&oacute;n de &aacute;reas y dise&ntilde;o</a>
-      <a href="#massflow-curve-es">Curva de gasto m&aacute;sico</a>
-      <a href="#example-es">Ejemplo resuelto</a>
-      <a href="#mistakes-es">Errores comunes</a>
-      <a href="#references-es">Referencias</a>
-    </div>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Panorama físico</a>
+        <a href="#model-es">Modelo e hipótesis</a>
+        <a href="#convergent-es">Tobera puramente convergente</a>
+        <a href="#cd-es">Tobera convergente&ndash;divergente</a>
+        <a href="#branches-es">Ramas subs&oacute;nica y supers&oacute;nica</a>
+        <a href="#characteristic-es">Tres contrapresiones caracter&iacute;sticas</a>
+        <a href="#design-es">Raz&oacute;n de &aacute;reas y dise&ntilde;o</a>
+        <a href="#massflow-curve-es">Curva de gasto m&aacute;sico</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Ecuaciones clave</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#calculator-es">Herramienta computacional</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
     <div class="toc-links" data-language="de" hidden>
-      <a href="#convergent-de">Rein konvergente D&uuml;se</a>
-      <a href="#cd-de">Konvergent&ndash;divergente D&uuml;se</a>
-      <a href="#branches-de">Unterschall- und &Uuml;berschallzweig</a>
-      <a href="#characteristic-de">Drei charakteristische Gegendr&uuml;cke</a>
-      <a href="#design-de">Fl&auml;chenverh&auml;ltnis und Auslegung</a>
-      <a href="#massflow-curve-de">Massenstromkurve</a>
-      <a href="#example-de">Rechenbeispiel</a>
-      <a href="#mistakes-de">H&auml;ufige Fehler</a>
-      <a href="#references-de">Literatur</a>
-    </div>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Physikalisches Bild</a>
+        <a href="#model-de">Modell und Annahmen</a>
+        <a href="#convergent-de">Rein konvergente D&uuml;se</a>
+        <a href="#cd-de">Konvergent&ndash;divergente D&uuml;se</a>
+        <a href="#branches-de">Unterschall- und &Uuml;berschallzweig</a>
+        <a href="#characteristic-de">Drei charakteristische Gegendr&uuml;cke</a>
+        <a href="#design-de">Fl&auml;chenverh&auml;ltnis und Auslegung</a>
+        <a href="#massflow-curve-de">Massenstromkurve</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Kerngleichungen</a>
+        <a href="#mistakes-de">Häufige Fehler</a>
+        <a href="#calculator-de">Rechenwerkzeug</a>
+        <a href="#references-de">Quellen</a>
+      </div>
   </aside>
 
   <article class="lecture" data-language="en">
-    <section id="convergent">
+          <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul>
+          <li>Explain why a purely convergent nozzle cannot exceed \(M=1\).</li>
+          <li>Decide from the pressure ratio whether a nozzle is choked.</li>
+          <li>Select the subsonic or supersonic branch from the back pressure rather than from geometry.</li>
+          <li>Compute the three characteristic back pressures for a given area ratio.</li>
+          <li>Size an area ratio for a design ambient pressure.</li>
+        </ul>
+      </section>
+      <section id="physics">
+        <p class="section-label">Physical picture</p>
+        <h2>The back pressure is the boundary condition</h2>
+        <p class="lead">Geometry alone never determines what a nozzle does. The same hardware behaves as a venturi, as a choked duct, as a shock-containing duct, or as a supersonic nozzle, depending entirely on the pressure it is discharging into. The useful mental model is that a subsonic exit <em>listens</em> to the ambient and adjusts, while a sonic exit has stopped listening — and the whole operating map is the story of where that transition happens.</p>
+      </section>
+      <section id="model">
+        <p class="section-label">Model and assumptions</p>
+        <h2>Quasi-one-dimensional and isentropic except at a shock</h2>
+        <ul>
+          <li>steady, inviscid, quasi-one-dimensional flow of a calorically perfect gas;</li>
+          <li>isentropic everywhere except across a normal shock, when one is present;</li>
+          <li>a smooth area distribution with a single throat;</li>
+          <li>uniform total conditions supplied from a large reservoir.</li>
+        </ul>
+        <div class="callout warning"><strong>Not included.</strong> Boundary layers, separation, and the axial position of any internal shock all lie outside the model. The area ratio at which a shock stands is a genuine result; converting it into a distance along the nozzle requires an assumed \(A(x)\).</div>
+      </section>
+
+
+
+<section id="convergent">
       <p class="section-label">Simplest case</p>
       <h2>A purely convergent nozzle cannot exceed Mach one</h2>
       <p class="lead">When the exit <em>is</em> the minimum area, \(A_e=A_t\), the area–velocity relation of Lecture 07 leaves no room for supersonic flow inside the duct. Lowering the back pressure \(p_B\) accelerates the flow until the exit reaches \(M_e=1\), and no further.</p>
@@ -192,9 +236,27 @@
         <span>The three ratios 0.937163, 0.513401, and 0.093933 for \(A_e/A_t=2\), \(\gamma=1.4\) are regression targets of the nozzle calculator.</span>
       </div>
     </section>
+      <section id="summary">
+        <p class="section-label">Key equations</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Relation</th><th>Expression</th><th>Applies when</th></tr></thead>
+          <tbody>
+            <tr><td>Choking ratio</td><td>\(\Pi^*=p^*/p_0=0.528282\)</td><td>convergent, \(\gamma=1.4\)</td></tr>
+            <tr><td>First choking</td><td>\(p_{B1}/p_0=0.937162\)</td><td>\(A_e/A_t=2\)</td></tr>
+            <tr><td>Shock at exit</td><td>\(p_{B2}/p_0=0.513401\)</td><td>\(A_e/A_t=2\)</td></tr>
+            <tr><td>Design</td><td>\(p_{B3}/p_0=0.093933\)</td><td>\(A_e/A_t=2\)</td></tr>
+            <tr><td>Design sizing</td><td>\(A_e/A_t\;\leftrightarrow\;M_e\;\leftrightarrow\;p_e/p_0\)</td><td>supersonic branch</td></tr>
+            <tr><td>Mass flow</td><td>\(\dot m=\text{const below }p_{B1}\)</td><td>choked</td></tr>
+          </tbody>
+          </table>
+        </div>
+      </section>
+
 
     <section id="mistakes">
-      <p class="section-label">Checks</p>
+      <p class="section-label">Common mistakes</p>
       <h2>Common mistakes</h2>
       <ul class="check-list">
         <li><strong>Expecting a convergent nozzle to go supersonic.</strong> No pressure ratio, however large, produces \(M_e&gt;1\) when the exit is the minimum area.</li>
@@ -206,9 +268,16 @@
         <li><strong>Designing for sea level and expecting vacuum performance.</strong> A fixed area ratio is optimal at exactly one ambient pressure.</li>
       </ul>
     </section>
+      <section id="calculator">
+        <p class="section-label">Computational tool</p>
+        <h2>Open nozzle calculator</h2>
+        <p>The nozzle calculator offers six guided back-pressure cases plus a custom one, and reports which of the three characteristic pressures the operating point falls between. All three values tabulated above are in its regression suite.</p>
+        <div class="button-row lecture-actions"><a class="button outline" href="https://nozzle-calculator.streamlit.app/" target="_blank" rel="noopener noreferrer">Open nozzle calculator</a></div>
+      </section>
 
     <section id="references" class="references">
-      <h2>References</h2>
+      <p class="section-label">Sources</p>
+        <h2>References</h2>
       <ol>
         <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3rd ed. New York: McGraw-Hill, 2003, Chapter 5.</li>
         <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed. New York: McGraw-Hill Education, 2017, Chapter 10.</li>
@@ -225,7 +294,37 @@
   </article>
 
   <article class="lecture" data-language="es" hidden>
-    <section id="convergent-es">
+          <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Lo que debes ser capaz de hacer</h2>
+        <ul>
+          <li>Explicar por qué una tobera puramente convergente no puede pasar de \(M=1\).</li>
+          <li>Decidir a partir de la razón de presiones si una tobera está estrangulada.</li>
+          <li>Seleccionar la rama subsónica o supersónica a partir de la contrapresión y no de la geometría.</li>
+          <li>Calcular las tres contrapresiones características para una razón de áreas dada.</li>
+          <li>Dimensionar una razón de áreas para una presión ambiente de diseño.</li>
+        </ul>
+      </section>
+      <section id="physics-es">
+        <p class="section-label">Panorama físico</p>
+        <h2>La contrapresión es la condición de frontera</h2>
+        <p class="lead">La geometría por sí sola nunca determina lo que hace una tobera. El mismo hardware se comporta como venturi, como conducto estrangulado, como conducto con choque interno o como tobera supersónica, dependiendo por completo de la presión contra la que descarga. El modelo mental útil es que una salida subsónica <em>escucha</em> al ambiente y se ajusta, mientras que una salida sónica dejó de escuchar; y todo el mapa de operación es la historia de dónde ocurre esa transición.</p>
+      </section>
+      <section id="model-es">
+        <p class="section-label">Modelo e hipótesis</p>
+        <h2>Cuasiunidimensional e isoentrópico salvo en un choque</h2>
+        <ul>
+          <li>flujo estacionario, inviscido y cuasiunidimensional de un gas calóricamente perfecto;</li>
+          <li>isoentrópico en todas partes salvo a través de un choque normal, cuando lo hay;</li>
+          <li>distribución de área suave con una sola garganta;</li>
+          <li>condiciones totales uniformes suministradas desde un depósito grande.</li>
+        </ul>
+        <div class="callout warning"><strong>No incluido.</strong> Las capas límite, la separación y la posición axial de cualquier choque interno quedan fuera del modelo. La razón de áreas en la que se planta un choque es un resultado genuino; convertirla en una distancia a lo largo de la tobera exige una \(A(x)\) supuesta.</div>
+      </section>
+
+
+
+<section id="convergent-es">
       <p class="section-label">El caso más simple</p>
       <h2>Una tobera puramente convergente no puede pasar de Mach uno</h2>
       <p class="lead">Cuando la salida <em>es</em> el área mínima, \(A_e=A_t\), la relación área–velocidad de la Lecture 07 no deja espacio para flujo supersónico dentro del conducto. Bajar la contrapresión \(p_B\) acelera el flujo hasta que la salida alcanza \(M_e=1\), y de ahí no pasa.</p>
@@ -347,9 +446,27 @@
         <span>Las tres razones 0.937163, 0.513401 y 0.093933 para \(A_e/A_t=2\), \(\gamma=1.4\) son objetivos de regresión de la calculadora de toberas.</span>
       </div>
     </section>
+      <section id="summary-es">
+        <p class="section-label">Ecuaciones clave</p>
+        <h2>En síntesis</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Relación</th><th>Expresión</th><th>Aplica cuando</th></tr></thead>
+          <tbody>
+            <tr><td>Razón de estrangulamiento</td><td>\(\Pi^*=p^*/p_0=0.528282\)</td><td>convergente, \(\gamma=1.4\)</td></tr>
+            <tr><td>Primer estrangulamiento</td><td>\(p_{B1}/p_0=0.937162\)</td><td>\(A_e/A_t=2\)</td></tr>
+            <tr><td>Choque en la salida</td><td>\(p_{B2}/p_0=0.513401\)</td><td>\(A_e/A_t=2\)</td></tr>
+            <tr><td>Diseño</td><td>\(p_{B3}/p_0=0.093933\)</td><td>\(A_e/A_t=2\)</td></tr>
+            <tr><td>Dimensionamiento</td><td>\(A_e/A_t\;\leftrightarrow\;M_e\;\leftrightarrow\;p_e/p_0\)</td><td>rama supersónica</td></tr>
+            <tr><td>Gasto másico</td><td>\(\dot m=\text{const below }p_{B1}\)</td><td>estrangulada</td></tr>
+          </tbody>
+          </table>
+        </div>
+      </section>
+
 
     <section id="mistakes-es">
-      <p class="section-label">Verificaciones</p>
+      <p class="section-label">Errores comunes</p>
       <h2>Errores comunes</h2>
       <ul class="check-list">
         <li><strong>Esperar que una tobera convergente pase a supersónico.</strong> Ninguna razón de presiones, por grande que sea, produce \(M_e&gt;1\) cuando la salida es el área mínima.</li>
@@ -361,9 +478,16 @@
         <li><strong>Diseñar para nivel del mar y esperar desempeño de vacío.</strong> Una razón de áreas fija es óptima en exactamente una presión ambiente.</li>
       </ul>
     </section>
+      <section id="calculator-es">
+        <p class="section-label">Herramienta computacional</p>
+        <h2>Abrir calculadora de toberas</h2>
+        <p>La calculadora de toberas ofrece seis casos guiados de contrapresión más uno personalizado, y reporta entre cuáles de las tres presiones características cae el punto de operación. Los tres valores tabulados arriba están en su suite de regresión.</p>
+        <div class="button-row lecture-actions"><a class="button outline" href="https://nozzle-calculator.streamlit.app/" target="_blank" rel="noopener noreferrer">Abrir calculadora de toberas</a></div>
+      </section>
 
     <section id="references-es" class="references">
-      <h2>Referencias</h2>
+      <p class="section-label">Fuentes</p>
+        <h2>Referencias</h2>
       <ol>
         <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3.ª ed. Nueva York: McGraw-Hill, 2003, capítulo 5.</li>
         <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 10.</li>
@@ -380,7 +504,37 @@
   </article>
 
   <article class="lecture" data-language="de" hidden>
-    <section id="convergent-de">
+          <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie danach können sollten</h2>
+        <ul>
+          <li>Begründen, warum eine rein konvergente Düse \(M=1\) nicht überschreiten kann.</li>
+          <li>Aus dem Druckverhältnis entscheiden, ob eine Düse gesperrt ist.</li>
+          <li>Den Unterschall- oder Überschallzweig aus dem Gegendruck statt aus der Geometrie wählen.</li>
+          <li>Die drei charakteristischen Gegendrücke zu einem gegebenen Flächenverhältnis berechnen.</li>
+          <li>Ein Flächenverhältnis für einen Auslegungs-Umgebungsdruck bestimmen.</li>
+        </ul>
+      </section>
+      <section id="physics-de">
+        <p class="section-label">Physikalisches Bild</p>
+        <h2>Der Gegendruck ist die Randbedingung</h2>
+        <p class="lead">Die Geometrie allein bestimmt nie, was eine Düse tut. Dieselbe Hardware verhält sich als Venturi, als gesperrter Kanal, als Kanal mit innerem Stoß oder als Überschalldüse — je nachdem, gegen welchen Druck sie ausbläst. Das brauchbare Denkbild: Ein unterschallschneller Austritt <em>hört</em> auf die Umgebung und passt sich an, ein schallschneller Austritt hat aufgehört zu hören. Das gesamte Betriebskennfeld erzählt, wo dieser Übergang liegt.</p>
+      </section>
+      <section id="model-de">
+        <p class="section-label">Modell und Annahmen</p>
+        <h2>Quasi-eindimensional und isentrop außer an einem Stoß</h2>
+        <ul>
+          <li>stationäre, reibungsfreie, quasi-eindimensionale Strömung eines kalorisch idealen Gases;</li>
+          <li>überall isentrop außer über einen senkrechten Stoß, sofern vorhanden;</li>
+          <li>glatte Flächenverteilung mit genau einem Hals;</li>
+          <li>gleichförmige Ruhegrößen aus einem großen Behälter.</li>
+        </ul>
+        <div class="callout warning"><strong>Nicht enthalten.</strong> Grenzschichten, Ablösung und die axiale Lage eines inneren Stoßes liegen außerhalb des Modells. Das Flächenverhältnis, bei dem ein Stoß steht, ist ein echtes Ergebnis; die Umrechnung in eine Länge längs der Düse erfordert ein angenommenes \(A(x)\).</div>
+      </section>
+
+
+
+<section id="convergent-de">
       <p class="section-label">Der einfachste Fall</p>
       <h2>Eine rein konvergente Düse kann Mach eins nicht überschreiten</h2>
       <p class="lead">Wenn der Austritt <em>zugleich</em> die kleinste Fläche ist, \(A_e=A_t\), lässt die Flächen–Geschwindigkeits-Beziehung aus Vorlesung 07 keinen Raum für Überschallströmung im Kanal. Ein Absenken des Gegendrucks \(p_B\) beschleunigt die Strömung, bis der Austritt \(M_e=1\) erreicht — und nicht weiter.</p>
@@ -502,9 +656,27 @@
         <span>Die drei Verhältnisse 0,937163, 0,513401 und 0,093933 für \(A_e/A_t=2\), \(\gamma=1{,}4\) sind Regressionsziele des Düsenrechners.</span>
       </div>
     </section>
+      <section id="summary-de">
+        <p class="section-label">Kerngleichungen</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Beziehung</th><th>Ausdruck</th><th>Gültig wenn</th></tr></thead>
+          <tbody>
+            <tr><td>Sperrverhältnis</td><td>\(\Pi^*=p^*/p_0=0{,}528282\)</td><td>konvergent, \(\gamma=1{,}4\)</td></tr>
+            <tr><td>Erste Sperrung</td><td>\(p_{B1}/p_0=0{,}937162\)</td><td>\(A_e/A_t=2\)</td></tr>
+            <tr><td>Stoß im Austritt</td><td>\(p_{B2}/p_0=0{,}513401\)</td><td>\(A_e/A_t=2\)</td></tr>
+            <tr><td>Auslegung</td><td>\(p_{B3}/p_0=0{,}093933\)</td><td>\(A_e/A_t=2\)</td></tr>
+            <tr><td>Auslegungsgröße</td><td>\(A_e/A_t\;\leftrightarrow\;M_e\;\leftrightarrow\;p_e/p_0\)</td><td>Überschallzweig</td></tr>
+            <tr><td>Massenstrom</td><td>\(\dot m=\text{const below }p_{B1}\)</td><td>gesperrt</td></tr>
+          </tbody>
+          </table>
+        </div>
+      </section>
+
 
     <section id="mistakes-de">
-      <p class="section-label">Kontrollen</p>
+      <p class="section-label">Häufige Fehler</p>
       <h2>Häufige Fehler</h2>
       <ul class="check-list">
         <li><strong>Von einer konvergenten Düse Überschall erwarten.</strong> Kein noch so großes Druckverhältnis erzeugt \(M_e&gt;1\), wenn der Austritt die kleinste Fläche ist.</li>
@@ -516,9 +688,16 @@
         <li><strong>Für Meereshöhe auslegen und Vakuumleistung erwarten.</strong> Ein festes Flächenverhältnis ist bei genau einem Umgebungsdruck optimal.</li>
       </ul>
     </section>
+      <section id="calculator-de">
+        <p class="section-label">Rechenwerkzeug</p>
+        <h2>Düsenrechner öffnen</h2>
+        <p>Der Düsenrechner bietet sechs geführte Gegendruckfälle und einen freien; er meldet, zwischen welchen der drei charakteristischen Drücke der Betriebspunkt liegt. Alle drei oben tabellierten Werte stehen in seiner Regressionssuite.</p>
+        <div class="button-row lecture-actions"><a class="button outline" href="https://nozzle-calculator.streamlit.app/" target="_blank" rel="noopener noreferrer">Düsenrechner öffnen</a></div>
+      </section>
 
     <section id="references-de" class="references">
-      <h2>Literatur</h2>
+      <p class="section-label">Quellen</p>
+        <h2>Literatur</h2>
       <ol>
         <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3. Aufl. New York: McGraw-Hill, 2003, Kapitel 5.</li>
         <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6. Aufl. New York: McGraw-Hill Education, 2017, Kapitel 10.</li>
