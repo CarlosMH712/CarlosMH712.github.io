@@ -12,7 +12,8 @@ repository root, at <https://carlosmh712.github.io/>.
 |---|---|
 | Any lecture page | `standards/LECTURE-TEMPLATE.md` |
 | A new course, or adding a lecture to one | `standards/COURSE-TEMPLATE.md` |
-| A Streamlit calculator | `standards/DESIGN-SYSTEM.md` *(missing — see `standards/README.md`)* |
+| Any page at all — colours, type, components | `standards/SITE-DESIGN.md` |
+| A Streamlit calculator | `standards/DESIGN-SYSTEM.md` |
 | Handing a job to an assistant | `standards/PROMPTS.md` |
 
 ## Layout

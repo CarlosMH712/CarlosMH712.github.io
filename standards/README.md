@@ -8,15 +8,17 @@ here was learned by having to undo something.
 |---|---|---|
 | [`LECTURE-TEMPLATE.md`](LECTURE-TEMPLATE.md) | One lecture page: the eleven slots, the fixed label vocabulary, trilingual architecture, references, numbers | Writing or reviewing any lecture |
 | [`COURSE-TEMPLATE.md`](COURSE-TEMPLATE.md) | A whole course: folder layout, the course index, cards, the prev/next chain, wiring into the site root | Starting a new course, or adding a lecture to one |
-| `DESIGN-SYSTEM.md` | The Streamlit calculators: repository layout, colour and type, figures, diagnostics, units, tests, README | Building or changing a calculator |
+| [`SITE-DESIGN.md`](SITE-DESIGN.md) | The visual layer: tokens, typography, hero, buttons, the components of all three stylesheets, responsive rules | Building or changing any page |
+| [`DESIGN-SYSTEM.md`](DESIGN-SYSTEM.md) | The Streamlit calculators: repository layout, colour and type, figures, diagnostics, units, tests, README | Building or changing a calculator |
 | [`PROMPTS.md`](PROMPTS.md) | Copy-paste briefs for each of the recurring jobs | Handing any of the above to an assistant |
 | [`verify_lectures.py`](verify_lectures.py) | The structural checks, mechanised | Before every commit that touches a lecture |
 
-> **`DESIGN-SYSTEM.md` is missing.** It was written but never pushed, and the
-> local copy was lost when `~/Downloads` was cleared. Everything else in this
-> folder was recovered. If a copy survives on another machine or in another tool,
-> restore it here; otherwise it has to be rewritten from the five calculator
-> repositories, which are its real source of truth.
+> **`DESIGN-SYSTEM.md` was rebuilt from the shipped code**, after the original
+> was lost with an unpushed commit. It was reconstructed by reading
+> `compressible-flow-calculator` — its `config.toml`, `app.py`, `plots.py`,
+> `tests/` and README — rather than from memory. The five repositories remain the
+> real source of truth; where a repository and this document disagree, correct
+> the document.
 
 ## The verifier
 
