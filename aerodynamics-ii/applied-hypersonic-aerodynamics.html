@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Applied hypersonic aerodynamics: Newtonian and modified Newtonian pressure, lift and drag of a hypersonic plate, maximum efficiency with friction, aerodynamic heating, and waverider design." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Applied Hypersonic Aerodynamics | Aerodynamics II</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../index.html" data-ui-key="home">Home</a><a href="index.html?v=11" data-ui-key="course">Aerodynamics II</a><a href="../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">Aerodynamics II · Lecture 15 · Supplementary</p><h1>Applied Hypersonic Aerodynamics</h1><p class="hero-copy">A pressure law derived from particles bouncing off a wall turns out to be useful — and a vehicle designed to keep its own shock attached turns out to be the only way to get a decent lift-to-drag ratio at Mach 10.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">Aerodinámica II · Lecture 15 · Complementaria</p><h1>Aerodinámica hipersónica aplicada</h1><p class="hero-copy">Una ley de presión deducida de partículas que rebotan contra una pared resulta ser útil, y un vehículo diseñado para mantener su propio choque adherido resulta ser la única forma de conseguir una relación sustentación-arrastre decente en Mach 10.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">Aerodynamik II · Vorlesung 15 · Ergänzend</p><h1>Angewandte Hyperschallaerodynamik</h1><p class="hero-copy">Ein Druckgesetz, das aus an einer Wand abprallenden Teilchen hergeleitet wird, erweist sich als nützlich — und ein Fahrzeug, das seinen eigenen Stoß anliegend hält, erweist sich als einziger Weg zu einer brauchbaren Gleitzahl bei Mach 10.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 50 min</span><span data-language="es" hidden>Lectura estimada: 50 min</span><span data-language="de" hidden>Lesedauer: ca. 50 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Model: Newtonian impact, \(M_\infty\gg1\)</span><span data-language="es" hidden>Modelo: impacto newtoniano, \(M_\infty\gg1\)</span><span data-language="de" hidden>Modell: Newtonscher Stoß, \(M_\infty\gg1\)</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="numerical-methods-supersonic.html">← <span data-ui-key="previous">Previous lecture</span></a><a class="button primary" href="index.html?v=11" data-ui-key="back">Back to course</a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#physics">Physical picture</a><a href="#model">Model and assumptions</a><a href="#newtonian">Newtonian theory</a><a href="#modified">Modified Newtonian</a><a href="#plate">Lift and drag of a plate</a><a href="#efficiency">Efficiency with friction</a><a href="#heating">Aerodynamic heating</a><a href="#waverider">Waveriders</a><a href="#algorithm">Calculation algorithm</a><a href="#example">Worked example</a><a href="#summary">Key equations</a><a href="#mistakes">Common mistakes</a><a href="#advanced">Further topics</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#physics-es">Panorama físico</a><a href="#model-es">Modelo e hipótesis</a><a href="#newtonian-es">Teoría newtoniana</a><a href="#modified-es">Newton modificado</a><a href="#plate-es">Sustentación y arrastre de una placa</a><a href="#efficiency-es">Eficiencia con fricción</a><a href="#heating-es">Calentamiento aerodinámico</a><a href="#waverider-es">Waveriders</a><a href="#algorithm-es">Algoritmo de cálculo</a><a href="#example-es">Ejemplo resuelto</a><a href="#summary-es">Ecuaciones clave</a><a href="#mistakes-es">Errores comunes</a><a href="#advanced-es">Temas complementarios</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#physics-de">Physikalisches Bild</a><a href="#model-de">Modell und Annahmen</a><a href="#newtonian-de">Newtonsche Theorie</a><a href="#modified-de">Modifiziertes Newton-Gesetz</a><a href="#plate-de">Auftrieb und Widerstand einer Platte</a><a href="#efficiency-de">Effizienz mit Reibung</a><a href="#heating-de">Aerodynamische Aufheizung</a><a href="#waverider-de">Waverider</a><a href="#algorithm-de">Rechenalgorithmus</a><a href="#example-de">Rechenbeispiel</a><a href="#summary-de">Kerngleichungen</a><a href="#mistakes-de">Häufige Fehler</a><a href="#advanced-de">Weiterführende Themen</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <ul>
+        <li>Derive the Newtonian sine-squared law from the impact model and state where it applies.</li>
+        <li>Compute \(C_{p,\max}\) for a finite Mach number and apply the modified Newtonian law.</li>
+        <li>Obtain \(c_l\), \(c_{d,w}\), and \(L/D\) of a hypersonic flat plate and explain why the result is nonlinear in \(\alpha\).</li>
+        <li>Find the angle of attack that maximises \(L/D\) when a friction drag \(c_{d,0}\) is present.</li>
+        <li>Estimate a stagnation heat flux and explain why a blunt nose reduces it.</li>
+        <li>Describe how a waverider is constructed and what it actually buys.</li>
+      </ul>
+    </section>
+
+    <section id="physics">
+      <p class="section-label">Physical picture</p>
+      <h2>When the shock lies on the surface, pressure becomes geometry</h2>
+      <p class="lead">Lecture 13 showed that at high Mach number the shock hugs the body and the compressed gas is confined to a thin layer. If that layer is thin enough, the fluid has no room to redistribute its momentum laterally before it reaches the wall, and the pressure at a point comes to depend only on how steeply that point faces the oncoming stream. Newton proposed exactly this two centuries before anyone flew fast enough to test it: the stream is a shower of particles that lose their normal momentum on impact and keep their tangential momentum.</p>
+      <div class="callout success"><strong>The model is wrong and the answers are useful.</strong> Air is a continuum, not a particle shower, and there is no reason the derivation should work. It works because the combined limit \(M_\infty\to\infty\), \(\gamma\to1\) turns the exact shock relation \(C_p=\frac{4}{\gamma+1}\sin^2\beta\) into \(2\sin^2\theta\), which is Newton's answer. Lecture 13 derived that limit; this lecture uses it.</div>
+      <div class="callout warning">Everything here is preliminary-design accuracy. The Newtonian law gets a blunt body's pressure distribution roughly right, gets a slender two-dimensional surface noticeably wrong, and says nothing at all about a leeward face.</div>
+    </section>
+
+    <section id="model">
+      <p class="section-label">Model and assumptions</p>
+      <h2>Impact, not fluid mechanics</h2>
+      <ul>
+        <li>a stream of particles that lose the normal velocity component on impact and retain the tangential one;</li>
+        <li>windward surfaces only; leeward surfaces are assigned \(C_p\approx0\);</li>
+        <li>a calorically perfect gas with \(\gamma=1.4\) wherever \(C_{p,\max}\) or an exact comparison is computed;</li>
+        <li>a friction drag \(c_{d,0}\) that is treated as independent of angle of attack;</li>
+        <li>engineering correlations for stagnation heating, valid for air, laminar flow, and the stated units only.</li>
+      </ul>
+      <div class="callout warning"><strong>Not included.</strong> The Newtonian law contains no Mach number, no \(\gamma\), no expansion, no base pressure, no recirculation, and no shock–boundary-layer interaction. It cannot predict where a shock stands, how thick a shock layer is, or what the flow does behind the body. The heating correlation is empirical: its numerical coefficient belongs to one specific combination of units, to air, to a stagnation point, and to laminar convective heating, and it must not be carried over to another gas, another unit system, turbulent flow, radiation-dominated entry, or strong non-equilibrium. The chemistry that limits post-shock temperature, discussed qualitatively in Lecture 13, is not modelled anywhere in this course.</div>
+    </section>
+
+    <section id="newtonian">
+      <p class="section-label">The impact model</p>
+      <h2>Newtonian theory</h2>
+      <p>Consider an area \(A\) inclined at an angle \(\theta\) to the stream. The mass flux intercepted is \(\dot m_{\mathrm{inc}}=\rho_\infty V_\infty A\sin\theta\), and each particle arrives with a normal velocity component \(V_{n,\infty}=V_\infty\sin\theta\). The rate of change of normal momentum is therefore</p>
+      <div class="equation-card">\[N=\dot m_{\mathrm{inc}}V_{n,\infty}=\rho_\infty V_\infty^2A\sin^2\theta,\]</div>
+      <p>and interpreting the normal force per unit area as the excess over free-stream pressure, \(p-p_\infty=\rho_\infty V_\infty^2\sin^2\theta\), gives the sine-squared law:</p>
+      <div class="equation-card">\[\boxed{C_p=2\sin^2\theta}\qquad\text{or, with }\varphi\text{ between the normal and the stream},\qquad C_p=2\cos^2\varphi.\]</div>
+      <div class="callout"><strong>Note what is absent.</strong> No Mach number, no ratio of specific heats, no upstream history — only the local inclination. It is the same kind of local pressure law that Ackeret produced in Lecture 12, reached from an entirely different and much cruder argument, and valid in the opposite extreme of Mach number.</div>
+      <h3>Windward, leeward, and shadow</h3>
+      <p>The model only supplies a mechanism where particles strike the surface. On a leeward face there is no impact, so the simple approximation sets \(C_p\approx0\) — that is, the pressure is assumed to remain at the free-stream value. This ignores expansion, base pressure, recirculation, and every viscous effect, and it is the model's weakest region. It is adequate for a first estimate of normal force and hopeless for side force, pitching moment, or a configuration with a large shadowed area.</p>
+    </section>
+
+    <section id="modified">
+      <p class="section-label">The finite-Mach correction</p>
+      <h2>Modified Newtonian theory</h2>
+      <p>At the stagnation point \(\theta=90^\circ\) and the simple law predicts \(C_p=2\). The correct value at finite Mach number is smaller, and it is obtained by taking the flow through a normal shock and then decelerating it isentropically to rest:</p>
+      <div class="equation-card">\[\boxed{C_{p,\max}=\frac{2}{\gamma M_\infty^2}\left(\frac{p_{0,2}}{p_\infty}-1\right)},\qquad\frac{p_{0,2}}{p_\infty}=\frac{p_2}{p_\infty}\left(1+\frac{\gamma-1}{2}M_2^2\right)^{\gamma/(\gamma-1)}.\]</div>
+      <p>Rescaling the sine-squared law to match that value at the stagnation point gives the modified law:</p>
+      <div class="equation-card">\[\boxed{C_p=C_{p,\max}\sin^2\theta}\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>4</th><th>5</th><th>8</th><th>10</th><th>20</th><th>\(\to\infty\)</th></tr></thead>
+          <tbody>
+            <tr><td>\(p_{0,2}/p_\infty\)</td><td>21.068</td><td>32.653</td><td>82.865</td><td>129.217</td><td>515.484</td><td>—</td></tr>
+            <tr><td>\(C_{p,\max}\)</td><td>1.792</td><td>1.809</td><td>1.827</td><td>1.832</td><td>1.837</td><td>1.8394</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout success"><strong>The limit is 1.8394, not 2.</strong> The value 2 belongs to the idealised Newtonian model and to the combined limit \(M_\infty\to\infty\) with \(\gamma\to1\). For real air with \(\gamma=1.4\), \(C_{p,\max}\) is already within 3 per cent of its ceiling by Mach 4, which is why the modified law is worth using and why its Mach dependence is so weak.</div>
+      <p>On a blunt body the modified law reproduces the qualitative shape of the measured pressure distribution: a maximum at the stagnation point falling monotonically along the surface coordinate as \(\theta(s)\) decreases. The approximation works best near regions of large inclination, at high Mach number, on three-dimensional or axisymmetric bodies, and during preliminary design. It loses accuracy on slender two-dimensional surfaces at small angles, on leeward regions, and wherever viscous interaction dominates.</p>
+    </section>
+
+    <section id="plate">
+      <p class="section-label">First application</p>
+      <h2>Lift and drag of a hypersonic plate</h2>
+      <p>For an infinitely thin plate at incidence \(\alpha\), the Newtonian model gives \(C_{p,l}=2\sin^2\alpha\) on the windward face and \(C_{p,u}=0\) on the leeward one, so the normal-force coefficient is \(c_n=2\sin^2\alpha\). Resolving into wind axes:</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{c_l=2\sin^2\alpha\cos\alpha}\]</div>
+        <div class="equation-card">\[\boxed{c_{d,w}=2\sin^3\alpha}\]</div>
+      </div>
+      <div class="equation-card">\[\boxed{\frac{L}{D}=\cot\alpha}\]</div>
+      <div class="callout"><strong>The \(L/D\) result is pure geometry.</strong> Whenever the inviscid resultant on an infinitely thin plate is normal to the plate, the ratio of its vertical to its horizontal component is \(\cot\alpha\), regardless of how the pressure was computed. Agreement in \(L/D\) between Newtonian and exact theory is therefore no evidence that the pressures are right.</div>
+      <h3>The small-angle behaviour is nonlinear</h3>
+      <p>For \(\alpha\ll1\),</p>
+      <div class="equation-card">\[c_l\approx2\alpha^2,\qquad c_{d,w}\approx2\alpha^3,\]</div>
+      <p>which is a sharp break from linearized supersonic theory, where \(c_l\propto\alpha\) and \(c_d\propto\alpha^2\). At hypersonic speed there is no lift-curve slope at zero incidence: the lift starts quadratically, so a hypersonic vehicle must fly at a genuinely large angle of attack to generate useful lift.</p>
+      <h3>Maximum lift</h3>
+      <p>Differentiating \(c_l=2\sin^2\alpha\cos\alpha\) gives \(dc_l/d\alpha=4\sin\alpha\cos^2\alpha-2\sin^3\alpha\), and the non-trivial root satisfies \(2\cos^2\alpha=\sin^2\alpha\), that is \(\sin^2\alpha=2/3\):</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{\alpha_{c_l,\max}=54.736^\circ}\]</div>
+        <div class="equation-card">\[\boxed{c_{l,\max}=\frac{4}{3\sqrt3}=0.7698}\]</div>
+      </div>
+      <div class="callout warning"><strong>This maximum is not a stall.</strong> Nothing separates and nothing is viscous. The normal force keeps growing all the way to \(\alpha=90^\circ\); it is the vertical <em>component</em> of that force that peaks and then falls as the plate rotates toward the stream normal.</div>
+    </section>
+
+    <section id="efficiency">
+      <p class="section-label">Adding reality</p>
+      <h2>Maximum efficiency with friction</h2>
+      <p>Add a friction drag \(c_{d,0}\) that is roughly independent of incidence, so that \(c_d=2\sin^3\alpha+c_{d,0}\). For small angles the efficiency is</p>
+      <div class="equation-card">\[\frac{L}{D}\approx\frac{2\alpha^2}{2\alpha^3+c_{d,0}},\]</div>
+      <p>and maximising with respect to \(\alpha\) gives a remarkably compact pair of results:</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{\alpha_{(L/D)_{\max}}=c_{d,0}^{1/3}}\]</div>
+        <div class="equation-card">\[\boxed{\left(\frac{L}{D}\right)_{\max}=\frac23\,c_{d,0}^{-1/3}}\]</div>
+      </div>
+      <div class="callout success"><strong>At the optimum, wave drag is exactly twice the friction drag.</strong> \(c_{d,w}=2c_{d,0}\) and the total is \(c_d=3c_{d,0}\). Compare with the supersonic result of Lecture 12, where the two were exactly equal. The difference is the exponent: wave drag grows as \(\alpha^3\) here instead of \(\alpha^2\), so the balance point shifts.</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(c_{d,0}\)</th><th>0.002</th><th>0.004</th><th>0.006</th><th>0.010</th></tr></thead>
+          <tbody>
+            <tr><td>\(\alpha_{\mathrm{opt}}\) [deg]</td><td>7.22</td><td>9.10</td><td>10.41</td><td>12.34</td></tr>
+            <tr><td>\((L/D)_{\max}\)</td><td>5.29</td><td>4.20</td><td>3.67</td><td>3.09</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning">These values are low by subsonic standards, where an airliner reaches \(L/D\approx18\). That is the central difficulty of hypersonic cruise: the same nonlinearity that makes lift start quadratically also forces the vehicle to fly at an angle where the wave drag is substantial.</div>
+    </section>
+
+    <section id="heating">
+      <p class="section-label">The sizing constraint</p>
+      <h2>Aerodynamic heating</h2>
+      <p>The local heat-transfer coefficient is defined through the Stanton number</p>
+      <div class="equation-card">\[C_H=\frac{\dot q_w}{\rho_eu_e(h_{aw}-h_w)},\]</div>
+      <p>and for a plate at high Mach number, with \(\rho_e\approx\rho_\infty\), \(u_e\approx V_\infty\), \(h_{aw}\approx h_0\), and kinetic energy dominating so that \(h_0-h_w\approx V_\infty^2/2\), this collapses to</p>
+      <div class="equation-card">\[\boxed{\dot q_w\approx\tfrac12\rho_\infty V_\infty^3C_H}\]</div>
+      <p>Heating grows with the cube of velocity while aerodynamic force grows with its square, which is why thermal design overtakes structural design so quickly. A ten per cent increase in velocity raises the heat flux by \((1.10)^3=1.331\), that is 33.1 per cent.</p>
+      <h3>Total heat load and why bluntness wins</h3>
+      <p>Defining an integrated coefficient \(\overline C_H\) through \(dQ/dt\approx\frac12\rho_\infty V_\infty^3S\overline C_H\), using the heat–friction analogy \(\overline C_H\approx\frac12C_f\), and combining with the deceleration equation \(m\,dV_\infty/dt=-\frac12\rho_\infty V_\infty^2SC_D\) gives, under restrictive assumptions,</p>
+      <div class="equation-card">\[\boxed{Q_{\mathrm{total}}\approx\frac12\frac{C_f}{C_D}\left(\frac12mV_E^2\right)}\]</div>
+      <div class="callout success"><strong>The total heat absorbed is the entry kinetic energy times the friction fraction of the drag.</strong> A slender body has \(C_D\approx C_f\) and therefore \(C_f/C_D\approx1\); a blunt body has \(C_D\approx C_{D,p}\) and \(C_f/C_D\ll1\). The blunt shape dumps the vehicle's kinetic energy into the wake as pressure drag instead of into the wall as heat. It also lowers the local peak: for laminar stagnation flow \(\dot q_{w,\mathrm{stag}}\propto R_N^{-1/2}\), so quadrupling the nose radius halves the stagnation heat flux.</div>
+      <h3>The stagnation-point correlation</h3>
+      <p>A standard engineering correlation for air and laminar stagnation-point convective heating is</p>
+      <div class="equation-card">\[\boxed{\dot q_{w,\mathrm{stag}}=1.83\times10^{-8}\sqrt{\frac{\rho_\infty}{R_N}}\,V_\infty^3\left(1-\frac{h_w}{h_0}\right)}\]</div>
+      <p>with \(\dot q_w\) in \(\mathrm{W/cm^2}\), \(\rho_\infty\) in \(\mathrm{kg/m^3}\), \(R_N\) in \(\mathrm{m}\), and \(V_\infty\) in \(\mathrm{m/s}\). It displays the three scalings directly: \(\dot q_w\propto\rho_\infty^{1/2}\), \(\dot q_w\propto V_\infty^3\), \(\dot q_w\propto R_N^{-1/2}\).</p>
+      <div class="callout"><strong>A representative entry point.</strong> For \(\rho_\infty=1.075\times10^{-4}\ \mathrm{kg/m^3}\), \(V_\infty=6610\ \mathrm{m/s}\), \(R_N=1.29\ \mathrm{m}\), and \(T_w=1110\ \mathrm{K}\) with \(c_p=1004.5\ \mathrm{J/(kg\,K)}\): \(h_0\approx V_\infty^2/2=2.1846\times10^7\ \mathrm{J/kg}\), \(h_w\approx c_pT_w=1.1150\times10^6\ \mathrm{J/kg}\), so \(1-h_w/h_0=0.94896\) and \(\dot q_{w,\mathrm{stag}}=45.8\ \mathrm{W/cm^2}=458\ \mathrm{kW/m^2}\). Note the unit conversion carefully: \(1\ \mathrm{W/cm^2}=10^4\ \mathrm{W/m^2}=10\ \mathrm{kW/m^2}\).</div>
+      <p>Four quantities must be distinguished in a thermal design: the <strong>peak heat flux</strong>, which sets surface temperature and gradients; the <strong>integrated heat load</strong>, which sets the total energy absorbed; the <strong>exposure time</strong>, which governs conduction into the structure; and the <strong>recovery temperature</strong>, which sets the thermal potential of the gas. A trajectory can trade a lower peak for a longer soak, or the reverse, so trajectory and geometry must be optimised together.</p>
+    </section>
+
+    <section id="waverider">
+      <p class="section-label">Design consequence</p>
+      <h2>Waveriders</h2>
+      <p>A <em>waverider</em> is a configuration whose design shock remains attached along the entire leading edge. Its lower surface is constructed as a stream surface of a known supersonic flow field, so the high-pressure gas behind the shock is trapped underneath the vehicle instead of leaking around the edges.</p>
+      <div class="callout success"><strong>The benefit is not less wave drag.</strong> The shock is still there and still produces drag. What the configuration buys is a given lift at a smaller angle of attack, which raises \(L/D\) relative to a conventional shape on the same mission.</div>
+      <h3>Construction from a known field</h3>
+      <p>The wedge-generated construction selects a uniform field behind a plane oblique shock, traces two lines on the shock surface, follows the streamlines that originate on those lines, adopts the resulting stream surface as the lower surface, and closes the shape with an aligned or expansive upper surface. The result is a caret section with an attached shock. A cone-generated waverider follows the same steps starting from a Taylor–Maccoll field — the equation solved numerically in Lecture 14 — which offers considerably more geometric freedom.</p>
+      <div class="callout warning"><strong>A waverider is a design-point shape.</strong> The Mach number, the deflection angle, and the orientation must all match the generating field for the shock to stay exactly attached. Off design, the leading edge leaks and the advantage erodes.</div>
+      <h3>What optimisation must include</h3>
+      <p>Early waveriders were optimised inviscidly and came out with large wetted areas and correspondingly large friction drag. A modern optimisation must weigh wave drag, skin friction, laminar–turbulent transition, leading-edge radius and heating, usable volume, propulsion integration, stability and control, and off-design behaviour simultaneously. The volumetric efficiency \(\eta_V=\mathcal V^{2/3}/S_p\) is normally imposed as a constraint, to avoid an aerodynamically excellent shape with nowhere to put the fuel.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>4</th><th>6</th><th>8</th><th>10</th><th>15</th><th>20</th></tr></thead>
+          <tbody>
+            <tr><td>Conventional, \(4(M_\infty+3)/M_\infty\)</td><td>7.0</td><td>6.0</td><td>5.5</td><td>5.2</td><td>4.8</td><td>4.6</td></tr>
+            <tr><td>Waverider, \(6(M_\infty+2)/M_\infty\)</td><td>9.0</td><td>8.0</td><td>7.5</td><td>7.2</td><td>6.8</td><td>6.6</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">These are empirical design trends, not laws. They contain no information about stability, propulsion, volume, structure, heating, or off-design performance, and they should be used to size an expectation rather than to justify a configuration.</div>
+    </section>
+
+    <section id="algorithm">
+      <p class="section-label">Calculation algorithm</p>
+      <h2>Newtonian forces on an arbitrary body</h2>
+      <div class="process-flow">
+        <div><strong>1</strong><span>Discretise the surface into panels with outward normals</span></div>
+        <div><strong>2</strong><span>Compute the angle \(\theta\) between each panel and the free stream</span></div>
+        <div><strong>3</strong><span>Assign \(C_p=C_{p,\max}\sin^2\theta\) on windward panels, \(C_p=0\) where \(\sin\theta\le0\)</span></div>
+        <div><strong>4</strong><span>Evaluate \(C_{p,\max}\) from the normal-shock stagnation pressure at \(M_\infty\)</span></div>
+        <div><strong>5</strong><span>Integrate \(C_p\) over the panels to obtain the normal and axial force coefficients</span></div>
+        <div><strong>6</strong><span>Resolve into wind axes to obtain \(c_l\) and \(c_d\)</span></div>
+        <div><strong>7</strong><span>Add \(c_{d,0}\) and locate the optimum incidence</span></div>
+        <div><strong>8</strong><span>Check against an exact shock–expansion or shock-relation solution wherever the geometry allows</span></div>
+      </div>
+      <div class="callout warning">Step 3 is where the method silently fails. Panels in shadow are given zero pressure, and if a large fraction of the body is shadowed, the pitching moment will be wrong even when the lift looks reasonable — small systematic pressure errors are amplified by the moment arm.</div>
+    </section>
+
+    <section id="example">
+      <p class="section-label">Worked example</p>
+      <h2>A flat plate at \(M_\infty=8\), \(\alpha=15^\circ\)</h2>
+      <div class="example">
+        <h3>Problem</h3>
+        <p>Compute the Newtonian lift and drag coefficients of an infinitely thin plate at \(M_\infty=8\) and \(\alpha=15^\circ\), compare with the exact shock–expansion solution, and then find the incidence that maximises \(L/D\) if the friction drag is \(c_{d,0}=0.006\). Use \(\gamma=1.4\).</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Newtonian pressures and normal force:</p>\[C_{p,l}=2\sin^2(15^\circ)=0.133975,\qquad C_{p,u}=0,\qquad c_n=0.133975.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Resolving into wind axes:</p>\[c_l=2\sin^2\alpha\cos\alpha=0.129410,\qquad c_{d,w}=2\sin^3\alpha=0.034675,\qquad\frac{L}{D}=\cot15^\circ=3.7321.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Exact solution by the method of Lecture 06. On the windward face an oblique shock turns the flow \(15^\circ\), giving \(\beta=20.8605^\circ\) and \(p_l/p_\infty=9.3013\); on the leeward face a Prandtl–Meyer expansion carries \(\nu\) from \(95.6247^\circ\) to \(110.6247^\circ\), so \(M_u=14.3199\) and \(p_u/p_\infty=0.020313\). Hence</p>\[C_{p,l}=0.185296,\qquad C_{p,u}=-0.021868,\qquad c_n=0.207164,\]\[c_l=0.200105,\qquad c_d=0.053618,\qquad\frac{L}{D}=3.7321.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Comparison. The Newtonian model underpredicts both force coefficients by the same factor,</p>\[\frac{0.129410}{0.200105}=\frac{0.034675}{0.053618}=0.6467,\]<p>that is by 35.3 per cent, because it misses the entire suction contribution of the leeward expansion and underestimates the windward pressure. The efficiency is nevertheless identical, since both models put the resultant normal to the plate.</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>Optimum incidence with friction, \(c_{d,0}=0.006\):</p>\[\alpha_{\mathrm{opt}}=(0.006)^{1/3}=0.181712\ \mathrm{rad}=10.41^\circ,\qquad\left(\frac{L}{D}\right)_{\max}=\frac23(0.006)^{-1/3}=3.669,\]<p>with \(c_{d,w}=2c_{d,0}=0.012\) and \(c_d=3c_{d,0}=0.018\) at that point. Maximising the full Newtonian expression numerically, without the small-angle approximation, gives \(\alpha=10.30^\circ\) and \(L/D=3.609\), so the closed form is accurate to about one per cent here.</p></div></div>
+
+        <div class="result-box">\[\boxed{c_l=0.1294\ \text{(Newton)}\ \text{vs}\ 0.2001\ \text{(exact)},\quad L/D=3.73\ \text{both},\quad\alpha_{\mathrm{opt}}=10.41^\circ,\quad(L/D)_{\max}=3.67}\]</div>
+        <p>The \(15^\circ\) of the first part is well past \(\alpha_{\mathrm{opt}}\): at that incidence the plate pays \(0.0347\) of wave drag against \(0.006\) of friction, nearly six times the friction, whereas the optimum wants a ratio of exactly two.</p>
+      </div>
+      <div class="validation-case">
+        <strong>Calculator validation case</strong>
+        <span>The exact column is reproducible from the oblique-shock and Prandtl–Meyer modules: \(M_\infty=8\), plate at \(\alpha=15^\circ\), \(\gamma=1.4\), giving \(C_{p,u}=-0.021868\), \(C_{p,l}=0.185296\), and \(c_l=0.200105\).</span>
+      </div>
+    </section>
+
+    <section id="summary">
+      <p class="section-label">Key equations</p>
+      <h2>At a glance</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Relation</th><th>Expression</th><th>Applies when</th></tr></thead>
+          <tbody>
+            <tr><td>Newtonian pressure</td><td>\(C_p=2\sin^2\theta\)</td><td>windward surfaces, \(M_\infty\gg1\)</td></tr>
+            <tr><td>Leeward assumption</td><td>\(C_p\approx0\)</td><td>shadowed surfaces</td></tr>
+            <tr><td>Stagnation value</td><td>\(C_{p,\max}=\frac{2}{\gamma M_\infty^2}\left(p_{0,2}/p_\infty-1\right)\)</td><td>finite \(M_\infty\); limit 1.8394</td></tr>
+            <tr><td>Modified Newtonian</td><td>\(C_p=C_{p,\max}\sin^2\theta\)</td><td>blunt bodies, preliminary design</td></tr>
+            <tr><td>Plate lift</td><td>\(c_l=2\sin^2\alpha\cos\alpha\approx2\alpha^2\)</td><td>thin plate, inviscid</td></tr>
+            <tr><td>Plate wave drag</td><td>\(c_{d,w}=2\sin^3\alpha\approx2\alpha^3\)</td><td>thin plate, inviscid</td></tr>
+            <tr><td>Efficiency</td><td>\(L/D=\cot\alpha\)</td><td>resultant normal to the plate</td></tr>
+            <tr><td>Maximum lift</td><td>\(\alpha=54.736^\circ\), \(c_{l,\max}=4/(3\sqrt3)=0.7698\)</td><td>Newtonian plate</td></tr>
+            <tr><td>Optimum with friction</td><td>\(\alpha_{\mathrm{opt}}=c_{d,0}^{1/3}\), \((L/D)_{\max}=\frac23c_{d,0}^{-1/3}\)</td><td>\(c_{d,w}=2c_{d,0}\) at the optimum</td></tr>
+            <tr><td>Heating rate</td><td>\(\dot q_w\approx\frac12\rho_\infty V_\infty^3C_H\)</td><td>high-speed plate estimate</td></tr>
+            <tr><td>Total heat load</td><td>\(Q_{\mathrm{total}}\approx\frac12\frac{C_f}{C_D}\left(\frac12mV_E^2\right)\)</td><td>ballistic entry, restrictive assumptions</td></tr>
+            <tr><td>Stagnation correlation</td><td>\(\dot q=1.83\times10^{-8}\sqrt{\rho_\infty/R_N}\,V_\infty^3(1-h_w/h_0)\)</td><td>air, laminar, \(\mathrm{W/cm^2}\)</td></tr>
+            <tr><td>Efficiency trends</td><td>\(4(M_\infty+3)/M_\infty\) and \(6(M_\infty+2)/M_\infty\)</td><td>conventional and waverider families</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="mistakes">
+      <p class="section-label">Common mistakes</p>
+      <h2>Common mistakes</h2>
+      <ul class="check-list">
+        <li><strong>Using \(C_{p,\max}=2\) at finite Mach number.</strong> The correct value comes from the normal-shock stagnation pressure and never exceeds 1.8394 for \(\gamma=1.4\).</li>
+        <li><strong>Applying Newtonian theory to a slender two-dimensional surface.</strong> That is where it is worst. It is a blunt-body and three-dimensional method.</li>
+        <li><strong>Believing that matching \(L/D\) validates the pressures.</strong> \(L/D=\cot\alpha\) follows from the resultant being normal to the plate, and holds for any pressure distribution with that property.</li>
+        <li><strong>Trusting \(C_p=0\) on the leeward side.</strong> It ignores expansion, base pressure, and separation, and it is the main source of moment error.</li>
+        <li><strong>Expecting a linear lift-curve slope.</strong> Hypersonic lift starts as \(\alpha^2\); there is no useful slope at \(\alpha=0\).</li>
+        <li><strong>Calling the lift maximum a stall.</strong> It is a geometric projection effect in a purely inviscid model, with nothing separating.</li>
+        <li><strong>Carrying the heating correlation into other units or conditions.</strong> Its coefficient belongs to \(\mathrm{W/cm^2}\), air, a stagnation point, and laminar convection. Note also that \(1\ \mathrm{W/cm^2}=10\ \mathrm{kW/m^2}\).</li>
+        <li><strong>Thinking a waverider removes wave drag.</strong> It contains the pressure under the vehicle; the shock and its drag remain.</li>
+        <li><strong>Optimising a waverider inviscidly.</strong> The result maximises wetted area and pays for it in friction.</li>
+        <li><strong>Using the \(L/D\) correlations as design requirements.</strong> They are historical trends and contain no stability, volume, propulsion, or heating information.</li>
+      </ul>
+    </section>
+
+    <section id="advanced">
+      <p class="section-label">Further topics</p>
+      <h2>What this lecture defers</h2>
+      <p>Hypersonic analysis depends unusually heavily on computation, because no ground facility reproduces Mach number, Reynolds number, total enthalpy, chemical composition, non-equilibrium state, and wall catalysis simultaneously for a useful duration. The fidelity hierarchy runs from Euler with a perfect gas, through Navier–Stokes with variable properties, local chemical equilibrium, finite-rate chemistry, two-temperature models, and coupled radiation, to ablation and material thermal response. The more complex model is not automatically the right one; it is selected from the enthalpy level, the relevant time scales, the objective, and the availability of validation data. The numerical machinery itself is Lecture 14.</p>
+      <p>One consequence deserves naming. Pressure is relatively insensitive to chemistry compared with temperature or composition, so a perfect-gas simulation can predict \(C_L\) and \(C_D\) reasonably while failing badly on trim, because \(C_m\propto\int_SC_p\frac{x-x_{\mathrm{ref}}}{c_{\mathrm{ref}}}\,dS\) amplifies a small systematic front-to-rear difference through the moment arm.</p>
+      <div class="callout">Entirely outside the course: shock-layer radiation, ablation and thermal protection system design, hypersonic boundary-layer transition, rarefied and transitional flow, scramjet propulsion and airframe integration, and guidance and control of an entry trajectory.</div>
+    </section>
+
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed. New York: McGraw-Hill Education, 2017, Sections 14.3–14.4 and 14.7–14.9.</li>
+        <li>Anderson, J. D., Jr. <em>Hypersonic and High-Temperature Gas Dynamics</em>, 2nd ed. Reston, VA: AIAA, 2006, Chapters 3–6.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexico, February 2024.</li>
+      </ol>
+      <p class="source-note">Adapted from Unit VIII of the Aerodynamics II course notes by Carlos Alberto Molina Holguín, which the script marks as supplementary material; all numerical values were independently recomputed for \(\gamma=1.4\), and the exact comparison comes from the shock–expansion method of Lecture 06.</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="numerical-methods-supersonic.html"><span>Previous lecture</span>← Numerical Techniques</a>
+      <a class="next-link" href="index.html?v=11"><span>Course index</span>Aerodynamics II</a>
+    </nav>
+  </article>
+
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Lo que debes ser capaz de hacer</h2>
+      <ul>
+        <li>Deducir la ley newtoniana del seno cuadrado a partir del modelo de impacto y enunciar dónde aplica.</li>
+        <li>Calcular \(C_{p,\max}\) para un Mach finito y aplicar la ley newtoniana modificada.</li>
+        <li>Obtener \(c_l\), \(c_{d,w}\) y \(L/D\) de una placa plana hipersónica y explicar por qué el resultado es no lineal en \(\alpha\).</li>
+        <li>Hallar el ángulo de ataque que maximiza \(L/D\) cuando existe un arrastre por fricción \(c_{d,0}\).</li>
+        <li>Estimar un flujo de calor de estancamiento y explicar por qué una nariz roma lo reduce.</li>
+        <li>Describir cómo se construye un waverider y qué compra realmente.</li>
+      </ul>
+    </section>
+
+    <section id="physics-es">
+      <p class="section-label">Panorama físico</p>
+      <h2>Cuando el choque se apoya en la superficie, la presión se vuelve geometría</h2>
+      <p class="lead">La Lecture 13 mostró que a alto número de Mach el choque se pega al cuerpo y el gas comprimido queda confinado en una capa delgada. Si esa capa es lo bastante delgada, el fluido no tiene espacio para redistribuir lateralmente su cantidad de movimiento antes de llegar a la pared, y la presión en un punto pasa a depender solo de qué tan de frente encara ese punto a la corriente. Newton propuso exactamente esto dos siglos antes de que alguien volara lo bastante rápido para comprobarlo: la corriente es una lluvia de partículas que pierden su cantidad de movimiento normal en el impacto y conservan la tangencial.</p>
+      <div class="callout success"><strong>El modelo es falso y las respuestas son útiles.</strong> El aire es un medio continuo, no una lluvia de partículas, y no hay razón para que la deducción funcione. Funciona porque el límite combinado \(M_\infty\to\infty\), \(\gamma\to1\) convierte la relación exacta de choque \(C_p=\frac{4}{\gamma+1}\sin^2\beta\) en \(2\sin^2\theta\), que es la respuesta de Newton. La Lecture 13 dedujo ese límite; esta lecture lo usa.</div>
+      <div class="callout warning">Todo aquí tiene precisión de diseño preliminar. La ley newtoniana acierta a grandes rasgos la distribución de presión de un cuerpo romo, se equivoca apreciablemente en una superficie bidimensional esbelta, y no dice absolutamente nada sobre una cara de sotavento.</div>
+    </section>
+
+    <section id="model-es">
+      <p class="section-label">Modelo e hipótesis</p>
+      <h2>Impacto, no mecánica de fluidos</h2>
+      <ul>
+        <li>una corriente de partículas que pierden la componente normal de velocidad en el impacto y conservan la tangencial;</li>
+        <li>solo superficies de barlovento; a las de sotavento se les asigna \(C_p\approx0\);</li>
+        <li>un gas calóricamente perfecto con \(\gamma=1.4\) dondequiera que se calcule \(C_{p,\max}\) o una comparación exacta;</li>
+        <li>un arrastre por fricción \(c_{d,0}\) tratado como independiente del ángulo de ataque;</li>
+        <li>correlaciones de ingeniería para el calentamiento de estancamiento, válidas solo para aire, flujo laminar y las unidades indicadas.</li>
+      </ul>
+      <div class="callout warning"><strong>No incluido.</strong> La ley newtoniana no contiene número de Mach, ni \(\gamma\), ni expansión, ni presión de base, ni recirculación, ni interacción choque–capa límite. No puede predecir dónde se sitúa un choque, qué espesor tiene una capa de choque ni qué hace el flujo detrás del cuerpo. La correlación de calentamiento es empírica: su coeficiente numérico pertenece a una combinación específica de unidades, al aire, a un punto de estancamiento y a calentamiento convectivo laminar, y no debe trasladarse a otro gas, otro sistema de unidades, flujo turbulento, entrada dominada por radiación o no equilibrio fuerte. La química que limita la temperatura poschoque, discutida cualitativamente en la Lecture 13, no se modela en ninguna parte de este curso.</div>
+    </section>
+
+    <section id="newtonian-es">
+      <p class="section-label">El modelo de impacto</p>
+      <h2>Teoría newtoniana</h2>
+      <p>Considérese un área \(A\) inclinada un ángulo \(\theta\) respecto a la corriente. El gasto interceptado es \(\dot m_{\mathrm{inc}}=\rho_\infty V_\infty A\sin\theta\), y cada partícula llega con una componente normal de velocidad \(V_{n,\infty}=V_\infty\sin\theta\). El cambio temporal de cantidad de movimiento normal es por tanto</p>
+      <div class="equation-card">\[N=\dot m_{\mathrm{inc}}V_{n,\infty}=\rho_\infty V_\infty^2A\sin^2\theta,\]</div>
+      <p>e interpretando la fuerza normal por unidad de área como el exceso sobre la presión de corriente libre, \(p-p_\infty=\rho_\infty V_\infty^2\sin^2\theta\), resulta la ley del seno cuadrado:</p>
+      <div class="equation-card">\[\boxed{C_p=2\sin^2\theta}\qquad\text{o, con }\varphi\text{ entre la normal y la corriente},\qquad C_p=2\cos^2\varphi.\]</div>
+      <div class="callout"><strong>Fíjate en lo que falta.</strong> Ni número de Mach, ni relación de calores específicos, ni historia aguas arriba: solo la inclinación local. Es el mismo tipo de ley de presión local que produjo Ackeret en la Lecture 12, alcanzada desde un argumento completamente distinto y mucho más burdo, y válida en el extremo opuesto de número de Mach.</div>
+      <h3>Barlovento, sotavento y sombra</h3>
+      <p>El modelo solo aporta un mecanismo donde las partículas golpean la superficie. En una cara de sotavento no hay impacto, así que la aproximación simple pone \(C_p\approx0\), es decir, supone que la presión permanece en el valor de corriente libre. Esto ignora la expansión, la presión de base, la recirculación y todo efecto viscoso, y es la región más débil del modelo. Basta para una primera estimación de fuerza normal y es inservible para fuerza lateral, momento de cabeceo o una configuración con una zona de sombra extensa.</p>
+    </section>
+
+    <section id="modified-es">
+      <p class="section-label">La corrección de Mach finito</p>
+      <h2>Teoría newtoniana modificada</h2>
+      <p>En el punto de estancamiento \(\theta=90^\circ\) y la ley simple predice \(C_p=2\). El valor correcto a Mach finito es menor, y se obtiene llevando el flujo a través de un choque normal y desacelerándolo después isoentrópicamente hasta el reposo:</p>
+      <div class="equation-card">\[\boxed{C_{p,\max}=\frac{2}{\gamma M_\infty^2}\left(\frac{p_{0,2}}{p_\infty}-1\right)},\qquad\frac{p_{0,2}}{p_\infty}=\frac{p_2}{p_\infty}\left(1+\frac{\gamma-1}{2}M_2^2\right)^{\gamma/(\gamma-1)}.\]</div>
+      <p>Reescalar la ley del seno cuadrado para que coincida con ese valor en el punto de estancamiento da la ley modificada:</p>
+      <div class="equation-card">\[\boxed{C_p=C_{p,\max}\sin^2\theta}\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>4</th><th>5</th><th>8</th><th>10</th><th>20</th><th>\(\to\infty\)</th></tr></thead>
+          <tbody>
+            <tr><td>\(p_{0,2}/p_\infty\)</td><td>21.068</td><td>32.653</td><td>82.865</td><td>129.217</td><td>515.484</td><td>—</td></tr>
+            <tr><td>\(C_{p,\max}\)</td><td>1.792</td><td>1.809</td><td>1.827</td><td>1.832</td><td>1.837</td><td>1.8394</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout success"><strong>El límite es 1.8394, no 2.</strong> El valor 2 pertenece al modelo newtoniano idealizado y al límite combinado \(M_\infty\to\infty\) con \(\gamma\to1\). Para aire real con \(\gamma=1.4\), \(C_{p,\max}\) ya está dentro del 3 por ciento de su techo en Mach 4, por lo que vale la pena usar la ley modificada y por lo que su dependencia con el Mach es tan débil.</div>
+      <p>Sobre un cuerpo romo la ley modificada reproduce la forma cualitativa de la distribución de presión medida: un máximo en el punto de estancamiento que cae monótonamente a lo largo de la coordenada superficial conforme decrece \(\theta(s)\). La aproximación funciona mejor cerca de regiones de gran inclinación, a Mach elevado, en cuerpos tridimensionales o axisimétricos y durante el diseño preliminar. Pierde precisión en superficies bidimensionales esbeltas a ángulos pequeños, en regiones de sotavento y dondequiera que domine la interacción viscosa.</p>
+    </section>
+
+    <section id="plate-es">
+      <p class="section-label">Primera aplicación</p>
+      <h2>Sustentación y arrastre de una placa hipersónica</h2>
+      <p>Para una placa infinitamente delgada a incidencia \(\alpha\), el modelo newtoniano da \(C_{p,l}=2\sin^2\alpha\) en la cara de barlovento y \(C_{p,u}=0\) en la de sotavento, así que el coeficiente de fuerza normal es \(c_n=2\sin^2\alpha\). Descomponiendo en ejes viento:</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{c_l=2\sin^2\alpha\cos\alpha}\]</div>
+        <div class="equation-card">\[\boxed{c_{d,w}=2\sin^3\alpha}\]</div>
+      </div>
+      <div class="equation-card">\[\boxed{\frac{L}{D}=\cot\alpha}\]</div>
+      <div class="callout"><strong>El resultado de \(L/D\) es pura geometría.</strong> Siempre que la resultante inviscida sobre una placa infinitamente delgada sea normal a la placa, la razón de su componente vertical a la horizontal es \(\cot\alpha\), sin importar cómo se calculó la presión. La coincidencia en \(L/D\) entre la teoría newtoniana y la exacta no es por tanto evidencia de que las presiones sean correctas.</div>
+      <h3>El comportamiento a ángulos pequeños es no lineal</h3>
+      <p>Para \(\alpha\ll1\),</p>
+      <div class="equation-card">\[c_l\approx2\alpha^2,\qquad c_{d,w}\approx2\alpha^3,\]</div>
+      <p>lo que rompe netamente con la teoría supersónica linealizada, donde \(c_l\propto\alpha\) y \(c_d\propto\alpha^2\). A velocidad hipersónica no existe una pendiente de sustentación en incidencia nula: la sustentación arranca cuadráticamente, así que un vehículo hipersónico debe volar a un ángulo de ataque genuinamente grande para generar sustentación útil.</p>
+      <h3>Sustentación máxima</h3>
+      <p>Derivando \(c_l=2\sin^2\alpha\cos\alpha\) se obtiene \(dc_l/d\alpha=4\sin\alpha\cos^2\alpha-2\sin^3\alpha\), y la raíz no trivial cumple \(2\cos^2\alpha=\sin^2\alpha\), es decir \(\sin^2\alpha=2/3\):</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{\alpha_{c_l,\max}=54.736^\circ}\]</div>
+        <div class="equation-card">\[\boxed{c_{l,\max}=\frac{4}{3\sqrt3}=0.7698}\]</div>
+      </div>
+      <div class="callout warning"><strong>Este máximo no es una entrada en pérdida.</strong> Nada se separa y nada es viscoso. La fuerza normal sigue creciendo hasta \(\alpha=90^\circ\); lo que alcanza un pico y luego cae es la <em>componente</em> vertical de esa fuerza, conforme la placa gira hacia la normal a la corriente.</div>
+    </section>
+
+    <section id="efficiency-es">
+      <p class="section-label">Añadiendo realidad</p>
+      <h2>Máxima eficiencia con fricción</h2>
+      <p>Añádase un arrastre por fricción \(c_{d,0}\) aproximadamente independiente de la incidencia, de modo que \(c_d=2\sin^3\alpha+c_{d,0}\). Para ángulos pequeños la eficiencia es</p>
+      <div class="equation-card">\[\frac{L}{D}\approx\frac{2\alpha^2}{2\alpha^3+c_{d,0}},\]</div>
+      <p>y maximizar respecto de \(\alpha\) da un par de resultados notablemente compactos:</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{\alpha_{(L/D)_{\max}}=c_{d,0}^{1/3}}\]</div>
+        <div class="equation-card">\[\boxed{\left(\frac{L}{D}\right)_{\max}=\frac23\,c_{d,0}^{-1/3}}\]</div>
+      </div>
+      <div class="callout success"><strong>En el óptimo, el arrastre de onda es exactamente el doble del de fricción.</strong> \(c_{d,w}=2c_{d,0}\) y el total es \(c_d=3c_{d,0}\). Compárese con el resultado supersónico de la Lecture 12, donde ambos eran exactamente iguales. La diferencia está en el exponente: aquí el arrastre de onda crece como \(\alpha^3\) en lugar de \(\alpha^2\), así que el punto de equilibrio se desplaza.</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(c_{d,0}\)</th><th>0.002</th><th>0.004</th><th>0.006</th><th>0.010</th></tr></thead>
+          <tbody>
+            <tr><td>\(\alpha_{\mathrm{opt}}\) [grados]</td><td>7.22</td><td>9.10</td><td>10.41</td><td>12.34</td></tr>
+            <tr><td>\((L/D)_{\max}\)</td><td>5.29</td><td>4.20</td><td>3.67</td><td>3.09</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning">Estos valores son bajos para estándares subsónicos, donde un avión de transporte alcanza \(L/D\approx18\). Esa es la dificultad central del crucero hipersónico: la misma no linealidad que hace arrancar la sustentación cuadráticamente obliga también al vehículo a volar a un ángulo donde el arrastre de onda es sustancial.</div>
+    </section>
+
+    <section id="heating-es">
+      <p class="section-label">La restricción que dimensiona</p>
+      <h2>Calentamiento aerodinámico</h2>
+      <p>El coeficiente local de transferencia de calor se define mediante el número de Stanton</p>
+      <div class="equation-card">\[C_H=\frac{\dot q_w}{\rho_eu_e(h_{aw}-h_w)},\]</div>
+      <p>y para una placa a Mach elevado, con \(\rho_e\approx\rho_\infty\), \(u_e\approx V_\infty\), \(h_{aw}\approx h_0\) y energía cinética dominante de modo que \(h_0-h_w\approx V_\infty^2/2\), esto colapsa a</p>
+      <div class="equation-card">\[\boxed{\dot q_w\approx\tfrac12\rho_\infty V_\infty^3C_H}\]</div>
+      <p>El calentamiento crece con el cubo de la velocidad mientras la fuerza aerodinámica crece con su cuadrado, y por eso el diseño térmico rebasa tan rápido al estructural. Un aumento del diez por ciento en la velocidad eleva el flujo de calor en \((1.10)^3=1.331\), es decir un 33.1 por ciento.</p>
+      <h3>Carga térmica total y por qué gana la romosidad</h3>
+      <p>Definiendo un coeficiente integrado \(\overline C_H\) mediante \(dQ/dt\approx\frac12\rho_\infty V_\infty^3S\overline C_H\), usando la analogía calor–fricción \(\overline C_H\approx\frac12C_f\) y combinando con la ecuación de desaceleración \(m\,dV_\infty/dt=-\frac12\rho_\infty V_\infty^2SC_D\) se obtiene, bajo hipótesis restrictivas,</p>
+      <div class="equation-card">\[\boxed{Q_{\mathrm{total}}\approx\frac12\frac{C_f}{C_D}\left(\frac12mV_E^2\right)}\]</div>
+      <div class="callout success"><strong>El calor total absorbido es la energía cinética de entrada por la fracción de fricción del arrastre.</strong> Un cuerpo esbelto tiene \(C_D\approx C_f\) y por tanto \(C_f/C_D\approx1\); un cuerpo romo tiene \(C_D\approx C_{D,p}\) y \(C_f/C_D\ll1\). La forma roma vuelca la energía cinética del vehículo en la estela como arrastre de presión en lugar de en la pared como calor. También baja el pico local: para flujo laminar de estancamiento \(\dot q_{w,\mathrm{stag}}\propto R_N^{-1/2}\), así que cuadruplicar el radio de nariz reduce a la mitad el flujo de calor de estancamiento.</div>
+      <h3>La correlación del punto de estancamiento</h3>
+      <p>Una correlación de ingeniería estándar para aire y calentamiento convectivo laminar en el punto de estancamiento es</p>
+      <div class="equation-card">\[\boxed{\dot q_{w,\mathrm{stag}}=1.83\times10^{-8}\sqrt{\frac{\rho_\infty}{R_N}}\,V_\infty^3\left(1-\frac{h_w}{h_0}\right)}\]</div>
+      <p>con \(\dot q_w\) en \(\mathrm{W/cm^2}\), \(\rho_\infty\) en \(\mathrm{kg/m^3}\), \(R_N\) en \(\mathrm{m}\) y \(V_\infty\) en \(\mathrm{m/s}\). Muestra directamente los tres escalamientos: \(\dot q_w\propto\rho_\infty^{1/2}\), \(\dot q_w\propto V_\infty^3\), \(\dot q_w\propto R_N^{-1/2}\).</p>
+      <div class="callout"><strong>Un punto de entrada representativo.</strong> Para \(\rho_\infty=1.075\times10^{-4}\ \mathrm{kg/m^3}\), \(V_\infty=6610\ \mathrm{m/s}\), \(R_N=1.29\ \mathrm{m}\) y \(T_w=1110\ \mathrm{K}\) con \(c_p=1004.5\ \mathrm{J/(kg\,K)}\): \(h_0\approx V_\infty^2/2=2.1846\times10^7\ \mathrm{J/kg}\), \(h_w\approx c_pT_w=1.1150\times10^6\ \mathrm{J/kg}\), de modo que \(1-h_w/h_0=0.94896\) y \(\dot q_{w,\mathrm{stag}}=45.8\ \mathrm{W/cm^2}=458\ \mathrm{kW/m^2}\). Cuidado con la conversión de unidades: \(1\ \mathrm{W/cm^2}=10^4\ \mathrm{W/m^2}=10\ \mathrm{kW/m^2}\).</div>
+      <p>Cuatro magnitudes deben distinguirse en un diseño térmico: el <strong>flujo de calor máximo</strong>, que fija la temperatura superficial y los gradientes; la <strong>carga térmica integrada</strong>, que fija la energía total absorbida; el <strong>tiempo de exposición</strong>, que gobierna la conducción hacia la estructura; y la <strong>temperatura de recuperación</strong>, que fija el potencial térmico del gas. Una trayectoria puede cambiar un pico menor por un remojo más largo, o al revés, así que trayectoria y geometría deben optimizarse juntas.</p>
+    </section>
+
+    <section id="waverider-es">
+      <p class="section-label">Consecuencia de diseño</p>
+      <h2>Waveriders</h2>
+      <p>Un <em>waverider</em> es una configuración cuyo choque de diseño permanece adherido a lo largo de todo el borde de ataque. Su superficie inferior se construye como una superficie de corriente de un campo supersónico conocido, de modo que el gas de alta presión detrás del choque queda atrapado bajo el vehículo en lugar de fugarse por los bordes.</p>
+      <div class="callout success"><strong>El beneficio no es menos arrastre de onda.</strong> El choque sigue ahí y sigue produciendo arrastre. Lo que compra la configuración es una sustentación dada a menor ángulo de ataque, lo que eleva \(L/D\) frente a una forma convencional en la misma misión.</div>
+      <h3>Construcción a partir de un campo conocido</h3>
+      <p>La construcción generada por una cuña selecciona un campo uniforme detrás de un choque oblicuo plano, traza dos líneas sobre la superficie del choque, sigue las líneas de corriente que nacen en esas líneas, adopta la superficie de corriente resultante como superficie inferior y cierra la forma con una superficie superior alineada o expansiva. El resultado es una sección tipo caret con choque adherido. Un waverider generado por flujo cónico sigue los mismos pasos partiendo de un campo de Taylor–Maccoll —la ecuación resuelta numéricamente en la Lecture 14—, que ofrece bastante más libertad geométrica.</p>
+      <div class="callout warning"><strong>Un waverider es una forma de punto de diseño.</strong> El Mach, el ángulo de deflexión y la orientación deben coincidir con el campo generador para que el choque siga exactamente adherido. Fuera de diseño, el borde de ataque fuga y la ventaja se erosiona.</div>
+      <h3>Lo que debe incluir la optimización</h3>
+      <p>Los primeros waveriders se optimizaban de forma inviscida y resultaban con grandes superficies mojadas y, en consecuencia, gran arrastre por fricción. Una optimización moderna debe ponderar simultáneamente arrastre de onda, fricción superficial, transición laminar–turbulenta, radio de borde de ataque y calentamiento, volumen útil, integración propulsiva, estabilidad y control, y comportamiento fuera de diseño. La eficiencia volumétrica \(\eta_V=\mathcal V^{2/3}/S_p\) se impone normalmente como restricción, para evitar una forma aerodinámicamente excelente sin lugar donde poner el combustible.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>4</th><th>6</th><th>8</th><th>10</th><th>15</th><th>20</th></tr></thead>
+          <tbody>
+            <tr><td>Convencional, \(4(M_\infty+3)/M_\infty\)</td><td>7.0</td><td>6.0</td><td>5.5</td><td>5.2</td><td>4.8</td><td>4.6</td></tr>
+            <tr><td>Waverider, \(6(M_\infty+2)/M_\infty\)</td><td>9.0</td><td>8.0</td><td>7.5</td><td>7.2</td><td>6.8</td><td>6.6</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">Son tendencias empíricas de diseño, no leyes. No contienen información sobre estabilidad, propulsión, volumen, estructura, calentamiento ni desempeño fuera de diseño, y deben usarse para dimensionar una expectativa, no para justificar una configuración.</div>
+    </section>
+
+    <section id="algorithm-es">
+      <p class="section-label">Algoritmo de cálculo</p>
+      <h2>Fuerzas newtonianas sobre un cuerpo arbitrario</h2>
+      <div class="process-flow">
+        <div><strong>1</strong><span>Discretizar la superficie en paneles con normales exteriores</span></div>
+        <div><strong>2</strong><span>Calcular el ángulo \(\theta\) entre cada panel y la corriente libre</span></div>
+        <div><strong>3</strong><span>Asignar \(C_p=C_{p,\max}\sin^2\theta\) en paneles de barlovento y \(C_p=0\) donde \(\sin\theta\le0\)</span></div>
+        <div><strong>4</strong><span>Evaluar \(C_{p,\max}\) con la presión de estancamiento tras choque normal en \(M_\infty\)</span></div>
+        <div><strong>5</strong><span>Integrar \(C_p\) sobre los paneles para obtener los coeficientes de fuerza normal y axial</span></div>
+        <div><strong>6</strong><span>Descomponer en ejes viento para obtener \(c_l\) y \(c_d\)</span></div>
+        <div><strong>7</strong><span>Sumar \(c_{d,0}\) y localizar la incidencia óptima</span></div>
+        <div><strong>8</strong><span>Comprobar contra una solución exacta de choque–expansión o de relaciones de choque donde la geometría lo permita</span></div>
+      </div>
+      <div class="callout warning">El paso 3 es donde el método falla en silencio. A los paneles en sombra se les da presión nula, y si una fracción grande del cuerpo está en sombra, el momento de cabeceo saldrá mal aun cuando la sustentación parezca razonable: pequeños errores sistemáticos de presión quedan amplificados por el brazo de momento.</div>
+    </section>
+
+    <section id="example-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>Una placa plana a \(M_\infty=8\), \(\alpha=15^\circ\)</h2>
+      <div class="example">
+        <h3>Problema</h3>
+        <p>Calcule los coeficientes newtonianos de sustentación y arrastre de una placa infinitamente delgada a \(M_\infty=8\) y \(\alpha=15^\circ\), compare con la solución exacta de choque–expansión y halle después la incidencia que maximiza \(L/D\) si el arrastre por fricción es \(c_{d,0}=0.006\). Use \(\gamma=1.4\).</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Presiones newtonianas y fuerza normal:</p>\[C_{p,l}=2\sin^2(15^\circ)=0.133975,\qquad C_{p,u}=0,\qquad c_n=0.133975.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Descomponiendo en ejes viento:</p>\[c_l=2\sin^2\alpha\cos\alpha=0.129410,\qquad c_{d,w}=2\sin^3\alpha=0.034675,\qquad\frac{L}{D}=\cot15^\circ=3.7321.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Solución exacta por el método de la Lecture 06. En la cara de barlovento un choque oblicuo desvía el flujo \(15^\circ\), dando \(\beta=20.8605^\circ\) y \(p_l/p_\infty=9.3013\); en la de sotavento una expansión de Prandtl–Meyer lleva \(\nu\) de \(95.6247^\circ\) a \(110.6247^\circ\), de modo que \(M_u=14.3199\) y \(p_u/p_\infty=0.020313\). Por tanto</p>\[C_{p,l}=0.185296,\qquad C_{p,u}=-0.021868,\qquad c_n=0.207164,\]\[c_l=0.200105,\qquad c_d=0.053618,\qquad\frac{L}{D}=3.7321.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Comparación. El modelo newtoniano subestima ambos coeficientes de fuerza por el mismo factor,</p>\[\frac{0.129410}{0.200105}=\frac{0.034675}{0.053618}=0.6467,\]<p>es decir en un 35.3 por ciento, porque se pierde toda la contribución de succión de la expansión de sotavento y subestima la presión de barlovento. La eficiencia es sin embargo idéntica, ya que ambos modelos ponen la resultante normal a la placa.</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>Incidencia óptima con fricción, \(c_{d,0}=0.006\):</p>\[\alpha_{\mathrm{opt}}=(0.006)^{1/3}=0.181712\ \mathrm{rad}=10.41^\circ,\qquad\left(\frac{L}{D}\right)_{\max}=\frac23(0.006)^{-1/3}=3.669,\]<p>con \(c_{d,w}=2c_{d,0}=0.012\) y \(c_d=3c_{d,0}=0.018\) en ese punto. Maximizando numéricamente la expresión newtoniana completa, sin la aproximación de ángulos pequeños, se obtiene \(\alpha=10.30^\circ\) y \(L/D=3.609\), así que aquí la forma cerrada es exacta a alrededor del uno por ciento.</p></div></div>
+
+        <div class="result-box">\[\boxed{c_l=0.1294\ \text{(Newton)}\ \text{frente a}\ 0.2001\ \text{(exacto)},\quad L/D=3.73\ \text{en ambos},\quad\alpha_{\mathrm{opt}}=10.41^\circ,\quad(L/D)_{\max}=3.67}\]</div>
+        <p>Los \(15^\circ\) de la primera parte están bastante más allá de \(\alpha_{\mathrm{opt}}\): a esa incidencia la placa paga \(0.0347\) de arrastre de onda contra \(0.006\) de fricción, casi seis veces la fricción, mientras que el óptimo quiere una razón de exactamente dos.</p>
+      </div>
+      <div class="validation-case">
+        <strong>Caso de validación de la calculadora</strong>
+        <span>La columna exacta es reproducible con los módulos de choque oblicuo y de Prandtl–Meyer: \(M_\infty=8\), placa a \(\alpha=15^\circ\), \(\gamma=1.4\), que dan \(C_{p,u}=-0.021868\), \(C_{p,l}=0.185296\) y \(c_l=0.200105\).</span>
+      </div>
+    </section>
+
+    <section id="summary-es">
+      <p class="section-label">Ecuaciones clave</p>
+      <h2>En síntesis</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Relación</th><th>Expresión</th><th>Aplica cuando</th></tr></thead>
+          <tbody>
+            <tr><td>Presión newtoniana</td><td>\(C_p=2\sin^2\theta\)</td><td>superficies de barlovento, \(M_\infty\gg1\)</td></tr>
+            <tr><td>Hipótesis de sotavento</td><td>\(C_p\approx0\)</td><td>superficies en sombra</td></tr>
+            <tr><td>Valor de estancamiento</td><td>\(C_{p,\max}=\frac{2}{\gamma M_\infty^2}\left(p_{0,2}/p_\infty-1\right)\)</td><td>\(M_\infty\) finito; límite 1.8394</td></tr>
+            <tr><td>Newton modificado</td><td>\(C_p=C_{p,\max}\sin^2\theta\)</td><td>cuerpos romos, diseño preliminar</td></tr>
+            <tr><td>Sustentación de placa</td><td>\(c_l=2\sin^2\alpha\cos\alpha\approx2\alpha^2\)</td><td>placa delgada, inviscido</td></tr>
+            <tr><td>Arrastre de onda de placa</td><td>\(c_{d,w}=2\sin^3\alpha\approx2\alpha^3\)</td><td>placa delgada, inviscido</td></tr>
+            <tr><td>Eficiencia</td><td>\(L/D=\cot\alpha\)</td><td>resultante normal a la placa</td></tr>
+            <tr><td>Sustentación máxima</td><td>\(\alpha=54.736^\circ\), \(c_{l,\max}=4/(3\sqrt3)=0.7698\)</td><td>placa newtoniana</td></tr>
+            <tr><td>Óptimo con fricción</td><td>\(\alpha_{\mathrm{opt}}=c_{d,0}^{1/3}\), \((L/D)_{\max}=\frac23c_{d,0}^{-1/3}\)</td><td>\(c_{d,w}=2c_{d,0}\) en el óptimo</td></tr>
+            <tr><td>Tasa de calentamiento</td><td>\(\dot q_w\approx\frac12\rho_\infty V_\infty^3C_H\)</td><td>estimación de placa a alta velocidad</td></tr>
+            <tr><td>Carga térmica total</td><td>\(Q_{\mathrm{total}}\approx\frac12\frac{C_f}{C_D}\left(\frac12mV_E^2\right)\)</td><td>entrada balística, hipótesis restrictivas</td></tr>
+            <tr><td>Correlación de estancamiento</td><td>\(\dot q=1.83\times10^{-8}\sqrt{\rho_\infty/R_N}\,V_\infty^3(1-h_w/h_0)\)</td><td>aire, laminar, \(\mathrm{W/cm^2}\)</td></tr>
+            <tr><td>Tendencias de eficiencia</td><td>\(4(M_\infty+3)/M_\infty\) y \(6(M_\infty+2)/M_\infty\)</td><td>familias convencional y waverider</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="mistakes-es">
+      <p class="section-label">Errores comunes</p>
+      <h2>Errores comunes</h2>
+      <ul class="check-list">
+        <li><strong>Usar \(C_{p,\max}=2\) a Mach finito.</strong> El valor correcto sale de la presión de estancamiento tras choque normal y nunca supera 1.8394 para \(\gamma=1.4\).</li>
+        <li><strong>Aplicar la teoría newtoniana a una superficie bidimensional esbelta.</strong> Ahí es donde peor funciona. Es un método para cuerpos romos y tridimensionales.</li>
+        <li><strong>Creer que coincidir en \(L/D\) valida las presiones.</strong> \(L/D=\cot\alpha\) se sigue de que la resultante sea normal a la placa, y vale para cualquier distribución de presión con esa propiedad.</li>
+        <li><strong>Confiar en \(C_p=0\) del lado de sotavento.</strong> Ignora expansión, presión de base y separación, y es la principal fuente de error de momento.</li>
+        <li><strong>Esperar una pendiente lineal de sustentación.</strong> La sustentación hipersónica arranca como \(\alpha^2\); no hay pendiente útil en \(\alpha=0\).</li>
+        <li><strong>Llamar entrada en pérdida al máximo de sustentación.</strong> Es un efecto geométrico de proyección en un modelo puramente inviscido, sin nada que se separe.</li>
+        <li><strong>Llevar la correlación de calentamiento a otras unidades o condiciones.</strong> Su coeficiente pertenece a \(\mathrm{W/cm^2}\), al aire, a un punto de estancamiento y a convección laminar. Nótese además que \(1\ \mathrm{W/cm^2}=10\ \mathrm{kW/m^2}\).</li>
+        <li><strong>Pensar que un waverider elimina el arrastre de onda.</strong> Confina la presión bajo el vehículo; el choque y su arrastre permanecen.</li>
+        <li><strong>Optimizar un waverider de forma inviscida.</strong> El resultado maximiza superficie mojada y lo paga en fricción.</li>
+        <li><strong>Usar las correlaciones de \(L/D\) como requisitos de diseño.</strong> Son tendencias históricas y no contienen información de estabilidad, volumen, propulsión ni calentamiento.</li>
+      </ul>
+    </section>
+
+    <section id="advanced-es">
+      <p class="section-label">Temas complementarios</p>
+      <h2>Lo que esta lecture aplaza</h2>
+      <p>El análisis hipersónico depende de manera inusualmente fuerte del cálculo, porque ninguna instalación terrestre reproduce a la vez y durante un tiempo útil el número de Mach, el Reynolds, la entalpía total, la composición química, el estado de no equilibrio y la cataliticidad de pared. La jerarquía de fidelidad va de Euler con gas perfecto, pasando por Navier–Stokes con propiedades variables, equilibrio químico local, química de tasas finitas, modelos de dos temperaturas y radiación acoplada, hasta la ablación y la respuesta térmica del material. El modelo más complejo no es automáticamente el adecuado: se selecciona según el nivel de entalpía, las escalas de tiempo relevantes, el objetivo y la disponibilidad de datos de validación. La maquinaria numérica en sí es la Lecture 14.</p>
+      <p>Una consecuencia merece nombrarse. La presión es relativamente poco sensible a la química comparada con la temperatura o la composición, así que una simulación de gas perfecto puede predecir razonablemente \(C_L\) y \(C_D\) y fallar gravemente en trimado, porque \(C_m\propto\int_SC_p\frac{x-x_{\mathrm{ref}}}{c_{\mathrm{ref}}}\,dS\) amplifica mediante el brazo de momento una pequeña diferencia sistemática entre la parte delantera y la trasera.</p>
+      <div class="callout">Completamente fuera del curso: radiación de la capa de choque, ablación y diseño del sistema de protección térmica, transición de capa límite hipersónica, flujo enrarecido y transicional, propulsión scramjet e integración con el fuselaje, y guiado y control de una trayectoria de entrada.</div>
+    </section>
+
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, secciones 14.3–14.4 y 14.7–14.9.</li>
+        <li>Anderson, J. D., Jr. <em>Hypersonic and High-Temperature Gas Dynamics</em>, 2.ª ed. Reston, VA: AIAA, 2006, capítulos 3–6.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, México, febrero de 2024.</li>
+      </ol>
+      <p class="source-note">Adaptado de la Unidad VIII de los apuntes de Aerodinámica II de Carlos Alberto Molina Holguín, que el script marca como material complementario; todos los valores numéricos se recalcularon de forma independiente para \(\gamma=1.4\), y la comparación exacta proviene del método choque–expansión de la Lecture 06.</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="numerical-methods-supersonic.html"><span>Lecture anterior</span>← Técnicas numéricas</a>
+      <a class="next-link" href="index.html?v=11"><span>Índice del curso</span>Aerodinámica II</a>
+    </nav>
+  </article>
+
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <ul>
+        <li>Das Newtonsche Sinus-Quadrat-Gesetz aus dem Stoßmodell herleiten und seinen Geltungsbereich angeben.</li>
+        <li>\(C_{p,\max}\) für eine endliche Machzahl berechnen und das modifizierte Newton-Gesetz anwenden.</li>
+        <li>\(c_l\), \(c_{d,w}\) und \(L/D\) einer hyperschallschnellen ebenen Platte bestimmen und erklären, warum das Ergebnis in \(\alpha\) nichtlinear ist.</li>
+        <li>Den Anstellwinkel finden, der \(L/D\) bei vorhandenem Reibungswiderstand \(c_{d,0}\) maximiert.</li>
+        <li>Eine Staupunkt-Wärmestromdichte abschätzen und erklären, warum eine stumpfe Nase sie senkt.</li>
+        <li>Beschreiben, wie ein Waverider konstruiert wird und was er tatsächlich einbringt.</li>
+      </ul>
+    </section>
+
+    <section id="physics-de">
+      <p class="section-label">Physikalisches Bild</p>
+      <h2>Liegt der Stoß auf der Oberfläche, wird Druck zu Geometrie</h2>
+      <p class="lead">Vorlesung 13 zeigte, dass sich der Stoß bei hoher Machzahl an den Körper schmiegt und das verdichtete Gas auf eine dünne Schicht beschränkt bleibt. Ist diese Schicht dünn genug, hat das Fluid keinen Raum, seinen Impuls seitlich umzuverteilen, bevor es die Wand erreicht, und der Druck an einem Punkt hängt nur noch davon ab, wie steil dieser Punkt der Anströmung entgegensteht. Newton schlug genau das zwei Jahrhunderte vor dem ersten hinreichend schnellen Flug vor: Die Strömung ist ein Teilchenschauer, dessen Teilchen beim Aufprall ihren Normalimpuls verlieren und ihren Tangentialimpuls behalten.</p>
+      <div class="callout success"><strong>Das Modell ist falsch und die Antworten sind brauchbar.</strong> Luft ist ein Kontinuum, kein Teilchenschauer, und es gibt keinen Grund, warum die Herleitung funktionieren sollte. Sie funktioniert, weil der kombinierte Grenzfall \(M_\infty\to\infty\), \(\gamma\to1\) die exakte Stoßbeziehung \(C_p=\frac{4}{\gamma+1}\sin^2\beta\) in \(2\sin^2\theta\) verwandelt — Newtons Antwort. Vorlesung 13 hat diesen Grenzfall hergeleitet; diese Vorlesung nutzt ihn.</div>
+      <div class="callout warning">Alles hier hat Vorentwurfsgenauigkeit. Das Newtonsche Gesetz trifft die Druckverteilung eines stumpfen Körpers grob, liegt bei einer schlanken zweidimensionalen Fläche merklich daneben und sagt über eine Leeseite überhaupt nichts.</div>
+    </section>
+
+    <section id="model-de">
+      <p class="section-label">Modell und Annahmen</p>
+      <h2>Aufprall, nicht Strömungsmechanik</h2>
+      <ul>
+        <li>ein Teilchenstrom, der beim Aufprall die Normalkomponente der Geschwindigkeit verliert und die tangentiale behält;</li>
+        <li>nur Luvflächen; Leeflächen wird \(C_p\approx0\) zugewiesen;</li>
+        <li>ein kalorisch ideales Gas mit \(\gamma=1{,}4\), wo immer \(C_{p,\max}\) oder ein exakter Vergleich berechnet wird;</li>
+        <li>ein Reibungswiderstand \(c_{d,0}\), der als anstellwinkelunabhängig behandelt wird;</li>
+        <li>ingenieurmäßige Korrelationen für die Staupunktaufheizung, gültig nur für Luft, laminare Strömung und die angegebenen Einheiten.</li>
+      </ul>
+      <div class="callout warning"><strong>Nicht enthalten.</strong> Das Newtonsche Gesetz enthält keine Machzahl, kein \(\gamma\), keine Expansion, keinen Basisdruck, keine Rezirkulation und keine Stoß–Grenzschicht-Wechselwirkung. Es kann weder vorhersagen, wo ein Stoß steht, noch wie dick eine Stoßschicht ist oder was die Strömung hinter dem Körper tut. Die Aufheizkorrelation ist empirisch: Ihr Zahlenkoeffizient gehört zu einer bestimmten Einheitenkombination, zu Luft, zu einem Staupunkt und zu laminarer konvektiver Aufheizung und darf nicht auf ein anderes Gas, ein anderes Einheitensystem, turbulente Strömung, strahlungsdominierten Eintritt oder starkes Nichtgleichgewicht übertragen werden. Die Chemie, die die Temperatur hinter dem Stoß begrenzt und in Vorlesung 13 qualitativ erörtert wurde, wird in diesem Kurs nirgends modelliert.</div>
+    </section>
+
+    <section id="newtonian-de">
+      <p class="section-label">Das Stoßmodell</p>
+      <h2>Newtonsche Theorie</h2>
+      <p>Man betrachte eine Fläche \(A\), die um den Winkel \(\theta\) gegen die Strömung geneigt ist. Der abgefangene Massenstrom ist \(\dot m_{\mathrm{inc}}=\rho_\infty V_\infty A\sin\theta\), und jedes Teilchen trifft mit der Normalkomponente \(V_{n,\infty}=V_\infty\sin\theta\) auf. Die zeitliche Änderung des Normalimpulses lautet daher</p>
+      <div class="equation-card">\[N=\dot m_{\mathrm{inc}}V_{n,\infty}=\rho_\infty V_\infty^2A\sin^2\theta,\]</div>
+      <p>und deutet man die Normalkraft pro Flächeneinheit als Überschuss über den Anströmdruck, \(p-p_\infty=\rho_\infty V_\infty^2\sin^2\theta\), so folgt das Sinus-Quadrat-Gesetz:</p>
+      <div class="equation-card">\[\boxed{C_p=2\sin^2\theta}\qquad\text{oder mit }\varphi\text{ zwischen Normale und Strömung}\qquad C_p=2\cos^2\varphi.\]</div>
+      <div class="callout"><strong>Beachten Sie, was fehlt.</strong> Keine Machzahl, kein Isentropenexponent, keine Vorgeschichte stromauf — nur die örtliche Neigung. Es ist dieselbe Art örtliches Druckgesetz, das Ackeret in Vorlesung 12 hervorbrachte, erreicht über ein völlig anderes und weit gröberes Argument und gültig im entgegengesetzten Machzahl-Extrem.</div>
+      <h3>Luv, Lee und Schattenbereich</h3>
+      <p>Das Modell liefert nur dort einen Mechanismus, wo Teilchen auf die Oberfläche treffen. Auf einer Leeseite gibt es keinen Aufprall, daher setzt die einfache Näherung \(C_p\approx0\) — der Druck bleibt also annahmegemäß auf dem Anströmwert. Das ignoriert Expansion, Basisdruck, Rezirkulation und jeden viskosen Effekt und ist die schwächste Stelle des Modells. Für eine erste Abschätzung der Normalkraft genügt es; für Seitenkraft, Nickmoment oder eine Konfiguration mit großem Schattenbereich ist es aussichtslos.</p>
+    </section>
+
+    <section id="modified-de">
+      <p class="section-label">Die Korrektur bei endlicher Machzahl</p>
+      <h2>Modifizierte Newtonsche Theorie</h2>
+      <p>Im Staupunkt ist \(\theta=90^\circ\), und das einfache Gesetz sagt \(C_p=2\) vorher. Der richtige Wert bei endlicher Machzahl ist kleiner und ergibt sich, indem man die Strömung durch einen senkrechten Stoß führt und anschließend isentrop bis zur Ruhe verzögert:</p>
+      <div class="equation-card">\[\boxed{C_{p,\max}=\frac{2}{\gamma M_\infty^2}\left(\frac{p_{0,2}}{p_\infty}-1\right)},\qquad\frac{p_{0,2}}{p_\infty}=\frac{p_2}{p_\infty}\left(1+\frac{\gamma-1}{2}M_2^2\right)^{\gamma/(\gamma-1)}.\]</div>
+      <p>Skaliert man das Sinus-Quadrat-Gesetz so, dass es diesen Wert im Staupunkt annimmt, erhält man das modifizierte Gesetz:</p>
+      <div class="equation-card">\[\boxed{C_p=C_{p,\max}\sin^2\theta}\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>4</th><th>5</th><th>8</th><th>10</th><th>20</th><th>\(\to\infty\)</th></tr></thead>
+          <tbody>
+            <tr><td>\(p_{0,2}/p_\infty\)</td><td>21,068</td><td>32,653</td><td>82,865</td><td>129,217</td><td>515,484</td><td>—</td></tr>
+            <tr><td>\(C_{p,\max}\)</td><td>1,792</td><td>1,809</td><td>1,827</td><td>1,832</td><td>1,837</td><td>1,8394</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout success"><strong>Der Grenzwert ist 1,8394, nicht 2.</strong> Der Wert 2 gehört zum idealisierten Newtonschen Modell und zum kombinierten Grenzfall \(M_\infty\to\infty\) mit \(\gamma\to1\). Für reale Luft mit \(\gamma=1{,}4\) liegt \(C_{p,\max}\) schon bei Mach 4 innerhalb von 3 Prozent seiner Obergrenze — deshalb lohnt sich das modifizierte Gesetz und deshalb ist seine Machzahl-Abhängigkeit so schwach.</div>
+      <p>An einem stumpfen Körper gibt das modifizierte Gesetz die qualitative Form der gemessenen Druckverteilung wieder: ein Maximum im Staupunkt, das längs der Oberflächenkoordinate mit abnehmendem \(\theta(s)\) monoton fällt. Die Näherung ist am besten nahe Bereichen großer Neigung, bei hoher Machzahl, an dreidimensionalen oder achsensymmetrischen Körpern und im Vorentwurf. Sie verliert an Genauigkeit an schlanken zweidimensionalen Flächen unter kleinen Winkeln, in Leebereichen und überall dort, wo viskose Wechselwirkung dominiert.</p>
+    </section>
+
+    <section id="plate-de">
+      <p class="section-label">Erste Anwendung</p>
+      <h2>Auftrieb und Widerstand einer Hyperschallplatte</h2>
+      <p>Für eine unendlich dünne Platte unter dem Anstellwinkel \(\alpha\) liefert das Newtonsche Modell \(C_{p,l}=2\sin^2\alpha\) auf der Luvseite und \(C_{p,u}=0\) auf der Leeseite; der Normalkraftbeiwert ist also \(c_n=2\sin^2\alpha\). Zerlegt in Windachsen:</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{c_l=2\sin^2\alpha\cos\alpha}\]</div>
+        <div class="equation-card">\[\boxed{c_{d,w}=2\sin^3\alpha}\]</div>
+      </div>
+      <div class="equation-card">\[\boxed{\frac{L}{D}=\cot\alpha}\]</div>
+      <div class="callout"><strong>Das \(L/D\)-Ergebnis ist reine Geometrie.</strong> Steht die reibungsfreie Resultierende auf einer unendlich dünnen Platte senkrecht zur Platte, so beträgt das Verhältnis ihrer vertikalen zu ihrer horizontalen Komponente \(\cot\alpha\), unabhängig davon, wie der Druck berechnet wurde. Eine Übereinstimmung in \(L/D\) zwischen Newtonscher und exakter Theorie belegt daher nicht, dass die Drücke stimmen.</div>
+      <h3>Das Kleinwinkelverhalten ist nichtlinear</h3>
+      <p>Für \(\alpha\ll1\) gilt</p>
+      <div class="equation-card">\[c_l\approx2\alpha^2,\qquad c_{d,w}\approx2\alpha^3,\]</div>
+      <p>ein deutlicher Bruch mit der linearisierten Überschalltheorie, wo \(c_l\propto\alpha\) und \(c_d\propto\alpha^2\) gilt. Im Hyperschall gibt es keinen Auftriebsanstieg bei Anstellwinkel null: Der Auftrieb beginnt quadratisch, ein Hyperschallfahrzeug muss also unter einem wirklich großen Anstellwinkel fliegen, um brauchbaren Auftrieb zu erzeugen.</p>
+      <h3>Maximaler Auftrieb</h3>
+      <p>Die Ableitung von \(c_l=2\sin^2\alpha\cos\alpha\) ergibt \(dc_l/d\alpha=4\sin\alpha\cos^2\alpha-2\sin^3\alpha\), und die nichttriviale Wurzel erfüllt \(2\cos^2\alpha=\sin^2\alpha\), also \(\sin^2\alpha=2/3\):</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{\alpha_{c_l,\max}=54{,}736^\circ}\]</div>
+        <div class="equation-card">\[\boxed{c_{l,\max}=\frac{4}{3\sqrt3}=0{,}7698}\]</div>
+      </div>
+      <div class="callout warning"><strong>Dieses Maximum ist kein Strömungsabriss.</strong> Nichts löst ab, und nichts ist viskos. Die Normalkraft wächst bis \(\alpha=90^\circ\) weiter; es ist ihre vertikale <em>Komponente</em>, die ein Maximum durchläuft und dann fällt, während sich die Platte zur Strömungsnormalen dreht.</div>
+    </section>
+
+    <section id="efficiency-de">
+      <p class="section-label">Die Realität hinzufügen</p>
+      <h2>Maximale Effizienz mit Reibung</h2>
+      <p>Man addiere einen vom Anstellwinkel weitgehend unabhängigen Reibungswiderstand \(c_{d,0}\), sodass \(c_d=2\sin^3\alpha+c_{d,0}\). Für kleine Winkel lautet die Gleitzahl</p>
+      <div class="equation-card">\[\frac{L}{D}\approx\frac{2\alpha^2}{2\alpha^3+c_{d,0}},\]</div>
+      <p>und die Maximierung nach \(\alpha\) liefert ein bemerkenswert kompaktes Ergebnispaar:</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{\alpha_{(L/D)_{\max}}=c_{d,0}^{1/3}}\]</div>
+        <div class="equation-card">\[\boxed{\left(\frac{L}{D}\right)_{\max}=\frac23\,c_{d,0}^{-1/3}}\]</div>
+      </div>
+      <div class="callout success"><strong>Im Optimum ist der Wellenwiderstand genau doppelt so groß wie der Reibungswiderstand.</strong> Es gilt \(c_{d,w}=2c_{d,0}\) und insgesamt \(c_d=3c_{d,0}\). Man vergleiche das Überschallergebnis aus Vorlesung 12, wo beide exakt gleich waren. Der Unterschied liegt im Exponenten: Der Wellenwiderstand wächst hier wie \(\alpha^3\) statt wie \(\alpha^2\), der Gleichgewichtspunkt verschiebt sich also.</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(c_{d,0}\)</th><th>0,002</th><th>0,004</th><th>0,006</th><th>0,010</th></tr></thead>
+          <tbody>
+            <tr><td>\(\alpha_{\mathrm{opt}}\) [Grad]</td><td>7,22</td><td>9,10</td><td>10,41</td><td>12,34</td></tr>
+            <tr><td>\((L/D)_{\max}\)</td><td>5,29</td><td>4,20</td><td>3,67</td><td>3,09</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning">Nach Unterschallmaßstäben sind diese Werte niedrig; ein Verkehrsflugzeug erreicht \(L/D\approx18\). Genau darin liegt die zentrale Schwierigkeit des Hyperschall-Reiseflugs: Dieselbe Nichtlinearität, die den Auftrieb quadratisch beginnen lässt, zwingt das Fahrzeug auch zu einem Anstellwinkel, bei dem der Wellenwiderstand erheblich ist.</div>
+    </section>
+
+    <section id="heating-de">
+      <p class="section-label">Die dimensionierende Randbedingung</p>
+      <h2>Aerodynamische Aufheizung</h2>
+      <p>Der örtliche Wärmeübergangsbeiwert wird über die Stanton-Zahl definiert,</p>
+      <div class="equation-card">\[C_H=\frac{\dot q_w}{\rho_eu_e(h_{aw}-h_w)},\]</div>
+      <p>und für eine Platte bei hoher Machzahl mit \(\rho_e\approx\rho_\infty\), \(u_e\approx V_\infty\), \(h_{aw}\approx h_0\) und dominierender kinetischer Energie, sodass \(h_0-h_w\approx V_\infty^2/2\), reduziert sich dies auf</p>
+      <div class="equation-card">\[\boxed{\dot q_w\approx\tfrac12\rho_\infty V_\infty^3C_H}\]</div>
+      <p>Die Aufheizung wächst mit der dritten Potenz der Geschwindigkeit, die aerodynamische Kraft nur mit der zweiten — deshalb überholt der thermische Entwurf den strukturellen so schnell. Eine um zehn Prozent höhere Geschwindigkeit erhöht die Wärmestromdichte um \((1{,}10)^3=1{,}331\), also um 33,1 Prozent.</p>
+      <h3>Gesamtwärmelast und warum Stumpfheit gewinnt</h3>
+      <p>Definiert man einen integrierten Beiwert \(\overline C_H\) über \(dQ/dt\approx\frac12\rho_\infty V_\infty^3S\overline C_H\), nutzt die Wärme-Reibungs-Analogie \(\overline C_H\approx\frac12C_f\) und verbindet sie mit der Verzögerungsgleichung \(m\,dV_\infty/dt=-\frac12\rho_\infty V_\infty^2SC_D\), so folgt unter einschränkenden Annahmen</p>
+      <div class="equation-card">\[\boxed{Q_{\mathrm{total}}\approx\frac12\frac{C_f}{C_D}\left(\frac12mV_E^2\right)}\]</div>
+      <div class="callout success"><strong>Die aufgenommene Gesamtwärme ist die kinetische Eintrittsenergie mal dem Reibungsanteil des Widerstands.</strong> Ein schlanker Körper hat \(C_D\approx C_f\) und damit \(C_f/C_D\approx1\); ein stumpfer Körper hat \(C_D\approx C_{D,p}\) und \(C_f/C_D\ll1\). Die stumpfe Form kippt die kinetische Energie des Fahrzeugs als Druckwiderstand in den Nachlauf statt als Wärme in die Wand. Sie senkt auch den örtlichen Spitzenwert: Für laminare Staupunktströmung gilt \(\dot q_{w,\mathrm{stag}}\propto R_N^{-1/2}\), eine Vervierfachung des Nasenradius halbiert also die Staupunkt-Wärmestromdichte.</div>
+      <h3>Die Staupunkt-Korrelation</h3>
+      <p>Eine gängige ingenieurmäßige Korrelation für Luft und laminare konvektive Staupunktaufheizung lautet</p>
+      <div class="equation-card">\[\boxed{\dot q_{w,\mathrm{stag}}=1{,}83\times10^{-8}\sqrt{\frac{\rho_\infty}{R_N}}\,V_\infty^3\left(1-\frac{h_w}{h_0}\right)}\]</div>
+      <p>mit \(\dot q_w\) in \(\mathrm{W/cm^2}\), \(\rho_\infty\) in \(\mathrm{kg/m^3}\), \(R_N\) in \(\mathrm{m}\) und \(V_\infty\) in \(\mathrm{m/s}\). Sie zeigt die drei Skalierungen unmittelbar: \(\dot q_w\propto\rho_\infty^{1/2}\), \(\dot q_w\propto V_\infty^3\), \(\dot q_w\propto R_N^{-1/2}\).</p>
+      <div class="callout"><strong>Ein repräsentativer Eintrittspunkt.</strong> Für \(\rho_\infty=1{,}075\times10^{-4}\ \mathrm{kg/m^3}\), \(V_\infty=6610\ \mathrm{m/s}\), \(R_N=1{,}29\ \mathrm{m}\) und \(T_w=1110\ \mathrm{K}\) mit \(c_p=1004{,}5\ \mathrm{J/(kg\,K)}\): \(h_0\approx V_\infty^2/2=2{,}1846\times10^7\ \mathrm{J/kg}\), \(h_w\approx c_pT_w=1{,}1150\times10^6\ \mathrm{J/kg}\), also \(1-h_w/h_0=0{,}94896\) und \(\dot q_{w,\mathrm{stag}}=45{,}8\ \mathrm{W/cm^2}=458\ \mathrm{kW/m^2}\). Auf die Umrechnung achten: \(1\ \mathrm{W/cm^2}=10^4\ \mathrm{W/m^2}=10\ \mathrm{kW/m^2}\).</div>
+      <p>In einem thermischen Entwurf sind vier Größen zu unterscheiden: die <strong>Spitzenwärmestromdichte</strong>, die Oberflächentemperatur und Gradienten festlegt; die <strong>integrierte Wärmelast</strong>, die die insgesamt aufgenommene Energie bestimmt; die <strong>Einwirkdauer</strong>, die die Wärmeleitung in die Struktur steuert; und die <strong>Rückgewinntemperatur</strong>, die das thermische Potential des Gases setzt. Eine Bahn kann eine niedrigere Spitze gegen längere Einwirkung tauschen oder umgekehrt; Bahn und Geometrie müssen daher gemeinsam optimiert werden.</p>
+    </section>
+
+    <section id="waverider-de">
+      <p class="section-label">Entwurfsfolge</p>
+      <h2>Waverider</h2>
+      <p>Ein <em>Waverider</em> ist eine Konfiguration, deren Auslegungsstoß längs der gesamten Vorderkante anliegend bleibt. Seine Unterseite wird als Stromfläche eines bekannten Überschallfeldes konstruiert, sodass das Hochdruckgas hinter dem Stoß unter dem Fahrzeug gefangen bleibt, statt seitlich zu entweichen.</p>
+      <div class="callout success"><strong>Der Vorteil ist nicht weniger Wellenwiderstand.</strong> Der Stoß ist weiterhin da und erzeugt weiterhin Widerstand. Die Konfiguration erkauft einen gegebenen Auftrieb bei kleinerem Anstellwinkel, was \(L/D\) gegenüber einer konventionellen Form gleicher Mission erhöht.</div>
+      <h3>Konstruktion aus einem bekannten Feld</h3>
+      <p>Die keilerzeugte Konstruktion wählt ein gleichförmiges Feld hinter einem ebenen Schrägstoß, zeichnet zwei Linien auf der Stoßfläche, verfolgt die Stromlinien, die auf diesen Linien entspringen, nimmt die entstehende Stromfläche als Unterseite und schließt die Form mit einer angeströmt-parallelen oder expandierenden Oberseite. Es entsteht ein Caret-Querschnitt mit anliegendem Stoß. Ein kegelerzeugter Waverider folgt denselben Schritten, ausgehend von einem Taylor–Maccoll-Feld — der in Vorlesung 14 numerisch gelösten Gleichung —, das erheblich mehr geometrische Freiheit bietet.</p>
+      <div class="callout warning"><strong>Ein Waverider ist eine Auslegungspunkt-Form.</strong> Machzahl, Umlenkwinkel und Ausrichtung müssen zum erzeugenden Feld passen, damit der Stoß exakt anliegend bleibt. Außerhalb des Auslegungspunkts entweicht Druck an der Vorderkante, und der Vorteil schwindet.</div>
+      <h3>Was die Optimierung enthalten muss</h3>
+      <p>Frühe Waverider wurden reibungsfrei optimiert und wiesen große benetzte Flächen und entsprechend hohen Reibungswiderstand auf. Eine moderne Optimierung muss Wellenwiderstand, Oberflächenreibung, laminar–turbulente Transition, Vorderkantenradius und Aufheizung, Nutzvolumen, Antriebsintegration, Stabilität und Steuerbarkeit sowie das Verhalten außerhalb des Auslegungspunkts gleichzeitig abwägen. Die volumetrische Effizienz \(\eta_V=\mathcal V^{2/3}/S_p\) wird üblicherweise als Nebenbedingung aufgenommen, um eine aerodynamisch ausgezeichnete Form ohne Platz für den Treibstoff zu vermeiden.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>4</th><th>6</th><th>8</th><th>10</th><th>15</th><th>20</th></tr></thead>
+          <tbody>
+            <tr><td>Konventionell, \(4(M_\infty+3)/M_\infty\)</td><td>7,0</td><td>6,0</td><td>5,5</td><td>5,2</td><td>4,8</td><td>4,6</td></tr>
+            <tr><td>Waverider, \(6(M_\infty+2)/M_\infty\)</td><td>9,0</td><td>8,0</td><td>7,5</td><td>7,2</td><td>6,8</td><td>6,6</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">Dies sind empirische Entwurfstrends, keine Gesetze. Sie enthalten keine Information über Stabilität, Antrieb, Volumen, Struktur, Aufheizung oder Verhalten außerhalb des Auslegungspunkts und sollten eine Erwartung dimensionieren, nicht eine Konfiguration rechtfertigen.</div>
+    </section>
+
+    <section id="algorithm-de">
+      <p class="section-label">Rechenalgorithmus</p>
+      <h2>Newtonsche Kräfte an einem beliebigen Körper</h2>
+      <div class="process-flow">
+        <div><strong>1</strong><span>Die Oberfläche in Panels mit äußeren Normalen zerlegen</span></div>
+        <div><strong>2</strong><span>Den Winkel \(\theta\) zwischen jedem Panel und der Anströmung berechnen</span></div>
+        <div><strong>3</strong><span>Auf Luvpanels \(C_p=C_{p,\max}\sin^2\theta\) setzen, \(C_p=0\) wo \(\sin\theta\le0\)</span></div>
+        <div><strong>4</strong><span>\(C_{p,\max}\) aus dem Staudruck hinter dem Normalstoß bei \(M_\infty\) bestimmen</span></div>
+        <div><strong>5</strong><span>\(C_p\) über die Panels integrieren und Normal- und Axialkraftbeiwert gewinnen</span></div>
+        <div><strong>6</strong><span>In Windachsen zerlegen, um \(c_l\) und \(c_d\) zu erhalten</span></div>
+        <div><strong>7</strong><span>\(c_{d,0}\) addieren und den optimalen Anstellwinkel bestimmen</span></div>
+        <div><strong>8</strong><span>Wo die Geometrie es zulässt, gegen eine exakte Stoß–Expansions- oder Stoßlösung prüfen</span></div>
+      </div>
+      <div class="callout warning">Schritt 3 ist die Stelle, an der das Verfahren stillschweigend versagt. Panels im Schatten erhalten den Druck null, und liegt ein großer Teil des Körpers im Schatten, wird das Nickmoment falsch, selbst wenn der Auftrieb plausibel aussieht — kleine systematische Druckfehler werden vom Momentenarm verstärkt.</div>
+    </section>
+
+    <section id="example-de">
+      <p class="section-label">Rechenbeispiel</p>
+      <h2>Eine ebene Platte bei \(M_\infty=8\), \(\alpha=15^\circ\)</h2>
+      <div class="example">
+        <h3>Aufgabe</h3>
+        <p>Berechnen Sie die Newtonschen Auftriebs- und Widerstandsbeiwerte einer unendlich dünnen Platte bei \(M_\infty=8\) und \(\alpha=15^\circ\), vergleichen Sie mit der exakten Stoß–Expansions-Lösung und bestimmen Sie anschließend den Anstellwinkel, der \(L/D\) maximiert, wenn der Reibungswiderstand \(c_{d,0}=0{,}006\) beträgt. Verwenden Sie \(\gamma=1{,}4\).</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Newtonsche Drücke und Normalkraft:</p>\[C_{p,l}=2\sin^2(15^\circ)=0{,}133975,\qquad C_{p,u}=0,\qquad c_n=0{,}133975.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Zerlegung in Windachsen:</p>\[c_l=2\sin^2\alpha\cos\alpha=0{,}129410,\qquad c_{d,w}=2\sin^3\alpha=0{,}034675,\qquad\frac{L}{D}=\cot15^\circ=3{,}7321.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Exakte Lösung nach der Methode aus Vorlesung 06. Auf der Luvseite lenkt ein Schrägstoß die Strömung um \(15^\circ\) um und liefert \(\beta=20{,}8605^\circ\) und \(p_l/p_\infty=9{,}3013\); auf der Leeseite führt eine Prandtl–Meyer-Expansion \(\nu\) von \(95{,}6247^\circ\) auf \(110{,}6247^\circ\), sodass \(M_u=14{,}3199\) und \(p_u/p_\infty=0{,}020313\). Damit</p>\[C_{p,l}=0{,}185296,\qquad C_{p,u}=-0{,}021868,\qquad c_n=0{,}207164,\]\[c_l=0{,}200105,\qquad c_d=0{,}053618,\qquad\frac{L}{D}=3{,}7321.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Vergleich. Das Newtonsche Modell unterschätzt beide Kraftbeiwerte um denselben Faktor,</p>\[\frac{0{,}129410}{0{,}200105}=\frac{0{,}034675}{0{,}053618}=0{,}6467,\]<p>also um 35,3 Prozent, denn es übersieht den gesamten Unterdruckbeitrag der Lee-Expansion und unterschätzt den Luvdruck. Die Gleitzahl ist gleichwohl identisch, da beide Modelle die Resultierende senkrecht zur Platte ansetzen.</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>Optimaler Anstellwinkel mit Reibung, \(c_{d,0}=0{,}006\):</p>\[\alpha_{\mathrm{opt}}=(0{,}006)^{1/3}=0{,}181712\ \mathrm{rad}=10{,}41^\circ,\qquad\left(\frac{L}{D}\right)_{\max}=\frac23(0{,}006)^{-1/3}=3{,}669,\]<p>mit \(c_{d,w}=2c_{d,0}=0{,}012\) und \(c_d=3c_{d,0}=0{,}018\) an dieser Stelle. Maximiert man den vollständigen Newtonschen Ausdruck numerisch, ohne Kleinwinkelnäherung, ergibt sich \(\alpha=10{,}30^\circ\) und \(L/D=3{,}609\); die geschlossene Form ist hier also auf etwa ein Prozent genau.</p></div></div>
+
+        <div class="result-box">\[\boxed{c_l=0{,}1294\ \text{(Newton)}\ \text{gegen}\ 0{,}2001\ \text{(exakt)},\quad L/D=3{,}73\ \text{beide},\quad\alpha_{\mathrm{opt}}=10{,}41^\circ,\quad(L/D)_{\max}=3{,}67}\]</div>
+        <p>Die \(15^\circ\) des ersten Teils liegen weit jenseits von \(\alpha_{\mathrm{opt}}\): Bei diesem Anstellwinkel zahlt die Platte \(0{,}0347\) Wellenwiderstand gegen \(0{,}006\) Reibung, also fast das Sechsfache der Reibung, während das Optimum ein Verhältnis von genau zwei verlangt.</p>
+      </div>
+      <div class="validation-case">
+        <strong>Validierungsfall des Rechners</strong>
+        <span>Die exakte Spalte ist mit dem Schrägstoß- und dem Prandtl–Meyer-Modul reproduzierbar: \(M_\infty=8\), Platte bei \(\alpha=15^\circ\), \(\gamma=1{,}4\), mit \(C_{p,u}=-0{,}021868\), \(C_{p,l}=0{,}185296\) und \(c_l=0{,}200105\).</span>
+      </div>
+    </section>
+
+    <section id="summary-de">
+      <p class="section-label">Kerngleichungen</p>
+      <h2>Auf einen Blick</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Beziehung</th><th>Ausdruck</th><th>Gültig wenn</th></tr></thead>
+          <tbody>
+            <tr><td>Newtonscher Druck</td><td>\(C_p=2\sin^2\theta\)</td><td>Luvflächen, \(M_\infty\gg1\)</td></tr>
+            <tr><td>Lee-Annahme</td><td>\(C_p\approx0\)</td><td>beschattete Flächen</td></tr>
+            <tr><td>Staupunktwert</td><td>\(C_{p,\max}=\frac{2}{\gamma M_\infty^2}\left(p_{0,2}/p_\infty-1\right)\)</td><td>endliches \(M_\infty\); Grenzwert 1,8394</td></tr>
+            <tr><td>Modifiziertes Newton-Gesetz</td><td>\(C_p=C_{p,\max}\sin^2\theta\)</td><td>stumpfe Körper, Vorentwurf</td></tr>
+            <tr><td>Plattenauftrieb</td><td>\(c_l=2\sin^2\alpha\cos\alpha\approx2\alpha^2\)</td><td>dünne Platte, reibungsfrei</td></tr>
+            <tr><td>Plattenwellenwiderstand</td><td>\(c_{d,w}=2\sin^3\alpha\approx2\alpha^3\)</td><td>dünne Platte, reibungsfrei</td></tr>
+            <tr><td>Gleitzahl</td><td>\(L/D=\cot\alpha\)</td><td>Resultierende senkrecht zur Platte</td></tr>
+            <tr><td>Maximaler Auftrieb</td><td>\(\alpha=54{,}736^\circ\), \(c_{l,\max}=4/(3\sqrt3)=0{,}7698\)</td><td>Newtonsche Platte</td></tr>
+            <tr><td>Optimum mit Reibung</td><td>\(\alpha_{\mathrm{opt}}=c_{d,0}^{1/3}\), \((L/D)_{\max}=\frac23c_{d,0}^{-1/3}\)</td><td>\(c_{d,w}=2c_{d,0}\) im Optimum</td></tr>
+            <tr><td>Aufheizrate</td><td>\(\dot q_w\approx\frac12\rho_\infty V_\infty^3C_H\)</td><td>Plattenabschätzung bei hoher Geschwindigkeit</td></tr>
+            <tr><td>Gesamtwärmelast</td><td>\(Q_{\mathrm{total}}\approx\frac12\frac{C_f}{C_D}\left(\frac12mV_E^2\right)\)</td><td>ballistischer Eintritt, einschränkende Annahmen</td></tr>
+            <tr><td>Staupunkt-Korrelation</td><td>\(\dot q=1{,}83\times10^{-8}\sqrt{\rho_\infty/R_N}\,V_\infty^3(1-h_w/h_0)\)</td><td>Luft, laminar, \(\mathrm{W/cm^2}\)</td></tr>
+            <tr><td>Effizienztrends</td><td>\(4(M_\infty+3)/M_\infty\) und \(6(M_\infty+2)/M_\infty\)</td><td>konventionelle und Waverider-Familien</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="mistakes-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Häufige Fehler</h2>
+      <ul class="check-list">
+        <li><strong>\(C_{p,\max}=2\) bei endlicher Machzahl verwenden.</strong> Der richtige Wert folgt aus dem Staudruck hinter dem Normalstoß und überschreitet für \(\gamma=1{,}4\) nie 1,8394.</li>
+        <li><strong>Die Newtonsche Theorie auf eine schlanke zweidimensionale Fläche anwenden.</strong> Dort ist sie am schlechtesten. Sie ist ein Verfahren für stumpfe und dreidimensionale Körper.</li>
+        <li><strong>Glauben, Übereinstimmung in \(L/D\) validiere die Drücke.</strong> \(L/D=\cot\alpha\) folgt daraus, dass die Resultierende senkrecht zur Platte steht, und gilt für jede Druckverteilung mit dieser Eigenschaft.</li>
+        <li><strong>\(C_p=0\) auf der Leeseite vertrauen.</strong> Das ignoriert Expansion, Basisdruck und Ablösung und ist die Hauptquelle des Momentenfehlers.</li>
+        <li><strong>Einen linearen Auftriebsanstieg erwarten.</strong> Hyperschallauftrieb beginnt wie \(\alpha^2\); bei \(\alpha=0\) gibt es keinen brauchbaren Anstieg.</li>
+        <li><strong>Das Auftriebsmaximum als Strömungsabriss bezeichnen.</strong> Es ist ein geometrischer Projektionseffekt in einem rein reibungsfreien Modell, bei dem nichts ablöst.</li>
+        <li><strong>Die Aufheizkorrelation in andere Einheiten oder Bedingungen übertragen.</strong> Ihr Koeffizient gehört zu \(\mathrm{W/cm^2}\), Luft, einem Staupunkt und laminarer Konvektion. Zudem gilt \(1\ \mathrm{W/cm^2}=10\ \mathrm{kW/m^2}\).</li>
+        <li><strong>Meinen, ein Waverider beseitige den Wellenwiderstand.</strong> Er hält den Druck unter dem Fahrzeug; Stoß und Widerstand bleiben.</li>
+        <li><strong>Einen Waverider reibungsfrei optimieren.</strong> Das Ergebnis maximiert die benetzte Fläche und bezahlt es mit Reibung.</li>
+        <li><strong>Die \(L/D\)-Korrelationen als Entwurfsanforderungen verwenden.</strong> Es sind historische Trends ohne Information über Stabilität, Volumen, Antrieb oder Aufheizung.</li>
+      </ul>
+    </section>
+
+    <section id="advanced-de">
+      <p class="section-label">Weiterführende Themen</p>
+      <h2>Was diese Vorlesung aufschiebt</h2>
+      <p>Die Hyperschallanalyse hängt ungewöhnlich stark von der Rechnung ab, weil keine Bodenanlage Machzahl, Reynoldszahl, Gesamtenthalpie, chemische Zusammensetzung, Nichtgleichgewichtszustand und Wandkatalyse gleichzeitig und über eine brauchbare Dauer nachbildet. Die Genauigkeitshierarchie reicht von Euler mit idealem Gas über Navier–Stokes mit veränderlichen Stoffwerten, lokales chemisches Gleichgewicht, Chemie mit endlichen Raten, Zweitemperaturmodelle und gekoppelte Strahlung bis zu Ablation und thermischer Materialantwort. Das komplexere Modell ist nicht automatisch das richtige; es wird nach Enthalpieniveau, relevanten Zeitskalen, Ziel der Rechnung und Verfügbarkeit von Validierungsdaten gewählt. Die numerische Maschinerie selbst ist Vorlesung 14.</p>
+      <p>Eine Folge verdient es, benannt zu werden. Der Druck ist gegenüber der Chemie vergleichsweise unempfindlich, anders als Temperatur oder Zusammensetzung; eine Idealgas-Simulation kann daher \(C_L\) und \(C_D\) brauchbar vorhersagen und bei der Trimmung dennoch deutlich danebenliegen, weil \(C_m\propto\int_SC_p\frac{x-x_{\mathrm{ref}}}{c_{\mathrm{ref}}}\,dS\) einen kleinen systematischen Unterschied zwischen Vorder- und Hinterteil über den Momentenarm verstärkt.</p>
+      <div class="callout">Gänzlich außerhalb des Kurses: Strahlung der Stoßschicht, Ablation und Entwurf des Hitzeschutzsystems, Transition der Hyperschallgrenzschicht, verdünnte und übergangsnahe Strömung, Scramjet-Antrieb und Zellenintegration sowie Führung und Regelung einer Eintrittsbahn.</div>
+    </section>
+
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6. Aufl. New York: McGraw-Hill Education, 2017, Abschnitte 14.3–14.4 und 14.7–14.9.</li>
+        <li>Anderson, J. D., Jr. <em>Hypersonic and High-Temperature Gas Dynamics</em>, 2. Aufl. Reston, VA: AIAA, 2006, Kapitel 3–6.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexiko, Februar 2024.</li>
+      </ol>
+      <p class="source-note">Bearbeitet nach Einheit VIII des Vorlesungsskripts Aerodynamik II von Carlos Alberto Molina Holguín, die das Skript als Ergänzungsmaterial ausweist; alle Zahlenwerte wurden für \(\gamma=1{,}4\) unabhängig nachgerechnet, und der exakte Vergleich stammt aus dem Stoß–Expansions-Verfahren der Vorlesung 06.</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="numerical-methods-supersonic.html"><span>Vorherige Vorlesung</span>← Numerische Verfahren</a>
+      <a class="next-link" href="index.html?v=11"><span>Kursübersicht</span>Aerodynamik II</a>
+    </nav>
+  </article>
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>

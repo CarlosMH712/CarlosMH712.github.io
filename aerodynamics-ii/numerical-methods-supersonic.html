@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Numerical techniques for nonlinear supersonic flow: the method of characteristics, minimum-length nozzle design, finite differences, MacCormack marching, time-marching for blunt bodies, and the Taylor-Maccoll equation." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Numerical Techniques for Nonlinear Supersonic Flow | Aerodynamics II</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../index.html" data-ui-key="home">Home</a><a href="index.html?v=11" data-ui-key="course">Aerodynamics II</a><a href="../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">Aerodynamics II · Lecture 14 · Supplementary</p><h1>Numerical Techniques for Nonlinear Supersonic Flow</h1><p class="hero-copy">When the geometry stops being a wedge and the flow stops being uniform, the closed forms run out. What replaces them is a grid, a marching direction, and a discipline for deciding whether the answer is real.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">Aerodinámica II · Lecture 14 · Complementaria</p><h1>Técnicas numéricas para flujo supersónico no lineal</h1><p class="hero-copy">Cuando la geometría deja de ser una cuña y el flujo deja de ser uniforme, las formas cerradas se acaban. Lo que las sustituye es una malla, una dirección de marcha y una disciplina para decidir si la respuesta es real.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">Aerodynamik II · Vorlesung 14 · Ergänzend</p><h1>Numerische Verfahren für nichtlineare Überschallströmung</h1><p class="hero-copy">Wenn die Geometrie kein Keil mehr ist und die Strömung nicht mehr gleichförmig, gehen die geschlossenen Formen aus. An ihre Stelle treten ein Gitter, eine Marschrichtung und eine Disziplin, um zu entscheiden, ob das Ergebnis echt ist.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 50 min</span><span data-language="es" hidden>Lectura estimada: 50 min</span><span data-language="de" hidden>Lesedauer: ca. 50 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Model: inviscid perfect gas, discretised</span><span data-language="es" hidden>Modelo: gas perfecto inviscido, discretizado</span><span data-language="de" hidden>Modell: reibungsfreies ideales Gas, diskretisiert</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="hypersonic-flow-introduction.html">← <span data-ui-key="previous">Previous lecture</span></a><a class="button primary" href="applied-hypersonic-aerodynamics.html"><span data-ui-key="next">Next lecture</span> →</a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#physics">Physical picture</a><a href="#model">Model and assumptions</a><a href="#characteristics">Characteristics and invariants</a><a href="#unitprocess">Unit process and nozzle design</a><a href="#finitedifference">Finite differences</a><a href="#marching">Marching schemes</a><a href="#cone">Conical flow</a><a href="#verification">Verification and validation</a><a href="#algorithm">Calculation algorithm</a><a href="#example">Worked example</a><a href="#summary">Key equations</a><a href="#mistakes">Common mistakes</a><a href="#advanced">Further topics</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#physics-es">Panorama físico</a><a href="#model-es">Modelo e hipótesis</a><a href="#characteristics-es">Características e invariantes</a><a href="#unitprocess-es">Proceso unitario y diseño de toberas</a><a href="#finitedifference-es">Diferencias finitas</a><a href="#marching-es">Esquemas de marcha</a><a href="#cone-es">Flujo cónico</a><a href="#verification-es">Verificación y validación</a><a href="#algorithm-es">Algoritmo de cálculo</a><a href="#example-es">Ejemplo resuelto</a><a href="#summary-es">Ecuaciones clave</a><a href="#mistakes-es">Errores comunes</a><a href="#advanced-es">Temas complementarios</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#physics-de">Physikalisches Bild</a><a href="#model-de">Modell und Annahmen</a><a href="#characteristics-de">Charakteristiken und Invarianten</a><a href="#unitprocess-de">Elementarprozess und Düsenauslegung</a><a href="#finitedifference-de">Finite Differenzen</a><a href="#marching-de">Marschierverfahren</a><a href="#cone-de">Kegelströmung</a><a href="#verification-de">Verifizierung und Validierung</a><a href="#algorithm-de">Rechenalgorithmus</a><a href="#example-de">Rechenbeispiel</a><a href="#summary-de">Kerngleichungen</a><a href="#mistakes-de">Häufige Fehler</a><a href="#advanced-de">Weiterführende Themen</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <ul>
+        <li>Derive the characteristic directions of the exact potential equation and identify them as Mach lines.</li>
+        <li>Execute the unit process for an interior point and for a wall point using the invariants \(K^\pm\).</li>
+        <li>Compute the maximum wall angle of a minimum-length nozzle from \(\nu(M_e)\).</li>
+        <li>Compare forward, backward, and central differences and state their order of accuracy.</li>
+        <li>Apply the MacCormack predictor–corrector and evaluate the CFL time-step limit.</li>
+        <li>Choose between space marching, time marching, and the Taylor–Maccoll equation for a given problem.</li>
+        <li>Design a verification procedure that distinguishes a converged residual from an accurate answer.</li>
+      </ul>
+    </section>
+
+    <section id="physics">
+      <p class="section-label">Physical picture</p>
+      <h2>A field of numbers instead of a function</h2>
+      <p class="lead">Every closed-form result in this course bought its simplicity with a restriction: a straight wall, a uniform upstream state, a single wave. Curve the wall, let the Mach number vary along it, or place a blunt body in the stream, and no algebraic solution exists. A numerical method replaces the derivatives and integrals of the governing equations by algebraic approximations on a finite set of points, and returns not a function but a table of values \(\{\rho_{i,j},u_{i,j},v_{i,j},p_{i,j},T_{i,j}\}\).</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Approach</th><th>Main advantage</th><th>Main limitation</th><th>Typical use</th></tr></thead>
+          <tbody>
+            <tr><td>Analytical</td><td>interpretation and parametric relations</td><td>restricted geometries and hypotheses</td><td>trends, validation, preliminary design</td></tr>
+            <tr><td>Experimental</td><td>contains the real physics</td><td>cost, scaling, instrumentation</td><td>validation and certification</td></tr>
+            <tr><td>Numerical</td><td>complete fields, complex geometries</td><td>model, mesh, and algorithm error</td><td>design, optimisation, detailed analysis</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout success"><strong>The three are complements, not competitors.</strong> The analytical results of Lectures 04 to 06 are what make a numerical solution checkable: a code that cannot reproduce an oblique shock at \(M_1=3\) has no business being trusted on a nozzle contour.</div>
+    </section>
+
+    <section id="model">
+      <p class="section-label">Model and assumptions</p>
+      <h2>What is being discretised</h2>
+      <ul>
+        <li>steady, two-dimensional, inviscid flow of a calorically perfect gas, except where time marching is used;</li>
+        <li>isentropic and irrotational flow wherever the method of characteristics is applied;</li>
+        <li>the conservative form of the Euler equations wherever shocks are present;</li>
+        <li>explicit schemes throughout, so that the CFL condition is a real constraint.</li>
+      </ul>
+      <div class="callout warning"><strong>Not included, and not claimed.</strong> A numerical solution is never exact in a mathematical sense. Even when the full model equations are solved, five errors remain: modelling error, discretisation error, iterative error, round-off error, and uncertainty in the boundary conditions and fluid properties. Nothing in this lecture models viscosity, turbulence, chemistry, or heat transfer. In particular, a small residual is evidence that the <em>discrete</em> equations have been satisfied, not that the answer is physically right.</div>
+    </section>
+
+    <section id="characteristics">
+      <p class="section-label">Where the equations simplify</p>
+      <h2>Characteristics and invariants</h2>
+      <p>For steady, two-dimensional, inviscid, isentropic, irrotational flow with \(u=\phi_x\) and \(v=\phi_y\), the exact potential equation is</p>
+      <div class="equation-card">\[\left(1-\frac{u^2}{a^2}\right)\phi_{xx}-\frac{2uv}{a^2}\phi_{xy}+\left(1-\frac{v^2}{a^2}\right)\phi_{yy}=0.\]</div>
+      <p>Together with the exact differentials \(du=\phi_{xx}dx+\phi_{xy}dy\) and \(dv=\phi_{xy}dx+\phi_{yy}dy\) this is a linear system for the three second derivatives. Where its determinant vanishes the derivatives are not uniquely determined, and that condition defines the characteristic directions.</p>
+      <details class="details">
+        <summary>The quadratic and its roots</summary>
+        <div class="details-content">
+          <p>Setting the determinant to zero gives</p>
+          \[\left(1-\frac{u^2}{a^2}\right)\left(\frac{dy}{dx}\right)^2+\frac{2uv}{a^2}\left(\frac{dy}{dx}\right)+\left(1-\frac{v^2}{a^2}\right)=0.\]
+          <p>With \(u=V\cos\theta\), \(v=V\sin\theta\), \(M=V/a\), and \(\mu=\sin^{-1}(1/M)\), the two roots collapse to the tangents of \(\theta\mp\mu\). Real roots require \(M&gt;1\): the equation is hyperbolic only in supersonic flow, which is the same change of type met in Lecture 12.</p>
+        </div>
+      </details>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{\left(\frac{dy}{dx}\right)_{C^-}=\tan(\theta-\mu)}\]</div>
+        <div class="equation-card">\[\boxed{\left(\frac{dy}{dx}\right)_{C^+}=\tan(\theta+\mu)}\]</div>
+      </div>
+      <div class="callout success"><strong>These are the local Mach lines.</strong> Unlike the linear theory of Lecture 12, where \(\mu\) was a constant of the free stream, here \(M\), \(\theta\), and \(\mu\) all vary in space, so the characteristics are curved and must be constructed step by step.</div>
+      <p>The compatibility condition that keeps the derivatives finite reduces the partial differential equation to an ordinary one along each characteristic:</p>
+      <div class="equation-card">\[d\theta=\mp\sqrt{M^2-1}\,\frac{dV}{V},\qquad d\nu=\sqrt{M^2-1}\,\frac{dV}{V},\]</div>
+      <p>where \(\nu\) is the Prandtl–Meyer function of Lecture 05. Hence \(d(\theta+\nu)=0\) along a \(C^-\) and \(d(\theta-\nu)=0\) along a \(C^+\), which defines the two Riemann invariants:</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{K^-=\theta+\nu=\text{const on }C^-}\]</div>
+        <div class="equation-card">\[\boxed{K^+=\theta-\nu=\text{const on }C^+}\]</div>
+      </div>
+      <div class="callout warning">The superscripts label the family, not an algebraic sign, and different textbooks swap the names of \(C^+\) and \(C^-\). What matters is that the slope convention and the compatibility relation are kept consistent with each other throughout a calculation.</div>
+    </section>
+
+    <section id="unitprocess">
+      <p class="section-label">The building block</p>
+      <h2>Unit process and nozzle design</h2>
+      <h3>Interior point</h3>
+      <p>Let points 1 and 2 be known, and let point 3 be the intersection of the \(C^-\) leaving 1 with the \(C^+\) leaving 2. Then \(\theta_3+\nu_3=K^-_1\) and \(\theta_3-\nu_3=K^+_2\), so by sum and difference</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{\theta_3=\tfrac12\left(K^-_1+K^+_2\right)}\]</div>
+        <div class="equation-card">\[\boxed{\nu_3=\tfrac12\left(K^-_1-K^+_2\right)}\]</div>
+      </div>
+      <p>Inverting \(\nu(M)\) gives \(M_3\), and the isentropic relations give the static properties from the common stagnation state. The location of point 3 follows from straight segments with mean slopes:</p>
+      <div class="equation-card">\[m_{13}=\tan\left[\frac{\theta_1+\theta_3}{2}-\frac{\mu_1+\mu_3}{2}\right],\qquad m_{23}=\tan\left[\frac{\theta_2+\theta_3}{2}+\frac{\mu_2+\mu_3}{2}\right].\]</div>
+      <h3>Wall point and axis</h3>
+      <p>When a characteristic reaches a solid wall, the flow direction must match the local tangent, \(\theta_w=\tan^{-1}(dy_w/dx)\), and the invariant carried by the incoming characteristic supplies the rest:</p>
+      <div class="equation-card">\[\boxed{\nu_5=K^-_4-\theta_w}\]</div>
+      <p>On an axis of symmetry the condition is simply \(\theta=0\).</p>
+      <h3>Nozzle design by characteristics</h3>
+      <p>Lecture 07 computed properties from a known area distribution. The method of characteristics solves the inverse problem: it finds the contour that delivers a specified exit Mach number with uniform, parallel, shock-free flow. A two-dimensional nozzle divides into a transonic region near the throat, an expansion section where the wall angle grows, a straightening section where the waves are cancelled, and a uniform exit with \(\theta_e=0\).</p>
+      <p>In a symmetric <strong>minimum-length</strong> nozzle a centred fan springs from the throat corner, the characteristics reflect off the axis and terminate exactly on the wall, and the turning created in the first half must be cancelled in the second. That balance gives</p>
+      <div class="equation-card">\[\boxed{\theta_{w,\max}=\frac{\nu(M_e)}{2}}\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_e\)</th><th>\(\nu(M_e)\) [deg]</th><th>\(\theta_{w,\max}\) [deg]</th><th>\(A_e/A^*\)</th></tr></thead>
+          <tbody>
+            <tr><td>2.0</td><td>26.3798</td><td>13.1899</td><td>1.68750</td></tr>
+            <tr><td>2.5</td><td>39.1236</td><td>19.5618</td><td>2.63672</td></tr>
+            <tr><td>3.0</td><td>49.7573</td><td>24.8787</td><td>4.23457</td></tr>
+            <tr><td>3.5</td><td>58.5298</td><td>29.2649</td><td>6.78962</td></tr>
+            <tr><td>4.0</td><td>65.7848</td><td>32.8924</td><td>10.71875</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning"><strong>Do not start the mesh at \(M=1\).</strong> There \(\mu=90^\circ\) and the characteristic formulation is singular. Practical implementations begin from a separate transonic solution, from a limiting characteristic slightly downstream, or from \(M=1+\varepsilon\) with \(\varepsilon\ll1\).</div>
+      <div class="callout success">The quasi-one-dimensional area ratio is an independent global check on the design: it fixes the average expansion, while the characteristics fix the two-dimensional distribution and the contour that leaves no residual waves.</div>
+    </section>
+
+    <section id="finitedifference">
+      <p class="section-label">The other discretisation</p>
+      <h2>Finite differences and the conservative form</h2>
+      <p>Expanding \(f\) about \(x_i\) and truncating gives the three basic approximations:</p>
+      <div class="equation-card">\[\left.\frac{\partial f}{\partial x}\right|_i\approx\frac{f_{i+1}-f_i}{\Delta x}\;\;O(\Delta x),\qquad\frac{f_i-f_{i-1}}{\Delta x}\;\;O(\Delta x),\qquad\boxed{\frac{f_{i+1}-f_{i-1}}{2\Delta x}\;\;O(\Delta x^2)}\]</div>
+      <p>For \(f(x)=\sin x\) at \(x=1\) with \(\Delta x=0.1\), where the exact derivative is \(\cos1=0.540302\):</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Formula</th><th>Value</th><th>Absolute error</th></tr></thead>
+          <tbody>
+            <tr><td>Forward</td><td>0.497364</td><td>0.042939</td></tr>
+            <tr><td>Backward</td><td>0.581441</td><td>0.041138</td></tr>
+            <tr><td>Central</td><td>0.539402</td><td>0.000900</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout success"><strong>One extra point buys two orders of magnitude.</strong> The one-sided errors are of opposite sign and nearly equal; the central formula is their average, and the leading error cancels. That cancellation, not the extra arithmetic, is what makes it second order.</div>
+      <p>For flows containing shocks the equations must be written in conservative form,</p>
+      <div class="equation-card">\[\boxed{\frac{\partial\mathbf Q}{\partial t}+\frac{\partial\mathbf E}{\partial x}+\frac{\partial\mathbf F}{\partial y}=0}\]</div>
+      <div class="equation-card">\[\mathbf Q=\begin{bmatrix}\rho\\\rho u\\\rho v\\\rho E\end{bmatrix},\qquad\mathbf E=\begin{bmatrix}\rho u\\\rho u^2+p\\\rho uv\\u(\rho E+p)\end{bmatrix},\qquad\mathbf F=\begin{bmatrix}\rho v\\\rho uv\\\rho v^2+p\\v(\rho E+p)\end{bmatrix},\]</div>
+      <p>with \(E=e+\frac12(u^2+v^2)\) and \(p=(\gamma-1)\rho\left[E-\frac12(u^2+v^2)\right]\).</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Representation</th><th>Advantage</th><th>Risk</th></tr></thead>
+          <tbody>
+            <tr><td>Conservative \(\mathbf Q\)</td><td>captures jumps, conserves fluxes</td><td>needs extra algebraic conversion</td></tr>
+            <tr><td>Primitive \(\mathbf W=[\rho\ u\ v\ p]^T\)</td><td>direct physical interpretation</td><td>can produce wrong jumps if the scheme is not conservative</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning"><strong>A non-conservative discretisation puts the shock in the wrong place.</strong> The scheme will converge, produce a smooth-looking field, and satisfy the wrong jump conditions. Advance \(\mathbf Q\); interpret in \(\mathbf W\).</div>
+    </section>
+
+    <section id="marching">
+      <p class="section-label">Advancing the solution</p>
+      <h2>Marching in space and in time</h2>
+      <h3>Body-fitted coordinates</h3>
+      <p>A curved wall produces a non-rectangular physical mesh. For a duct with upper wall \(y_s(x)\), the transformation \(\xi=x\), \(\eta=y/y_s(x)\) maps the domain onto \(0\le\eta\le1\) regardless of the local height, and the chain rule gives</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{\frac{\partial}{\partial x}=\frac{\partial}{\partial\xi}-\frac{\eta}{y_s}\frac{dy_s}{dx}\frac{\partial}{\partial\eta}}\]</div>
+        <div class="equation-card">\[\boxed{\frac{\partial}{\partial y}=\frac{1}{y_s}\frac{\partial}{\partial\eta}}\]</div>
+      </div>
+      <h3>The MacCormack predictor–corrector</h3>
+      <p>For \(\partial\mathbf Q/\partial t+\partial\mathbf E/\partial x=0\), the scheme alternates the direction of differencing between two steps:</p>
+      <div class="equation-card">\[\mathbf Q_i^*=\mathbf Q_i^n-\frac{\Delta t}{\Delta x}\left(\mathbf E_{i+1}^n-\mathbf E_i^n\right),\]</div>
+      <div class="equation-card">\[\mathbf Q_i^{n+1}=\frac12\left[\mathbf Q_i^n+\mathbf Q_i^*-\frac{\Delta t}{\Delta x}\left(\mathbf E_i^*-\mathbf E_{i-1}^*\right)\right].\]</div>
+      <p>For smooth solutions it is second-order accurate in space and time, and the alternation is what removes the first-order error of either one-sided step alone.</p>
+      <h3>Space marching and its limit</h3>
+      <p>If the flow is supersonic in the marching direction and every characteristic points downstream, the steady equations can be rearranged as \(\partial\mathbf U/\partial x=\mathbf R(\mathbf U,\partial\mathbf U/\partial y,x,y)\) and advanced from an initial line. The algorithm is the same, with \(x\) in the role of the marching variable.</p>
+      <div class="callout warning"><strong>A single subsonic pocket destroys the whole scheme.</strong> If any information can travel upstream, the downstream march is solving the wrong problem, and refining the step size does not help. This is exactly why a blunt body cannot be space-marched.</div>
+      <h3>Stability and the CFL number</h3>
+      <p>An explicit step cannot outrun the physical domain of dependence. A two-dimensional estimate is</p>
+      <div class="equation-card">\[\boxed{\Delta t\le\mathrm{CFL}\,\min_{i,j}\left[\frac{1}{\dfrac{|u|+a}{\Delta x}+\dfrac{|v|+a}{\Delta y}}\right]_{i,j}},\qquad 0&lt;\mathrm{CFL}&lt;1.\]</div>
+      <div class="callout">For \(u=500\ \mathrm{m/s}\), \(v=100\ \mathrm{m/s}\), \(a=300\ \mathrm{m/s}\), \(\Delta x=0.01\ \mathrm{m}\), \(\Delta y=0.008\ \mathrm{m}\) and \(\mathrm{CFL}=0.5\), the limit is \(\Delta t=3.84615\times10^{-6}\ \mathrm{s}\). Halving the mesh spacing halves the step, so the cost of a steady solution by time marching grows faster than the number of cells.</div>
+      <h3>Time marching to a steady state</h3>
+      <p>Behind the detached shock of a blunt body there are both subsonic and supersonic regions, and no single spatial march crosses that mixed domain. The remedy is to integrate the unsteady equations in pseudo-time until the temporal derivatives vanish, accepting the transient as a numerical device with no physical meaning. Convergence is declared from</p>
+      <div class="equation-card">\[\frac{\|\mathbf Q^{n+1}-\mathbf Q^n\|_2}{\|\mathbf Q^{n+1}\|_2}&lt;\varepsilon_Q,\qquad\|\mathbf R(\mathbf Q^{n+1})\|_2&lt;\varepsilon_R.\]</div>
+      <h3>Fitted and captured shocks</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Strategy</th><th>Description</th><th>Consequence</th></tr></thead>
+          <tbody>
+            <tr><td>Shock fitting</td><td>the wave is an explicit moving boundary</td><td>sharp jump, complicated geometry</td></tr>
+            <tr><td>Shock capturing</td><td>the wave emerges inside a conservative mesh</td><td>general implementation, jump smeared over cells</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>In a fitted blunt-body calculation the mesh between the body \(x=b(y)\) and the shock \(x=s(y,t)\) is mapped by \(\xi=(x-b)/(s-b)\), \(\eta=y\), so that \(\xi=0\) is the body and \(\xi=1\) is the shock.</p>
+      <div class="callout warning"><strong>Behind a curved shock the flow is rotational.</strong> Each streamline crosses a different shock strength, so entropy varies transversely, \(\nabla s\neq0\). For adiabatic flow with uniform \(h_0\), Crocco's theorem \(T\nabla s=\nabla h_0-\mathbf V\times\boldsymbol\omega\) then forces \(\boldsymbol\omega\neq0\). A potential formulation is therefore invalid: the full conservation equations are required. MacCormack is also weakly dissipative, so shocks need artificial viscosity, flux limiters, TVD schemes, or a Riemann-based capture — and artificial viscosity is a numerical stabiliser, not a model of molecular viscosity.</div>
+    </section>
+
+    <section id="cone">
+      <p class="section-label">A partial differential equation reduced</p>
+      <h2>Conical flow and the Taylor–Maccoll equation</h2>
+      <p>A semi-infinite circular cone at zero incidence generates a conical shock. Because the problem has no characteristic length, properties are constant along rays from the vertex and vary only with the polar angle \(\vartheta\), so \(\partial/\partial r=0\) and \(\partial/\partial\varphi=0\). Irrotationality then reduces to \(V_\vartheta=dV_r/d\vartheta\).</p>
+      <p>Non-dimensionalising with \(V_{\max}=\sqrt{2h_0}\) and \(V'=V/V_{\max}\) gives, for a calorically perfect gas,</p>
+      <div class="equation-card">\[\boxed{V'=\left[1+\frac{2}{(\gamma-1)M^2}\right]^{-1/2}}\]</div>
+      <p>and the governing equation becomes a single second-order ordinary differential equation, written as a first-order system:</p>
+      <div class="equation-card">\[\frac{dV_r'}{d\vartheta}=V_\vartheta',\qquad\boxed{\frac{dV_\vartheta'}{d\vartheta}=\frac{V_r'V_\vartheta'^2-A\left(2V_r'+V_\vartheta'\cot\vartheta\right)}{A-V_\vartheta'^2}},\qquad A=\frac{\gamma-1}{2}\left(1-V_r'^2-V_\vartheta'^2\right).\]</div>
+      <div class="callout success"><strong>The partial differential equation has become an ordinary one.</strong> Conicality has removed two independent variables, and what remains integrates with Runge–Kutta in a fraction of the cost of a two-dimensional field solution. There is no general closed-form solution, which is precisely why the problem belongs in this lecture.</div>
+      <p>The practical procedure is inverse: the shock angle is assumed and the cone angle comes out at the end.</p>
+      <div class="process-flow">
+        <div><strong>1</strong><span>Specify \(M_\infty\) and assume a shock angle \(\beta\)</span></div>
+        <div><strong>2</strong><span>Oblique-shock relations give the deflection \(\delta\) and \(M_2\)</span></div>
+        <div><strong>3</strong><span>Compute \(V_2'\) and set \(V_r'=V_2'\cos(\beta-\delta)\), \(V_\vartheta'=-V_2'\sin(\beta-\delta)\)</span></div>
+        <div><strong>4</strong><span>Integrate from \(\vartheta=\beta\) toward smaller angles</span></div>
+        <div><strong>5</strong><span>Stop when \(V_\vartheta'=0\); that angle is the cone half-angle \(\theta_c\)</span></div>
+        <div><strong>6</strong><span>Recover \(M\), \(p\), \(T\), \(\rho\) on every ray</span></div>
+      </div>
+      <div class="callout">Compared with a wedge of the same half-angle, a cone shows three-dimensional relief: a smaller shock angle, a lower surface pressure, a higher Mach number behind the wave, and a larger maximum angle compatible with an attached shock.</div>
+    </section>
+
+    <section id="verification">
+      <p class="section-label">Quality control</p>
+      <h2>Verification and validation</h2>
+      <p>Given three results \(\Phi_h\), \(\Phi_{h/2}\), \(\Phi_{h/4}\) on successively refined meshes, qualitative convergence requires \(|\Phi_{h/2}-\Phi_{h/4}|&lt;|\Phi_h-\Phi_{h/2}|\), and for an observed order \(p\) the Richardson estimate of the mesh-independent value is</p>
+      <div class="equation-card">\[\boxed{\Phi_{\mathrm{ext}}\approx\Phi_{h/2}+\frac{\Phi_{h/2}-\Phi_h}{2^p-1}}\]</div>
+      <p>Global balances must also hold. In a steady nozzle,</p>
+      <div class="equation-card">\[\dot m(x)=\int_A\rho u\,dA\approx\text{const},\qquad\dot E(x)=\int_A\rho u h_0\,dA\approx\text{const}.\]</div>
+      <div class="callout warning"><strong>A small residual proves almost nothing.</strong> It says the discrete equations are satisfied. It does not say the mesh is adequate, the boundary conditions are right, the physical model is appropriate, or the answer resembles reality.</div>
+      <p>Before accepting a numerical result, check mesh independence, decreasing residuals, conservation of mass, momentum, and energy, positivity of \(\rho\), \(p\), and \(T\), consistency with analytical limits, sensitivity to boundary conditions, and comparison with reference data.</p>
+      <p>A teaching code should carry automated regression cases with a fixed tolerance:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Routine</th><th>Input</th><th>Reference result</th></tr></thead>
+          <tbody>
+            <tr><td>Characteristics intersection</td><td>the worked example below</td><td>\(M_3=2.38379\), \((x_3,y_3)=(0.088996,\,0.048820)\ \mathrm{m}\)</td></tr>
+            <tr><td>Minimum-length nozzle</td><td>\(M_e=2.5\), \(\gamma=1.4\)</td><td>\(\theta_{w,\max}=19.5618^\circ\), \(A_e/A^*=2.63672\)</td></tr>
+            <tr><td>Central difference</td><td>\(f=e^x\), \(x=0\), \(\Delta x=0.2\)</td><td>\(f'_C=1.00668\), smaller error than either one-sided form</td></tr>
+            <tr><td>CFL limit</td><td>\(u=500\), \(v=100\), \(a=300\), \(\Delta x=0.01\), \(\Delta y=0.008\), \(\mathrm{CFL}=0.5\)</td><td>\(\Delta t_{\max}=3.84615\times10^{-6}\ \mathrm{s}\)</td></tr>
+            <tr><td>Taylor–Maccoll start</td><td>\(M_\infty=2\), \(\beta=40^\circ\)</td><td>\(V_r'=0.51070\), \(V_\vartheta'=-0.28749\)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Beyond matching those values, the code should refuse \(M&lt;1\) when inverting \(\nu(M)\), preserve \(\rho&gt;0\), \(p&gt;0\), \(T&gt;0\), and report explicitly when a root or an integration fails to converge.</p>
+    </section>
+
+    <section id="algorithm">
+      <p class="section-label">Calculation algorithm</p>
+      <h2>Designing a minimum-length nozzle</h2>
+      <div class="process-flow">
+        <div><strong>1</strong><span>Specify \(M_e\), \(\gamma\), throat height, and the number of characteristics</span></div>
+        <div><strong>2</strong><span>Compute \(\nu_e=\nu(M_e)\) and \(\theta_{w,\max}=\nu_e/2\)</span></div>
+        <div><strong>3</strong><span>Discretise the initial fan in increments of \(\theta\) or \(\nu\)</span></div>
+        <div><strong>4</strong><span>Obtain interior points from the invariants and the mean-slope intersections</span></div>
+        <div><strong>5</strong><span>Impose \(\theta=0\) on the axis</span></div>
+        <div><strong>6</strong><span>Obtain wall points from tangency and compatibility</span></div>
+        <div><strong>7</strong><span>Continue until \(\theta=0\) and \(M=M_e\) across the exit</span></div>
+        <div><strong>8</strong><span>Verify uniformity of \(M\), \(p\), and direction, and check mass conservation</span></div>
+      </div>
+      <div class="callout success">Repeat the whole design with an increasing number of characteristics. Approximating curved characteristics by straight segments is the dominant error, and only a refinement study shows whether it has been made small.</div>
+    </section>
+
+    <section id="example">
+      <p class="section-label">Worked example</p>
+      <h2>One characteristics unit process</h2>
+      <div class="example">
+        <h3>Problem</h3>
+        <p>Two points in a supersonic air flow have \((x_1,y_1)=(0,\,0.0684)\ \mathrm{m}\), \(u_1=639\ \mathrm{m/s}\), \(v_1=232.6\ \mathrm{m/s}\); and \((x_2,y_2)=(0.0121,\,0)\ \mathrm{m}\), \(u_2=680\ \mathrm{m/s}\), \(v_2=0\). At both points \(p=1\ \mathrm{atm}\) and \(T=288\ \mathrm{K}\). Determine the state and position of point 3, defined by the \(C^-\) from 1 and the \(C^+\) from 2. Use \(\gamma=1.4\), \(R=287\ \mathrm{J/(kg\,K)}\).</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Speed of sound and velocity magnitudes:</p>\[a=\sqrt{\gamma RT}=340.174\ \mathrm{m/s},\quad V_1=680.017\ \mathrm{m/s},\quad V_2=680.000\ \mathrm{m/s},\]\[M_1=1.99903,\qquad M_2=1.99898.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Flow angles and Prandtl–Meyer values:</p>\[\theta_1=\tan^{-1}\!\left(\frac{232.6}{639}\right)=20.0018^\circ,\qquad\theta_2=0,\]\[\nu_1=26.3530^\circ,\qquad\nu_2=26.3515^\circ.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Invariants and the unit process:</p>\[K^-_1=\theta_1+\nu_1=46.3548^\circ,\qquad K^+_2=\theta_2-\nu_2=-26.3515^\circ,\]\[\theta_3=10.0016^\circ,\qquad\nu_3=36.3532^\circ\;\Longrightarrow\;M_3=2.38379.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Static properties from the common stagnation state:</p>\[T_0=288\left(1+0.2M_1^2\right)=518.176\ \mathrm{K},\qquad T_3=\frac{T_0}{1+0.2M_3^2}=242.536\ \mathrm{K},\]\[p_0=p_1\left(1+0.2M_1^2\right)^{3.5}=7.9161\times10^{5}\ \mathrm{Pa},\qquad p_3=55.534\ \mathrm{kPa}=0.54808\ \mathrm{atm}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>Velocity components at 3:</p>\[a_3=312.171\ \mathrm{m/s},\quad V_3=M_3a_3=744.152\ \mathrm{m/s},\]\[u_3=V_3\cos\theta_3=732.843\ \mathrm{m/s},\qquad v_3=V_3\sin\theta_3=129.241\ \mathrm{m/s}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">6</span><div><p>Position from the mean slopes, with \(\mu_1=30.0161^\circ\), \(\mu_2=30.0169^\circ\), \(\mu_3=24.8030^\circ\):</p>\[m_{13}=-0.22001,\qquad m_{23}=0.63488,\]<p>and intersecting \(y-y_1=m_{13}(x-x_1)\) with \(y-y_2=m_{23}(x-x_2)\):</p>\[x_3=0.088996\ \mathrm{m},\qquad y_3=0.048820\ \mathrm{m}.\]</div></div>
+
+        <div class="result-box">\[\boxed{M_3=2.3838,\quad u_3=732.8\ \mathrm{m/s},\quad v_3=129.2\ \mathrm{m/s},\quad p_3=55.5\ \mathrm{kPa},\quad T_3=242.5\ \mathrm{K}}\]</div>
+        <p>Notice that the flow has expanded from \(M\approx2.00\) to \(M=2.38\) purely by the interaction of two characteristics, with no wall present at point 3. Repeating this six-step process over a mesh of intersections is the entire method; everything else is bookkeeping and boundary conditions.</p>
+      </div>
+      <div class="validation-case">
+        <strong>Calculator validation case</strong>
+        <span>Both \(\nu(M)\) and its inversion come from the Prandtl–Meyer module: \(\nu(1.99903)=26.3530^\circ\) and \(\nu^{-1}(36.3532^\circ)=2.38379\), with \(\gamma=1.4\).</span>
+      </div>
+    </section>
+
+    <section id="summary">
+      <p class="section-label">Key equations</p>
+      <h2>At a glance</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Relation</th><th>Expression</th><th>Applies when</th></tr></thead>
+          <tbody>
+            <tr><td>Characteristic slopes</td><td>\((dy/dx)_{C^\mp}=\tan(\theta\mp\mu)\)</td><td>\(M&gt;1\), irrotational</td></tr>
+            <tr><td>Invariants</td><td>\(K^-=\theta+\nu\), \(K^+=\theta-\nu\)</td><td>constant along their own family</td></tr>
+            <tr><td>Interior point</td><td>\(\theta_3=\frac12(K^-_1+K^+_2)\), \(\nu_3=\frac12(K^-_1-K^+_2)\)</td><td>two known points</td></tr>
+            <tr><td>Wall point</td><td>\(\nu_5=K^-_4-\theta_w\)</td><td>solid impermeable wall</td></tr>
+            <tr><td>Minimum-length nozzle</td><td>\(\theta_{w,\max}=\nu(M_e)/2\)</td><td>centred fan, parallel exit</td></tr>
+            <tr><td>Central difference</td><td>\((f_{i+1}-f_{i-1})/2\Delta x\)</td><td>\(O(\Delta x^2)\), smooth \(f\)</td></tr>
+            <tr><td>Conservative Euler</td><td>\(\mathbf Q_t+\mathbf E_x+\mathbf F_y=0\)</td><td>mandatory where shocks exist</td></tr>
+            <tr><td>MacCormack</td><td>forward predictor, backward corrector</td><td>second order, weakly dissipative</td></tr>
+            <tr><td>CFL condition</td><td>\(\Delta t\le\mathrm{CFL}\left[\frac{|u|+a}{\Delta x}+\frac{|v|+a}{\Delta y}\right]^{-1}\)</td><td>explicit schemes</td></tr>
+            <tr><td>Taylor–Maccoll</td><td>\(dV_\vartheta'/d\vartheta\) system, \(V'=[1+2/((\gamma-1)M^2)]^{-1/2}\)</td><td>circular cone, \(\alpha=0\)</td></tr>
+            <tr><td>Richardson</td><td>\(\Phi_{\mathrm{ext}}\approx\Phi_{h/2}+(\Phi_{h/2}-\Phi_h)/(2^p-1)\)</td><td>observed order \(p\)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="mistakes">
+      <p class="section-label">Common mistakes</p>
+      <h2>Common mistakes</h2>
+      <ul class="check-list">
+        <li><strong>Swapping \(C^+\) and \(C^-\) halfway through a calculation.</strong> The names are arbitrary; the pairing of a slope with its compatibility relation is not.</li>
+        <li><strong>Starting a characteristics mesh exactly at \(M=1\).</strong> There \(\mu=90^\circ\) and the formulation is singular. Begin slightly downstream.</li>
+        <li><strong>Space marching through a subsonic region.</strong> Information travels upstream there, so the march is solving a different problem. Refining the mesh will not reveal the error.</li>
+        <li><strong>Discretising a shock with non-conservative equations.</strong> The scheme converges cleanly to the wrong jump.</li>
+        <li><strong>Accepting residual convergence as proof of accuracy.</strong> It shows the discrete equations are satisfied, nothing more.</li>
+        <li><strong>Reporting many digits without a mesh study.</strong> Six figures on a single mesh are six figures of an unknown discretisation.</li>
+        <li><strong>Confusing artificial viscosity with physical dissipation.</strong> It spreads a jump over a few cells to stabilise the calculation; it is not a model of molecular transport.</li>
+        <li><strong>Applying the two-dimensional method of characteristics behind a curved shock.</strong> The flow there is rotational, and the compatibility relations used here assume it is not.</li>
+        <li><strong>Imposing every variable on every boundary.</strong> The number of conditions must match the number of incoming characteristics.</li>
+        <li><strong>Comparing an inviscid solution with viscous data without saying so.</strong> The difference is a modelling gap, not a numerical error.</li>
+      </ul>
+    </section>
+
+    <section id="advanced">
+      <p class="section-label">Further topics</p>
+      <h2>What this lecture defers</h2>
+      <p>The schemes here are the classical explicit ones, chosen because they can be followed by hand. Modern practice adds flux limiters and TVD constructions, approximate Riemann solvers, finite-volume formulations on unstructured and adaptive meshes, implicit and dual-time integration to escape the CFL limit, and high-order reconstruction. Each removes one of the weaknesses named above without changing the reasoning that motivates them.</p>
+      <p>Also outside the scope: turbulence modelling and the Reynolds-averaged equations, real-gas and non-equilibrium thermochemistry, three-dimensional and genuinely unsteady problems, and coupled fluid–structure or fluid–thermal analysis. The hypersonic application of these methods, where no ground facility reproduces all flight parameters at once, is discussed in Lecture 15.</p>
+      <div class="callout">The nozzle contours produced by the method of characteristics feed directly into the operating-regime analysis of Lectures 08 and 09: the design exit Mach number of this lecture is the \(M_e\) that those lectures take as given.</div>
+    </section>
+
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed. New York: McGraw-Hill Education, 2017, Chapter 13.</li>
+        <li>Anderson, J. D., Jr. <em>Computational Fluid Dynamics: The Basics with Applications</em>. New York: McGraw-Hill, 1995, Chapters 6–12.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexico, February 2024.</li>
+      </ol>
+      <p class="source-note">Adapted from Unit VII of the Aerodynamics II course notes by Carlos Alberto Molina Holguín, which the script marks as supplementary material; all numerical values were independently recomputed for \(\gamma=1.4\).</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="hypersonic-flow-introduction.html"><span>Previous lecture</span>← The Hypersonic Regime</a>
+      <a class="next-link" href="applied-hypersonic-aerodynamics.html"><span>Next lecture</span>Applied Hypersonic Aerodynamics →</a>
+    </nav>
+  </article>
+
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Lo que debes ser capaz de hacer</h2>
+      <ul>
+        <li>Deducir las direcciones características de la ecuación exacta del potencial e identificarlas como líneas de Mach.</li>
+        <li>Ejecutar el proceso unitario para un punto interior y para un punto de pared usando los invariantes \(K^\pm\).</li>
+        <li>Calcular el ángulo máximo de pared de una tobera de longitud mínima a partir de \(\nu(M_e)\).</li>
+        <li>Comparar diferencias hacia adelante, hacia atrás y centrales, y enunciar su orden de precisión.</li>
+        <li>Aplicar el predictor–corrector de MacCormack y evaluar el límite de paso temporal por CFL.</li>
+        <li>Elegir entre marcha espacial, marcha temporal y la ecuación de Taylor–Maccoll para un problema dado.</li>
+        <li>Diseñar un procedimiento de verificación que distinga un residuo convergido de una respuesta exacta.</li>
+      </ul>
+    </section>
+
+    <section id="physics-es">
+      <p class="section-label">Panorama físico</p>
+      <h2>Un campo de números en lugar de una función</h2>
+      <p class="lead">Todo resultado en forma cerrada de este curso compró su simplicidad con una restricción: una pared recta, un estado aguas arriba uniforme, una sola onda. Curva la pared, deja que el Mach varíe a lo largo de ella o coloca un cuerpo romo en la corriente, y no existe solución algebraica. Un método numérico sustituye las derivadas e integrales de las ecuaciones gobernantes por aproximaciones algebraicas sobre un conjunto finito de puntos, y devuelve no una función sino una tabla de valores \(\{\rho_{i,j},u_{i,j},v_{i,j},p_{i,j},T_{i,j}\}\).</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Enfoque</th><th>Ventaja principal</th><th>Limitación principal</th><th>Uso típico</th></tr></thead>
+          <tbody>
+            <tr><td>Analítico</td><td>interpretación y relaciones paramétricas</td><td>geometrías e hipótesis restringidas</td><td>tendencias, validación, diseño preliminar</td></tr>
+            <tr><td>Experimental</td><td>contiene la física real</td><td>costo, escalamiento, instrumentación</td><td>validación y certificación</td></tr>
+            <tr><td>Numérico</td><td>campos completos, geometrías complejas</td><td>error de modelo, malla y algoritmo</td><td>diseño, optimización, análisis detallado</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout success"><strong>Los tres son complementarios, no competidores.</strong> Los resultados analíticos de las Lectures 04 a 06 son lo que hace verificable una solución numérica: un código que no puede reproducir un choque oblicuo en \(M_1=3\) no merece confianza en un contorno de tobera.</div>
+    </section>
+
+    <section id="model-es">
+      <p class="section-label">Modelo e hipótesis</p>
+      <h2>Qué se está discretizando</h2>
+      <ul>
+        <li>flujo estacionario, bidimensional e inviscido de un gas calóricamente perfecto, salvo donde se usa marcha temporal;</li>
+        <li>flujo isoentrópico e irrotacional dondequiera que se aplique el método de características;</li>
+        <li>la forma conservativa de las ecuaciones de Euler dondequiera que existan choques;</li>
+        <li>esquemas explícitos en todo momento, de modo que la condición CFL sea una restricción real.</li>
+      </ul>
+      <div class="callout warning"><strong>No incluido, y no afirmado.</strong> Una solución numérica nunca es exacta en sentido matemático. Aun resolviendo las ecuaciones completas del modelo, quedan cinco errores: de modelado, de discretización, iterativo, de redondeo e incertidumbre en las condiciones de frontera y propiedades del fluido. Nada en esta lecture modela viscosidad, turbulencia, química ni transferencia de calor. En particular, un residuo pequeño es evidencia de que se han satisfecho las ecuaciones <em>discretas</em>, no de que la respuesta sea físicamente correcta.</div>
+    </section>
+
+    <section id="characteristics-es">
+      <p class="section-label">Donde las ecuaciones se simplifican</p>
+      <h2>Características e invariantes</h2>
+      <p>Para flujo estacionario, bidimensional, inviscido, isoentrópico e irrotacional con \(u=\phi_x\) y \(v=\phi_y\), la ecuación exacta del potencial es</p>
+      <div class="equation-card">\[\left(1-\frac{u^2}{a^2}\right)\phi_{xx}-\frac{2uv}{a^2}\phi_{xy}+\left(1-\frac{v^2}{a^2}\right)\phi_{yy}=0.\]</div>
+      <p>Junto con las diferenciales exactas \(du=\phi_{xx}dx+\phi_{xy}dy\) y \(dv=\phi_{xy}dx+\phi_{yy}dy\), esto es un sistema lineal para las tres segundas derivadas. Donde su determinante se anula, las derivadas no quedan determinadas de manera única, y esa condición define las direcciones características.</p>
+      <details class="details">
+        <summary>La cuadrática y sus raíces</summary>
+        <div class="details-content">
+          <p>Anulando el determinante se obtiene</p>
+          \[\left(1-\frac{u^2}{a^2}\right)\left(\frac{dy}{dx}\right)^2+\frac{2uv}{a^2}\left(\frac{dy}{dx}\right)+\left(1-\frac{v^2}{a^2}\right)=0.\]
+          <p>Con \(u=V\cos\theta\), \(v=V\sin\theta\), \(M=V/a\) y \(\mu=\sin^{-1}(1/M)\), las dos raíces se reducen a las tangentes de \(\theta\mp\mu\). Que las raíces sean reales exige \(M&gt;1\): la ecuación es hiperbólica solo en flujo supersónico, que es el mismo cambio de tipo visto en la Lecture 12.</p>
+        </div>
+      </details>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{\left(\frac{dy}{dx}\right)_{C^-}=\tan(\theta-\mu)}\]</div>
+        <div class="equation-card">\[\boxed{\left(\frac{dy}{dx}\right)_{C^+}=\tan(\theta+\mu)}\]</div>
+      </div>
+      <div class="callout success"><strong>Son las líneas de Mach locales.</strong> A diferencia de la teoría lineal de la Lecture 12, donde \(\mu\) era una constante de la corriente libre, aquí \(M\), \(\theta\) y \(\mu\) varían en el espacio, así que las características son curvas y deben construirse paso a paso.</div>
+      <p>La condición de compatibilidad que mantiene finitas las derivadas reduce la ecuación en derivadas parciales a una ordinaria a lo largo de cada característica:</p>
+      <div class="equation-card">\[d\theta=\mp\sqrt{M^2-1}\,\frac{dV}{V},\qquad d\nu=\sqrt{M^2-1}\,\frac{dV}{V},\]</div>
+      <p>donde \(\nu\) es la función de Prandtl–Meyer de la Lecture 05. Por tanto \(d(\theta+\nu)=0\) sobre una \(C^-\) y \(d(\theta-\nu)=0\) sobre una \(C^+\), lo que define los dos invariantes de Riemann:</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{K^-=\theta+\nu=\text{const sobre }C^-}\]</div>
+        <div class="equation-card">\[\boxed{K^+=\theta-\nu=\text{const sobre }C^+}\]</div>
+      </div>
+      <div class="callout warning">Los superíndices etiquetan la familia, no un signo algebraico, y distintos textos intercambian los nombres de \(C^+\) y \(C^-\). Lo que importa es mantener el convenio de pendiente y la relación de compatibilidad coherentes entre sí durante todo el cálculo.</div>
+    </section>
+
+    <section id="unitprocess-es">
+      <p class="section-label">El ladrillo básico</p>
+      <h2>Proceso unitario y diseño de toberas</h2>
+      <h3>Punto interior</h3>
+      <p>Sean conocidos los puntos 1 y 2, y sea el punto 3 la intersección de la \(C^-\) que sale de 1 con la \(C^+\) que sale de 2. Entonces \(\theta_3+\nu_3=K^-_1\) y \(\theta_3-\nu_3=K^+_2\), así que por suma y diferencia</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{\theta_3=\tfrac12\left(K^-_1+K^+_2\right)}\]</div>
+        <div class="equation-card">\[\boxed{\nu_3=\tfrac12\left(K^-_1-K^+_2\right)}\]</div>
+      </div>
+      <p>Invertir \(\nu(M)\) da \(M_3\), y las relaciones isoentrópicas dan las propiedades estáticas a partir del estado de estancamiento común. La posición del punto 3 sale de segmentos rectos con pendientes medias:</p>
+      <div class="equation-card">\[m_{13}=\tan\left[\frac{\theta_1+\theta_3}{2}-\frac{\mu_1+\mu_3}{2}\right],\qquad m_{23}=\tan\left[\frac{\theta_2+\theta_3}{2}+\frac{\mu_2+\mu_3}{2}\right].\]</div>
+      <h3>Punto de pared y eje</h3>
+      <p>Cuando una característica llega a una pared sólida, la dirección del flujo debe coincidir con la tangente local, \(\theta_w=\tan^{-1}(dy_w/dx)\), y el invariante que trae la característica entrante aporta el resto:</p>
+      <div class="equation-card">\[\boxed{\nu_5=K^-_4-\theta_w}\]</div>
+      <p>En un eje de simetría la condición es simplemente \(\theta=0\).</p>
+      <h3>Diseño de toberas por características</h3>
+      <p>La Lecture 07 calculó propiedades a partir de una distribución de área conocida. El método de características resuelve el problema inverso: encuentra el contorno que entrega un Mach de salida especificado con flujo uniforme, paralelo y sin choques. Una tobera bidimensional se divide en una región transónica cerca de la garganta, una sección de expansión donde crece el ángulo de pared, una sección de enderezamiento donde se cancelan las ondas, y una salida uniforme con \(\theta_e=0\).</p>
+      <p>En una tobera simétrica de <strong>longitud mínima</strong> un abanico centrado parte de la esquina de la garganta, las características se reflejan en el eje y terminan exactamente sobre la pared, y el giro creado en la primera mitad debe cancelarse en la segunda. Ese balance da</p>
+      <div class="equation-card">\[\boxed{\theta_{w,\max}=\frac{\nu(M_e)}{2}}\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_e\)</th><th>\(\nu(M_e)\) [grados]</th><th>\(\theta_{w,\max}\) [grados]</th><th>\(A_e/A^*\)</th></tr></thead>
+          <tbody>
+            <tr><td>2.0</td><td>26.3798</td><td>13.1899</td><td>1.68750</td></tr>
+            <tr><td>2.5</td><td>39.1236</td><td>19.5618</td><td>2.63672</td></tr>
+            <tr><td>3.0</td><td>49.7573</td><td>24.8787</td><td>4.23457</td></tr>
+            <tr><td>3.5</td><td>58.5298</td><td>29.2649</td><td>6.78962</td></tr>
+            <tr><td>4.0</td><td>65.7848</td><td>32.8924</td><td>10.71875</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning"><strong>No inicies la malla en \(M=1\).</strong> Ahí \(\mu=90^\circ\) y la formulación característica es singular. Las implementaciones prácticas arrancan de una solución transónica separada, de una característica limitante ligeramente aguas abajo, o de \(M=1+\varepsilon\) con \(\varepsilon\ll1\).</div>
+      <div class="callout success">La relación de área cuasiunidimensional es una comprobación global independiente del diseño: fija la expansión promedio, mientras que las características fijan la distribución bidimensional y el contorno que no deja ondas residuales.</div>
+    </section>
+
+    <section id="finitedifference-es">
+      <p class="section-label">La otra discretización</p>
+      <h2>Diferencias finitas y la forma conservativa</h2>
+      <p>Desarrollando \(f\) alrededor de \(x_i\) y truncando se obtienen las tres aproximaciones básicas:</p>
+      <div class="equation-card">\[\left.\frac{\partial f}{\partial x}\right|_i\approx\frac{f_{i+1}-f_i}{\Delta x}\;\;O(\Delta x),\qquad\frac{f_i-f_{i-1}}{\Delta x}\;\;O(\Delta x),\qquad\boxed{\frac{f_{i+1}-f_{i-1}}{2\Delta x}\;\;O(\Delta x^2)}\]</div>
+      <p>Para \(f(x)=\sin x\) en \(x=1\) con \(\Delta x=0.1\), donde la derivada exacta es \(\cos1=0.540302\):</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Fórmula</th><th>Valor</th><th>Error absoluto</th></tr></thead>
+          <tbody>
+            <tr><td>Hacia adelante</td><td>0.497364</td><td>0.042939</td></tr>
+            <tr><td>Hacia atrás</td><td>0.581441</td><td>0.041138</td></tr>
+            <tr><td>Central</td><td>0.539402</td><td>0.000900</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout success"><strong>Un punto más compra dos órdenes de magnitud.</strong> Los errores unilaterales son de signo opuesto y casi iguales; la fórmula central es su promedio, y el error dominante se cancela. Esa cancelación, y no la aritmética adicional, es lo que la hace de segundo orden.</div>
+      <p>Para flujos con choques las ecuaciones deben escribirse en forma conservativa,</p>
+      <div class="equation-card">\[\boxed{\frac{\partial\mathbf Q}{\partial t}+\frac{\partial\mathbf E}{\partial x}+\frac{\partial\mathbf F}{\partial y}=0}\]</div>
+      <div class="equation-card">\[\mathbf Q=\begin{bmatrix}\rho\\\rho u\\\rho v\\\rho E\end{bmatrix},\qquad\mathbf E=\begin{bmatrix}\rho u\\\rho u^2+p\\\rho uv\\u(\rho E+p)\end{bmatrix},\qquad\mathbf F=\begin{bmatrix}\rho v\\\rho uv\\\rho v^2+p\\v(\rho E+p)\end{bmatrix},\]</div>
+      <p>con \(E=e+\frac12(u^2+v^2)\) y \(p=(\gamma-1)\rho\left[E-\frac12(u^2+v^2)\right]\).</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Representación</th><th>Ventaja</th><th>Riesgo</th></tr></thead>
+          <tbody>
+            <tr><td>Conservativa \(\mathbf Q\)</td><td>captura saltos, conserva flujos</td><td>requiere conversión algebraica extra</td></tr>
+            <tr><td>Primitiva \(\mathbf W=[\rho\ u\ v\ p]^T\)</td><td>interpretación física directa</td><td>puede dar saltos incorrectos si el esquema no es conservativo</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning"><strong>Una discretización no conservativa pone el choque en el lugar equivocado.</strong> El esquema converge, produce un campo de aspecto suave y satisface las condiciones de salto equivocadas. Avanza \(\mathbf Q\); interpreta en \(\mathbf W\).</div>
+    </section>
+
+    <section id="marching-es">
+      <p class="section-label">Avanzando la solución</p>
+      <h2>Marcha en el espacio y en el tiempo</h2>
+      <h3>Coordenadas ajustadas al cuerpo</h3>
+      <p>Una pared curva produce una malla física no rectangular. Para un conducto con pared superior \(y_s(x)\), la transformación \(\xi=x\), \(\eta=y/y_s(x)\) mapea el dominio a \(0\le\eta\le1\) sin importar la altura local, y la regla de la cadena da</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{\frac{\partial}{\partial x}=\frac{\partial}{\partial\xi}-\frac{\eta}{y_s}\frac{dy_s}{dx}\frac{\partial}{\partial\eta}}\]</div>
+        <div class="equation-card">\[\boxed{\frac{\partial}{\partial y}=\frac{1}{y_s}\frac{\partial}{\partial\eta}}\]</div>
+      </div>
+      <h3>El predictor–corrector de MacCormack</h3>
+      <p>Para \(\partial\mathbf Q/\partial t+\partial\mathbf E/\partial x=0\), el esquema alterna la dirección de las diferencias entre dos pasos:</p>
+      <div class="equation-card">\[\mathbf Q_i^*=\mathbf Q_i^n-\frac{\Delta t}{\Delta x}\left(\mathbf E_{i+1}^n-\mathbf E_i^n\right),\]</div>
+      <div class="equation-card">\[\mathbf Q_i^{n+1}=\frac12\left[\mathbf Q_i^n+\mathbf Q_i^*-\frac{\Delta t}{\Delta x}\left(\mathbf E_i^*-\mathbf E_{i-1}^*\right)\right].\]</div>
+      <p>Para soluciones suaves es de segundo orden en espacio y tiempo, y la alternancia es lo que elimina el error de primer orden de cualquiera de los dos pasos unilaterales por separado.</p>
+      <h3>Marcha espacial y su límite</h3>
+      <p>Si el flujo es supersónico en la dirección de marcha y todas las características apuntan aguas abajo, las ecuaciones estacionarias pueden reordenarse como \(\partial\mathbf U/\partial x=\mathbf R(\mathbf U,\partial\mathbf U/\partial y,x,y)\) y avanzarse desde una línea inicial. El algoritmo es el mismo, con \(x\) en el papel de variable de marcha.</p>
+      <div class="callout warning"><strong>Una sola burbuja subsónica destruye todo el esquema.</strong> Si alguna información puede viajar aguas arriba, la marcha aguas abajo está resolviendo el problema equivocado, y refinar el paso no ayuda. Esta es exactamente la razón por la que un cuerpo romo no admite marcha espacial.</div>
+      <h3>Estabilidad y el número CFL</h3>
+      <p>Un paso explícito no puede adelantar al dominio físico de dependencia. Una estimación bidimensional es</p>
+      <div class="equation-card">\[\boxed{\Delta t\le\mathrm{CFL}\,\min_{i,j}\left[\frac{1}{\dfrac{|u|+a}{\Delta x}+\dfrac{|v|+a}{\Delta y}}\right]_{i,j}},\qquad 0&lt;\mathrm{CFL}&lt;1.\]</div>
+      <div class="callout">Para \(u=500\ \mathrm{m/s}\), \(v=100\ \mathrm{m/s}\), \(a=300\ \mathrm{m/s}\), \(\Delta x=0.01\ \mathrm{m}\), \(\Delta y=0.008\ \mathrm{m}\) y \(\mathrm{CFL}=0.5\), el límite es \(\Delta t=3.84615\times10^{-6}\ \mathrm{s}\). Reducir a la mitad el espaciado de malla reduce a la mitad el paso, así que el costo de una solución estacionaria por marcha temporal crece más rápido que el número de celdas.</div>
+      <h3>Marcha temporal hacia un estado estacionario</h3>
+      <p>Detrás del choque desprendido de un cuerpo romo hay regiones subsónicas y supersónicas, y ninguna marcha espacial única atraviesa ese dominio mixto. El remedio es integrar las ecuaciones no estacionarias en pseudo-tiempo hasta que las derivadas temporales se anulen, aceptando el transitorio como un artificio numérico sin significado físico. La convergencia se declara con</p>
+      <div class="equation-card">\[\frac{\|\mathbf Q^{n+1}-\mathbf Q^n\|_2}{\|\mathbf Q^{n+1}\|_2}&lt;\varepsilon_Q,\qquad\|\mathbf R(\mathbf Q^{n+1})\|_2&lt;\varepsilon_R.\]</div>
+      <h3>Choque ajustado y choque capturado</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Estrategia</th><th>Descripción</th><th>Consecuencia</th></tr></thead>
+          <tbody>
+            <tr><td>Ajuste de choque</td><td>la onda es una frontera móvil explícita</td><td>salto nítido, geometría complicada</td></tr>
+            <tr><td>Captura de choque</td><td>la onda emerge dentro de una malla conservativa</td><td>implementación general, salto extendido en celdas</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>En un cálculo de cuerpo romo con choque ajustado, la malla entre el cuerpo \(x=b(y)\) y la onda \(x=s(y,t)\) se mapea mediante \(\xi=(x-b)/(s-b)\), \(\eta=y\), de modo que \(\xi=0\) es el cuerpo y \(\xi=1\) es el choque.</p>
+      <div class="callout warning"><strong>Detrás de un choque curvo el flujo es rotacional.</strong> Cada línea de corriente atraviesa una intensidad de choque distinta, así que la entropía varía transversalmente, \(\nabla s\neq0\). Para flujo adiabático con \(h_0\) uniforme, el teorema de Crocco \(T\nabla s=\nabla h_0-\mathbf V\times\boldsymbol\omega\) obliga entonces a \(\boldsymbol\omega\neq0\). Una formulación de potencial es por tanto inválida: se requieren las ecuaciones completas de conservación. MacCormack es además poco disipativo, así que los choques necesitan viscosidad artificial, limitadores de flujo, esquemas TVD o una captura basada en Riemann, y la viscosidad artificial es un estabilizador numérico, no un modelo de la viscosidad molecular.</div>
+    </section>
+
+    <section id="cone-es">
+      <p class="section-label">Una ecuación en derivadas parciales reducida</p>
+      <h2>Flujo cónico y la ecuación de Taylor–Maccoll</h2>
+      <p>Un cono circular semiinfinito a incidencia nula genera un choque cónico. Como el problema no tiene longitud característica, las propiedades son constantes a lo largo de rayos desde el vértice y varían solo con el ángulo polar \(\vartheta\), de modo que \(\partial/\partial r=0\) y \(\partial/\partial\varphi=0\). La irrotacionalidad se reduce entonces a \(V_\vartheta=dV_r/d\vartheta\).</p>
+      <p>Adimensionalizando con \(V_{\max}=\sqrt{2h_0}\) y \(V'=V/V_{\max}\) se obtiene, para gas calóricamente perfecto,</p>
+      <div class="equation-card">\[\boxed{V'=\left[1+\frac{2}{(\gamma-1)M^2}\right]^{-1/2}}\]</div>
+      <p>y la ecuación gobernante se convierte en una sola ecuación diferencial ordinaria de segundo orden, escrita como sistema de primer orden:</p>
+      <div class="equation-card">\[\frac{dV_r'}{d\vartheta}=V_\vartheta',\qquad\boxed{\frac{dV_\vartheta'}{d\vartheta}=\frac{V_r'V_\vartheta'^2-A\left(2V_r'+V_\vartheta'\cot\vartheta\right)}{A-V_\vartheta'^2}},\qquad A=\frac{\gamma-1}{2}\left(1-V_r'^2-V_\vartheta'^2\right).\]</div>
+      <div class="callout success"><strong>La ecuación en derivadas parciales se ha vuelto ordinaria.</strong> La conicidad ha eliminado dos variables independientes, y lo que queda se integra con Runge–Kutta a una fracción del costo de una solución de campo bidimensional. No existe solución cerrada general, y precisamente por eso el problema pertenece a esta lecture.</div>
+      <p>El procedimiento práctico es inverso: se supone el ángulo de choque y el ángulo del cono sale al final.</p>
+      <div class="process-flow">
+        <div><strong>1</strong><span>Especificar \(M_\infty\) y suponer un ángulo de choque \(\beta\)</span></div>
+        <div><strong>2</strong><span>Las relaciones de choque oblicuo dan la deflexión \(\delta\) y \(M_2\)</span></div>
+        <div><strong>3</strong><span>Calcular \(V_2'\) e imponer \(V_r'=V_2'\cos(\beta-\delta)\), \(V_\vartheta'=-V_2'\sin(\beta-\delta)\)</span></div>
+        <div><strong>4</strong><span>Integrar desde \(\vartheta=\beta\) hacia ángulos menores</span></div>
+        <div><strong>5</strong><span>Detener cuando \(V_\vartheta'=0\); ese ángulo es el semiángulo del cono \(\theta_c\)</span></div>
+        <div><strong>6</strong><span>Recuperar \(M\), \(p\), \(T\), \(\rho\) sobre cada rayo</span></div>
+      </div>
+      <div class="callout">Comparado con una cuña del mismo semiángulo, un cono muestra alivio tridimensional: menor ángulo de choque, menor presión superficial, mayor Mach detrás de la onda y mayor ángulo máximo compatible con choque adherido.</div>
+    </section>
+
+    <section id="verification-es">
+      <p class="section-label">Control de calidad</p>
+      <h2>Verificación y validación</h2>
+      <p>Dados tres resultados \(\Phi_h\), \(\Phi_{h/2}\), \(\Phi_{h/4}\) en mallas sucesivamente refinadas, la convergencia cualitativa exige \(|\Phi_{h/2}-\Phi_{h/4}|&lt;|\Phi_h-\Phi_{h/2}|\), y para un orden observado \(p\) la estimación de Richardson del valor independiente de la malla es</p>
+      <div class="equation-card">\[\boxed{\Phi_{\mathrm{ext}}\approx\Phi_{h/2}+\frac{\Phi_{h/2}-\Phi_h}{2^p-1}}\]</div>
+      <p>También deben cumplirse los balances globales. En una tobera estacionaria,</p>
+      <div class="equation-card">\[\dot m(x)=\int_A\rho u\,dA\approx\text{const},\qquad\dot E(x)=\int_A\rho u h_0\,dA\approx\text{const}.\]</div>
+      <div class="callout warning"><strong>Un residuo pequeño no prueba casi nada.</strong> Dice que las ecuaciones discretas se satisfacen. No dice que la malla sea suficiente, que las condiciones de frontera sean correctas, que el modelo físico sea apropiado ni que la respuesta se parezca a la realidad.</div>
+      <p>Antes de aceptar un resultado numérico, verifica independencia de malla, residuos decrecientes, conservación de masa, cantidad de movimiento y energía, positividad de \(\rho\), \(p\) y \(T\), consistencia con límites analíticos, sensibilidad a las condiciones de frontera y comparación con datos de referencia.</p>
+      <p>Un código docente debe llevar casos de regresión automatizados con una tolerancia fija:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Rutina</th><th>Entrada</th><th>Resultado de referencia</th></tr></thead>
+          <tbody>
+            <tr><td>Intersección de características</td><td>el ejemplo resuelto de abajo</td><td>\(M_3=2.38379\), \((x_3,y_3)=(0.088996,\,0.048820)\ \mathrm{m}\)</td></tr>
+            <tr><td>Tobera de longitud mínima</td><td>\(M_e=2.5\), \(\gamma=1.4\)</td><td>\(\theta_{w,\max}=19.5618^\circ\), \(A_e/A^*=2.63672\)</td></tr>
+            <tr><td>Diferencia central</td><td>\(f=e^x\), \(x=0\), \(\Delta x=0.2\)</td><td>\(f'_C=1.00668\), error menor que el de ambas formas unilaterales</td></tr>
+            <tr><td>Límite CFL</td><td>\(u=500\), \(v=100\), \(a=300\), \(\Delta x=0.01\), \(\Delta y=0.008\), \(\mathrm{CFL}=0.5\)</td><td>\(\Delta t_{\max}=3.84615\times10^{-6}\ \mathrm{s}\)</td></tr>
+            <tr><td>Inicio Taylor–Maccoll</td><td>\(M_\infty=2\), \(\beta=40^\circ\)</td><td>\(V_r'=0.51070\), \(V_\vartheta'=-0.28749\)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Además de coincidir con esos valores, el código debe rechazar \(M&lt;1\) al invertir \(\nu(M)\), preservar \(\rho&gt;0\), \(p&gt;0\), \(T&gt;0\) y reportar explícitamente cuando una raíz o una integración no converge.</p>
+    </section>
+
+    <section id="algorithm-es">
+      <p class="section-label">Algoritmo de cálculo</p>
+      <h2>Diseñar una tobera de longitud mínima</h2>
+      <div class="process-flow">
+        <div><strong>1</strong><span>Especificar \(M_e\), \(\gamma\), altura de garganta y número de características</span></div>
+        <div><strong>2</strong><span>Calcular \(\nu_e=\nu(M_e)\) y \(\theta_{w,\max}=\nu_e/2\)</span></div>
+        <div><strong>3</strong><span>Discretizar el abanico inicial en incrementos de \(\theta\) o \(\nu\)</span></div>
+        <div><strong>4</strong><span>Obtener puntos interiores con los invariantes y las intersecciones de pendiente media</span></div>
+        <div><strong>5</strong><span>Imponer \(\theta=0\) en el eje</span></div>
+        <div><strong>6</strong><span>Obtener puntos de pared por tangencia y compatibilidad</span></div>
+        <div><strong>7</strong><span>Continuar hasta que \(\theta=0\) y \(M=M_e\) en toda la salida</span></div>
+        <div><strong>8</strong><span>Verificar uniformidad de \(M\), \(p\) y dirección, y comprobar la conservación del gasto</span></div>
+      </div>
+      <div class="callout success">Repite todo el diseño con un número creciente de características. Aproximar características curvas por segmentos rectos es el error dominante, y solo un estudio de refinamiento muestra si se ha hecho pequeño.</div>
+    </section>
+
+    <section id="example-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>Un proceso unitario de características</h2>
+      <div class="example">
+        <h3>Problema</h3>
+        <p>Dos puntos de un flujo supersónico de aire tienen \((x_1,y_1)=(0,\,0.0684)\ \mathrm{m}\), \(u_1=639\ \mathrm{m/s}\), \(v_1=232.6\ \mathrm{m/s}\); y \((x_2,y_2)=(0.0121,\,0)\ \mathrm{m}\), \(u_2=680\ \mathrm{m/s}\), \(v_2=0\). En ambos puntos \(p=1\ \mathrm{atm}\) y \(T=288\ \mathrm{K}\). Determine el estado y la posición del punto 3, definido por la \(C^-\) desde 1 y la \(C^+\) desde 2. Use \(\gamma=1.4\), \(R=287\ \mathrm{J/(kg\,K)}\).</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Rapidez del sonido y magnitudes de velocidad:</p>\[a=\sqrt{\gamma RT}=340.174\ \mathrm{m/s},\quad V_1=680.017\ \mathrm{m/s},\quad V_2=680.000\ \mathrm{m/s},\]\[M_1=1.99903,\qquad M_2=1.99898.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Ángulos de flujo y valores de Prandtl–Meyer:</p>\[\theta_1=\tan^{-1}\!\left(\frac{232.6}{639}\right)=20.0018^\circ,\qquad\theta_2=0,\]\[\nu_1=26.3530^\circ,\qquad\nu_2=26.3515^\circ.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Invariantes y proceso unitario:</p>\[K^-_1=\theta_1+\nu_1=46.3548^\circ,\qquad K^+_2=\theta_2-\nu_2=-26.3515^\circ,\]\[\theta_3=10.0016^\circ,\qquad\nu_3=36.3532^\circ\;\Longrightarrow\;M_3=2.38379.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Propiedades estáticas desde el estado de estancamiento común:</p>\[T_0=288\left(1+0.2M_1^2\right)=518.176\ \mathrm{K},\qquad T_3=\frac{T_0}{1+0.2M_3^2}=242.536\ \mathrm{K},\]\[p_0=p_1\left(1+0.2M_1^2\right)^{3.5}=7.9161\times10^{5}\ \mathrm{Pa},\qquad p_3=55.534\ \mathrm{kPa}=0.54808\ \mathrm{atm}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>Componentes de velocidad en 3:</p>\[a_3=312.171\ \mathrm{m/s},\quad V_3=M_3a_3=744.152\ \mathrm{m/s},\]\[u_3=V_3\cos\theta_3=732.843\ \mathrm{m/s},\qquad v_3=V_3\sin\theta_3=129.241\ \mathrm{m/s}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">6</span><div><p>Posición a partir de las pendientes medias, con \(\mu_1=30.0161^\circ\), \(\mu_2=30.0169^\circ\), \(\mu_3=24.8030^\circ\):</p>\[m_{13}=-0.22001,\qquad m_{23}=0.63488,\]<p>e intersecando \(y-y_1=m_{13}(x-x_1)\) con \(y-y_2=m_{23}(x-x_2)\):</p>\[x_3=0.088996\ \mathrm{m},\qquad y_3=0.048820\ \mathrm{m}.\]</div></div>
+
+        <div class="result-box">\[\boxed{M_3=2.3838,\quad u_3=732.8\ \mathrm{m/s},\quad v_3=129.2\ \mathrm{m/s},\quad p_3=55.5\ \mathrm{kPa},\quad T_3=242.5\ \mathrm{K}}\]</div>
+        <p>Nótese que el flujo se ha expandido de \(M\approx2.00\) a \(M=2.38\) puramente por la interacción de dos características, sin ninguna pared presente en el punto 3. Repetir este proceso de seis pasos sobre una malla de intersecciones es todo el método; lo demás es contabilidad y condiciones de frontera.</p>
+      </div>
+      <div class="validation-case">
+        <strong>Caso de validación de la calculadora</strong>
+        <span>Tanto \(\nu(M)\) como su inversión provienen del módulo de Prandtl–Meyer: \(\nu(1.99903)=26.3530^\circ\) y \(\nu^{-1}(36.3532^\circ)=2.38379\), con \(\gamma=1.4\).</span>
+      </div>
+    </section>
+
+    <section id="summary-es">
+      <p class="section-label">Ecuaciones clave</p>
+      <h2>En síntesis</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Relación</th><th>Expresión</th><th>Aplica cuando</th></tr></thead>
+          <tbody>
+            <tr><td>Pendientes características</td><td>\((dy/dx)_{C^\mp}=\tan(\theta\mp\mu)\)</td><td>\(M&gt;1\), irrotacional</td></tr>
+            <tr><td>Invariantes</td><td>\(K^-=\theta+\nu\), \(K^+=\theta-\nu\)</td><td>constantes sobre su propia familia</td></tr>
+            <tr><td>Punto interior</td><td>\(\theta_3=\frac12(K^-_1+K^+_2)\), \(\nu_3=\frac12(K^-_1-K^+_2)\)</td><td>dos puntos conocidos</td></tr>
+            <tr><td>Punto de pared</td><td>\(\nu_5=K^-_4-\theta_w\)</td><td>pared sólida impermeable</td></tr>
+            <tr><td>Tobera de longitud mínima</td><td>\(\theta_{w,\max}=\nu(M_e)/2\)</td><td>abanico centrado, salida paralela</td></tr>
+            <tr><td>Diferencia central</td><td>\((f_{i+1}-f_{i-1})/2\Delta x\)</td><td>\(O(\Delta x^2)\), \(f\) suave</td></tr>
+            <tr><td>Euler conservativo</td><td>\(\mathbf Q_t+\mathbf E_x+\mathbf F_y=0\)</td><td>obligatorio donde hay choques</td></tr>
+            <tr><td>MacCormack</td><td>predictor hacia adelante, corrector hacia atrás</td><td>segundo orden, poco disipativo</td></tr>
+            <tr><td>Condición CFL</td><td>\(\Delta t\le\mathrm{CFL}\left[\frac{|u|+a}{\Delta x}+\frac{|v|+a}{\Delta y}\right]^{-1}\)</td><td>esquemas explícitos</td></tr>
+            <tr><td>Taylor–Maccoll</td><td>sistema \(dV_\vartheta'/d\vartheta\), \(V'=[1+2/((\gamma-1)M^2)]^{-1/2}\)</td><td>cono circular, \(\alpha=0\)</td></tr>
+            <tr><td>Richardson</td><td>\(\Phi_{\mathrm{ext}}\approx\Phi_{h/2}+(\Phi_{h/2}-\Phi_h)/(2^p-1)\)</td><td>orden observado \(p\)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="mistakes-es">
+      <p class="section-label">Errores comunes</p>
+      <h2>Errores comunes</h2>
+      <ul class="check-list">
+        <li><strong>Intercambiar \(C^+\) y \(C^-\) a mitad del cálculo.</strong> Los nombres son arbitrarios; el emparejamiento de una pendiente con su relación de compatibilidad no lo es.</li>
+        <li><strong>Iniciar una malla de características exactamente en \(M=1\).</strong> Ahí \(\mu=90^\circ\) y la formulación es singular. Empieza ligeramente aguas abajo.</li>
+        <li><strong>Marchar espacialmente a través de una región subsónica.</strong> Ahí la información viaja aguas arriba, así que la marcha resuelve otro problema. Refinar la malla no revelará el error.</li>
+        <li><strong>Discretizar un choque con ecuaciones no conservativas.</strong> El esquema converge limpiamente al salto equivocado.</li>
+        <li><strong>Aceptar la convergencia de residuos como prueba de exactitud.</strong> Muestra que las ecuaciones discretas se satisfacen, nada más.</li>
+        <li><strong>Reportar muchos dígitos sin un estudio de malla.</strong> Seis cifras en una sola malla son seis cifras de una discretización desconocida.</li>
+        <li><strong>Confundir viscosidad artificial con disipación física.</strong> Extiende un salto sobre unas pocas celdas para estabilizar el cálculo; no es un modelo del transporte molecular.</li>
+        <li><strong>Aplicar el método de características bidimensional detrás de un choque curvo.</strong> Ahí el flujo es rotacional, y las relaciones de compatibilidad usadas aquí suponen que no lo es.</li>
+        <li><strong>Imponer todas las variables en todas las fronteras.</strong> El número de condiciones debe coincidir con el número de características entrantes.</li>
+        <li><strong>Comparar una solución inviscida con datos viscosos sin decirlo.</strong> La diferencia es una brecha de modelado, no un error numérico.</li>
+      </ul>
+    </section>
+
+    <section id="advanced-es">
+      <p class="section-label">Temas complementarios</p>
+      <h2>Lo que esta lecture aplaza</h2>
+      <p>Los esquemas de aquí son los explícitos clásicos, elegidos porque pueden seguirse a mano. La práctica moderna añade limitadores de flujo y construcciones TVD, solucionadores aproximados de Riemann, formulaciones de volumen finito sobre mallas no estructuradas y adaptativas, integración implícita y de doble tiempo para escapar del límite CFL, y reconstrucción de alto orden. Cada una elimina una de las debilidades nombradas arriba sin cambiar el razonamiento que las motiva.</p>
+      <p>También fuera del alcance: modelado de turbulencia y ecuaciones promediadas de Reynolds, termoquímica de gas real y de no equilibrio, problemas tridimensionales y genuinamente no estacionarios, y análisis acoplado fluido–estructura o fluido–térmico. La aplicación hipersónica de estos métodos, donde ninguna instalación terrestre reproduce todos los parámetros de vuelo a la vez, se discute en la Lecture 15.</p>
+      <div class="callout">Los contornos de tobera producidos por el método de características alimentan directamente el análisis de regímenes de operación de las Lectures 08 y 09: el Mach de salida de diseño de esta lecture es el \(M_e\) que aquellas toman como dato.</div>
+    </section>
+
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 13.</li>
+        <li>Anderson, J. D., Jr. <em>Computational Fluid Dynamics: The Basics with Applications</em>. Nueva York: McGraw-Hill, 1995, capítulos 6–12.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, México, febrero de 2024.</li>
+      </ol>
+      <p class="source-note">Adaptado de la Unidad VII de los apuntes de Aerodinámica II de Carlos Alberto Molina Holguín, que el script marca como material complementario; todos los valores numéricos se recalcularon de forma independiente para \(\gamma=1.4\).</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="hypersonic-flow-introduction.html"><span>Lecture anterior</span>← El régimen hipersónico</a>
+      <a class="next-link" href="applied-hypersonic-aerodynamics.html"><span>Siguiente lecture</span>Aerodinámica hipersónica aplicada →</a>
+    </nav>
+  </article>
+
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <ul>
+        <li>Die Charakteristikenrichtungen der exakten Potentialgleichung herleiten und als Machlinien erkennen.</li>
+        <li>Den Elementarprozess für einen Innenpunkt und einen Wandpunkt mit den Invarianten \(K^\pm\) durchführen.</li>
+        <li>Den maximalen Wandwinkel einer Düse minimaler Länge aus \(\nu(M_e)\) berechnen.</li>
+        <li>Vorwärts-, Rückwärts- und Zentraldifferenzen vergleichen und ihre Fehlerordnung angeben.</li>
+        <li>Das MacCormack-Prädiktor-Korrektor-Verfahren anwenden und die CFL-Zeitschrittgrenze auswerten.</li>
+        <li>Zwischen Raummarschierung, Zeitmarschierung und der Taylor–Maccoll-Gleichung für ein gegebenes Problem wählen.</li>
+        <li>Ein Verifizierungsverfahren entwerfen, das ein konvergiertes Residuum von einer genauen Antwort unterscheidet.</li>
+      </ul>
+    </section>
+
+    <section id="physics-de">
+      <p class="section-label">Physikalisches Bild</p>
+      <h2>Ein Zahlenfeld statt einer Funktion</h2>
+      <p class="lead">Jedes geschlossene Ergebnis dieses Kurses erkaufte seine Einfachheit mit einer Einschränkung: eine gerade Wand, ein gleichförmiger Zustand stromauf, eine einzige Welle. Krümmt man die Wand, lässt die Machzahl längs ihr variieren oder stellt einen stumpfen Körper in die Strömung, so existiert keine algebraische Lösung. Ein numerisches Verfahren ersetzt Ableitungen und Integrale der Grundgleichungen durch algebraische Näherungen auf einer endlichen Punktmenge und liefert keine Funktion, sondern eine Wertetabelle \(\{\rho_{i,j},u_{i,j},v_{i,j},p_{i,j},T_{i,j}\}\).</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Zugang</th><th>Hauptvorteil</th><th>Hauptgrenze</th><th>Typischer Einsatz</th></tr></thead>
+          <tbody>
+            <tr><td>Analytisch</td><td>Deutung und Parameterbeziehungen</td><td>eingeschränkte Geometrien und Annahmen</td><td>Trends, Validierung, Vorentwurf</td></tr>
+            <tr><td>Experimentell</td><td>enthält die reale Physik</td><td>Kosten, Skalierung, Messtechnik</td><td>Validierung und Zulassung</td></tr>
+            <tr><td>Numerisch</td><td>vollständige Felder, komplexe Geometrien</td><td>Modell-, Gitter- und Algorithmusfehler</td><td>Entwurf, Optimierung, Detailanalyse</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout success"><strong>Die drei ergänzen sich, sie konkurrieren nicht.</strong> Erst die analytischen Ergebnisse der Vorlesungen 04 bis 06 machen eine numerische Lösung prüfbar: Ein Code, der einen Schrägstoß bei \(M_1=3\) nicht reproduzieren kann, verdient bei einer Düsenkontur kein Vertrauen.</div>
+    </section>
+
+    <section id="model-de">
+      <p class="section-label">Modell und Annahmen</p>
+      <h2>Was diskretisiert wird</h2>
+      <ul>
+        <li>stationäre, zweidimensionale, reibungsfreie Strömung eines kalorisch idealen Gases, außer wo zeitmarschiert wird;</li>
+        <li>isentrope und drehungsfreie Strömung überall dort, wo das Charakteristikenverfahren angewandt wird;</li>
+        <li>die konservative Form der Euler-Gleichungen überall dort, wo Stöße auftreten;</li>
+        <li>durchgehend explizite Verfahren, sodass die CFL-Bedingung eine echte Einschränkung ist.</li>
+      </ul>
+      <div class="callout warning"><strong>Nicht enthalten und nicht behauptet.</strong> Eine numerische Lösung ist im mathematischen Sinn nie exakt. Selbst wenn die vollständigen Modellgleichungen gelöst werden, bleiben fünf Fehler: Modellfehler, Diskretisierungsfehler, Iterationsfehler, Rundungsfehler und Unsicherheit in Randbedingungen und Stoffwerten. Nichts in dieser Vorlesung modelliert Zähigkeit, Turbulenz, Chemie oder Wärmeübergang. Insbesondere belegt ein kleines Residuum, dass die <em>diskreten</em> Gleichungen erfüllt sind, nicht dass die Antwort physikalisch richtig ist.</div>
+    </section>
+
+    <section id="characteristics-de">
+      <p class="section-label">Wo sich die Gleichungen vereinfachen</p>
+      <h2>Charakteristiken und Invarianten</h2>
+      <p>Für stationäre, zweidimensionale, reibungsfreie, isentrope und drehungsfreie Strömung mit \(u=\phi_x\) und \(v=\phi_y\) lautet die exakte Potentialgleichung</p>
+      <div class="equation-card">\[\left(1-\frac{u^2}{a^2}\right)\phi_{xx}-\frac{2uv}{a^2}\phi_{xy}+\left(1-\frac{v^2}{a^2}\right)\phi_{yy}=0.\]</div>
+      <p>Zusammen mit den exakten Differentialen \(du=\phi_{xx}dx+\phi_{xy}dy\) und \(dv=\phi_{xy}dx+\phi_{yy}dy\) ist dies ein lineares System für die drei zweiten Ableitungen. Wo seine Determinante verschwindet, sind die Ableitungen nicht eindeutig bestimmt, und diese Bedingung definiert die Charakteristikenrichtungen.</p>
+      <details class="details">
+        <summary>Die quadratische Gleichung und ihre Wurzeln</summary>
+        <div class="details-content">
+          <p>Nullsetzen der Determinante ergibt</p>
+          \[\left(1-\frac{u^2}{a^2}\right)\left(\frac{dy}{dx}\right)^2+\frac{2uv}{a^2}\left(\frac{dy}{dx}\right)+\left(1-\frac{v^2}{a^2}\right)=0.\]
+          <p>Mit \(u=V\cos\theta\), \(v=V\sin\theta\), \(M=V/a\) und \(\mu=\sin^{-1}(1/M)\) reduzieren sich die beiden Wurzeln auf die Tangenten von \(\theta\mp\mu\). Reelle Wurzeln erfordern \(M&gt;1\): Die Gleichung ist nur im Überschall hyperbolisch — derselbe Typwechsel wie in Vorlesung 12.</p>
+        </div>
+      </details>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{\left(\frac{dy}{dx}\right)_{C^-}=\tan(\theta-\mu)}\]</div>
+        <div class="equation-card">\[\boxed{\left(\frac{dy}{dx}\right)_{C^+}=\tan(\theta+\mu)}\]</div>
+      </div>
+      <div class="callout success"><strong>Das sind die örtlichen Machlinien.</strong> Anders als in der linearen Theorie von Vorlesung 12, wo \(\mu\) eine Konstante der Anströmung war, ändern sich hier \(M\), \(\theta\) und \(\mu\) im Raum; die Charakteristiken sind daher gekrümmt und müssen Schritt für Schritt konstruiert werden.</div>
+      <p>Die Kompatibilitätsbedingung, die die Ableitungen endlich hält, reduziert die partielle Differentialgleichung längs jeder Charakteristik auf eine gewöhnliche:</p>
+      <div class="equation-card">\[d\theta=\mp\sqrt{M^2-1}\,\frac{dV}{V},\qquad d\nu=\sqrt{M^2-1}\,\frac{dV}{V},\]</div>
+      <p>wobei \(\nu\) die Prandtl–Meyer-Funktion aus Vorlesung 05 ist. Somit gilt \(d(\theta+\nu)=0\) längs einer \(C^-\) und \(d(\theta-\nu)=0\) längs einer \(C^+\), was die beiden Riemann-Invarianten definiert:</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{K^-=\theta+\nu=\text{const auf }C^-}\]</div>
+        <div class="equation-card">\[\boxed{K^+=\theta-\nu=\text{const auf }C^+}\]</div>
+      </div>
+      <div class="callout warning">Die hochgestellten Zeichen benennen die Familie, kein algebraisches Vorzeichen, und verschiedene Lehrbücher vertauschen die Namen \(C^+\) und \(C^-\). Entscheidend ist, dass Steigungskonvention und Kompatibilitätsbeziehung während der gesamten Rechnung zueinander passen.</div>
+    </section>
+
+    <section id="unitprocess-de">
+      <p class="section-label">Der Grundbaustein</p>
+      <h2>Elementarprozess und Düsenauslegung</h2>
+      <h3>Innenpunkt</h3>
+      <p>Seien die Punkte 1 und 2 bekannt, und sei Punkt 3 der Schnitt der von 1 ausgehenden \(C^-\) mit der von 2 ausgehenden \(C^+\). Dann gilt \(\theta_3+\nu_3=K^-_1\) und \(\theta_3-\nu_3=K^+_2\), also durch Summe und Differenz</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{\theta_3=\tfrac12\left(K^-_1+K^+_2\right)}\]</div>
+        <div class="equation-card">\[\boxed{\nu_3=\tfrac12\left(K^-_1-K^+_2\right)}\]</div>
+      </div>
+      <p>Die Inversion von \(\nu(M)\) liefert \(M_3\), und die isentropen Beziehungen geben die statischen Größen aus dem gemeinsamen Ruhezustand. Die Lage von Punkt 3 folgt aus geraden Segmenten mit mittleren Steigungen:</p>
+      <div class="equation-card">\[m_{13}=\tan\left[\frac{\theta_1+\theta_3}{2}-\frac{\mu_1+\mu_3}{2}\right],\qquad m_{23}=\tan\left[\frac{\theta_2+\theta_3}{2}+\frac{\mu_2+\mu_3}{2}\right].\]</div>
+      <h3>Wandpunkt und Achse</h3>
+      <p>Erreicht eine Charakteristik eine feste Wand, so muss die Strömungsrichtung mit der örtlichen Tangente übereinstimmen, \(\theta_w=\tan^{-1}(dy_w/dx)\), und die von der ankommenden Charakteristik getragene Invariante liefert den Rest:</p>
+      <div class="equation-card">\[\boxed{\nu_5=K^-_4-\theta_w}\]</div>
+      <p>Auf einer Symmetrieachse lautet die Bedingung schlicht \(\theta=0\).</p>
+      <h3>Düsenauslegung mit Charakteristiken</h3>
+      <p>Vorlesung 07 berechnete Zustandsgrößen aus einer bekannten Flächenverteilung. Das Charakteristikenverfahren löst die Umkehraufgabe: Es findet die Kontur, die eine vorgegebene Austritts-Machzahl mit gleichförmiger, paralleler und stoßfreier Strömung liefert. Eine zweidimensionale Düse gliedert sich in ein transsonisches Gebiet nahe der Kehle, einen Expansionsteil mit wachsendem Wandwinkel, einen Geradrichtungsteil, in dem die Wellen ausgelöscht werden, und einen gleichförmigen Austritt mit \(\theta_e=0\).</p>
+      <p>In einer symmetrischen Düse <strong>minimaler Länge</strong> entspringt ein zentrierter Fächer der Kehlenkante, die Charakteristiken werden an der Achse reflektiert und enden genau auf der Wand, und die in der ersten Hälfte erzeugte Umlenkung muss in der zweiten aufgehoben werden. Diese Bilanz ergibt</p>
+      <div class="equation-card">\[\boxed{\theta_{w,\max}=\frac{\nu(M_e)}{2}}\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_e\)</th><th>\(\nu(M_e)\) [Grad]</th><th>\(\theta_{w,\max}\) [Grad]</th><th>\(A_e/A^*\)</th></tr></thead>
+          <tbody>
+            <tr><td>2,0</td><td>26,3798</td><td>13,1899</td><td>1,68750</td></tr>
+            <tr><td>2,5</td><td>39,1236</td><td>19,5618</td><td>2,63672</td></tr>
+            <tr><td>3,0</td><td>49,7573</td><td>24,8787</td><td>4,23457</td></tr>
+            <tr><td>3,5</td><td>58,5298</td><td>29,2649</td><td>6,78962</td></tr>
+            <tr><td>4,0</td><td>65,7848</td><td>32,8924</td><td>10,71875</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning"><strong>Starten Sie das Netz nicht bei \(M=1\).</strong> Dort ist \(\mu=90^\circ\), und die Charakteristikenformulierung ist singulär. Praktische Implementierungen beginnen mit einer separaten transsonischen Lösung, mit einer etwas stromab liegenden Grenzcharakteristik oder mit \(M=1+\varepsilon\) und \(\varepsilon\ll1\).</div>
+      <div class="callout success">Das quasi-eindimensionale Flächenverhältnis ist eine unabhängige globale Kontrolle des Entwurfs: Es legt die mittlere Expansion fest, während die Charakteristiken die zweidimensionale Verteilung und die Kontur ohne Restwellen bestimmen.</div>
+    </section>
+
+    <section id="finitedifference-de">
+      <p class="section-label">Die andere Diskretisierung</p>
+      <h2>Finite Differenzen und die konservative Form</h2>
+      <p>Entwickelt man \(f\) um \(x_i\) und bricht ab, erhält man die drei Grundnäherungen:</p>
+      <div class="equation-card">\[\left.\frac{\partial f}{\partial x}\right|_i\approx\frac{f_{i+1}-f_i}{\Delta x}\;\;O(\Delta x),\qquad\frac{f_i-f_{i-1}}{\Delta x}\;\;O(\Delta x),\qquad\boxed{\frac{f_{i+1}-f_{i-1}}{2\Delta x}\;\;O(\Delta x^2)}\]</div>
+      <p>Für \(f(x)=\sin x\) bei \(x=1\) mit \(\Delta x=0{,}1\), wo die exakte Ableitung \(\cos1=0{,}540302\) beträgt:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Formel</th><th>Wert</th><th>Absoluter Fehler</th></tr></thead>
+          <tbody>
+            <tr><td>Vorwärts</td><td>0,497364</td><td>0,042939</td></tr>
+            <tr><td>Rückwärts</td><td>0,581441</td><td>0,041138</td></tr>
+            <tr><td>Zentral</td><td>0,539402</td><td>0,000900</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout success"><strong>Ein zusätzlicher Punkt bringt zwei Größenordnungen.</strong> Die einseitigen Fehler haben entgegengesetztes Vorzeichen und sind nahezu gleich groß; die Zentralformel ist ihr Mittel, und der führende Fehler hebt sich auf. Diese Auslöschung, nicht der zusätzliche Rechenaufwand, macht sie zweiter Ordnung.</div>
+      <p>Für Strömungen mit Stößen müssen die Gleichungen in konservativer Form geschrieben werden,</p>
+      <div class="equation-card">\[\boxed{\frac{\partial\mathbf Q}{\partial t}+\frac{\partial\mathbf E}{\partial x}+\frac{\partial\mathbf F}{\partial y}=0}\]</div>
+      <div class="equation-card">\[\mathbf Q=\begin{bmatrix}\rho\\\rho u\\\rho v\\\rho E\end{bmatrix},\qquad\mathbf E=\begin{bmatrix}\rho u\\\rho u^2+p\\\rho uv\\u(\rho E+p)\end{bmatrix},\qquad\mathbf F=\begin{bmatrix}\rho v\\\rho uv\\\rho v^2+p\\v(\rho E+p)\end{bmatrix},\]</div>
+      <p>mit \(E=e+\frac12(u^2+v^2)\) und \(p=(\gamma-1)\rho\left[E-\frac12(u^2+v^2)\right]\).</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Darstellung</th><th>Vorteil</th><th>Risiko</th></tr></thead>
+          <tbody>
+            <tr><td>Konservativ \(\mathbf Q\)</td><td>erfasst Sprünge, erhält Flüsse</td><td>zusätzliche algebraische Umrechnung nötig</td></tr>
+            <tr><td>Primitiv \(\mathbf W=[\rho\ u\ v\ p]^T\)</td><td>unmittelbare physikalische Deutung</td><td>kann falsche Sprünge liefern, wenn das Verfahren nicht konservativ ist</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning"><strong>Eine nichtkonservative Diskretisierung setzt den Stoß an die falsche Stelle.</strong> Das Verfahren konvergiert, liefert ein glatt wirkendes Feld und erfüllt die falschen Sprungbedingungen. Man marschiert \(\mathbf Q\) und deutet in \(\mathbf W\).</div>
+    </section>
+
+    <section id="marching-de">
+      <p class="section-label">Die Lösung voranbringen</p>
+      <h2>Marschieren in Raum und Zeit</h2>
+      <h3>Körperangepasste Koordinaten</h3>
+      <p>Eine gekrümmte Wand erzeugt ein nichtrechteckiges physikalisches Gitter. Für einen Kanal mit oberer Wand \(y_s(x)\) bildet die Transformation \(\xi=x\), \(\eta=y/y_s(x)\) das Gebiet unabhängig von der örtlichen Höhe auf \(0\le\eta\le1\) ab, und die Kettenregel liefert</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{\frac{\partial}{\partial x}=\frac{\partial}{\partial\xi}-\frac{\eta}{y_s}\frac{dy_s}{dx}\frac{\partial}{\partial\eta}}\]</div>
+        <div class="equation-card">\[\boxed{\frac{\partial}{\partial y}=\frac{1}{y_s}\frac{\partial}{\partial\eta}}\]</div>
+      </div>
+      <h3>Das MacCormack-Prädiktor-Korrektor-Verfahren</h3>
+      <p>Für \(\partial\mathbf Q/\partial t+\partial\mathbf E/\partial x=0\) wechselt das Verfahren zwischen zwei Schritten die Differenzenrichtung:</p>
+      <div class="equation-card">\[\mathbf Q_i^*=\mathbf Q_i^n-\frac{\Delta t}{\Delta x}\left(\mathbf E_{i+1}^n-\mathbf E_i^n\right),\]</div>
+      <div class="equation-card">\[\mathbf Q_i^{n+1}=\frac12\left[\mathbf Q_i^n+\mathbf Q_i^*-\frac{\Delta t}{\Delta x}\left(\mathbf E_i^*-\mathbf E_{i-1}^*\right)\right].\]</div>
+      <p>Für glatte Lösungen ist es in Raum und Zeit von zweiter Ordnung, und gerade der Wechsel beseitigt den Fehler erster Ordnung, den jeder einseitige Schritt für sich hätte.</p>
+      <h3>Raummarschierung und ihre Grenze</h3>
+      <p>Ist die Strömung in Marschrichtung überschallschnell und weisen alle Charakteristiken stromab, so lassen sich die stationären Gleichungen als \(\partial\mathbf U/\partial x=\mathbf R(\mathbf U,\partial\mathbf U/\partial y,x,y)\) umschreiben und von einer Anfangslinie aus vorantreiben. Der Algorithmus ist derselbe, mit \(x\) als Marschvariable.</p>
+      <div class="callout warning"><strong>Ein einziges Unterschallgebiet zerstört das ganze Verfahren.</strong> Kann Information stromauf laufen, löst die Marschierung stromab ein anderes Problem, und eine feinere Schrittweite hilft nicht. Genau deshalb lässt sich ein stumpfer Körper nicht raummarschieren.</div>
+      <h3>Stabilität und die CFL-Zahl</h3>
+      <p>Ein expliziter Schritt darf dem physikalischen Abhängigkeitsgebiet nicht davonlaufen. Eine zweidimensionale Abschätzung lautet</p>
+      <div class="equation-card">\[\boxed{\Delta t\le\mathrm{CFL}\,\min_{i,j}\left[\frac{1}{\dfrac{|u|+a}{\Delta x}+\dfrac{|v|+a}{\Delta y}}\right]_{i,j}},\qquad 0&lt;\mathrm{CFL}&lt;1.\]</div>
+      <div class="callout">Für \(u=500\ \mathrm{m/s}\), \(v=100\ \mathrm{m/s}\), \(a=300\ \mathrm{m/s}\), \(\Delta x=0{,}01\ \mathrm{m}\), \(\Delta y=0{,}008\ \mathrm{m}\) und \(\mathrm{CFL}=0{,}5\) beträgt die Grenze \(\Delta t=3{,}84615\times10^{-6}\ \mathrm{s}\). Halbiert man die Gitterweite, halbiert sich der Zeitschritt; die Kosten einer stationären Lösung durch Zeitmarschierung wachsen also schneller als die Zellenzahl.</div>
+      <h3>Zeitmarschierung zum stationären Zustand</h3>
+      <p>Hinter dem abgelösten Stoß eines stumpfen Körpers liegen Unter- und Überschallgebiete nebeneinander, und keine einzelne Raummarschierung durchquert dieses gemischte Gebiet. Der Ausweg ist, die instationären Gleichungen in Pseudozeit zu integrieren, bis die Zeitableitungen verschwinden, wobei der Einschwingvorgang als numerisches Hilfsmittel ohne physikalische Bedeutung hinzunehmen ist. Konvergenz wird erklärt über</p>
+      <div class="equation-card">\[\frac{\|\mathbf Q^{n+1}-\mathbf Q^n\|_2}{\|\mathbf Q^{n+1}\|_2}&lt;\varepsilon_Q,\qquad\|\mathbf R(\mathbf Q^{n+1})\|_2&lt;\varepsilon_R.\]</div>
+      <h3>Angepasste und eingefangene Stöße</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Strategie</th><th>Beschreibung</th><th>Folge</th></tr></thead>
+          <tbody>
+            <tr><td>Stoßanpassung</td><td>die Welle ist ein expliziter beweglicher Rand</td><td>scharfer Sprung, aufwendige Geometrie</td></tr>
+            <tr><td>Stoßeinfang</td><td>die Welle entsteht innerhalb eines konservativen Gitters</td><td>allgemeine Umsetzung, über Zellen verschmierter Sprung</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>In einer stoßangepassten Rechnung am stumpfen Körper wird das Gitter zwischen Körper \(x=b(y)\) und Stoß \(x=s(y,t)\) durch \(\xi=(x-b)/(s-b)\), \(\eta=y\) abgebildet, sodass \(\xi=0\) der Körper und \(\xi=1\) der Stoß ist.</p>
+      <div class="callout warning"><strong>Hinter einem gekrümmten Stoß ist die Strömung drehungsbehaftet.</strong> Jede Stromlinie durchquert eine andere Stoßstärke, die Entropie ändert sich also quer zur Strömung, \(\nabla s\neq0\). Für adiabate Strömung mit gleichförmigem \(h_0\) erzwingt der Satz von Crocco \(T\nabla s=\nabla h_0-\mathbf V\times\boldsymbol\omega\) dann \(\boldsymbol\omega\neq0\). Eine Potentialformulierung ist daher ungültig: Es werden die vollständigen Erhaltungsgleichungen benötigt. MacCormack ist zudem schwach dissipativ, sodass Stöße künstliche Viskosität, Flussbegrenzer, TVD-Verfahren oder einen Riemann-basierten Einfang brauchen — und künstliche Viskosität ist ein numerischer Stabilisator, kein Modell der molekularen Zähigkeit.</div>
+    </section>
+
+    <section id="cone-de">
+      <p class="section-label">Eine reduzierte partielle Differentialgleichung</p>
+      <h2>Kegelströmung und die Taylor–Maccoll-Gleichung</h2>
+      <p>Ein halbunendlicher Kreiskegel bei Anstellwinkel null erzeugt einen konischen Stoß. Da das Problem keine charakteristische Länge besitzt, sind die Zustandsgrößen längs Strahlen von der Spitze konstant und hängen nur vom Polarwinkel \(\vartheta\) ab, also \(\partial/\partial r=0\) und \(\partial/\partial\varphi=0\). Die Drehungsfreiheit reduziert sich dann auf \(V_\vartheta=dV_r/d\vartheta\).</p>
+      <p>Mit \(V_{\max}=\sqrt{2h_0}\) und \(V'=V/V_{\max}\) entdimensioniert, gilt für ein kalorisch ideales Gas</p>
+      <div class="equation-card">\[\boxed{V'=\left[1+\frac{2}{(\gamma-1)M^2}\right]^{-1/2}}\]</div>
+      <p>und die Grundgleichung wird zu einer einzigen gewöhnlichen Differentialgleichung zweiter Ordnung, geschrieben als System erster Ordnung:</p>
+      <div class="equation-card">\[\frac{dV_r'}{d\vartheta}=V_\vartheta',\qquad\boxed{\frac{dV_\vartheta'}{d\vartheta}=\frac{V_r'V_\vartheta'^2-A\left(2V_r'+V_\vartheta'\cot\vartheta\right)}{A-V_\vartheta'^2}},\qquad A=\frac{\gamma-1}{2}\left(1-V_r'^2-V_\vartheta'^2\right).\]</div>
+      <div class="callout success"><strong>Aus der partiellen ist eine gewöhnliche Differentialgleichung geworden.</strong> Die Konizität hat zwei unabhängige Variablen beseitigt, und der Rest lässt sich mit Runge–Kutta zu einem Bruchteil der Kosten einer zweidimensionalen Feldlösung integrieren. Eine allgemeine geschlossene Lösung existiert nicht — genau deshalb gehört das Problem in diese Vorlesung.</div>
+      <p>Das praktische Vorgehen ist invers: Der Stoßwinkel wird angenommen, der Kegelwinkel ergibt sich am Ende.</p>
+      <div class="process-flow">
+        <div><strong>1</strong><span>\(M_\infty\) vorgeben und einen Stoßwinkel \(\beta\) annehmen</span></div>
+        <div><strong>2</strong><span>Die Schrägstoßbeziehungen liefern die Umlenkung \(\delta\) und \(M_2\)</span></div>
+        <div><strong>3</strong><span>\(V_2'\) berechnen und \(V_r'=V_2'\cos(\beta-\delta)\), \(V_\vartheta'=-V_2'\sin(\beta-\delta)\) setzen</span></div>
+        <div><strong>4</strong><span>Von \(\vartheta=\beta\) zu kleineren Winkeln integrieren</span></div>
+        <div><strong>5</strong><span>Bei \(V_\vartheta'=0\) anhalten; dieser Winkel ist der Kegelhalbwinkel \(\theta_c\)</span></div>
+        <div><strong>6</strong><span>\(M\), \(p\), \(T\), \(\rho\) auf jedem Strahl zurückgewinnen</span></div>
+      </div>
+      <div class="callout">Verglichen mit einem Keil gleichen Halbwinkels zeigt ein Kegel dreidimensionale Entlastung: kleinerer Stoßwinkel, geringerer Oberflächendruck, höhere Machzahl hinter der Welle und ein größerer Höchstwinkel mit noch anliegendem Stoß.</div>
+    </section>
+
+    <section id="verification-de">
+      <p class="section-label">Qualitätssicherung</p>
+      <h2>Verifizierung und Validierung</h2>
+      <p>Liegen drei Ergebnisse \(\Phi_h\), \(\Phi_{h/2}\), \(\Phi_{h/4}\) auf sukzessiv verfeinerten Gittern vor, so verlangt qualitative Konvergenz \(|\Phi_{h/2}-\Phi_{h/4}|&lt;|\Phi_h-\Phi_{h/2}|\), und für eine beobachtete Ordnung \(p\) lautet die Richardson-Schätzung des gitterunabhängigen Werts</p>
+      <div class="equation-card">\[\boxed{\Phi_{\mathrm{ext}}\approx\Phi_{h/2}+\frac{\Phi_{h/2}-\Phi_h}{2^p-1}}\]</div>
+      <p>Auch die globalen Bilanzen müssen stimmen. In einer stationären Düse gilt</p>
+      <div class="equation-card">\[\dot m(x)=\int_A\rho u\,dA\approx\text{const},\qquad\dot E(x)=\int_A\rho u h_0\,dA\approx\text{const}.\]</div>
+      <div class="callout warning"><strong>Ein kleines Residuum beweist fast nichts.</strong> Es besagt, dass die diskreten Gleichungen erfüllt sind. Es besagt nicht, dass das Gitter ausreicht, die Randbedingungen richtig sind, das physikalische Modell passt oder die Antwort der Wirklichkeit gleicht.</div>
+      <p>Bevor ein numerisches Ergebnis akzeptiert wird, prüfe man Gitterunabhängigkeit, fallende Residuen, Erhaltung von Masse, Impuls und Energie, Positivität von \(\rho\), \(p\) und \(T\), Verträglichkeit mit analytischen Grenzfällen, Empfindlichkeit gegenüber Randbedingungen und den Vergleich mit Referenzdaten.</p>
+      <p>Ein Lehrcode sollte automatisierte Regressionsfälle mit fester Toleranz mitführen:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Routine</th><th>Eingabe</th><th>Referenzergebnis</th></tr></thead>
+          <tbody>
+            <tr><td>Charakteristikenschnitt</td><td>das Rechenbeispiel unten</td><td>\(M_3=2{,}38379\), \((x_3,y_3)=(0{,}088996;\,0{,}048820)\ \mathrm{m}\)</td></tr>
+            <tr><td>Düse minimaler Länge</td><td>\(M_e=2{,}5\), \(\gamma=1{,}4\)</td><td>\(\theta_{w,\max}=19{,}5618^\circ\), \(A_e/A^*=2{,}63672\)</td></tr>
+            <tr><td>Zentraldifferenz</td><td>\(f=e^x\), \(x=0\), \(\Delta x=0{,}2\)</td><td>\(f'_C=1{,}00668\), kleinerer Fehler als beide einseitigen Formen</td></tr>
+            <tr><td>CFL-Grenze</td><td>\(u=500\), \(v=100\), \(a=300\), \(\Delta x=0{,}01\), \(\Delta y=0{,}008\), \(\mathrm{CFL}=0{,}5\)</td><td>\(\Delta t_{\max}=3{,}84615\times10^{-6}\ \mathrm{s}\)</td></tr>
+            <tr><td>Taylor–Maccoll-Start</td><td>\(M_\infty=2\), \(\beta=40^\circ\)</td><td>\(V_r'=0{,}51070\), \(V_\vartheta'=-0{,}28749\)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Über diese Werte hinaus sollte der Code \(M&lt;1\) bei der Inversion von \(\nu(M)\) zurückweisen, \(\rho&gt;0\), \(p&gt;0\), \(T&gt;0\) sichern und ausdrücklich melden, wenn eine Nullstellensuche oder eine Integration nicht konvergiert.</p>
+    </section>
+
+    <section id="algorithm-de">
+      <p class="section-label">Rechenalgorithmus</p>
+      <h2>Auslegung einer Düse minimaler Länge</h2>
+      <div class="process-flow">
+        <div><strong>1</strong><span>\(M_e\), \(\gamma\), Kehlenhöhe und Anzahl der Charakteristiken vorgeben</span></div>
+        <div><strong>2</strong><span>\(\nu_e=\nu(M_e)\) und \(\theta_{w,\max}=\nu_e/2\) berechnen</span></div>
+        <div><strong>3</strong><span>Den Anfangsfächer in Schritten von \(\theta\) oder \(\nu\) diskretisieren</span></div>
+        <div><strong>4</strong><span>Innenpunkte aus den Invarianten und den Mittelsteigungs-Schnitten gewinnen</span></div>
+        <div><strong>5</strong><span>Auf der Achse \(\theta=0\) erzwingen</span></div>
+        <div><strong>6</strong><span>Wandpunkte aus Tangentialität und Kompatibilität gewinnen</span></div>
+        <div><strong>7</strong><span>Fortfahren, bis \(\theta=0\) und \(M=M_e\) über den ganzen Austritt gelten</span></div>
+        <div><strong>8</strong><span>Gleichförmigkeit von \(M\), \(p\) und Richtung prüfen sowie die Massenbilanz kontrollieren</span></div>
+      </div>
+      <div class="callout success">Wiederholen Sie den gesamten Entwurf mit wachsender Anzahl von Charakteristiken. Gekrümmte Charakteristiken durch gerade Segmente zu ersetzen ist der dominierende Fehler, und nur eine Verfeinerungsstudie zeigt, ob er klein geworden ist.</div>
+    </section>
+
+    <section id="example-de">
+      <p class="section-label">Rechenbeispiel</p>
+      <h2>Ein Elementarprozess der Charakteristiken</h2>
+      <div class="example">
+        <h3>Aufgabe</h3>
+        <p>Zwei Punkte einer Überschallströmung in Luft haben \((x_1,y_1)=(0;\,0{,}0684)\ \mathrm{m}\), \(u_1=639\ \mathrm{m/s}\), \(v_1=232{,}6\ \mathrm{m/s}\); sowie \((x_2,y_2)=(0{,}0121;\,0)\ \mathrm{m}\), \(u_2=680\ \mathrm{m/s}\), \(v_2=0\). In beiden Punkten gilt \(p=1\ \mathrm{atm}\) und \(T=288\ \mathrm{K}\). Bestimmen Sie Zustand und Lage von Punkt 3, definiert durch die \(C^-\) von 1 und die \(C^+\) von 2. Verwenden Sie \(\gamma=1{,}4\), \(R=287\ \mathrm{J/(kg\,K)}\).</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Schallgeschwindigkeit und Geschwindigkeitsbeträge:</p>\[a=\sqrt{\gamma RT}=340{,}174\ \mathrm{m/s},\quad V_1=680{,}017\ \mathrm{m/s},\quad V_2=680{,}000\ \mathrm{m/s},\]\[M_1=1{,}99903,\qquad M_2=1{,}99898.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Strömungswinkel und Prandtl–Meyer-Werte:</p>\[\theta_1=\tan^{-1}\!\left(\frac{232{,}6}{639}\right)=20{,}0018^\circ,\qquad\theta_2=0,\]\[\nu_1=26{,}3530^\circ,\qquad\nu_2=26{,}3515^\circ.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Invarianten und Elementarprozess:</p>\[K^-_1=\theta_1+\nu_1=46{,}3548^\circ,\qquad K^+_2=\theta_2-\nu_2=-26{,}3515^\circ,\]\[\theta_3=10{,}0016^\circ,\qquad\nu_3=36{,}3532^\circ\;\Longrightarrow\;M_3=2{,}38379.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Statische Größen aus dem gemeinsamen Ruhezustand:</p>\[T_0=288\left(1+0{,}2M_1^2\right)=518{,}176\ \mathrm{K},\qquad T_3=\frac{T_0}{1+0{,}2M_3^2}=242{,}536\ \mathrm{K},\]\[p_0=p_1\left(1+0{,}2M_1^2\right)^{3{,}5}=7{,}9161\times10^{5}\ \mathrm{Pa},\qquad p_3=55{,}534\ \mathrm{kPa}=0{,}54808\ \mathrm{atm}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>Geschwindigkeitskomponenten in 3:</p>\[a_3=312{,}171\ \mathrm{m/s},\quad V_3=M_3a_3=744{,}152\ \mathrm{m/s},\]\[u_3=V_3\cos\theta_3=732{,}843\ \mathrm{m/s},\qquad v_3=V_3\sin\theta_3=129{,}241\ \mathrm{m/s}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">6</span><div><p>Lage aus den mittleren Steigungen, mit \(\mu_1=30{,}0161^\circ\), \(\mu_2=30{,}0169^\circ\), \(\mu_3=24{,}8030^\circ\):</p>\[m_{13}=-0{,}22001,\qquad m_{23}=0{,}63488,\]<p>und der Schnitt von \(y-y_1=m_{13}(x-x_1)\) mit \(y-y_2=m_{23}(x-x_2)\) ergibt:</p>\[x_3=0{,}088996\ \mathrm{m},\qquad y_3=0{,}048820\ \mathrm{m}.\]</div></div>
+
+        <div class="result-box">\[\boxed{M_3=2{,}3838,\quad u_3=732{,}8\ \mathrm{m/s},\quad v_3=129{,}2\ \mathrm{m/s},\quad p_3=55{,}5\ \mathrm{kPa},\quad T_3=242{,}5\ \mathrm{K}}\]</div>
+        <p>Man beachte, dass die Strömung allein durch die Wechselwirkung zweier Charakteristiken von \(M\approx2{,}00\) auf \(M=2{,}38\) expandiert ist, ohne dass in Punkt 3 eine Wand vorhanden wäre. Diesen sechsschrittigen Prozess über ein Netz von Schnittpunkten zu wiederholen, ist das gesamte Verfahren; alles Übrige ist Buchführung und Randbedingungen.</p>
+      </div>
+      <div class="validation-case">
+        <strong>Validierungsfall des Rechners</strong>
+        <span>Sowohl \(\nu(M)\) als auch seine Inversion stammen aus dem Prandtl–Meyer-Modul: \(\nu(1{,}99903)=26{,}3530^\circ\) und \(\nu^{-1}(36{,}3532^\circ)=2{,}38379\), mit \(\gamma=1{,}4\).</span>
+      </div>
+    </section>
+
+    <section id="summary-de">
+      <p class="section-label">Kerngleichungen</p>
+      <h2>Auf einen Blick</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Beziehung</th><th>Ausdruck</th><th>Gültig wenn</th></tr></thead>
+          <tbody>
+            <tr><td>Charakteristikensteigungen</td><td>\((dy/dx)_{C^\mp}=\tan(\theta\mp\mu)\)</td><td>\(M&gt;1\), drehungsfrei</td></tr>
+            <tr><td>Invarianten</td><td>\(K^-=\theta+\nu\), \(K^+=\theta-\nu\)</td><td>konstant auf der eigenen Familie</td></tr>
+            <tr><td>Innenpunkt</td><td>\(\theta_3=\frac12(K^-_1+K^+_2)\), \(\nu_3=\frac12(K^-_1-K^+_2)\)</td><td>zwei bekannte Punkte</td></tr>
+            <tr><td>Wandpunkt</td><td>\(\nu_5=K^-_4-\theta_w\)</td><td>feste undurchlässige Wand</td></tr>
+            <tr><td>Düse minimaler Länge</td><td>\(\theta_{w,\max}=\nu(M_e)/2\)</td><td>zentrierter Fächer, paralleler Austritt</td></tr>
+            <tr><td>Zentraldifferenz</td><td>\((f_{i+1}-f_{i-1})/2\Delta x\)</td><td>\(O(\Delta x^2)\), glattes \(f\)</td></tr>
+            <tr><td>Konservative Euler-Form</td><td>\(\mathbf Q_t+\mathbf E_x+\mathbf F_y=0\)</td><td>zwingend bei Stößen</td></tr>
+            <tr><td>MacCormack</td><td>Vorwärts-Prädiktor, Rückwärts-Korrektor</td><td>zweite Ordnung, schwach dissipativ</td></tr>
+            <tr><td>CFL-Bedingung</td><td>\(\Delta t\le\mathrm{CFL}\left[\frac{|u|+a}{\Delta x}+\frac{|v|+a}{\Delta y}\right]^{-1}\)</td><td>explizite Verfahren</td></tr>
+            <tr><td>Taylor–Maccoll</td><td>System \(dV_\vartheta'/d\vartheta\), \(V'=[1+2/((\gamma-1)M^2)]^{-1/2}\)</td><td>Kreiskegel, \(\alpha=0\)</td></tr>
+            <tr><td>Richardson</td><td>\(\Phi_{\mathrm{ext}}\approx\Phi_{h/2}+(\Phi_{h/2}-\Phi_h)/(2^p-1)\)</td><td>beobachtete Ordnung \(p\)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="mistakes-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Häufige Fehler</h2>
+      <ul class="check-list">
+        <li><strong>\(C^+\) und \(C^-\) mitten in der Rechnung vertauschen.</strong> Die Namen sind willkürlich; die Zuordnung einer Steigung zu ihrer Kompatibilitätsbeziehung ist es nicht.</li>
+        <li><strong>Ein Charakteristikennetz genau bei \(M=1\) beginnen.</strong> Dort ist \(\mu=90^\circ\) und die Formulierung singulär. Beginnen Sie etwas stromab.</li>
+        <li><strong>Durch ein Unterschallgebiet raummarschieren.</strong> Dort läuft Information stromauf, die Marschierung löst also ein anderes Problem. Eine feinere Diskretisierung deckt den Fehler nicht auf.</li>
+        <li><strong>Einen Stoß mit nichtkonservativen Gleichungen diskretisieren.</strong> Das Verfahren konvergiert sauber gegen den falschen Sprung.</li>
+        <li><strong>Residuenkonvergenz als Genauigkeitsbeweis akzeptieren.</strong> Sie zeigt, dass die diskreten Gleichungen erfüllt sind, mehr nicht.</li>
+        <li><strong>Viele Stellen ohne Gitterstudie angeben.</strong> Sechs Ziffern auf einem einzigen Gitter sind sechs Ziffern einer unbekannten Diskretisierung.</li>
+        <li><strong>Künstliche Viskosität mit physikalischer Dissipation verwechseln.</strong> Sie verteilt einen Sprung über wenige Zellen zur Stabilisierung; sie ist kein Modell des molekularen Transports.</li>
+        <li><strong>Das zweidimensionale Charakteristikenverfahren hinter einem gekrümmten Stoß anwenden.</strong> Dort ist die Strömung drehungsbehaftet, während die hier benutzten Kompatibilitätsbeziehungen das Gegenteil voraussetzen.</li>
+        <li><strong>Alle Variablen an allen Rändern vorschreiben.</strong> Die Zahl der Bedingungen muss der Zahl der einlaufenden Charakteristiken entsprechen.</li>
+        <li><strong>Eine reibungsfreie Lösung ungesagt mit viskosen Daten vergleichen.</strong> Der Unterschied ist eine Modelllücke, kein numerischer Fehler.</li>
+      </ul>
+    </section>
+
+    <section id="advanced-de">
+      <p class="section-label">Weiterführende Themen</p>
+      <h2>Was diese Vorlesung aufschiebt</h2>
+      <p>Die hier behandelten Verfahren sind die klassischen expliziten, gewählt, weil man sie von Hand nachvollziehen kann. Die moderne Praxis ergänzt Flussbegrenzer und TVD-Konstruktionen, näherungsweise Riemann-Löser, Finite-Volumen-Formulierungen auf unstrukturierten und adaptiven Gittern, implizite und Dualzeit-Integration zur Umgehung der CFL-Grenze sowie Rekonstruktionen höherer Ordnung. Jede beseitigt eine der oben genannten Schwächen, ohne die Argumentation zu ändern, die sie motiviert.</p>
+      <p>Ebenfalls außerhalb des Rahmens: Turbulenzmodellierung und die Reynolds-gemittelten Gleichungen, Realgas- und Nichtgleichgewichts-Thermochemie, dreidimensionale und echt instationäre Probleme sowie gekoppelte Fluid–Struktur- oder Fluid–Thermal-Analysen. Die Hyperschallanwendung dieser Verfahren, bei der keine Bodenanlage alle Flugparameter gleichzeitig nachbildet, wird in Vorlesung 15 erörtert.</p>
+      <div class="callout">Die vom Charakteristikenverfahren erzeugten Düsenkonturen gehen unmittelbar in die Betriebsanalyse der Vorlesungen 08 und 09 ein: Die Auslegungs-Austrittsmachzahl dieser Vorlesung ist das \(M_e\), das jene als gegeben voraussetzen.</div>
+    </section>
+
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6. Aufl. New York: McGraw-Hill Education, 2017, Kapitel 13.</li>
+        <li>Anderson, J. D., Jr. <em>Computational Fluid Dynamics: The Basics with Applications</em>. New York: McGraw-Hill, 1995, Kapitel 6–12.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexiko, Februar 2024.</li>
+      </ol>
+      <p class="source-note">Bearbeitet nach Einheit VII des Vorlesungsskripts Aerodynamik II von Carlos Alberto Molina Holguín, die das Skript als Ergänzungsmaterial ausweist; alle Zahlenwerte wurden für \(\gamma=1{,}4\) unabhängig nachgerechnet.</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="hypersonic-flow-introduction.html"><span>Vorherige Vorlesung</span>← Das Hyperschallregime</a>
+      <a class="next-link" href="applied-hypersonic-aerodynamics.html"><span>Nächste Vorlesung</span>Angewandte Hyperschallaerodynamik →</a>
+    </nav>
+  </article>
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>

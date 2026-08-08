@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Linearized supersonic flow: the wave equation and Mach characteristics, the Ackeret relation, thin-airfoil lift and wave drag, and comparison with exact shock-expansion theory." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Linearized Supersonic Flow and the Ackeret Rule | Aerodynamics II</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../index.html" data-ui-key="home">Home</a><a href="index.html?v=11" data-ui-key="course">Aerodynamics II</a><a href="../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">Aerodynamics II · Lecture 12</p><h1>Linearized Supersonic Flow and the Ackeret Rule</h1><p class="hero-copy">The same linearization, one sign change, and a completely different equation: waves instead of fields, a local pressure law instead of a global one, and wave drag where subsonic theory found none.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">Aerodinámica II · Lecture 12</p><h1>Flujo supersónico linealizado y la regla de Ackeret</h1><p class="hero-copy">La misma linealización, un cambio de signo, y una ecuación completamente distinta: ondas en lugar de campos, una ley de presión local en lugar de global, y arrastre de onda donde la teoría subsónica no encontraba ninguno.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">Aerodynamik II · Vorlesung 12</p><h1>Linearisierte Überschallströmung und die Ackeret-Regel</h1><p class="hero-copy">Dieselbe Linearisierung, ein Vorzeichenwechsel und eine völlig andere Gleichung: Wellen statt Felder, ein örtliches statt eines globalen Druckgesetzes, und Wellenwiderstand, wo die Unterschalltheorie keinen fand.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 45 min</span><span data-language="es" hidden>Lectura estimada: 45 min</span><span data-language="de" hidden>Lesedauer: ca. 45 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Model: thin body, \(M_\infty&gt;1\)</span><span data-language="es" hidden>Modelo: cuerpo delgado, \(M_\infty&gt;1\)</span><span data-language="de" hidden>Modell: schlanker Körper, \(M_\infty&gt;1\)</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="compressibility-corrections.html">← <span data-ui-key="previous">Previous lecture</span></a><a class="button primary" href="hypersonic-flow-introduction.html"><span data-ui-key="next">Next lecture</span> →</a><a class="button calculator-button" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer" data-ui-key="calculator">Open calculator</a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#physics">Physical picture</a><a href="#model">Model and assumptions</a><a href="#type">Change of type</a><a href="#characteristics">Characteristics and Mach lines</a><a href="#ackeret">The Ackeret relation</a><a href="#applications">Thin-airfoil results</a><a href="#accuracy">How good is it?</a><a href="#viscous">Friction and maximum \(L/D\)</a><a href="#example">Worked example</a><a href="#summary">Key equations</a><a href="#mistakes">Common mistakes</a><a href="#calculator">Computational tool</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#physics-es">Panorama físico</a><a href="#model-es">Modelo e hipótesis</a><a href="#type-es">Cambio de tipo</a><a href="#characteristics-es">Características y líneas de Mach</a><a href="#ackeret-es">La relación de Ackeret</a><a href="#applications-es">Resultados para perfiles delgados</a><a href="#accuracy-es">¿Qué tan buena es?</a><a href="#viscous-es">Fricción y \(L/D\) máxima</a><a href="#example-es">Ejemplo resuelto</a><a href="#summary-es">Ecuaciones clave</a><a href="#mistakes-es">Errores comunes</a><a href="#calculator-es">Herramienta computacional</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#physics-de">Physikalisches Bild</a><a href="#model-de">Modell und Annahmen</a><a href="#type-de">Typwechsel</a><a href="#characteristics-de">Charakteristiken und Machlinien</a><a href="#ackeret-de">Die Ackeret-Beziehung</a><a href="#applications-de">Ergebnisse für schlanke Profile</a><a href="#accuracy-de">Wie gut ist sie?</a><a href="#viscous-de">Reibung und maximales \(L/D\)</a><a href="#example-de">Rechenbeispiel</a><a href="#summary-de">Kerngleichungen</a><a href="#mistakes-de">Häufige Fehler</a><a href="#calculator-de">Rechenwerkzeug</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <ul>
+        <li>Explain why \(M_\infty&gt;1\) turns the linearized equation from elliptic to hyperbolic, and what that means physically.</li>
+        <li>Identify the characteristics of the linearized equation as Mach lines.</li>
+        <li>Derive the Ackeret relation \(C_p=2\theta/\sqrt{M_\infty^2-1}\).</li>
+        <li>Compute lift and wave drag of a thin airfoil from its surface slopes alone.</li>
+        <li>Compare linearized results with exact shock–expansion theory and quantify the error.</li>
+        <li>Find the angle of attack that maximises \(L/D\) when skin friction is included.</li>
+      </ul>
+    </section>
+
+    <section id="physics">
+      <p class="section-label">Physical picture</p>
+      <h2>The body can no longer warn the flow</h2>
+      <p class="lead">In subsonic flow a body makes its presence felt everywhere: disturbances outrun the stream and the whole field adjusts before the fluid arrives. Above Mach one that is impossible. Disturbances are swept downstream faster than they propagate, so each point on the surface influences only a wedge behind it, bounded by Mach lines.</p>
+      <div class="callout success"><strong>The consequence is a local pressure law.</strong> Because nothing travels upstream, the pressure at a point depends only on the local surface slope — not on the shape of the rest of the airfoil. That is a far stronger statement than anything available subsonically, and it makes supersonic thin-airfoil theory almost embarrassingly simple.</div>
+      <div class="callout warning">It also produces drag. In the subsonic linearized model a closed body has none; here the same model gives a finite <strong>wave drag</strong>, because the pressure distribution is no longer fore-and-aft symmetric.</div>
+    </section>
+
+    <section id="model">
+      <p class="section-label">Model and assumptions</p>
+      <h2>Thin, sharp, and fully supersonic</h2>
+      <ul>
+        <li>steady, inviscid, two-dimensional flow of a calorically perfect gas;</li>
+        <li>small perturbations, exactly as in Lecture 10;</li>
+        <li>supersonic free stream, \(M_\infty&gt;1\), and not close to one;</li>
+        <li>a thin airfoil with a <em>sharp</em> leading edge, so the shock stays attached;</li>
+        <li>small angle of attack, so \(\sin\alpha\approx\alpha\) and \(\cos\alpha\approx1\).</li>
+      </ul>
+      <div class="callout warning"><strong>Not included.</strong> Blunt leading edges, which detach the shock and destroy the whole scheme; transonic and hypersonic Mach numbers, where the linearization fails at both ends; the entropy rise across shocks, which the linear theory ignores entirely; and viscous effects, added separately in the section on friction. Nothing here predicts where a shock stands or how strong it is — that is Lecture 06.</div>
+    </section>
+
+    <section id="type">
+      <p class="section-label">One sign</p>
+      <h2>The equation becomes a wave equation</h2>
+      <p>The linearized potential equation of Lecture 10 was \((1-M_\infty^2)\hat\phi_{xx}+\hat\phi_{yy}=0\). For \(M_\infty&gt;1\) the leading coefficient changes sign. Defining</p>
+      <div class="equation-card">\[\boxed{\lambda\equiv\sqrt{M_\infty^2-1}}\]</div>
+      <p>the equation becomes</p>
+      <div class="equation-card">\[\boxed{\lambda^2\hat\phi_{xx}-\hat\phi_{yy}=0}\]</div>
+      <p>which is the classical wave equation. It factors,</p>
+      <div class="equation-card">\[\left(\lambda\frac{\partial}{\partial x}-\frac{\partial}{\partial y}\right)\left(\lambda\frac{\partial}{\partial x}+\frac{\partial}{\partial y}\right)\hat\phi=0,\]</div>
+      <p>and therefore admits the general solution</p>
+      <div class="equation-card">\[\boxed{\hat\phi(x,y)=F(x-\lambda y)+G(x+\lambda y)}\]</div>
+      <div class="callout success"><strong>Two travelling disturbances.</strong> \(F\) is constant along lines \(x-\lambda y=\text{const}\) and \(G\) along \(x+\lambda y=\text{const}\). The solution is not a field to be solved for globally — it is two families of waves, each carrying its information along a fixed direction.</div>
+    </section>
+
+    <section id="characteristics">
+      <p class="section-label">Where the information goes</p>
+      <h2>The characteristics are Mach lines</h2>
+      <p>The two families have slopes</p>
+      <div class="equation-card">\[\frac{dy}{dx}=\pm\frac{1}{\lambda}=\pm\frac{1}{\sqrt{M_\infty^2-1}}.\]</div>
+      <p>Compare that with the Mach angle from Lecture 05:</p>
+      <div class="equation-card">\[\tan\mu=\frac{1}{\sqrt{M_\infty^2-1}}=\frac{1}{\lambda}.\]</div>
+      <div class="callout success"><strong>They are the same lines.</strong> The characteristics of the linearized equation are exactly the Mach lines of the free stream. The mathematics has rediscovered, on its own, the physical fact that weak disturbances travel along Mach waves.</div>
+      <p>This fixes the <em>domain of influence</em> of any point: only the wedge downstream of it, between its two Mach lines. Everything outside that wedge is unaware of it. Above an airfoil surface only the \(F\) family exists, since there is no boundary further out to send waves back — which is what reduces the problem to a single function.</p>
+    </section>
+
+    <section id="ackeret">
+      <p class="section-label">The result</p>
+      <h2>The Ackeret relation</h2>
+      <p>Take the upper surface, where only \(\hat\phi=F(x-\lambda y)\) survives. Then</p>
+      <div class="equation-card">\[\hat u=\hat\phi_x=F',\qquad \hat v=\hat\phi_y=-\lambda F',\qquad\text{so}\qquad\boxed{\hat u=-\frac{\hat v}{\lambda}}\]</div>
+      <p>The linearized tangency condition of Lecture 10 gives \(\hat v=V_\infty\theta\), where \(\theta\) is the local surface slope measured from the free stream. Hence</p>
+      <div class="equation-card">\[\hat u=-\frac{V_\infty\theta}{\lambda},\]</div>
+      <p>and substituting into \(C_p=-2\hat u/V_\infty\):</p>
+      <div class="equation-card">\[\boxed{C_p=\frac{2\theta}{\sqrt{M_\infty^2-1}}}\]</div>
+      <div class="callout"><strong>Read the sign convention carefully.</strong> \(\theta\) is positive when the surface turns <em>into</em> the flow — a compression — giving \(C_p&gt;0\). A surface turning away gives \(\theta&lt;0\) and suction. On the upper surface of an airfoil at positive incidence, \(\theta\) is negative.</div>
+      <div class="callout success"><strong>Nothing else appears.</strong> Not the thickness distribution elsewhere, not the camber upstream, not the trailing edge. Only the local slope and the free-stream Mach number. This is the local pressure law promised by the hyperbolic character of the equation.</div>
+    </section>
+
+    <section id="applications">
+      <p class="section-label">Applications</p>
+      <h2>Lift and wave drag from surface slopes alone</h2>
+      <h3>Flat plate at incidence</h3>
+      <p>Both surfaces are flat, so the slopes are \(-\alpha\) above and \(+\alpha\) below:</p>
+      <div class="equation-card">\[\boxed{C_{p,u}=-\frac{2\alpha}{\lambda},\qquad C_{p,l}=+\frac{2\alpha}{\lambda}}\]</div>
+      <p>Integrating and using \(\cos\alpha\approx1\), \(\sin\alpha\approx\alpha\):</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{c_l=\frac{4\alpha}{\sqrt{M_\infty^2-1}}}\]</div>
+        <div class="equation-card">\[\boxed{c_{d,w}=\frac{4\alpha^2}{\sqrt{M_\infty^2-1}}}\]</div>
+      </div>
+      <p>so the supersonic lift-curve slope is</p>
+      <div class="equation-card">\[\boxed{\frac{dc_l}{d\alpha}=\frac{4}{\sqrt{M_\infty^2-1}}}\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>1.5</th><th>2.0</th><th>3.0</th><th>5.0</th></tr></thead>
+          <tbody><tr><td>\(dc_l/d\alpha\) [per rad]</td><td>3.578</td><td>2.309</td><td>1.414</td><td>0.816</td></tr></tbody>
+        </table>
+      </div>
+      <div class="callout warning"><strong>Opposite trend to subsonic.</strong> Prandtl–Glauert makes the lift-curve slope <em>rise</em> toward \(M_\infty=1\); Ackeret makes it <em>fall</em> as \(M_\infty\) increases. Both diverge at \(M_\infty=1\) from their own side, and neither is valid there. The peak between them is the transonic region that neither theory describes.</div>
+
+      <h3>General thin airfoil</h3>
+      <p>Decomposing the surfaces into camber \(z_c\) and thickness \(h\), with \(\xi=x/c\), the wave drag separates into three independent contributions:</p>
+      <div class="equation-card">\[\boxed{c_{d,w}=\frac{4}{\lambda}\left[\alpha^2+\overline{\left(\frac{dz_c}{d\xi}\right)^2}+\overline{\left(\frac{dh}{d\xi}\right)^2}\right]}\]</div>
+      <div class="callout success"><strong>Every term is a square.</strong> Angle of attack, camber, and thickness each add wave drag and none can subtract it. There is no supersonic equivalent of a cambered section that reduces drag: at supersonic speed, camber is a pure penalty unless it buys something else.</div>
+
+      <h3>Symmetric diamond at zero incidence</h3>
+      <p>With half-angle \(\varepsilon\) and thickness ratio \(t/c=\tan\varepsilon\), the slope magnitude is constant on all four panels, so</p>
+      <div class="equation-card">\[\boxed{c_{d,w}=\frac{4}{\lambda}\left(\frac{t}{c}\right)^2}\]</div>
+    </section>
+
+    <section id="accuracy">
+      <p class="section-label">Against the exact answer</p>
+      <h2>How good is the linear theory?</h2>
+      <p>Lecture 06 solved the same two geometries exactly with shock–expansion theory. Comparing at \(M_\infty=3\), \(\gamma=1.4\):</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Case</th><th>Quantity</th><th>Ackeret</th><th>Shock–expansion</th><th>Error</th></tr></thead>
+          <tbody>
+            <tr><td>Flat plate, \(\alpha=5^\circ\)</td><td>\(c_l\)</td><td>0.12341</td><td>0.12435</td><td>−0.75 %</td></tr>
+            <tr><td>Flat plate, \(\alpha=5^\circ\)</td><td>\(c_d\)</td><td>0.010770</td><td>0.010879</td><td>−1.00 %</td></tr>
+            <tr><td>Diamond, \(\varepsilon=5^\circ\)</td><td>\(c_{d,w}\)</td><td>0.010825</td><td>0.010915</td><td>−0.83 %</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout success"><strong>Within one per cent.</strong> For a genuinely thin body at a genuinely small angle, the linear theory is not a rough approximation — it is nearly exact, and it costs one line of algebra instead of an iterative \(\theta\)–\(\beta\)–\(M\) solution followed by a Prandtl–Meyer inversion.</div>
+      <div class="callout warning">The agreement degrades as \(\alpha\) or \(t/c\) grows, and it degrades on the compression side faster than on the expansion side, because the linear theory ignores the entropy rise through the shock. Use shock–expansion when the answer must be right rather than quick.</div>
+    </section>
+
+    <section id="viscous">
+      <p class="section-label">Adding reality</p>
+      <h2>Friction, and the angle that maximises \(L/D\)</h2>
+      <p>A supersonic airfoil has two drag mechanisms with opposite tendencies. Wave drag grows as \(\alpha^2\); skin friction is roughly independent of \(\alpha\). Writing \(c_f\) for the friction coefficient,</p>
+      <div class="equation-card">\[c_l=\frac{4\alpha}{\lambda},\qquad c_d=\frac{4\alpha^2}{\lambda}+c_f.\]</div>
+      <p>Maximising \(c_l/c_d\) with respect to \(\alpha\) gives a strikingly clean condition:</p>
+      <div class="equation-card">\[\boxed{\frac{4\alpha^2}{\lambda}=c_f\quad\Longrightarrow\quad\alpha_{\mathrm{opt}}=\tfrac12\sqrt{c_f\lambda}}\]</div>
+      <div class="callout success"><strong>At the optimum, wave drag exactly equals friction drag.</strong> Neither dominates. Fly below \(\alpha_{\mathrm{opt}}\) and friction is wasted on too little lift; fly above it and wave drag rises faster than lift.</div>
+      <p>The maximum itself is</p>
+      <div class="equation-card">\[\boxed{\left(\frac{L}{D}\right)_{\max}=\frac{1}{\sqrt{c_f\lambda}}}\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>\(c_f\)</th><th>\(\alpha_{\mathrm{opt}}\)</th><th>\((L/D)_{\max}\)</th></tr></thead>
+          <tbody>
+            <tr><td>2.0</td><td>0.003</td><td>2.07°</td><td>13.87</td></tr>
+            <tr><td>3.0</td><td>0.003</td><td>2.64°</td><td>10.86</td></tr>
+            <tr><td>2.0</td><td>0.005</td><td>2.67°</td><td>10.75</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning">These are two-dimensional, inviscid-plus-flat-plate-friction numbers for a plate of zero thickness. A real wing adds thickness wave drag, lift-induced drag, and interference, so an actual supersonic aircraft achieves considerably less. The value of the result is the <em>scaling</em>: \((L/D)_{\max}\) falls as \(M_\infty\) rises, and it falls as the square root of the friction level.</div>
+    </section>
+
+    <section id="example">
+      <p class="section-label">Worked example</p>
+      <h2>A flat plate at \(M_\infty=3\), \(\alpha=5^\circ\)</h2>
+      <div class="example">
+        <h3>Problem</h3>
+        <p>Compute \(c_l\) and \(c_{d,w}\) for a flat plate at \(M_\infty=3\) and \(\alpha=5^\circ\) using Ackeret's rule, compare with the exact shock–expansion result of Lecture 06, and then find the angle of attack that would maximise \(L/D\) if \(c_f=0.003\).</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Compressibility parameter:</p>\[\lambda=\sqrt{3^2-1}=\sqrt{8}=2.82843.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>With \(\alpha=5^\circ=0.0872665\) rad, the surface pressures are</p>\[C_{p,l}=+\frac{2(0.0872665)}{2.82843}=+0.061707,\qquad C_{p,u}=-0.061707.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Lift and wave drag:</p>\[c_l=\frac{4(0.0872665)}{2.82843}=0.12341,\qquad c_{d,w}=\frac{4(0.0872665)^2}{2.82843}=0.010770.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Comparison with Lecture 06, which solved the same case exactly:</p>\[c_l:\ 0.12341\ \text{vs}\ 0.12435\ (-0.75\,\%),\qquad c_d:\ 0.010770\ \text{vs}\ 0.010879\ (-1.00\,\%).\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>Optimum incidence with friction:</p>\[\alpha_{\mathrm{opt}}=\tfrac12\sqrt{(0.003)(2.82843)}=0.046063\ \text{rad}=2.64^\circ,\qquad\left(\frac{L}{D}\right)_{\max}=\frac{1}{\sqrt{(0.003)(2.82843)}}=10.86.\]</div></div>
+
+        <div class="result-box">\[\boxed{c_l=0.1234,\quad c_{d,w}=0.01077,\quad\alpha_{\mathrm{opt}}=2.64^\circ,\quad(L/D)_{\max}=10.86}\]</div>
+        <p>Note that the \(5^\circ\) of the first part is nearly twice \(\alpha_{\mathrm{opt}}\). At that incidence the plate is generating good lift but paying \(4\alpha^2/\lambda=0.01077\) of wave drag against only \(0.003\) of friction — well past the point where the two balance.</p>
+      </div>
+      <div class="validation-case">
+        <strong>Calculator validation case</strong>
+        <span>The exact comparison values come from the shock–expansion module: \(M_\infty=3\), flat plate at \(\alpha=5^\circ\), \(\gamma=1.4\), expansion above and weak shock below.</span>
+      </div>
+    </section>
+
+    <section id="summary">
+      <p class="section-label">Key equations</p>
+      <h2>At a glance</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Relation</th><th>Expression</th><th>Applies when</th></tr></thead>
+          <tbody>
+            <tr><td>Wave equation</td><td>\(\lambda^2\hat\phi_{xx}-\hat\phi_{yy}=0\), \(\lambda=\sqrt{M_\infty^2-1}\)</td><td>\(M_\infty&gt;1\), small perturbations</td></tr>
+            <tr><td>General solution</td><td>\(\hat\phi=F(x-\lambda y)+G(x+\lambda y)\)</td><td>always</td></tr>
+            <tr><td>Characteristics</td><td>\(dy/dx=\pm1/\lambda=\pm\tan\mu\)</td><td>Mach lines</td></tr>
+            <tr><td>Ackeret</td><td>\(C_p=2\theta/\sqrt{M_\infty^2-1}\)</td><td>local slope \(\theta\), thin body</td></tr>
+            <tr><td>Flat-plate lift</td><td>\(c_l=4\alpha/\lambda\)</td><td>sharp leading edge</td></tr>
+            <tr><td>Lift-curve slope</td><td>\(dc_l/d\alpha=4/\lambda\)</td><td>falls with \(M_\infty\)</td></tr>
+            <tr><td>Wave drag</td><td>\(c_{d,w}=\frac{4}{\lambda}\left[\alpha^2+\overline{(dz_c/d\xi)^2}+\overline{(dh/d\xi)^2}\right]\)</td><td>all terms positive</td></tr>
+            <tr><td>Diamond</td><td>\(c_{d,w}=\frac{4}{\lambda}(t/c)^2\)</td><td>\(\alpha=0\), symmetric</td></tr>
+            <tr><td>Optimum incidence</td><td>\(\alpha_{\mathrm{opt}}=\frac12\sqrt{c_f\lambda}\), \((L/D)_{\max}=1/\sqrt{c_f\lambda}\)</td><td>wave drag \(=\) friction</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="mistakes">
+      <p class="section-label">Common mistakes</p>
+      <h2>Common mistakes</h2>
+      <ul class="check-list">
+        <li><strong>Using \(\beta=\sqrt{1-M_\infty^2}\) in supersonic flow.</strong> It is imaginary there. The supersonic parameter is \(\lambda=\sqrt{M_\infty^2-1}\).</li>
+        <li><strong>Getting the sign of \(\theta\) wrong.</strong> Positive \(\theta\) means the surface turns into the flow and \(C_p&gt;0\); the upper surface at positive incidence has \(\theta&lt;0\).</li>
+        <li><strong>Expecting the lift-curve slope to rise with Mach number.</strong> Subsonically it does; supersonically \(4/\lambda\) falls.</li>
+        <li><strong>Applying the theory to a blunt leading edge.</strong> A detached bow shock invalidates the entire local-slope picture.</li>
+        <li><strong>Thinking camber can reduce supersonic drag.</strong> Every term in the wave-drag formula is squared, so camber only adds.</li>
+        <li><strong>Reporting wave drag as total drag.</strong> Friction is a separate, comparable contribution — at \((L/D)_{\max}\) the two are exactly equal.</li>
+        <li><strong>Trusting the theory near \(M_\infty=1\) or at hypersonic speed.</strong> \(\lambda\to0\) makes \(C_p\) diverge; at high Mach number the small-perturbation ordering fails for a different reason, treated in Lecture 13.</li>
+      </ul>
+    </section>
+
+    <section id="calculator">
+      <p class="section-label">Computational tool</p>
+      <h2>Open calculator</h2>
+      <p>The shock–expansion module of the compressible-flow calculator produces the exact answers this lecture is compared against. Running the flat plate at \(M_\infty=3\) and \(\alpha=5^\circ\) reproduces the \(c_l=0.12435\) and \(c_d=0.010879\) used in the accuracy table, so you can see for yourself how much the linearization costs.</p>
+      <div class="button-row lecture-actions"><a class="button outline" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer">Open calculator</a></div>
+    </section>
+
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed. New York: McGraw-Hill Education, 2017, Chapter 12.</li>
+        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3rd ed. New York: McGraw-Hill, 2003, Chapter 9.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexico, February 2024.</li>
+      </ol>
+      <p class="source-note">Adapted from Unit VI of the Aerodynamics II course notes by Carlos Alberto Molina Holguín; all numerical values were independently recomputed for \(\gamma=1.4\), and the comparison values come from the exact solutions of Lecture 06.</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="compressibility-corrections.html"><span>Previous lecture</span>← Compressibility Corrections</a>
+      <a class="next-link" href="hypersonic-flow-introduction.html"><span>Next lecture</span>The Hypersonic Regime →</a>
+    </nav>
+  </article>
+
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Lo que debes ser capaz de hacer</h2>
+      <ul>
+        <li>Explicar por qué \(M_\infty&gt;1\) convierte la ecuación linealizada de elíptica en hiperbólica, y qué significa eso físicamente.</li>
+        <li>Identificar las características de la ecuación linealizada como líneas de Mach.</li>
+        <li>Deducir la relación de Ackeret \(C_p=2\theta/\sqrt{M_\infty^2-1}\).</li>
+        <li>Calcular la sustentación y el arrastre de onda de un perfil delgado solo a partir de las pendientes de su superficie.</li>
+        <li>Comparar los resultados linealizados con la teoría exacta de choque–expansión y cuantificar el error.</li>
+        <li>Hallar el ángulo de ataque que maximiza \(L/D\) cuando se incluye la fricción superficial.</li>
+      </ul>
+    </section>
+
+    <section id="physics-es">
+      <p class="section-label">Panorama físico</p>
+      <h2>El cuerpo ya no puede avisar al flujo</h2>
+      <p class="lead">En flujo subsónico un cuerpo hace notar su presencia en todas partes: las perturbaciones adelantan a la corriente y todo el campo se ajusta antes de que llegue el fluido. Por encima de Mach uno eso es imposible. Las perturbaciones son barridas aguas abajo más rápido de lo que se propagan, así que cada punto de la superficie influye únicamente sobre una cuña detrás de él, limitada por líneas de Mach.</p>
+      <div class="callout success"><strong>La consecuencia es una ley de presión local.</strong> Como nada viaja aguas arriba, la presión en un punto depende solo de la pendiente local de la superficie, no de la forma del resto del perfil. Es una afirmación mucho más fuerte que cualquier cosa disponible en subsónico, y hace que la teoría supersónica de perfiles delgados resulte casi vergonzosamente simple.</div>
+      <div class="callout warning">También produce arrastre. En el modelo subsónico linealizado un cuerpo cerrado no tiene ninguno; aquí el mismo modelo da un <strong>arrastre de onda</strong> finito, porque la distribución de presión ya no es simétrica entre proa y popa.</div>
+    </section>
+
+    <section id="model-es">
+      <p class="section-label">Modelo e hipótesis</p>
+      <h2>Delgado, afilado y plenamente supersónico</h2>
+      <ul>
+        <li>flujo estacionario, inviscido y bidimensional de un gas calóricamente perfecto;</li>
+        <li>pequeñas perturbaciones, exactamente como en la Lecture 10;</li>
+        <li>corriente libre supersónica, \(M_\infty&gt;1\), y no próxima a uno;</li>
+        <li>un perfil delgado con borde de ataque <em>afilado</em>, para que el choque permanezca adherido;</li>
+        <li>ángulo de ataque pequeño, de modo que \(\sin\alpha\approx\alpha\) y \(\cos\alpha\approx1\).</li>
+      </ul>
+      <div class="callout warning"><strong>No incluido.</strong> Bordes de ataque romos, que desprenden el choque y destruyen todo el esquema; números de Mach transónicos e hipersónicos, donde la linealización falla por ambos extremos; el aumento de entropía a través de los choques, que la teoría lineal ignora por completo; y los efectos viscosos, añadidos aparte en la sección de fricción. Nada de aquí predice dónde se sitúa un choque ni qué intensidad tiene: eso es la Lecture 06.</div>
+    </section>
+
+    <section id="type-es">
+      <p class="section-label">Un signo</p>
+      <h2>La ecuación se vuelve una ecuación de onda</h2>
+      <p>La ecuación linealizada del potencial de la Lecture 10 era \((1-M_\infty^2)\hat\phi_{xx}+\hat\phi_{yy}=0\). Para \(M_\infty&gt;1\) el coeficiente dominante cambia de signo. Definiendo</p>
+      <div class="equation-card">\[\boxed{\lambda\equiv\sqrt{M_\infty^2-1}}\]</div>
+      <p>la ecuación se convierte en</p>
+      <div class="equation-card">\[\boxed{\lambda^2\hat\phi_{xx}-\hat\phi_{yy}=0}\]</div>
+      <p>que es la ecuación de onda clásica. Se factoriza,</p>
+      <div class="equation-card">\[\left(\lambda\frac{\partial}{\partial x}-\frac{\partial}{\partial y}\right)\left(\lambda\frac{\partial}{\partial x}+\frac{\partial}{\partial y}\right)\hat\phi=0,\]</div>
+      <p>y por tanto admite la solución general</p>
+      <div class="equation-card">\[\boxed{\hat\phi(x,y)=F(x-\lambda y)+G(x+\lambda y)}\]</div>
+      <div class="callout success"><strong>Dos perturbaciones viajeras.</strong> \(F\) es constante a lo largo de las líneas \(x-\lambda y=\text{const}\) y \(G\) a lo largo de \(x+\lambda y=\text{const}\). La solución no es un campo que haya que resolver globalmente: son dos familias de ondas, cada una llevando su información en una dirección fija.</div>
+    </section>
+
+    <section id="characteristics-es">
+      <p class="section-label">A dónde va la información</p>
+      <h2>Las características son líneas de Mach</h2>
+      <p>Las dos familias tienen pendientes</p>
+      <div class="equation-card">\[\frac{dy}{dx}=\pm\frac{1}{\lambda}=\pm\frac{1}{\sqrt{M_\infty^2-1}}.\]</div>
+      <p>Compárese con el ángulo de Mach de la Lecture 05:</p>
+      <div class="equation-card">\[\tan\mu=\frac{1}{\sqrt{M_\infty^2-1}}=\frac{1}{\lambda}.\]</div>
+      <div class="callout success"><strong>Son las mismas líneas.</strong> Las características de la ecuación linealizada son exactamente las líneas de Mach de la corriente libre. La matemática ha redescubierto, por sí sola, el hecho físico de que las perturbaciones débiles viajan sobre ondas de Mach.</div>
+      <p>Esto fija el <em>dominio de influencia</em> de cualquier punto: solo la cuña aguas abajo de él, entre sus dos líneas de Mach. Todo lo que queda fuera de esa cuña lo desconoce. Por encima de la superficie de un perfil solo existe la familia \(F\), porque no hay una frontera más lejana que devuelva ondas, y eso es lo que reduce el problema a una sola función.</p>
+    </section>
+
+    <section id="ackeret-es">
+      <p class="section-label">El resultado</p>
+      <h2>La relación de Ackeret</h2>
+      <p>Tómese el extradós, donde solo sobrevive \(\hat\phi=F(x-\lambda y)\). Entonces</p>
+      <div class="equation-card">\[\hat u=\hat\phi_x=F',\qquad \hat v=\hat\phi_y=-\lambda F',\qquad\text{de modo que}\qquad\boxed{\hat u=-\frac{\hat v}{\lambda}}\]</div>
+      <p>La condición linealizada de tangencia de la Lecture 10 da \(\hat v=V_\infty\theta\), donde \(\theta\) es la pendiente local de la superficie medida desde la corriente libre. Por tanto</p>
+      <div class="equation-card">\[\hat u=-\frac{V_\infty\theta}{\lambda},\]</div>
+      <p>y sustituyendo en \(C_p=-2\hat u/V_\infty\):</p>
+      <div class="equation-card">\[\boxed{C_p=\frac{2\theta}{\sqrt{M_\infty^2-1}}}\]</div>
+      <div class="callout"><strong>Lee con cuidado el convenio de signos.</strong> \(\theta\) es positivo cuando la superficie gira <em>hacia</em> el flujo —una compresión—, lo que da \(C_p&gt;0\). Una superficie que gira alejándose da \(\theta&lt;0\) y succión. En el extradós de un perfil con incidencia positiva, \(\theta\) es negativo.</div>
+      <div class="callout success"><strong>No aparece nada más.</strong> Ni la distribución de espesor en otro lugar, ni la curvatura aguas arriba, ni el borde de salida. Solo la pendiente local y el Mach de corriente libre. Esta es la ley de presión local prometida por el carácter hiperbólico de la ecuación.</div>
+    </section>
+
+    <section id="applications-es">
+      <p class="section-label">Aplicaciones</p>
+      <h2>Sustentación y arrastre de onda solo con las pendientes</h2>
+      <h3>Placa plana con incidencia</h3>
+      <p>Ambas superficies son planas, así que las pendientes son \(-\alpha\) arriba y \(+\alpha\) abajo:</p>
+      <div class="equation-card">\[\boxed{C_{p,u}=-\frac{2\alpha}{\lambda},\qquad C_{p,l}=+\frac{2\alpha}{\lambda}}\]</div>
+      <p>Integrando y usando \(\cos\alpha\approx1\), \(\sin\alpha\approx\alpha\):</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{c_l=\frac{4\alpha}{\sqrt{M_\infty^2-1}}}\]</div>
+        <div class="equation-card">\[\boxed{c_{d,w}=\frac{4\alpha^2}{\sqrt{M_\infty^2-1}}}\]</div>
+      </div>
+      <p>de modo que la pendiente supersónica de sustentación es</p>
+      <div class="equation-card">\[\boxed{\frac{dc_l}{d\alpha}=\frac{4}{\sqrt{M_\infty^2-1}}}\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>1.5</th><th>2.0</th><th>3.0</th><th>5.0</th></tr></thead>
+          <tbody><tr><td>\(dc_l/d\alpha\) [por rad]</td><td>3.578</td><td>2.309</td><td>1.414</td><td>0.816</td></tr></tbody>
+        </table>
+      </div>
+      <div class="callout warning"><strong>Tendencia opuesta a la subsónica.</strong> Prandtl–Glauert hace <em>subir</em> la pendiente de sustentación al acercarse a \(M_\infty=1\); Ackeret la hace <em>bajar</em> conforme \(M_\infty\) aumenta. Ambas divergen en \(M_\infty=1\) desde su propio lado, y ninguna es válida ahí. El pico entre ellas es la región transónica que ninguna teoría describe.</div>
+
+      <h3>Perfil delgado general</h3>
+      <p>Descomponiendo las superficies en curvatura \(z_c\) y espesor \(h\), con \(\xi=x/c\), el arrastre de onda se separa en tres contribuciones independientes:</p>
+      <div class="equation-card">\[\boxed{c_{d,w}=\frac{4}{\lambda}\left[\alpha^2+\overline{\left(\frac{dz_c}{d\xi}\right)^2}+\overline{\left(\frac{dh}{d\xi}\right)^2}\right]}\]</div>
+      <div class="callout success"><strong>Todos los términos son cuadrados.</strong> Ángulo de ataque, curvatura y espesor añaden arrastre de onda cada uno y ninguno puede restarlo. No existe un equivalente supersónico de un perfil curvado que reduzca el arrastre: a velocidad supersónica, la curvatura es una penalización pura salvo que compre alguna otra cosa.</div>
+
+      <h3>Perfil diamante simétrico sin incidencia</h3>
+      <p>Con semiángulo \(\varepsilon\) y relación de espesor \(t/c=\tan\varepsilon\), la magnitud de la pendiente es constante en los cuatro paneles, así que</p>
+      <div class="equation-card">\[\boxed{c_{d,w}=\frac{4}{\lambda}\left(\frac{t}{c}\right)^2}\]</div>
+    </section>
+
+    <section id="accuracy-es">
+      <p class="section-label">Frente a la respuesta exacta</p>
+      <h2>¿Qué tan buena es la teoría lineal?</h2>
+      <p>La Lecture 06 resolvió exactamente las mismas dos geometrías con teoría de choque–expansión. Comparando en \(M_\infty=3\), \(\gamma=1.4\):</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Caso</th><th>Magnitud</th><th>Ackeret</th><th>Choque–expansión</th><th>Error</th></tr></thead>
+          <tbody>
+            <tr><td>Placa plana, \(\alpha=5^\circ\)</td><td>\(c_l\)</td><td>0.12341</td><td>0.12435</td><td>−0.75 %</td></tr>
+            <tr><td>Placa plana, \(\alpha=5^\circ\)</td><td>\(c_d\)</td><td>0.010770</td><td>0.010879</td><td>−1.00 %</td></tr>
+            <tr><td>Diamante, \(\varepsilon=5^\circ\)</td><td>\(c_{d,w}\)</td><td>0.010825</td><td>0.010915</td><td>−0.83 %</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout success"><strong>Dentro del uno por ciento.</strong> Para un cuerpo genuinamente delgado a un ángulo genuinamente pequeño, la teoría lineal no es una aproximación burda: es casi exacta, y cuesta una línea de álgebra en lugar de una solución iterativa \(\theta\)–\(\beta\)–\(M\) seguida de una inversión de Prandtl–Meyer.</div>
+      <div class="callout warning">La concordancia se degrada conforme crecen \(\alpha\) o \(t/c\), y se degrada más rápido del lado de compresión que del de expansión, porque la teoría lineal ignora el aumento de entropía a través del choque. Usa choque–expansión cuando la respuesta deba ser correcta y no rápida.</div>
+    </section>
+
+    <section id="viscous-es">
+      <p class="section-label">Añadiendo realidad</p>
+      <h2>Fricción y el ángulo que maximiza \(L/D\)</h2>
+      <p>Un perfil supersónico tiene dos mecanismos de arrastre con tendencias opuestas. El arrastre de onda crece como \(\alpha^2\); la fricción superficial es aproximadamente independiente de \(\alpha\). Escribiendo \(c_f\) para el coeficiente de fricción,</p>
+      <div class="equation-card">\[c_l=\frac{4\alpha}{\lambda},\qquad c_d=\frac{4\alpha^2}{\lambda}+c_f.\]</div>
+      <p>Maximizar \(c_l/c_d\) respecto de \(\alpha\) da una condición notablemente limpia:</p>
+      <div class="equation-card">\[\boxed{\frac{4\alpha^2}{\lambda}=c_f\quad\Longrightarrow\quad\alpha_{\mathrm{opt}}=\tfrac12\sqrt{c_f\lambda}}\]</div>
+      <div class="callout success"><strong>En el óptimo, el arrastre de onda iguala exactamente al de fricción.</strong> Ninguno domina. Vuela por debajo de \(\alpha_{\mathrm{opt}}\) y la fricción se desperdicia en muy poca sustentación; vuela por encima y el arrastre de onda sube más rápido que la sustentación.</div>
+      <p>El máximo mismo es</p>
+      <div class="equation-card">\[\boxed{\left(\frac{L}{D}\right)_{\max}=\frac{1}{\sqrt{c_f\lambda}}}\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>\(c_f\)</th><th>\(\alpha_{\mathrm{opt}}\)</th><th>\((L/D)_{\max}\)</th></tr></thead>
+          <tbody>
+            <tr><td>2.0</td><td>0.003</td><td>2.07°</td><td>13.87</td></tr>
+            <tr><td>3.0</td><td>0.003</td><td>2.64°</td><td>10.86</td></tr>
+            <tr><td>2.0</td><td>0.005</td><td>2.67°</td><td>10.75</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning">Estos son números bidimensionales, inviscidos más fricción de placa plana, para una placa de espesor nulo. Un ala real añade arrastre de onda por espesor, arrastre inducido por sustentación e interferencia, así que un avión supersónico real logra bastante menos. El valor del resultado es el <em>escalamiento</em>: \((L/D)_{\max}\) cae conforme sube \(M_\infty\), y cae como la raíz cuadrada del nivel de fricción.</div>
+    </section>
+
+    <section id="example-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>Una placa plana a \(M_\infty=3\), \(\alpha=5^\circ\)</h2>
+      <div class="example">
+        <h3>Problema</h3>
+        <p>Calcule \(c_l\) y \(c_{d,w}\) para una placa plana a \(M_\infty=3\) y \(\alpha=5^\circ\) usando la regla de Ackeret, compare con el resultado exacto de choque–expansión de la Lecture 06 y halle después el ángulo de ataque que maximizaría \(L/D\) si \(c_f=0.003\).</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Parámetro de compresibilidad:</p>\[\lambda=\sqrt{3^2-1}=\sqrt{8}=2.82843.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Con \(\alpha=5^\circ=0.0872665\) rad, las presiones superficiales son</p>\[C_{p,l}=+\frac{2(0.0872665)}{2.82843}=+0.061707,\qquad C_{p,u}=-0.061707.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Sustentación y arrastre de onda:</p>\[c_l=\frac{4(0.0872665)}{2.82843}=0.12341,\qquad c_{d,w}=\frac{4(0.0872665)^2}{2.82843}=0.010770.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Comparación con la Lecture 06, que resolvió el mismo caso de forma exacta:</p>\[c_l:\ 0.12341\ \text{frente a}\ 0.12435\ (-0.75\,\%),\qquad c_d:\ 0.010770\ \text{frente a}\ 0.010879\ (-1.00\,\%).\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>Incidencia óptima con fricción:</p>\[\alpha_{\mathrm{opt}}=\tfrac12\sqrt{(0.003)(2.82843)}=0.046063\ \text{rad}=2.64^\circ,\qquad\left(\frac{L}{D}\right)_{\max}=\frac{1}{\sqrt{(0.003)(2.82843)}}=10.86.\]</div></div>
+
+        <div class="result-box">\[\boxed{c_l=0.1234,\quad c_{d,w}=0.01077,\quad\alpha_{\mathrm{opt}}=2.64^\circ,\quad(L/D)_{\max}=10.86}\]</div>
+        <p>Nótese que los \(5^\circ\) de la primera parte son casi el doble de \(\alpha_{\mathrm{opt}}\). A esa incidencia la placa genera buena sustentación, pero paga \(4\alpha^2/\lambda=0.01077\) de arrastre de onda contra solo \(0.003\) de fricción: bastante más allá del punto donde ambos se equilibran.</p>
+      </div>
+      <div class="validation-case">
+        <strong>Caso de validación de la calculadora</strong>
+        <span>Los valores exactos de comparación provienen del módulo de choque–expansión: \(M_\infty=3\), placa plana a \(\alpha=5^\circ\), \(\gamma=1.4\), expansión arriba y choque débil abajo.</span>
+      </div>
+    </section>
+
+    <section id="summary-es">
+      <p class="section-label">Ecuaciones clave</p>
+      <h2>En síntesis</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Relación</th><th>Expresión</th><th>Aplica cuando</th></tr></thead>
+          <tbody>
+            <tr><td>Ecuación de onda</td><td>\(\lambda^2\hat\phi_{xx}-\hat\phi_{yy}=0\), \(\lambda=\sqrt{M_\infty^2-1}\)</td><td>\(M_\infty&gt;1\), pequeñas perturbaciones</td></tr>
+            <tr><td>Solución general</td><td>\(\hat\phi=F(x-\lambda y)+G(x+\lambda y)\)</td><td>siempre</td></tr>
+            <tr><td>Características</td><td>\(dy/dx=\pm1/\lambda=\pm\tan\mu\)</td><td>líneas de Mach</td></tr>
+            <tr><td>Ackeret</td><td>\(C_p=2\theta/\sqrt{M_\infty^2-1}\)</td><td>pendiente local \(\theta\), cuerpo delgado</td></tr>
+            <tr><td>Sustentación de placa</td><td>\(c_l=4\alpha/\lambda\)</td><td>borde de ataque afilado</td></tr>
+            <tr><td>Pendiente de sustentación</td><td>\(dc_l/d\alpha=4/\lambda\)</td><td>cae con \(M_\infty\)</td></tr>
+            <tr><td>Arrastre de onda</td><td>\(c_{d,w}=\frac{4}{\lambda}\left[\alpha^2+\overline{(dz_c/d\xi)^2}+\overline{(dh/d\xi)^2}\right]\)</td><td>todos los términos positivos</td></tr>
+            <tr><td>Diamante</td><td>\(c_{d,w}=\frac{4}{\lambda}(t/c)^2\)</td><td>\(\alpha=0\), simétrico</td></tr>
+            <tr><td>Incidencia óptima</td><td>\(\alpha_{\mathrm{opt}}=\frac12\sqrt{c_f\lambda}\), \((L/D)_{\max}=1/\sqrt{c_f\lambda}\)</td><td>arrastre de onda \(=\) fricción</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="mistakes-es">
+      <p class="section-label">Errores comunes</p>
+      <h2>Errores comunes</h2>
+      <ul class="check-list">
+        <li><strong>Usar \(\beta=\sqrt{1-M_\infty^2}\) en flujo supersónico.</strong> Ahí es imaginario. El parámetro supersónico es \(\lambda=\sqrt{M_\infty^2-1}\).</li>
+        <li><strong>Equivocar el signo de \(\theta\).</strong> Un \(\theta\) positivo significa que la superficie gira hacia el flujo y \(C_p&gt;0\); el extradós con incidencia positiva tiene \(\theta&lt;0\).</li>
+        <li><strong>Esperar que la pendiente de sustentación suba con el Mach.</strong> En subsónico sube; en supersónico \(4/\lambda\) baja.</li>
+        <li><strong>Aplicar la teoría a un borde de ataque romo.</strong> Una onda de proa desprendida invalida todo el esquema de pendiente local.</li>
+        <li><strong>Creer que la curvatura puede reducir el arrastre supersónico.</strong> Todos los términos de la fórmula de arrastre de onda están al cuadrado, así que la curvatura solo suma.</li>
+        <li><strong>Reportar el arrastre de onda como arrastre total.</strong> La fricción es una contribución separada y comparable: en \((L/D)_{\max}\) ambas son exactamente iguales.</li>
+        <li><strong>Confiar en la teoría cerca de \(M_\infty=1\) o a velocidad hipersónica.</strong> \(\lambda\to0\) hace divergir \(C_p\); a alto número de Mach el ordenamiento de pequeñas perturbaciones falla por una razón distinta, tratada en la Lecture 13.</li>
+      </ul>
+    </section>
+
+    <section id="calculator-es">
+      <p class="section-label">Herramienta computacional</p>
+      <h2>Abrir calculadora</h2>
+      <p>El módulo de choque–expansión de la calculadora de flujo compresible produce las respuestas exactas contra las que se compara esta lecture. Ejecutar la placa plana a \(M_\infty=3\) y \(\alpha=5^\circ\) reproduce los \(c_l=0.12435\) y \(c_d=0.010879\) usados en la tabla de precisión, así que puedes ver por ti mismo cuánto cuesta la linealización.</p>
+      <div class="button-row lecture-actions"><a class="button outline" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer">Abrir calculadora</a></div>
+    </section>
+
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 12.</li>
+        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3.ª ed. Nueva York: McGraw-Hill, 2003, capítulo 9.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, México, febrero de 2024.</li>
+      </ol>
+      <p class="source-note">Adaptado de la Unidad VI de los apuntes de Aerodinámica II de Carlos Alberto Molina Holguín; todos los valores numéricos se recalcularon de forma independiente para \(\gamma=1.4\), y los valores de comparación provienen de las soluciones exactas de la Lecture 06.</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="compressibility-corrections.html"><span>Lecture anterior</span>← Correcciones de compresibilidad</a>
+      <a class="next-link" href="hypersonic-flow-introduction.html"><span>Siguiente lecture</span>El régimen hipersónico →</a>
+    </nav>
+  </article>
+
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <ul>
+        <li>Erläutern, warum \(M_\infty&gt;1\) die linearisierte Gleichung von elliptisch in hyperbolisch verwandelt, und was das physikalisch bedeutet.</li>
+        <li>Die Charakteristiken der linearisierten Gleichung als Machlinien erkennen.</li>
+        <li>Die Ackeret-Beziehung \(C_p=2\theta/\sqrt{M_\infty^2-1}\) herleiten.</li>
+        <li>Auftrieb und Wellenwiderstand eines schlanken Profils allein aus seinen Oberflächenneigungen berechnen.</li>
+        <li>Linearisierte Ergebnisse mit der exakten Stoß–Expansions-Theorie vergleichen und den Fehler beziffern.</li>
+        <li>Den Anstellwinkel bestimmen, der \(L/D\) unter Berücksichtigung der Oberflächenreibung maximiert.</li>
+      </ul>
+    </section>
+
+    <section id="physics-de">
+      <p class="section-label">Physikalisches Bild</p>
+      <h2>Der Körper kann die Strömung nicht mehr vorwarnen</h2>
+      <p class="lead">In der Unterschallströmung macht sich ein Körper überall bemerkbar: Störungen eilen der Strömung voraus, und das gesamte Feld stellt sich ein, bevor das Fluid eintrifft. Oberhalb von Mach eins ist das unmöglich. Störungen werden schneller stromab getragen, als sie sich ausbreiten, sodass jeder Oberflächenpunkt nur einen Keil hinter sich beeinflusst, der von Machlinien begrenzt wird.</p>
+      <div class="callout success"><strong>Die Folge ist ein örtliches Druckgesetz.</strong> Da nichts stromauf wandert, hängt der Druck an einem Punkt allein von der örtlichen Oberflächenneigung ab, nicht von der Form des übrigen Profils. Das ist eine weit stärkere Aussage als alles im Unterschall Verfügbare und macht die schlanke Überschall-Profiltheorie fast peinlich einfach.</div>
+      <div class="callout warning">Sie erzeugt außerdem Widerstand. Im linearisierten Unterschallmodell hat ein geschlossener Körper keinen; hier liefert dasselbe Modell einen endlichen <strong>Wellenwiderstand</strong>, weil die Druckverteilung zwischen Vorder- und Hinterseite nicht mehr symmetrisch ist.</div>
+    </section>
+
+    <section id="model-de">
+      <p class="section-label">Modell und Annahmen</p>
+      <h2>Schlank, scharf und vollständig im Überschall</h2>
+      <ul>
+        <li>stationäre, reibungsfreie, zweidimensionale Strömung eines kalorisch idealen Gases;</li>
+        <li>kleine Störungen, genau wie in Vorlesung 10;</li>
+        <li>Überschallanströmung, \(M_\infty&gt;1\), und nicht nahe eins;</li>
+        <li>ein schlankes Profil mit <em>scharfer</em> Vorderkante, damit der Stoß anliegend bleibt;</li>
+        <li>kleiner Anstellwinkel, sodass \(\sin\alpha\approx\alpha\) und \(\cos\alpha\approx1\).</li>
+      </ul>
+      <div class="callout warning"><strong>Nicht enthalten.</strong> Stumpfe Vorderkanten, die den Stoß ablösen und das gesamte Schema zerstören; transsonische und hyperschallnahe Machzahlen, bei denen die Linearisierung an beiden Enden versagt; der Entropieanstieg über Stöße, den die lineare Theorie vollständig ignoriert; und viskose Effekte, die im Reibungsabschnitt getrennt hinzugefügt werden. Nichts hiervon sagt vorher, wo ein Stoß steht oder wie stark er ist — das ist Vorlesung 06.</div>
+    </section>
+
+    <section id="type-de">
+      <p class="section-label">Ein Vorzeichen</p>
+      <h2>Die Gleichung wird zur Wellengleichung</h2>
+      <p>Die linearisierte Potentialgleichung aus Vorlesung 10 lautete \((1-M_\infty^2)\hat\phi_{xx}+\hat\phi_{yy}=0\). Für \(M_\infty&gt;1\) wechselt der führende Koeffizient das Vorzeichen. Mit der Definition</p>
+      <div class="equation-card">\[\boxed{\lambda\equiv\sqrt{M_\infty^2-1}}\]</div>
+      <p>wird die Gleichung zu</p>
+      <div class="equation-card">\[\boxed{\lambda^2\hat\phi_{xx}-\hat\phi_{yy}=0}\]</div>
+      <p>also zur klassischen Wellengleichung. Sie faktorisiert,</p>
+      <div class="equation-card">\[\left(\lambda\frac{\partial}{\partial x}-\frac{\partial}{\partial y}\right)\left(\lambda\frac{\partial}{\partial x}+\frac{\partial}{\partial y}\right)\hat\phi=0,\]</div>
+      <p>und lässt daher die allgemeine Lösung zu</p>
+      <div class="equation-card">\[\boxed{\hat\phi(x,y)=F(x-\lambda y)+G(x+\lambda y)}\]</div>
+      <div class="callout success"><strong>Zwei laufende Störungen.</strong> \(F\) ist längs der Linien \(x-\lambda y=\text{const}\) konstant und \(G\) längs \(x+\lambda y=\text{const}\). Die Lösung ist kein global zu bestimmendes Feld — es sind zwei Wellenfamilien, von denen jede ihre Information in eine feste Richtung trägt.</div>
+    </section>
+
+    <section id="characteristics-de">
+      <p class="section-label">Wohin die Information geht</p>
+      <h2>Die Charakteristiken sind Machlinien</h2>
+      <p>Die beiden Familien haben die Steigungen</p>
+      <div class="equation-card">\[\frac{dy}{dx}=\pm\frac{1}{\lambda}=\pm\frac{1}{\sqrt{M_\infty^2-1}}.\]</div>
+      <p>Man vergleiche das mit dem Machwinkel aus Vorlesung 05:</p>
+      <div class="equation-card">\[\tan\mu=\frac{1}{\sqrt{M_\infty^2-1}}=\frac{1}{\lambda}.\]</div>
+      <div class="callout success"><strong>Es sind dieselben Linien.</strong> Die Charakteristiken der linearisierten Gleichung sind genau die Machlinien der Anströmung. Die Mathematik hat von selbst die physikalische Tatsache wiederentdeckt, dass schwache Störungen längs Machwellen laufen.</div>
+      <p>Damit liegt das <em>Einflussgebiet</em> jedes Punktes fest: nur der Keil stromab davon, zwischen seinen beiden Machlinien. Alles außerhalb dieses Keils weiß nichts von ihm. Über einer Profiloberfläche existiert nur die Familie \(F\), da es weiter außen keine Berandung gibt, die Wellen zurücksendet — und genau das reduziert das Problem auf eine einzige Funktion.</p>
+    </section>
+
+    <section id="ackeret-de">
+      <p class="section-label">Das Ergebnis</p>
+      <h2>Die Ackeret-Beziehung</h2>
+      <p>Man betrachte die Oberseite, wo nur \(\hat\phi=F(x-\lambda y)\) übrig bleibt. Dann gilt</p>
+      <div class="equation-card">\[\hat u=\hat\phi_x=F',\qquad \hat v=\hat\phi_y=-\lambda F',\qquad\text{also}\qquad\boxed{\hat u=-\frac{\hat v}{\lambda}}\]</div>
+      <p>Die linearisierte Tangentialbedingung aus Vorlesung 10 liefert \(\hat v=V_\infty\theta\), wobei \(\theta\) die örtliche, von der Anströmung aus gemessene Oberflächenneigung ist. Damit</p>
+      <div class="equation-card">\[\hat u=-\frac{V_\infty\theta}{\lambda},\]</div>
+      <p>und eingesetzt in \(C_p=-2\hat u/V_\infty\):</p>
+      <div class="equation-card">\[\boxed{C_p=\frac{2\theta}{\sqrt{M_\infty^2-1}}}\]</div>
+      <div class="callout"><strong>Die Vorzeichenkonvention sorgfältig lesen.</strong> \(\theta\) ist positiv, wenn sich die Oberfläche <em>in</em> die Strömung dreht — eine Verdichtung — und liefert \(C_p&gt;0\). Eine wegdrehende Oberfläche liefert \(\theta&lt;0\) und Unterdruck. Auf der Oberseite eines Profils bei positivem Anstellwinkel ist \(\theta\) negativ.</div>
+      <div class="callout success"><strong>Sonst erscheint nichts.</strong> Weder die Dickenverteilung an anderer Stelle noch die Wölbung stromauf noch die Hinterkante. Nur die örtliche Neigung und die Anström-Machzahl. Das ist das örtliche Druckgesetz, das der hyperbolische Charakter der Gleichung versprochen hat.</div>
+    </section>
+
+    <section id="applications-de">
+      <p class="section-label">Anwendungen</p>
+      <h2>Auftrieb und Wellenwiderstand allein aus Oberflächenneigungen</h2>
+      <h3>Ebene Platte unter Anstellwinkel</h3>
+      <p>Beide Flächen sind eben, die Neigungen betragen also \(-\alpha\) oben und \(+\alpha\) unten:</p>
+      <div class="equation-card">\[\boxed{C_{p,u}=-\frac{2\alpha}{\lambda},\qquad C_{p,l}=+\frac{2\alpha}{\lambda}}\]</div>
+      <p>Integration mit \(\cos\alpha\approx1\), \(\sin\alpha\approx\alpha\) ergibt:</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{c_l=\frac{4\alpha}{\sqrt{M_\infty^2-1}}}\]</div>
+        <div class="equation-card">\[\boxed{c_{d,w}=\frac{4\alpha^2}{\sqrt{M_\infty^2-1}}}\]</div>
+      </div>
+      <p>Der Überschall-Auftriebsanstieg lautet somit</p>
+      <div class="equation-card">\[\boxed{\frac{dc_l}{d\alpha}=\frac{4}{\sqrt{M_\infty^2-1}}}\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>1,5</th><th>2,0</th><th>3,0</th><th>5,0</th></tr></thead>
+          <tbody><tr><td>\(dc_l/d\alpha\) [pro rad]</td><td>3,578</td><td>2,309</td><td>1,414</td><td>0,816</td></tr></tbody>
+        </table>
+      </div>
+      <div class="callout warning"><strong>Gegenläufiger Trend zum Unterschall.</strong> Prandtl–Glauert lässt den Auftriebsanstieg zu \(M_\infty=1\) hin <em>steigen</em>; Ackeret lässt ihn mit wachsendem \(M_\infty\) <em>fallen</em>. Beide divergieren bei \(M_\infty=1\) von ihrer jeweiligen Seite, und keine ist dort gültig. Die Spitze dazwischen ist der transsonische Bereich, den keine der beiden Theorien beschreibt.</div>
+
+      <h3>Allgemeines schlankes Profil</h3>
+      <p>Zerlegt man die Flächen in Wölbung \(z_c\) und Dicke \(h\), mit \(\xi=x/c\), so trennt sich der Wellenwiderstand in drei unabhängige Beiträge:</p>
+      <div class="equation-card">\[\boxed{c_{d,w}=\frac{4}{\lambda}\left[\alpha^2+\overline{\left(\frac{dz_c}{d\xi}\right)^2}+\overline{\left(\frac{dh}{d\xi}\right)^2}\right]}\]</div>
+      <div class="callout success"><strong>Jeder Term ist ein Quadrat.</strong> Anstellwinkel, Wölbung und Dicke tragen jeweils Wellenwiderstand bei, und keiner kann ihn verringern. Es gibt kein Überschall-Gegenstück zu einem gewölbten Profil, das den Widerstand senkt: im Überschall ist Wölbung ein reiner Nachteil, sofern sie nicht etwas anderes erkauft.</div>
+
+      <h3>Symmetrisches Diamantprofil ohne Anstellung</h3>
+      <p>Mit Halbwinkel \(\varepsilon\) und Dickenverhältnis \(t/c=\tan\varepsilon\) ist der Betrag der Neigung auf allen vier Flächen gleich, also</p>
+      <div class="equation-card">\[\boxed{c_{d,w}=\frac{4}{\lambda}\left(\frac{t}{c}\right)^2}\]</div>
+    </section>
+
+    <section id="accuracy-de">
+      <p class="section-label">Gegen die exakte Lösung</p>
+      <h2>Wie gut ist die lineare Theorie?</h2>
+      <p>Vorlesung 06 hat dieselben beiden Geometrien exakt mit der Stoß–Expansions-Theorie gelöst. Der Vergleich bei \(M_\infty=3\), \(\gamma=1{,}4\):</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Fall</th><th>Größe</th><th>Ackeret</th><th>Stoß–Expansion</th><th>Fehler</th></tr></thead>
+          <tbody>
+            <tr><td>Ebene Platte, \(\alpha=5^\circ\)</td><td>\(c_l\)</td><td>0,12341</td><td>0,12435</td><td>−0,75 %</td></tr>
+            <tr><td>Ebene Platte, \(\alpha=5^\circ\)</td><td>\(c_d\)</td><td>0,010770</td><td>0,010879</td><td>−1,00 %</td></tr>
+            <tr><td>Diamantprofil, \(\varepsilon=5^\circ\)</td><td>\(c_{d,w}\)</td><td>0,010825</td><td>0,010915</td><td>−0,83 %</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout success"><strong>Innerhalb eines Prozents.</strong> Für einen wirklich schlanken Körper unter einem wirklich kleinen Winkel ist die lineare Theorie keine grobe Näherung — sie ist nahezu exakt und kostet eine Zeile Algebra statt einer iterativen \(\theta\)–\(\beta\)–\(M\)-Lösung mit anschließender Prandtl–Meyer-Inversion.</div>
+      <div class="callout warning">Die Übereinstimmung verschlechtert sich mit wachsendem \(\alpha\) oder \(t/c\), und zwar auf der Verdichtungsseite schneller als auf der Expansionsseite, weil die lineare Theorie den Entropieanstieg im Stoß ignoriert. Verwenden Sie Stoß–Expansion, wenn die Antwort richtig statt schnell sein muss.</div>
+    </section>
+
+    <section id="viscous-de">
+      <p class="section-label">Die Realität hinzufügen</p>
+      <h2>Reibung und der Winkel maximaler \(L/D\)</h2>
+      <p>Ein Überschallprofil besitzt zwei Widerstandsmechanismen mit gegenläufigem Verhalten. Der Wellenwiderstand wächst mit \(\alpha^2\); die Oberflächenreibung ist von \(\alpha\) nahezu unabhängig. Mit \(c_f\) für den Reibungsbeiwert gilt</p>
+      <div class="equation-card">\[c_l=\frac{4\alpha}{\lambda},\qquad c_d=\frac{4\alpha^2}{\lambda}+c_f.\]</div>
+      <p>Die Maximierung von \(c_l/c_d\) nach \(\alpha\) liefert eine bemerkenswert klare Bedingung:</p>
+      <div class="equation-card">\[\boxed{\frac{4\alpha^2}{\lambda}=c_f\quad\Longrightarrow\quad\alpha_{\mathrm{opt}}=\tfrac12\sqrt{c_f\lambda}}\]</div>
+      <div class="callout success"><strong>Im Optimum ist der Wellenwiderstand genau gleich dem Reibungswiderstand.</strong> Keiner überwiegt. Fliegt man unterhalb von \(\alpha_{\mathrm{opt}}\), wird Reibung für zu wenig Auftrieb vergeudet; oberhalb steigt der Wellenwiderstand schneller als der Auftrieb.</div>
+      <p>Das Maximum selbst lautet</p>
+      <div class="equation-card">\[\boxed{\left(\frac{L}{D}\right)_{\max}=\frac{1}{\sqrt{c_f\lambda}}}\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>\(c_f\)</th><th>\(\alpha_{\mathrm{opt}}\)</th><th>\((L/D)_{\max}\)</th></tr></thead>
+          <tbody>
+            <tr><td>2,0</td><td>0,003</td><td>2,07°</td><td>13,87</td></tr>
+            <tr><td>3,0</td><td>0,003</td><td>2,64°</td><td>10,86</td></tr>
+            <tr><td>2,0</td><td>0,005</td><td>2,67°</td><td>10,75</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning">Dies sind zweidimensionale Werte aus reibungsfreier Theorie plus Plattenreibung für eine Platte ohne Dicke. Ein reales Tragflügel fügt Dicken-Wellenwiderstand, induzierten Widerstand und Interferenz hinzu, sodass ein tatsächliches Überschallflugzeug deutlich weniger erreicht. Der Wert des Ergebnisses liegt in der <em>Skalierung</em>: \((L/D)_{\max}\) fällt mit steigendem \(M_\infty\) und fällt mit der Quadratwurzel des Reibungsniveaus.</div>
+    </section>
+
+    <section id="example-de">
+      <p class="section-label">Rechenbeispiel</p>
+      <h2>Eine ebene Platte bei \(M_\infty=3\), \(\alpha=5^\circ\)</h2>
+      <div class="example">
+        <h3>Aufgabe</h3>
+        <p>Berechnen Sie \(c_l\) und \(c_{d,w}\) für eine ebene Platte bei \(M_\infty=3\) und \(\alpha=5^\circ\) mit der Ackeret-Regel, vergleichen Sie mit dem exakten Stoß–Expansions-Ergebnis aus Vorlesung 06 und bestimmen Sie anschließend den Anstellwinkel, der \(L/D\) für \(c_f=0{,}003\) maximieren würde.</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Kompressibilitätsparameter:</p>\[\lambda=\sqrt{3^2-1}=\sqrt{8}=2{,}82843.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Mit \(\alpha=5^\circ=0{,}0872665\) rad lauten die Oberflächendrücke</p>\[C_{p,l}=+\frac{2(0{,}0872665)}{2{,}82843}=+0{,}061707,\qquad C_{p,u}=-0{,}061707.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Auftrieb und Wellenwiderstand:</p>\[c_l=\frac{4(0{,}0872665)}{2{,}82843}=0{,}12341,\qquad c_{d,w}=\frac{4(0{,}0872665)^2}{2{,}82843}=0{,}010770.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Vergleich mit Vorlesung 06, die denselben Fall exakt gelöst hat:</p>\[c_l:\ 0{,}12341\ \text{gegen}\ 0{,}12435\ (-0{,}75\,\%),\qquad c_d:\ 0{,}010770\ \text{gegen}\ 0{,}010879\ (-1{,}00\,\%).\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>Optimaler Anstellwinkel mit Reibung:</p>\[\alpha_{\mathrm{opt}}=\tfrac12\sqrt{(0{,}003)(2{,}82843)}=0{,}046063\ \text{rad}=2{,}64^\circ,\qquad\left(\frac{L}{D}\right)_{\max}=\frac{1}{\sqrt{(0{,}003)(2{,}82843)}}=10{,}86.\]</div></div>
+
+        <div class="result-box">\[\boxed{c_l=0{,}1234,\quad c_{d,w}=0{,}01077,\quad\alpha_{\mathrm{opt}}=2{,}64^\circ,\quad(L/D)_{\max}=10{,}86}\]</div>
+        <p>Man beachte, dass die \(5^\circ\) des ersten Teils fast dem Doppelten von \(\alpha_{\mathrm{opt}}\) entsprechen. Bei diesem Anstellwinkel erzeugt die Platte guten Auftrieb, zahlt aber \(4\alpha^2/\lambda=0{,}01077\) Wellenwiderstand gegenüber nur \(0{,}003\) Reibung — deutlich jenseits des Punktes, an dem sich beide die Waage halten.</p>
+      </div>
+      <div class="validation-case">
+        <strong>Validierungsfall des Rechners</strong>
+        <span>Die exakten Vergleichswerte stammen aus dem Stoß–Expansions-Modul: \(M_\infty=3\), ebene Platte bei \(\alpha=5^\circ\), \(\gamma=1{,}4\), Expansion oben und schwacher Stoß unten.</span>
+      </div>
+    </section>
+
+    <section id="summary-de">
+      <p class="section-label">Kerngleichungen</p>
+      <h2>Auf einen Blick</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Beziehung</th><th>Ausdruck</th><th>Gültig wenn</th></tr></thead>
+          <tbody>
+            <tr><td>Wellengleichung</td><td>\(\lambda^2\hat\phi_{xx}-\hat\phi_{yy}=0\), \(\lambda=\sqrt{M_\infty^2-1}\)</td><td>\(M_\infty&gt;1\), kleine Störungen</td></tr>
+            <tr><td>Allgemeine Lösung</td><td>\(\hat\phi=F(x-\lambda y)+G(x+\lambda y)\)</td><td>immer</td></tr>
+            <tr><td>Charakteristiken</td><td>\(dy/dx=\pm1/\lambda=\pm\tan\mu\)</td><td>Machlinien</td></tr>
+            <tr><td>Ackeret</td><td>\(C_p=2\theta/\sqrt{M_\infty^2-1}\)</td><td>örtliche Neigung \(\theta\), schlanker Körper</td></tr>
+            <tr><td>Plattenauftrieb</td><td>\(c_l=4\alpha/\lambda\)</td><td>scharfe Vorderkante</td></tr>
+            <tr><td>Auftriebsanstieg</td><td>\(dc_l/d\alpha=4/\lambda\)</td><td>fällt mit \(M_\infty\)</td></tr>
+            <tr><td>Wellenwiderstand</td><td>\(c_{d,w}=\frac{4}{\lambda}\left[\alpha^2+\overline{(dz_c/d\xi)^2}+\overline{(dh/d\xi)^2}\right]\)</td><td>alle Terme positiv</td></tr>
+            <tr><td>Diamantprofil</td><td>\(c_{d,w}=\frac{4}{\lambda}(t/c)^2\)</td><td>\(\alpha=0\), symmetrisch</td></tr>
+            <tr><td>Optimaler Anstellwinkel</td><td>\(\alpha_{\mathrm{opt}}=\frac12\sqrt{c_f\lambda}\), \((L/D)_{\max}=1/\sqrt{c_f\lambda}\)</td><td>Wellenwiderstand \(=\) Reibung</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="mistakes-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Häufige Fehler</h2>
+      <ul class="check-list">
+        <li><strong>\(\beta=\sqrt{1-M_\infty^2}\) im Überschall verwenden.</strong> Dort ist es imaginär. Der Überschallparameter ist \(\lambda=\sqrt{M_\infty^2-1}\).</li>
+        <li><strong>Das Vorzeichen von \(\theta\) verwechseln.</strong> Positives \(\theta\) bedeutet, dass sich die Oberfläche in die Strömung dreht, und \(C_p&gt;0\); die Oberseite bei positivem Anstellwinkel hat \(\theta&lt;0\).</li>
+        <li><strong>Erwarten, dass der Auftriebsanstieg mit der Machzahl wächst.</strong> Im Unterschall tut er das; im Überschall fällt \(4/\lambda\).</li>
+        <li><strong>Die Theorie auf eine stumpfe Vorderkante anwenden.</strong> Ein abgelöster Kopfstoß macht das gesamte Bild der örtlichen Neigung ungültig.</li>
+        <li><strong>Glauben, Wölbung könne den Überschallwiderstand senken.</strong> Jeder Term der Wellenwiderstandsformel ist quadriert, Wölbung addiert also nur.</li>
+        <li><strong>Wellenwiderstand als Gesamtwiderstand angeben.</strong> Die Reibung ist ein eigener, vergleichbar großer Beitrag — bei \((L/D)_{\max}\) sind beide exakt gleich.</li>
+        <li><strong>Der Theorie nahe \(M_\infty=1\) oder im Hyperschall vertrauen.</strong> \(\lambda\to0\) lässt \(C_p\) divergieren; bei hoher Machzahl versagt die Kleinstörungs-Ordnung aus einem anderen Grund, behandelt in Vorlesung 13.</li>
+      </ul>
+    </section>
+
+    <section id="calculator-de">
+      <p class="section-label">Rechenwerkzeug</p>
+      <h2>Rechner öffnen</h2>
+      <p>Das Stoß–Expansions-Modul des Rechners für kompressible Strömungen liefert genau die exakten Antworten, mit denen diese Vorlesung verglichen wird. Rechnet man die ebene Platte bei \(M_\infty=3\) und \(\alpha=5^\circ\), so ergeben sich die in der Genauigkeitstabelle verwendeten Werte \(c_l=0{,}12435\) und \(c_d=0{,}010879\) — man sieht damit selbst, was die Linearisierung kostet.</p>
+      <div class="button-row lecture-actions"><a class="button outline" href="https://carlos-molina-compressible-flow.streamlit.app/" target="_blank" rel="noopener noreferrer">Rechner öffnen</a></div>
+    </section>
+
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6. Aufl. New York: McGraw-Hill Education, 2017, Kapitel 12.</li>
+        <li>Anderson, J. D., Jr. <em>Modern Compressible Flow: With Historical Perspective</em>, 3. Aufl. New York: McGraw-Hill, 2003, Kapitel 9.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexiko, Februar 2024.</li>
+      </ol>
+      <p class="source-note">Bearbeitet nach Einheit VI des Vorlesungsskripts Aerodynamik II von Carlos Alberto Molina Holguín; alle Zahlenwerte wurden für \(\gamma=1{,}4\) unabhängig nachgerechnet, und die Vergleichswerte stammen aus den exakten Lösungen von Vorlesung 06.</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="compressibility-corrections.html"><span>Vorherige Vorlesung</span>← Kompressibilitätskorrekturen</a>
+      <a class="next-link" href="hypersonic-flow-introduction.html"><span>Nächste Vorlesung</span>Das Hyperschallregime →</a>
+    </nav>
+  </article>
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>

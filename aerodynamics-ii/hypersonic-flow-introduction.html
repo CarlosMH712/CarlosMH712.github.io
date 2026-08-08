@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Opening the hypersonic regime: thin shock layers, viscous interaction, high-temperature real gas, aerodynamic heating, and the failure of linearized supersonic theory." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>The Hypersonic Regime and the End of Linear Theory | Aerodynamics II</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../index.html" data-ui-key="home">Home</a><a href="index.html?v=11" data-ui-key="course">Aerodynamics II</a><a href="../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">Aerodynamics II · Lecture 13</p><h1>The Hypersonic Regime and the End of Linear Theory</h1><p class="hero-copy">No new equation appears at Mach five. What happens is that four effects which were corrections in supersonic flow become the problem itself — and the theory of the previous lecture quietly stops being right.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">Aerodinámica II · Lecture 13</p><h1>El régimen hipersónico y el final de la teoría lineal</h1><p class="hero-copy">En Mach cinco no aparece ninguna ecuación nueva. Lo que ocurre es que cuatro efectos que eran correcciones en flujo supersónico se vuelven el problema mismo, y la teoría de la lecture anterior deja de ser correcta sin avisar.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">Aerodynamik II · Vorlesung 13</p><h1>Das Hyperschallregime und das Ende der linearen Theorie</h1><p class="hero-copy">Bei Mach fünf taucht keine neue Gleichung auf. Es geschieht vielmehr, dass vier Effekte, die im Überschall Korrekturen waren, zum eigentlichen Problem werden — und die Theorie der vorigen Vorlesung stillschweigend aufhört, richtig zu sein.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 40 min</span><span data-language="es" hidden>Lectura estimada: 40 min</span><span data-language="de" hidden>Lesedauer: ca. 40 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Model: perfect gas, \(M_\infty\gtrsim5\)</span><span data-language="es" hidden>Modelo: gas perfecto, \(M_\infty\gtrsim5\)</span><span data-language="de" hidden>Modell: ideales Gas, \(M_\infty\gtrsim5\)</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="supersonic-linearized-flow.html">← <span data-ui-key="previous">Previous lecture</span></a><a class="button primary" href="numerical-methods-supersonic.html"><span data-ui-key="next">Next lecture</span> →</a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#physics">Physical picture</a><a href="#model">Model and assumptions</a><a href="#boundary">Where the regime begins</a><a href="#shocklayer">The thin shock layer</a><a href="#viscous">Viscous interaction</a><a href="#realgas">High-temperature gas</a><a href="#heating">Aerodynamic heating</a><a href="#breakdown">Where linear theory ends</a><a href="#example">Worked example</a><a href="#summary">Key equations</a><a href="#mistakes">Common mistakes</a><a href="#advanced">Further topics</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#physics-es">Panorama físico</a><a href="#model-es">Modelo e hipótesis</a><a href="#boundary-es">Dónde comienza el régimen</a><a href="#shocklayer-es">La capa de choque delgada</a><a href="#viscous-es">Interacción viscosa</a><a href="#realgas-es">Gas a alta temperatura</a><a href="#heating-es">Calentamiento aerodinámico</a><a href="#breakdown-es">Dónde termina la teoría lineal</a><a href="#example-es">Ejemplo resuelto</a><a href="#summary-es">Ecuaciones clave</a><a href="#mistakes-es">Errores comunes</a><a href="#advanced-es">Temas complementarios</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#physics-de">Physikalisches Bild</a><a href="#model-de">Modell und Annahmen</a><a href="#boundary-de">Wo das Regime beginnt</a><a href="#shocklayer-de">Die dünne Stoßschicht</a><a href="#viscous-de">Viskose Wechselwirkung</a><a href="#realgas-de">Hochtemperaturgas</a><a href="#heating-de">Aerodynamische Aufheizung</a><a href="#breakdown-de">Wo die lineare Theorie endet</a><a href="#example-de">Rechenbeispiel</a><a href="#summary-de">Kerngleichungen</a><a href="#mistakes-de">Häufige Fehler</a><a href="#advanced-de">Weiterführende Themen</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <ul>
+        <li>Explain why \(M_\infty\approx5\) is a convention rather than a physical boundary.</li>
+        <li>Derive the hypersonic limit forms of the oblique-shock relations and evaluate their error at finite Mach number.</li>
+        <li>Estimate the shock-layer thickness from \(\beta\approx\frac{\gamma+1}{2}\theta\) and the density ratio \(\frac{\gamma+1}{\gamma-1}\).</li>
+        <li>Recognise when viscous interaction, real-gas chemistry, or heating dominates the problem.</li>
+        <li>Quantify the failure of the Ackeret rule using the similarity parameter \(K=M_\infty\theta\).</li>
+        <li>State what Mach-number independence does and does not claim.</li>
+      </ul>
+    </section>
+
+    <section id="physics">
+      <p class="section-label">Physical picture</p>
+      <h2>Nothing breaks at Mach five</h2>
+      <p class="lead">There is no phenomenon that switches on when the free stream crosses \(M_\infty=5\). The rule of thumb marks the point at which a set of effects that were second-order in supersonic flow — a shock lying close to the body, a boundary layer thick enough to change the outer flow, temperatures high enough to break molecules apart, and heat transfer that sizes the vehicle — have grown until they, and not the pressure field, are what the engineer is actually calculating.</p>
+      <div class="callout success"><strong>The regime is defined by what dominates, not by a number.</strong> A slender body at \(M_\infty=6\) in a wind tunnel may be perfectly well described by perfect-gas shock relations. A blunt capsule at \(M_\infty=4\) entering an atmosphere may already be dissociation-limited. The Mach number alone does not decide; geometry, altitude, and total enthalpy do.</div>
+      <div class="callout warning">The lecture stays inside the calorically perfect gas model on purpose. Its aim is to show <em>where that model runs out</em>, using relations you can still evaluate by hand, so that the boundary is visible rather than asserted.</div>
+    </section>
+
+    <section id="model">
+      <p class="section-label">Model and assumptions</p>
+      <h2>Perfect gas, pushed to its limit</h2>
+      <ul>
+        <li>steady, two-dimensional flow of a calorically perfect gas with \(\gamma=1.4\);</li>
+        <li>the exact oblique-shock relations of Lecture 04, which remain valid as long as the gas model does;</li>
+        <li>sharp, slender bodies with attached shocks wherever a wedge is analysed;</li>
+        <li>inviscid analysis, with viscous and thermal effects discussed qualitatively rather than solved.</li>
+      </ul>
+      <div class="callout warning"><strong>Not included.</strong> This lecture computes no chemistry, no heat flux, and no boundary layer. It does not predict dissociation fractions, wall temperatures, catalytic recombination, ablation, or radiation from the shock layer. Everything it says about those effects is an order-of-magnitude statement about when they matter, not a model of them. The Newtonian pressure law, the entry-heating correlations, and waverider design are developed in Lecture 15.</div>
+    </section>
+
+    <section id="boundary">
+      <p class="section-label">Definition</p>
+      <h2>Where the regime begins</h2>
+      <p>The practical criterion \(M_\infty\gtrsim5\) is useful for sorting problems, but it is not a physical frontier. The regime is recognised by the simultaneous growth of five effects:</p>
+      <div class="process-flow">
+        <div><strong>1</strong><span>Thin shock layers between wave and surface</span></div>
+        <div><strong>2</strong><span>Strong viscous interaction with the outer flow</span></div>
+        <div><strong>3</strong><span>High temperature and real-gas behaviour</span></div>
+        <div><strong>4</strong><span>Severe aerodynamic heating</span></div>
+        <div><strong>5</strong><span>Thermal radiation and chemical non-equilibrium</span></div>
+      </div>
+      <div class="callout"><strong>Read the list as a hierarchy of failures.</strong> Each entry is a hypothesis of the previous lectures giving way: the shock is no longer far from the body, the boundary layer no longer passive, the gas no longer calorically perfect, the wall no longer adiabatic, and the state no longer in equilibrium.</div>
+    </section>
+
+    <section id="shocklayer">
+      <p class="section-label">First consequence</p>
+      <h2>The thin shock layer</h2>
+      <p>For a slender body at very high Mach number the attached shock lies close to the surface, and the compressed gas is confined to a narrow layer. Two exact results explain why.</p>
+      <h3>The density ratio saturates</h3>
+      <p>The exact density jump across an oblique shock is</p>
+      <div class="equation-card">\[\frac{\rho_2}{\rho_1}=\frac{(\gamma+1)M_1^2\sin^2\beta}{(\gamma-1)M_1^2\sin^2\beta+2},\]</div>
+      <p>which for \(M_1\sin\beta\gg1\) approaches a constant:</p>
+      <div class="equation-card">\[\boxed{\frac{\rho_2}{\rho_1}\to\frac{\gamma+1}{\gamma-1}=6\quad(\gamma=1.4)}\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_1\) (normal shock)</th><th>2</th><th>3</th><th>5</th><th>10</th><th>20</th><th>50</th></tr></thead>
+          <tbody><tr><td>\(\rho_2/\rho_1\)</td><td>2.6667</td><td>3.8571</td><td>5.0000</td><td>5.7143</td><td>5.9259</td><td>5.9880</td></tr></tbody>
+        </table>
+      </div>
+      <div class="callout success"><strong>A ceiling, and a low one.</strong> No matter how fast the flow, a perfect gas with \(\gamma=1.4\) cannot be compressed by more than a factor of six through a single shock. Mass conservation then forces the shocked gas through a layer whose thickness is of order \(1/6\) of what an incompressible estimate would give. Real air, which absorbs energy in dissociation, reaches higher ratios — which is one reason perfect-gas predictions of shock stand-off distance are unreliable at entry speeds.</div>
+      <h3>The shock lies close to the surface</h3>
+      <p>Taking \(M_1\to\infty\) and small angles in the \(\theta\)–\(\beta\)–\(M\) relation gives</p>
+      <div class="equation-card">\[\boxed{\frac{\beta}{\theta}\to\frac{\gamma+1}{2}=1.2\quad(\gamma=1.4)}\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\), wedge \(\theta=10^\circ\)</th><th>5</th><th>10</th><th>20</th><th>50</th></tr></thead>
+          <tbody>
+            <tr><td>\(\beta\) exact [deg]</td><td>19.376</td><td>14.427</td><td>12.708</td><td>12.147</td></tr>
+            <tr><td>\(\beta/\theta\)</td><td>1.938</td><td>1.443</td><td>1.271</td><td>1.215</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>The limit forms of the jump relations</h3>
+      <p>With \(M_1^2\sin^2\beta\gg1\) the pressure, temperature, and pressure-coefficient relations reduce to</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{\frac{p_2}{p_1}\approx\frac{2\gamma}{\gamma+1}M_1^2\sin^2\beta}\]</div>
+        <div class="equation-card">\[\boxed{\frac{T_2}{T_1}\approx\frac{2\gamma(\gamma-1)}{(\gamma+1)^2}M_1^2\sin^2\beta}\]</div>
+      </div>
+      <div class="equation-card">\[\boxed{C_p=\frac{4}{\gamma+1}\left(\sin^2\beta-\frac{1}{M_1^2}\right)\;\longrightarrow\;\frac{4}{\gamma+1}\sin^2\beta}\]</div>
+      <div class="callout"><strong>Note which quantity stays finite.</strong> The pressure <em>ratio</em> grows without bound as \(M_1^2\), and so does the temperature ratio. The pressure <em>coefficient</em> does not: it tends to a constant, because the dynamic pressure used to normalise it grows as \(M_1^2\) too. That single observation is the whole content of Mach-number independence, treated below.</div>
+    </section>
+
+    <section id="viscous">
+      <p class="section-label">Second consequence</p>
+      <h2>Viscous interaction</h2>
+      <p>In classical boundary-layer theory the outer inviscid flow imposes the pressure and the boundary layer responds without altering it. At hypersonic speed that one-way relationship fails. The layer is heated intensely, its density falls, and its displacement thickness grows until the effective body seen by the outer flow is noticeably fatter than the metal one.</p>
+      <p>The laminar boundary-layer thickness on a flat plate scales as</p>
+      <div class="equation-card">\[\frac{\delta}{x}\sim\frac{M_\infty^2}{\sqrt{\mathrm{Re}_x}},\]</div>
+      <p>so the Mach number enters squared while the Reynolds number enters only as a square root.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty^2/\sqrt{\mathrm{Re}_x}\)</th><th>\(\mathrm{Re}_x=10^5\)</th><th>\(10^6\)</th><th>\(10^7\)</th></tr></thead>
+          <tbody>
+            <tr><td>\(M_\infty=5\)</td><td>0.079</td><td>0.025</td><td>0.008</td></tr>
+            <tr><td>\(M_\infty=10\)</td><td>0.316</td><td>0.100</td><td>0.032</td></tr>
+            <tr><td>\(M_\infty=20\)</td><td>1.265</td><td>0.400</td><td>0.126</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning"><strong>At \(M_\infty=20\) and \(\mathrm{Re}_x=10^5\) the estimate exceeds unity.</strong> That is not a boundary layer any more; the viscous region occupies the whole shock layer, and separating the problem into an inviscid outer flow and a thin viscous inner one has stopped making sense. Hypersonic vehicles fly high, where the density and therefore the Reynolds number are low, so this is the normal situation rather than an extreme one.</div>
+      <p>The practical consequences are that surface pressure exceeds the inviscid prediction near a leading edge, the shock is displaced and curved, heating near the leading edge rises, and shock-induced separation becomes likely at any adverse gradient.</p>
+    </section>
+
+    <section id="realgas">
+      <p class="section-label">Third consequence</p>
+      <h2>High-temperature gas</h2>
+      <p>A shock converts directed kinetic energy into internal energy. For a perfect gas the stagnation temperature is</p>
+      <div class="equation-card">\[\frac{T_0}{T_\infty}=1+\frac{\gamma-1}{2}M_\infty^2,\]</div>
+      <p>and with \(T_\infty=220\ \mathrm{K}\), a representative value at high altitude:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>5</th><th>10</th><th>20</th><th>25</th></tr></thead>
+          <tbody>
+            <tr><td>\(T_0/T_\infty\)</td><td>6</td><td>21</td><td>81</td><td>126</td></tr>
+            <tr><td>\(T_0\) [K]</td><td>1320</td><td>4620</td><td>17 820</td><td>27 720</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning"><strong>The last two columns are fiction.</strong> Air does not reach 17 800 K behind a shock, because long before that the energy goes somewhere else. As temperature rises the sequence is: vibrational excitation, dissociation of \(\mathrm{O_2}\) and then \(\mathrm{N_2}\), chemical reaction between species, and finally ionisation. Each mode absorbs energy that a constant-\(\gamma\) model has nowhere to put, so it reports the excess as temperature.</div>
+      <p>Four thermodynamic models sit in a hierarchy, and choosing one is a modelling decision:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Model</th><th>Properties</th><th>Chemistry</th><th>Typical use</th></tr></thead>
+          <tbody>
+            <tr><td>Calorically perfect</td><td>\(c_p,c_v,\gamma\) constant</td><td>frozen</td><td>moderate speeds</td></tr>
+            <tr><td>Thermally perfect</td><td>\(c_p(T),h(T)\)</td><td>fixed composition</td><td>internal excitation without reaction</td></tr>
+            <tr><td>Chemical equilibrium</td><td>properties depend on \(p,T\)</td><td>locally instantaneous</td><td>short chemical time</td></tr>
+            <tr><td>Non-equilibrium</td><td>species and energies evolve</td><td>finite rates</td><td>strong shocks, rapid expansion, re-entry</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout success"><strong>The direction of the error is predictable.</strong> A constant-\(\gamma\) calculation overestimates post-shock temperature and underestimates post-shock density. Since the density ratio controls shock stand-off distance, perfect-gas predictions place the bow shock too far from a blunt body.</div>
+    </section>
+
+    <section id="heating">
+      <p class="section-label">Fourth consequence</p>
+      <h2>Aerodynamic heating</h2>
+      <p>The heat flux into the wall has convective and radiative parts,</p>
+      <div class="equation-card">\[\dot q_w=\dot q_{\mathrm{conv}}+\dot q_{\mathrm{rad}},\qquad\dot q_{\mathrm{conv}}=-k\left(\frac{\partial T}{\partial n}\right)_w,\]</div>
+      <p>and for most atmospheric entries the convective term dominates, with radiation from the shock layer becoming comparable only at the highest entry velocities, where the gas contains excited atoms and ions.</p>
+      <div class="callout"><strong>Why heating, and not force, sets the design.</strong> Aerodynamic force scales as \(\rho_\infty V_\infty^2\); convective heating scales as \(\rho_\infty V_\infty^3\). One extra power of velocity is the entire reason that a vehicle which is structurally trivial at Mach 3 becomes a thermal-protection problem at Mach 20. A ten per cent increase in entry velocity raises the heat flux by a factor \((1.10)^3=1.331\), that is by 33.1 per cent, while the aerodynamic load rises by only 21 per cent.</div>
+      <div class="callout success"><strong>Bluntness is a thermal decision.</strong> A blunt nose increases drag, but it detaches the shock, widens the deceleration region, and reduces the temperature gradient at the wall. The stagnation heat flux falls as \(R_N^{-1/2}\), so quadrupling the nose radius halves the peak heat flux. The quantitative form of that statement, and the correlation behind it, are developed in Lecture 15.</div>
+    </section>
+
+    <section id="breakdown">
+      <p class="section-label">The boundary</p>
+      <h2>Where linear theory ends</h2>
+      <h3>The similarity parameter</h3>
+      <p>The Ackeret rule of Lecture 12 assumed that every perturbation is small compared with the free stream. At hypersonic speed a surface slope that is geometrically small no longer produces a small disturbance, because the flow turning is measured against the Mach angle, which shrinks as \(1/M_\infty\). The quantity that decides is the <strong>hypersonic similarity parameter</strong></p>
+      <div class="equation-card">\[\boxed{K=M_\infty\theta}\]</div>
+      <p>Linearized theory needs \(K\ll1\). Hypersonic flow is precisely the regime in which \(K\) is of order one or larger even for a slender body.</p>
+      <h3>How badly Ackeret fails</h3>
+      <p>For a wedge of half-angle \(\theta=10^\circ\), comparing the exact oblique-shock \(C_p\) with \(C_p=2\theta/\sqrt{M_\infty^2-1}\):</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>\(K=M_\infty\theta\)</th><th>\(C_p\) exact</th><th>\(C_p\) Ackeret</th><th>Error</th></tr></thead>
+          <tbody>
+            <tr><td>2</td><td>0.349</td><td>0.25235</td><td>0.20153</td><td>−20.1 %</td></tr>
+            <tr><td>3</td><td>0.524</td><td>0.16738</td><td>0.12341</td><td>−26.3 %</td></tr>
+            <tr><td>5</td><td>0.873</td><td>0.11678</td><td>0.07125</td><td>−39.0 %</td></tr>
+            <tr><td>10</td><td>1.745</td><td>0.08678</td><td>0.03508</td><td>−59.6 %</td></tr>
+            <tr><td>20</td><td>3.491</td><td>0.07648</td><td>0.01748</td><td>−77.2 %</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning"><strong>The failure is structural, not numerical.</strong> Ackeret predicts \(C_p\to2\theta/M_\infty\to0\), so a wedge in an infinitely fast stream would feel no pressure at all. The exact answer tends to a finite constant. No refinement of the linear theory can repair this; the error is in the ordering that produced it.</div>
+      <h3>What replaces it: Mach-number independence</h3>
+      <p>Because \(C_p\) tends to \(\frac{4}{\gamma+1}\sin^2\beta\) and \(\beta\) itself tends to a fixed multiple of the body angle, the pressure coefficient — and with it the integrated force coefficients — approaches a plateau. For a \(15^\circ\) wedge on the weak branch:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>3</th><th>5</th><th>8</th><th>10</th><th>15</th><th>20</th><th>30</th><th>50</th></tr></thead>
+          <tbody>
+            <tr><td>\(\beta\) [deg]</td><td>32.24</td><td>24.32</td><td>20.86</td><td>19.94</td><td>18.97</td><td>18.60</td><td>18.34</td><td>18.20</td></tr>
+            <tr><td>\(C_p\)</td><td>0.2891</td><td>0.2160</td><td>0.1853</td><td>0.1772</td><td>0.1686</td><td>0.1655</td><td>0.1631</td><td>0.1619</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout success"><strong>The plateau arrives gradually.</strong> \(C_p\) falls by 25 % between Mach 3 and 5, but by only 0.7 % between Mach 30 and 50. Independence is not switched on at \(M_\infty=5\); it is approached, and how quickly depends on the geometry.</div>
+      <div class="callout warning"><strong>What independence does not claim.</strong> It is a statement about dimensionless coefficients and normalised flow structure. Dimensional pressure, force, and heat flux all continue to grow, because \(D=C_Dq_\infty S\) and \(q_\infty\) itself rises. Variable \(\gamma\), dissociation, Reynolds-number change, viscous interaction, wall catalysis, and rarefaction can each reintroduce a Mach-number dependence that the inviscid perfect-gas argument does not see.</div>
+    </section>
+
+    <section id="example">
+      <p class="section-label">Worked example</p>
+      <h2>A \(10^\circ\) wedge at \(M_\infty=20\)</h2>
+      <div class="example">
+        <h3>Problem</h3>
+        <p>Air at \(M_\infty=20\) and \(T_\infty=220\ \mathrm{K}\) is deflected \(\theta=10^\circ\) by a sharp wedge. Compute the exact weak-shock solution, compare it with the hypersonic limit forms, evaluate the Ackeret prediction for the same surface, and comment on the gas model. Use \(\gamma=1.4\).</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Exact wave angle from the \(\theta\)–\(\beta\)–\(M\) relation, weak branch, and the upstream normal component:</p>\[\beta=12.7076^\circ,\qquad M_{n1}=20\sin\beta=4.39951.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Exact jumps across the oblique shock:</p>\[\frac{p_2}{p_1}=22.4150,\qquad\frac{\rho_2}{\rho_1}=4.7683,\qquad\frac{T_2}{T_1}=4.7009,\]<p>so \(T_2=220(4.7009)=1034\ \mathrm{K}\), and</p>\[C_p=\frac{4}{\gamma+1}\left(\sin^2\beta-\frac{1}{M_\infty^2}\right)=0.076482.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Hypersonic limit forms, using \(\beta\approx1.2\theta=12.0^\circ\):</p>\[\frac{p_2}{p_1}\approx20.173,\qquad\frac{\rho_2}{\rho_1}\approx6,\qquad\frac{T_2}{T_1}\approx3.362,\qquad C_p\approx\frac{4}{\gamma+1}\sin^2(12^\circ)=0.072045.\]<p>The pressure coefficient is within 5.8 % of exact, but the density ratio is off by 26 % and the temperature ratio by 28 %. Even at Mach 20 the combined infinite-Mach and small-angle approximation is an interpretive tool, not a computational one.</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Linearized prediction for the same \(10^\circ\) surface:</p>\[\lambda=\sqrt{20^2-1}=19.975,\qquad C_p=\frac{2(0.174533)}{19.975}=0.017475,\]<p>which is 77.2 % below the exact value. The similarity parameter is \(K=M_\infty\theta=20(0.174533)=3.491\), far from the \(K\ll1\) that the theory requires.</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>Gas model. The free-stream stagnation temperature implied by a perfect gas is</p>\[T_0=220\left(1+0.2(20)^2\right)=220(81)=17\,820\ \mathrm{K}.\]<p>The wedge surface itself only sees 1034 K, because the oblique shock is weak in its normal component. A blunt nose in the same stream would stand behind a nearly normal shock, where the perfect-gas static temperature would be 17 319 K — a number that air cannot reach, because dissociation and ionisation absorb the energy first.</p></div></div>
+
+        <div class="result-box">\[\boxed{\beta=12.71^\circ,\quad C_{p,\text{exact}}=0.07648,\quad C_{p,\text{Ackeret}}=0.01748\ (-77\,\%),\quad K=3.49}\]</div>
+        <p>The same geometry that Lecture 12 handled to within one per cent at Mach 3 is now wrong by more than a factor of four. Nothing about the wedge changed — only the ordering of terms that made the linearization legitimate.</p>
+      </div>
+      <div class="validation-case">
+        <strong>Calculator validation case</strong>
+        <span>The exact column comes from the oblique-shock module: \(M_1=20\), \(\theta=10^\circ\), weak solution, \(\gamma=1.4\), giving \(\beta=12.7076^\circ\) and \(C_p=0.076482\).</span>
+      </div>
+    </section>
+
+    <section id="summary">
+      <p class="section-label">Key equations</p>
+      <h2>At a glance</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Relation</th><th>Expression</th><th>Applies when</th></tr></thead>
+          <tbody>
+            <tr><td>Density limit</td><td>\(\rho_2/\rho_1\to(\gamma+1)/(\gamma-1)=6\)</td><td>\(M_1\sin\beta\gg1\), \(\gamma=1.4\)</td></tr>
+            <tr><td>Wave-angle limit</td><td>\(\beta/\theta\to(\gamma+1)/2=1.2\)</td><td>\(M_1\to\infty\), small \(\theta\)</td></tr>
+            <tr><td>Pressure limit</td><td>\(p_2/p_1\approx\frac{2\gamma}{\gamma+1}M_1^2\sin^2\beta\)</td><td>grows without bound</td></tr>
+            <tr><td>Temperature limit</td><td>\(T_2/T_1\approx\frac{2\gamma(\gamma-1)}{(\gamma+1)^2}M_1^2\sin^2\beta\)</td><td>perfect gas only</td></tr>
+            <tr><td>Pressure coefficient</td><td>\(C_p=\frac{4}{\gamma+1}\left(\sin^2\beta-1/M_1^2\right)\)</td><td>exact form of the shock \(C_p\)</td></tr>
+            <tr><td>Similarity parameter</td><td>\(K=M_\infty\theta\)</td><td>linear theory needs \(K\ll1\)</td></tr>
+            <tr><td>Stagnation temperature</td><td>\(T_0/T_\infty=1+\frac{\gamma-1}{2}M_\infty^2\)</td><td>perfect gas, no dissociation</td></tr>
+            <tr><td>Boundary-layer growth</td><td>\(\delta/x\sim M_\infty^2/\sqrt{\mathrm{Re}_x}\)</td><td>laminar, flat plate</td></tr>
+            <tr><td>Heating scale</td><td>\(\dot q_w\propto\rho_\infty V_\infty^3\), \(\dot q_{\mathrm{stag}}\propto R_N^{-1/2}\)</td><td>convective, laminar</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="mistakes">
+      <p class="section-label">Common mistakes</p>
+      <h2>Common mistakes</h2>
+      <ul class="check-list">
+        <li><strong>Treating \(M_\infty=5\) as a physical boundary.</strong> Nothing happens there. The regime is identified by which effects dominate, and that depends on geometry, altitude, and total enthalpy.</li>
+        <li><strong>Extrapolating the Ackeret rule to high Mach number.</strong> It predicts \(C_p\to0\) as \(M_\infty\to\infty\); the correct limit is a finite constant. Check \(K=M_\infty\theta\) before trusting any linearized result.</li>
+        <li><strong>Using the hypersonic limit forms as if they were exact.</strong> At Mach 20 they still miss the density ratio by a quarter. They are for asymptotic reasoning; the exact relations are for numbers.</li>
+        <li><strong>Reporting a perfect-gas stagnation temperature of tens of thousands of kelvin.</strong> The number is arithmetically correct and physically meaningless — the energy went into dissociation, not into temperature.</li>
+        <li><strong>Assuming a blunt nose is always a penalty.</strong> It raises drag, but on an entry trajectory that is the objective, and it lowers the stagnation heat flux as \(R_N^{-1/2}\).</li>
+        <li><strong>Separating a hypersonic flow into inviscid outer and thin viscous inner regions without checking.</strong> When \(M_\infty^2/\sqrt{\mathrm{Re}_x}\) approaches unity the two regions are the same region.</li>
+        <li><strong>Reading Mach-number independence as constancy of forces.</strong> The coefficients plateau; the dimensional pressure, force, and heating do not.</li>
+      </ul>
+    </section>
+
+    <section id="advanced">
+      <p class="section-label">Further topics</p>
+      <h2>What this lecture defers</h2>
+      <p>Unit VI develops the Newtonian pressure law from the impact model, and shows that it emerges from the combined limit \(M_\infty\to\infty\) with \(\gamma\to1\), in which \(\frac{4}{\gamma+1}\sin^2\beta\to2\sin^2\theta\). That derivation, the modified law with \(C_{p,\max}\), Newtonian lift and drag of a plate, aerodynamic heating correlations, and waverider design are all developed in Lecture 15.</p>
+      <p>The numerical methods needed when no closed form exists — the method of characteristics, MacCormack differencing, time-marching for blunt bodies, and the Taylor–Maccoll equation for cones — are the subject of Lecture 14.</p>
+      <div class="callout">Also outside this course: shock-layer radiation, ablation and material response, transition prediction at hypersonic speed, rarefied and transitional-continuum flow, and scramjet propulsion integration.</div>
+    </section>
+
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6th ed. New York: McGraw-Hill Education, 2017, Sections 14.2 and 14.5–14.6.</li>
+        <li>Anderson, J. D., Jr. <em>Hypersonic and High-Temperature Gas Dynamics</em>, 2nd ed. Reston, VA: AIAA, 2006, Chapters 1–3.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexico, February 2024.</li>
+      </ol>
+      <p class="source-note">Adapted from Unit VI of the Aerodynamics II course notes by Carlos Alberto Molina Holguín; all numerical values were independently recomputed for \(\gamma=1.4\) from the exact oblique-shock relations of Lecture 04.</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="supersonic-linearized-flow.html"><span>Previous lecture</span>← Linearized Supersonic Flow</a>
+      <a class="next-link" href="numerical-methods-supersonic.html"><span>Next lecture</span>Numerical Techniques →</a>
+    </nav>
+  </article>
+
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Lo que debes ser capaz de hacer</h2>
+      <ul>
+        <li>Explicar por qué \(M_\infty\approx5\) es un convenio y no una frontera física.</li>
+        <li>Deducir las formas límite hipersónicas de las relaciones de choque oblicuo y evaluar su error a Mach finito.</li>
+        <li>Estimar el espesor de la capa de choque a partir de \(\beta\approx\frac{\gamma+1}{2}\theta\) y de la relación de densidades \(\frac{\gamma+1}{\gamma-1}\).</li>
+        <li>Reconocer cuándo domina la interacción viscosa, la química de gas real o el calentamiento.</li>
+        <li>Cuantificar el fallo de la regla de Ackeret mediante el parámetro de semejanza \(K=M_\infty\theta\).</li>
+        <li>Enunciar qué afirma y qué no afirma la independencia respecto al número de Mach.</li>
+      </ul>
+    </section>
+
+    <section id="physics-es">
+      <p class="section-label">Panorama físico</p>
+      <h2>Nada se rompe en Mach cinco</h2>
+      <p class="lead">No existe un fenómeno que se encienda cuando la corriente libre cruza \(M_\infty=5\). La regla práctica marca el punto en que un conjunto de efectos que eran de segundo orden en flujo supersónico —un choque que se acerca al cuerpo, una capa límite lo bastante gruesa para modificar el flujo exterior, temperaturas capaces de romper moléculas y una transferencia de calor que dimensiona el vehículo— han crecido hasta ser ellos, y no el campo de presión, lo que el ingeniero está calculando en realidad.</p>
+      <div class="callout success"><strong>El régimen se define por lo que domina, no por un número.</strong> Un cuerpo esbelto a \(M_\infty=6\) en un túnel de viento puede quedar perfectamente descrito por las relaciones de choque de gas perfecto. Una cápsula roma a \(M_\infty=4\) que entra en una atmósfera puede estar ya limitada por la disociación. El Mach por sí solo no decide; lo hacen la geometría, la altitud y la entalpía total.</div>
+      <div class="callout warning">La lecture se mantiene dentro del modelo de gas calóricamente perfecto de manera deliberada. Su objetivo es mostrar <em>dónde se agota ese modelo</em>, con relaciones que aún puedes evaluar a mano, para que la frontera se vea en lugar de afirmarse.</div>
+    </section>
+
+    <section id="model-es">
+      <p class="section-label">Modelo e hipótesis</p>
+      <h2>Gas perfecto, llevado a su límite</h2>
+      <ul>
+        <li>flujo estacionario y bidimensional de un gas calóricamente perfecto con \(\gamma=1.4\);</li>
+        <li>las relaciones exactas de choque oblicuo de la Lecture 04, válidas mientras lo sea el modelo de gas;</li>
+        <li>cuerpos esbeltos y afilados con choque adherido siempre que se analice una cuña;</li>
+        <li>análisis inviscido, con los efectos viscosos y térmicos discutidos cualitativamente, no resueltos.</li>
+      </ul>
+      <div class="callout warning"><strong>No incluido.</strong> Esta lecture no calcula química, ni flujo de calor, ni capa límite. No predice fracciones de disociación, temperaturas de pared, recombinación catalítica, ablación ni radiación de la capa de choque. Todo lo que dice sobre esos efectos es un enunciado de orden de magnitud sobre cuándo importan, no un modelo de ellos. La ley de presión newtoniana, las correlaciones de calentamiento de entrada y el diseño de waveriders se desarrollan en la Lecture 15.</div>
+    </section>
+
+    <section id="boundary-es">
+      <p class="section-label">Definición</p>
+      <h2>Dónde comienza el régimen</h2>
+      <p>El criterio práctico \(M_\infty\gtrsim5\) sirve para clasificar problemas, pero no es una frontera física. El régimen se reconoce por el crecimiento simultáneo de cinco efectos:</p>
+      <div class="process-flow">
+        <div><strong>1</strong><span>Capas de choque delgadas entre onda y superficie</span></div>
+        <div><strong>2</strong><span>Interacción viscosa intensa con el flujo exterior</span></div>
+        <div><strong>3</strong><span>Temperatura elevada y comportamiento de gas real</span></div>
+        <div><strong>4</strong><span>Calentamiento aerodinámico severo</span></div>
+        <div><strong>5</strong><span>Radiación térmica y no equilibrio químico</span></div>
+      </div>
+      <div class="callout"><strong>Lee la lista como una jerarquía de fallos.</strong> Cada entrada es una hipótesis de las lectures anteriores que cede: el choque ya no está lejos del cuerpo, la capa límite ya no es pasiva, el gas ya no es calóricamente perfecto, la pared ya no es adiabática y el estado ya no está en equilibrio.</div>
+    </section>
+
+    <section id="shocklayer-es">
+      <p class="section-label">Primera consecuencia</p>
+      <h2>La capa de choque delgada</h2>
+      <p>Para un cuerpo esbelto a Mach muy alto, el choque adherido queda cerca de la superficie y el gas comprimido se confina en una capa estrecha. Dos resultados exactos explican por qué.</p>
+      <h3>La relación de densidades se satura</h3>
+      <p>El salto exacto de densidad a través de un choque oblicuo es</p>
+      <div class="equation-card">\[\frac{\rho_2}{\rho_1}=\frac{(\gamma+1)M_1^2\sin^2\beta}{(\gamma-1)M_1^2\sin^2\beta+2},\]</div>
+      <p>que para \(M_1\sin\beta\gg1\) tiende a una constante:</p>
+      <div class="equation-card">\[\boxed{\frac{\rho_2}{\rho_1}\to\frac{\gamma+1}{\gamma-1}=6\quad(\gamma=1.4)}\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_1\) (choque normal)</th><th>2</th><th>3</th><th>5</th><th>10</th><th>20</th><th>50</th></tr></thead>
+          <tbody><tr><td>\(\rho_2/\rho_1\)</td><td>2.6667</td><td>3.8571</td><td>5.0000</td><td>5.7143</td><td>5.9259</td><td>5.9880</td></tr></tbody>
+        </table>
+      </div>
+      <div class="callout success"><strong>Un techo, y bajo.</strong> Por rápido que sea el flujo, un gas perfecto con \(\gamma=1.4\) no puede comprimirse más de un factor seis a través de un solo choque. La conservación de masa obliga entonces al gas chocado a pasar por una capa cuyo espesor es del orden de \(1/6\) de lo que daría una estimación incompresible. El aire real, que absorbe energía en la disociación, alcanza relaciones mayores, y esa es una razón por la que las predicciones de gas perfecto de la distancia de desprendimiento no son fiables a velocidades de entrada.</div>
+      <h3>El choque queda cerca de la superficie</h3>
+      <p>Tomando \(M_1\to\infty\) y ángulos pequeños en la relación \(\theta\)–\(\beta\)–\(M\) se obtiene</p>
+      <div class="equation-card">\[\boxed{\frac{\beta}{\theta}\to\frac{\gamma+1}{2}=1.2\quad(\gamma=1.4)}\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\), cuña \(\theta=10^\circ\)</th><th>5</th><th>10</th><th>20</th><th>50</th></tr></thead>
+          <tbody>
+            <tr><td>\(\beta\) exacto [grados]</td><td>19.376</td><td>14.427</td><td>12.708</td><td>12.147</td></tr>
+            <tr><td>\(\beta/\theta\)</td><td>1.938</td><td>1.443</td><td>1.271</td><td>1.215</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Las formas límite de las relaciones de salto</h3>
+      <p>Con \(M_1^2\sin^2\beta\gg1\), las relaciones de presión, temperatura y coeficiente de presión se reducen a</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{\frac{p_2}{p_1}\approx\frac{2\gamma}{\gamma+1}M_1^2\sin^2\beta}\]</div>
+        <div class="equation-card">\[\boxed{\frac{T_2}{T_1}\approx\frac{2\gamma(\gamma-1)}{(\gamma+1)^2}M_1^2\sin^2\beta}\]</div>
+      </div>
+      <div class="equation-card">\[\boxed{C_p=\frac{4}{\gamma+1}\left(\sin^2\beta-\frac{1}{M_1^2}\right)\;\longrightarrow\;\frac{4}{\gamma+1}\sin^2\beta}\]</div>
+      <div class="callout"><strong>Fíjate en qué magnitud permanece finita.</strong> La <em>relación</em> de presiones crece sin cota como \(M_1^2\), y la de temperaturas también. El <em>coeficiente</em> de presión no: tiende a una constante, porque la presión dinámica que lo normaliza crece también como \(M_1^2\). Esa sola observación es todo el contenido de la independencia respecto al Mach, tratada más abajo.</div>
+    </section>
+
+    <section id="viscous-es">
+      <p class="section-label">Segunda consecuencia</p>
+      <h2>Interacción viscosa</h2>
+      <p>En la teoría clásica de capa límite el flujo exterior inviscido impone la presión y la capa límite responde sin alterarla. A velocidad hipersónica esa relación en un solo sentido falla. La capa se calienta intensamente, su densidad cae y su espesor de desplazamiento crece hasta que el cuerpo efectivo que ve el flujo exterior es apreciablemente más grueso que el metálico.</p>
+      <p>El espesor laminar de capa límite sobre una placa plana escala como</p>
+      <div class="equation-card">\[\frac{\delta}{x}\sim\frac{M_\infty^2}{\sqrt{\mathrm{Re}_x}},\]</div>
+      <p>de modo que el Mach entra al cuadrado mientras el Reynolds solo entra como raíz cuadrada.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty^2/\sqrt{\mathrm{Re}_x}\)</th><th>\(\mathrm{Re}_x=10^5\)</th><th>\(10^6\)</th><th>\(10^7\)</th></tr></thead>
+          <tbody>
+            <tr><td>\(M_\infty=5\)</td><td>0.079</td><td>0.025</td><td>0.008</td></tr>
+            <tr><td>\(M_\infty=10\)</td><td>0.316</td><td>0.100</td><td>0.032</td></tr>
+            <tr><td>\(M_\infty=20\)</td><td>1.265</td><td>0.400</td><td>0.126</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning"><strong>En \(M_\infty=20\) y \(\mathrm{Re}_x=10^5\) la estimación supera la unidad.</strong> Eso ya no es una capa límite; la región viscosa ocupa toda la capa de choque, y separar el problema en un flujo exterior inviscido y uno interior viscoso delgado ha dejado de tener sentido. Los vehículos hipersónicos vuelan alto, donde la densidad y por tanto el Reynolds son bajos, así que esta es la situación normal y no un extremo.</div>
+      <p>Las consecuencias prácticas son que la presión superficial supera la predicción inviscida cerca de un borde de ataque, que la onda se desplaza y se curva, que el calentamiento cerca del borde de ataque sube y que la separación inducida por choque se vuelve probable ante cualquier gradiente adverso.</p>
+    </section>
+
+    <section id="realgas-es">
+      <p class="section-label">Tercera consecuencia</p>
+      <h2>Gas a alta temperatura</h2>
+      <p>Un choque convierte energía cinética dirigida en energía interna. Para un gas perfecto la temperatura de estancamiento es</p>
+      <div class="equation-card">\[\frac{T_0}{T_\infty}=1+\frac{\gamma-1}{2}M_\infty^2,\]</div>
+      <p>y con \(T_\infty=220\ \mathrm{K}\), un valor representativo a gran altitud:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>5</th><th>10</th><th>20</th><th>25</th></tr></thead>
+          <tbody>
+            <tr><td>\(T_0/T_\infty\)</td><td>6</td><td>21</td><td>81</td><td>126</td></tr>
+            <tr><td>\(T_0\) [K]</td><td>1320</td><td>4620</td><td>17 820</td><td>27 720</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning"><strong>Las dos últimas columnas son ficción.</strong> El aire no alcanza 17 800 K detrás de un choque, porque mucho antes la energía se va a otro lado. Conforme sube la temperatura la secuencia es: excitación vibracional, disociación de \(\mathrm{O_2}\) y luego de \(\mathrm{N_2}\), reacción química entre especies y finalmente ionización. Cada modo absorbe energía que un modelo de \(\gamma\) constante no tiene dónde poner, así que la reporta como temperatura.</div>
+      <p>Cuatro modelos termodinámicos forman una jerarquía, y elegir uno es una decisión de modelado:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Modelo</th><th>Propiedades</th><th>Química</th><th>Uso típico</th></tr></thead>
+          <tbody>
+            <tr><td>Calóricamente perfecto</td><td>\(c_p,c_v,\gamma\) constantes</td><td>congelada</td><td>velocidades moderadas</td></tr>
+            <tr><td>Térmicamente perfecto</td><td>\(c_p(T),h(T)\)</td><td>composición fija</td><td>excitación interna sin reacción</td></tr>
+            <tr><td>Equilibrio químico</td><td>propiedades dependen de \(p,T\)</td><td>local e instantánea</td><td>tiempo químico corto</td></tr>
+            <tr><td>No equilibrio</td><td>especies y energías evolucionan</td><td>tasas finitas</td><td>choques fuertes, expansión rápida, reentrada</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout success"><strong>La dirección del error es predecible.</strong> Un cálculo con \(\gamma\) constante sobreestima la temperatura poschoque y subestima la densidad poschoque. Como la relación de densidades controla la distancia de desprendimiento, las predicciones de gas perfecto colocan la onda de proa demasiado lejos de un cuerpo romo.</div>
+    </section>
+
+    <section id="heating-es">
+      <p class="section-label">Cuarta consecuencia</p>
+      <h2>Calentamiento aerodinámico</h2>
+      <p>El flujo de calor hacia la pared tiene partes convectiva y radiativa,</p>
+      <div class="equation-card">\[\dot q_w=\dot q_{\mathrm{conv}}+\dot q_{\mathrm{rad}},\qquad\dot q_{\mathrm{conv}}=-k\left(\frac{\partial T}{\partial n}\right)_w,\]</div>
+      <p>y en la mayoría de las entradas atmosféricas domina el término convectivo, con la radiación de la capa de choque volviéndose comparable solo a las velocidades de entrada más altas, donde el gas contiene átomos excitados e iones.</p>
+      <div class="callout"><strong>Por qué el calentamiento, y no la fuerza, fija el diseño.</strong> La fuerza aerodinámica escala como \(\rho_\infty V_\infty^2\); el calentamiento convectivo escala como \(\rho_\infty V_\infty^3\). Una potencia más de velocidad es toda la razón por la que un vehículo estructuralmente trivial en Mach 3 se vuelve un problema de protección térmica en Mach 20. Un aumento del diez por ciento en la velocidad de entrada eleva el flujo de calor en un factor \((1.10)^3=1.331\), es decir un 33.1 por ciento, mientras que la carga aerodinámica sube solo un 21 por ciento.</div>
+      <div class="callout success"><strong>La romosidad es una decisión térmica.</strong> Una nariz roma aumenta el arrastre, pero desprende el choque, ensancha la región de desaceleración y reduce el gradiente de temperatura en la pared. El flujo de calor de estancamiento cae como \(R_N^{-1/2}\), así que cuadruplicar el radio de nariz reduce a la mitad el pico de flujo de calor. La forma cuantitativa de ese enunciado, y la correlación que lo respalda, se desarrollan en la Lecture 15.</div>
+    </section>
+
+    <section id="breakdown-es">
+      <p class="section-label">La frontera</p>
+      <h2>Dónde termina la teoría lineal</h2>
+      <h3>El parámetro de semejanza</h3>
+      <p>La regla de Ackeret de la Lecture 12 suponía que toda perturbación es pequeña frente a la corriente libre. A velocidad hipersónica una pendiente superficial geométricamente pequeña ya no produce una perturbación pequeña, porque el giro del flujo se mide contra el ángulo de Mach, que se encoge como \(1/M_\infty\). La magnitud que decide es el <strong>parámetro de semejanza hipersónica</strong></p>
+      <div class="equation-card">\[\boxed{K=M_\infty\theta}\]</div>
+      <p>La teoría linealizada necesita \(K\ll1\). El flujo hipersónico es precisamente el régimen en que \(K\) es de orden uno o mayor incluso para un cuerpo esbelto.</p>
+      <h3>Qué tan mal falla Ackeret</h3>
+      <p>Para una cuña de semiángulo \(\theta=10^\circ\), comparando el \(C_p\) exacto de choque oblicuo con \(C_p=2\theta/\sqrt{M_\infty^2-1}\):</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>\(K=M_\infty\theta\)</th><th>\(C_p\) exacto</th><th>\(C_p\) Ackeret</th><th>Error</th></tr></thead>
+          <tbody>
+            <tr><td>2</td><td>0.349</td><td>0.25235</td><td>0.20153</td><td>−20.1 %</td></tr>
+            <tr><td>3</td><td>0.524</td><td>0.16738</td><td>0.12341</td><td>−26.3 %</td></tr>
+            <tr><td>5</td><td>0.873</td><td>0.11678</td><td>0.07125</td><td>−39.0 %</td></tr>
+            <tr><td>10</td><td>1.745</td><td>0.08678</td><td>0.03508</td><td>−59.6 %</td></tr>
+            <tr><td>20</td><td>3.491</td><td>0.07648</td><td>0.01748</td><td>−77.2 %</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning"><strong>El fallo es estructural, no numérico.</strong> Ackeret predice \(C_p\to2\theta/M_\infty\to0\), de modo que una cuña en una corriente infinitamente rápida no sentiría presión alguna. La respuesta exacta tiende a una constante finita. Ningún refinamiento de la teoría lineal puede reparar esto; el error está en el ordenamiento que la produjo.</div>
+      <h3>Qué la reemplaza: independencia respecto al Mach</h3>
+      <p>Como \(C_p\) tiende a \(\frac{4}{\gamma+1}\sin^2\beta\) y \(\beta\) tiende a su vez a un múltiplo fijo del ángulo del cuerpo, el coeficiente de presión —y con él los coeficientes de fuerza integrados— se aproxima a una meseta. Para una cuña de \(15^\circ\) en la rama débil:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>3</th><th>5</th><th>8</th><th>10</th><th>15</th><th>20</th><th>30</th><th>50</th></tr></thead>
+          <tbody>
+            <tr><td>\(\beta\) [grados]</td><td>32.24</td><td>24.32</td><td>20.86</td><td>19.94</td><td>18.97</td><td>18.60</td><td>18.34</td><td>18.20</td></tr>
+            <tr><td>\(C_p\)</td><td>0.2891</td><td>0.2160</td><td>0.1853</td><td>0.1772</td><td>0.1686</td><td>0.1655</td><td>0.1631</td><td>0.1619</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout success"><strong>La meseta llega gradualmente.</strong> \(C_p\) cae un 25 % entre Mach 3 y 5, pero solo un 0.7 % entre Mach 30 y 50. La independencia no se enciende en \(M_\infty=5\): se aproxima, y con qué rapidez depende de la geometría.</div>
+      <div class="callout warning"><strong>Qué no afirma la independencia.</strong> Es un enunciado sobre coeficientes adimensionales y estructura de flujo normalizada. La presión, la fuerza y el flujo de calor dimensionales siguen creciendo, porque \(D=C_Dq_\infty S\) y \(q_\infty\) sube por su cuenta. Un \(\gamma\) variable, la disociación, el cambio de Reynolds, la interacción viscosa, la catálisis de pared y la rarefacción pueden reintroducir cada uno una dependencia con el Mach que el argumento inviscido de gas perfecto no ve.</div>
+    </section>
+
+    <section id="example-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>Una cuña de \(10^\circ\) a \(M_\infty=20\)</h2>
+      <div class="example">
+        <h3>Problema</h3>
+        <p>Aire a \(M_\infty=20\) y \(T_\infty=220\ \mathrm{K}\) es desviado \(\theta=10^\circ\) por una cuña afilada. Calcule la solución exacta de choque débil, compárela con las formas límite hipersónicas, evalúe la predicción de Ackeret para la misma superficie y comente el modelo de gas. Use \(\gamma=1.4\).</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Ángulo de onda exacto de la relación \(\theta\)–\(\beta\)–\(M\), rama débil, y componente normal aguas arriba:</p>\[\beta=12.7076^\circ,\qquad M_{n1}=20\sin\beta=4.39951.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Saltos exactos a través del choque oblicuo:</p>\[\frac{p_2}{p_1}=22.4150,\qquad\frac{\rho_2}{\rho_1}=4.7683,\qquad\frac{T_2}{T_1}=4.7009,\]<p>de modo que \(T_2=220(4.7009)=1034\ \mathrm{K}\), y</p>\[C_p=\frac{4}{\gamma+1}\left(\sin^2\beta-\frac{1}{M_\infty^2}\right)=0.076482.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Formas límite hipersónicas, usando \(\beta\approx1.2\theta=12.0^\circ\):</p>\[\frac{p_2}{p_1}\approx20.173,\qquad\frac{\rho_2}{\rho_1}\approx6,\qquad\frac{T_2}{T_1}\approx3.362,\qquad C_p\approx\frac{4}{\gamma+1}\sin^2(12^\circ)=0.072045.\]<p>El coeficiente de presión queda dentro del 5.8 % del exacto, pero la relación de densidades yerra por 26 % y la de temperaturas por 28 %. Incluso en Mach 20 la aproximación combinada de Mach infinito y ángulos pequeños es una herramienta interpretativa, no de cálculo.</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Predicción linealizada para la misma superficie de \(10^\circ\):</p>\[\lambda=\sqrt{20^2-1}=19.975,\qquad C_p=\frac{2(0.174533)}{19.975}=0.017475,\]<p>que queda 77.2 % por debajo del valor exacto. El parámetro de semejanza es \(K=M_\infty\theta=20(0.174533)=3.491\), muy lejos del \(K\ll1\) que la teoría exige.</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>Modelo de gas. La temperatura de estancamiento de corriente libre que implica un gas perfecto es</p>\[T_0=220\left(1+0.2(20)^2\right)=220(81)=17\,820\ \mathrm{K}.\]<p>La superficie de la cuña solo ve 1034 K, porque el choque oblicuo es débil en su componente normal. Una nariz roma en la misma corriente quedaría detrás de un choque casi normal, donde la temperatura estática de gas perfecto sería de 17 319 K: un valor que el aire no puede alcanzar, porque la disociación y la ionización absorben antes la energía.</p></div></div>
+
+        <div class="result-box">\[\boxed{\beta=12.71^\circ,\quad C_{p,\text{exacto}}=0.07648,\quad C_{p,\text{Ackeret}}=0.01748\ (-77\,\%),\quad K=3.49}\]</div>
+        <p>La misma geometría que la Lecture 12 resolvió con un error menor al uno por ciento en Mach 3 está ahora equivocada por más de un factor cuatro. Nada cambió en la cuña: solo el ordenamiento de términos que hacía legítima la linealización.</p>
+      </div>
+      <div class="validation-case">
+        <strong>Caso de validación de la calculadora</strong>
+        <span>La columna exacta proviene del módulo de choque oblicuo: \(M_1=20\), \(\theta=10^\circ\), solución débil, \(\gamma=1.4\), que da \(\beta=12.7076^\circ\) y \(C_p=0.076482\).</span>
+      </div>
+    </section>
+
+    <section id="summary-es">
+      <p class="section-label">Ecuaciones clave</p>
+      <h2>En síntesis</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Relación</th><th>Expresión</th><th>Aplica cuando</th></tr></thead>
+          <tbody>
+            <tr><td>Límite de densidad</td><td>\(\rho_2/\rho_1\to(\gamma+1)/(\gamma-1)=6\)</td><td>\(M_1\sin\beta\gg1\), \(\gamma=1.4\)</td></tr>
+            <tr><td>Límite del ángulo de onda</td><td>\(\beta/\theta\to(\gamma+1)/2=1.2\)</td><td>\(M_1\to\infty\), \(\theta\) pequeño</td></tr>
+            <tr><td>Límite de presión</td><td>\(p_2/p_1\approx\frac{2\gamma}{\gamma+1}M_1^2\sin^2\beta\)</td><td>crece sin cota</td></tr>
+            <tr><td>Límite de temperatura</td><td>\(T_2/T_1\approx\frac{2\gamma(\gamma-1)}{(\gamma+1)^2}M_1^2\sin^2\beta\)</td><td>solo gas perfecto</td></tr>
+            <tr><td>Coeficiente de presión</td><td>\(C_p=\frac{4}{\gamma+1}\left(\sin^2\beta-1/M_1^2\right)\)</td><td>forma exacta del \(C_p\) de choque</td></tr>
+            <tr><td>Parámetro de semejanza</td><td>\(K=M_\infty\theta\)</td><td>la teoría lineal necesita \(K\ll1\)</td></tr>
+            <tr><td>Temperatura de estancamiento</td><td>\(T_0/T_\infty=1+\frac{\gamma-1}{2}M_\infty^2\)</td><td>gas perfecto, sin disociación</td></tr>
+            <tr><td>Crecimiento de capa límite</td><td>\(\delta/x\sim M_\infty^2/\sqrt{\mathrm{Re}_x}\)</td><td>laminar, placa plana</td></tr>
+            <tr><td>Escala de calentamiento</td><td>\(\dot q_w\propto\rho_\infty V_\infty^3\), \(\dot q_{\mathrm{stag}}\propto R_N^{-1/2}\)</td><td>convectivo, laminar</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="mistakes-es">
+      <p class="section-label">Errores comunes</p>
+      <h2>Errores comunes</h2>
+      <ul class="check-list">
+        <li><strong>Tratar \(M_\infty=5\) como frontera física.</strong> Ahí no ocurre nada. El régimen se identifica por qué efectos dominan, y eso depende de geometría, altitud y entalpía total.</li>
+        <li><strong>Extrapolar la regla de Ackeret a alto Mach.</strong> Predice \(C_p\to0\) cuando \(M_\infty\to\infty\); el límite correcto es una constante finita. Verifica \(K=M_\infty\theta\) antes de confiar en cualquier resultado linealizado.</li>
+        <li><strong>Usar las formas límite hipersónicas como si fueran exactas.</strong> En Mach 20 aún yerran la relación de densidades por un cuarto. Sirven para razonamiento asintótico; los números salen de las relaciones exactas.</li>
+        <li><strong>Reportar una temperatura de estancamiento de gas perfecto de decenas de miles de kelvin.</strong> El número es aritméticamente correcto y físicamente vacío: la energía se fue a la disociación, no a la temperatura.</li>
+        <li><strong>Suponer que una nariz roma siempre es una penalización.</strong> Sube el arrastre, pero en una trayectoria de entrada ese es el objetivo, y baja el flujo de calor de estancamiento como \(R_N^{-1/2}\).</li>
+        <li><strong>Separar un flujo hipersónico en exterior inviscido e interior viscoso delgado sin comprobarlo.</strong> Cuando \(M_\infty^2/\sqrt{\mathrm{Re}_x}\) se acerca a la unidad, ambas regiones son la misma región.</li>
+        <li><strong>Leer la independencia de Mach como constancia de fuerzas.</strong> Los coeficientes se estabilizan; la presión, la fuerza y el calentamiento dimensionales no.</li>
+      </ul>
+    </section>
+
+    <section id="advanced-es">
+      <p class="section-label">Temas complementarios</p>
+      <h2>Lo que esta lecture aplaza</h2>
+      <p>La Unidad VI desarrolla la ley de presión newtoniana a partir del modelo de impacto, y muestra que emerge del límite combinado \(M_\infty\to\infty\) con \(\gamma\to1\), en el cual \(\frac{4}{\gamma+1}\sin^2\beta\to2\sin^2\theta\). Esa deducción, la ley modificada con \(C_{p,\max}\), la sustentación y el arrastre newtonianos de una placa, las correlaciones de calentamiento aerodinámico y el diseño de waveriders se desarrollan todos en la Lecture 15.</p>
+      <p>Los métodos numéricos que hacen falta cuando no existe forma cerrada —el método de características, las diferencias de MacCormack, la marcha temporal para cuerpos romos y la ecuación de Taylor–Maccoll para conos— son el tema de la Lecture 14.</p>
+      <div class="callout">También fuera de este curso: radiación de la capa de choque, ablación y respuesta del material, predicción de transición a velocidad hipersónica, flujo enrarecido y de continuo transicional, e integración propulsiva de un scramjet.</div>
+    </section>
+
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, secciones 14.2 y 14.5–14.6.</li>
+        <li>Anderson, J. D., Jr. <em>Hypersonic and High-Temperature Gas Dynamics</em>, 2.ª ed. Reston, VA: AIAA, 2006, capítulos 1–3.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, México, febrero de 2024.</li>
+      </ol>
+      <p class="source-note">Adaptado de la Unidad VI de los apuntes de Aerodinámica II de Carlos Alberto Molina Holguín; todos los valores numéricos se recalcularon de forma independiente para \(\gamma=1.4\) a partir de las relaciones exactas de choque oblicuo de la Lecture 04.</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="supersonic-linearized-flow.html"><span>Lecture anterior</span>← Flujo supersónico linealizado</a>
+      <a class="next-link" href="numerical-methods-supersonic.html"><span>Siguiente lecture</span>Técnicas numéricas →</a>
+    </nav>
+  </article>
+
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <ul>
+        <li>Erläutern, warum \(M_\infty\approx5\) eine Konvention und keine physikalische Grenze ist.</li>
+        <li>Die Hyperschall-Grenzformen der Schrägstoßbeziehungen herleiten und ihren Fehler bei endlicher Machzahl beziffern.</li>
+        <li>Die Dicke der Stoßschicht aus \(\beta\approx\frac{\gamma+1}{2}\theta\) und dem Dichteverhältnis \(\frac{\gamma+1}{\gamma-1}\) abschätzen.</li>
+        <li>Erkennen, wann viskose Wechselwirkung, Realgaschemie oder Aufheizung das Problem beherrscht.</li>
+        <li>Das Versagen der Ackeret-Regel mit dem Ähnlichkeitsparameter \(K=M_\infty\theta\) quantifizieren.</li>
+        <li>Angeben, was die Machzahl-Unabhängigkeit behauptet und was nicht.</li>
+      </ul>
+    </section>
+
+    <section id="physics-de">
+      <p class="section-label">Physikalisches Bild</p>
+      <h2>Bei Mach fünf bricht nichts</h2>
+      <p class="lead">Es gibt kein Phänomen, das einsetzt, wenn die Anströmung \(M_\infty=5\) überschreitet. Die Faustregel markiert den Punkt, an dem eine Reihe von Effekten, die im Überschall zweiter Ordnung waren — ein dicht am Körper liegender Stoß, eine Grenzschicht, die dick genug ist, die Außenströmung zu verändern, Temperaturen, die Moleküle zerlegen, und ein Wärmeübergang, der das Fahrzeug dimensioniert —, so weit gewachsen sind, dass sie und nicht das Druckfeld das sind, was der Ingenieur tatsächlich berechnet.</p>
+      <div class="callout success"><strong>Das Regime wird durch das Dominierende definiert, nicht durch eine Zahl.</strong> Ein schlanker Körper bei \(M_\infty=6\) im Windkanal lässt sich durchaus mit den Stoßbeziehungen eines idealen Gases beschreiben. Eine stumpfe Kapsel bei \(M_\infty=4\) beim Eintritt in eine Atmosphäre kann bereits dissoziationsbegrenzt sein. Die Machzahl allein entscheidet nicht; Geometrie, Höhe und Gesamtenthalpie tun es.</div>
+      <div class="callout warning">Die Vorlesung bleibt bewusst innerhalb des kalorisch idealen Gasmodells. Ihr Ziel ist zu zeigen, <em>wo dieses Modell endet</em>, mit Beziehungen, die man noch von Hand auswerten kann, damit die Grenze sichtbar wird statt bloß behauptet.</div>
+    </section>
+
+    <section id="model-de">
+      <p class="section-label">Modell und Annahmen</p>
+      <h2>Ideales Gas, bis an seine Grenze getrieben</h2>
+      <ul>
+        <li>stationäre, zweidimensionale Strömung eines kalorisch idealen Gases mit \(\gamma=1{,}4\);</li>
+        <li>die exakten Schrägstoßbeziehungen aus Vorlesung 04, gültig solange das Gasmodell es ist;</li>
+        <li>scharfe, schlanke Körper mit anliegendem Stoß, wo immer ein Keil betrachtet wird;</li>
+        <li>reibungsfreie Analyse; viskose und thermische Effekte werden qualitativ erörtert, nicht gelöst.</li>
+      </ul>
+      <div class="callout warning"><strong>Nicht enthalten.</strong> Diese Vorlesung berechnet keine Chemie, keine Wärmestromdichte und keine Grenzschicht. Sie sagt keine Dissoziationsgrade, Wandtemperaturen, katalytische Rekombination, Ablation oder Strahlung der Stoßschicht vorher. Alles, was sie über diese Effekte sagt, ist eine Größenordnungsaussage darüber, wann sie zählen, kein Modell davon. Das Newtonsche Druckgesetz, die Aufheizkorrelationen für den Eintritt und der Waverider-Entwurf werden in Vorlesung 15 entwickelt.</div>
+    </section>
+
+    <section id="boundary-de">
+      <p class="section-label">Definition</p>
+      <h2>Wo das Regime beginnt</h2>
+      <p>Das praktische Kriterium \(M_\infty\gtrsim5\) hilft beim Einordnen von Problemen, ist aber keine physikalische Grenze. Das Regime erkennt man am gleichzeitigen Anwachsen von fünf Effekten:</p>
+      <div class="process-flow">
+        <div><strong>1</strong><span>Dünne Stoßschichten zwischen Welle und Oberfläche</span></div>
+        <div><strong>2</strong><span>Starke viskose Wechselwirkung mit der Außenströmung</span></div>
+        <div><strong>3</strong><span>Hohe Temperatur und Realgasverhalten</span></div>
+        <div><strong>4</strong><span>Starke aerodynamische Aufheizung</span></div>
+        <div><strong>5</strong><span>Wärmestrahlung und chemisches Nichtgleichgewicht</span></div>
+      </div>
+      <div class="callout"><strong>Lesen Sie die Liste als Hierarchie von Ausfällen.</strong> Jeder Eintrag ist eine Annahme der vorigen Vorlesungen, die nachgibt: Der Stoß liegt nicht mehr fern vom Körper, die Grenzschicht ist nicht mehr passiv, das Gas nicht mehr kalorisch ideal, die Wand nicht mehr adiabat und der Zustand nicht mehr im Gleichgewicht.</div>
+    </section>
+
+    <section id="shocklayer-de">
+      <p class="section-label">Erste Folge</p>
+      <h2>Die dünne Stoßschicht</h2>
+      <p>Bei einem schlanken Körper und sehr hoher Machzahl liegt der anliegende Stoß dicht an der Oberfläche, und das verdichtete Gas ist auf eine schmale Schicht beschränkt. Zwei exakte Ergebnisse erklären, warum.</p>
+      <h3>Das Dichteverhältnis sättigt</h3>
+      <p>Der exakte Dichtesprung über einen Schrägstoß lautet</p>
+      <div class="equation-card">\[\frac{\rho_2}{\rho_1}=\frac{(\gamma+1)M_1^2\sin^2\beta}{(\gamma-1)M_1^2\sin^2\beta+2},\]</div>
+      <p>und strebt für \(M_1\sin\beta\gg1\) gegen eine Konstante:</p>
+      <div class="equation-card">\[\boxed{\frac{\rho_2}{\rho_1}\to\frac{\gamma+1}{\gamma-1}=6\quad(\gamma=1{,}4)}\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_1\) (Normalstoß)</th><th>2</th><th>3</th><th>5</th><th>10</th><th>20</th><th>50</th></tr></thead>
+          <tbody><tr><td>\(\rho_2/\rho_1\)</td><td>2,6667</td><td>3,8571</td><td>5,0000</td><td>5,7143</td><td>5,9259</td><td>5,9880</td></tr></tbody>
+        </table>
+      </div>
+      <div class="callout success"><strong>Eine Obergrenze, und eine niedrige.</strong> Wie schnell die Strömung auch ist, ein ideales Gas mit \(\gamma=1{,}4\) lässt sich durch einen einzelnen Stoß um höchstens den Faktor sechs verdichten. Die Massenerhaltung zwingt das verdichtete Gas dann durch eine Schicht, deren Dicke in der Größenordnung von \(1/6\) dessen liegt, was eine inkompressible Abschätzung ergäbe. Reale Luft, die Energie in der Dissoziation aufnimmt, erreicht höhere Verhältnisse — ein Grund, warum Idealgas-Vorhersagen des Stoßabstands bei Eintrittsgeschwindigkeiten unzuverlässig sind.</div>
+      <h3>Der Stoß liegt dicht an der Oberfläche</h3>
+      <p>Mit \(M_1\to\infty\) und kleinen Winkeln folgt aus der \(\theta\)–\(\beta\)–\(M\)-Beziehung</p>
+      <div class="equation-card">\[\boxed{\frac{\beta}{\theta}\to\frac{\gamma+1}{2}=1{,}2\quad(\gamma=1{,}4)}\]</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\), Keil \(\theta=10^\circ\)</th><th>5</th><th>10</th><th>20</th><th>50</th></tr></thead>
+          <tbody>
+            <tr><td>\(\beta\) exakt [Grad]</td><td>19,376</td><td>14,427</td><td>12,708</td><td>12,147</td></tr>
+            <tr><td>\(\beta/\theta\)</td><td>1,938</td><td>1,443</td><td>1,271</td><td>1,215</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Die Grenzformen der Sprungbeziehungen</h3>
+      <p>Für \(M_1^2\sin^2\beta\gg1\) vereinfachen sich Druck, Temperatur und Druckbeiwert zu</p>
+      <div class="equation-grid">
+        <div class="equation-card">\[\boxed{\frac{p_2}{p_1}\approx\frac{2\gamma}{\gamma+1}M_1^2\sin^2\beta}\]</div>
+        <div class="equation-card">\[\boxed{\frac{T_2}{T_1}\approx\frac{2\gamma(\gamma-1)}{(\gamma+1)^2}M_1^2\sin^2\beta}\]</div>
+      </div>
+      <div class="equation-card">\[\boxed{C_p=\frac{4}{\gamma+1}\left(\sin^2\beta-\frac{1}{M_1^2}\right)\;\longrightarrow\;\frac{4}{\gamma+1}\sin^2\beta}\]</div>
+      <div class="callout"><strong>Beachten Sie, welche Größe endlich bleibt.</strong> Das Druck<em>verhältnis</em> wächst unbeschränkt wie \(M_1^2\), das Temperaturverhältnis ebenso. Der Druck<em>beiwert</em> nicht: Er strebt gegen eine Konstante, weil auch der Staudruck, mit dem er normiert wird, wie \(M_1^2\) wächst. Diese eine Beobachtung ist der gesamte Inhalt der Machzahl-Unabhängigkeit, die unten behandelt wird.</div>
+    </section>
+
+    <section id="viscous-de">
+      <p class="section-label">Zweite Folge</p>
+      <h2>Viskose Wechselwirkung</h2>
+      <p>In der klassischen Grenzschichttheorie prägt die reibungsfreie Außenströmung den Druck auf, und die Grenzschicht reagiert, ohne ihn zu verändern. Im Hyperschall versagt diese Einbahnbeziehung. Die Schicht wird stark erwärmt, ihre Dichte fällt, und ihre Verdrängungsdicke wächst, bis der von der Außenströmung gesehene effektive Körper merklich dicker ist als der metallische.</p>
+      <p>Die laminare Grenzschichtdicke auf einer ebenen Platte skaliert wie</p>
+      <div class="equation-card">\[\frac{\delta}{x}\sim\frac{M_\infty^2}{\sqrt{\mathrm{Re}_x}},\]</div>
+      <p>die Machzahl geht also quadratisch ein, die Reynoldszahl nur als Quadratwurzel.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty^2/\sqrt{\mathrm{Re}_x}\)</th><th>\(\mathrm{Re}_x=10^5\)</th><th>\(10^6\)</th><th>\(10^7\)</th></tr></thead>
+          <tbody>
+            <tr><td>\(M_\infty=5\)</td><td>0,079</td><td>0,025</td><td>0,008</td></tr>
+            <tr><td>\(M_\infty=10\)</td><td>0,316</td><td>0,100</td><td>0,032</td></tr>
+            <tr><td>\(M_\infty=20\)</td><td>1,265</td><td>0,400</td><td>0,126</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning"><strong>Bei \(M_\infty=20\) und \(\mathrm{Re}_x=10^5\) überschreitet die Abschätzung eins.</strong> Das ist keine Grenzschicht mehr; das viskose Gebiet füllt die gesamte Stoßschicht, und die Aufteilung in eine reibungsfreie Außen- und eine dünne viskose Innenströmung ergibt keinen Sinn mehr. Hyperschallfahrzeuge fliegen hoch, wo Dichte und damit Reynoldszahl klein sind — dies ist also der Normalfall und kein Extremfall.</div>
+      <p>Praktisch bedeutet das: Der Oberflächendruck übersteigt nahe einer Vorderkante die reibungsfreie Vorhersage, der Stoß wird verschoben und gekrümmt, die Aufheizung nahe der Vorderkante steigt, und stoßinduzierte Ablösung wird bei jedem Druckanstieg wahrscheinlich.</p>
+    </section>
+
+    <section id="realgas-de">
+      <p class="section-label">Dritte Folge</p>
+      <h2>Hochtemperaturgas</h2>
+      <p>Ein Stoß wandelt gerichtete kinetische Energie in innere Energie um. Für ein ideales Gas lautet die Stautemperatur</p>
+      <div class="equation-card">\[\frac{T_0}{T_\infty}=1+\frac{\gamma-1}{2}M_\infty^2,\]</div>
+      <p>und mit \(T_\infty=220\ \mathrm{K}\), einem typischen Wert in großer Höhe:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>5</th><th>10</th><th>20</th><th>25</th></tr></thead>
+          <tbody>
+            <tr><td>\(T_0/T_\infty\)</td><td>6</td><td>21</td><td>81</td><td>126</td></tr>
+            <tr><td>\(T_0\) [K]</td><td>1320</td><td>4620</td><td>17 820</td><td>27 720</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning"><strong>Die letzten beiden Spalten sind Fiktion.</strong> Luft erreicht hinter einem Stoß keine 17 800 K, denn lange vorher geht die Energie anderswohin. Mit steigender Temperatur folgt: Schwingungsanregung, Dissoziation von \(\mathrm{O_2}\) und dann \(\mathrm{N_2}\), chemische Reaktionen zwischen den Spezies und schließlich Ionisation. Jeder Modus nimmt Energie auf, für die ein Modell mit konstantem \(\gamma\) keinen Platz hat — es meldet den Überschuss als Temperatur.</div>
+      <p>Vier thermodynamische Modelle bilden eine Hierarchie, und die Wahl eines davon ist eine Modellierungsentscheidung:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Modell</th><th>Eigenschaften</th><th>Chemie</th><th>Typischer Einsatz</th></tr></thead>
+          <tbody>
+            <tr><td>Kalorisch ideal</td><td>\(c_p,c_v,\gamma\) konstant</td><td>eingefroren</td><td>mäßige Geschwindigkeiten</td></tr>
+            <tr><td>Thermisch ideal</td><td>\(c_p(T),h(T)\)</td><td>feste Zusammensetzung</td><td>innere Anregung ohne Reaktion</td></tr>
+            <tr><td>Chemisches Gleichgewicht</td><td>Eigenschaften hängen von \(p,T\) ab</td><td>örtlich instantan</td><td>kurze chemische Zeit</td></tr>
+            <tr><td>Nichtgleichgewicht</td><td>Spezies und Energien entwickeln sich</td><td>endliche Raten</td><td>starke Stöße, schnelle Expansion, Wiedereintritt</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout success"><strong>Die Richtung des Fehlers ist vorhersehbar.</strong> Eine Rechnung mit konstantem \(\gamma\) überschätzt die Temperatur hinter dem Stoß und unterschätzt die Dichte dort. Da das Dichteverhältnis den Stoßabstand bestimmt, legen Idealgas-Vorhersagen den Kopfstoß zu weit vor einen stumpfen Körper.</div>
+    </section>
+
+    <section id="heating-de">
+      <p class="section-label">Vierte Folge</p>
+      <h2>Aerodynamische Aufheizung</h2>
+      <p>Der Wärmestrom zur Wand hat einen konvektiven und einen radiativen Anteil,</p>
+      <div class="equation-card">\[\dot q_w=\dot q_{\mathrm{conv}}+\dot q_{\mathrm{rad}},\qquad\dot q_{\mathrm{conv}}=-k\left(\frac{\partial T}{\partial n}\right)_w,\]</div>
+      <p>und bei den meisten atmosphärischen Eintritten überwiegt der konvektive Term; die Strahlung der Stoßschicht wird erst bei den höchsten Eintrittsgeschwindigkeiten vergleichbar, wenn das Gas angeregte Atome und Ionen enthält.</p>
+      <div class="callout"><strong>Warum die Aufheizung und nicht die Kraft den Entwurf bestimmt.</strong> Die aerodynamische Kraft skaliert mit \(\rho_\infty V_\infty^2\); die konvektive Aufheizung mit \(\rho_\infty V_\infty^3\). Diese eine zusätzliche Potenz der Geschwindigkeit ist der ganze Grund, warum ein bei Mach 3 strukturell triviales Fahrzeug bei Mach 20 zu einem Hitzeschutzproblem wird. Eine um zehn Prozent höhere Eintrittsgeschwindigkeit erhöht die Wärmestromdichte um den Faktor \((1{,}10)^3=1{,}331\), also um 33,1 Prozent, während die aerodynamische Last nur um 21 Prozent steigt.</div>
+      <div class="callout success"><strong>Stumpfheit ist eine thermische Entscheidung.</strong> Eine stumpfe Nase erhöht den Widerstand, löst aber den Stoß ab, verbreitert das Verzögerungsgebiet und verringert den Temperaturgradienten an der Wand. Die Staupunkt-Wärmestromdichte fällt mit \(R_N^{-1/2}\), eine Vervierfachung des Nasenradius halbiert also die Spitzenwärmestromdichte. Die quantitative Form dieser Aussage und die zugehörige Korrelation werden in Vorlesung 15 entwickelt.</div>
+    </section>
+
+    <section id="breakdown-de">
+      <p class="section-label">Die Grenze</p>
+      <h2>Wo die lineare Theorie endet</h2>
+      <h3>Der Ähnlichkeitsparameter</h3>
+      <p>Die Ackeret-Regel aus Vorlesung 12 setzte voraus, dass jede Störung klein gegenüber der Anströmung ist. Im Hyperschall erzeugt eine geometrisch kleine Oberflächenneigung keine kleine Störung mehr, weil die Strömungsumlenkung am Machwinkel gemessen wird, der wie \(1/M_\infty\) schrumpft. Entscheidend ist der <strong>Hyperschall-Ähnlichkeitsparameter</strong></p>
+      <div class="equation-card">\[\boxed{K=M_\infty\theta}\]</div>
+      <p>Die linearisierte Theorie verlangt \(K\ll1\). Hyperschallströmung ist genau das Regime, in dem \(K\) selbst bei einem schlanken Körper von der Größenordnung eins oder größer ist.</p>
+      <h3>Wie stark Ackeret versagt</h3>
+      <p>Für einen Keil mit Halbwinkel \(\theta=10^\circ\), im Vergleich des exakten Schrägstoß-\(C_p\) mit \(C_p=2\theta/\sqrt{M_\infty^2-1}\):</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>\(K=M_\infty\theta\)</th><th>\(C_p\) exakt</th><th>\(C_p\) Ackeret</th><th>Fehler</th></tr></thead>
+          <tbody>
+            <tr><td>2</td><td>0,349</td><td>0,25235</td><td>0,20153</td><td>−20,1 %</td></tr>
+            <tr><td>3</td><td>0,524</td><td>0,16738</td><td>0,12341</td><td>−26,3 %</td></tr>
+            <tr><td>5</td><td>0,873</td><td>0,11678</td><td>0,07125</td><td>−39,0 %</td></tr>
+            <tr><td>10</td><td>1,745</td><td>0,08678</td><td>0,03508</td><td>−59,6 %</td></tr>
+            <tr><td>20</td><td>3,491</td><td>0,07648</td><td>0,01748</td><td>−77,2 %</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warning"><strong>Das Versagen ist strukturell, nicht numerisch.</strong> Ackeret sagt \(C_p\to2\theta/M_\infty\to0\) vorher, ein Keil in einer unendlich schnellen Strömung spürte also überhaupt keinen Druck. Die exakte Antwort strebt gegen eine endliche Konstante. Keine Verfeinerung der linearen Theorie kann das beheben; der Fehler steckt in der Ordnung, die sie hervorgebracht hat.</div>
+      <h3>Was an ihre Stelle tritt: Machzahl-Unabhängigkeit</h3>
+      <p>Da \(C_p\) gegen \(\frac{4}{\gamma+1}\sin^2\beta\) strebt und \(\beta\) selbst gegen ein festes Vielfaches des Körperwinkels, nähert sich der Druckbeiwert — und mit ihm die integrierten Kraftbeiwerte — einem Plateau. Für einen \(15^\circ\)-Keil auf dem schwachen Zweig:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>\(M_\infty\)</th><th>3</th><th>5</th><th>8</th><th>10</th><th>15</th><th>20</th><th>30</th><th>50</th></tr></thead>
+          <tbody>
+            <tr><td>\(\beta\) [Grad]</td><td>32,24</td><td>24,32</td><td>20,86</td><td>19,94</td><td>18,97</td><td>18,60</td><td>18,34</td><td>18,20</td></tr>
+            <tr><td>\(C_p\)</td><td>0,2891</td><td>0,2160</td><td>0,1853</td><td>0,1772</td><td>0,1686</td><td>0,1655</td><td>0,1631</td><td>0,1619</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout success"><strong>Das Plateau stellt sich allmählich ein.</strong> \(C_p\) fällt zwischen Mach 3 und 5 um 25 %, zwischen Mach 30 und 50 aber nur um 0,7 %. Die Unabhängigkeit schaltet sich bei \(M_\infty=5\) nicht ein; sie wird angenähert, und wie schnell, hängt von der Geometrie ab.</div>
+      <div class="callout warning"><strong>Was die Unabhängigkeit nicht behauptet.</strong> Sie ist eine Aussage über dimensionslose Beiwerte und normierte Strömungsstruktur. Dimensionsbehafteter Druck, Kraft und Wärmestrom wachsen weiter, denn \(D=C_Dq_\infty S\), und \(q_\infty\) selbst steigt. Veränderliches \(\gamma\), Dissoziation, geänderte Reynoldszahl, viskose Wechselwirkung, Wandkatalyse und Verdünnung können jeweils eine Machzahl-Abhängigkeit zurückbringen, die das reibungsfreie Idealgas-Argument nicht sieht.</div>
+    </section>
+
+    <section id="example-de">
+      <p class="section-label">Rechenbeispiel</p>
+      <h2>Ein \(10^\circ\)-Keil bei \(M_\infty=20\)</h2>
+      <div class="example">
+        <h3>Aufgabe</h3>
+        <p>Luft mit \(M_\infty=20\) und \(T_\infty=220\ \mathrm{K}\) wird von einem scharfen Keil um \(\theta=10^\circ\) umgelenkt. Berechnen Sie die exakte schwache Stoßlösung, vergleichen Sie sie mit den Hyperschall-Grenzformen, werten Sie die Ackeret-Vorhersage für dieselbe Oberfläche aus und beurteilen Sie das Gasmodell. Verwenden Sie \(\gamma=1{,}4\).</p>
+
+        <div class="solution-step"><span class="solution-step-number">1</span><div><p>Exakter Wellenwinkel aus der \(\theta\)–\(\beta\)–\(M\)-Beziehung, schwacher Zweig, und die Normalkomponente stromauf:</p>\[\beta=12{,}7076^\circ,\qquad M_{n1}=20\sin\beta=4{,}39951.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><p>Exakte Sprünge über den Schrägstoß:</p>\[\frac{p_2}{p_1}=22{,}4150,\qquad\frac{\rho_2}{\rho_1}=4{,}7683,\qquad\frac{T_2}{T_1}=4{,}7009,\]<p>also \(T_2=220(4{,}7009)=1034\ \mathrm{K}\), und</p>\[C_p=\frac{4}{\gamma+1}\left(\sin^2\beta-\frac{1}{M_\infty^2}\right)=0{,}076482.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><p>Hyperschall-Grenzformen mit \(\beta\approx1{,}2\theta=12{,}0^\circ\):</p>\[\frac{p_2}{p_1}\approx20{,}173,\qquad\frac{\rho_2}{\rho_1}\approx6,\qquad\frac{T_2}{T_1}\approx3{,}362,\qquad C_p\approx\frac{4}{\gamma+1}\sin^2(12^\circ)=0{,}072045.\]<p>Der Druckbeiwert liegt innerhalb von 5,8 % des exakten Werts, das Dichteverhältnis aber um 26 % und das Temperaturverhältnis um 28 % daneben. Selbst bei Mach 20 ist die kombinierte Näherung aus unendlicher Machzahl und kleinen Winkeln ein Deutungswerkzeug, kein Rechenwerkzeug.</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><p>Linearisierte Vorhersage für dieselbe \(10^\circ\)-Oberfläche:</p>\[\lambda=\sqrt{20^2-1}=19{,}975,\qquad C_p=\frac{2(0{,}174533)}{19{,}975}=0{,}017475,\]<p>also 77,2 % unter dem exakten Wert. Der Ähnlichkeitsparameter beträgt \(K=M_\infty\theta=20(0{,}174533)=3{,}491\), weit entfernt von dem \(K\ll1\), das die Theorie verlangt.</p></div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><p>Gasmodell. Die von einem idealen Gas implizierte Stautemperatur der Anströmung ist</p>\[T_0=220\left(1+0{,}2(20)^2\right)=220(81)=17\,820\ \mathrm{K}.\]<p>Die Keiloberfläche selbst sieht nur 1034 K, weil der Schrägstoß in seiner Normalkomponente schwach ist. Eine stumpfe Nase in derselben Strömung stünde hinter einem nahezu senkrechten Stoß, wo die statische Idealgas-Temperatur 17 319 K betrüge — ein Wert, den Luft nicht erreichen kann, weil Dissoziation und Ionisation die Energie zuvor aufnehmen.</p></div></div>
+
+        <div class="result-box">\[\boxed{\beta=12{,}71^\circ,\quad C_{p,\text{exakt}}=0{,}07648,\quad C_{p,\text{Ackeret}}=0{,}01748\ (-77\,\%),\quad K=3{,}49}\]</div>
+        <p>Dieselbe Geometrie, die Vorlesung 12 bei Mach 3 auf ein Prozent genau behandelt hat, liegt nun um mehr als den Faktor vier daneben. Am Keil hat sich nichts geändert — nur die Ordnung der Terme, die die Linearisierung rechtfertigte.</p>
+      </div>
+      <div class="validation-case">
+        <strong>Validierungsfall des Rechners</strong>
+        <span>Die exakte Spalte stammt aus dem Schrägstoß-Modul: \(M_1=20\), \(\theta=10^\circ\), schwache Lösung, \(\gamma=1{,}4\), mit \(\beta=12{,}7076^\circ\) und \(C_p=0{,}076482\).</span>
+      </div>
+    </section>
+
+    <section id="summary-de">
+      <p class="section-label">Kerngleichungen</p>
+      <h2>Auf einen Blick</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Beziehung</th><th>Ausdruck</th><th>Gültig wenn</th></tr></thead>
+          <tbody>
+            <tr><td>Dichtegrenzwert</td><td>\(\rho_2/\rho_1\to(\gamma+1)/(\gamma-1)=6\)</td><td>\(M_1\sin\beta\gg1\), \(\gamma=1{,}4\)</td></tr>
+            <tr><td>Wellenwinkel-Grenzwert</td><td>\(\beta/\theta\to(\gamma+1)/2=1{,}2\)</td><td>\(M_1\to\infty\), kleines \(\theta\)</td></tr>
+            <tr><td>Druckgrenzform</td><td>\(p_2/p_1\approx\frac{2\gamma}{\gamma+1}M_1^2\sin^2\beta\)</td><td>wächst unbeschränkt</td></tr>
+            <tr><td>Temperaturgrenzform</td><td>\(T_2/T_1\approx\frac{2\gamma(\gamma-1)}{(\gamma+1)^2}M_1^2\sin^2\beta\)</td><td>nur ideales Gas</td></tr>
+            <tr><td>Druckbeiwert</td><td>\(C_p=\frac{4}{\gamma+1}\left(\sin^2\beta-1/M_1^2\right)\)</td><td>exakte Form des Stoß-\(C_p\)</td></tr>
+            <tr><td>Ähnlichkeitsparameter</td><td>\(K=M_\infty\theta\)</td><td>lineare Theorie braucht \(K\ll1\)</td></tr>
+            <tr><td>Stautemperatur</td><td>\(T_0/T_\infty=1+\frac{\gamma-1}{2}M_\infty^2\)</td><td>ideales Gas, ohne Dissoziation</td></tr>
+            <tr><td>Grenzschichtwachstum</td><td>\(\delta/x\sim M_\infty^2/\sqrt{\mathrm{Re}_x}\)</td><td>laminar, ebene Platte</td></tr>
+            <tr><td>Aufheizskalierung</td><td>\(\dot q_w\propto\rho_\infty V_\infty^3\), \(\dot q_{\mathrm{stag}}\propto R_N^{-1/2}\)</td><td>konvektiv, laminar</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="mistakes-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Häufige Fehler</h2>
+      <ul class="check-list">
+        <li><strong>\(M_\infty=5\) für eine physikalische Grenze halten.</strong> Dort geschieht nichts. Das Regime erkennt man daran, welche Effekte dominieren, und das hängt von Geometrie, Höhe und Gesamtenthalpie ab.</li>
+        <li><strong>Die Ackeret-Regel zu hohen Machzahlen extrapolieren.</strong> Sie sagt \(C_p\to0\) für \(M_\infty\to\infty\) vorher; der richtige Grenzwert ist eine endliche Konstante. Prüfen Sie \(K=M_\infty\theta\), bevor Sie einem linearisierten Ergebnis trauen.</li>
+        <li><strong>Die Hyperschall-Grenzformen wie exakte Beziehungen verwenden.</strong> Bei Mach 20 verfehlen sie das Dichteverhältnis noch um ein Viertel. Sie dienen dem asymptotischen Argument; Zahlen liefern die exakten Beziehungen.</li>
+        <li><strong>Eine Idealgas-Stautemperatur von Zehntausenden Kelvin angeben.</strong> Die Zahl ist rechnerisch richtig und physikalisch bedeutungslos — die Energie ist in die Dissoziation gegangen, nicht in die Temperatur.</li>
+        <li><strong>Annehmen, eine stumpfe Nase sei immer ein Nachteil.</strong> Sie erhöht den Widerstand, doch auf einer Eintrittsbahn ist genau das das Ziel, und sie senkt die Staupunkt-Wärmestromdichte mit \(R_N^{-1/2}\).</li>
+        <li><strong>Eine Hyperschallströmung ungeprüft in reibungsfrei außen und dünn-viskos innen zerlegen.</strong> Wenn \(M_\infty^2/\sqrt{\mathrm{Re}_x}\) gegen eins geht, sind beide Gebiete dasselbe Gebiet.</li>
+        <li><strong>Machzahl-Unabhängigkeit als konstante Kräfte lesen.</strong> Die Beiwerte laufen in ein Plateau; dimensionsbehafteter Druck, Kraft und Aufheizung nicht.</li>
+      </ul>
+    </section>
+
+    <section id="advanced-de">
+      <p class="section-label">Weiterführende Themen</p>
+      <h2>Was diese Vorlesung aufschiebt</h2>
+      <p>Einheit VI entwickelt das Newtonsche Druckgesetz aus dem Stoßmodell und zeigt, dass es aus dem kombinierten Grenzfall \(M_\infty\to\infty\) mit \(\gamma\to1\) hervorgeht, in dem \(\frac{4}{\gamma+1}\sin^2\beta\to2\sin^2\theta\) gilt. Diese Herleitung, das modifizierte Gesetz mit \(C_{p,\max}\), Newtonscher Auftrieb und Widerstand einer Platte, die Korrelationen der aerodynamischen Aufheizung und der Waverider-Entwurf werden sämtlich in Vorlesung 15 behandelt.</p>
+      <p>Die numerischen Verfahren, die man braucht, wenn keine geschlossene Form existiert — das Charakteristikenverfahren, die MacCormack-Differenzen, die Zeitschrittmarschierung für stumpfe Körper und die Taylor–Maccoll-Gleichung für Kegel —, sind Gegenstand von Vorlesung 14.</p>
+      <div class="callout">Ebenfalls außerhalb dieses Kurses: Strahlung der Stoßschicht, Ablation und Materialantwort, Transitionsvorhersage im Hyperschall, verdünnte und übergangsnahe Kontinuumsströmung sowie die Antriebsintegration eines Scramjets.</div>
+    </section>
+
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+      <ol>
+        <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6. Aufl. New York: McGraw-Hill Education, 2017, Abschnitte 14.2 und 14.5–14.6.</li>
+        <li>Anderson, J. D., Jr. <em>Hypersonic and High-Temperature Gas Dynamics</em>, 2. Aufl. Reston, VA: AIAA, 2006, Kapitel 1–3.</li>
+        <li>Ames Research Staff. <a href="https://ntrs.nasa.gov/citations/19930091059" target="_blank" rel="noopener noreferrer"><em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135</a>. Washington, DC: NACA, 1953.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Aerodinámica II (AE604)</em>. Chihuahua, Mexiko, Februar 2024.</li>
+      </ol>
+      <p class="source-note">Bearbeitet nach Einheit VI des Vorlesungsskripts Aerodynamik II von Carlos Alberto Molina Holguín; alle Zahlenwerte wurden für \(\gamma=1{,}4\) unabhängig aus den exakten Schrägstoßbeziehungen der Vorlesung 04 nachgerechnet.</p>
+    </section>
+
+    <nav class="next-nav">
+      <a class="next-link" href="supersonic-linearized-flow.html"><span>Vorherige Vorlesung</span>← Linearisierte Überschallströmung</a>
+      <a class="next-link" href="numerical-methods-supersonic.html"><span>Nächste Vorlesung</span>Numerische Verfahren →</a>
+    </nav>
+  </article>
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>
