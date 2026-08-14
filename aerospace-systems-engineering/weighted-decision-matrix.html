@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="The weighted decision matrix and one-way sensitivity analysis: normalisation and utility, the weighted sum, comparing the margin to the uncertainty, and computing the crossover point that makes a recommendation conditional." />
+  <meta name="author" content="Carlos Alberto Molina Holgu&iacute;n" />
+  <meta name="theme-color" content="#071d33" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>The Weighted Decision Matrix | Aerospace Systems Engineering</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:wght@600;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=11" data-ui-key="course">Aerospace Systems Engineering</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Aerospace Systems Engineering &middot; Lecture 14</p>
+        <h1>The Weighted Decision Matrix and Sensitivity Analysis</h1>
+        <p class="hero-copy">How to combine incompatible criteria into one comparable number, and how to find out how much disagreement that number can survive before the answer changes.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Ingeniería de Sistemas Aeroespaciales &middot; Lecture 14</p>
+        <h1>La matriz de decisi&oacute;n ponderada y el an&aacute;lisis de sensibilidad</h1>
+        <p class="hero-copy">C&oacute;mo combinar criterios incompatibles en un solo n&uacute;mero comparable, y c&oacute;mo averiguar cu&aacute;nto desacuerdo soporta ese n&uacute;mero antes de que la respuesta cambie.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Luft- und Raumfahrtsystemtechnik &middot; Vorlesung 14</p>
+        <h1>Die gewichtete Entscheidungsmatrix und die Sensitivit&auml;tsanalyse</h1>
+        <p class="hero-copy">Wie man unvereinbare Kriterien zu einer vergleichbaren Zahl verbindet und wie viel Uneinigkeit diese Zahl aush&auml;lt, bevor sich die Antwort &auml;ndert.</p>
+      </div>
+
+    <div class="hero-meta">
+        <span data-language="en">Estimated reading: 14 min</span><span data-language="es" hidden>Lectura estimada: 14 min</span><span data-language="de" hidden>Lesedauer: ca. 14 min</span>
+        <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+        <span data-language="en">Model: additive weighted sum</span><span data-language="es" hidden>Modelo: suma ponderada aditiva</span><span data-language="de" hidden>Modell: additive gewichtete Summe</span>
+    </div>
+    <div class="button-row">
+      <a class="button secondary" href="index.html?v=11" data-ui-key="back">Back to course</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Engineering situation</a>
+        <a href="#model">Scope and limits</a>
+        <a href="#normalisation">Normalisation and utility</a>
+        <a href="#sensitivity">Sensitivity and crossover</a>
+        <a href="#algorithm">Building the matrix</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Operative rules</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#references">Sources</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Situaci&oacute;n de ingenier&iacute;a</a>
+        <a href="#model-es">Alcance y l&iacute;mites</a>
+        <a href="#normalisation-es">Normalizaci&oacute;n y utilidad</a>
+        <a href="#sensitivity-es">Sensibilidad y cruce</a>
+        <a href="#algorithm-es">Construir la matriz</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Reglas operativas</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Kontext</a>
+        <a href="#model-de">Geltungsbereich</a>
+        <a href="#normalisation-de">Normierung und Nutzen</a>
+        <a href="#sensitivity-de">Sensitivit&auml;t und Umschlagpunkt</a>
+        <a href="#algorithm-de">Die Matrix aufbauen</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Arbeitsregeln</a>
+        <a href="#mistakes-de">H&auml;ufige Fehler</a>
+        <a href="#references-de">Quellen</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+
+      <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul><li>normalise heterogeneous criteria and choose a scale anchored to requirements;</li><li>compute a weighted sum and state precisely what its maximum does and does not prove;</li><li>compare the gap between the top two alternatives against the uncertainty in the scores;</li><li>compute the crossover point at which the ranking reverses;</li><li>report a recommendation conditionally rather than as a winner.</li></ul>
+      </section>
+
+      <section id="physics">
+        <p class="section-label">Engineering situation</p>
+        <h2>Seven point seven four</h2>
+        <p class="lead">The matrix returns 7.74 for architecture C and 7.48 for A. C wins by 0.26 points, the recommendation goes into the review package, and the architecture is baselined.</p><p>Nobody asks what 0.26 means. It is about three percent of a ten-point scale, and the reliability scores behind it came from a preliminary failure analysis whose own uncertainty is larger than that. The matrix produced a number with two decimals and no indication of how firm it is, which is exactly the failure this lecture is about.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 400" role="img" aria-label="One-way sensitivity on the reliability weight">
+            <rect x="90" y="40" width="560" height="280" fill="#fbfcfd" stroke="#c9d4de"></rect>
+            <line x1="90" y1="253.3" x2="650" y2="253.3" stroke="#e6ecf1"></line>
+            <text x="82" y="257.3" text-anchor="end" font-size="12" fill="#8fa6ba">7.0</text>
+            <line x1="90" y1="186.7" x2="650" y2="186.7" stroke="#e6ecf1"></line>
+            <text x="82" y="190.7" text-anchor="end" font-size="12" fill="#8fa6ba">7.5</text>
+            <line x1="90" y1="120.0" x2="650" y2="120.0" stroke="#e6ecf1"></line>
+            <text x="82" y="124.0" text-anchor="end" font-size="12" fill="#8fa6ba">8.0</text>
+            <line x1="90" y1="53.3" x2="650" y2="53.3" stroke="#e6ecf1"></line>
+            <text x="82" y="57.3" text-anchor="end" font-size="12" fill="#8fa6ba">8.5</text>
+            <text x="90.0" y="340" text-anchor="middle" font-size="12" fill="#8fa6ba">0.0</text>
+            <text x="202.0" y="340" text-anchor="middle" font-size="12" fill="#8fa6ba">0.1</text>
+            <text x="314.0" y="340" text-anchor="middle" font-size="12" fill="#8fa6ba">0.2</text>
+            <text x="426.0" y="340" text-anchor="middle" font-size="12" fill="#8fa6ba">0.3</text>
+            <text x="538.0" y="340" text-anchor="middle" font-size="12" fill="#8fa6ba">0.4</text>
+            <text x="650.0" y="340" text-anchor="middle" font-size="12" fill="#8fa6ba">0.5</text>
+            <line x1="90.0" y1="140.0" x2="650.0" y2="263.3" stroke="#0d568d" stroke-width="2.5"></line>
+            <text x="658.0" y="268.3" font-size="14" font-weight="700" fill="#0d568d">A</text>
+            <line x1="90.0" y1="296.7" x2="650.0" y2="208.3" stroke="#8fa6ba" stroke-width="2.5"></line>
+            <text x="658.0" y="213.3" font-size="14" font-weight="700" fill="#8fa6ba">B</text>
+            <line x1="90.0" y1="196.7" x2="650.0" y2="91.7" stroke="#b03a2e" stroke-width="2.5"></line>
+            <text x="658.0" y="96.7" font-size="14" font-weight="700" fill="#b03a2e">C</text>
+            <line x1="229.0" y1="40" x2="229.0" y2="320" stroke="#c2924d" stroke-width="2" stroke-dasharray="5 4"></line>
+            <text x="229.0" y="32" text-anchor="middle" font-size="12" fill="#c2924d">crossover 0.124</text>
+            <line x1="314.0" y1="40" x2="314.0" y2="320" stroke="#0d568d" stroke-width="2" stroke-dasharray="2 4"></line>
+            <text x="344.0" y="32" text-anchor="middle" font-size="12" fill="#0d568d">baseline 0.20</text>
+            <text x="370" y="368" text-anchor="middle" font-size="14" font-weight="600" fill="#071d33">Reliability weight</text>
+            <text x="14" y="28" font-size="14" font-weight="600" fill="#071d33">Weighted score</text>
+            </svg>
+            <figcaption>One-way sensitivity. The lines cross at a reliability weight of 0.124; the baseline sits at 0.20, so C is preferred but the recommendation is conditional on that weight.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model">
+        <p class="section-label">Scope and limits</p>
+        <h2>What the sum is and is not</h2>
+        <p>A <strong>weighted decision matrix</strong> puts alternatives in columns and criteria in rows, normalises each cell to a common scale, and combines them as</p>\[ S_i = \sum_{j=1}^{m} w_j\, s_{ij}. \]<p>Its output is a preference under a stated model: these criteria, these weights, these scales, these estimates. Change any of the four and the answer may change, which is not a weakness of the method but the thing the method exists to make visible.</p>
+        <div class="callout warning"><strong>What the maximum does not prove.</strong> The highest total does not mean an architecture is objectively better; it means it is preferred under this model. A compact matrix is also a summary, not a decision package: every score must trace to a mass model, a failure analysis, an interface count or a technology assessment. Without that traceability the matrix is an opinion table with arithmetic attached.</div>
+      </section>
+
+      <section id="normalisation">
+        <p class="section-label">Making criteria comparable</p>
+        <h2>Normalisation and utility</h2>
+        <p>Criteria arrive in kilograms, watts, failures per hour and currency. Normalisation maps them onto a common dimensionless scale, and the choice of mapping is an engineering decision rather than a formatting step.</p>
+        <div class="table-wrap"><table><thead><tr><th>Scale</th><th>When it is right</th><th>What it gets wrong</th></tr></thead><tbody><tr><td>Linear min-max across the alternatives</td><td>When the observed spread is the spread that matters to the mission</td><td>Stretches a trivial difference to fill the whole 0 to 1 range</td></tr><tr><td>Anchored to requirement thresholds</td><td>Almost always: 10 at the target, 0 at the limit, interpolate between</td><td>Needs the target and the limit to be known, which is the point</td></tr><tr><td>Utility function</td><td>When value is nonlinear: the first 10 % of margin is worth far more than the last</td><td>Requires the team to state its preferences explicitly, which is uncomfortable</td></tr></tbody></table></div>
+        <p>Min-max across the alternatives is the default and the trap. Three batteries at 10.0, 10.1 and 10.2 kg normalise to 1.0, 0.5 and 0.0 &mdash; the full range of the scale for a 0.2 kg difference that no requirement cares about. Anchoring to the design target and the requirement limit instead keeps the score proportional to what the mission actually values.</p>
+      </section>
+
+      <section id="sensitivity">
+        <p class="section-label">How firm is the answer?</p>
+        <h2>One-way sensitivity and the crossover</h2>
+        <p>Vary one weight \(p\) across its plausible range, rescaling the others proportionally so they still sum to one. Each total is then linear in \(p\):</p>\[ S_i(p) = \underbrace{\frac{S_i^{(0)} - w_p^{(0)} s_{ip}}{1 - w_p^{(0)}}}_{a_i}\,(1-p) + s_{ip}\,p, \]<p>and two alternatives swap rank where \(S_A = S_B\), that is at</p>\[ p^{*} = \frac{a_B - a_A}{b_A - b_B}, \qquad b_A \neq b_B. \]<p>Compare \(p^{*}\) to the baseline. Far outside anything a stakeholder would defend means the decision is robust; inside that range means the recommendation is conditional and must be reported as such.</p>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">Calculation algorithm</p>
+        <h2>Building the matrix</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Screen on hard constraints, outside the matrix</span></div><div><strong>2</strong><span>Define the scoring scale and its anchors</span></div><div><strong>3</strong><span>Agree and record the weights</span></div><div><strong>4</strong><span>Score each cell, citing the evidence</span></div><div><strong>5</strong><span>Compute \(S_i\)</span></div><div><strong>6</strong><span>Compare the top gap to the uncertainty</span></div><div><strong>7</strong><span>Run the sensitivity</span></div><div><strong>8</strong><span>Report conditionally</span></div></div>
+        <p>Step six is a judgement that takes ten seconds and is almost never made. If the leader is ahead by less than the plausible error in one score, the matrix has not selected anything &mdash; it has told you the two are equivalent under this model, which is a legitimate and useful result.</p>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>The avionics trade, and how firm it is</h2>
+        <p>The three architectures that survived the screening of Lecture 13, scored on the seven criteria that survived the double-counting check. Weights were agreed before any score was seen.</p>
+        <div class="table-wrap"><table><thead><tr><th>Criterion</th><th>Weight</th><th>A: centralised</th><th>B: distributed</th><th>C: hybrid</th></tr></thead><tbody><tr><td>Mass</td><td>0.18</td><td>9</td><td>6</td><td>7</td></tr><tr><td>Power</td><td>0.14</td><td>8</td><td>6</td><td>7</td></tr><tr><td>Reliability</td><td>0.20</td><td>6</td><td>8</td><td>9</td></tr><tr><td>Integration complexity</td><td>0.14</td><td>9</td><td>5</td><td>7</td></tr><tr><td>Maintainability</td><td>0.10</td><td>6</td><td>8</td><td>8</td></tr><tr><td>Growth capability</td><td>0.12</td><td>5</td><td>9</td><td>8</td></tr><tr><td>Technology maturity</td><td>0.12</td><td>9</td><td>7</td><td>8</td></tr><tr><td><strong>Weighted total</strong></td><td><strong>1.00</strong></td><td><strong>7.48</strong></td><td><strong>6.94</strong></td><td><strong>7.74</strong></td></tr></tbody></table></div>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>The totals.</strong> For A, \[S_A = 0.18(9)+0.14(8)+0.20(6)+0.14(9)+0.10(6)+0.12(5)+0.12(9) = 7.48,\] and likewise \(S_B = 6.94\), \(S_C = 7.74\). The ranking is \(C > A > B\).</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Is that a selection?</strong> C leads A by 0.26 on a ten-point scale, about 3&nbsp;%. The reliability scores come from a preliminary failure analysis; a single point of error there moves the total by 0.20. The matrix has not selected C, it has localised the decision to reliability and integration complexity.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Vary the reliability weight.</strong> With the other six rescaled proportionally, \[S_A(p) = 7.850 - 1.850\,p, \qquad S_C(p) = 7.425 + 1.575\,p.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>The crossover.</strong> \[p^{*} = \frac{7.850 - 7.425}{1.575 - (-1.850)} = \frac{0.425}{3.425} = 0.124.\] Above that weight C is preferred, below it A is.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Against the baseline.</strong> The agreed weight is 0.20, comfortably above 0.124, so C survives moderate disagreement. But 0.124 is not remote: a stakeholder arguing that reliability deserves only 12&nbsp;% of the decision would change the answer.</div></div>
+        <div class="result-box">\[ \boxed{ S_C = 7.74 > S_A = 7.48 > S_B = 6.94, \qquad p^{*} = 0.124 \;\text{vs}\; w_R = 0.20 } \]</div>
+        <p><strong>Interpretation.</strong> The useful output is not 7.74. It is the sentence <em>C is preferred provided reliability is weighted above about 0.12, and the margin over A is smaller than the uncertainty in the reliability score</em>. That tells a review board two things it can act on: which assumption the decision rests on, and where the remaining analysis effort should go.</p>
+      </section>
+
+      <section id="summary">
+        <p class="section-label">Operative rules</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Statement</th></tr></thead><tbody><tr><td>The weighted sum</td><td>\(S_i = \sum_j w_j s_{ij}\). Its maximum is a preference under a stated model, not a proof.</td></tr><tr><td>Weights before scores</td><td>Set and record them before any score is seen, with who agreed.</td></tr><tr><td>Anchor the scale to requirements</td><td>10 at the design target, 0 at the requirement limit. Min-max across alternatives exaggerates.</td></tr><tr><td>Compare the gap to the uncertainty</td><td>If the top two differ by less than the error in a score, the matrix selected nothing.</td></tr><tr><td>Crossover point</td><td>\(p^{*} = (a_B - a_A)/(b_A - b_B)\) with the totals linear in the varied weight.</td></tr><tr><td>Report the recommendation conditionally</td><td>&ldquo;C is preferred provided reliability is weighted above 0.12&rdquo; is more useful than &ldquo;C wins with 7.74&rdquo;.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes">
+        <p class="section-label">Common mistakes</p>
+        <h2>What goes wrong</h2>
+        <ul class="check-list"><li><strong>Reporting 7.82 against 7.79 as a clear preference.</strong> Numerical precision is not decision confidence.</li><li><strong>Tuning weights after seeing the ranking.</strong> The study then describes the preferred answer instead of the stakeholders&rsquo; priorities.</li><li><strong>Min-max normalisation by default.</strong> It stretches whatever spread happens to exist, so a 0.2 kg difference fills the whole scale.</li><li><strong>Scores with no evidence.</strong> A matrix whose cells trace to nothing is an opinion table, and its arithmetic makes it look like more.</li><li><strong>No sensitivity analysis.</strong> Without a crossover, nobody knows whether the answer survives a stakeholder changing their mind by two percent.</li><li><strong>Discarding the losing alternatives.</strong> When a requirement changes, the whole study has to be repeated from nothing.</li></ul>
+      </section>
+
+      <section id="references" class="references">
+        <p class="section-label">Sources</p>
+        <h2>References</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 6.8.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=trade-studies" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 21: Trade Studies</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adapted from Unit V of the Aerospace Systems Engineering (AE506) course script by Carlos Alberto Molina Holgu&iacute;n. Every number on this page was recomputed independently for it; no calculator covers this topic, so recomputation is the only check there is. The three totals, the two sensitivity lines and the crossover were all computed from the weights and scores in the table on this page, and the generator refuses to build if they stop agreeing.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="framing-the-decision.html?v=11"><span>Previous lecture</span>&larr; Framing the Decision</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+
+      <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Qu&eacute; deber&iacute;as poder hacer</h2>
+        <ul><li>normalizar criterios heterog&eacute;neos y elegir una escala anclada a los requisitos;</li><li>calcular una suma ponderada y enunciar con precisi&oacute;n qu&eacute; prueba y qu&eacute; no su m&aacute;ximo;</li><li>comparar la brecha entre las dos primeras alternativas contra la incertidumbre de las puntuaciones;</li><li>calcular el punto de cruce en el que se invierte el orden;</li><li>reportar una recomendaci&oacute;n condicionada en vez de un ganador.</li></ul>
+      </section>
+
+      <section id="physics-es">
+        <p class="section-label">Situación de ingeniería</p>
+        <h2>Siete punto setenta y cuatro</h2>
+        <p class="lead">La matriz devuelve 7.74 para la arquitectura C y 7.48 para A. C gana por 0.26 puntos, la recomendaci&oacute;n entra al paquete de revisi&oacute;n y la arquitectura se fija en l&iacute;nea base.</p><p>Nadie pregunta qu&eacute; significa 0.26. Es cerca del tres por ciento de una escala de diez puntos, y las puntuaciones de confiabilidad detr&aacute;s vinieron de un an&aacute;lisis de fallos preliminar cuya propia incertidumbre es mayor que eso. La matriz produjo un n&uacute;mero con dos decimales y ninguna indicaci&oacute;n de qu&eacute; tan firme es, que es justo la falla de la que trata esta lecture.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 400" role="img" aria-label="Sensibilidad unidireccional al peso de confiabilidad">
+            <rect x="90" y="40" width="560" height="280" fill="#fbfcfd" stroke="#c9d4de"></rect>
+            <line x1="90" y1="253.3" x2="650" y2="253.3" stroke="#e6ecf1"></line>
+            <text x="82" y="257.3" text-anchor="end" font-size="12" fill="#8fa6ba">7.0</text>
+            <line x1="90" y1="186.7" x2="650" y2="186.7" stroke="#e6ecf1"></line>
+            <text x="82" y="190.7" text-anchor="end" font-size="12" fill="#8fa6ba">7.5</text>
+            <line x1="90" y1="120.0" x2="650" y2="120.0" stroke="#e6ecf1"></line>
+            <text x="82" y="124.0" text-anchor="end" font-size="12" fill="#8fa6ba">8.0</text>
+            <line x1="90" y1="53.3" x2="650" y2="53.3" stroke="#e6ecf1"></line>
+            <text x="82" y="57.3" text-anchor="end" font-size="12" fill="#8fa6ba">8.5</text>
+            <text x="90.0" y="340" text-anchor="middle" font-size="12" fill="#8fa6ba">0.0</text>
+            <text x="202.0" y="340" text-anchor="middle" font-size="12" fill="#8fa6ba">0.1</text>
+            <text x="314.0" y="340" text-anchor="middle" font-size="12" fill="#8fa6ba">0.2</text>
+            <text x="426.0" y="340" text-anchor="middle" font-size="12" fill="#8fa6ba">0.3</text>
+            <text x="538.0" y="340" text-anchor="middle" font-size="12" fill="#8fa6ba">0.4</text>
+            <text x="650.0" y="340" text-anchor="middle" font-size="12" fill="#8fa6ba">0.5</text>
+            <line x1="90.0" y1="140.0" x2="650.0" y2="263.3" stroke="#0d568d" stroke-width="2.5"></line>
+            <text x="658.0" y="268.3" font-size="14" font-weight="700" fill="#0d568d">A</text>
+            <line x1="90.0" y1="296.7" x2="650.0" y2="208.3" stroke="#8fa6ba" stroke-width="2.5"></line>
+            <text x="658.0" y="213.3" font-size="14" font-weight="700" fill="#8fa6ba">B</text>
+            <line x1="90.0" y1="196.7" x2="650.0" y2="91.7" stroke="#b03a2e" stroke-width="2.5"></line>
+            <text x="658.0" y="96.7" font-size="14" font-weight="700" fill="#b03a2e">C</text>
+            <line x1="229.0" y1="40" x2="229.0" y2="320" stroke="#c2924d" stroke-width="2" stroke-dasharray="5 4"></line>
+            <text x="229.0" y="32" text-anchor="middle" font-size="12" fill="#c2924d">cruce 0.124</text>
+            <line x1="314.0" y1="40" x2="314.0" y2="320" stroke="#0d568d" stroke-width="2" stroke-dasharray="2 4"></line>
+            <text x="344.0" y="32" text-anchor="middle" font-size="12" fill="#0d568d">l&iacute;nea base 0.20</text>
+            <text x="370" y="368" text-anchor="middle" font-size="14" font-weight="600" fill="#071d33">Peso de confiabilidad</text>
+            <text x="14" y="28" font-size="14" font-weight="600" fill="#071d33">Puntuaci&oacute;n ponderada</text>
+            </svg>
+            <figcaption>Sensibilidad unidireccional. Las l&iacute;neas se cruzan en un peso de confiabilidad de 0.124; la l&iacute;nea base est&aacute; en 0.20, as&iacute; que C es preferida pero la recomendaci&oacute;n est&aacute; condicionada a ese peso.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-es">
+        <p class="section-label">Alcance y límites</p>
+        <h2>Qu&eacute; es y qu&eacute; no es la suma</h2>
+        <p>Una <strong>matriz de decisi&oacute;n ponderada</strong> pone alternativas en columnas y criterios en filas, normaliza cada celda a una escala com&uacute;n y las combina como</p>\[ S_i = \sum_{j=1}^{m} w_j\, s_{ij}. \]<p>Su salida es una preferencia bajo un modelo declarado: estos criterios, estos pesos, estas escalas, estas estimaciones. Cambia cualquiera de los cuatro y la respuesta puede cambiar, lo cual no es una debilidad del m&eacute;todo sino lo que el m&eacute;todo existe para hacer visible.</p>
+        <div class="callout warning"><strong>Lo que el m&aacute;ximo no prueba.</strong> El total m&aacute;s alto no significa que una arquitectura sea objetivamente mejor; significa que es preferida bajo este modelo. Una matriz compacta tambi&eacute;n es un resumen, no un paquete de decisi&oacute;n: cada puntuaci&oacute;n debe trazar a un modelo de masa, un an&aacute;lisis de fallos, un conteo de interfaces o una evaluaci&oacute;n tecnol&oacute;gica. Sin esa trazabilidad la matriz es una tabla de opiniones con aritm&eacute;tica encima.</div>
+      </section>
+
+      <section id="normalisation-es">
+        <p class="section-label">Hacer comparables los criterios</p>
+        <h2>Normalizaci&oacute;n y utilidad</h2>
+        <p>Los criterios llegan en kilogramos, watts, fallos por hora y moneda. La normalizaci&oacute;n los mapea a una escala com&uacute;n adimensional, y la elecci&oacute;n del mapeo es una decisi&oacute;n de ingenier&iacute;a y no un paso de formato.</p>
+        <div class="table-wrap"><table><thead><tr><th>Escala</th><th>Cu&aacute;ndo es correcta</th><th>Qu&eacute; hace mal</th></tr></thead><tbody><tr><td>Min-max lineal entre las alternativas</td><td>Cuando la dispersi&oacute;n observada es la que importa a la misi&oacute;n</td><td>Estira una diferencia trivial hasta llenar todo el rango 0 a 1</td></tr><tr><td>Anclada a umbrales de requisitos</td><td>Casi siempre: 10 en el objetivo, 0 en el l&iacute;mite, interpolar entre ambos</td><td>Necesita que el objetivo y el l&iacute;mite se conozcan, que es justo el punto</td></tr><tr><td>Funci&oacute;n de utilidad</td><td>Cuando el valor es no lineal: el primer 10 % de margen vale mucho m&aacute;s que el &uacute;ltimo</td><td>Exige que el equipo enuncie sus preferencias expl&iacute;citamente, lo cual incomoda</td></tr></tbody></table></div>
+        <p>El min-max entre alternativas es el valor por omisi&oacute;n y la trampa. Tres bater&iacute;as de 10.0, 10.1 y 10.2 kg normalizan a 1.0, 0.5 y 0.0 &mdash; todo el rango de la escala para una diferencia de 0.2 kg que a ning&uacute;n requisito le importa. Anclar en cambio al objetivo de dise&ntilde;o y al l&iacute;mite del requisito mantiene la puntuaci&oacute;n proporcional a lo que la misi&oacute;n realmente valora.</p>
+      </section>
+
+      <section id="sensitivity-es">
+        <p class="section-label">&iquest;Qu&eacute; tan firme es la respuesta?</p>
+        <h2>Sensibilidad unidireccional y el cruce</h2>
+        <p>Var&iacute;a un peso \(p\) en su rango plausible, reescalando los otros proporcionalmente para que sigan sumando uno. Cada total queda entonces lineal en \(p\):</p>\[ S_i(p) = \underbrace{\frac{S_i^{(0)} - w_p^{(0)} s_{ip}}{1 - w_p^{(0)}}}_{a_i}\,(1-p) + s_{ip}\,p, \]<p>y dos alternativas intercambian posici&oacute;n donde \(S_A = S_B\), es decir en</p>\[ p^{*} = \frac{a_B - a_A}{b_A - b_B}, \qquad b_A \neq b_B. \]<p>Compara \(p^{*}\) con la l&iacute;nea base. Muy fuera de lo que cualquier stakeholder defender&iacute;a significa que la decisi&oacute;n es robusta; dentro de ese rango significa que la recomendaci&oacute;n es condicional y debe reportarse as&iacute;.</p>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Algoritmo de cálculo</p>
+        <h2>Construir la matriz</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Filtrar por restricciones duras, fuera de la matriz</span></div><div><strong>2</strong><span>Definir la escala de puntuaci&oacute;n y sus anclas</span></div><div><strong>3</strong><span>Acordar y registrar los pesos</span></div><div><strong>4</strong><span>Puntuar cada celda, citando la evidencia</span></div><div><strong>5</strong><span>Calcular \(S_i\)</span></div><div><strong>6</strong><span>Comparar la brecha superior con la incertidumbre</span></div><div><strong>7</strong><span>Ejecutar la sensibilidad</span></div><div><strong>8</strong><span>Reportar condicionadamente</span></div></div>
+        <p>El paso seis es un juicio que toma diez segundos y casi nunca se hace. Si el l&iacute;der aventaja por menos que el error plausible de una puntuaci&oacute;n, la matriz no seleccion&oacute; nada &mdash; te dijo que las dos son equivalentes bajo este modelo, que es un resultado leg&iacute;timo y &uacute;til.</p>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>El intercambio de avi&oacute;nica, y qu&eacute; tan firme es</h2>
+        <p>Las tres arquitecturas que sobrevivieron el filtrado de la lecture 13, puntuadas en los siete criterios que sobrevivieron la verificaci&oacute;n de doble conteo. Los pesos se acordaron antes de ver puntuaci&oacute;n alguna.</p>
+        <div class="table-wrap"><table><thead><tr><th>Criterio</th><th>Peso</th><th>A: centralizada</th><th>B: distribuida</th><th>C: h&iacute;brida</th></tr></thead><tbody><tr><td>Masa</td><td>0.18</td><td>9</td><td>6</td><td>7</td></tr><tr><td>Potencia</td><td>0.14</td><td>8</td><td>6</td><td>7</td></tr><tr><td>Confiabilidad</td><td>0.20</td><td>6</td><td>8</td><td>9</td></tr><tr><td>Complejidad de integraci&oacute;n</td><td>0.14</td><td>9</td><td>5</td><td>7</td></tr><tr><td>Mantenibilidad</td><td>0.10</td><td>6</td><td>8</td><td>8</td></tr><tr><td>Capacidad de crecimiento</td><td>0.12</td><td>5</td><td>9</td><td>8</td></tr><tr><td>Madurez tecnol&oacute;gica</td><td>0.12</td><td>9</td><td>7</td><td>8</td></tr><tr><td><strong>Total ponderado</strong></td><td><strong>1.00</strong></td><td><strong>7.48</strong></td><td><strong>6.94</strong></td><td><strong>7.74</strong></td></tr></tbody></table></div>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Los totales.</strong> Para A, \[S_A = 0.18(9)+0.14(8)+0.20(6)+0.14(9)+0.10(6)+0.12(5)+0.12(9) = 7.48,\] y an&aacute;logamente \(S_B = 6.94\), \(S_C = 7.74\). El orden es \(C > A > B\).</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>&iquest;Eso es una selecci&oacute;n?</strong> C aventaja a A por 0.26 en una escala de diez puntos, cerca de 3&nbsp;%. Las puntuaciones de confiabilidad vienen de un an&aacute;lisis de fallos preliminar; un solo punto de error ah&iacute; mueve el total 0.20. La matriz no seleccion&oacute; a C, localiz&oacute; la decisi&oacute;n en confiabilidad y complejidad de integraci&oacute;n.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Var&iacute;a el peso de confiabilidad.</strong> Con los otros seis reescalados proporcionalmente, \[S_A(p) = 7.850 - 1.850\,p, \qquad S_C(p) = 7.425 + 1.575\,p.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>El cruce.</strong> \[p^{*} = \frac{7.850 - 7.425}{1.575 - (-1.850)} = \frac{0.425}{3.425} = 0.124.\] Por encima de ese peso C es preferida, por debajo lo es A.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Contra la l&iacute;nea base.</strong> El peso acordado es 0.20, c&oacute;modamente arriba de 0.124, as&iacute; que C sobrevive un desacuerdo moderado. Pero 0.124 no es remoto: un stakeholder que argumente que confiabilidad merece s&oacute;lo 12&nbsp;% de la decisi&oacute;n cambiar&iacute;a la respuesta.</div></div>
+        <div class="result-box">\[ \boxed{ S_C = 7.74 > S_A = 7.48 > S_B = 6.94, \qquad p^{*} = 0.124 \;\text{vs}\; w_R = 0.20 } \]</div>
+        <p><strong>Interpretaci&oacute;n.</strong> La salida &uacute;til no es 7.74. Es la frase <em>C es preferida siempre que confiabilidad pese m&aacute;s de 0.12, y el margen sobre A es menor que la incertidumbre de la puntuaci&oacute;n de confiabilidad</em>. Eso le dice a un comit&eacute; dos cosas accionables: en qu&eacute; supuesto descansa la decisi&oacute;n, y ad&oacute;nde debe ir el esfuerzo de an&aacute;lisis restante.</p>
+      </section>
+
+      <section id="summary-es">
+        <p class="section-label">Reglas operativas</p>
+        <h2>De un vistazo</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regla</th><th>Enunciado</th></tr></thead><tbody><tr><td>La suma ponderada</td><td>\(S_i = \sum_j w_j s_{ij}\). Su m&aacute;ximo es una preferencia bajo un modelo declarado, no una prueba.</td></tr><tr><td>Pesos antes que puntuaciones</td><td>F&iacute;jalos y regístralos antes de ver una puntuaci&oacute;n, con qui&eacute;n los acord&oacute;.</td></tr><tr><td>Ancla la escala a los requisitos</td><td>10 en el objetivo de dise&ntilde;o, 0 en el l&iacute;mite del requisito. El min-max entre alternativas exagera.</td></tr><tr><td>Compara la brecha con la incertidumbre</td><td>Si las dos primeras difieren menos que el error de una puntuaci&oacute;n, la matriz no seleccion&oacute; nada.</td></tr><tr><td>Punto de cruce</td><td>\(p^{*} = (a_B - a_A)/(b_A - b_B)\) con los totales lineales en el peso variado.</td></tr><tr><td>Reporta la recomendaci&oacute;n condicionada</td><td>&laquo;C es preferida siempre que confiabilidad pese m&aacute;s de 0.12&raquo; es m&aacute;s &uacute;til que &laquo;C gana con 7.74&raquo;.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-es">
+        <p class="section-label">Errores comunes</p>
+        <h2>Qu&eacute; sale mal</h2>
+        <ul class="check-list"><li><strong>Reportar 7.82 contra 7.79 como preferencia clara.</strong> La precisi&oacute;n num&eacute;rica no es confianza en la decisi&oacute;n.</li><li><strong>Ajustar pesos tras ver el orden.</strong> El estudio describe entonces la respuesta preferida y no las prioridades de los stakeholders.</li><li><strong>Normalizaci&oacute;n min-max por omisi&oacute;n.</strong> Estira la dispersi&oacute;n que haya, as&iacute; que una diferencia de 0.2 kg llena toda la escala.</li><li><strong>Puntuaciones sin evidencia.</strong> Una matriz cuyas celdas no trazan a nada es una tabla de opiniones, y su aritm&eacute;tica la hace parecer m&aacute;s.</li><li><strong>Sin an&aacute;lisis de sensibilidad.</strong> Sin un cruce, nadie sabe si la respuesta sobrevive a que un stakeholder cambie de opini&oacute;n dos por ciento.</li><li><strong>Descartar las alternativas perdedoras.</strong> Cuando un requisito cambia, todo el estudio hay que repetirlo desde cero.</li></ul>
+      </section>
+
+      <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
+        <h2>Referencias</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 6.8.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=trade-studies" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 21: Trade Studies</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adaptado de la Unidad V del gui&oacute;n del curso Ingenier&iacute;a en Sistemas Aeroespaciales (AE506) de Carlos Alberto Molina Holgu&iacute;n. Cada n&uacute;mero de esta p&aacute;gina se recalcul&oacute; de forma independiente para ella; ninguna calculadora cubre este tema, as&iacute; que el rec&aacute;lculo es la &uacute;nica comprobaci&oacute;n disponible. Los tres totales, las dos rectas de sensibilidad y el cruce se calcularon todos a partir de los pesos y puntuaciones de la tabla de esta p&aacute;gina, y el generador se niega a construir si dejan de concordar.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="framing-the-decision.html?v=11"><span>Lecture anterior</span>&larr; Enmarcar la decisi&oacute;n</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+
+      <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie k&ouml;nnen sollten</h2>
+        <ul><li>heterogene Kriterien normieren und eine an Anforderungen verankerte Skala w&auml;hlen;</li><li>eine gewichtete Summe berechnen und genau angeben, was ihr Maximum beweist und was nicht;</li><li>den Abstand der ersten beiden Alternativen mit der Unsicherheit der Bewertungen vergleichen;</li><li>den Umschlagpunkt berechnen, an dem sich die Reihenfolge dreht;</li><li>eine Empfehlung bedingt statt als Sieger melden.</li></ul>
+      </section>
+
+      <section id="physics-de">
+        <p class="section-label">Ingenieurtechnischer Kontext</p>
+        <h2>Sieben Komma sieben vier</h2>
+        <p class="lead">Die Matrix liefert 7,74 f&uuml;r Architektur C und 7,48 f&uuml;r A. C gewinnt mit 0,26 Punkten, die Empfehlung geht ins Pr&uuml;fpaket, die Architektur wird festgeschrieben.</p><p>Niemand fragt, was 0,26 bedeutet. Das sind etwa drei Prozent einer Zehn-Punkte-Skala, und die dahinterliegenden Zuverl&auml;ssigkeitswerte stammen aus einer vorl&auml;ufigen Ausfallanalyse, deren eigene Unsicherheit gr&ouml;&szlig;er ist. Die Matrix lieferte eine Zahl mit zwei Nachkommastellen und keinen Hinweis auf ihre Belastbarkeit &mdash; genau der Fehler, um den es hier geht.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 400" role="img" aria-label="Einweg-Sensitivit&auml;t auf das Zuverl&auml;ssigkeitsgewicht">
+            <rect x="90" y="40" width="560" height="280" fill="#fbfcfd" stroke="#c9d4de"></rect>
+            <line x1="90" y1="253.3" x2="650" y2="253.3" stroke="#e6ecf1"></line>
+            <text x="82" y="257.3" text-anchor="end" font-size="12" fill="#8fa6ba">7.0</text>
+            <line x1="90" y1="186.7" x2="650" y2="186.7" stroke="#e6ecf1"></line>
+            <text x="82" y="190.7" text-anchor="end" font-size="12" fill="#8fa6ba">7.5</text>
+            <line x1="90" y1="120.0" x2="650" y2="120.0" stroke="#e6ecf1"></line>
+            <text x="82" y="124.0" text-anchor="end" font-size="12" fill="#8fa6ba">8.0</text>
+            <line x1="90" y1="53.3" x2="650" y2="53.3" stroke="#e6ecf1"></line>
+            <text x="82" y="57.3" text-anchor="end" font-size="12" fill="#8fa6ba">8.5</text>
+            <text x="90.0" y="340" text-anchor="middle" font-size="12" fill="#8fa6ba">0.0</text>
+            <text x="202.0" y="340" text-anchor="middle" font-size="12" fill="#8fa6ba">0.1</text>
+            <text x="314.0" y="340" text-anchor="middle" font-size="12" fill="#8fa6ba">0.2</text>
+            <text x="426.0" y="340" text-anchor="middle" font-size="12" fill="#8fa6ba">0.3</text>
+            <text x="538.0" y="340" text-anchor="middle" font-size="12" fill="#8fa6ba">0.4</text>
+            <text x="650.0" y="340" text-anchor="middle" font-size="12" fill="#8fa6ba">0.5</text>
+            <line x1="90.0" y1="140.0" x2="650.0" y2="263.3" stroke="#0d568d" stroke-width="2.5"></line>
+            <text x="658.0" y="268.3" font-size="14" font-weight="700" fill="#0d568d">A</text>
+            <line x1="90.0" y1="296.7" x2="650.0" y2="208.3" stroke="#8fa6ba" stroke-width="2.5"></line>
+            <text x="658.0" y="213.3" font-size="14" font-weight="700" fill="#8fa6ba">B</text>
+            <line x1="90.0" y1="196.7" x2="650.0" y2="91.7" stroke="#b03a2e" stroke-width="2.5"></line>
+            <text x="658.0" y="96.7" font-size="14" font-weight="700" fill="#b03a2e">C</text>
+            <line x1="229.0" y1="40" x2="229.0" y2="320" stroke="#c2924d" stroke-width="2" stroke-dasharray="5 4"></line>
+            <text x="229.0" y="32" text-anchor="middle" font-size="12" fill="#c2924d">Umschlagpunkt 0.124</text>
+            <line x1="314.0" y1="40" x2="314.0" y2="320" stroke="#0d568d" stroke-width="2" stroke-dasharray="2 4"></line>
+            <text x="344.0" y="32" text-anchor="middle" font-size="12" fill="#0d568d">Basis 0.20</text>
+            <text x="370" y="368" text-anchor="middle" font-size="14" font-weight="600" fill="#071d33">Zuverl&auml;ssigkeitsgewicht</text>
+            <text x="14" y="28" font-size="14" font-weight="600" fill="#071d33">Gewichtete Punktzahl</text>
+            </svg>
+            <figcaption>Einweg-Sensitivit&auml;t. Die Geraden schneiden sich bei einem Zuverl&auml;ssigkeitsgewicht von 0,124; die Basis liegt bei 0,20, C ist also vorzuziehen, doch die Empfehlung h&auml;ngt an diesem Gewicht.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-de">
+        <p class="section-label">Geltungsbereich und Grenzen</p>
+        <h2>Was die Summe ist und nicht ist</h2>
+        <p>Eine <strong>gewichtete Entscheidungsmatrix</strong> stellt Alternativen in Spalten und Kriterien in Zeilen, normiert jede Zelle auf eine gemeinsame Skala und verbindet sie als</p>\[ S_i = \sum_{j=1}^{m} w_j\, s_{ij}. \]<p>Ihr Ergebnis ist eine Pr&auml;ferenz unter einem genannten Modell: diese Kriterien, diese Gewichte, diese Skalen, diese Sch&auml;tzungen. &Auml;ndert sich eines der vier, kann sich die Antwort &auml;ndern &mdash; keine Schw&auml;che der Methode, sondern das, was sie sichtbar machen soll.</p>
+        <div class="callout warning"><strong>Was das Maximum nicht beweist.</strong> Die h&ouml;chste Summe bedeutet nicht, dass eine Architektur objektiv besser ist, sondern dass sie unter diesem Modell vorgezogen wird. Eine kompakte Matrix ist zudem eine Zusammenfassung, kein Entscheidungspaket: Jede Bewertung muss auf ein Massenmodell, eine Ausfallanalyse, eine Schnittstellenz&auml;hlung oder eine Technologiebewertung zur&uuml;ckf&uuml;hren. Ohne diese R&uuml;ckverfolgbarkeit ist die Matrix eine Meinungstabelle mit Arithmetik.</div>
+      </section>
+
+      <section id="normalisation-de">
+        <p class="section-label">Kriterien vergleichbar machen</p>
+        <h2>Normierung und Nutzen</h2>
+        <p>Kriterien kommen in Kilogramm, Watt, Ausf&auml;llen je Stunde und W&auml;hrung. Die Normierung bildet sie auf eine gemeinsame dimensionslose Skala ab, und die Wahl der Abbildung ist eine Ingenieurentscheidung, kein Formatierungsschritt.</p>
+        <div class="table-wrap"><table><thead><tr><th>Skala</th><th>Wann sie richtig ist</th><th>Was sie falsch macht</th></tr></thead><tbody><tr><td>Lineares Min-Max &uuml;ber die Alternativen</td><td>Wenn die beobachtete Spanne die missionsrelevante ist</td><td>Dehnt einen belanglosen Unterschied &uuml;ber den ganzen Bereich 0 bis 1</td></tr><tr><td>An Anforderungsschwellen verankert</td><td>Fast immer: 10 am Zielwert, 0 an der Grenze, dazwischen interpolieren</td><td>Verlangt bekannte Ziel- und Grenzwerte &mdash; genau darum geht es</td></tr><tr><td>Nutzenfunktion</td><td>Wenn der Wert nichtlinear ist: die ersten 10 % Reserve wiegen weit mehr als die letzten</td><td>Verlangt vom Team, seine Pr&auml;ferenzen auszusprechen, was unbequem ist</td></tr></tbody></table></div>
+        <p>Min-Max &uuml;ber die Alternativen ist die Voreinstellung und die Falle. Drei Batterien mit 10,0, 10,1 und 10,2 kg normieren zu 1,0, 0,5 und 0,0 &mdash; die volle Skala f&uuml;r 0,2 kg Unterschied, den keine Anforderung interessiert. Die Verankerung an Entwurfsziel und Anforderungsgrenze h&auml;lt die Bewertung proportional zum tats&auml;chlichen Missionswert.</p>
+      </section>
+
+      <section id="sensitivity-de">
+        <p class="section-label">Wie belastbar ist die Antwort?</p>
+        <h2>Einweg-Sensitivit&auml;t und der Umschlagpunkt</h2>
+        <p>Variieren Sie ein Gewicht \(p\) &uuml;ber seinen plausiblen Bereich und skalieren Sie die &uuml;brigen proportional, damit sie eins ergeben. Jede Summe ist dann linear in \(p\):</p>\[ S_i(p) = \underbrace{\frac{S_i^{(0)} - w_p^{(0)} s_{ip}}{1 - w_p^{(0)}}}_{a_i}\,(1-p) + s_{ip}\,p, \]<p>und zwei Alternativen tauschen den Rang dort, wo \(S_A = S_B\), also bei</p>\[ p^{*} = \frac{a_B - a_A}{b_A - b_B}, \qquad b_A \neq b_B. \]<p>Vergleichen Sie \(p^{*}\) mit der Basis. Weit au&szlig;erhalb des Vertretbaren hei&szlig;t robuste Entscheidung; innerhalb hei&szlig;t bedingte Empfehlung, die als solche zu melden ist.</p>
+      </section>
+
+      <section id="algorithm-de">
+        <p class="section-label">Rechenalgorithmus</p>
+        <h2>Die Matrix aufbauen</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Nach harten Randbedingungen sieben, au&szlig;erhalb der Matrix</span></div><div><strong>2</strong><span>Bewertungsskala und Ankerpunkte festlegen</span></div><div><strong>3</strong><span>Gewichte vereinbaren und dokumentieren</span></div><div><strong>4</strong><span>Jede Zelle bewerten, mit Nachweis</span></div><div><strong>5</strong><span>\(S_i\) berechnen</span></div><div><strong>6</strong><span>Den Spitzenabstand mit der Unsicherheit vergleichen</span></div><div><strong>7</strong><span>Die Sensitivit&auml;t rechnen</span></div><div><strong>8</strong><span>Bedingt melden</span></div></div>
+        <p>Schritt sechs ist ein Urteil von zehn Sekunden, das fast nie gef&auml;llt wird. F&uuml;hrt der Spitzenreiter mit weniger als dem plausiblen Fehler einer Bewertung, hat die Matrix nichts ausgew&auml;hlt &mdash; sie sagt, dass beide unter diesem Modell gleichwertig sind, ein legitimes und n&uuml;tzliches Ergebnis.</p>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Die Avionikabw&auml;gung und ihre Belastbarkeit</h2>
+        <p>Die drei Architekturen, die das Sieben aus Vorlesung 13 &uuml;berstanden, bewertet an den sieben Kriterien, die die Doppelz&auml;hlungspr&uuml;fung &uuml;berstanden. Die Gewichte wurden vor jeder Bewertung vereinbart.</p>
+        <div class="table-wrap"><table><thead><tr><th>Kriterium</th><th>Gewicht</th><th>A: zentral</th><th>B: verteilt</th><th>C: hybrid</th></tr></thead><tbody><tr><td>Masse</td><td>0,18</td><td>9</td><td>6</td><td>7</td></tr><tr><td>Energie</td><td>0,14</td><td>8</td><td>6</td><td>7</td></tr><tr><td>Zuverl&auml;ssigkeit</td><td>0,20</td><td>6</td><td>8</td><td>9</td></tr><tr><td>Integrationsaufwand</td><td>0,14</td><td>9</td><td>5</td><td>7</td></tr><tr><td>Wartbarkeit</td><td>0,10</td><td>6</td><td>8</td><td>8</td></tr><tr><td>Wachstumsf&auml;higkeit</td><td>0,12</td><td>5</td><td>9</td><td>8</td></tr><tr><td>Technologiereife</td><td>0,12</td><td>9</td><td>7</td><td>8</td></tr><tr><td><strong>Gewichtete Summe</strong></td><td><strong>1,00</strong></td><td><strong>7,48</strong></td><td><strong>6,94</strong></td><td><strong>7,74</strong></td></tr></tbody></table></div>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Die Summen.</strong> F&uuml;r A gilt \[S_A = 0{,}18(9)+0{,}14(8)+0{,}20(6)+0{,}14(9)+0{,}10(6)+0{,}12(5)+0{,}12(9) = 7{,}48,\] und ebenso \(S_B = 6{,}94\), \(S_C = 7{,}74\). Die Reihenfolge ist \(C > A > B\).</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Ist das eine Auswahl?</strong> C f&uuml;hrt vor A um 0,26 auf einer Zehn-Punkte-Skala, etwa 3&nbsp;%. Die Zuverl&auml;ssigkeitswerte stammen aus einer vorl&auml;ufigen Ausfallanalyse; ein einziger Punkt Fehler dort verschiebt die Summe um 0,20. Die Matrix hat C nicht ausgew&auml;hlt, sondern die Entscheidung auf Zuverl&auml;ssigkeit und Integrationsaufwand eingegrenzt.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Das Zuverl&auml;ssigkeitsgewicht variieren.</strong> Mit proportional skalierten &uuml;brigen sechs gilt \[S_A(p) = 7{,}850 - 1{,}850\,p, \qquad S_C(p) = 7{,}425 + 1{,}575\,p.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Der Umschlagpunkt.</strong> \[p^{*} = \frac{7{,}850 - 7{,}425}{1{,}575 - (-1{,}850)} = \frac{0{,}425}{3{,}425} = 0{,}124.\] Dar&uuml;ber ist C vorzuziehen, darunter A.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Gegen die Basis.</strong> Das vereinbarte Gewicht ist 0,20, deutlich &uuml;ber 0,124; C &uuml;bersteht also moderate Uneinigkeit. Doch 0,124 ist nicht fern: Wer argumentiert, Zuverl&auml;ssigkeit verdiene nur 12&nbsp;%, &auml;ndert die Antwort.</div></div>
+        <div class="result-box">\[ \boxed{ S_C = 7{,}74 > S_A = 7{,}48 > S_B = 6{,}94, \qquad p^{*} = 0{,}124 \;\text{vs}\; w_R = 0{,}20 } \]</div>
+        <p><strong>Deutung.</strong> Das n&uuml;tzliche Ergebnis ist nicht 7,74. Es ist der Satz <em>C ist vorzuziehen, sofern Zuverl&auml;ssigkeit &uuml;ber etwa 0,12 gewichtet wird, und der Vorsprung vor A ist kleiner als die Unsicherheit der Zuverl&auml;ssigkeitsbewertung</em>. Das gibt einem Gremium zwei handhabbare Dinge: die tragende Annahme und den Ort des verbleibenden Analyseaufwands.</p>
+      </section>
+
+      <section id="summary-de">
+        <p class="section-label">Arbeitsregeln</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regel</th><th>Aussage</th></tr></thead><tbody><tr><td>Die gewichtete Summe</td><td>\(S_i = \sum_j w_j s_{ij}\). Ihr Maximum ist eine Pr&auml;ferenz unter einem genannten Modell, kein Beweis.</td></tr><tr><td>Gewichte vor Bewertungen</td><td>Vor jeder Bewertung festlegen und dokumentieren, samt Zustimmenden.</td></tr><tr><td>Die Skala an Anforderungen verankern</td><td>10 am Entwurfsziel, 0 an der Anforderungsgrenze. Min-Max &uuml;bertreibt.</td></tr><tr><td>Den Abstand mit der Unsicherheit vergleichen</td><td>Liegen die ersten beiden n&auml;her als der Fehler einer Bewertung, hat die Matrix nichts ausgew&auml;hlt.</td></tr><tr><td>Umschlagpunkt</td><td>\(p^{*} = (a_B - a_A)/(b_A - b_B)\), wenn die Summen im variierten Gewicht linear sind.</td></tr><tr><td>Die Empfehlung bedingt melden</td><td>&bdquo;C ist vorzuziehen, sofern Zuverl&auml;ssigkeit &uuml;ber 0,12 gewichtet wird&ldquo; n&uuml;tzt mehr als &bdquo;C gewinnt mit 7,74&ldquo;.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Häufige Fehler</p>
+        <h2>Was schiefgeht</h2>
+        <ul class="check-list"><li><strong>7,82 gegen 7,79 als klare Pr&auml;ferenz melden.</strong> Numerische Genauigkeit ist keine Entscheidungssicherheit.</li><li><strong>Gewichte nach Sicht der Reihenfolge anpassen.</strong> Die Studie beschreibt dann die Wunschantwort statt der Priorit&auml;ten.</li><li><strong>Min-Max-Normierung als Voreinstellung.</strong> Sie dehnt jede vorhandene Spanne, sodass 0,2 kg die ganze Skala f&uuml;llen.</li><li><strong>Bewertungen ohne Nachweis.</strong> Eine Matrix ohne r&uuml;ckf&uuml;hrbare Zellen ist eine Meinungstabelle, und ihre Arithmetik l&auml;sst sie nach mehr aussehen.</li><li><strong>Keine Sensitivit&auml;tsanalyse.</strong> Ohne Umschlagpunkt wei&szlig; niemand, ob die Antwort zwei Prozent Meinungs&auml;nderung &uuml;bersteht.</li><li><strong>Die unterlegenen Alternativen verwerfen.</strong> &Auml;ndert sich eine Anforderung, muss die ganze Studie bei null beginnen.</li></ul>
+      </section>
+
+      <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
+        <h2>Literatur</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 6.8.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=trade-studies" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 21: Trade Studies</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Bearbeitet nach Einheit V des Skripts Luft- und Raumfahrtsystemtechnik (AE506) von Carlos Alberto Molina Holgu&iacute;n. Jede Zahl dieser Seite wurde eigens daf&uuml;r unabh&auml;ngig neu berechnet; kein Rechner deckt dieses Thema ab, daher ist die Neuberechnung die einzige Pr&uuml;fung. Die drei Summen, die zwei Sensitivit&auml;tsgeraden und der Umschlagpunkt wurden aus den Gewichten und Bewertungen der Tabelle dieser Seite berechnet; der Generator verweigert den Bau, wenn sie nicht mehr &uuml;bereinstimmen.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="framing-the-decision.html?v=11"><span>Vorherige Vorlesung</span>&larr; Die Entscheidung fassen</a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>&copy; <span id="year"></span> Carlos Alberto Molina Holgu&iacute;n</p>
+    <p>Universidad Aut&oacute;noma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

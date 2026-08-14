@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Fluid Mechanics (MC611) lectures: properties, statics, kinematics, conservation laws, dimensional analysis, internal flow, and differential analysis." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Fluid Mechanics | Carlos Molina</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=11" data-ui-key="course">Fluid Mechanics</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="course-hero">
+    <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Teaching · Aerospace Engineering</p>
+        <h1>Fluid Mechanics</h1>
+        <p class="hero-copy">A first course in fluid mechanics: properties, statics, kinematics, the integral conservation laws, dimensional analysis, internal flow, and differential analysis.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Docencia · Ingeniería Aeroespacial</p>
+        <h1>Mecánica de Fluidos</h1>
+        <p class="hero-copy">Un primer curso de mecánica de fluidos: propiedades, estática, cinemática, leyes integrales de conservación, análisis dimensional, flujo interno y análisis diferencial.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Lehre · Luft- und Raumfahrttechnik</p>
+        <h1>Strömungsmechanik</h1>
+        <p class="hero-copy">Eine erste Vorlesung zur Strömungsmechanik: Eigenschaften, Statik, Kinematik, integrale Erhaltungssätze, Dimensionsanalyse, Innenströmung und Differentialanalyse.</p>
+      </div>
+      <div class="hero-meta">
+        <span data-language="en">Fluid properties</span>
+        <span data-language="en">Hydrostatics</span>
+        <span data-language="en">Conservation laws</span>
+        <span data-language="en">Pipe flow</span>
+        <span data-language="es" hidden>Propiedades</span>
+        <span data-language="es" hidden>Hidrostática</span>
+        <span data-language="es" hidden>Leyes de conservación</span>
+        <span data-language="es" hidden>Flujo en tuberías</span>
+        <span data-language="de" hidden>Fluideigenschaften</span>
+        <span data-language="de" hidden>Hydrostatik</span>
+        <span data-language="de" hidden>Erhaltungssätze</span>
+        <span data-language="de" hidden>Rohrströmung</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div data-language="en">
+        <p class="section-label">Lecture collection</p>
+        <h2 class="section-title">Course modules</h2>
+        <p class="section-intro">Each module combines physical interpretation, governing equations, derivations, a worked example, and the mistakes seen most often in student work.</p>
+        <div class="module-overview"><span>3 of 36 lectures available</span></div>
+      </div>
+      <div data-language="es" hidden>
+        <p class="section-label">Colección de lectures</p>
+        <h2 class="section-title">Módulos del curso</h2>
+        <p class="section-intro">Cada módulo combina interpretación física, ecuaciones gobernantes, deducciones, un ejemplo resuelto y los errores más frecuentes en el trabajo de los estudiantes.</p>
+        <div class="module-overview"><span>3 de 36 lectures disponibles</span></div>
+      </div>
+      <div data-language="de" hidden>
+        <p class="section-label">Vorlesungssammlung</p>
+        <h2 class="section-title">Kursmodule</h2>
+        <p class="section-intro">Jedes Modul verbindet physikalische Interpretation, Grundgleichungen, Herleitungen, ein Rechenbeispiel und die häufigsten Fehler in studentischen Arbeiten.</p>
+        <div class="module-overview"><span>3 von 36 Vorlesungen verfügbar</span></div>
+      </div>
+
+      <div class="course-grid" data-language="en">
+        <article class="course-card available">
+          <span class="course-card-number">01</span>
+          <h3>What a Fluid Is and How Flows Are Classified</h3>
+          <p>Shear stress, the no-slip condition, the continuum hypothesis, control volumes, and dimensional homogeneity.</p>
+          <span class="status">Available</span>
+          <a href="what-is-a-fluid.html?v=11">Open lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">02</span>
+          <h3>Density, Vapour Pressure, and Compressibility</h3>
+          <p>Density, specific weight and specific gravity, cavitation, bulk modulus, and the speed of sound.</p>
+          <span class="status">Available</span>
+          <a href="fluid-properties-density.html?v=11">Open lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">03</span>
+          <h3>Viscosity and Surface Tension</h3>
+          <p>Newton's law of viscosity, Newtonian and non-Newtonian fluids, viscometry, capillary rise, and droplet pressure.</p>
+          <span class="status">Available</span>
+          <a href="viscosity-surface-tension.html?v=11">Open lecture →</a>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">04</span>
+          <h3>Pressure and Its Variation with Depth</h3>
+          <p>Pressure at a point, the hydrostatic equation, Pascal's law, and absolute versus gauge pressure.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">05</span>
+          <h3>Manometry and Pressure Measurement</h3>
+          <p>U-tube, differential and inclined manometers, multi-fluid chains, barometers, and pressure instruments.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">06</span>
+          <h3>Hydrostatic Forces on Plane Surfaces</h3>
+          <p>Resultant force, the pressure prism, the centre of pressure, and gates at arbitrary inclination.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">07</span>
+          <h3>Curved Surfaces, Buoyancy, and Stability</h3>
+          <p>Horizontal and vertical force components, Archimedes' principle, draft, and metacentric height.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">08</span>
+          <h3>Fluids in Rigid-Body Motion</h3>
+          <p>Linear acceleration, free-surface slope, isobars, and the paraboloid of a rotating container.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">09</span>
+          <h3>Lagrangian and Eulerian Descriptions</h3>
+          <p>Field variables, the acceleration field, and the material derivative.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">10</span>
+          <h3>Flow Visualization and Data Plots</h3>
+          <p>Streamlines, pathlines, streaklines and timelines; profile, vector and contour plots.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">11</span>
+          <h3>Kinematics of a Fluid Element</h3>
+          <p>Translation, rotation rate, linear and shear strain rates, vorticity, and irrotationality.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">12</span>
+          <h3>The Reynolds Transport Theorem</h3>
+          <p>From system to control volume, the general form, moving control volumes, and the link to the material derivative.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">13</span>
+          <h3>Conservation of Mass</h3>
+          <p>Mass and volume flow rate, average velocity, steady flow, and the incompressible special cases.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">14</span>
+          <h3>The Bernoulli Equation</h3>
+          <p>Derivation along a streamline, pressure and head forms, stagnation pressure, HGL and EGL, and limitations.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">15</span>
+          <h3>Applications of the Bernoulli Equation</h3>
+          <p>Torricelli discharge, nozzles, the Pitot tube, the Venturi meter, and the siphon.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">16</span>
+          <h3>Mechanical Energy, Efficiency, and the Energy Equation</h3>
+          <p>Pump and turbine head, efficiency chains, head loss, and the general energy equation.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">17</span>
+          <h3>The Linear Momentum Equation</h3>
+          <p>Control-volume choice, body and surface forces, the momentum-flux correction factor, and sign conventions.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">18</span>
+          <h3>Applications of Linear Momentum</h3>
+          <p>Forces on nozzles and elbows, jets on flat and inclined plates, and propulsive thrust.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">19</span>
+          <h3>Angular Momentum and Turbomachinery</h3>
+          <p>Moment of momentum for a control volume and the Euler turbomachine equation.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">20</span>
+          <h3>Dimensions, Homogeneity, and Nondimensionalization</h3>
+          <p>Primary and secondary dimensions, homogeneity as a checking tool, and characteristic scales.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">21</span>
+          <h3>The Dimensionless Groups of Fluid Mechanics</h3>
+          <p>Reynolds, Froude, Euler, Mach, Weber and Strouhal numbers, and the force coefficients.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">22</span>
+          <h3>Similitude and the Method of Repeating Variables</h3>
+          <p>Geometric, kinematic and dynamic similarity, and the six steps of Buckingham Pi.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">23</span>
+          <h3>Experimental Modelling and Wind Tunnels</h3>
+          <p>Data correlation and collapse, incomplete similarity, blockage, and free-surface models.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">24</span>
+          <h3>Internal Flow Fundamentals</h3>
+          <p>Average velocity, hydraulic diameter, the Reynolds criterion, and the entrance region.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">25</span>
+          <h3>Fully Developed Laminar Flow</h3>
+          <p>Force balance, the parabolic profile, Hagen–Poiseuille, Darcy–Weisbach, and inclined pipes.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">26</span>
+          <h3>Turbulent Flow, Roughness, and the Moody Chart</h3>
+          <p>Relative roughness, the Colebrook equation, the Haaland correlation, and the three problem types.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">27</span>
+          <h3>Minor Losses in Fittings and Valves</h3>
+          <p>Loss coefficients, sudden and gradual area changes, elbows, valves, and equivalent length.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">28</span>
+          <h3>Piping Systems, Pumps, and the Operating Point</h3>
+          <p>Series and parallel pipes, branched networks, pump and turbine head, and the system curve.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">29</span>
+          <h3>Flow Measurement</h3>
+          <p>Pitot and Pitot-static tubes, obstruction meters, and the main families of flowmeter.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">30</span>
+          <h3>The Differential Continuity Equation</h3>
+          <p>Derivation by the divergence theorem and by an infinitesimal control volume, in Cartesian and cylindrical coordinates.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">31</span>
+          <h3>The Stream Function</h3>
+          <p>Definition, sign convention, volume flow between streamlines, and the cylindrical and compressible forms.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">32</span>
+          <h3>Cauchy's Equation and the Stress Tensor</h3>
+          <p>Surface and body forces, the stress tensor, and why Cauchy's equation does not yet close the problem.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">33</span>
+          <h3>The Navier–Stokes Equations</h3>
+          <p>Newtonian closure, the strain-rate tensor, Cartesian and cylindrical forms, and the link to Euler and Bernoulli.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">34</span>
+          <h3>Exact Solutions of Navier–Stokes</h3>
+          <p>Couette flow, plane and pipe Poiseuille flow, and gravity-driven film flow.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">35</span>
+          <h3>Introduction to CFD</h3>
+          <p>Governing equations, physical and computational domains, boundary conditions, meshing, and discretization.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">36</span>
+          <h3>CFD Practice: Convergence, Turbulence, and Validation</h3>
+          <p>Residuals, grid independence, verification and validation, turbulence models, and wall treatment.</p>
+          <span class="status">Planned</span>
+        </article>
+      </div>
+
+      <div class="course-grid" data-language="es" hidden>
+        <article class="course-card available">
+          <span class="course-card-number">01</span>
+          <h3>Qué es un fluido y cómo se clasifican los flujos</h3>
+          <p>Esfuerzo cortante, condición de no deslizamiento, medio continuo, volúmenes de control y homogeneidad dimensional.</p>
+          <span class="status">Disponible</span>
+          <a href="what-is-a-fluid.html?v=11">Abrir lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">02</span>
+          <h3>Densidad, presión de vapor y compresibilidad</h3>
+          <p>Densidad, peso específico y gravedad específica, cavitación, módulo volumétrico y velocidad del sonido.</p>
+          <span class="status">Disponible</span>
+          <a href="fluid-properties-density.html?v=11">Abrir lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">03</span>
+          <h3>Viscosidad y tensión superficial</h3>
+          <p>Ley de viscosidad de Newton, fluidos newtonianos y no newtonianos, viscosimetría, ascenso capilar y presión en gotas.</p>
+          <span class="status">Disponible</span>
+          <a href="viscosity-surface-tension.html?v=11">Abrir lecture →</a>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">04</span>
+          <h3>La presión y su variación con la profundidad</h3>
+          <p>Presión en un punto, ecuación hidrostática, ley de Pascal y presión absoluta frente a manométrica.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">05</span>
+          <h3>Manometría y medición de presión</h3>
+          <p>Manómetros en U, diferenciales e inclinados, cadenas multifluido, barómetros e instrumentos de presión.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">06</span>
+          <h3>Fuerzas hidrostáticas sobre superficies planas</h3>
+          <p>Fuerza resultante, prisma de presiones, centro de presión y compuertas con inclinación arbitraria.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">07</span>
+          <h3>Superficies curvas, flotación y estabilidad</h3>
+          <p>Componentes horizontal y vertical, principio de Arquímedes, calado y altura metacéntrica.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">08</span>
+          <h3>Fluidos en movimiento de cuerpo rígido</h3>
+          <p>Aceleración lineal, pendiente de la superficie libre, isobaras y paraboloide en un recipiente en rotación.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">09</span>
+          <h3>Descripciones lagrangiana y euleriana</h3>
+          <p>Variables de campo, campo de aceleración y derivada material.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">10</span>
+          <h3>Visualización del flujo y gráficas de datos</h3>
+          <p>Líneas de corriente, trayectoria, traza y fluidas; gráficas de perfiles, vectoriales y de contornos.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">11</span>
+          <h3>Cinemática del elemento fluido</h3>
+          <p>Traslación, razón de rotación, deformación lineal y por corte, vorticidad e irrotacionalidad.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">12</span>
+          <h3>El teorema de transporte de Reynolds</h3>
+          <p>Del sistema al volumen de control, forma general, volúmenes móviles y relación con la derivada material.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">13</span>
+          <h3>Conservación de la masa</h3>
+          <p>Gasto másico y volumétrico, velocidad promedio, flujo estacionario y casos incompresibles.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">14</span>
+          <h3>La ecuación de Bernoulli</h3>
+          <p>Deducción sobre una línea de corriente, formas de presión y de carga, presión de estancamiento, LGH y LE, y limitaciones.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">15</span>
+          <h3>Aplicaciones de la ecuación de Bernoulli</h3>
+          <p>Descarga de Torricelli, toberas, tubo de Pitot, medidor Venturi y sifón.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">16</span>
+          <h3>Energía mecánica, eficiencia y ecuación de la energía</h3>
+          <p>Carga de bomba y turbina, cadenas de eficiencia, pérdida de carga y ecuación general de la energía.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">17</span>
+          <h3>La ecuación de cantidad de movimiento lineal</h3>
+          <p>Elección del volumen de control, fuerzas de cuerpo y superficiales, factor de corrección y convención de signos.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">18</span>
+          <h3>Aplicaciones de la cantidad de movimiento lineal</h3>
+          <p>Fuerzas en boquillas y codos, chorros sobre placas planas e inclinadas, y empuje propulsivo.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">19</span>
+          <h3>Cantidad de movimiento angular y turbomaquinaria</h3>
+          <p>Momento angular en un volumen de control y ecuación de Euler de las turbomáquinas.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">20</span>
+          <h3>Dimensiones, homogeneidad y adimensionalización</h3>
+          <p>Dimensiones primarias y secundarias, homogeneidad como herramienta de revisión y escalas características.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">21</span>
+          <h3>Los grupos adimensionales de la mecánica de fluidos</h3>
+          <p>Números de Reynolds, Froude, Euler, Mach, Weber y Strouhal, y los coeficientes de fuerza.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">22</span>
+          <h3>Similitud y método de repetición de variables</h3>
+          <p>Similitud geométrica, cinemática y dinámica, y los seis pasos de Buckingham Pi.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">23</span>
+          <h3>Modelado experimental y túneles de viento</h3>
+          <p>Correlación y colapso de datos, similitud incompleta, bloqueo y modelos con superficie libre.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">24</span>
+          <h3>Fundamentos del flujo interno</h3>
+          <p>Velocidad promedio, diámetro hidráulico, criterio de Reynolds y región de entrada.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">25</span>
+          <h3>Flujo laminar totalmente desarrollado</h3>
+          <p>Balance de fuerzas, perfil parabólico, Hagen–Poiseuille, Darcy–Weisbach y tuberías inclinadas.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">26</span>
+          <h3>Flujo turbulento, rugosidad y diagrama de Moody</h3>
+          <p>Rugosidad relativa, ecuación de Colebrook, correlación de Haaland y los tres tipos de problema.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">27</span>
+          <h3>Pérdidas menores en accesorios y válvulas</h3>
+          <p>Coeficientes de pérdida, cambios de área súbitos y graduales, codos, válvulas y longitud equivalente.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">28</span>
+          <h3>Sistemas de tuberías, bombas y punto de operación</h3>
+          <p>Tuberías en serie y paralelo, redes ramificadas, carga de bomba y turbina, y curva del sistema.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">29</span>
+          <h3>Medición de flujo</h3>
+          <p>Tubos de Pitot y Pitot-estático, medidores de obstrucción y las principales familias de flujómetros.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">30</span>
+          <h3>La ecuación diferencial de continuidad</h3>
+          <p>Deducción por el teorema de la divergencia y por volumen de control infinitesimal, en coordenadas cartesianas y cilíndricas.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">31</span>
+          <h3>La función de corriente</h3>
+          <p>Definición, convención de signos, gasto entre líneas de corriente y formas cilíndrica y compresible.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">32</span>
+          <h3>La ecuación de Cauchy y el tensor de esfuerzos</h3>
+          <p>Fuerzas superficiales y de cuerpo, tensor de esfuerzos y por qué Cauchy todavía no cierra el problema.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">33</span>
+          <h3>Las ecuaciones de Navier–Stokes</h3>
+          <p>Cierre newtoniano, tensor de razón de deformación, formas cartesiana y cilíndrica, y relación con Euler y Bernoulli.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">34</span>
+          <h3>Soluciones exactas de Navier–Stokes</h3>
+          <p>Flujo de Couette, Poiseuille plano y en tubería, y película descendente por gravedad.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">35</span>
+          <h3>Introducción a CFD</h3>
+          <p>Ecuaciones gobernantes, dominios físico y computacional, condiciones de frontera, mallado y discretización.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">36</span>
+          <h3>Práctica de CFD: convergencia, turbulencia y validación</h3>
+          <p>Residuales, independencia de malla, verificación y validación, modelos de turbulencia y tratamiento de pared.</p>
+          <span class="status">Planeada</span>
+        </article>
+      </div>
+
+      <div class="course-grid" data-language="de" hidden>
+        <article class="course-card available">
+          <span class="course-card-number">01</span>
+          <h3>Was ein Fluid ist und wie Strömungen klassifiziert werden</h3>
+          <p>Schubspannung, Haftbedingung, Kontinuumshypothese, Kontrollvolumen und dimensionale Homogenität.</p>
+          <span class="status">Verfügbar</span>
+          <a href="what-is-a-fluid.html?v=11">Vorlesung öffnen →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">02</span>
+          <h3>Dichte, Dampfdruck und Kompressibilität</h3>
+          <p>Dichte, spezifisches Gewicht und relative Dichte, Kavitation, Kompressionsmodul und Schallgeschwindigkeit.</p>
+          <span class="status">Verfügbar</span>
+          <a href="fluid-properties-density.html?v=11">Vorlesung öffnen →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">03</span>
+          <h3>Viskosität und Oberflächenspannung</h3>
+          <p>Newtonsches Viskositätsgesetz, newtonsche und nichtnewtonsche Fluide, Viskosimetrie, Kapillaraszension und Tropfendruck.</p>
+          <span class="status">Verfügbar</span>
+          <a href="viscosity-surface-tension.html?v=11">Vorlesung öffnen →</a>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">04</span>
+          <h3>Druck und seine Änderung mit der Tiefe</h3>
+          <p>Druck in einem Punkt, hydrostatische Grundgleichung, Pascalsches Gesetz, Absolut- und Überdruck.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">05</span>
+          <h3>Manometrie und Druckmessung</h3>
+          <p>U-Rohr-, Differenz- und Schrägrohrmanometer, Mehrfluidketten, Barometer und Druckmessgeräte.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">06</span>
+          <h3>Hydrostatische Kräfte auf ebene Flächen</h3>
+          <p>Resultierende Kraft, Druckprisma, Druckmittelpunkt und beliebig geneigte Schütze.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">07</span>
+          <h3>Gekrümmte Flächen, Auftrieb und Stabilität</h3>
+          <p>Horizontal- und Vertikalkomponenten, archimedisches Prinzip, Tiefgang und metazentrische Höhe.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">08</span>
+          <h3>Fluide in Starrkörperbewegung</h3>
+          <p>Lineare Beschleunigung, Neigung der freien Oberfläche, Isobaren und Paraboloid im rotierenden Behälter.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">09</span>
+          <h3>Lagrangesche und Eulersche Betrachtungsweise</h3>
+          <p>Feldgrößen, Beschleunigungsfeld und materielle Ableitung.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">10</span>
+          <h3>Strömungsvisualisierung und Datendarstellung</h3>
+          <p>Strom-, Bahn-, Streich- und Zeitlinien sowie Profil-, Vektor- und Konturdarstellungen.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">11</span>
+          <h3>Kinematik eines Fluidelements</h3>
+          <p>Translation, Rotationsrate, Dehnungs- und Scherraten, Wirbelstärke und Rotationsfreiheit.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">12</span>
+          <h3>Das Reynoldssche Transporttheorem</h3>
+          <p>Vom System zum Kontrollvolumen, allgemeine Form, bewegte Kontrollvolumina und Bezug zur materiellen Ableitung.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">13</span>
+          <h3>Massenerhaltung</h3>
+          <p>Massen- und Volumenstrom, mittlere Geschwindigkeit, stationäre Strömung und inkompressible Sonderfälle.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">14</span>
+          <h3>Die Bernoulli-Gleichung</h3>
+          <p>Herleitung entlang einer Stromlinie, Druck- und Höhenform, Staudruck, Druck- und Energielinie sowie Grenzen.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">15</span>
+          <h3>Anwendungen der Bernoulli-Gleichung</h3>
+          <p>Torricelli-Ausfluss, Düsen, Pitotrohr, Venturi-Messgerät und Heber.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">16</span>
+          <h3>Mechanische Energie, Wirkungsgrad und Energiegleichung</h3>
+          <p>Pumpen- und Turbinenhöhe, Wirkungsgradketten, Verlusthöhe und allgemeine Energiegleichung.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">17</span>
+          <h3>Die Impulsgleichung</h3>
+          <p>Wahl des Kontrollvolumens, Volumen- und Oberflächenkräfte, Impulskorrekturfaktor und Vorzeichenkonvention.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">18</span>
+          <h3>Anwendungen des Impulssatzes</h3>
+          <p>Kräfte an Düsen und Krümmern, Strahlen auf ebene und geneigte Platten sowie Schub.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">19</span>
+          <h3>Drehimpuls und Turbomaschinen</h3>
+          <p>Drallsatz für ein Kontrollvolumen und die eulersche Turbomaschinengleichung.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">20</span>
+          <h3>Dimensionen, Homogenität und Entdimensionierung</h3>
+          <p>Primäre und sekundäre Dimensionen, Homogenität als Kontrolle und charakteristische Skalen.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">21</span>
+          <h3>Die dimensionslosen Kennzahlen der Strömungsmechanik</h3>
+          <p>Reynolds-, Froude-, Euler-, Mach-, Weber- und Strouhal-Zahl sowie die Kraftbeiwerte.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">22</span>
+          <h3>Ähnlichkeit und Methode der Wiederholungsvariablen</h3>
+          <p>Geometrische, kinematische und dynamische Ähnlichkeit sowie die sechs Schritte des Buckingham-Pi.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">23</span>
+          <h3>Experimentelle Modellierung und Windkanäle</h3>
+          <p>Datenkorrelation und -kollaps, unvollständige Ähnlichkeit, Blockierung und Modelle mit freier Oberfläche.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">24</span>
+          <h3>Grundlagen der Innenströmung</h3>
+          <p>Mittlere Geschwindigkeit, hydraulischer Durchmesser, Reynolds-Kriterium und Einlaufbereich.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">25</span>
+          <h3>Voll ausgebildete laminare Strömung</h3>
+          <p>Kräftebilanz, parabolisches Profil, Hagen–Poiseuille, Darcy–Weisbach und geneigte Rohre.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">26</span>
+          <h3>Turbulente Strömung, Rauheit und Moody-Diagramm</h3>
+          <p>Relative Rauheit, Colebrook-Gleichung, Haaland-Korrelation und die drei Aufgabentypen.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">27</span>
+          <h3>Einzelverluste in Formstücken und Armaturen</h3>
+          <p>Verlustbeiwerte, plötzliche und allmähliche Querschnittsänderungen, Krümmer, Ventile und äquivalente Länge.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">28</span>
+          <h3>Rohrleitungssysteme, Pumpen und Betriebspunkt</h3>
+          <p>Reihen- und Parallelschaltung, verzweigte Netze, Pumpen- und Turbinenhöhe sowie Anlagenkennlinie.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">29</span>
+          <h3>Durchflussmessung</h3>
+          <p>Pitot- und Prandtl-Rohre, Wirkdruckgeber und die wichtigsten Durchflussmesser-Familien.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">30</span>
+          <h3>Die differentielle Kontinuitätsgleichung</h3>
+          <p>Herleitung über den Divergenzsatz und ein infinitesimales Kontrollvolumen, kartesisch und zylindrisch.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">31</span>
+          <h3>Die Stromfunktion</h3>
+          <p>Definition, Vorzeichenkonvention, Volumenstrom zwischen Stromlinien sowie zylindrische und kompressible Formen.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">32</span>
+          <h3>Cauchy-Gleichung und Spannungstensor</h3>
+          <p>Oberflächen- und Volumenkräfte, Spannungstensor und warum Cauchy das Problem noch nicht schließt.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">33</span>
+          <h3>Die Navier–Stokes-Gleichungen</h3>
+          <p>Newtonscher Schließungsansatz, Verzerrungsgeschwindigkeitstensor, kartesische und zylindrische Formen sowie Bezug zu Euler und Bernoulli.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">34</span>
+          <h3>Exakte Lösungen der Navier–Stokes-Gleichungen</h3>
+          <p>Couette-Strömung, ebene und Rohr-Poiseuille-Strömung sowie Filmströmung unter Schwerkraft.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">35</span>
+          <h3>Einführung in CFD</h3>
+          <p>Grundgleichungen, physikalisches und numerisches Gebiet, Randbedingungen, Vernetzung und Diskretisierung.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">36</span>
+          <h3>CFD-Praxis: Konvergenz, Turbulenz und Validierung</h3>
+          <p>Residuen, Gitterunabhängigkeit, Verifizierung und Validierung, Turbulenzmodelle und Wandbehandlung.</p>
+          <span class="status">Geplant</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div data-language="en">
+        <p class="section-label">Study path</p>
+        <h2 class="section-title">How a lecture is built</h2>
+      </div>
+      <div class="path-grid" data-language="en"><div class="path-step"><strong>1. Physical model</strong><span>Assumptions and definitions</span></div><div class="path-step"><strong>2. Governing equations</strong><span>Conservation and balances</span></div><div class="path-step"><strong>3. Worked example</strong><span>Manual engineering calculation</span></div><div class="path-step"><strong>4. Common mistakes</strong><span>What goes wrong, and why</span></div></div>
+      <div data-language="es" hidden>
+        <p class="section-label">Ruta de estudio</p>
+        <h2 class="section-title">Cómo está construida una lecture</h2>
+      </div>
+      <div class="path-grid" data-language="es" hidden><div class="path-step"><strong>1. Modelo físico</strong><span>Hipótesis y definiciones</span></div><div class="path-step"><strong>2. Ecuaciones gobernantes</strong><span>Conservación y balances</span></div><div class="path-step"><strong>3. Ejemplo resuelto</strong><span>Cálculo manual de ingeniería</span></div><div class="path-step"><strong>4. Errores comunes</strong><span>Qué falla, y por qué</span></div></div>
+      <div data-language="de" hidden>
+        <p class="section-label">Lernpfad</p>
+        <h2 class="section-title">Wie eine Vorlesung aufgebaut ist</h2>
+      </div>
+      <div class="path-grid" data-language="de" hidden><div class="path-step"><strong>1. Physikalisches Modell</strong><span>Annahmen und Definitionen</span></div><div class="path-step"><strong>2. Grundgleichungen</strong><span>Erhaltung und Bilanzen</span></div><div class="path-step"><strong>3. Beispielrechnung</strong><span>Ingenieurtechnische Handrechnung</span></div><div class="path-step"><strong>4. Häufige Fehler</strong><span>Was schiefgeht, und warum</span></div></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container references">
+      <h2 data-language="en">Primary references</h2><h2 data-language="es" hidden>Referencias principales</h2><h2 data-language="de" hidden>Primärliteratur</h2>
+      <ol>
+        <li>Çengel, Y. A., and J. M. Cimbala. <em>Fluid Mechanics: Fundamentals and Applications</em>, 4th ed. New York: McGraw-Hill Education, 2018.</li>
+        <li>Mott, R. L., and J. A. Untener. <em>Applied Fluid Mechanics</em>, 7th ed. Upper Saddle River, NJ: Pearson, 2015.</li>
+        <li>Giles, R. V., J. B. Evett, and C. Liu. <em>Schaum’s Outline of Fluid Mechanics and Hydraulics</em>, 4th ed. New York: McGraw-Hill, 2014.</li>
+        <li>White, F. M. <em>Fluid Mechanics</em>, 8th ed. New York: McGraw-Hill Education, 2016.</li>
+        <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Mecánica de Fluidos (MC611)</em>. Chihuahua, Mexico.</li>
+      </ol>
+      <p class="source-note" data-language="en">Lecture material adapted from the Fluid Mechanics (MC611) course notes prepared by Carlos Alberto Molina Holguín.</p>
+      <p class="source-note" data-language="es" hidden>Material de lectures adaptado de los apuntes de Mecánica de Fluidos (MC611) elaborados por Carlos Alberto Molina Holguín.</p>
+      <p class="source-note" data-language="de" hidden>Vorlesungsmaterial bearbeitet nach dem Skript Strömungsmechanik (MC611) von Carlos Alberto Molina Holguín.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>© <span id="year"></span> Carlos Alberto Molina Holguín</p>
+    <p>Universidad Autónoma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

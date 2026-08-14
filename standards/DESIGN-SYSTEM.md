@@ -26,8 +26,10 @@ design questions before they are asked:
 - **The textbook formulation is a feature, not a limitation.** A student must be
   able to reproduce the app's numbers by hand from the lecture. Modern
   refinements go in as a *selectable mode*, never as a silent replacement.
-- **The worked example of the lecture is a test case of the app.** Not an
+- **The worked example of every lecture the app covers is a test case.** Not an
   illustration — an actual assertion in `tests/`, so the two cannot drift apart.
+  The converse does not hold: an app is not obliged to cover every lecture of its
+  course, and most lectures have no app at all (`LECTURE-TEMPLATE.md` §7).
 - **What the model refuses to claim is part of the interface.** The README and
   the lecture's `model` section state the same exclusions in the same words.
 
@@ -249,8 +251,9 @@ they overlap, that a round trip through a conversion returns the input.
 
 Two rules:
 
-- **Every lecture worked example is a test case**, with the exact values printed
-  on the lecture page as the expected values.
+- **Every worked example of a lecture this app covers is a test case**, with the
+  exact values printed on the lecture page as the expected values. Lectures the
+  app does not cover impose nothing.
 - **A test asserts a number, not that the code ran.** `assert result is not None`
   is not a test.
 
@@ -279,7 +282,26 @@ Fixed sections, in this order:
 
 ---
 
-## 13. Landing page and links
+## 13. Which courses an app belongs to
+
+An app belongs to **the courses it serves**, not to the site. Some serve one
+course, some serve several, none serve all. The root page's `#tools` section
+lists every app; a *course* index's calculator bridge (`COURSE-TEMPLATE.md` §4)
+lists only that course's own, and a course with none omits the section entirely.
+
+| App | Courses served |
+|---|---|
+| `compressible-flow-calculator` | Aerodynamics II |
+| `nozzle-calculator` | Aerodynamics II, Propulsion |
+| `propulsion-calculator`, `turbojet-`, `ramjet-` | Propulsion |
+
+Do not bridge a course to an app because the app exists. Fluid Mechanics shares
+almost nothing with the compressible-flow and nozzle apps and links to neither.
+When an app genuinely does serve two courses — a dimensional-analysis or
+units-and-properties tool plausibly serves three — it appears in both course
+bridges and its `tools/` landing page lists the lectures of both.
+
+## 13b. Landing page and links
 
 Every calculator has a trilingual landing page under `tools/` on the site, and a
 link from the root `index.html`. The landing page uses `tools/tool.css` and is
@@ -287,7 +309,8 @@ built from: `.tool-hero` with an `.app-preview` mock, a `.module-grid`, a
 `.validation-panel` naming the regression cases, a `.lecture-link-grid` pointing
 at the lectures the tool serves, and a `.launch-panel` with the Streamlit URL.
 
-The wiring is a loop and all four legs are required:
+The wiring is a loop, and all four legs are required **for the lectures the app
+covers** — a lecture outside that set is not a missing leg:
 
 ```text
 lecture  →  app        calculator slot + hero button
@@ -309,10 +332,11 @@ root     →  tools/     card in #tools
 - [ ] Non-convergence and out-of-range inputs reported, never guessed
 - [ ] Trilingual labels; equations untranslated
 - [ ] All conversions in `units.py`; SI internally
-- [ ] Lecture worked examples present as tests with the published values
+- [ ] Worked examples of the covered lectures present as tests with the published values
 - [ ] README carries "Technical assumptions" matching the lecture's `model`
 - [ ] Landing page under `tools/` and a link from the root page
-- [ ] All four legs of the link loop closed
+- [ ] The courses served named explicitly; no bridge to a course it does not serve
+- [ ] All four legs of the link loop closed for the lectures it covers
 
 ---
 

@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Physical architecture, the product breakdown structure and the work breakdown structure: functional allocation, the completeness rule, enabling products, and cross-checking the tree against a budget." />
+  <meta name="author" content="Carlos Alberto Molina Holgu&iacute;n" />
+  <meta name="theme-color" content="#071d33" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>PBS and WBS | Aerospace Systems Engineering</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:wght@600;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=11" data-ui-key="course">Aerospace Systems Engineering</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Aerospace Systems Engineering &middot; Lecture 11</p>
+        <h1>Physical Architecture, PBS, and WBS</h1>
+        <p class="hero-copy">Turning allocated functions into a product tree, the rule that must hold at every node, and a cross-check that finds the elements everybody forgot.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Ingeniería de Sistemas Aeroespaciales &middot; Lecture 11</p>
+        <h1>Arquitectura f&iacute;sica, PBS y WBS</h1>
+        <p class="hero-copy">Convertir funciones asignadas en un &aacute;rbol de productos, la regla que debe cumplirse en cada nodo, y un contraste que encuentra los elementos que todos olvidaron.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Luft- und Raumfahrtsystemtechnik &middot; Vorlesung 11</p>
+        <h1>Physische Architektur, PSP und Arbeits-PSP</h1>
+        <p class="hero-copy">Zugeordnete Funktionen in einen Produktbaum &uuml;berf&uuml;hren, die an jedem Knoten geltende Regel, und ein Abgleich, der die vergessenen Elemente findet.</p>
+      </div>
+
+    <div class="hero-meta">
+        <span data-language="en">Estimated reading: 12 min</span><span data-language="es" hidden>Lectura estimada: 12 min</span><span data-language="de" hidden>Lesedauer: ca. 12 min</span>
+        <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+        <span data-language="en">Scope: product structure, not schedule</span><span data-language="es" hidden>Alcance: estructura de producto, no calendario</span><span data-language="de" hidden>Umfang: Produktstruktur, kein Terminplan</span>
+    </div>
+    <div class="button-row">
+      <a class="button secondary" href="index.html?v=11" data-ui-key="back">Back to course</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Engineering situation</a>
+        <a href="#model">Scope and limits</a>
+        <a href="#twotrees">PBS and WBS</a>
+        <a href="#rules">The rules at each node</a>
+        <a href="#algorithm">Building the tree</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Operative rules</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#references">Sources</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Situaci&oacute;n de ingenier&iacute;a</a>
+        <a href="#model-es">Alcance y l&iacute;mites</a>
+        <a href="#twotrees-es">PBS y WBS</a>
+        <a href="#rules-es">Las reglas en cada nodo</a>
+        <a href="#algorithm-es">Construir el &aacute;rbol</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Reglas operativas</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Kontext</a>
+        <a href="#model-de">Geltungsbereich</a>
+        <a href="#twotrees-de">PSP und Arbeits-PSP</a>
+        <a href="#rules-de">Die Regeln je Knoten</a>
+        <a href="#algorithm-de">Den Baum aufbauen</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Arbeitsregeln</a>
+        <a href="#mistakes-de">H&auml;ufige Fehler</a>
+        <a href="#references-de">Quellen</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+
+      <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul><li>build a product breakdown structure from an allocation, using nouns only;</li><li>apply the completeness and no-overlap rules at every node;</li><li>decide where to stop decomposing and justify it;</li><li>distinguish a PBS from a WBS and derive the second from the first;</li><li>cross-check a product tree against a budget and interpret what a mismatch means.</li></ul>
+      </section>
+
+      <section id="physics">
+        <p class="section-label">Engineering situation</p>
+        <h2>Two point eight kilograms with no owner</h2>
+        <p class="lead">The platform&rsquo;s product tree has eight leaves and every subsystem is in it. The mass budget of Lecture 03 has seven lines. Six of them match a leaf exactly. The seventh is <em>harness and brackets</em>, 2.80 kg, and it belongs to nothing.</p><p>That is 6.8&nbsp;% of the current best estimate sitting outside the structure that allocates requirements, assigns owners and drives verification. Nobody hid it &mdash; it simply never got a box, because harness is not a subsystem and nobody wanted it.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 820 300" role="img" aria-label="Product breakdown structure with three level-one elements and eight leaves">
+            <defs><marker id="pb-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#8fa6ba"></path></marker></defs>
+            <rect x="290" y="10" width="240" height="46" rx="6" fill="#eef4fa" stroke="#071d33" stroke-width="2"></rect>
+            <text x="410" y="30" text-anchor="middle" font-size="12" font-weight="700" fill="#071d33">1.0</text>
+            <text x="410" y="47" text-anchor="middle" font-size="12" fill="#3f5162">Atmospheric Research Platform</text>
+            <rect x="30" y="100" width="260" height="44" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="160" y="118" text-anchor="middle" font-size="12" font-weight="700" fill="#071d33">1.1</text>
+            <text x="160" y="135" text-anchor="middle" font-size="12" fill="#3f5162">Air Vehicle</text>
+            <path d="M 410 58 L 410 80 L 160 80 L 160 96" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow)"></path>
+            <rect x="30" y="186" width="57" height="40" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="58" y="211" text-anchor="middle" font-size="11" fill="#3f5162">Airframe</text>
+            <path d="M 160 146 L 160 166 L 58 166 L 58 182" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow)"></path>
+            <rect x="97" y="186" width="57" height="40" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="125" y="211" text-anchor="middle" font-size="11" fill="#3f5162">Avionics</text>
+            <path d="M 160 146 L 160 166 L 125 166 L 125 182" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow)"></path>
+            <rect x="164" y="186" width="57" height="40" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="192" y="211" text-anchor="middle" font-size="11" fill="#3f5162">Power</text>
+            <path d="M 160 146 L 160 166 L 192 166 L 192 182" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow)"></path>
+            <rect x="231" y="186" width="57" height="40" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="259" y="211" text-anchor="middle" font-size="11" fill="#3f5162">Comm</text>
+            <path d="M 160 146 L 160 166 L 259 166 L 259 182" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow)"></path>
+            <rect x="330" y="100" width="190" height="44" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="425" y="118" text-anchor="middle" font-size="12" font-weight="700" fill="#071d33">1.2</text>
+            <text x="425" y="135" text-anchor="middle" font-size="12" fill="#3f5162">Payload</text>
+            <path d="M 410 58 L 410 80 L 425 80 L 425 96" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow)"></path>
+            <rect x="330" y="186" width="90" height="40" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="375" y="211" text-anchor="middle" font-size="11" fill="#3f5162">Sensor suite</text>
+            <path d="M 425 146 L 425 166 L 375 166 L 375 182" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow)"></path>
+            <rect x="430" y="186" width="90" height="40" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="475" y="211" text-anchor="middle" font-size="11" fill="#3f5162">Data unit</text>
+            <path d="M 425 146 L 425 166 L 475 166 L 475 182" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow)"></path>
+            <rect x="600" y="100" width="190" height="44" rx="6" fill="#f6f1e6" stroke="#8fa6ba"></rect>
+            <text x="695" y="118" text-anchor="middle" font-size="12" font-weight="700" fill="#071d33">1.3</text>
+            <text x="695" y="135" text-anchor="middle" font-size="12" fill="#3f5162">Ground Segment</text>
+            <path d="M 410 58 L 410 80 L 695 80 L 695 96" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow)"></path>
+            <rect x="600" y="186" width="90" height="40" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="645" y="211" text-anchor="middle" font-size="11" fill="#3f5162">Ground station</text>
+            <path d="M 695 146 L 695 166 L 645 166 L 645 182" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow)"></path>
+            <rect x="700" y="186" width="90" height="40" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="745" y="211" text-anchor="middle" font-size="11" fill="#3f5162">Ops software</text>
+            <path d="M 695 146 L 695 166 L 745 166 L 745 182" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow)"></path>
+            <rect x="30" y="248" width="760" height="38" rx="6" fill="#fdf3f2" stroke="#e0b4ae"></rect>
+            <text x="410" y="272" text-anchor="middle" font-size="13" fill="#b03a2e">Harness, brackets and blankets appear in the mass budget but in no leaf of this tree</text>
+            </svg>
+            <figcaption>The product tree of the platform. Eight leaves, six of which fly. The red line is a real gap, found by comparing the tree against the mass budget.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model">
+        <p class="section-label">Scope and limits</p>
+        <h2>Where the tree comes from</h2>
+        <p>The physical architecture is produced by <strong>functional allocation</strong>: each function from the previous lecture is assigned to an element that will perform it. The <strong>product breakdown structure</strong> is that set of elements arranged as a tree, and it is the backbone of everything that follows &mdash; requirement allocation, interface identification, configuration items, integration sequence and verification level all use its identifiers.</p><p>The <strong>work breakdown structure</strong> is derived from it by adding the activity branches: systems engineering, integration and test, operations, project management. The order matters. A WBS built independently of the PBS will disagree with it, and the disagreement surfaces as work nobody costed against products nobody owns.</p>
+        <div class="callout warning"><strong>What the tree does not decide.</strong> A PBS records which elements exist and how they nest. It says nothing about whether that decomposition is the best one &mdash; a different allocation of the same functions would give a different, equally well-formed tree. Choosing between them is the trade study of Unit V; the tree only makes each candidate concrete enough to be compared.</div>
+      </section>
+
+      <section id="twotrees">
+        <p class="section-label">Two trees, two jobs</p>
+        <h2>PBS and WBS</h2>
+        <div class="table-wrap"><table><thead><tr><th></th><th>PBS</th><th>WBS</th></tr></thead><tbody><tr><td>Answers</td><td>What products make up the system?</td><td>What work must be done to complete the project?</td></tr><tr><td>Elements are</td><td>Nouns: things that exist when the project ends</td><td>Activities: things people do</td></tr><tr><td>Used for</td><td>Requirement allocation, interfaces, specifications, verification</td><td>Scope, cost, schedule, responsibility</td></tr><tr><td>Derived from</td><td>The functional allocation</td><td>The PBS, plus the activity branches</td></tr></tbody></table></div>
+        <p>The confusion is worth taking seriously because it is visible in almost every student submission: a product tree containing <em>Research</em>, <em>Design</em>, <em>Testing</em> and <em>Procurement</em>. Those are activities. They belong in the work tree, and putting them in the product tree means no requirement can be allocated, because you cannot allocate a performance requirement to <em>Testing</em>.</p>
+      </section>
+
+      <section id="rules">
+        <p class="section-label">Four checks per node</p>
+        <h2>What must hold everywhere</h2>
+        <div class="table-wrap"><table><thead><tr><th>Rule at each node</th><th>Test</th><th>What a failure means</th></tr></thead><tbody><tr><td>Completeness</td><td>Do the children, assembled, constitute the parent?</td><td>Something real exists that no element owns</td></tr><tr><td>No overlap</td><td>Could one physical item be counted in two children?</td><td>Mass, cost or responsibility counted twice</td></tr><tr><td>Nouns only</td><td>Is any child a verb?</td><td>An activity has been smuggled into the product tree</td></tr><tr><td>Stopping rule</td><td>Can this element be given an owner, a specification and a verification method?</td><td>Either the detail is guesswork, or requirements cannot be allocated</td></tr></tbody></table></div>
+        <p>Completeness is the one that catches the harness. It is not enough that every child is real; assembling all of them must produce the parent, with nothing left over on the workbench. Asking that question at the air-vehicle node would have found 2.80 kg of missing tree in about a minute.</p>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">Calculation algorithm</p>
+        <h2>Building the product tree</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Put the end product at level 0</span></div><div><strong>2</strong><span>Group allocated functions into elements</span></div><div><strong>3</strong><span>Name each element with a noun</span></div><div><strong>4</strong><span>Check completeness and overlap</span></div><div><strong>5</strong><span>Add the enabling products</span></div><div><strong>6</strong><span>Stop where an owner can be named</span></div><div><strong>7</strong><span>Assign identifiers</span></div><div><strong>8</strong><span>Cross-check against a budget</span></div></div>
+        <p>The last step is the only one that finds what the first seven missed. A tree is checked against itself in steps four and five, and a tree can be internally consistent and still incomplete. A budget is an independent list of what physically exists, which is why comparing the two is worth the ten minutes it takes.</p>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>Cross-checking the tree against the budget</h2>
+        <p>Take the product tree above and the mass budget of Lecture 03 and lay them side by side.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Count both.</strong> The tree has 8 leaves, of which 6 fly and 2 are ground. The budget has 7 lines, all of them flight items.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Match them.</strong> Six budget lines map one-to-one onto flight leaves: airframe, avionics, power, comm, sensor suite, data unit. The two ground leaves correctly carry no flight mass.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>The leftover.</strong> One budget line, <em>harness and brackets</em> at 2.80 kg, has no leaf. It is \[\frac{2.80}{41.00} = 6.8\ \%\] of the current best estimate, and it has no owner, no specification and no verification method.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>What to do.</strong> Either add a leaf under the air vehicle for integration hardware, or distribute the harness across the leaves it connects. Both are defensible; leaving it in the budget and out of the tree is not, because the tree is what assigns the requirement to keep it below 2.80 kg.</div></div>
+        <div class="result-box">\[ \boxed{ 8\ \text{leaves},\; 7\ \text{budget lines},\; 6\ \text{matched},\; 1\ \text{orphan at } 6.8\ \%\ \text{of CBE} } \]</div>
+        <p><strong>Interpretation.</strong> The cross-check cost ten minutes and found something that four internal checks did not, because a tree cannot detect its own omissions. Note also which item it was: not a subsystem anyone argues about, but the unglamorous integration hardware that no discipline wants to own. That is the general pattern, and it is why the cross-check is worth running on every tree.</p>
+      </section>
+
+      <section id="summary">
+        <p class="section-label">Operative rules</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Statement</th></tr></thead><tbody><tr><td>PBS is nouns, WBS is verbs</td><td>If an element of the product tree is something people do, it belongs in the work tree.</td></tr><tr><td>Completeness at every node</td><td>The children assembled must constitute the parent. Nothing missing, nothing counted twice.</td></tr><tr><td>Enabling products are leaves too</td><td>Ground segment, test rigs and simulators carry requirements, interfaces and cost.</td></tr><tr><td>Stop where an owner can be named</td><td>With a specification and a verification method. Further detail is guesswork.</td></tr><tr><td>A PBS is not an org chart</td><td>One team may own several products; one product may need several disciplines.</td></tr><tr><td>Cross-check the tree against a budget</td><td>Any budget line with no leaf is a gap in the tree, and it is carrying real mass or cost.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes">
+        <p class="section-label">Common mistakes</p>
+        <h2>What goes wrong</h2>
+        <ul class="check-list"><li><strong>Activities in the product tree.</strong> <em>Research</em>, <em>Design</em> and <em>Testing</em> are work. No requirement can be allocated to them.</li><li><strong>Building the PBS from the organisation chart.</strong> Teams get reorganised and the tree does not, so every identifier in the RTM would break with them.</li><li><strong>Omitting enabling products.</strong> Ground segment, test rigs and simulators carry requirements, interfaces and cost whether or not they appear.</li><li><strong>Decomposing to component level everywhere.</strong> Below the point where an owner can be named, the detail is guesswork that will be rewritten twice.</li><li><strong>Overlapping children.</strong> If one physical item could be counted under two elements, its mass and its cost will be, and the roll-up will be wrong in a way nobody notices.</li><li><strong>Never checking the tree against anything.</strong> Internal consistency is not completeness, and a budget is the cheapest independent list available.</li></ul>
+      </section>
+
+      <section id="references" class="references">
+        <p class="section-label">Sources</p>
+        <h2>References</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 4.4.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=system-hierarchy" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 7: System Hierarchy and WBS</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adapted from Unit IV of the Aerospace Systems Engineering (AE506) course script by Carlos Alberto Molina Holgu&iacute;n. Every number on this page was recomputed independently for it; no calculator covers this topic, so recomputation is the only check there is. The leaf and budget-line counts were tabulated from the tree on this page and the budget of Lecture 03, and the orphan fraction computed from them, so the three pages cannot drift apart.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="functional-analysis.html?v=11"><span>Previous lecture</span>&larr; Functional Analysis</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+
+      <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Qu&eacute; deber&iacute;as poder hacer</h2>
+        <ul><li>construir una estructura de desglose de producto a partir de una asignaci&oacute;n, usando s&oacute;lo sustantivos;</li><li>aplicar las reglas de completitud y no traslape en cada nodo;</li><li>decidir d&oacute;nde dejar de descomponer y justificarlo;</li><li>distinguir un PBS de un WBS y derivar el segundo del primero;</li><li>contrastar un &aacute;rbol de productos contra un presupuesto e interpretar qu&eacute; significa una discrepancia.</li></ul>
+      </section>
+
+      <section id="physics-es">
+        <p class="section-label">Situación de ingeniería</p>
+        <h2>Dos punto ocho kilogramos sin due&ntilde;o</h2>
+        <p class="lead">El &aacute;rbol de productos de la plataforma tiene ocho hojas y todo subsistema est&aacute; en &eacute;l. El presupuesto de masa de la lecture 03 tiene siete l&iacute;neas. Seis coinciden exactamente con una hoja. La s&eacute;ptima es <em>arn&eacute;s y soportes</em>, 2.80 kg, y no pertenece a nada.</p><p>Eso es 6.8&nbsp;% de la mejor estimaci&oacute;n actual fuera de la estructura que asigna requisitos, adjudica due&ntilde;os e impulsa la verificaci&oacute;n. Nadie lo escondi&oacute; &mdash; simplemente nunca tuvo caja, porque el arn&eacute;s no es un subsistema y nadie lo quer&iacute;a.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 820 300" role="img" aria-label="Estructura de desglose de producto con tres elementos de primer nivel y ocho hojas">
+            <defs><marker id="pb-arrow-es" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#8fa6ba"></path></marker></defs>
+            <rect x="290" y="10" width="240" height="46" rx="6" fill="#eef4fa" stroke="#071d33" stroke-width="2"></rect>
+            <text x="410" y="30" text-anchor="middle" font-size="12" font-weight="700" fill="#071d33">1.0</text>
+            <text x="410" y="47" text-anchor="middle" font-size="12" fill="#3f5162">Plataforma de Investigaci&oacute;n Atmosf&eacute;rica</text>
+            <rect x="30" y="100" width="260" height="44" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="160" y="118" text-anchor="middle" font-size="12" font-weight="700" fill="#071d33">1.1</text>
+            <text x="160" y="135" text-anchor="middle" font-size="12" fill="#3f5162">Veh&iacute;culo A&eacute;reo</text>
+            <path d="M 410 58 L 410 80 L 160 80 L 160 96" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow-es)"></path>
+            <rect x="30" y="186" width="57" height="40" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="58" y="211" text-anchor="middle" font-size="11" fill="#3f5162">Fuselaje</text>
+            <path d="M 160 146 L 160 166 L 58 166 L 58 182" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow-es)"></path>
+            <rect x="97" y="186" width="57" height="40" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="125" y="211" text-anchor="middle" font-size="11" fill="#3f5162">Avi&oacute;nica</text>
+            <path d="M 160 146 L 160 166 L 125 166 L 125 182" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow-es)"></path>
+            <rect x="164" y="186" width="57" height="40" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="192" y="211" text-anchor="middle" font-size="11" fill="#3f5162">Potencia</text>
+            <path d="M 160 146 L 160 166 L 192 166 L 192 182" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow-es)"></path>
+            <rect x="231" y="186" width="57" height="40" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="259" y="211" text-anchor="middle" font-size="11" fill="#3f5162">Comm</text>
+            <path d="M 160 146 L 160 166 L 259 166 L 259 182" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow-es)"></path>
+            <rect x="330" y="100" width="190" height="44" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="425" y="118" text-anchor="middle" font-size="12" font-weight="700" fill="#071d33">1.2</text>
+            <text x="425" y="135" text-anchor="middle" font-size="12" fill="#3f5162">Carga &Uacute;til</text>
+            <path d="M 410 58 L 410 80 L 425 80 L 425 96" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow-es)"></path>
+            <rect x="330" y="186" width="90" height="40" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="375" y="211" text-anchor="middle" font-size="11" fill="#3f5162">Sensores</text>
+            <path d="M 425 146 L 425 166 L 375 166 L 375 182" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow-es)"></path>
+            <rect x="430" y="186" width="90" height="40" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="475" y="211" text-anchor="middle" font-size="11" fill="#3f5162">Unidad de datos</text>
+            <path d="M 425 146 L 425 166 L 475 166 L 475 182" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow-es)"></path>
+            <rect x="600" y="100" width="190" height="44" rx="6" fill="#f6f1e6" stroke="#8fa6ba"></rect>
+            <text x="695" y="118" text-anchor="middle" font-size="12" font-weight="700" fill="#071d33">1.3</text>
+            <text x="695" y="135" text-anchor="middle" font-size="12" fill="#3f5162">Segmento Terreno</text>
+            <path d="M 410 58 L 410 80 L 695 80 L 695 96" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow-es)"></path>
+            <rect x="600" y="186" width="90" height="40" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="645" y="211" text-anchor="middle" font-size="11" fill="#3f5162">Estaci&oacute;n terrena</text>
+            <path d="M 695 146 L 695 166 L 645 166 L 645 182" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow-es)"></path>
+            <rect x="700" y="186" width="90" height="40" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="745" y="211" text-anchor="middle" font-size="11" fill="#3f5162">Software de ops</text>
+            <path d="M 695 146 L 695 166 L 745 166 L 745 182" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow-es)"></path>
+            <rect x="30" y="248" width="760" height="38" rx="6" fill="#fdf3f2" stroke="#e0b4ae"></rect>
+            <text x="410" y="272" text-anchor="middle" font-size="13" fill="#b03a2e">Arn&eacute;s, soportes y mantas aparecen en el presupuesto de masa pero en ninguna hoja de este &aacute;rbol</text>
+            </svg>
+            <figcaption>El &aacute;rbol de productos de la plataforma. Ocho hojas, seis de las cuales vuelan. La l&iacute;nea roja es una brecha real, hallada al comparar el &aacute;rbol contra el presupuesto de masa.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-es">
+        <p class="section-label">Alcance y límites</p>
+        <h2>De d&oacute;nde viene el &aacute;rbol</h2>
+        <p>La arquitectura f&iacute;sica se produce por <strong>asignaci&oacute;n funcional</strong>: cada funci&oacute;n de la lecture anterior se adjudica a un elemento que la realizar&aacute;. La <strong>estructura de desglose de producto</strong> es ese conjunto de elementos dispuesto como &aacute;rbol, y es la columna vertebral de todo lo que sigue &mdash; asignaci&oacute;n de requisitos, identificaci&oacute;n de interfaces, elementos de configuraci&oacute;n, secuencia de integraci&oacute;n y nivel de verificaci&oacute;n usan todos sus identificadores.</p><p>La <strong>estructura de desglose de trabajo</strong> se deriva de ella a&ntilde;adiendo las ramas de actividad: ingenier&iacute;a de sistemas, integraci&oacute;n y prueba, operaciones, gesti&oacute;n de proyecto. El orden importa. Un WBS construido independientemente del PBS discrepar&aacute; de &eacute;l, y la discrepancia aflora como trabajo que nadie coste&oacute; contra productos que nadie posee.</p>
+        <div class="callout warning"><strong>Lo que el &aacute;rbol no decide.</strong> Un PBS registra qu&eacute; elementos existen y c&oacute;mo se anidan. No dice nada sobre si esa descomposici&oacute;n es la mejor &mdash; una asignaci&oacute;n distinta de las mismas funciones dar&iacute;a un &aacute;rbol distinto e igualmente bien formado. Elegir entre ellos es el estudio de intercambio de la Unidad V; el &aacute;rbol s&oacute;lo hace a cada candidato lo bastante concreto para compararse.</div>
+      </section>
+
+      <section id="twotrees-es">
+        <p class="section-label">Dos &aacute;rboles, dos trabajos</p>
+        <h2>PBS y WBS</h2>
+        <div class="table-wrap"><table><thead><tr><th></th><th>PBS</th><th>WBS</th></tr></thead><tbody><tr><td>Responde</td><td>&iquest;Qu&eacute; productos componen el sistema?</td><td>&iquest;Qu&eacute; trabajo hay que hacer para completar el proyecto?</td></tr><tr><td>Los elementos son</td><td>Sustantivos: cosas que existen cuando el proyecto termina</td><td>Actividades: cosas que la gente hace</td></tr><tr><td>Se usa para</td><td>Asignaci&oacute;n de requisitos, interfaces, especificaciones, verificaci&oacute;n</td><td>Alcance, costo, calendario, responsabilidad</td></tr><tr><td>Se deriva de</td><td>La asignaci&oacute;n funcional</td><td>El PBS, m&aacute;s las ramas de actividad</td></tr></tbody></table></div>
+        <p>La confusi&oacute;n vale la pena tomarla en serio porque se ve en casi toda entrega estudiantil: un &aacute;rbol de productos que contiene <em>Investigaci&oacute;n</em>, <em>Dise&ntilde;o</em>, <em>Pruebas</em> y <em>Compras</em>. Esas son actividades. Van en el &aacute;rbol de trabajo, y ponerlas en el de productos significa que ning&uacute;n requisito puede asignarse, porque no puedes asignar un requisito de desempe&ntilde;o a <em>Pruebas</em>.</p>
+      </section>
+
+      <section id="rules-es">
+        <p class="section-label">Cuatro chequeos por nodo</p>
+        <h2>Qu&eacute; debe cumplirse en todas partes</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regla en cada nodo</th><th>Prueba</th><th>Qu&eacute; significa una falla</th></tr></thead><tbody><tr><td>Completitud</td><td>&iquest;Los hijos, ensamblados, constituyen al padre?</td><td>Existe algo real que ning&uacute;n elemento posee</td></tr><tr><td>Sin traslape</td><td>&iquest;Podr&iacute;a un &iacute;tem f&iacute;sico contarse en dos hijos?</td><td>Masa, costo o responsabilidad contados dos veces</td></tr><tr><td>S&oacute;lo sustantivos</td><td>&iquest;Alg&uacute;n hijo es un verbo?</td><td>Se col&oacute; una actividad en el &aacute;rbol de productos</td></tr><tr><td>Regla de paro</td><td>&iquest;Puede darse a este elemento un due&ntilde;o, una especificaci&oacute;n y un m&eacute;todo de verificaci&oacute;n?</td><td>O el detalle es conjetura, o los requisitos no pueden asignarse</td></tr></tbody></table></div>
+        <p>La completitud es la que atrapa el arn&eacute;s. No basta con que cada hijo sea real; ensamblar todos debe producir al padre, sin que sobre nada en la mesa de trabajo. Hacer esa pregunta en el nodo del veh&iacute;culo a&eacute;reo habr&iacute;a hallado 2.80 kg de &aacute;rbol faltante en cosa de un minuto.</p>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Algoritmo de cálculo</p>
+        <h2>Construir el &aacute;rbol de productos</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Poner el producto final en nivel 0</span></div><div><strong>2</strong><span>Agrupar funciones asignadas en elementos</span></div><div><strong>3</strong><span>Nombrar cada elemento con un sustantivo</span></div><div><strong>4</strong><span>Verificar completitud y traslape</span></div><div><strong>5</strong><span>A&ntilde;adir los productos habilitadores</span></div><div><strong>6</strong><span>Parar donde pueda nombrarse un due&ntilde;o</span></div><div><strong>7</strong><span>Asignar identificadores</span></div><div><strong>8</strong><span>Contrastar contra un presupuesto</span></div></div>
+        <p>El &uacute;ltimo paso es el &uacute;nico que encuentra lo que los siete anteriores omitieron. Un &aacute;rbol se verifica contra s&iacute; mismo en los pasos cuatro y cinco, y un &aacute;rbol puede ser internamente consistente y aun as&iacute; incompleto. Un presupuesto es una lista independiente de lo que f&iacute;sicamente existe, y por eso comparar ambos vale los diez minutos que toma.</p>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>Contrastar el &aacute;rbol contra el presupuesto</h2>
+        <p>Toma el &aacute;rbol de productos de arriba y el presupuesto de masa de la lecture 03 y ponlos lado a lado.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Cuenta ambos.</strong> El &aacute;rbol tiene 8 hojas, de las cuales 6 vuelan y 2 son de tierra. El presupuesto tiene 7 l&iacute;neas, todas de vuelo.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Emp&aacute;rejalos.</strong> Seis l&iacute;neas mapean uno a uno con hojas de vuelo: fuselaje, avi&oacute;nica, potencia, comunicaciones, sensores, unidad de datos. Las dos hojas de tierra correctamente no cargan masa de vuelo.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>El sobrante.</strong> Una l&iacute;nea, <em>arn&eacute;s y soportes</em> con 2.80 kg, no tiene hoja. Es \[\frac{2.80}{41.00} = 6.8\ \%\] de la mejor estimaci&oacute;n actual, y no tiene due&ntilde;o, ni especificaci&oacute;n, ni m&eacute;todo de verificaci&oacute;n.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Qu&eacute; hacer.</strong> O a&ntilde;adir una hoja bajo el veh&iacute;culo a&eacute;reo para hardware de integraci&oacute;n, o distribuir el arn&eacute;s entre las hojas que conecta. Ambas son defendibles; dejarlo en el presupuesto y fuera del &aacute;rbol no lo es, porque el &aacute;rbol es lo que asigna el requisito de mantenerlo por debajo de 2.80 kg.</div></div>
+        <div class="result-box">\[ \boxed{ 8\ \text{hojas},\; 7\ \text{líneas},\; 6\ \text{emparejadas},\; 1\ \text{huérfana con } 6.8\ \%\ \text{del CBE} } \]</div>
+        <p><strong>Interpretaci&oacute;n.</strong> El contraste cost&oacute; diez minutos y encontr&oacute; algo que cuatro chequeos internos no, porque un &aacute;rbol no puede detectar sus propias omisiones. Nota tambi&eacute;n cu&aacute;l fue el elemento: no un subsistema por el que alguien discuta, sino el hardware de integraci&oacute;n poco glamoroso que ninguna disciplina quiere poseer. Ese es el patr&oacute;n general, y por eso el contraste vale la pena en cada &aacute;rbol.</p>
+      </section>
+
+      <section id="summary-es">
+        <p class="section-label">Reglas operativas</p>
+        <h2>De un vistazo</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regla</th><th>Enunciado</th></tr></thead><tbody><tr><td>El PBS es sustantivos, el WBS verbos</td><td>Si un elemento del &aacute;rbol de productos es algo que la gente hace, va en el &aacute;rbol de trabajo.</td></tr><tr><td>Completitud en cada nodo</td><td>Los hijos ensamblados deben constituir al padre. Nada falta, nada se cuenta dos veces.</td></tr><tr><td>Los habilitadores tambi&eacute;n son hojas</td><td>Segmento terreno, bancos de prueba y simuladores cargan requisitos, interfaces y costo.</td></tr><tr><td>Para donde pueda nombrarse un due&ntilde;o</td><td>Con especificaci&oacute;n y m&eacute;todo de verificaci&oacute;n. M&aacute;s detalle es conjetura.</td></tr><tr><td>Un PBS no es un organigrama</td><td>Un equipo puede poseer varios productos; un producto puede necesitar varias disciplinas.</td></tr><tr><td>Contrasta el &aacute;rbol contra un presupuesto</td><td>Toda l&iacute;nea de presupuesto sin hoja es una brecha en el &aacute;rbol, y carga masa o costo reales.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-es">
+        <p class="section-label">Errores comunes</p>
+        <h2>Qu&eacute; sale mal</h2>
+        <ul class="check-list"><li><strong>Actividades en el &aacute;rbol de productos.</strong> <em>Investigaci&oacute;n</em>, <em>Dise&ntilde;o</em> y <em>Pruebas</em> son trabajo. Ning&uacute;n requisito puede asign&aacute;rseles.</li><li><strong>Construir el PBS desde el organigrama.</strong> Los equipos se reorganizan y el &aacute;rbol no, as&iacute; que todo identificador de la RTM se romper&iacute;a con ellos.</li><li><strong>Omitir los productos habilitadores.</strong> Segmento terreno, bancos de prueba y simuladores cargan requisitos, interfaces y costo apar&eacute;zcan o no.</li><li><strong>Descomponer a nivel de componente en todas partes.</strong> Debajo del punto donde puede nombrarse un due&ntilde;o, el detalle es conjetura que se reescribir&aacute; dos veces.</li><li><strong>Hijos que se traslapan.</strong> Si un &iacute;tem f&iacute;sico pudiera contarse bajo dos elementos, su masa y su costo lo estar&aacute;n, y la suma quedar&aacute; mal de una forma que nadie nota.</li><li><strong>Nunca contrastar el &aacute;rbol contra nada.</strong> La consistencia interna no es completitud, y un presupuesto es la lista independiente m&aacute;s barata disponible.</li></ul>
+      </section>
+
+      <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
+        <h2>Referencias</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 4.4.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=system-hierarchy" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 7: System Hierarchy and WBS</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adaptado de la Unidad IV del gui&oacute;n del curso Ingenier&iacute;a en Sistemas Aeroespaciales (AE506) de Carlos Alberto Molina Holgu&iacute;n. Cada n&uacute;mero de esta p&aacute;gina se recalcul&oacute; de forma independiente para ella; ninguna calculadora cubre este tema, as&iacute; que el rec&aacute;lculo es la &uacute;nica comprobaci&oacute;n disponible. Los conteos de hojas y l&iacute;neas se tabularon del &aacute;rbol de esta p&aacute;gina y del presupuesto de la lecture 03, y de ah&iacute; se calcul&oacute; la fracci&oacute;n hu&eacute;rfana, as&iacute; que las tres p&aacute;ginas no pueden separarse.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="functional-analysis.html?v=11"><span>Lecture anterior</span>&larr; An&aacute;lisis funcional</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+
+      <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie k&ouml;nnen sollten</h2>
+        <ul><li>aus einer Zuordnung einen Produktstrukturplan aufbauen, nur mit Substantiven;</li><li>die Regeln der Vollst&auml;ndigkeit und &Uuml;berschneidungsfreiheit an jedem Knoten anwenden;</li><li>entscheiden, wo die Zerlegung endet, und es begr&uuml;nden;</li><li>einen PSP von einem Arbeits-PSP unterscheiden und den zweiten aus dem ersten ableiten;</li><li>einen Produktbaum gegen ein Budget pr&uuml;fen und eine Abweichung deuten.</li></ul>
+      </section>
+
+      <section id="physics-de">
+        <p class="section-label">Ingenieurtechnischer Kontext</p>
+        <h2>Zwei Komma acht Kilogramm ohne Eigent&uuml;mer</h2>
+        <p class="lead">Der Produktbaum der Plattform hat acht Bl&auml;tter, und jedes Teilsystem steht darin. Das Massenbudget aus Vorlesung 03 hat sieben Zeilen. Sechs entsprechen genau einem Blatt. Die siebte ist <em>Kabelbaum und Halter</em>, 2,80 kg, und geh&ouml;rt zu nichts.</p><p>Das sind 6,8&nbsp;% der aktuellen Sch&auml;tzung au&szlig;erhalb der Struktur, die Anforderungen zuordnet, Verantwortliche benennt und die Verifikation steuert. Niemand verbarg es &mdash; es bekam nur nie einen Kasten, weil der Kabelbaum kein Teilsystem ist und ihn niemand wollte.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 820 300" role="img" aria-label="Produktstrukturplan mit drei Elementen der ersten Ebene und acht Bl&auml;ttern">
+            <defs><marker id="pb-arrow-de" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#8fa6ba"></path></marker></defs>
+            <rect x="290" y="10" width="240" height="46" rx="6" fill="#eef4fa" stroke="#071d33" stroke-width="2"></rect>
+            <text x="410" y="30" text-anchor="middle" font-size="12" font-weight="700" fill="#071d33">1.0</text>
+            <text x="410" y="47" text-anchor="middle" font-size="12" fill="#3f5162">Atmosph&auml;rische Forschungsplattform</text>
+            <rect x="30" y="100" width="260" height="44" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="160" y="118" text-anchor="middle" font-size="12" font-weight="700" fill="#071d33">1.1</text>
+            <text x="160" y="135" text-anchor="middle" font-size="12" fill="#3f5162">Fluggerät</text>
+            <path d="M 410 58 L 410 80 L 160 80 L 160 96" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow-de)"></path>
+            <rect x="30" y="186" width="57" height="40" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="58" y="211" text-anchor="middle" font-size="11" fill="#3f5162">Zelle</text>
+            <path d="M 160 146 L 160 166 L 58 166 L 58 182" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow-de)"></path>
+            <rect x="97" y="186" width="57" height="40" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="125" y="211" text-anchor="middle" font-size="11" fill="#3f5162">Avionik</text>
+            <path d="M 160 146 L 160 166 L 125 166 L 125 182" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow-de)"></path>
+            <rect x="164" y="186" width="57" height="40" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="192" y="211" text-anchor="middle" font-size="11" fill="#3f5162">Energie</text>
+            <path d="M 160 146 L 160 166 L 192 166 L 192 182" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow-de)"></path>
+            <rect x="231" y="186" width="57" height="40" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="259" y="211" text-anchor="middle" font-size="11" fill="#3f5162">Komm</text>
+            <path d="M 160 146 L 160 166 L 259 166 L 259 182" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow-de)"></path>
+            <rect x="330" y="100" width="190" height="44" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="425" y="118" text-anchor="middle" font-size="12" font-weight="700" fill="#071d33">1.2</text>
+            <text x="425" y="135" text-anchor="middle" font-size="12" fill="#3f5162">Nutzlast</text>
+            <path d="M 410 58 L 410 80 L 425 80 L 425 96" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow-de)"></path>
+            <rect x="330" y="186" width="90" height="40" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="375" y="211" text-anchor="middle" font-size="11" fill="#3f5162">Sensorik</text>
+            <path d="M 425 146 L 425 166 L 375 166 L 375 182" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow-de)"></path>
+            <rect x="430" y="186" width="90" height="40" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="475" y="211" text-anchor="middle" font-size="11" fill="#3f5162">Dateneinheit</text>
+            <path d="M 425 146 L 425 166 L 475 166 L 475 182" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow-de)"></path>
+            <rect x="600" y="100" width="190" height="44" rx="6" fill="#f6f1e6" stroke="#8fa6ba"></rect>
+            <text x="695" y="118" text-anchor="middle" font-size="12" font-weight="700" fill="#071d33">1.3</text>
+            <text x="695" y="135" text-anchor="middle" font-size="12" fill="#3f5162">Bodensegment</text>
+            <path d="M 410 58 L 410 80 L 695 80 L 695 96" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow-de)"></path>
+            <rect x="600" y="186" width="90" height="40" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="645" y="211" text-anchor="middle" font-size="11" fill="#3f5162">Bodenstation</text>
+            <path d="M 695 146 L 695 166 L 645 166 L 645 182" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow-de)"></path>
+            <rect x="700" y="186" width="90" height="40" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="745" y="211" text-anchor="middle" font-size="11" fill="#3f5162">Betriebssoftware</text>
+            <path d="M 695 146 L 695 166 L 745 166 L 745 182" fill="none" stroke="#8fa6ba" stroke-width="2" marker-end="url(#pb-arrow-de)"></path>
+            <rect x="30" y="248" width="760" height="38" rx="6" fill="#fdf3f2" stroke="#e0b4ae"></rect>
+            <text x="410" y="272" text-anchor="middle" font-size="13" fill="#b03a2e">Kabelbaum, Halter und Isolationsmatten stehen im Massenbudget, aber in keinem Blatt dieses Baums</text>
+            </svg>
+            <figcaption>Der Produktbaum der Plattform. Acht Bl&auml;tter, sechs davon fliegen. Die rote Zeile ist eine echte L&uuml;cke, gefunden beim Abgleich des Baums mit dem Massenbudget.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-de">
+        <p class="section-label">Geltungsbereich und Grenzen</p>
+        <h2>Woher der Baum kommt</h2>
+        <p>Die physische Architektur entsteht durch <strong>Funktionszuordnung</strong>: Jede Funktion der vorigen Vorlesung wird einem ausf&uuml;hrenden Element zugewiesen. Der <strong>Produktstrukturplan</strong> ist diese Elementmenge als Baum und das R&uuml;ckgrat von allem Weiteren &mdash; Anforderungszuordnung, Schnittstellenermittlung, Konfigurationseinheiten, Integrationsreihenfolge und Verifikationsebene nutzen seine Kennungen.</p><p>Der <strong>Arbeitsstrukturplan</strong> wird daraus durch T&auml;tigkeitszweige abgeleitet: Systemtechnik, Integration und Test, Betrieb, Projektmanagement. Die Reihenfolge z&auml;hlt. Ein unabh&auml;ngig gebauter Arbeits-PSP weicht ab, und die Abweichung zeigt sich als nicht kalkulierte Arbeit an Produkten ohne Eigent&uuml;mer.</p>
+        <div class="callout warning"><strong>Was der Baum nicht entscheidet.</strong> Ein PSP h&auml;lt fest, welche Elemente existieren und wie sie verschachtelt sind. Ob diese Zerlegung die beste ist, sagt er nicht &mdash; eine andere Zuordnung derselben Funktionen erg&auml;be einen anderen, ebenso wohlgeformten Baum. Die Wahl trifft die Abw&auml;gung der Einheit V; der Baum macht jeden Kandidaten nur vergleichbar konkret.</div>
+      </section>
+
+      <section id="twotrees-de">
+        <p class="section-label">Zwei B&auml;ume, zwei Aufgaben</p>
+        <h2>PSP und Arbeits-PSP</h2>
+        <div class="table-wrap"><table><thead><tr><th></th><th>PSP</th><th>PSP der Arbeit</th></tr></thead><tbody><tr><td>Beantwortet</td><td>Welche Produkte bilden das System?</td><td>Welche Arbeit ist zur Fertigstellung n&ouml;tig?</td></tr><tr><td>Elemente sind</td><td>Substantive: Dinge, die am Projektende existieren</td><td>T&auml;tigkeiten: was Menschen tun</td></tr><tr><td>Verwendet f&uuml;r</td><td>Anforderungszuordnung, Schnittstellen, Spezifikationen, Verifikation</td><td>Umfang, Kosten, Termine, Verantwortung</td></tr><tr><td>Abgeleitet aus</td><td>Der Funktionszuordnung</td><td>Dem PSP, plus den T&auml;tigkeitszweigen</td></tr></tbody></table></div>
+        <p>Die Verwechslung ist ernst zu nehmen, weil sie in fast jeder studentischen Abgabe auftaucht: ein Produktbaum mit <em>Recherche</em>, <em>Entwurf</em>, <em>Test</em> und <em>Beschaffung</em>. Das sind T&auml;tigkeiten. Sie geh&ouml;ren in den Arbeitsbaum; im Produktbaum verhindern sie jede Anforderungszuordnung, denn eine Leistungsanforderung l&auml;sst sich <em>Test</em> nicht zuweisen.</p>
+      </section>
+
+      <section id="rules-de">
+        <p class="section-label">Vier Pr&uuml;fungen je Knoten</p>
+        <h2>Was &uuml;berall gelten muss</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regel je Knoten</th><th>Pr&uuml;fung</th><th>Was ein Fehler bedeutet</th></tr></thead><tbody><tr><td>Vollst&auml;ndigkeit</td><td>Bilden die Kinder zusammengesetzt die Elternebene?</td><td>Etwas Reales existiert, das keinem Element geh&ouml;rt</td></tr><tr><td>&Uuml;berschneidungsfrei</td><td>K&ouml;nnte ein Teil in zwei Kindern gez&auml;hlt werden?</td><td>Masse, Kosten oder Verantwortung doppelt gez&auml;hlt</td></tr><tr><td>Nur Substantive</td><td>Ist ein Kind ein Verb?</td><td>Eine T&auml;tigkeit hat sich in den Produktbaum geschlichen</td></tr><tr><td>Abbruchregel</td><td>Kann dieses Element Verantwortliche, Spezifikation und Verifikationsmethode erhalten?</td><td>Entweder ist das Detail Raten, oder Anforderungen sind nicht zuordenbar</td></tr></tbody></table></div>
+        <p>Die Vollst&auml;ndigkeit f&auml;ngt den Kabelbaum ab. Es gen&uuml;gt nicht, dass jedes Kind real ist; ihre Montage muss die Elternebene ergeben, ohne dass etwas auf der Werkbank &uuml;brig bleibt. Diese Frage am Fluggerätknoten h&auml;tte 2,80 kg fehlenden Baum in etwa einer Minute gefunden.</p>
+      </section>
+
+      <section id="algorithm-de">
+        <p class="section-label">Rechenalgorithmus</p>
+        <h2>Den Produktbaum aufbauen</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Das Endprodukt auf Ebene 0 setzen</span></div><div><strong>2</strong><span>Zugeordnete Funktionen zu Elementen gruppieren</span></div><div><strong>3</strong><span>Jedes Element mit einem Substantiv benennen</span></div><div><strong>4</strong><span>Vollst&auml;ndigkeit und &Uuml;berschneidung pr&uuml;fen</span></div><div><strong>5</strong><span>Die Hilfsprodukte erg&auml;nzen</span></div><div><strong>6</strong><span>Stoppen, wo ein Verantwortlicher benennbar ist</span></div><div><strong>7</strong><span>Kennungen vergeben</span></div><div><strong>8</strong><span>Gegen ein Budget pr&uuml;fen</span></div></div>
+        <p>Der letzte Schritt findet als einziger, was die sieben davor &uuml;bersahen. Ein Baum wird in den Schritten vier und f&uuml;nf gegen sich selbst gepr&uuml;ft, und er kann in sich stimmig und dennoch unvollst&auml;ndig sein. Ein Budget ist eine unabh&auml;ngige Liste des physisch Vorhandenen &mdash; deshalb lohnt der Abgleich die zehn Minuten.</p>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Baum gegen Budget pr&uuml;fen</h2>
+        <p>Nehmen Sie den obigen Produktbaum und das Massenbudget aus Vorlesung 03 und legen Sie sie nebeneinander.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Beide z&auml;hlen.</strong> Der Baum hat 8 Bl&auml;tter, davon 6 fliegend und 2 am Boden. Das Budget hat 7 Zeilen, alle Flugposten.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Zuordnen.</strong> Sechs Budgetzeilen entsprechen eins zu eins den Flugbl&auml;ttern: Zelle, Avionik, Energie, Kommunikation, Sensorik, Dateneinheit. Die zwei Bodenbl&auml;tter tragen korrekt keine Flugmasse.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Der &Uuml;berhang.</strong> Eine Zeile, <em>Kabelbaum und Halter</em> mit 2,80 kg, hat kein Blatt. Das sind \[\frac{2{,}80}{41{,}00} = 6{,}8\ \%\] der aktuellen Sch&auml;tzung, ohne Verantwortliche, Spezifikation und Verifikationsmethode.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Was zu tun ist.</strong> Entweder ein Blatt unter dem Fluggerät f&uuml;r Integrationshardware erg&auml;nzen oder den Kabelbaum auf die verbundenen Bl&auml;tter verteilen. Beides ist vertretbar; ihn im Budget und au&szlig;erhalb des Baums zu lassen nicht, denn der Baum weist die Anforderung zu, ihn unter 2,80 kg zu halten.</div></div>
+        <div class="result-box">\[ \boxed{ 8\ \text{Blätter},\; 7\ \text{Budgetzeilen},\; 6\ \text{zugeordnet},\; 1\ \text{Waise mit } 6{,}8\ \%\ \text{der Schätzung} } \]</div>
+        <p><strong>Deutung.</strong> Der Abgleich kostete zehn Minuten und fand, was vier interne Pr&uuml;fungen nicht fanden, denn ein Baum erkennt seine eigenen Auslassungen nicht. Beachten Sie auch welches Element: kein umstrittenes Teilsystem, sondern die unscheinbare Integrationshardware, die keine Disziplin besitzen will. Das ist das allgemeine Muster &mdash; und der Grund, den Abgleich bei jedem Baum zu fahren.</p>
+      </section>
+
+      <section id="summary-de">
+        <p class="section-label">Arbeitsregeln</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regel</th><th>Aussage</th></tr></thead><tbody><tr><td>PSP ist Substantive, Arbeits-PSP ist Verben</td><td>Ist ein Element des Produktbaums etwas, das Menschen tun, geh&ouml;rt es in den Arbeitsbaum.</td></tr><tr><td>Vollst&auml;ndigkeit an jedem Knoten</td><td>Die Kinder m&uuml;ssen zusammengesetzt die Elternebene bilden. Nichts fehlt, nichts doppelt.</td></tr><tr><td>Hilfsprodukte sind ebenfalls Bl&auml;tter</td><td>Bodensegment, Pr&uuml;fst&auml;nde und Simulatoren tragen Anforderungen, Schnittstellen und Kosten.</td></tr><tr><td>Stoppen, wo ein Verantwortlicher benennbar ist</td><td>Mit Spezifikation und Verifikationsmethode. Mehr Detail ist Raten.</td></tr><tr><td>Ein PSP ist kein Organigramm</td><td>Ein Team kann mehrere Produkte besitzen; ein Produkt mehrere Disziplinen brauchen.</td></tr><tr><td>Den Baum gegen ein Budget pr&uuml;fen</td><td>Jede Budgetzeile ohne Blatt ist eine L&uuml;cke im Baum und tr&auml;gt reale Masse oder Kosten.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Häufige Fehler</p>
+        <h2>Was schiefgeht</h2>
+        <ul class="check-list"><li><strong>T&auml;tigkeiten im Produktbaum.</strong> <em>Recherche</em>, <em>Entwurf</em> und <em>Test</em> sind Arbeit. Ihnen l&auml;sst sich keine Anforderung zuordnen.</li><li><strong>Den PSP aus dem Organigramm bauen.</strong> Teams werden umorganisiert, der Baum nicht &mdash; jede Kennung in der RTM br&auml;che mit ihnen.</li><li><strong>Hilfsprodukte weglassen.</strong> Bodensegment, Pr&uuml;fst&auml;nde und Simulatoren tragen Anforderungen, Schnittstellen und Kosten, ob sie auftauchen oder nicht.</li><li><strong>&Uuml;berall bis auf Komponentenebene zerlegen.</strong> Unterhalb der Benennbarkeit eines Verantwortlichen ist das Detail Raten, das zweimal neu geschrieben wird.</li><li><strong>&Uuml;berlappende Kinder.</strong> K&ouml;nnte ein Teil unter zwei Elementen gez&auml;hlt werden, werden Masse und Kosten es auch &mdash; und die Summe wird unbemerkt falsch.</li><li><strong>Den Baum nie gegen etwas pr&uuml;fen.</strong> Innere Stimmigkeit ist keine Vollst&auml;ndigkeit, und ein Budget ist die billigste unabh&auml;ngige Liste.</li></ul>
+      </section>
+
+      <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
+        <h2>Literatur</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 4.4.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=system-hierarchy" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 7: System Hierarchy and WBS</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Bearbeitet nach Einheit IV des Skripts Luft- und Raumfahrtsystemtechnik (AE506) von Carlos Alberto Molina Holgu&iacute;n. Jede Zahl dieser Seite wurde eigens daf&uuml;r unabh&auml;ngig neu berechnet; kein Rechner deckt dieses Thema ab, daher ist die Neuberechnung die einzige Pr&uuml;fung. Blatt- und Budgetzeilenzahlen wurden aus dem Baum dieser Seite und dem Budget aus Vorlesung 03 ermittelt und daraus der Waisenanteil berechnet; die drei Seiten k&ouml;nnen also nicht auseinanderlaufen.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="functional-analysis.html?v=11"><span>Vorherige Vorlesung</span>&larr; Funktionsanalyse</a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>&copy; <span id="year"></span> Carlos Alberto Molina Holgu&iacute;n</p>
+    <p>Universidad Aut&oacute;noma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

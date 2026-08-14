@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Functional analysis and logical architecture in aerospace: functions as verbs, the black-box view, how far to decompose, grouping functions into logical elements, and why a split function decides a verification level." />
+  <meta name="author" content="Carlos Alberto Molina Holgu&iacute;n" />
+  <meta name="theme-color" content="#071d33" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Functional Analysis | Aerospace Systems Engineering</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:wght@600;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=11" data-ui-key="course">Aerospace Systems Engineering</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Aerospace Systems Engineering &middot; Lecture 10</p>
+        <h1>Functional Analysis and Logical Architecture</h1>
+        <p class="hero-copy">How to describe what a system must do without naming what it is, how far to decompose before stopping, and why one shared function can decide where the whole verification campaign has to happen.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Ingeniería de Sistemas Aeroespaciales &middot; Lecture 10</p>
+        <h1>An&aacute;lisis funcional y arquitectura l&oacute;gica</h1>
+        <p class="hero-copy">C&oacute;mo describir lo que un sistema debe hacer sin nombrar lo que es, hasta d&oacute;nde descomponer antes de parar, y por qu&eacute; una funci&oacute;n compartida puede decidir d&oacute;nde tiene que ocurrir toda la campa&ntilde;a de verificaci&oacute;n.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Luft- und Raumfahrtsystemtechnik &middot; Vorlesung 10</p>
+        <h1>Funktionsanalyse und logische Architektur</h1>
+        <p class="hero-copy">Wie man beschreibt, was ein System leisten muss, ohne zu benennen was es ist, wie weit zu zerlegen ist, und warum eine geteilte Funktion &uuml;ber den Ort der gesamten Verifikationskampagne entscheiden kann.</p>
+      </div>
+
+    <div class="hero-meta">
+        <span data-language="en">Estimated reading: 13 min</span><span data-language="es" hidden>Lectura estimada: 13 min</span><span data-language="de" hidden>Lesedauer: ca. 13 min</span>
+        <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+        <span data-language="en">Scope: logical, before any hardware</span><span data-language="es" hidden>Alcance: l&oacute;gico, antes de cualquier hardware</span><span data-language="de" hidden>Umfang: logisch, vor jeder Hardware</span>
+    </div>
+    <div class="button-row">
+      <a class="button secondary" href="index.html?v=11" data-ui-key="back">Back to course</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Engineering situation</a>
+        <a href="#model">Scope and limits</a>
+        <a href="#verbs">Functions are verbs</a>
+        <a href="#grouping">Grouping into logical elements</a>
+        <a href="#algorithm">Doing the analysis</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Operative rules</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#references">Sources</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Situaci&oacute;n de ingenier&iacute;a</a>
+        <a href="#model-es">Alcance y l&iacute;mites</a>
+        <a href="#verbs-es">Las funciones son verbos</a>
+        <a href="#grouping-es">Agrupar en elementos l&oacute;gicos</a>
+        <a href="#algorithm-es">Hacer el an&aacute;lisis</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Reglas operativas</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Kontext</a>
+        <a href="#model-de">Geltungsbereich</a>
+        <a href="#verbs-de">Funktionen sind Verben</a>
+        <a href="#grouping-de">Gruppierung in logische Elemente</a>
+        <a href="#algorithm-de">Die Analyse durchf&uuml;hren</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Arbeitsregeln</a>
+        <a href="#mistakes-de">H&auml;ufige Fehler</a>
+        <a href="#references-de">Quellen</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+
+      <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul><li>write a function as a verb phrase and recognise a component wearing a function&rsquo;s label;</li><li>draw the black-box view and list what crosses the boundary in each direction;</li><li>decide when to stop decomposing, and justify the stopping point;</li><li>group functions into logical elements by cohesion rather than by expected hardware;</li><li>identify functions split across elements and say what that implies for verification.</li></ul>
+      </section>
+
+      <section id="physics">
+        <p class="section-label">Engineering situation</p>
+        <h2>The function list that was a parts list</h2>
+        <p class="lead">A team presents its functional analysis. The functions are: battery, solar array, flight computer, radio, thermal control, structure. Six items, neatly listed, and not one of them is a function.</p><p>What has happened is that the architecture was chosen before the analysis and then written down as though it were the requirement. Every trade study downstream is now comparing variants of one solution, because the alternatives were eliminated in a list nobody recognised as a decision.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 260" role="img" aria-label="The black-box view, before any subsystem is named">
+            <defs><marker id="fa-arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0d568d"></path></marker></defs>
+            <rect x="270" y="70" width="260" height="120" rx="8" fill="#eef4fa" stroke="#071d33" stroke-width="2"></rect>
+            <text x="400" y="122" text-anchor="middle" font-size="14" font-weight="700" fill="#071d33">Provide atmospheric measurements</text>
+            <text x="400" y="144" text-anchor="middle" font-size="12" fill="#3f5162">a region</text>
+            <text x="140" y="52" text-anchor="middle" font-size="14" font-weight="700" fill="#0d568d">Inputs</text>
+            <text x="660" y="52" text-anchor="middle" font-size="14" font-weight="700" fill="#0d568d">Outputs</text>
+            <text x="248" y="94" text-anchor="end" font-size="12" fill="#3f5162">operator commands</text>
+            <line x1="252" y1="90" x2="266" y2="90" stroke="#0d568d" stroke-width="2" marker-end="url(#fa-arrow)"></line>
+            <text x="552" y="94" text-anchor="start" font-size="12" fill="#3f5162">science data</text>
+            <line x1="532" y1="90" x2="546" y2="90" stroke="#0d568d" stroke-width="2" marker-end="url(#fa-arrow)"></line>
+            <text x="248" y="132" text-anchor="end" font-size="12" fill="#3f5162">electrical energy</text>
+            <line x1="252" y1="128" x2="266" y2="128" stroke="#0d568d" stroke-width="2" marker-end="url(#fa-arrow)"></line>
+            <text x="552" y="132" text-anchor="start" font-size="12" fill="#3f5162">health telemetry</text>
+            <line x1="532" y1="128" x2="546" y2="128" stroke="#0d568d" stroke-width="2" marker-end="url(#fa-arrow)"></line>
+            <text x="248" y="170" text-anchor="end" font-size="12" fill="#3f5162">the atmosphere itself</text>
+            <line x1="252" y1="166" x2="266" y2="166" stroke="#0d568d" stroke-width="2" marker-end="url(#fa-arrow)"></line>
+            <text x="552" y="170" text-anchor="start" font-size="12" fill="#3f5162">waste heat</text>
+            <line x1="532" y1="166" x2="546" y2="166" stroke="#0d568d" stroke-width="2" marker-end="url(#fa-arrow)"></line>
+            <text x="400" y="228" text-anchor="middle" font-size="13" font-style="italic" fill="#b03a2e">Nothing here names a subsystem. That is the point.</text>
+            </svg>
+            <figcaption>The black-box view. What crosses the boundary in and out is fixed by the mission; how it happens inside is still open, and that is exactly the freedom the trade study needs.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model">
+        <p class="section-label">Scope and limits</p>
+        <h2>Describing behaviour, not structure</h2>
+        <p>Functional analysis asks what the system must <em>do</em>, in terms that any candidate architecture would have to satisfy. Its product is a set of functions, their inputs and outputs, and the consequence of each one failing. Nothing in it names a component.</p><p>The <strong>logical architecture</strong> then groups those functions into coherent elements &mdash; still without hardware. Only after that does functional allocation assign each function to a physical element, which is the next lecture. Keeping the three steps separate is what leaves room for a real trade study.</p>
+        <div class="callout warning"><strong>What functional analysis does not settle.</strong> It does not tell you which architecture is better, and it cannot: it deliberately describes the problem in terms that several architectures satisfy. Choosing among them is the decision analysis of Unit V. The value here is that the choice remains available to be made, rather than having been made by accident in a list.</div>
+      </section>
+
+      <section id="verbs">
+        <p class="section-label">The test that catches it</p>
+        <h2>If you can buy it, it is not a function</h2>
+        <div class="table-wrap"><table><thead><tr><th>Written as</th><th>Why it fails</th><th>Written as a function</th></tr></thead><tbody><tr><td>Battery</td><td>A component. It answers <em>what exists</em>, not <em>what must happen</em>.</td><td>Store and supply electrical energy</td></tr><tr><td>Thermal control</td><td>A subsystem name. The architecture has been chosen inside the function list.</td><td>Maintain survivable temperatures</td></tr><tr><td>Data handling</td><td>A noun phrase that hides what is done to the data.</td><td>Acquire, store and return science data</td></tr></tbody></table></div>
+        <p>The check takes a second per line and it is worth applying to every entry: could you place a purchase order for this? If yes, it is a component. A function is something that has to happen, and several very different components could make it happen.</p>
+      </section>
+
+      <section id="grouping">
+        <p class="section-label">Cohesion, not convenience</p>
+        <h2>Building the logical architecture</h2>
+        <p>Group functions that share information, timing or physical quantity. The test for a good grouping is that the element can be described without referring to the internals of another. The test for a bad one is that the logical diagram has the same boxes as the subsystem diagram &mdash; in which case no decomposition happened and the hardware was assumed all along.</p>
+        <div class="table-wrap"><table><thead><tr><th>Function</th><th>Sensing</th><th>Navigation</th><th>Flight and power</th><th>Environment control</th><th>Communication and health</th></tr></thead><tbody><tr><td>Acquire atmospheric measurements</td><td>&#9679;</td><td></td><td></td><td></td><td></td></tr><tr><td>Determine position and attitude</td><td></td><td>&#9679;</td><td></td><td></td><td></td></tr><tr><td>Sustain flight</td><td></td><td></td><td>&#9679;</td><td></td><td></td></tr><tr><td>Manage electrical energy</td><td></td><td></td><td>&#9679;</td><td>&#9679;</td><td></td></tr><tr><td>Maintain survivable temperatures</td><td></td><td></td><td></td><td>&#9679;</td><td></td></tr><tr><td>Return data to the ground</td><td></td><td></td><td></td><td></td><td>&#9679;</td></tr><tr><td>Detect and respond to faults</td><td>&#9679;</td><td>&#9679;</td><td></td><td></td><td>&#9679;</td></tr></tbody></table></div>
+        <p>Read the matrix by row. A row with one mark is a function one element owns entirely. A row with several marks is a function no single element can deliver, and that has a consequence the next section makes precise.</p>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">Calculation algorithm</p>
+        <h2>Doing the analysis</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Write the top function as a verb phrase</span></div><div><strong>2</strong><span>Draw the black box and list what crosses</span></div><div><strong>3</strong><span>Decompose one level, verbs only</span></div><div><strong>4</strong><span>For each function, record inputs, outputs and failure consequence</span></div><div><strong>5</strong><span>Stop where an owner can be named</span></div><div><strong>6</strong><span>Group into logical elements by cohesion</span></div><div><strong>7</strong><span>Mark the allocation matrix and count the split rows</span></div></div>
+        <p>Step four is what makes the rest useful. The failure consequence of each function is the input to the FMEA of Lecture 19, and recording it now costs a sentence per function instead of a workshop later.</p>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>Seven functions, five elements, two problems</h2>
+        <p>The atmospheric platform decomposes into the seven second-level functions of the matrix above, grouped into five logical elements. Read the matrix and count.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Matrix density.</strong> Seven functions against five elements gives \(7\times5 = 35\) cells, of which 10 are populated. A sparse matrix is a good sign: it means most functions have a single owner.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>The split rows.</strong> Two functions are marked in more than one element: <em>manage electrical energy</em>, shared between flight-and-power and environment control, and <em>detect and respond to faults</em>, spread across three elements.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>What that costs.</strong> Neither split function can be verified below the level at which all its elements are present. <em>Detect and respond to faults</em> touches three of the five, so its verification is a system-level activity and needs a system-level test article.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>What to do about it.</strong> Fault detection is genuinely cross-cutting and the split is correct; it is a cost to plan for, not a defect to remove. The energy split is worth a second look: if environment control only needs to <em>request</em> power rather than manage it, the function belongs wholly to flight-and-power and one system-level verification disappears.</div></div>
+        <div class="result-box">\[ \boxed{ 35\ \text{cells},\; 10\ \text{populated},\; 2\ \text{split functions} \Rightarrow 2\ \text{system-level verifications} } \]</div>
+        <p><strong>Interpretation.</strong> Counting the split rows takes a minute and produces a schedule item. Every split function is a verification that cannot happen at subsystem level, which means a test article, a facility booking and a place in the integration sequence &mdash; all of which are cheap to plan now and expensive to discover at test readiness.</p>
+      </section>
+
+      <section id="summary">
+        <p class="section-label">Operative rules</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Statement</th></tr></thead><tbody><tr><td>Functions are verbs</td><td>If it can be bought, it is not a function. <em>Store and supply energy</em>, not <em>battery</em>.</td></tr><tr><td>Start from the black box</td><td>Fix what crosses the boundary before deciding anything about the inside.</td></tr><tr><td>Stop decomposing when an owner can be named</td><td>Further detail before that is guesswork; less leaves requirements unallocatable.</td></tr><tr><td>Logical is not physical</td><td>Group functions by cohesion. If the logical diagram equals the subsystem diagram, no decomposition happened.</td></tr><tr><td>A split function sets a verification level</td><td>A function shared by two elements cannot be verified below the level where both are present.</td></tr><tr><td>Count the split functions early</td><td>They are the ones that will need system-level test articles, and that is a schedule and cost item.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes">
+        <p class="section-label">Common mistakes</p>
+        <h2>What goes wrong</h2>
+        <ul class="check-list"><li><strong>Listing components as functions.</strong> If it can be purchased, it is not a function, and the architecture has been chosen inside the analysis meant to precede it.</li><li><strong>A logical architecture identical to the subsystem diagram.</strong> Same boxes, same names means no decomposition happened.</li><li><strong>Decomposing to component level.</strong> Below the point where an owner can be named, the detail is guesswork that will be rewritten.</li><li><strong>Stopping too early.</strong> Functions so broad that no requirement can be allocated to them leave the allocation to be improvised later.</li><li><strong>Grouping by expected hardware.</strong> Cohesion means shared information, timing or physical quantity &mdash; not shared supplier.</li><li><strong>Ignoring the split rows.</strong> Each one is a verification that cannot happen at subsystem level, and finding that out at test readiness is the expensive way.</li></ul>
+      </section>
+
+      <section id="references" class="references">
+        <p class="section-label">Sources</p>
+        <h2>References</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 4.3.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=functional-analysis" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 12: Functional Analysis</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adapted from Unit IV of the Aerospace Systems Engineering (AE506) course script by Carlos Alberto Molina Holgu&iacute;n. Every number on this page was recomputed independently for it; no calculator covers this topic, so recomputation is the only check there is. The matrix density and the split-function count were obtained by tabulating the allocation matrix printed on this page, so the figures and the table cannot disagree.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="traceability-rtm.html?v=11"><span>Previous lecture</span>&larr; Traceability and the RTM</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+
+      <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Qu&eacute; deber&iacute;as poder hacer</h2>
+        <ul><li>escribir una funci&oacute;n como frase verbal y reconocer un componente con etiqueta de funci&oacute;n;</li><li>dibujar la vista de caja negra y listar lo que cruza la frontera en cada direcci&oacute;n;</li><li>decidir cu&aacute;ndo dejar de descomponer, y justificar el punto de paro;</li><li>agrupar funciones en elementos l&oacute;gicos por cohesi&oacute;n y no por el hardware esperado;</li><li>identificar funciones divididas entre elementos y decir qu&eacute; implica eso para la verificaci&oacute;n.</li></ul>
+      </section>
+
+      <section id="physics-es">
+        <p class="section-label">Situación de ingeniería</p>
+        <h2>La lista de funciones que era una lista de partes</h2>
+        <p class="lead">Un equipo presenta su an&aacute;lisis funcional. Las funciones son: bater&iacute;a, arreglo solar, computadora de vuelo, radio, control t&eacute;rmico, estructura. Seis elementos, bien listados, y ninguno es una funci&oacute;n.</p><p>Lo que pas&oacute; es que la arquitectura se eligi&oacute; antes del an&aacute;lisis y luego se escribi&oacute; como si fuera el requisito. Todo estudio de intercambio aguas abajo compara ahora variantes de una sola soluci&oacute;n, porque las alternativas se eliminaron en una lista que nadie reconoci&oacute; como decisi&oacute;n.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 260" role="img" aria-label="La vista de caja negra, antes de nombrar cualquier subsistema">
+            <defs><marker id="fa-arrow-es" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0d568d"></path></marker></defs>
+            <rect x="270" y="70" width="260" height="120" rx="8" fill="#eef4fa" stroke="#071d33" stroke-width="2"></rect>
+            <text x="400" y="122" text-anchor="middle" font-size="14" font-weight="700" fill="#071d33">Proveer mediciones atmosf&eacute;ricas de una regi&oacute;n</text>
+            <text x="400" y="144" text-anchor="middle" font-size="12" fill="#3f5162"></text>
+            <text x="140" y="52" text-anchor="middle" font-size="14" font-weight="700" fill="#0d568d">Entradas</text>
+            <text x="660" y="52" text-anchor="middle" font-size="14" font-weight="700" fill="#0d568d">Salidas</text>
+            <text x="248" y="94" text-anchor="end" font-size="12" fill="#3f5162">comandos del operador</text>
+            <line x1="252" y1="90" x2="266" y2="90" stroke="#0d568d" stroke-width="2" marker-end="url(#fa-arrow-es)"></line>
+            <text x="552" y="94" text-anchor="start" font-size="12" fill="#3f5162">datos cient&iacute;ficos</text>
+            <line x1="532" y1="90" x2="546" y2="90" stroke="#0d568d" stroke-width="2" marker-end="url(#fa-arrow-es)"></line>
+            <text x="248" y="132" text-anchor="end" font-size="12" fill="#3f5162">energ&iacute;a el&eacute;ctrica</text>
+            <line x1="252" y1="128" x2="266" y2="128" stroke="#0d568d" stroke-width="2" marker-end="url(#fa-arrow-es)"></line>
+            <text x="552" y="132" text-anchor="start" font-size="12" fill="#3f5162">telemetr&iacute;a de salud</text>
+            <line x1="532" y1="128" x2="546" y2="128" stroke="#0d568d" stroke-width="2" marker-end="url(#fa-arrow-es)"></line>
+            <text x="248" y="170" text-anchor="end" font-size="12" fill="#3f5162">la atm&oacute;sfera misma</text>
+            <line x1="252" y1="166" x2="266" y2="166" stroke="#0d568d" stroke-width="2" marker-end="url(#fa-arrow-es)"></line>
+            <text x="552" y="170" text-anchor="start" font-size="12" fill="#3f5162">calor residual</text>
+            <line x1="532" y1="166" x2="546" y2="166" stroke="#0d568d" stroke-width="2" marker-end="url(#fa-arrow-es)"></line>
+            <text x="400" y="228" text-anchor="middle" font-size="13" font-style="italic" fill="#b03a2e">Nada aqu&iacute; nombra un subsistema. Ese es el punto.</text>
+            </svg>
+            <figcaption>La vista de caja negra. Lo que cruza la frontera hacia dentro y hacia fuera lo fija la misi&oacute;n; c&oacute;mo ocurre adentro sigue abierto, y esa es justo la libertad que necesita el estudio de intercambio.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-es">
+        <p class="section-label">Alcance y límites</p>
+        <h2>Describir comportamiento, no estructura</h2>
+        <p>El an&aacute;lisis funcional pregunta qu&eacute; debe <em>hacer</em> el sistema, en t&eacute;rminos que cualquier arquitectura candidata tendr&iacute;a que satisfacer. Su producto es un conjunto de funciones, sus entradas y salidas, y la consecuencia de que cada una falle. Nada en &eacute;l nombra un componente.</p><p>La <strong>arquitectura l&oacute;gica</strong> luego agrupa esas funciones en elementos coherentes &mdash; todav&iacute;a sin hardware. S&oacute;lo despu&eacute;s la asignaci&oacute;n funcional adjudica cada funci&oacute;n a un elemento f&iacute;sico, que es la siguiente lecture. Mantener los tres pasos separados es lo que deja espacio para un estudio de intercambio real.</p>
+        <div class="callout warning"><strong>Lo que el an&aacute;lisis funcional no resuelve.</strong> No te dice qu&eacute; arquitectura es mejor, y no puede: describe deliberadamente el problema en t&eacute;rminos que varias arquitecturas satisfacen. Elegir entre ellas es el an&aacute;lisis de decisi&oacute;n de la Unidad V. El valor aqu&iacute; es que la elecci&oacute;n sigue disponible, en vez de haberse hecho por accidente en una lista.</div>
+      </section>
+
+      <section id="verbs-es">
+        <p class="section-label">La prueba que lo atrapa</p>
+        <h2>Si puedes comprarlo, no es una funci&oacute;n</h2>
+        <div class="table-wrap"><table><thead><tr><th>Escrito como</th><th>Por qu&eacute; falla</th><th>Escrito como funci&oacute;n</th></tr></thead><tbody><tr><td>Bater&iacute;a</td><td>Un componente. Responde <em>qu&eacute; existe</em>, no <em>qu&eacute; debe ocurrir</em>.</td><td>Almacenar y suministrar energ&iacute;a el&eacute;ctrica</td></tr><tr><td>Control t&eacute;rmico</td><td>El nombre de un subsistema. La arquitectura se eligi&oacute; dentro de la lista de funciones.</td><td>Mantener temperaturas sobrevivibles</td></tr><tr><td>Manejo de datos</td><td>Una frase nominal que oculta qu&eacute; se le hace a los datos.</td><td>Adquirir, almacenar y devolver datos cient&iacute;ficos</td></tr></tbody></table></div>
+        <p>La verificaci&oacute;n toma un segundo por rengl&oacute;n y vale la pena aplicarla a cada entrada: &iquest;podr&iacute;as levantar una orden de compra de esto? Si s&iacute;, es un componente. Una funci&oacute;n es algo que tiene que ocurrir, y componentes muy distintos podr&iacute;an hacerlo ocurrir.</p>
+      </section>
+
+      <section id="grouping-es">
+        <p class="section-label">Cohesi&oacute;n, no conveniencia</p>
+        <h2>Construir la arquitectura l&oacute;gica</h2>
+        <p>Agrupa funciones que comparten informaci&oacute;n, temporizaci&oacute;n o cantidad f&iacute;sica. La prueba de un buen agrupamiento es que el elemento pueda describirse sin referirse a las entra&ntilde;as de otro. La prueba de uno malo es que el diagrama l&oacute;gico tenga las mismas cajas que el de subsistemas &mdash; en cuyo caso no hubo descomposici&oacute;n y el hardware se supuso desde el principio.</p>
+        <div class="table-wrap"><table><thead><tr><th>Funci&oacute;n</th><th>Sensado</th><th>Navegaci&oacute;n</th><th>Vuelo y potencia</th><th>Control ambiental</th><th>Comunicaci&oacute;n y salud</th></tr></thead><tbody><tr><td>Adquirir mediciones atmosf&eacute;ricas</td><td>&#9679;</td><td></td><td></td><td></td><td></td></tr><tr><td>Determinar posici&oacute;n y actitud</td><td></td><td>&#9679;</td><td></td><td></td><td></td></tr><tr><td>Sostener el vuelo</td><td></td><td></td><td>&#9679;</td><td></td><td></td></tr><tr><td>Gestionar la energ&iacute;a el&eacute;ctrica</td><td></td><td></td><td>&#9679;</td><td>&#9679;</td><td></td></tr><tr><td>Mantener temperaturas sobrevivibles</td><td></td><td></td><td></td><td>&#9679;</td><td></td></tr><tr><td>Devolver datos a tierra</td><td></td><td></td><td></td><td></td><td>&#9679;</td></tr><tr><td>Detectar y responder a fallos</td><td>&#9679;</td><td>&#9679;</td><td></td><td></td><td>&#9679;</td></tr></tbody></table></div>
+        <p>Lee la matriz por fila. Una fila con una marca es una funci&oacute;n que un elemento posee por completo. Una fila con varias marcas es una funci&oacute;n que ning&uacute;n elemento puede entregar solo, y eso tiene una consecuencia que la siguiente secci&oacute;n precisa.</p>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Algoritmo de cálculo</p>
+        <h2>Hacer el an&aacute;lisis</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Escribir la funci&oacute;n superior como frase verbal</span></div><div><strong>2</strong><span>Dibujar la caja negra y listar lo que cruza</span></div><div><strong>3</strong><span>Descomponer un nivel, s&oacute;lo verbos</span></div><div><strong>4</strong><span>Por cada funci&oacute;n, registrar entradas, salidas y consecuencia de falla</span></div><div><strong>5</strong><span>Parar donde pueda nombrarse un due&ntilde;o</span></div><div><strong>6</strong><span>Agrupar en elementos l&oacute;gicos por cohesi&oacute;n</span></div><div><strong>7</strong><span>Marcar la matriz de asignaci&oacute;n y contar las filas divididas</span></div></div>
+        <p>El paso cuatro es lo que hace &uacute;til al resto. La consecuencia de falla de cada funci&oacute;n es la entrada del FMEA de la lecture 19, y registrarla ahora cuesta una frase por funci&oacute;n en vez de un taller despu&eacute;s.</p>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>Siete funciones, cinco elementos, dos problemas</h2>
+        <p>La plataforma atmosf&eacute;rica se descompone en las siete funciones de segundo nivel de la matriz de arriba, agrupadas en cinco elementos l&oacute;gicos. Lee la matriz y cuenta.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Densidad de la matriz.</strong> Siete funciones contra cinco elementos dan \(7\times5 = 35\) celdas, de las cuales 10 est&aacute;n pobladas. Una matriz dispersa es buena se&ntilde;al: significa que la mayor&iacute;a de las funciones tienen un solo due&ntilde;o.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Las filas divididas.</strong> Dos funciones est&aacute;n marcadas en m&aacute;s de un elemento: <em>gestionar la energ&iacute;a el&eacute;ctrica</em>, compartida entre vuelo-y-potencia y control ambiental, y <em>detectar y responder a fallos</em>, repartida en tres elementos.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Cu&aacute;nto cuesta.</strong> Ninguna funci&oacute;n dividida puede verificarse debajo del nivel donde todos sus elementos est&aacute;n presentes. <em>Detectar y responder a fallos</em> toca tres de los cinco, as&iacute; que su verificaci&oacute;n es una actividad de nivel sistema y necesita un art&iacute;culo de prueba de ese nivel.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Qu&eacute; hacer.</strong> La detecci&oacute;n de fallos es genuinamente transversal y la divisi&oacute;n es correcta; es un costo a planear, no un defecto a quitar. La divisi&oacute;n de energ&iacute;a merece una segunda mirada: si control ambiental s&oacute;lo necesita <em>solicitar</em> potencia y no gestionarla, la funci&oacute;n pertenece por completo a vuelo-y-potencia y desaparece una verificaci&oacute;n de nivel sistema.</div></div>
+        <div class="result-box">\[ \boxed{ 35\ \text{celdas},\; 10\ \text{pobladas},\; 2\ \text{funciones divididas} \Rightarrow 2\ \text{verificaciones de sistema} } \]</div>
+        <p><strong>Interpretaci&oacute;n.</strong> Contar las filas divididas toma un minuto y produce un rengl&oacute;n de calendario. Cada funci&oacute;n dividida es una verificaci&oacute;n que no puede ocurrir a nivel subsistema, lo que significa un art&iacute;culo de prueba, una reserva de instalaci&oacute;n y un lugar en la secuencia de integraci&oacute;n &mdash; todo barato de planear ahora y caro de descubrir en la preparaci&oacute;n de prueba.</p>
+      </section>
+
+      <section id="summary-es">
+        <p class="section-label">Reglas operativas</p>
+        <h2>De un vistazo</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regla</th><th>Enunciado</th></tr></thead><tbody><tr><td>Las funciones son verbos</td><td>Si se puede comprar, no es una funci&oacute;n. <em>Almacenar y suministrar energ&iacute;a</em>, no <em>bater&iacute;a</em>.</td></tr><tr><td>Empieza por la caja negra</td><td>Fija lo que cruza la frontera antes de decidir nada del interior.</td></tr><tr><td>Deja de descomponer cuando puedas nombrar un due&ntilde;o</td><td>M&aacute;s detalle antes de eso es conjetura; menos deja requisitos sin poder asignarse.</td></tr><tr><td>Lo l&oacute;gico no es lo f&iacute;sico</td><td>Agrupa funciones por cohesi&oacute;n. Si el diagrama l&oacute;gico es igual al de subsistemas, no hubo descomposici&oacute;n.</td></tr><tr><td>Una funci&oacute;n dividida fija un nivel de verificaci&oacute;n</td><td>Una funci&oacute;n compartida por dos elementos no puede verificarse debajo del nivel donde ambos est&aacute;n presentes.</td></tr><tr><td>Cuenta temprano las funciones divididas</td><td>Son las que necesitar&aacute;n art&iacute;culos de prueba a nivel sistema, y eso es calendario y costo.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-es">
+        <p class="section-label">Errores comunes</p>
+        <h2>Qu&eacute; sale mal</h2>
+        <ul class="check-list"><li><strong>Listar componentes como funciones.</strong> Si puede comprarse, no es una funci&oacute;n, y la arquitectura se eligi&oacute; dentro del an&aacute;lisis que deb&iacute;a precederla.</li><li><strong>Una arquitectura l&oacute;gica id&eacute;ntica al diagrama de subsistemas.</strong> Mismas cajas, mismos nombres significa que no hubo descomposici&oacute;n.</li><li><strong>Descomponer a nivel de componente.</strong> Debajo del punto donde puede nombrarse un due&ntilde;o, el detalle es conjetura que se reescribir&aacute;.</li><li><strong>Parar demasiado pronto.</strong> Funciones tan amplias que ning&uacute;n requisito puede asign&aacute;rseles dejan la asignaci&oacute;n para improvisarse despu&eacute;s.</li><li><strong>Agrupar por el hardware esperado.</strong> Cohesi&oacute;n significa informaci&oacute;n, temporizaci&oacute;n o cantidad f&iacute;sica compartida &mdash; no proveedor compartido.</li><li><strong>Ignorar las filas divididas.</strong> Cada una es una verificaci&oacute;n que no puede ocurrir a nivel subsistema, y enterarse en la preparaci&oacute;n de prueba es la forma cara.</li></ul>
+      </section>
+
+      <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
+        <h2>Referencias</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 4.3.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=functional-analysis" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 12: Functional Analysis</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adaptado de la Unidad IV del gui&oacute;n del curso Ingenier&iacute;a en Sistemas Aeroespaciales (AE506) de Carlos Alberto Molina Holgu&iacute;n. Cada n&uacute;mero de esta p&aacute;gina se recalcul&oacute; de forma independiente para ella; ninguna calculadora cubre este tema, as&iacute; que el rec&aacute;lculo es la &uacute;nica comprobaci&oacute;n disponible. La densidad de la matriz y el conteo de funciones divididas se obtuvieron tabulando la matriz de asignaci&oacute;n impresa en esta p&aacute;gina, as&iacute; que las cifras y la tabla no pueden discrepar.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="traceability-rtm.html?v=11"><span>Lecture anterior</span>&larr; Trazabilidad y la RTM</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+
+      <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie k&ouml;nnen sollten</h2>
+        <ul><li>eine Funktion als Verbalphrase schreiben und eine als Funktion etikettierte Komponente erkennen;</li><li>die Black-Box-Sicht zeichnen und auflisten, was die Grenze in jede Richtung quert;</li><li>entscheiden, wann die Zerlegung endet, und den Endpunkt begr&uuml;nden;</li><li>Funktionen nach Koh&auml;sion statt nach erwarteter Hardware zu logischen Elementen gruppieren;</li><li>&uuml;ber Elemente geteilte Funktionen erkennen und deren Folge f&uuml;r die Verifikation angeben.</li></ul>
+      </section>
+
+      <section id="physics-de">
+        <p class="section-label">Ingenieurtechnischer Kontext</p>
+        <h2>Die Funktionsliste, die eine St&uuml;ckliste war</h2>
+        <p class="lead">Ein Team stellt seine Funktionsanalyse vor. Die Funktionen lauten: Batterie, Solarfeld, Flugrechner, Funkger&auml;t, Thermalregelung, Struktur. Sechs S&auml;tze, sauber aufgelistet, und keiner ist eine Funktion.</p><p>Geschehen ist: Die Architektur wurde vor der Analyse gew&auml;hlt und dann als Anforderung notiert. Jede nachgelagerte Abw&auml;gung vergleicht nun Varianten einer L&ouml;sung, weil die Alternativen in einer Liste ausschieden, die niemand als Entscheidung erkannte.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 260" role="img" aria-label="Die Black-Box-Sicht, bevor ein Teilsystem benannt wird">
+            <defs><marker id="fa-arrow-de" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0d568d"></path></marker></defs>
+            <rect x="270" y="70" width="260" height="120" rx="8" fill="#eef4fa" stroke="#071d33" stroke-width="2"></rect>
+            <text x="400" y="122" text-anchor="middle" font-size="14" font-weight="700" fill="#071d33">Atmosph&auml;rische Messungen einer Region liefern</text>
+            <text x="400" y="144" text-anchor="middle" font-size="12" fill="#3f5162"></text>
+            <text x="140" y="52" text-anchor="middle" font-size="14" font-weight="700" fill="#0d568d">Eing&auml;nge</text>
+            <text x="660" y="52" text-anchor="middle" font-size="14" font-weight="700" fill="#0d568d">Ausg&auml;nge</text>
+            <text x="248" y="94" text-anchor="end" font-size="12" fill="#3f5162">Bedienerbefehle</text>
+            <line x1="252" y1="90" x2="266" y2="90" stroke="#0d568d" stroke-width="2" marker-end="url(#fa-arrow-de)"></line>
+            <text x="552" y="94" text-anchor="start" font-size="12" fill="#3f5162">Wissenschaftsdaten</text>
+            <line x1="532" y1="90" x2="546" y2="90" stroke="#0d568d" stroke-width="2" marker-end="url(#fa-arrow-de)"></line>
+            <text x="248" y="132" text-anchor="end" font-size="12" fill="#3f5162">elektrische Energie</text>
+            <line x1="252" y1="128" x2="266" y2="128" stroke="#0d568d" stroke-width="2" marker-end="url(#fa-arrow-de)"></line>
+            <text x="552" y="132" text-anchor="start" font-size="12" fill="#3f5162">Zustandstelemetrie</text>
+            <line x1="532" y1="128" x2="546" y2="128" stroke="#0d568d" stroke-width="2" marker-end="url(#fa-arrow-de)"></line>
+            <text x="248" y="170" text-anchor="end" font-size="12" fill="#3f5162">die Atmosph&auml;re selbst</text>
+            <line x1="252" y1="166" x2="266" y2="166" stroke="#0d568d" stroke-width="2" marker-end="url(#fa-arrow-de)"></line>
+            <text x="552" y="170" text-anchor="start" font-size="12" fill="#3f5162">Abw&auml;rme</text>
+            <line x1="532" y1="166" x2="546" y2="166" stroke="#0d568d" stroke-width="2" marker-end="url(#fa-arrow-de)"></line>
+            <text x="400" y="228" text-anchor="middle" font-size="13" font-style="italic" fill="#b03a2e">Nichts hier nennt ein Teilsystem. Genau darum geht es.</text>
+            </svg>
+            <figcaption>Die Black-Box-Sicht. Was &uuml;ber die Grenze ein- und ausgeht, legt die Mission fest; wie es innen geschieht, bleibt offen &mdash; genau die Freiheit, die die Abw&auml;gungsstudie braucht.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-de">
+        <p class="section-label">Geltungsbereich und Grenzen</p>
+        <h2>Verhalten beschreiben, nicht Struktur</h2>
+        <p>Die Funktionsanalyse fragt, was das System <em>leisten</em> muss, in Begriffen, die jede Kandidatenarchitektur erf&uuml;llen m&uuml;sste. Ihr Ergebnis sind Funktionen, ihre Ein- und Ausg&auml;nge und die Folge ihres Ausfalls. Nichts darin nennt eine Komponente.</p><p>Die <strong>logische Architektur</strong> gruppiert diese Funktionen dann in koh&auml;rente Elemente &mdash; weiterhin ohne Hardware. Erst danach ordnet die Funktionszuordnung jede Funktion einem physischen Element zu, das ist die n&auml;chste Vorlesung. Die drei Schritte getrennt zu halten l&auml;sst Raum f&uuml;r eine echte Abw&auml;gung.</p>
+        <div class="callout warning"><strong>Was die Funktionsanalyse nicht entscheidet.</strong> Sie sagt nicht, welche Architektur besser ist, und kann es nicht: Sie beschreibt das Problem bewusst so, dass mehrere Architekturen es erf&uuml;llen. Die Wahl trifft die Entscheidungsanalyse der Einheit V. Der Wert liegt darin, dass die Wahl offen bleibt, statt in einer Liste versehentlich getroffen worden zu sein.</div>
+      </section>
+
+      <section id="verbs-de">
+        <p class="section-label">Die Pr&uuml;fung, die es abf&auml;ngt</p>
+        <h2>Was kaufbar ist, ist keine Funktion</h2>
+        <div class="table-wrap"><table><thead><tr><th>Formuliert als</th><th>Warum es scheitert</th><th>Als Funktion formuliert</th></tr></thead><tbody><tr><td>Batterie</td><td>Eine Komponente. Sie beantwortet <em>was existiert</em>, nicht <em>was geschehen muss</em>.</td><td>Elektrische Energie speichern und liefern</td></tr><tr><td>Thermalregelung</td><td>Ein Teilsystemname. Die Architektur wurde in der Funktionsliste festgelegt.</td><td>&Uuml;berlebensf&auml;hige Temperaturen halten</td></tr><tr><td>Datenverarbeitung</td><td>Eine Nominalphrase, die verbirgt, was mit den Daten geschieht.</td><td>Wissenschaftsdaten erfassen, speichern und zur&uuml;ckgeben</td></tr></tbody></table></div>
+        <p>Die Pr&uuml;fung dauert eine Sekunde je Zeile und lohnt sich f&uuml;r jeden Eintrag: K&ouml;nnten Sie daf&uuml;r eine Bestellung ausl&ouml;sen? Wenn ja, ist es eine Komponente. Eine Funktion ist etwas, das geschehen muss, und sehr verschiedene Komponenten k&ouml;nnten es bewirken.</p>
+      </section>
+
+      <section id="grouping-de">
+        <p class="section-label">Koh&auml;sion, nicht Bequemlichkeit</p>
+        <h2>Die logische Architektur bauen</h2>
+        <p>Gruppieren Sie Funktionen, die Information, Zeitverhalten oder physikalische Gr&ouml;&szlig;e teilen. Eine gute Gruppierung erkennt man daran, dass sich das Element ohne Bezug auf das Innere eines anderen beschreiben l&auml;sst. Eine schlechte daran, dass das logische Diagramm dieselben K&auml;sten hat wie das Teilsystemdiagramm &mdash; dann fand keine Zerlegung statt und die Hardware war von Anfang an gesetzt.</p>
+        <div class="table-wrap"><table><thead><tr><th>Funktion</th><th>Sensorik</th><th>Navigation</th><th>Flug und Energie</th><th>Umgebungsregelung</th><th>Kommunikation und Zustand</th></tr></thead><tbody><tr><td>Atmosph&auml;rische Messungen erfassen</td><td>&#9679;</td><td></td><td></td><td></td><td></td></tr><tr><td>Position und Lage bestimmen</td><td></td><td>&#9679;</td><td></td><td></td><td></td></tr><tr><td>Flug aufrechterhalten</td><td></td><td></td><td>&#9679;</td><td></td><td></td></tr><tr><td>Elektrische Energie verwalten</td><td></td><td></td><td>&#9679;</td><td>&#9679;</td><td></td></tr><tr><td>&Uuml;berlebensf&auml;hige Temperaturen halten</td><td></td><td></td><td></td><td>&#9679;</td><td></td></tr><tr><td>Daten zur Erde zur&uuml;ckgeben</td><td></td><td></td><td></td><td></td><td>&#9679;</td></tr><tr><td>Fehler erkennen und darauf reagieren</td><td>&#9679;</td><td>&#9679;</td><td></td><td></td><td>&#9679;</td></tr></tbody></table></div>
+        <p>Lesen Sie die Matrix zeilenweise. Eine Zeile mit einer Markierung ist eine Funktion, die ein Element ganz besitzt. Eine Zeile mit mehreren ist eine Funktion, die kein Element allein liefert &mdash; mit einer Folge, die der n&auml;chste Abschnitt pr&auml;zisiert.</p>
+      </section>
+
+      <section id="algorithm-de">
+        <p class="section-label">Rechenalgorithmus</p>
+        <h2>Die Analyse durchf&uuml;hren</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Die Oberfunktion als Verbalphrase schreiben</span></div><div><strong>2</strong><span>Die Black Box zeichnen und die &Uuml;berg&auml;nge auflisten</span></div><div><strong>3</strong><span>Eine Ebene zerlegen, nur Verben</span></div><div><strong>4</strong><span>Je Funktion Ein-, Ausg&auml;nge und Ausfallfolge erfassen</span></div><div><strong>5</strong><span>Stoppen, wo ein Verantwortlicher benennbar ist</span></div><div><strong>6</strong><span>Nach Koh&auml;sion zu logischen Elementen gruppieren</span></div><div><strong>7</strong><span>Die Zuordnungsmatrix markieren und geteilte Zeilen z&auml;hlen</span></div></div>
+        <p>Schritt vier macht den Rest brauchbar. Die Ausfallfolge jeder Funktion ist die Eingabe f&uuml;r die FMEA aus Vorlesung 19; sie jetzt zu erfassen kostet einen Satz je Funktion statt sp&auml;ter einen Workshop.</p>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Sieben Funktionen, f&uuml;nf Elemente, zwei Probleme</h2>
+        <p>Die atmosph&auml;rische Plattform zerf&auml;llt in die sieben Zweitebenenfunktionen der obigen Matrix, gruppiert in f&uuml;nf logische Elemente. Lesen und z&auml;hlen Sie die Matrix.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Matrixdichte.</strong> Sieben Funktionen gegen f&uuml;nf Elemente ergeben \(7\times5 = 35\) Zellen, davon 10 belegt. Eine d&uuml;nn besetzte Matrix ist ein gutes Zeichen: Die meisten Funktionen haben einen einzigen Eigent&uuml;mer.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Die geteilten Zeilen.</strong> Zwei Funktionen sind in mehreren Elementen markiert: <em>elektrische Energie verwalten</em>, geteilt zwischen Flug-und-Energie und Umgebungsregelung, und <em>Fehler erkennen und darauf reagieren</em>, verteilt auf drei Elemente.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Was das kostet.</strong> Keine geteilte Funktion ist unterhalb der Ebene verifizierbar, auf der alle ihre Elemente vorliegen. <em>Fehler erkennen und darauf reagieren</em> ber&uuml;hrt drei der f&uuml;nf, ihre Verifikation ist also eine Systemaktivit&auml;t und braucht ein Systempr&uuml;fmuster.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Was zu tun ist.</strong> Die Fehlererkennung ist echt querschnittlich, die Teilung korrekt; ein einzuplanender Aufwand, kein zu behebender Mangel. Die Energieteilung verdient einen zweiten Blick: Muss die Umgebungsregelung Energie nur <em>anfordern</em> statt verwalten, geh&ouml;rt die Funktion ganz zu Flug-und-Energie, und eine Systemverifikation entf&auml;llt.</div></div>
+        <div class="result-box">\[ \boxed{ 35\ \text{Zellen},\; 10\ \text{belegt},\; 2\ \text{geteilte Funktionen} \Rightarrow 2\ \text{Systemverifikationen} } \]</div>
+        <p><strong>Deutung.</strong> Die geteilten Zeilen zu z&auml;hlen dauert eine Minute und erzeugt einen Terminposten. Jede geteilte Funktion ist eine Verifikation, die nicht auf Teilsystemebene stattfinden kann &mdash; also Pr&uuml;fmuster, Anlagenbuchung und ein Platz in der Integrationsreihenfolge. Jetzt billig zu planen, bei der Testbereitschaft teuer zu entdecken.</p>
+      </section>
+
+      <section id="summary-de">
+        <p class="section-label">Arbeitsregeln</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regel</th><th>Aussage</th></tr></thead><tbody><tr><td>Funktionen sind Verben</td><td>Was sich kaufen l&auml;sst, ist keine Funktion. <em>Energie speichern und liefern</em>, nicht <em>Batterie</em>.</td></tr><tr><td>Von der Black Box ausgehen</td><td>Legen Sie fest, was die Grenze quert, bevor Sie etwas &uuml;ber das Innere entscheiden.</td></tr><tr><td>Zerlegen bis ein Verantwortlicher benennbar ist</td><td>Mehr Detail davor ist Raten; weniger l&auml;sst Anforderungen unzuordenbar.</td></tr><tr><td>Logisch ist nicht physisch</td><td>Funktionen nach Koh&auml;sion gruppieren. Gleicht das logische Diagramm dem Teilsystemdiagramm, fand keine Zerlegung statt.</td></tr><tr><td>Eine geteilte Funktion legt eine Verifikationsebene fest</td><td>Eine von zwei Elementen geteilte Funktion ist unterhalb der Ebene, auf der beide vorliegen, nicht verifizierbar.</td></tr><tr><td>Geteilte Funktionen fr&uuml;h z&auml;hlen</td><td>Sie brauchen Pr&uuml;fmuster auf Systemebene &mdash; ein Termin- und Kostenposten.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Häufige Fehler</p>
+        <h2>Was schiefgeht</h2>
+        <ul class="check-list"><li><strong>Komponenten als Funktionen auflisten.</strong> Was kaufbar ist, ist keine Funktion &mdash; die Architektur wurde in der Analyse gew&auml;hlt, die ihr vorausgehen sollte.</li><li><strong>Eine logische Architektur gleich dem Teilsystemdiagramm.</strong> Gleiche K&auml;sten, gleiche Namen hei&szlig;t: keine Zerlegung.</li><li><strong>Bis auf Komponentenebene zerlegen.</strong> Unterhalb der Benennbarkeit eines Verantwortlichen ist das Detail Raten, das neu geschrieben wird.</li><li><strong>Zu fr&uuml;h aufh&ouml;ren.</strong> So breite Funktionen, dass ihnen keine Anforderung zuordenbar ist, verlagern die Zuordnung ins Improvisierte.</li><li><strong>Nach erwarteter Hardware gruppieren.</strong> Koh&auml;sion hei&szlig;t geteilte Information, Zeitverhalten oder physikalische Gr&ouml;&szlig;e &mdash; nicht geteilter Lieferant.</li><li><strong>Die geteilten Zeilen ignorieren.</strong> Jede ist eine Verifikation, die nicht auf Teilsystemebene stattfinden kann; das bei der Testbereitschaft zu merken ist der teure Weg.</li></ul>
+      </section>
+
+      <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
+        <h2>Literatur</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 4.3.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=functional-analysis" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 12: Functional Analysis</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Bearbeitet nach Einheit IV des Skripts Luft- und Raumfahrtsystemtechnik (AE506) von Carlos Alberto Molina Holgu&iacute;n. Jede Zahl dieser Seite wurde eigens daf&uuml;r unabh&auml;ngig neu berechnet; kein Rechner deckt dieses Thema ab, daher ist die Neuberechnung die einzige Pr&uuml;fung. Matrixdichte und die Zahl geteilter Funktionen wurden aus der auf dieser Seite abgedruckten Zuordnungsmatrix ermittelt, Zahlen und Tabelle k&ouml;nnen also nicht abweichen.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="traceability-rtm.html?v=11"><span>Vorherige Vorlesung</span>&larr; R&uuml;ckverfolgbarkeit und RTM</a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>&copy; <span id="year"></span> Carlos Alberto Molina Holgu&iacute;n</p>
+    <p>Universidad Aut&oacute;noma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

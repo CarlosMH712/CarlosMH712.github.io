@@ -76,13 +76,25 @@ Exits non-zero on failure. Structure only — it does not check physics.
 | 04 | Flight Dynamics and Control | — | script ready, not converted |
 | 05 | Fluid Mechanics (MC611) | — | **next up**; script ready |
 | 06 | Numerical Methods | — | not started |
+| 07 | Aerospace Systems Engineering (AE506) | `aerospace-systems-engineering/` | 18 of 22 lectures |
 
-All six cards already exist in `#teaching` on the root page. Only Aerodynamics II
-carries a link; the others need a `course_<slug>_link` key added to the three
-language blocks of `script.js` plus the anchor on the card. Slugs are `aero1`,
-`aero2`, `prop`, `fdc`, `fluid`, `num`.
+Cards 01–06 already existed in `#teaching` on the root page; card 07 was added
+with the course. Aerodynamics II, Fluid Mechanics and Aerospace Systems
+Engineering carry links; the rest need a `course_<slug>_link` key added to the
+three language blocks of `script.js` plus the anchor on the card. Slugs are
+`aero1`, `aero2`, `prop`, `fdc`, `fluid`, `num`, `syseng`.
 
-Source scripts are LaTeX, under `~/Documents/<course>/…/Capitulos/`.
+Source scripts are LaTeX, under `~/Documents/<course>/…/Capitulos/`. Aerospace
+Systems Engineering is the exception: its script lives under
+`~/Documents/Materias/Aerospace Systems Engineering/` and compiles in two
+editions from one `\lightversion` switch. The lectures are cut from the light
+edition, whose section order already matches the eleven-slot template.
+
+**Aerospace Systems Engineering is a process course, not a physics course**, and
+uses the substitute slot vocabulary of `LECTURE-TEMPLATE.md` §3: `physics` reads
+*Engineering situation*, `model` reads *Scope and limits*, `summary` reads
+*Operative rules*. The ids are unchanged. A course picks one vocabulary and every
+one of its lectures uses it.
 
 ## Calculators
 
@@ -92,9 +104,14 @@ under `tools/` and a link from the root page:
 `compressible-flow-calculator` · `nozzle-calculator` · `propulsion-calculator`
 (turbofan) · `turbojet-calculator` · `ramjet-calculator`
 
-Their local working copies were deleted from `~/Downloads`; re-clone from GitHub
-before working on one. A lecture and its calculator point at each other, and the
-lecture's worked example is a regression case in the calculator's test suite.
+All five serve Aerodynamics II and Propulsion only. Their local working copies
+were deleted from `~/Downloads`; re-clone from GitHub before working on one.
+
+**An app belongs to the courses it serves, not to the site.** Most lectures have
+no calculator and are complete without one; never bridge a course to an app
+because the app exists. Where an app *does* cover a lecture, the two point at
+each other and that lecture's worked example is a regression case in the app's
+test suite. See `DESIGN-SYSTEM.md` §13 and `LECTURE-TEMPLATE.md` §7.
 
 ## Git
 

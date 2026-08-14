@@ -164,6 +164,40 @@ are fixed:
 Theory-body labels are free, but should describe the *role* of the section
 ("Central relation", "Integrated form") rather than restate its heading.
 
+### Process-course variant
+
+Three of the slot labels assume the lecture derives physics. They do not fit a
+course whose subject is engineering *method* rather than a governed phenomenon —
+Aerospace Systems Engineering is the first such course on the site, and
+Numerical Methods will be the second. For those courses, and only for those,
+three labels take a substitute string. **The `id` does not change**, so the
+verifier, the TOC ordering, and the eleven-slot order are untouched.
+
+| Slot | English | Spanish | German |
+|---|---|---|---|
+| `physics` | Engineering situation | Situación de ingeniería | Ingenieurtechnischer Kontext |
+| `model` | Scope and limits | Alcance y límites | Geltungsbereich und Grenzen |
+| `summary` | Operative rules | Reglas operativas | Arbeitsregeln |
+
+The substitution is per course, not per lecture: a course picks one vocabulary
+and every one of its lectures uses it. Mixing the two inside a course breaks the
+navigational pattern the fixed vocabulary exists to protect.
+
+What each substituted slot must still deliver:
+
+- **Engineering situation** — the decision or failure the lecture addresses,
+  before any procedure. Carries the `lead` paragraph and the main diagram, exactly
+  as `physics` does.
+- **Scope and limits** — what the method assumes, what it does not decide, and
+  what it must not be used for. Still ends in a `callout warning`. For a method
+  the warning is usually about over-reading its output: a risk matrix ranks, it
+  does not analyse.
+- **Operative rules** — the compact recapitulation students use before an exam.
+  Where a physics lecture tabulates equations, a method lecture tabulates the
+  rule, its trigger, and its consequence. A method lecture that *does* have
+  equations — RPN, fault-tree gates, a weighted sum — tabulates them here
+  alongside the rules.
+
 ### Physics is not translated
 
 Equations, symbols, and station numbering stay identical in all three languages.
@@ -214,6 +248,11 @@ targets of that calculator. The Aerodynamics II nozzle lectures use
 which appear in the nozzle calculator's test suite. An example that doubles as a
 regression case cannot silently drift away from the tool.
 
+Where no calculator covers the topic — the ordinary case, see §7 — choose values
+that exercise the physics rather than values that round well, and say in the
+`source-note` how they were verified. The obligation to recompute does not weaken
+when there is no app to check against; it is the only check there is.
+
 ---
 
 ## 6. Page furniture
@@ -256,7 +295,20 @@ Every `<link>` and `<script>` carries `?v=N`. Raising N requires raising it in
 
 ## 7. Wiring a lecture to its calculator
 
-The two point at each other:
+### Most lectures have no calculator, and that is the normal state
+
+A calculator is built when a topic has a procedure worth automating, not so that
+every lecture has a button. Aerodynamics II has five apps across sixteen
+lectures; the other eleven omit slot 10 and are complete. **A lecture without a
+calculator is not missing anything** — do not invent a bridge to an app from
+another course because one happens to exist. Fluid Mechanics does not use the
+compressible-flow or nozzle calculators, and its pages must not link to them.
+
+The test for whether a lecture links to an app is narrow: *does this app compute
+the quantity this lecture teaches, in the notation this lecture uses?* Anything
+looser produces a link the student follows once and never again.
+
+### When one does exist, all four legs are wired
 
 - The lecture's `calculator` section and hero button link to the deployed app.
 - The app's sidebar carries `SITE_URL` back to the portal.
@@ -278,7 +330,8 @@ section.
 - [ ] `section-label` on every section, references included, from the fixed vocabulary
 - [ ] Same section count and same reference count in the three languages
 - [ ] All inline maths escaped; no bare-parenthesis maths, no interleaved languages
-- [ ] Every number independently recomputed; example doubles as a regression case
+- [ ] Every number independently recomputed — unconditional, calculator or not
+- [ ] *If* a calculator covers the topic: example doubles as a regression case
 - [ ] Three hero chips in the fixed order
 - [ ] References in the fixed order with full bibliographic data and a `source-note`
 - [ ] `?v=N` consistent with the rest of the site

@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Need, goals and objectives in aerospace mission definition: stating a problem without naming a solution, writing objectives with a threshold and a condition, and checking feasibility before committing." />
+  <meta name="author" content="Carlos Alberto Molina Holgu&iacute;n" />
+  <meta name="theme-color" content="#071d33" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Need, Goals, and Objectives | Aerospace Systems Engineering</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:wght@600;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=11" data-ui-key="course">Aerospace Systems Engineering</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Aerospace Systems Engineering &middot; Lecture 04</p>
+        <h1>Need, Goals, and Objectives</h1>
+        <p class="hero-copy">How to state a problem without naming its solution, how a broad goal becomes a measurable objective, and why an objective nobody checked is a promise nobody can keep.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Ingeniería de Sistemas Aeroespaciales &middot; Lecture 04</p>
+        <h1>Necesidad, metas y objetivos</h1>
+        <p class="hero-copy">C&oacute;mo enunciar un problema sin nombrar su soluci&oacute;n, c&oacute;mo una meta amplia se vuelve un objetivo medible y por qu&eacute; un objetivo que nadie verific&oacute; es una promesa que nadie puede cumplir.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Luft- und Raumfahrtsystemtechnik &middot; Vorlesung 04</p>
+        <h1>Bedarf, Ziele und Einzelziele</h1>
+        <p class="hero-copy">Wie man ein Problem ohne seine L&ouml;sung formuliert, wie aus einem groben Ziel ein messbares Einzelziel wird und warum ein ungepr&uuml;ftes Einzelziel ein unhaltbares Versprechen ist.</p>
+      </div>
+
+    <div class="hero-meta">
+        <span data-language="en">Estimated reading: 12 min</span><span data-language="es" hidden>Lectura estimada: 12 min</span><span data-language="de" hidden>Lesedauer: ca. 12 min</span>
+        <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+        <span data-language="en">Scope: mission definition, before requirements</span><span data-language="es" hidden>Alcance: definici&oacute;n de misi&oacute;n, antes de requisitos</span><span data-language="de" hidden>Umfang: Missionsdefinition, vor den Anforderungen</span>
+    </div>
+    <div class="button-row">
+      <a class="button secondary" href="index.html?v=11" data-ui-key="back">Back to course</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Engineering situation</a>
+        <a href="#model">Scope and limits</a>
+        <a href="#levels">The three levels</a>
+        <a href="#rewriting">Rewriting a bad one</a>
+        <a href="#algorithm">From need to objectives</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Operative rules</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#references">Sources</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Situaci&oacute;n de ingenier&iacute;a</a>
+        <a href="#model-es">Alcance y l&iacute;mites</a>
+        <a href="#levels-es">Los tres niveles</a>
+        <a href="#rewriting-es">Reescribir uno malo</a>
+        <a href="#algorithm-es">De la necesidad a los objetivos</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Reglas operativas</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Kontext</a>
+        <a href="#model-de">Geltungsbereich</a>
+        <a href="#levels-de">Die drei Ebenen</a>
+        <a href="#rewriting-de">Einen schlechten neu fassen</a>
+        <a href="#algorithm-de">Vom Bedarf zu den Einzelzielen</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Arbeitsregeln</a>
+        <a href="#mistakes-de">H&auml;ufige Fehler</a>
+        <a href="#references-de">Quellen</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+
+      <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul><li>write a need statement that names no solution, and test it by checking two different architectures could address it;</li><li>distinguish a goal from an objective, and say why a goal is allowed to be unmeasurable;</li><li>write an objective with a threshold, a condition and a duration;</li><li>check an objective for feasibility with a back-of-envelope calculation before it is baselined;</li><li>trace every objective up to a goal and every goal up to the need.</li></ul>
+      </section>
+
+      <section id="physics">
+        <p class="section-label">Engineering situation</p>
+        <h2>The answer that arrived before the question</h2>
+        <p class="lead">A regional agency opens the kickoff meeting with a sentence: &ldquo;we want a drone system to watch for wildfires.&rdquo; Everyone writes it down, and the project now has a vehicle before it has a problem.</p><p>Notice what has already been decided. Not the airframe, not the sensor &mdash; but that the answer flies, is uncrewed, and is owned by the agency. A tower network, a satellite tasking agreement and a contracted crewed aircraft have all been eliminated, silently, by a sentence nobody treated as a decision.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 200" role="img" aria-label="The chain from a stated need down to requirements">
+            <defs><marker id="ng-arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0d568d"></path></marker></defs>
+            <rect x="20" y="50" width="170" height="66" rx="7" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="105" y="78" text-anchor="middle" font-size="17" font-weight="700" fill="#071d33">Need</text>
+            <text x="105" y="100" text-anchor="middle" font-size="12" fill="#3f5162">the problem, without a solution</text>
+            <line x1="192" y1="83" x2="233" y2="83" stroke="#0d568d" stroke-width="2" marker-end="url(#ng-arrow)"></line>
+            <rect x="215" y="50" width="170" height="66" rx="7" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="300" y="78" text-anchor="middle" font-size="17" font-weight="700" fill="#071d33">Goals</text>
+            <text x="300" y="100" text-anchor="middle" font-size="12" fill="#3f5162">broad outcomes</text>
+            <line x1="387" y1="83" x2="428" y2="83" stroke="#0d568d" stroke-width="2" marker-end="url(#ng-arrow)"></line>
+            <rect x="410" y="50" width="170" height="66" rx="7" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="495" y="78" text-anchor="middle" font-size="17" font-weight="700" fill="#071d33">Objectives</text>
+            <text x="495" y="100" text-anchor="middle" font-size="12" fill="#3f5162">measurable results</text>
+            <line x1="582" y1="83" x2="623" y2="83" stroke="#0d568d" stroke-width="2" marker-end="url(#ng-arrow)"></line>
+            <rect x="605" y="50" width="170" height="66" rx="7" fill="#f6f1e6" stroke="#8fa6ba"></rect>
+            <text x="690" y="78" text-anchor="middle" font-size="17" font-weight="700" fill="#071d33">Requirements</text>
+            <text x="690" y="100" text-anchor="middle" font-size="12" fill="#3f5162">Unit 07 onward</text>
+            <text x="400" y="30" text-anchor="middle" font-size="14" font-weight="600" fill="#0d568d">Each level must be answerable from the one before it</text>
+            <text x="400" y="160" text-anchor="middle" font-size="13" font-style="italic" fill="#b03a2e">No level may name a solution the level above did not require</text>
+            </svg>
+            <figcaption>Need, goals and objectives. The chain is a filter: anything that cannot be traced up to the need has no business being in the design.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model">
+        <p class="section-label">Scope and limits</p>
+        <h2>Three levels, one filter</h2>
+        <p>Mission definition separates the problem from the answer by forcing it through three levels. The <strong>need</strong> states the problem and whose it is. <strong>Goals</strong> say what broad outcome would count as addressing it. <strong>Objectives</strong> state specific results with numbers attached, and they are what requirements will eventually be traced to.</p><p>The value is not in the vocabulary. It is that each level has to be answerable from the one above, so anything that cannot be traced upward is visibly somebody&rsquo;s preference rather than the mission&rsquo;s purpose.</p>
+        <div class="callout warning"><strong>What this does not do.</strong> It does not tell you whether the need is the right need. That comes from the stakeholders, and the next lecture is about finding all of them rather than only the one who called the meeting. Mission definition makes intent explicit and traceable; it cannot make it correct.</div>
+      </section>
+
+      <section id="levels">
+        <p class="section-label">Central definitions</p>
+        <h2>What each level must survive</h2>
+        <div class="table-wrap"><table><thead><tr><th>Level</th><th>Answers</th><th>Test it must pass</th></tr></thead><tbody><tr><td>Need</td><td>What problem are we solving, and for whom?</td><td>Names no solution. Two completely different architectures could both address it.</td></tr><tr><td>Goal</td><td>What broad outcome should the mission achieve?</td><td>Directional, not yet measurable. Written in the stakeholder&rsquo;s language.</td></tr><tr><td>Objective</td><td>What specific result must be achieved?</td><td>Measurable, with a threshold and a condition. Evaluable after the fact.</td></tr></tbody></table></div>
+        <p>The middle level causes the most argument, because a goal is deliberately not measurable and engineers dislike that. It is doing a different job: a goal records what the stakeholder actually values, in words they would use, so that when two objectives conflict there is something to appeal to.</p>
+      </section>
+
+      <section id="rewriting">
+        <p class="section-label">Three repairs</p>
+        <h2>Rewriting statements that fail</h2>
+        <div class="table-wrap"><table><thead><tr><th>Written as</th><th>Problem</th><th>Rewritten</th></tr></thead><tbody><tr><td>&ldquo;We need a drone to watch for wildfires.&rdquo;</td><td>Names the vehicle. Satellites, towers and aircraft are excluded before anyone compares them.</td><td>&ldquo;Fire managers cannot detect ignitions in the northern range early enough to dispatch before a fire exceeds initial-attack size.&rdquo;</td></tr><tr><td>&ldquo;The mission shall provide good coverage.&rdquo;</td><td>No threshold and no condition, so nobody can say afterwards whether it happened.</td><td>&ldquo;Survey the full 25 km&sup2; area at least once every 24 hours for 30 consecutive days.&rdquo;</td></tr><tr><td>&ldquo;Use a 12 MP visible camera.&rdquo;</td><td>An objective that specifies the design. The payload trade is over before it started.</td><td>&ldquo;Detect a 3 m&sup2; thermal anomaly with a probability of at least 0.9 under the specified atmospheric conditions.&rdquo;</td></tr></tbody></table></div>
+        <p>All three failures have the same shape: a decision has been made and disguised as a description. The repair is always to ask what would have to be true for the stakeholder to be satisfied, and to write <em>that</em> instead.</p>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">Calculation algorithm</p>
+        <h2>From a need to objectives</h2>
+        <div class="process-flow"><div><strong>1</strong><span>State the problem and whose it is</span></div><div><strong>2</strong><span>Test: could two architectures address it?</span></div><div><strong>3</strong><span>Write two or three goals</span></div><div><strong>4</strong><span>Turn each goal into objectives</span></div><div><strong>5</strong><span>Add threshold, condition, duration</span></div><div><strong>6</strong><span>Check each is feasible</span></div><div><strong>7</strong><span>Trace every objective upward</span></div></div>
+        <p>Step six is skipped more often than any other, and it is cheap. A single back-of-envelope calculation tells you whether an objective is comfortable, tight, or impossible &mdash; and finding out that it is impossible now costs an afternoon rather than a phase.</p>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>Is the revisit objective even achievable?</h2>
+        <p>From the repaired statements above, one objective reads: <em>survey the full 25 km&sup2; area at least once every 24 hours for 30 consecutive days</em>. Before it is baselined, check that some vehicle could do it. The candidate concept flies at 25 m/s with a sensor swath of 0.5 km, over a square 5 km on a side.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Passes needed.</strong> Flying parallel lines across the square, \[N = \frac{5.0\ \text{km}}{0.5\ \text{km}} = 10\ \text{passes}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Distance flown.</strong> Each pass is 5.0 km long, so \[d = 10 \times 5.0 = 50\ \text{km}.\] Turns are ignored, which is conservative only if they are short; at this scale they add perhaps 10&nbsp;%.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Time on task.</strong> \[t = \frac{50\,000\ \text{m}}{25\ \text{m/s}} = 2\,000\ \text{s} = 33.3\ \text{min}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Against the objective.</strong> One full survey takes about half an hour of the 24 available. The revisit objective is not merely feasible, it is comfortable by more than an order of magnitude &mdash; which is itself information.</div></div>
+        <div class="result-box">\[ \boxed{ N = 10,\quad d = 50\ \text{km},\quad t = 33.3\ \text{min per survey} } \]</div>
+        <p><strong>Interpretation.</strong> Two things follow. First, the objective is safe to baseline. Second, and more useful, the enormous slack says the revisit interval is not what will size this vehicle &mdash; endurance, weather availability and data handling will. A team that had not run this calculation would have spent the trade study optimising the wrong parameter.</p>
+      </section>
+
+      <section id="summary">
+        <p class="section-label">Operative rules</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Statement</th></tr></thead><tbody><tr><td>Need names no solution</td><td>If two credible architectures cannot both address it, it is a design decision wearing a need&rsquo;s clothes.</td></tr><tr><td>Goals are directional</td><td>They say which way is better. They are not yet measurable, and that is correct at that level.</td></tr><tr><td>Objectives carry a threshold and a condition</td><td>&ldquo;At least X, under condition Y, for duration Z.&rdquo; Without all three it cannot be evaluated.</td></tr><tr><td>Check feasibility before committing</td><td>An objective nobody can meet is worse than no objective: it makes the whole set look negotiable.</td></tr><tr><td>Traceability runs both ways</td><td>Every objective serves a goal; every goal serves the need. An orphan objective is somebody&rsquo;s preference.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes">
+        <p class="section-label">Common mistakes</p>
+        <h2>What goes wrong</h2>
+        <ul class="check-list"><li><strong>Writing the solution as the need.</strong> &ldquo;We need a drone&rdquo; eliminates every other architecture before anyone compares them.</li><li><strong>Objectives with no threshold.</strong> &ldquo;Good coverage&rdquo; cannot be evaluated after the mission, so it cannot fail, so it is not an objective.</li><li><strong>Objectives that specify the design.</strong> Naming the sensor closes the payload trade before it opens.</li><li><strong>Skipping the feasibility check.</strong> One calculation separates an ambitious objective from an impossible one, and both look identical on paper.</li><li><strong>Objectives with no parent.</strong> If it traces to no goal, someone added it because they wanted it.</li><li><strong>Treating a goal&rsquo;s vagueness as a defect.</strong> Goals record what the stakeholder values. Forcing a number onto them too early loses the thing you will need when objectives conflict.</li></ul>
+      </section>
+
+      <section id="references" class="references">
+        <p class="section-label">Sources</p>
+        <h2>References</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 4.1.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=scope-conops" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 5: Scope and ConOps</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adapted from Unit II of the Aerospace Systems Engineering (AE506) course script by Carlos Alberto Molina Holgu&iacute;n. Every number on this page was recomputed independently for it; no calculator covers this topic, so recomputation is the only check there is. The survey timing was computed from the swath, side length and ground speed stated in the example; turns were deliberately excluded and the omission is stated in the step where it matters.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="life-cycle-and-margins.html?v=11"><span>Previous lecture</span>&larr; Life Cycle and Margins</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+
+      <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Qu&eacute; deber&iacute;as poder hacer</h2>
+        <ul><li>redactar una necesidad que no nombre soluci&oacute;n, y probarla verificando que dos arquitecturas distintas podr&iacute;an atenderla;</li><li>distinguir una meta de un objetivo, y decir por qu&eacute; a una meta se le permite no ser medible;</li><li>redactar un objetivo con umbral, condici&oacute;n y duraci&oacute;n;</li><li>verificar la factibilidad de un objetivo con un c&aacute;lculo de servilleta antes de fijarlo en la l&iacute;nea base;</li><li>trazar todo objetivo hasta una meta y toda meta hasta la necesidad.</li></ul>
+      </section>
+
+      <section id="physics-es">
+        <p class="section-label">Situación de ingeniería</p>
+        <h2>La respuesta que lleg&oacute; antes que la pregunta</h2>
+        <p class="lead">Una agencia regional abre la reuni&oacute;n de arranque con una frase: &laquo;queremos un sistema de drones para vigilar incendios&raquo;. Todos la anotan, y el proyecto ya tiene un veh&iacute;culo antes de tener un problema.</p><p>Fíjate en lo que ya se decidi&oacute;. No el fuselaje, no el sensor &mdash; sino que la respuesta vuela, no lleva tripulaci&oacute;n y es propiedad de la agencia. Una red de torres, un acuerdo de tasking satelital y una aeronave tripulada contratada quedaron eliminados, en silencio, por una frase que nadie trat&oacute; como decisi&oacute;n.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 200" role="img" aria-label="La cadena de una necesidad enunciada hasta los requisitos">
+            <defs><marker id="ng-arrow-es" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0d568d"></path></marker></defs>
+            <rect x="20" y="50" width="170" height="66" rx="7" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="105" y="78" text-anchor="middle" font-size="17" font-weight="700" fill="#071d33">Necesidad</text>
+            <text x="105" y="100" text-anchor="middle" font-size="12" fill="#3f5162">el problema, sin soluci&oacute;n</text>
+            <line x1="192" y1="83" x2="233" y2="83" stroke="#0d568d" stroke-width="2" marker-end="url(#ng-arrow-es)"></line>
+            <rect x="215" y="50" width="170" height="66" rx="7" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="300" y="78" text-anchor="middle" font-size="17" font-weight="700" fill="#071d33">Metas</text>
+            <text x="300" y="100" text-anchor="middle" font-size="12" fill="#3f5162">resultados amplios</text>
+            <line x1="387" y1="83" x2="428" y2="83" stroke="#0d568d" stroke-width="2" marker-end="url(#ng-arrow-es)"></line>
+            <rect x="410" y="50" width="170" height="66" rx="7" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="495" y="78" text-anchor="middle" font-size="17" font-weight="700" fill="#071d33">Objetivos</text>
+            <text x="495" y="100" text-anchor="middle" font-size="12" fill="#3f5162">resultados medibles</text>
+            <line x1="582" y1="83" x2="623" y2="83" stroke="#0d568d" stroke-width="2" marker-end="url(#ng-arrow-es)"></line>
+            <rect x="605" y="50" width="170" height="66" rx="7" fill="#f6f1e6" stroke="#8fa6ba"></rect>
+            <text x="690" y="78" text-anchor="middle" font-size="17" font-weight="700" fill="#071d33">Requisitos</text>
+            <text x="690" y="100" text-anchor="middle" font-size="12" fill="#3f5162">desde la lecture 07</text>
+            <text x="400" y="30" text-anchor="middle" font-size="14" font-weight="600" fill="#0d568d">Cada nivel debe poder responderse desde el anterior</text>
+            <text x="400" y="160" text-anchor="middle" font-size="13" font-style="italic" fill="#b03a2e">Ning&uacute;n nivel puede nombrar una soluci&oacute;n que el nivel superior no exigi&oacute;</text>
+            </svg>
+            <figcaption>Necesidad, metas y objetivos. La cadena es un filtro: lo que no se pueda trazar hasta la necesidad no tiene por qu&eacute; estar en el dise&ntilde;o.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-es">
+        <p class="section-label">Alcance y límites</p>
+        <h2>Tres niveles, un filtro</h2>
+        <p>La definici&oacute;n de misi&oacute;n separa el problema de la respuesta forz&aacute;ndolo por tres niveles. La <strong>necesidad</strong> enuncia el problema y de qui&eacute;n es. Las <strong>metas</strong> dicen qu&eacute; resultado amplio contar&iacute;a como atenderlo. Los <strong>objetivos</strong> enuncian resultados espec&iacute;ficos con n&uacute;meros, y son a lo que los requisitos se trazar&aacute;n eventualmente.</p><p>El valor no est&aacute; en el vocabulario. Est&aacute; en que cada nivel debe poder responderse desde el de arriba, as&iacute; que lo que no se pueda trazar hacia arriba es visiblemente la preferencia de alguien y no el prop&oacute;sito de la misi&oacute;n.</p>
+        <div class="callout warning"><strong>Lo que esto no hace.</strong> No te dice si la necesidad es la correcta. Eso viene de los stakeholders, y la siguiente lecture trata de encontrarlos a todos y no s&oacute;lo al que convoc&oacute; la reuni&oacute;n. La definici&oacute;n de misi&oacute;n hace expl&iacute;cita y trazable la intenci&oacute;n; no puede hacerla correcta.</div>
+      </section>
+
+      <section id="levels-es">
+        <p class="section-label">Definiciones centrales</p>
+        <h2>Qu&eacute; debe sobrevivir cada nivel</h2>
+        <div class="table-wrap"><table><thead><tr><th>Nivel</th><th>Responde</th><th>Prueba que debe pasar</th></tr></thead><tbody><tr><td>Necesidad</td><td>&iquest;Qu&eacute; problema resolvemos, y para qui&eacute;n?</td><td>No nombra soluci&oacute;n. Dos arquitecturas totalmente distintas podr&iacute;an atenderla.</td></tr><tr><td>Meta</td><td>&iquest;Qu&eacute; resultado amplio debe lograr la misi&oacute;n?</td><td>Direccional, a&uacute;n no medible. Escrita en el lenguaje del stakeholder.</td></tr><tr><td>Objetivo</td><td>&iquest;Qu&eacute; resultado espec&iacute;fico debe lograrse?</td><td>Medible, con umbral y condici&oacute;n. Evaluable despu&eacute;s del hecho.</td></tr></tbody></table></div>
+        <p>El nivel intermedio causa m&aacute;s discusi&oacute;n, porque una meta deliberadamente no es medible y a los ingenieros eso les incomoda. Est&aacute; haciendo otro trabajo: una meta registra lo que el stakeholder realmente valora, con las palabras que &eacute;l usar&iacute;a, para que cuando dos objetivos entren en conflicto haya algo a lo que apelar.</p>
+      </section>
+
+      <section id="rewriting-es">
+        <p class="section-label">Tres reparaciones</p>
+        <h2>Reescribir enunciados que fallan</h2>
+        <div class="table-wrap"><table><thead><tr><th>Escrito como</th><th>Problema</th><th>Reescrito</th></tr></thead><tbody><tr><td>&laquo;Necesitamos un dron para vigilar incendios.&raquo;</td><td>Nombra el veh&iacute;culo. Sat&eacute;lites, torres y aviones quedan excluidos antes de compararlos.</td><td>&laquo;Los gestores de incendios no detectan igniciones en la sierra norte con antelaci&oacute;n suficiente para despachar antes de que el fuego supere el tama&ntilde;o de ataque inicial.&raquo;</td></tr><tr><td>&laquo;La misi&oacute;n debe dar buena cobertura.&raquo;</td><td>Sin umbral ni condici&oacute;n, as&iacute; que nadie puede decir despu&eacute;s si ocurri&oacute;.</td><td>&laquo;Inspeccionar las 25 km&sup2; completas al menos una vez cada 24 horas durante 30 d&iacute;as consecutivos.&raquo;</td></tr><tr><td>&laquo;Usar una c&aacute;mara visible de 12 MP.&raquo;</td><td>Un objetivo que especifica el dise&ntilde;o. El intercambio de carga &uacute;til termin&oacute; antes de empezar.</td><td>&laquo;Detectar una anomal&iacute;a t&eacute;rmica de 3 m&sup2; con probabilidad de al menos 0.9 bajo las condiciones atmosf&eacute;ricas especificadas.&raquo;</td></tr></tbody></table></div>
+        <p>Las tres fallas tienen la misma forma: se tom&oacute; una decisi&oacute;n y se disfraz&oacute; de descripci&oacute;n. La reparaci&oacute;n siempre es preguntar qu&eacute; tendr&iacute;a que ser cierto para que el stakeholder quede satisfecho, y escribir <em>eso</em> en su lugar.</p>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Algoritmo de cálculo</p>
+        <h2>De una necesidad a objetivos</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Enunciar el problema y de qui&eacute;n es</span></div><div><strong>2</strong><span>Probar: &iquest;dos arquitecturas podr&iacute;an atenderlo?</span></div><div><strong>3</strong><span>Escribir dos o tres metas</span></div><div><strong>4</strong><span>Convertir cada meta en objetivos</span></div><div><strong>5</strong><span>A&ntilde;adir umbral, condici&oacute;n, duraci&oacute;n</span></div><div><strong>6</strong><span>Verificar que cada uno es factible</span></div><div><strong>7</strong><span>Trazar cada objetivo hacia arriba</span></div></div>
+        <p>El paso seis se salta m&aacute;s que ning&uacute;n otro, y es barato. Un solo c&aacute;lculo de servilleta te dice si un objetivo es c&oacute;modo, ajustado o imposible &mdash; y descubrir ahora que es imposible cuesta una tarde en vez de una fase.</p>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>&iquest;El objetivo de revisita es siquiera alcanzable?</h2>
+        <p>De los enunciados reparados arriba, un objetivo dice: <em>inspeccionar las 25 km&sup2; completas al menos una vez cada 24 horas durante 30 d&iacute;as consecutivos</em>. Antes de fijarlo en la l&iacute;nea base, verifica que alg&uacute;n veh&iacute;culo podr&iacute;a hacerlo. El concepto candidato vuela a 25 m/s con una franja de sensor de 0.5 km, sobre un cuadrado de 5 km de lado.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Pasadas necesarias.</strong> Volando l&iacute;neas paralelas por el cuadrado, \[N = \frac{5.0\ \text{km}}{0.5\ \text{km}} = 10\ \text{pasadas}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Distancia volada.</strong> Cada pasada mide 5.0 km, as&iacute; que \[d = 10 \times 5.0 = 50\ \text{km}.\] Se ignoran los virajes, lo cual es conservador s&oacute;lo si son cortos; a esta escala a&ntilde;aden quiz&aacute; 10&nbsp;%.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Tiempo en tarea.</strong> \[t = \frac{50\,000\ \text{m}}{25\ \text{m/s}} = 2\,000\ \text{s} = 33.3\ \text{min}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Contra el objetivo.</strong> Una inspecci&oacute;n completa toma cerca de media hora de las 24 disponibles. El objetivo de revisita no s&oacute;lo es factible, es c&oacute;modo por m&aacute;s de un orden de magnitud &mdash; lo cual es informaci&oacute;n en s&iacute; mismo.</div></div>
+        <div class="result-box">\[ \boxed{ N = 10,\quad d = 50\ \text{km},\quad t = 33.3\ \text{min por inspección} } \]</div>
+        <p><strong>Interpretaci&oacute;n.</strong> Se siguen dos cosas. Primera, el objetivo es seguro de fijar. Segunda, y m&aacute;s &uacute;til, la enorme holgura dice que el intervalo de revisita no es lo que dimensionar&aacute; este veh&iacute;culo &mdash; lo har&aacute;n la autonom&iacute;a, la disponibilidad por clima y el manejo de datos. Un equipo que no hubiera hecho este c&aacute;lculo habr&iacute;a gastado el estudio de intercambio optimizando el par&aacute;metro equivocado.</p>
+      </section>
+
+      <section id="summary-es">
+        <p class="section-label">Reglas operativas</p>
+        <h2>De un vistazo</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regla</th><th>Enunciado</th></tr></thead><tbody><tr><td>La necesidad no nombra soluci&oacute;n</td><td>Si dos arquitecturas cre&iacute;bles no pueden ambas atenderla, es una decisi&oacute;n de dise&ntilde;o disfrazada de necesidad.</td></tr><tr><td>Las metas son direccionales</td><td>Dicen hacia d&oacute;nde es mejor. A&uacute;n no son medibles, y a ese nivel est&aacute; bien.</td></tr><tr><td>Los objetivos llevan umbral y condici&oacute;n</td><td>&laquo;Al menos X, bajo la condici&oacute;n Y, durante Z.&raquo; Sin los tres no puede evaluarse.</td></tr><tr><td>Verifica factibilidad antes de comprometerte</td><td>Un objetivo que nadie puede cumplir es peor que ninguno: hace ver negociable a todo el conjunto.</td></tr><tr><td>La trazabilidad corre en ambos sentidos</td><td>Todo objetivo sirve a una meta; toda meta sirve a la necesidad. Un objetivo hu&eacute;rfano es la preferencia de alguien.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-es">
+        <p class="section-label">Errores comunes</p>
+        <h2>Qu&eacute; sale mal</h2>
+        <ul class="check-list"><li><strong>Escribir la soluci&oacute;n como necesidad.</strong> &laquo;Necesitamos un dron&raquo; elimina toda otra arquitectura antes de compararlas.</li><li><strong>Objetivos sin umbral.</strong> &laquo;Buena cobertura&raquo; no puede evaluarse tras la misi&oacute;n, luego no puede fallar, luego no es un objetivo.</li><li><strong>Objetivos que especifican el dise&ntilde;o.</strong> Nombrar el sensor cierra el intercambio de carga &uacute;til antes de abrirlo.</li><li><strong>Saltarse la verificaci&oacute;n de factibilidad.</strong> Un c&aacute;lculo separa un objetivo ambicioso de uno imposible, y en papel se ven id&eacute;nticos.</li><li><strong>Objetivos sin padre.</strong> Si no traza a ninguna meta, alguien lo a&ntilde;adi&oacute; porque lo quer&iacute;a.</li><li><strong>Tomar la vaguedad de una meta por defecto.</strong> Las metas registran lo que el stakeholder valora. Forzarles un n&uacute;mero demasiado pronto pierde justo lo que necesitar&aacute;s cuando los objetivos entren en conflicto.</li></ul>
+      </section>
+
+      <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
+        <h2>Referencias</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 4.1.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=scope-conops" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 5: Scope and ConOps</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adaptado de la Unidad II del gui&oacute;n del curso Ingenier&iacute;a en Sistemas Aeroespaciales (AE506) de Carlos Alberto Molina Holgu&iacute;n. Cada n&uacute;mero de esta p&aacute;gina se recalcul&oacute; de forma independiente para ella; ninguna calculadora cubre este tema, as&iacute; que el rec&aacute;lculo es la &uacute;nica comprobaci&oacute;n disponible. El tiempo de inspecci&oacute;n se calcul&oacute; a partir de la franja, el lado y la velocidad indicados en el ejemplo; los virajes se excluyeron deliberadamente y la omisi&oacute;n se declara en el paso donde importa.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="life-cycle-and-margins.html?v=11"><span>Lecture anterior</span>&larr; Ciclo de vida y m&aacute;rgenes</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+
+      <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie k&ouml;nnen sollten</h2>
+        <ul><li>eine Bedarfsaussage ohne L&ouml;sung formulieren und pr&uuml;fen, ob zwei verschiedene Architekturen sie adressieren k&ouml;nnten;</li><li>ein Ziel von einem Einzelziel unterscheiden und begr&uuml;nden, warum ein Ziel unmessbar sein darf;</li><li>ein Einzelziel mit Schwelle, Bedingung und Dauer formulieren;</li><li>die Machbarkeit eines Einzelziels vor der Festlegung &uuml;berschl&auml;gig pr&uuml;fen;</li><li>jedes Einzelziel zu einem Ziel und jedes Ziel zum Bedarf zur&uuml;ckverfolgen.</li></ul>
+      </section>
+
+      <section id="physics-de">
+        <p class="section-label">Ingenieurtechnischer Kontext</p>
+        <h2>Die Antwort, die vor der Frage kam</h2>
+        <p class="lead">Eine Regionalbeh&ouml;rde er&ouml;ffnet das Auftaktgespr&auml;ch mit einem Satz: &bdquo;Wir wollen ein Drohnensystem zur Waldbrand&uuml;berwachung.&ldquo; Alle notieren ihn, und das Projekt hat nun ein Fahrzeug, bevor es ein Problem hat.</p><p>Beachten Sie, was bereits entschieden ist. Nicht die Zelle, nicht der Sensor &mdash; sondern dass die Antwort fliegt, unbemannt ist und der Beh&ouml;rde geh&ouml;rt. Ein Turmnetz, eine Satellitenvereinbarung und ein angemietetes bemanntes Flugzeug sind stillschweigend ausgeschieden, durch einen Satz, den niemand als Entscheidung behandelte.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 200" role="img" aria-label="Die Kette vom formulierten Bedarf zu den Anforderungen">
+            <defs><marker id="ng-arrow-de" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0d568d"></path></marker></defs>
+            <rect x="20" y="50" width="170" height="66" rx="7" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="105" y="78" text-anchor="middle" font-size="17" font-weight="700" fill="#071d33">Bedarf</text>
+            <text x="105" y="100" text-anchor="middle" font-size="12" fill="#3f5162">das Problem, ohne L&ouml;sung</text>
+            <line x1="192" y1="83" x2="233" y2="83" stroke="#0d568d" stroke-width="2" marker-end="url(#ng-arrow-de)"></line>
+            <rect x="215" y="50" width="170" height="66" rx="7" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="300" y="78" text-anchor="middle" font-size="17" font-weight="700" fill="#071d33">Ziele</text>
+            <text x="300" y="100" text-anchor="middle" font-size="12" fill="#3f5162">grobe Ergebnisse</text>
+            <line x1="387" y1="83" x2="428" y2="83" stroke="#0d568d" stroke-width="2" marker-end="url(#ng-arrow-de)"></line>
+            <rect x="410" y="50" width="170" height="66" rx="7" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="495" y="78" text-anchor="middle" font-size="17" font-weight="700" fill="#071d33">Einzelziele</text>
+            <text x="495" y="100" text-anchor="middle" font-size="12" fill="#3f5162">messbare Ergebnisse</text>
+            <line x1="582" y1="83" x2="623" y2="83" stroke="#0d568d" stroke-width="2" marker-end="url(#ng-arrow-de)"></line>
+            <rect x="605" y="50" width="170" height="66" rx="7" fill="#f6f1e6" stroke="#8fa6ba"></rect>
+            <text x="690" y="78" text-anchor="middle" font-size="17" font-weight="700" fill="#071d33">Anforderungen</text>
+            <text x="690" y="100" text-anchor="middle" font-size="12" fill="#3f5162">ab Vorlesung 07</text>
+            <text x="400" y="30" text-anchor="middle" font-size="14" font-weight="600" fill="#0d568d">Jede Ebene muss aus der vorigen beantwortbar sein</text>
+            <text x="400" y="160" text-anchor="middle" font-size="13" font-style="italic" fill="#b03a2e">Keine Ebene darf eine L&ouml;sung nennen, die die obere nicht verlangt hat</text>
+            </svg>
+            <figcaption>Bedarf, Ziele und Einzelziele. Die Kette ist ein Filter: Was sich nicht zum Bedarf zur&uuml;ckverfolgen l&auml;sst, hat im Entwurf nichts zu suchen.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-de">
+        <p class="section-label">Geltungsbereich und Grenzen</p>
+        <h2>Drei Ebenen, ein Filter</h2>
+        <p>Die Missionsdefinition trennt das Problem von der Antwort, indem sie es durch drei Ebenen zwingt. Der <strong>Bedarf</strong> nennt das Problem und wessen es ist. <strong>Ziele</strong> sagen, welches grobe Ergebnis als Adressierung z&auml;hlt. <strong>Einzelziele</strong> nennen konkrete Ergebnisse mit Zahlen und sind das, worauf Anforderungen sp&auml;ter zur&uuml;ckgef&uuml;hrt werden.</p><p>Der Wert liegt nicht im Vokabular. Er liegt darin, dass jede Ebene aus der oberen beantwortbar sein muss &mdash; was sich nicht nach oben verfolgen l&auml;sst, ist sichtbar jemandes Vorliebe und nicht der Missionszweck.</p>
+        <div class="callout warning"><strong>Was dies nicht leistet.</strong> Es sagt nicht, ob der Bedarf der richtige ist. Das kommt von den Interessentr&auml;gern, und die n&auml;chste Vorlesung handelt davon, alle zu finden und nicht nur den, der die Sitzung einberief. Die Missionsdefinition macht die Absicht explizit und nachverfolgbar; richtig machen kann sie sie nicht.</div>
+      </section>
+
+      <section id="levels-de">
+        <p class="section-label">Zentrale Definitionen</p>
+        <h2>Was jede Ebene bestehen muss</h2>
+        <div class="table-wrap"><table><thead><tr><th>Ebene</th><th>Beantwortet</th><th>Zu bestehende Pr&uuml;fung</th></tr></thead><tbody><tr><td>Bedarf</td><td>Welches Problem l&ouml;sen wir, und f&uuml;r wen?</td><td>Nennt keine L&ouml;sung. Zwei v&ouml;llig verschiedene Architekturen k&ouml;nnten ihn adressieren.</td></tr><tr><td>Ziel</td><td>Welches grobe Ergebnis soll die Mission erreichen?</td><td>Richtungsweisend, noch nicht messbar. In der Sprache des Interessentr&auml;gers.</td></tr><tr><td>Einzelziel</td><td>Welches konkrete Ergebnis muss erreicht werden?</td><td>Messbar, mit Schwelle und Bedingung. Nachtr&auml;glich bewertbar.</td></tr></tbody></table></div>
+        <p>Die mittlere Ebene erzeugt den meisten Streit, weil ein Ziel bewusst nicht messbar ist und Ingenieure das ungern haben. Es leistet etwas anderes: Ein Ziel h&auml;lt fest, was der Interessentr&auml;ger tats&auml;chlich sch&auml;tzt, in seinen Worten, damit es bei einem Konflikt zweier Einzelziele etwas gibt, worauf man sich berufen kann.</p>
+      </section>
+
+      <section id="rewriting-de">
+        <p class="section-label">Drei Korrekturen</p>
+        <h2>Fehlerhafte Aussagen neu fassen</h2>
+        <div class="table-wrap"><table><thead><tr><th>Formuliert als</th><th>Problem</th><th>Neu formuliert</th></tr></thead><tbody><tr><td>&bdquo;Wir brauchen eine Drohne zur Waldbrand&uuml;berwachung.&ldquo;</td><td>Nennt das Fahrzeug. Satelliten, T&uuml;rme und Flugzeuge sind ausgeschlossen, bevor sie jemand vergleicht.</td><td>&bdquo;Einsatzleiter erkennen Z&uuml;ndungen im Nordgebiet nicht fr&uuml;h genug, um vor &Uuml;berschreiten der Erstangriffsgr&ouml;&szlig;e auszur&uuml;cken.&ldquo;</td></tr><tr><td>&bdquo;Die Mission soll gute Abdeckung bieten.&ldquo;</td><td>Ohne Schwelle und Bedingung kann niemand hinterher sagen, ob es geschah.</td><td>&bdquo;Das gesamte Gebiet von 25 km&sup2; mindestens alle 24 Stunden &uuml;ber 30 aufeinanderfolgende Tage vermessen.&ldquo;</td></tr><tr><td>&bdquo;Eine 12-MP-Kamera im sichtbaren Bereich verwenden.&ldquo;</td><td>Ein Einzelziel, das den Entwurf festlegt. Die Nutzlastabw&auml;gung ist vorbei, bevor sie begann.</td><td>&bdquo;Eine thermische Anomalie von 3 m&sup2; mit einer Wahrscheinlichkeit von mindestens 0,9 unter den festgelegten atmosph&auml;rischen Bedingungen erkennen.&ldquo;</td></tr></tbody></table></div>
+        <p>Alle drei Fehler haben dieselbe Form: Eine Entscheidung wurde getroffen und als Beschreibung getarnt. Die Korrektur besteht stets darin zu fragen, was zutreffen m&uuml;sste, damit der Interessentr&auml;ger zufrieden ist &mdash; und <em>das</em> zu schreiben.</p>
+      </section>
+
+      <section id="algorithm-de">
+        <p class="section-label">Rechenalgorithmus</p>
+        <h2>Vom Bedarf zu Einzelzielen</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Das Problem und seinen Tr&auml;ger nennen</span></div><div><strong>2</strong><span>Pr&uuml;fen: K&ouml;nnten zwei Architekturen es adressieren?</span></div><div><strong>3</strong><span>Zwei oder drei Ziele schreiben</span></div><div><strong>4</strong><span>Jedes Ziel in Einzelziele &uuml;berf&uuml;hren</span></div><div><strong>5</strong><span>Schwelle, Bedingung, Dauer erg&auml;nzen</span></div><div><strong>6</strong><span>Machbarkeit jedes Einzelziels pr&uuml;fen</span></div><div><strong>7</strong><span>Jedes Einzelziel nach oben verfolgen</span></div></div>
+        <p>Schritt sechs wird h&auml;ufiger &uuml;bersprungen als jeder andere, und er ist billig. Eine &Uuml;berschlagsrechnung sagt, ob ein Einzelziel bequem, knapp oder unm&ouml;glich ist &mdash; und es jetzt als unm&ouml;glich zu erkennen kostet einen Nachmittag statt einer Phase.</p>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Ist das Wiederbesuchsziel &uuml;berhaupt erreichbar?</h2>
+        <p>Aus den korrigierten Aussagen oben lautet ein Einzelziel: <em>das gesamte Gebiet von 25 km&sup2; mindestens alle 24 Stunden &uuml;ber 30 aufeinanderfolgende Tage vermessen</em>. Vor der Festlegung ist zu pr&uuml;fen, ob ein Fahrzeug das k&ouml;nnte. Das Kandidatenkonzept fliegt mit 25 m/s bei einer Sensorschwadbreite von 0,5 km &uuml;ber ein Quadrat mit 5 km Kantenl&auml;nge.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Ben&ouml;tigte Bahnen.</strong> Bei parallelen Linien &uuml;ber das Quadrat: \[N = \frac{5{,}0\ \text{km}}{0{,}5\ \text{km}} = 10\ \text{Bahnen}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Geflogene Strecke.</strong> Jede Bahn ist 5,0 km lang, also \[d = 10 \times 5{,}0 = 50\ \text{km}.\] Wenden bleiben unber&uuml;cksichtigt, was nur bei kurzen Wenden konservativ ist; hier kommen vielleicht 10&nbsp;% hinzu.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Einsatzzeit.</strong> \[t = \frac{50\,000\ \text{m}}{25\ \text{m/s}} = 2\,000\ \text{s} = 33{,}3\ \text{min}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Gegen das Einzelziel.</strong> Eine vollst&auml;ndige Vermessung dauert etwa eine halbe Stunde von 24 verf&uuml;gbaren. Das Wiederbesuchsziel ist nicht nur machbar, sondern um mehr als eine Gr&ouml;&szlig;enordnung bequem &mdash; was selbst eine Information ist.</div></div>
+        <div class="result-box">\[ \boxed{ N = 10,\quad d = 50\ \text{km},\quad t = 33{,}3\ \text{min je Vermessung} } \]</div>
+        <p><strong>Deutung.</strong> Zweierlei folgt. Erstens ist das Einzelziel sicher festzulegen. Zweitens, und n&uuml;tzlicher: Der gro&szlig;e Spielraum zeigt, dass nicht das Wiederbesuchsintervall dieses Fahrzeug dimensioniert &mdash; sondern Ausdauer, Wetterverf&uuml;gbarkeit und Datenverarbeitung. Ein Team ohne diese Rechnung h&auml;tte die Abw&auml;gungsstudie mit dem falschen Parameter verbracht.</p>
+      </section>
+
+      <section id="summary-de">
+        <p class="section-label">Arbeitsregeln</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regel</th><th>Aussage</th></tr></thead><tbody><tr><td>Der Bedarf nennt keine L&ouml;sung</td><td>K&ouml;nnen nicht zwei glaubw&uuml;rdige Architekturen ihn adressieren, ist es eine als Bedarf verkleidete Entwurfsentscheidung.</td></tr><tr><td>Ziele sind richtungsweisend</td><td>Sie sagen, wohin es besser geht. Sie sind noch nicht messbar, und das ist auf dieser Ebene richtig.</td></tr><tr><td>Einzelziele tragen Schwelle und Bedingung</td><td>&bdquo;Mindestens X, unter Bedingung Y, f&uuml;r Dauer Z.&ldquo; Ohne alle drei nicht bewertbar.</td></tr><tr><td>Machbarkeit vor der Festlegung pr&uuml;fen</td><td>Ein unerreichbares Einzelziel ist schlimmer als keines: Es l&auml;sst den ganzen Satz verhandelbar wirken.</td></tr><tr><td>R&uuml;ckverfolgbarkeit gilt in beide Richtungen</td><td>Jedes Einzelziel dient einem Ziel, jedes Ziel dem Bedarf. Ein verwaistes Einzelziel ist jemandes Vorliebe.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Häufige Fehler</p>
+        <h2>Was schiefgeht</h2>
+        <ul class="check-list"><li><strong>Die L&ouml;sung als Bedarf schreiben.</strong> &bdquo;Wir brauchen eine Drohne&ldquo; scheidet jede andere Architektur aus, bevor sie jemand vergleicht.</li><li><strong>Einzelziele ohne Schwelle.</strong> &bdquo;Gute Abdeckung&ldquo; ist nach der Mission nicht bewertbar, kann also nicht scheitern und ist kein Einzelziel.</li><li><strong>Einzelziele, die den Entwurf festlegen.</strong> Den Sensor zu nennen schlie&szlig;t die Nutzlastabw&auml;gung, bevor sie beginnt.</li><li><strong>Die Machbarkeitspr&uuml;fung &uuml;berspringen.</strong> Eine Rechnung trennt ein ehrgeiziges von einem unm&ouml;glichen Einzelziel; auf Papier sehen beide gleich aus.</li><li><strong>Einzelziele ohne Elternebene.</strong> F&uuml;hrt es zu keinem Ziel, hat es jemand aus eigenem Wunsch hinzugef&uuml;gt.</li><li><strong>Die Unsch&auml;rfe eines Ziels als Mangel sehen.</strong> Ziele halten fest, was der Interessentr&auml;ger sch&auml;tzt. Ihnen zu fr&uuml;h eine Zahl aufzuzwingen verliert genau das, was man beim Konflikt von Einzelzielen braucht.</li></ul>
+      </section>
+
+      <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
+        <h2>Literatur</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 4.1.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=scope-conops" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 5: Scope and ConOps</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Bearbeitet nach Einheit II des Skripts Luft- und Raumfahrtsystemtechnik (AE506) von Carlos Alberto Molina Holgu&iacute;n. Jede Zahl dieser Seite wurde eigens daf&uuml;r unabh&auml;ngig neu berechnet; kein Rechner deckt dieses Thema ab, daher ist die Neuberechnung die einzige Pr&uuml;fung. Die Vermessungsdauer wurde aus Schwadbreite, Kantenl&auml;nge und Geschwindigkeit des Beispiels berechnet; Wenden wurden bewusst ausgeschlossen, und die Auslassung ist im betreffenden Schritt genannt.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="life-cycle-and-margins.html?v=11"><span>Vorherige Vorlesung</span>&larr; Lebenszyklus und Reserven</a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>&copy; <span id="year"></span> Carlos Alberto Molina Holgu&iacute;n</p>
+    <p>Universidad Aut&oacute;noma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

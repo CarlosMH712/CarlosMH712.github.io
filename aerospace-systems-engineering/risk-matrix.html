@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Risk matrices in aerospace systems engineering: the condition-departure-asset-consequence statement, likelihood and consequence scales, band rules, the risk register, and a worked scoring example." />
+  <meta name="author" content="Carlos Alberto Molina Holgu&iacute;n" />
+  <meta name="theme-color" content="#071d33" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Risk: Statements, Matrix, and Register | Aerospace Systems Engineering</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:wght@600;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=11" data-ui-key="course">Aerospace Systems Engineering</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Aerospace Systems Engineering &middot; Lecture 18</p>
+        <h1>Risk: Statements, the Matrix, and the Register</h1>
+        <p class="hero-copy">The four-part form that turns a concern into a risk, two ordinal scales that let unrelated risks be compared, and the band rule that converts a cell into an obligation.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Ingeniería de Sistemas Aeroespaciales &middot; Lecture 18</p>
+        <h1>Riesgo: enunciados, matriz y registro</h1>
+        <p class="hero-copy">La forma de cuatro partes que convierte una preocupaci&oacute;n en un riesgo, dos escalas ordinales que permiten comparar riesgos inconexos y la regla de bandas que convierte una celda en una obligaci&oacute;n.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Luft- und Raumfahrtsystemtechnik &middot; Vorlesung 18</p>
+        <h1>Risiko: Aussagen, Matrix und Register</h1>
+        <p class="hero-copy">Die vierteilige Form, die aus einem Bedenken ein Risiko macht, zwei ordinale Skalen f&uuml;r den Vergleich unverbundener Risiken und die Bandregel, die aus einer Zelle eine Verpflichtung macht.</p>
+      </div>
+
+    <div class="hero-meta">
+        <span data-language="en">Estimated reading: 15 min</span><span data-language="es" hidden>Lectura estimada: 15 min</span><span data-language="de" hidden>Lesedauer: ca. 15 min</span>
+        <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+        <span data-language="en">Model: ordinal 5 x 5, additive bands</span><span data-language="es" hidden>Modelo: ordinal 5 x 5, bandas aditivas</span><span data-language="de" hidden>Modell: ordinal 5 x 5, additive B&auml;nder</span>
+    </div>
+    <div class="button-row">
+      <a class="button secondary" href="index.html?v=11" data-ui-key="back">Back to course</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Engineering situation</a>
+        <a href="#model">Scope and limits</a>
+        <a href="#statement">The risk statement</a>
+        <a href="#scales">The two scales</a>
+        <a href="#banding">From cell to obligation</a>
+        <a href="#register">The register</a>
+        <a href="#algorithm">Scoring algorithm</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Operative rules</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#references">Sources</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Situaci&oacute;n de ingenier&iacute;a</a>
+        <a href="#model-es">Alcance y l&iacute;mites</a>
+        <a href="#statement-es">El enunciado de riesgo</a>
+        <a href="#scales-es">Las dos escalas</a>
+        <a href="#banding-es">De la celda a la obligaci&oacute;n</a>
+        <a href="#register-es">El registro</a>
+        <a href="#algorithm-es">Algoritmo de puntuaci&oacute;n</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Reglas operativas</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Kontext</a>
+        <a href="#model-de">Geltungsbereich</a>
+        <a href="#statement-de">Die Risikoaussage</a>
+        <a href="#scales-de">Die zwei Skalen</a>
+        <a href="#banding-de">Von der Zelle zur Pflicht</a>
+        <a href="#register-de">Das Register</a>
+        <a href="#algorithm-de">Bewertungsalgorithmus</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Arbeitsregeln</a>
+        <a href="#mistakes-de">H&auml;ufige Fehler</a>
+        <a href="#references-de">Quellen</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+
+      <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul><li>write a risk in condition &ndash; departure &ndash; asset &ndash; consequence form, and spot a sentence that is really a mitigation;</li><li>score likelihood and consequence against a fixed scale, citing the evidence for each;</li><li>place a risk on a \(5\times5\) matrix and read the response its band requires;</li><li>draw the post-mitigation position and say why the arrow matters more than the dot;</li><li>explain why an additive band rule treats a certain nuisance and a rare catastrophe alike.</li></ul>
+      </section>
+
+      <section id="physics">
+        <p class="section-label">Engineering situation</p>
+        <h2>Dozens of concerns, one afternoon</h2>
+        <p class="lead">A team carries dozens of technical concerns; a review board has an afternoon. The risk matrix compresses them onto one chart, and the compression is exactly where it becomes dangerous.</p><p>A high-altitude research platform must fly thirty days and return 90&nbsp;% of its data daily. Four concerns are open: a battery characterised only to \(-20\,^{\circ}\)C when the predicted minimum is \(-35\,^{\circ}\)C, an untested antenna deployment, an unvalidated compression ratio, and a safe-mode transition path that has been desk-checked but never run on hardware. Each is a sentence, and sentences cannot be ranked against each other. The matrix turns each into a coordinate, and the coordinate into a required action.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 450" role="img" aria-label="5 x 5 risk matrix with four risks plotted and arrows to their post-mitigation positions">
+            <defs><marker id="rm-arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0d568d"></path></marker></defs>
+            <rect x="110" y="314" width="62" height="62" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <rect x="110" y="252" width="62" height="62" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <rect x="110" y="190" width="62" height="62" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <rect x="110" y="128" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="110" y="66" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="172" y="314" width="62" height="62" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <rect x="172" y="252" width="62" height="62" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <rect x="172" y="190" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="172" y="128" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="172" y="66" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="234" y="314" width="62" height="62" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <rect x="234" y="252" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="234" y="190" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="234" y="128" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="234" y="66" width="62" height="62" fill="#f6dede" stroke="#c9d4de"></rect>
+            <rect x="296" y="314" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="296" y="252" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="296" y="190" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="296" y="128" width="62" height="62" fill="#f6dede" stroke="#c9d4de"></rect>
+            <rect x="296" y="66" width="62" height="62" fill="#f6dede" stroke="#c9d4de"></rect>
+            <rect x="358" y="314" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="358" y="252" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="358" y="190" width="62" height="62" fill="#f6dede" stroke="#c9d4de"></rect>
+            <rect x="358" y="128" width="62" height="62" fill="#f6dede" stroke="#c9d4de"></rect>
+            <rect x="358" y="66" width="62" height="62" fill="#f6dede" stroke="#c9d4de"></rect>
+            <text x="141" y="398" text-anchor="middle" font-size="15" fill="#3f5162">1</text>
+            <text x="203" y="398" text-anchor="middle" font-size="15" fill="#3f5162">2</text>
+            <text x="265" y="398" text-anchor="middle" font-size="15" fill="#3f5162">3</text>
+            <text x="327" y="398" text-anchor="middle" font-size="15" fill="#3f5162">4</text>
+            <text x="389" y="398" text-anchor="middle" font-size="15" fill="#3f5162">5</text>
+            <text x="98" y="350" text-anchor="end" font-size="15" fill="#3f5162">1</text>
+            <text x="98" y="288" text-anchor="end" font-size="15" fill="#3f5162">2</text>
+            <text x="98" y="226" text-anchor="end" font-size="15" fill="#3f5162">3</text>
+            <text x="98" y="164" text-anchor="end" font-size="15" fill="#3f5162">4</text>
+            <text x="98" y="102" text-anchor="end" font-size="15" fill="#3f5162">5</text>
+            <text x="265" y="428" text-anchor="middle" font-size="16" font-weight="600" fill="#071d33">Consequence (technical / mission)</text>
+            <text x="14" y="46" font-size="14" font-weight="600" fill="#071d33">Likelihood</text>
+            <line x1="318" y1="237" x2="318" y2="325" stroke="#0d568d" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#rm-arrow)"></line>
+            <circle cx="318" cy="221" r="13" fill="#b03a2e"></circle><text x="318" y="226" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff">1</text>
+            <circle cx="318" cy="345" r="13" fill="#ffffff" stroke="#0d568d" stroke-width="2"></circle><text x="318" y="350" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">1</text>
+            <line x1="336" y1="299" x2="336" y2="325" stroke="#0d568d" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#rm-arrow)"></line>
+            <circle cx="336" cy="283" r="13" fill="#b03a2e"></circle><text x="336" y="288" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff">2</text>
+            <circle cx="336" cy="345" r="13" fill="#ffffff" stroke="#0d568d" stroke-width="2"></circle><text x="336" y="350" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">2</text>
+            <line x1="265" y1="237" x2="265" y2="263" stroke="#0d568d" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#rm-arrow)"></line>
+            <circle cx="265" cy="221" r="13" fill="#b03a2e"></circle><text x="265" y="226" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff">3</text>
+            <circle cx="265" cy="283" r="13" fill="#ffffff" stroke="#0d568d" stroke-width="2"></circle><text x="265" y="288" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">3</text>
+            <line x1="389" y1="237" x2="389" y2="325" stroke="#0d568d" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#rm-arrow)"></line>
+            <circle cx="389" cy="221" r="13" fill="#b03a2e"></circle><text x="389" y="226" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff">4</text>
+            <circle cx="389" cy="345" r="13" fill="#ffffff" stroke="#0d568d" stroke-width="2"></circle><text x="389" y="350" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">4</text>
+            <circle cx="470" cy="86" r="10" fill="#b03a2e"></circle><text x="490" y="91" font-size="15" fill="#3f5162">Current assessment</text>
+            <circle cx="470" cy="120" r="10" fill="#ffffff" stroke="#0d568d" stroke-width="2"></circle><text x="490" y="125" font-size="15" fill="#3f5162">After mitigation</text>
+            <text x="462" y="176" font-size="15" font-weight="700" fill="#071d33">1</text><text x="490" y="176" font-size="15" fill="#3f5162">Battery low-temperature capacity</text>
+            <text x="462" y="206" font-size="15" font-weight="700" fill="#071d33">2</text><text x="490" y="206" font-size="15" fill="#3f5162">Antenna deployment</text>
+            <text x="462" y="236" font-size="15" font-weight="700" fill="#071d33">3</text><text x="490" y="236" font-size="15" fill="#3f5162">Payload data volume</text>
+            <text x="462" y="266" font-size="15" font-weight="700" fill="#071d33">4</text><text x="490" y="266" font-size="15" fill="#3f5162">Safe-mode transition logic</text>
+            <rect x="460" y="310" width="22" height="18" fill="#e8f1e9" stroke="#c9d4de"></rect><text x="490" y="324" font-size="15" fill="#3f5162">Low</text>
+            <rect x="460" y="342" width="22" height="18" fill="#fbeed9" stroke="#c9d4de"></rect><text x="490" y="356" font-size="15" fill="#3f5162">Medium</text>
+            <rect x="460" y="374" width="22" height="18" fill="#f6dede" stroke="#c9d4de"></rect><text x="490" y="388" font-size="15" fill="#3f5162">High</text>
+            </svg>
+            <figcaption>Risk matrix for an atmospheric research platform at its preliminary design review. Arrows end where the project expects to be once the planned mitigation succeeds.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model">
+        <p class="section-label">Scope and limits</p>
+        <h2>What it does, and what it refuses to do</h2>
+        <p>The matrix places each risk by its estimated <strong>likelihood</strong> against its estimated <strong>consequence</strong>. The cell maps to a level, and the level determines the response the project owes. Three conditions make it mean anything: the scales are fixed once at project level, the consequence dimension being scored is named, and the band rule is written down before anything is scored.</p>
+        <div class="callout warning"><strong>What the matrix does not claim.</strong> It does not analyse. The levels are ordinal labels for judgement, not measured quantities, so the gap between a 3 and a 4 is not one unit of anything. Two risks in the same cell can demand entirely different action, because timing, detectability, reversibility and the uncertainty in the estimate are all invisible on the chart.</div>
+      </section>
+
+      <section id="statement">
+        <p class="section-label">Structured form</p>
+        <h2>Condition, departure, asset, consequence</h2>
+        <blockquote>Given that <strong>[condition]</strong>, there is a possibility of <strong>[departure]</strong> adversely impacting <strong>[asset]</strong>, thereby leading to <strong>[consequence]</strong>.</blockquote><p>The condition is a fact that is true now: &ldquo;the cell has not completed qualification at the minimum operating temperature&rdquo;, not &ldquo;the battery might fail&rdquo;. The departure is the uncertain event, the asset is what it hits, the consequence is the credible impact on a requirement.</p><p>The form earns its keep on the sentences it rejects. &ldquo;We need a backup antenna&rdquo; has no condition and no consequence: it is a mitigation, and filing it as a risk hides the concern and forecloses every other response.</p>
+      </section>
+
+      <section id="scales">
+        <p class="section-label">The two axes</p>
+        <h2>Fixed once, applied to everything</h2>
+        <p>Both axes are ordinal. The descriptors carry the meaning, so a score is defensible only when anchored to one of them rather than to intuition. Adopted once, they are never adjusted for a particular risk: a scale that moves cannot compare anything.</p>
+        <div class="table-wrap"><table><thead><tr><th>Level</th><th>Likelihood</th><th>Consequence</th></tr></thead><tbody><tr><td>1</td><td>Very unlikely</td><td>Minimal: negligible mission impact</td></tr><tr><td>2</td><td>Unlikely</td><td>Minor: manageable degradation or limited rework</td></tr><tr><td>3</td><td>Possible</td><td>Moderate: loss of requirement margin or significant rework</td></tr><tr><td>4</td><td>Likely</td><td>Major: loss of an important capability or a serious safety concern</td></tr><tr><td>5</td><td>Very likely</td><td>Critical: mission loss or an unacceptable safety outcome</td></tr></tbody></table></div>
+      </section>
+
+      <section id="banding">
+        <p class="section-label">Decision rule</p>
+        <h2>From a cell to an obligation</h2>
+        <p>A cell is not yet a decision. This course uses the simplest defensible rule, the additive one, written into the risk plan before anything is scored.</p>
+        <div class="table-wrap"><table><thead><tr><th>Band</th><th>Rule</th><th>What the project owes it</th></tr></thead><tbody><tr><td>High</td><td>\(L+C \ge 8\)</td><td>A mitigation plan: named owner, schedule, trigger</td></tr><tr><td>Medium</td><td>\(5 \le L+C \le 7\)</td><td>Mitigation, or a watch item with a measurable indicator</td></tr><tr><td>Low</td><td>\(L+C \le 4\)</td><td>Accept and monitor, with the acceptance recorded</td></tr></tbody></table></div>
+        <p>Across the \(25\) cells that gives \(6\) low, \(13\) medium and \(6\) high. It also has a defect worth stating: because only the sum matters, \((C=1, L=5)\) and \((C=5, L=1)\) both read medium &mdash; a certain nuisance and an improbable mission loss. Real NASA matrices are not additive for this reason; their bands bulge toward high consequence. The additive rule is used here because it is transparent, not because it is correct.</p>
+      </section>
+
+      <section id="register">
+        <p class="section-label">Companion record</p>
+        <h2>Where the risk becomes actionable</h2>
+        <p>The matrix shows where the risks are; the register is what lets anyone act on them. Each entry carries a permanent identifier, the statement, the scores with their evidence, one named owner, the response with a measurable trigger, and the expected residual position.</p>
+        <div class="table-wrap"><table><thead><tr><th>ID</th><th>Risk</th><th>L/C</th><th>Residual</th><th>Owner</th><th>Response and trigger</th></tr></thead><tbody><tr><td>R-01</td><td>Battery characterised only to \(-20\,^{\circ}\)C, predicted minimum \(-35\,^{\circ}\)C</td><td>3/4</td><td>1/4</td><td>EPS</td><td>Thermal-vacuum test before the configuration freezes. Trigger: usable capacity below \(1{.}25\) times the nighttime allocation.</td></tr><tr><td>R-02</td><td>Antenna deployment never tested at representative pressure</td><td>2/4</td><td>1/4</td><td>COM</td><td>Environmental deployment test plus position sensing. Trigger: any incomplete deployment in three cycles.</td></tr><tr><td>R-03</td><td>Compression ratio assumed from simulated, not representative, data</td><td>3/3</td><td>2/3</td><td>Payload</td><td>Record representative data and re-validate. Trigger: measured ratio below 25&nbsp;%.</td></tr><tr><td>R-04</td><td>Mode-transition logic desk-checked, never run on hardware</td><td>3/5</td><td>1/5</td><td>Avionics</td><td>Hardware-in-the-loop campaign before the software build freezes.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">Calculation algorithm</p>
+        <h2>Scoring a risk</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Name the consequence dimension</span></div><div><strong>2</strong><span>Score consequence first</span></div><div><strong>3</strong><span>Score likelihood, cite the evidence</span></div><div><strong>4</strong><span>Plot at \((C,L)\)</span></div><div><strong>5</strong><span>Read the band</span></div><div><strong>6</strong><span>Plot the residual position</span></div><div><strong>7</strong><span>Re-score at every review</span></div></div>
+        <p>Scoring the consequence first is not a formality. Teams that start with likelihood systematically soften the severity, because an event that feels improbable does not feel serious. Score the consequence as if the departure had already happened.</p>
+        <div class="callout success"><strong>The arrow, not the dot.</strong> The dot says where the project is; the arrow says what it intends to do and how much it expects that to help. A board can challenge an arrow &mdash; is the mitigation funded, is it scheduled before the design freezes, is the claimed reduction credible? A chart of dots offers nothing to challenge.</div>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>Scoring R-04, the safe-mode transition</h2>
+        <p><strong>Statement.</strong> Given that the mode-transition logic has been verified only by desk-check and never run in a hardware-in-the-loop configuration, there is a possibility of uncommanded actuator commands during the transition to safe mode, adversely impacting attitude control, thereby leading to loss of the platform.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Consequence.</strong> Uncommanded actuator commands at altitude take the platform out of controlled flight, and it is not recoverable. On the scale that is <em>Critical</em>: \(C=5\).</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Likelihood.</strong> The evidence is a desk-check only, and the transition runs at least once per contingency across thirty days. Untested logic paths are a known defect source, so <em>Possible</em> rather than <em>Likely</em>: \(L=3\).</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Band.</strong> \[L+C = 3+5 = 8,\] and \(8 \ge 8\), so the risk is <em>High</em>: a mitigation plan is mandatory.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Residual.</strong> A hardware-in-the-loop campaign cannot touch the consequence &mdash; an uncommanded command still loses the platform &mdash; so \(C=5\) stands and only likelihood moves, to \(L=1\): \[L+C = 1+5 = 6,\] which is <em>Medium</em>.</div></div>
+        <div class="result-box">\[ \boxed{ (C,L)=(5,3),\; L+C=8\ \text{High} \;\longrightarrow\; (C,L)=(5,1),\; L+C=6\ \text{Medium} } \]</div>
+        <p><strong>Interpretation.</strong> The mitigation buys evidence rather than changing the vehicle, the residual stays medium for the life of the mission because nothing reduces the consequence of losing attitude control, and the highest risk on the project came from software that nobody listed among the hardware concerns. That last part is the ordinary case.</p>
+      </section>
+
+      <section id="summary">
+        <p class="section-label">Operative rules</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Statement</th></tr></thead><tbody><tr><td>Risk statement</td><td>Given that [condition], there is a possibility of [departure] adversely impacting [asset], thereby leading to [consequence].</td></tr><tr><td>Scoring order</td><td>Consequence first, then likelihood, each anchored to a scale descriptor and each with its evidence recorded.</td></tr><tr><td>Bands</td><td>\(L+C \le 4\) low, \(5\) to \(7\) medium, \(\ge 8\) high. Fixed before the first score.</td></tr><tr><td>Band population</td><td>\(6\) low, \(13\) medium, \(6\) high, of \(25\) cells.</td></tr><tr><td>Residual</td><td>Every risk carries an expected post-mitigation cell. That arrow is what a board evaluates.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes">
+        <p class="section-label">Common mistakes</p>
+        <h2>What goes wrong</h2>
+        <ul class="check-list"><li><strong>Multiplying \(L\) and \(C\).</strong> The product of two ordinal labels measures nothing. Use the band rule the project wrote down.</li><li><strong>Scoring likelihood first.</strong> It softens the consequence, every time.</li><li><strong>Writing the mitigation as the risk.</strong> The concern disappears and every alternative response is foreclosed.</li><li><strong>A score with no cited basis.</strong> If the register does not say whether a 3 came from a test or a guess, nobody can weigh it or revisit it.</li><li><strong>Treating the matrix as the analysis.</strong> A red cell with no scenario, evidence or timing gives a reviewer nothing to act on.</li><li><strong>An empty residual column.</strong> Concern recorded, nothing committed. No arrow means no plan.</li><li><strong>A risk whose cell never moves.</strong> Across three reviews that means the mitigation is not working, or nobody is re-scoring.</li></ul>
+      </section>
+
+      <section id="references" class="references">
+        <p class="section-label">Sources</p>
+        <h2>References</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 6.4.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=risk-modules" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 19: Risk</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adapted from Unit VI of the Aerospace Systems Engineering (AE506) course script by Carlos Alberto Molina Holgu&iacute;n. Every number on this page was recomputed independently for it; no calculator covers this topic, so recomputation is the only check there is. Band populations were obtained by enumerating all 25 cells. Risk R-04 extends the script's three-risk register with one high risk so that the top band is exercised.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="index.html?v=11"><span>Course index</span>&larr; All 22 lectures</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+
+      <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Qu&eacute; deber&iacute;as poder hacer</h2>
+        <ul><li>redactar un riesgo en forma condici&oacute;n &ndash; desviaci&oacute;n &ndash; activo &ndash; consecuencia, y detectar la frase que en realidad es una mitigaci&oacute;n;</li><li>puntuar probabilidad y consecuencia contra una escala fija, citando la evidencia de cada una;</li><li>ubicar un riesgo en una matriz \(5\times5\) y leer la respuesta que exige su banda;</li><li>trazar la posici&oacute;n tras la mitigaci&oacute;n y decir por qu&eacute; importa m&aacute;s la flecha que el punto;</li><li>explicar por qu&eacute; una regla aditiva trata igual a una molestia segura y a una cat&aacute;strofe rara.</li></ul>
+      </section>
+
+      <section id="physics-es">
+        <p class="section-label">Situación de ingeniería</p>
+        <h2>Decenas de preocupaciones, una tarde</h2>
+        <p class="lead">Un equipo carga decenas de preocupaciones t&eacute;cnicas; un comit&eacute; de revisi&oacute;n tiene una tarde. La matriz de riesgos las comprime en una sola gr&aacute;fica, y la compresi&oacute;n es justo donde se vuelve peligrosa.</p><p>Una plataforma de investigaci&oacute;n de gran altitud debe volar treinta d&iacute;as y devolver 90&nbsp;% de sus datos cada d&iacute;a. Hay cuatro asuntos abiertos: una bater&iacute;a caracterizada s&oacute;lo hasta \(-20\,^{\circ}\)C cuando el m&iacute;nimo previsto es \(-35\,^{\circ}\)C, un despliegue de antena sin probar, una raz&oacute;n de compresi&oacute;n sin validar y una ruta de transici&oacute;n a modo seguro revisada en escritorio pero nunca ejecutada en hardware. Cada uno es una frase, y las frases no se pueden ordenar entre s&iacute;. La matriz convierte cada una en una coordenada, y la coordenada en una acci&oacute;n obligatoria.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 450" role="img" aria-label="Matriz de riesgos 5 x 5 con cuatro riesgos ubicados y flechas a su posici&oacute;n tras la mitigaci&oacute;n">
+            <defs><marker id="rm-arrow-es" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0d568d"></path></marker></defs>
+            <rect x="110" y="314" width="62" height="62" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <rect x="110" y="252" width="62" height="62" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <rect x="110" y="190" width="62" height="62" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <rect x="110" y="128" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="110" y="66" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="172" y="314" width="62" height="62" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <rect x="172" y="252" width="62" height="62" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <rect x="172" y="190" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="172" y="128" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="172" y="66" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="234" y="314" width="62" height="62" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <rect x="234" y="252" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="234" y="190" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="234" y="128" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="234" y="66" width="62" height="62" fill="#f6dede" stroke="#c9d4de"></rect>
+            <rect x="296" y="314" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="296" y="252" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="296" y="190" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="296" y="128" width="62" height="62" fill="#f6dede" stroke="#c9d4de"></rect>
+            <rect x="296" y="66" width="62" height="62" fill="#f6dede" stroke="#c9d4de"></rect>
+            <rect x="358" y="314" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="358" y="252" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="358" y="190" width="62" height="62" fill="#f6dede" stroke="#c9d4de"></rect>
+            <rect x="358" y="128" width="62" height="62" fill="#f6dede" stroke="#c9d4de"></rect>
+            <rect x="358" y="66" width="62" height="62" fill="#f6dede" stroke="#c9d4de"></rect>
+            <text x="141" y="398" text-anchor="middle" font-size="15" fill="#3f5162">1</text>
+            <text x="203" y="398" text-anchor="middle" font-size="15" fill="#3f5162">2</text>
+            <text x="265" y="398" text-anchor="middle" font-size="15" fill="#3f5162">3</text>
+            <text x="327" y="398" text-anchor="middle" font-size="15" fill="#3f5162">4</text>
+            <text x="389" y="398" text-anchor="middle" font-size="15" fill="#3f5162">5</text>
+            <text x="98" y="350" text-anchor="end" font-size="15" fill="#3f5162">1</text>
+            <text x="98" y="288" text-anchor="end" font-size="15" fill="#3f5162">2</text>
+            <text x="98" y="226" text-anchor="end" font-size="15" fill="#3f5162">3</text>
+            <text x="98" y="164" text-anchor="end" font-size="15" fill="#3f5162">4</text>
+            <text x="98" y="102" text-anchor="end" font-size="15" fill="#3f5162">5</text>
+            <text x="265" y="428" text-anchor="middle" font-size="16" font-weight="600" fill="#071d33">Consecuencia (t&eacute;cnica / de misi&oacute;n)</text>
+            <text x="14" y="46" font-size="14" font-weight="600" fill="#071d33">Probabilidad</text>
+            <line x1="318" y1="237" x2="318" y2="325" stroke="#0d568d" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#rm-arrow-es)"></line>
+            <circle cx="318" cy="221" r="13" fill="#b03a2e"></circle><text x="318" y="226" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff">1</text>
+            <circle cx="318" cy="345" r="13" fill="#ffffff" stroke="#0d568d" stroke-width="2"></circle><text x="318" y="350" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">1</text>
+            <line x1="336" y1="299" x2="336" y2="325" stroke="#0d568d" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#rm-arrow-es)"></line>
+            <circle cx="336" cy="283" r="13" fill="#b03a2e"></circle><text x="336" y="288" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff">2</text>
+            <circle cx="336" cy="345" r="13" fill="#ffffff" stroke="#0d568d" stroke-width="2"></circle><text x="336" y="350" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">2</text>
+            <line x1="265" y1="237" x2="265" y2="263" stroke="#0d568d" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#rm-arrow-es)"></line>
+            <circle cx="265" cy="221" r="13" fill="#b03a2e"></circle><text x="265" y="226" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff">3</text>
+            <circle cx="265" cy="283" r="13" fill="#ffffff" stroke="#0d568d" stroke-width="2"></circle><text x="265" y="288" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">3</text>
+            <line x1="389" y1="237" x2="389" y2="325" stroke="#0d568d" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#rm-arrow-es)"></line>
+            <circle cx="389" cy="221" r="13" fill="#b03a2e"></circle><text x="389" y="226" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff">4</text>
+            <circle cx="389" cy="345" r="13" fill="#ffffff" stroke="#0d568d" stroke-width="2"></circle><text x="389" y="350" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">4</text>
+            <circle cx="470" cy="86" r="10" fill="#b03a2e"></circle><text x="490" y="91" font-size="15" fill="#3f5162">Evaluaci&oacute;n actual</text>
+            <circle cx="470" cy="120" r="10" fill="#ffffff" stroke="#0d568d" stroke-width="2"></circle><text x="490" y="125" font-size="15" fill="#3f5162">Tras la mitigaci&oacute;n</text>
+            <text x="462" y="176" font-size="15" font-weight="700" fill="#071d33">1</text><text x="490" y="176" font-size="15" fill="#3f5162">Capacidad de bater&iacute;a a baja temperatura</text>
+            <text x="462" y="206" font-size="15" font-weight="700" fill="#071d33">2</text><text x="490" y="206" font-size="15" fill="#3f5162">Despliegue de antena</text>
+            <text x="462" y="236" font-size="15" font-weight="700" fill="#071d33">3</text><text x="490" y="236" font-size="15" fill="#3f5162">Volumen de datos de carga &uacute;til</text>
+            <text x="462" y="266" font-size="15" font-weight="700" fill="#071d33">4</text><text x="490" y="266" font-size="15" fill="#3f5162">L&oacute;gica de transici&oacute;n a modo seguro</text>
+            <rect x="460" y="310" width="22" height="18" fill="#e8f1e9" stroke="#c9d4de"></rect><text x="490" y="324" font-size="15" fill="#3f5162">Bajo</text>
+            <rect x="460" y="342" width="22" height="18" fill="#fbeed9" stroke="#c9d4de"></rect><text x="490" y="356" font-size="15" fill="#3f5162">Medio</text>
+            <rect x="460" y="374" width="22" height="18" fill="#f6dede" stroke="#c9d4de"></rect><text x="490" y="388" font-size="15" fill="#3f5162">Alto</text>
+            </svg>
+            <figcaption>Matriz de riesgos de una plataforma de investigaci&oacute;n atmosf&eacute;rica en su revisi&oacute;n preliminar de dise&ntilde;o. Las flechas terminan donde el proyecto espera estar una vez que la mitigaci&oacute;n planeada tenga &eacute;xito.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-es">
+        <p class="section-label">Alcance y límites</p>
+        <h2>Qu&eacute; hace, y qu&eacute; se niega a hacer</h2>
+        <p>La matriz ubica cada riesgo por su <strong>probabilidad</strong> estimada frente a su <strong>consecuencia</strong> estimada. La celda corresponde a un nivel, y el nivel determina la respuesta que el proyecto debe. Tres condiciones la hacen significar algo: las escalas se fijan una vez a nivel de proyecto, se nombra la dimensi&oacute;n de consecuencia que se punt&uacute;a, y la regla de bandas se escribe antes de puntuar nada.</p>
+        <div class="callout warning"><strong>Lo que la matriz no afirma.</strong> No analiza. Los niveles son etiquetas ordinales del juicio, no cantidades medidas, as&iacute; que la distancia entre un 3 y un 4 no es una unidad de nada. Dos riesgos en la misma celda pueden exigir acciones distintas, porque el momento, la detectabilidad, la reversibilidad y la incertidumbre de la estimaci&oacute;n son invisibles en la gr&aacute;fica.</div>
+      </section>
+
+      <section id="statement-es">
+        <p class="section-label">Forma estructurada</p>
+        <h2>Condici&oacute;n, desviaci&oacute;n, activo, consecuencia</h2>
+        <blockquote>Dado que <strong>[condici&oacute;n]</strong>, existe la posibilidad de <strong>[desviaci&oacute;n]</strong> que afecte adversamente a <strong>[activo]</strong>, llevando as&iacute; a <strong>[consecuencia]</strong>.</blockquote><p>La condici&oacute;n es un hecho cierto ahora: &laquo;la celda no ha completado su calificaci&oacute;n a la temperatura m&iacute;nima de operaci&oacute;n&raquo;, no &laquo;la bater&iacute;a podr&iacute;a fallar&raquo;. La desviaci&oacute;n es el evento incierto, el activo es lo que golpea, la consecuencia es el impacto cre&iacute;ble sobre un requisito.</p><p>La forma se gana el sueldo con las frases que rechaza. &laquo;Necesitamos una antena de respaldo&raquo; no tiene condici&oacute;n ni consecuencia: es una mitigaci&oacute;n, y archivarla como riesgo esconde la preocupaci&oacute;n y descarta toda otra respuesta.</p>
+      </section>
+
+      <section id="scales-es">
+        <p class="section-label">Los dos ejes</p>
+        <h2>Fijadas una vez, aplicadas a todo</h2>
+        <p>Ambos ejes son ordinales. Los descriptores cargan el significado, as&iacute; que una puntuaci&oacute;n s&oacute;lo es defendible si se ancla en uno de ellos y no en la intuici&oacute;n. Adoptadas una vez, no se ajustan para un riesgo particular: una escala que se mueve no puede comparar nada.</p>
+        <div class="table-wrap"><table><thead><tr><th>Nivel</th><th>Probabilidad</th><th>Consecuencia</th></tr></thead><tbody><tr><td>1</td><td>Muy improbable</td><td>M&iacute;nima: impacto despreciable en la misi&oacute;n</td></tr><tr><td>2</td><td>Improbable</td><td>Menor: degradaci&oacute;n manejable o retrabajo limitado</td></tr><tr><td>3</td><td>Posible</td><td>Moderada: p&eacute;rdida de margen de un requisito o retrabajo significativo</td></tr><tr><td>4</td><td>Probable</td><td>Mayor: p&eacute;rdida de una capacidad importante o problema serio de seguridad</td></tr><tr><td>5</td><td>Muy probable</td><td>Cr&iacute;tica: p&eacute;rdida de la misi&oacute;n o resultado inaceptable de seguridad</td></tr></tbody></table></div>
+      </section>
+
+      <section id="banding-es">
+        <p class="section-label">Regla de decisi&oacute;n</p>
+        <h2>De una celda a una obligaci&oacute;n</h2>
+        <p>Una celda a&uacute;n no es una decisi&oacute;n. Este curso usa la regla defendible m&aacute;s simple, la aditiva, escrita en el plan de riesgos antes de puntuar nada.</p>
+        <div class="table-wrap"><table><thead><tr><th>Banda</th><th>Regla</th><th>Lo que el proyecto le debe</th></tr></thead><tbody><tr><td>Alto</td><td>\(L+C \ge 8\)</td><td>Un plan de mitigaci&oacute;n: due&ntilde;o nombrado, calendario, disparador</td></tr><tr><td>Medio</td><td>\(5 \le L+C \le 7\)</td><td>Mitigaci&oacute;n, o vigilancia con un indicador medible</td></tr><tr><td>Bajo</td><td>\(L+C \le 4\)</td><td>Aceptar y monitorear, dejando registrada la aceptaci&oacute;n</td></tr></tbody></table></div>
+        <p>En las \(25\) celdas eso da \(6\) bajo, \(13\) medio y \(6\) alto. Tambi&eacute;n tiene un defecto que conviene enunciar: como s&oacute;lo importa la suma, \((C=1, L=5)\) y \((C=5, L=1)\) se leen ambas como medio &mdash; una molestia segura y una p&eacute;rdida de misi&oacute;n improbable. Las matrices reales de la NASA no son aditivas por esto; sus bandas se abultan hacia la consecuencia alta. Aqu&iacute; se usa la aditiva por transparente, no por correcta.</p>
+      </section>
+
+      <section id="register-es">
+        <p class="section-label">Registro asociado</p>
+        <h2>Donde el riesgo se vuelve accionable</h2>
+        <p>La matriz muestra d&oacute;nde est&aacute;n los riesgos; el registro es lo que permite actuar sobre ellos. Cada entrada lleva un identificador permanente, el enunciado, las puntuaciones con su evidencia, un due&ntilde;o nombrado, la respuesta con un disparador medible y la posici&oacute;n residual esperada.</p>
+        <div class="table-wrap"><table><thead><tr><th>ID</th><th>Riesgo</th><th>L/C</th><th>Residual</th><th>Due&ntilde;o</th><th>Respuesta y disparador</th></tr></thead><tbody><tr><td>R-01</td><td>Bater&iacute;a caracterizada s&oacute;lo hasta \(-20\,^{\circ}\)C, m&iacute;nimo previsto \(-35\,^{\circ}\)C</td><td>3/4</td><td>1/4</td><td>EPS</td><td>Prueba en vac&iacute;o t&eacute;rmico antes de congelar la configuraci&oacute;n. Disparador: capacidad utilizable bajo \(1{.}25\) veces la asignaci&oacute;n nocturna.</td></tr><tr><td>R-02</td><td>Despliegue de antena nunca probado a presi&oacute;n representativa</td><td>2/4</td><td>1/4</td><td>COM</td><td>Prueba ambiental de despliegue y sensado de posici&oacute;n. Disparador: cualquier despliegue incompleto en tres ciclos.</td></tr><tr><td>R-03</td><td>Raz&oacute;n de compresi&oacute;n supuesta con datos simulados, no representativos</td><td>3/3</td><td>2/3</td><td>Carga &uacute;til</td><td>Registrar datos representativos y revalidar. Disparador: raz&oacute;n medida bajo 25&nbsp;%.</td></tr><tr><td>R-04</td><td>L&oacute;gica de transici&oacute;n revisada en escritorio, nunca ejecutada en hardware</td><td>3/5</td><td>1/5</td><td>Avi&oacute;nica</td><td>Campa&ntilde;a con hardware en el lazo antes de congelar la compilaci&oacute;n.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Algoritmo de cálculo</p>
+        <h2>Puntuar un riesgo</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Nombrar la dimensi&oacute;n de consecuencia</span></div><div><strong>2</strong><span>Puntuar primero la consecuencia</span></div><div><strong>3</strong><span>Puntuar probabilidad, citar evidencia</span></div><div><strong>4</strong><span>Ubicar en \((C,L)\)</span></div><div><strong>5</strong><span>Leer la banda</span></div><div><strong>6</strong><span>Ubicar la posici&oacute;n residual</span></div><div><strong>7</strong><span>Repuntuar en cada revisi&oacute;n</span></div></div>
+        <p>Puntuar primero la consecuencia no es una formalidad. Los equipos que empiezan por la probabilidad suavizan sistem&aacute;ticamente la gravedad, porque un evento que parece improbable no se siente serio. Punt&uacute;a la consecuencia como si la desviaci&oacute;n ya hubiera ocurrido.</p>
+        <div class="callout success"><strong>La flecha, no el punto.</strong> El punto dice d&oacute;nde est&aacute; el proyecto; la flecha dice qu&eacute; pretende hacer y cu&aacute;nto espera que ayude. Un comit&eacute; puede cuestionar una flecha &mdash; &iquest;est&aacute; financiada la mitigaci&oacute;n, est&aacute; programada antes de congelar el dise&ntilde;o, es cre&iacute;ble la reducci&oacute;n? Una gr&aacute;fica de puntos no ofrece nada que cuestionar.</div>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>Puntuar R-04, la transici&oacute;n a modo seguro</h2>
+        <p><strong>Enunciado.</strong> Dado que la l&oacute;gica de transici&oacute;n de modos se ha verificado s&oacute;lo por revisi&oacute;n de escritorio y nunca se ha ejecutado con hardware en el lazo, existe la posibilidad de comandos no ordenados al actuador durante la transici&oacute;n a modo seguro, afectando adversamente al control de actitud, llevando as&iacute; a la p&eacute;rdida de la plataforma.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Consecuencia.</strong> Comandos no ordenados al actuador en altitud sacan a la plataforma del vuelo controlado y no es recuperable. En la escala eso es <em>Cr&iacute;tica</em>: \(C=5\).</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Probabilidad.</strong> La evidencia es s&oacute;lo una revisi&oacute;n de escritorio, y la transici&oacute;n corre al menos una vez por contingencia durante treinta d&iacute;as. Las rutas de l&oacute;gica sin probar son fuente conocida de defectos, as&iacute; que <em>Posible</em> y no <em>Probable</em>: \(L=3\).</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Banda.</strong> \[L+C = 3+5 = 8,\] y \(8 \ge 8\), as&iacute; que el riesgo es <em>Alto</em>: el plan de mitigaci&oacute;n es obligatorio.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Residual.</strong> Una campa&ntilde;a con hardware en el lazo no puede tocar la consecuencia &mdash; un comando no ordenado sigue perdiendo la plataforma &mdash; as&iacute; que \(C=5\) se mantiene y s&oacute;lo se mueve la probabilidad, a \(L=1\): \[L+C = 1+5 = 6,\] es decir <em>Medio</em>.</div></div>
+        <div class="result-box">\[ \boxed{ (C,L)=(5,3),\; L+C=8\ \text{Alto} \;\longrightarrow\; (C,L)=(5,1),\; L+C=6\ \text{Medio} } \]</div>
+        <p><strong>Interpretaci&oacute;n.</strong> La mitigaci&oacute;n compra evidencia en vez de cambiar el veh&iacute;culo, el residual queda en medio toda la vida de la misi&oacute;n porque nada reduce la consecuencia de perder el control de actitud, y el riesgo m&aacute;s alto del proyecto vino de software que nadie hab&iacute;a listado entre las preocupaciones de hardware. Eso &uacute;ltimo es lo ordinario.</p>
+      </section>
+
+      <section id="summary-es">
+        <p class="section-label">Reglas operativas</p>
+        <h2>De un vistazo</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regla</th><th>Enunciado</th></tr></thead><tbody><tr><td>Enunciado de riesgo</td><td>Dado que [condici&oacute;n], existe la posibilidad de [desviaci&oacute;n] que afecte adversamente a [activo], llevando as&iacute; a [consecuencia].</td></tr><tr><td>Orden de puntuaci&oacute;n</td><td>Primero consecuencia, luego probabilidad, cada una anclada en un descriptor de la escala y con su evidencia registrada.</td></tr><tr><td>Bandas</td><td>\(L+C \le 4\) bajo, \(5\) a \(7\) medio, \(\ge 8\) alto. Fijadas antes de la primera puntuaci&oacute;n.</td></tr><tr><td>Poblaci&oacute;n de bandas</td><td>\(6\) bajo, \(13\) medio, \(6\) alto, de \(25\) celdas.</td></tr><tr><td>Residual</td><td>Todo riesgo lleva una celda esperada tras la mitigaci&oacute;n. Esa flecha es lo que eval&uacute;a un comit&eacute;.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-es">
+        <p class="section-label">Errores comunes</p>
+        <h2>Qu&eacute; sale mal</h2>
+        <ul class="check-list"><li><strong>Multiplicar \(L\) y \(C\).</strong> El producto de dos etiquetas ordinales no mide nada. Usa la regla de bandas que el proyecto escribi&oacute;.</li><li><strong>Puntuar primero la probabilidad.</strong> Suaviza la consecuencia, siempre.</li><li><strong>Escribir la mitigaci&oacute;n como si fuera el riesgo.</strong> La preocupaci&oacute;n desaparece y toda respuesta alternativa queda descartada.</li><li><strong>Una puntuaci&oacute;n sin base citada.</strong> Si el registro no dice si un 3 vino de una prueba o de una suposici&oacute;n, nadie puede ponderarlo ni revisarlo.</li><li><strong>Tomar la matriz por el an&aacute;lisis.</strong> Una celda roja sin escenario, evidencia ni temporalidad no le da al revisor nada accionable.</li><li><strong>Columna residual vac&iacute;a.</strong> Preocupaci&oacute;n documentada, nada comprometido. Sin flecha no hay plan.</li><li><strong>Un riesgo cuya celda nunca se mueve.</strong> En tres revisiones eso significa que la mitigaci&oacute;n no funciona, o que nadie est&aacute; repuntuando.</li></ul>
+      </section>
+
+      <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
+        <h2>Referencias</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 6.4.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=risk-modules" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 19: Risk</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adaptado de la Unidad VI del gui&oacute;n del curso Ingenier&iacute;a en Sistemas Aeroespaciales (AE506) de Carlos Alberto Molina Holgu&iacute;n. Cada n&uacute;mero de esta p&aacute;gina se recalcul&oacute; de forma independiente para ella; ninguna calculadora cubre este tema, as&iacute; que el rec&aacute;lculo es la &uacute;nica comprobaci&oacute;n disponible. Las poblaciones de las bandas se obtuvieron enumerando las 25 celdas. El riesgo R-04 extiende el registro de tres riesgos del gui&oacute;n con un riesgo alto para ejercitar la banda superior.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="index.html?v=11"><span>Índice del curso</span>&larr; Las 22 lectures</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+
+      <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie k&ouml;nnen sollten</h2>
+        <ul><li>ein Risiko in der Form Zustand &ndash; Abweichung &ndash; betroffenes Gut &ndash; Folge formulieren und einen Satz erkennen, der eigentlich eine Minderung ist;</li><li>Eintritt und Folge gegen eine feste Skala bewerten und die Nachweise angeben;</li><li>ein Risiko in einer \(5\times5\)-Matrix eintragen und die vom Band geforderte Reaktion ablesen;</li><li>die Position nach der Minderung eintragen und begr&uuml;nden, warum der Pfeil wichtiger ist als der Punkt;</li><li>erkl&auml;ren, warum eine additive Regel ein sicheres &Auml;rgernis und eine seltene Katastrophe gleich behandelt.</li></ul>
+      </section>
+
+      <section id="physics-de">
+        <p class="section-label">Ingenieurtechnischer Kontext</p>
+        <h2>Dutzende Bedenken, ein Nachmittag</h2>
+        <p class="lead">Ein Team tr&auml;gt Dutzende technischer Bedenken; ein Pr&uuml;fgremium hat einen Nachmittag. Die Risikomatrix verdichtet sie auf ein Diagramm, und genau diese Verdichtung macht sie gef&auml;hrlich.</p><p>Eine H&ouml;henforschungsplattform soll drei&szlig;ig Tage fliegen und t&auml;glich 90&nbsp;% ihrer Daten liefern. Vier Punkte sind offen: eine nur bis \(-20\,^{\circ}\)C charakterisierte Batterie bei einem vorhergesagten Minimum von \(-35\,^{\circ}\)C, eine ungepr&uuml;fte Antennenentfaltung, ein unvalidiertes Kompressionsverh&auml;ltnis und ein Pfad zum sicheren Modus, der am Schreibtisch gepr&uuml;ft, aber nie auf Hardware ausgef&uuml;hrt wurde. Jeder ist ein Satz, und S&auml;tze lassen sich nicht gegeneinander ordnen. Die Matrix macht aus jedem eine Koordinate und aus der Koordinate eine erforderliche Ma&szlig;nahme.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 450" role="img" aria-label="5-x-5-Risikomatrix mit vier eingetragenen Risiken und Pfeilen zur Position nach der Minderung">
+            <defs><marker id="rm-arrow-de" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0d568d"></path></marker></defs>
+            <rect x="110" y="314" width="62" height="62" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <rect x="110" y="252" width="62" height="62" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <rect x="110" y="190" width="62" height="62" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <rect x="110" y="128" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="110" y="66" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="172" y="314" width="62" height="62" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <rect x="172" y="252" width="62" height="62" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <rect x="172" y="190" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="172" y="128" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="172" y="66" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="234" y="314" width="62" height="62" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <rect x="234" y="252" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="234" y="190" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="234" y="128" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="234" y="66" width="62" height="62" fill="#f6dede" stroke="#c9d4de"></rect>
+            <rect x="296" y="314" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="296" y="252" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="296" y="190" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="296" y="128" width="62" height="62" fill="#f6dede" stroke="#c9d4de"></rect>
+            <rect x="296" y="66" width="62" height="62" fill="#f6dede" stroke="#c9d4de"></rect>
+            <rect x="358" y="314" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="358" y="252" width="62" height="62" fill="#fbeed9" stroke="#c9d4de"></rect>
+            <rect x="358" y="190" width="62" height="62" fill="#f6dede" stroke="#c9d4de"></rect>
+            <rect x="358" y="128" width="62" height="62" fill="#f6dede" stroke="#c9d4de"></rect>
+            <rect x="358" y="66" width="62" height="62" fill="#f6dede" stroke="#c9d4de"></rect>
+            <text x="141" y="398" text-anchor="middle" font-size="15" fill="#3f5162">1</text>
+            <text x="203" y="398" text-anchor="middle" font-size="15" fill="#3f5162">2</text>
+            <text x="265" y="398" text-anchor="middle" font-size="15" fill="#3f5162">3</text>
+            <text x="327" y="398" text-anchor="middle" font-size="15" fill="#3f5162">4</text>
+            <text x="389" y="398" text-anchor="middle" font-size="15" fill="#3f5162">5</text>
+            <text x="98" y="350" text-anchor="end" font-size="15" fill="#3f5162">1</text>
+            <text x="98" y="288" text-anchor="end" font-size="15" fill="#3f5162">2</text>
+            <text x="98" y="226" text-anchor="end" font-size="15" fill="#3f5162">3</text>
+            <text x="98" y="164" text-anchor="end" font-size="15" fill="#3f5162">4</text>
+            <text x="98" y="102" text-anchor="end" font-size="15" fill="#3f5162">5</text>
+            <text x="265" y="428" text-anchor="middle" font-size="16" font-weight="600" fill="#071d33">Folge (technisch / Mission)</text>
+            <text x="14" y="46" font-size="14" font-weight="600" fill="#071d33">Eintritt</text>
+            <line x1="318" y1="237" x2="318" y2="325" stroke="#0d568d" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#rm-arrow-de)"></line>
+            <circle cx="318" cy="221" r="13" fill="#b03a2e"></circle><text x="318" y="226" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff">1</text>
+            <circle cx="318" cy="345" r="13" fill="#ffffff" stroke="#0d568d" stroke-width="2"></circle><text x="318" y="350" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">1</text>
+            <line x1="336" y1="299" x2="336" y2="325" stroke="#0d568d" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#rm-arrow-de)"></line>
+            <circle cx="336" cy="283" r="13" fill="#b03a2e"></circle><text x="336" y="288" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff">2</text>
+            <circle cx="336" cy="345" r="13" fill="#ffffff" stroke="#0d568d" stroke-width="2"></circle><text x="336" y="350" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">2</text>
+            <line x1="265" y1="237" x2="265" y2="263" stroke="#0d568d" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#rm-arrow-de)"></line>
+            <circle cx="265" cy="221" r="13" fill="#b03a2e"></circle><text x="265" y="226" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff">3</text>
+            <circle cx="265" cy="283" r="13" fill="#ffffff" stroke="#0d568d" stroke-width="2"></circle><text x="265" y="288" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">3</text>
+            <line x1="389" y1="237" x2="389" y2="325" stroke="#0d568d" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#rm-arrow-de)"></line>
+            <circle cx="389" cy="221" r="13" fill="#b03a2e"></circle><text x="389" y="226" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff">4</text>
+            <circle cx="389" cy="345" r="13" fill="#ffffff" stroke="#0d568d" stroke-width="2"></circle><text x="389" y="350" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">4</text>
+            <circle cx="470" cy="86" r="10" fill="#b03a2e"></circle><text x="490" y="91" font-size="15" fill="#3f5162">Aktuelle Bewertung</text>
+            <circle cx="470" cy="120" r="10" fill="#ffffff" stroke="#0d568d" stroke-width="2"></circle><text x="490" y="125" font-size="15" fill="#3f5162">Nach Minderung</text>
+            <text x="462" y="176" font-size="15" font-weight="700" fill="#071d33">1</text><text x="490" y="176" font-size="15" fill="#3f5162">Batteriekapazit&auml;t bei tiefer Temperatur</text>
+            <text x="462" y="206" font-size="15" font-weight="700" fill="#071d33">2</text><text x="490" y="206" font-size="15" fill="#3f5162">Antennenentfaltung</text>
+            <text x="462" y="236" font-size="15" font-weight="700" fill="#071d33">3</text><text x="490" y="236" font-size="15" fill="#3f5162">Datenvolumen der Nutzlast</text>
+            <text x="462" y="266" font-size="15" font-weight="700" fill="#071d33">4</text><text x="490" y="266" font-size="15" fill="#3f5162">Logik des &Uuml;bergangs in den sicheren Modus</text>
+            <rect x="460" y="310" width="22" height="18" fill="#e8f1e9" stroke="#c9d4de"></rect><text x="490" y="324" font-size="15" fill="#3f5162">Gering</text>
+            <rect x="460" y="342" width="22" height="18" fill="#fbeed9" stroke="#c9d4de"></rect><text x="490" y="356" font-size="15" fill="#3f5162">Mittel</text>
+            <rect x="460" y="374" width="22" height="18" fill="#f6dede" stroke="#c9d4de"></rect><text x="490" y="388" font-size="15" fill="#3f5162">Hoch</text>
+            </svg>
+            <figcaption>Risikomatrix einer atmosph&auml;rischen Forschungsplattform bei ihrer vorl&auml;ufigen Entwurfspr&uuml;fung. Die Pfeile enden dort, wo das Projekt nach erfolgreicher Minderung zu stehen erwartet.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-de">
+        <p class="section-label">Geltungsbereich und Grenzen</p>
+        <h2>Was sie leistet und was nicht</h2>
+        <p>Die Matrix tr&auml;gt jedes Risiko nach gesch&auml;tztem <strong>Eintritt</strong> gegen gesch&auml;tzte <strong>Folge</strong> ein. Die Zelle entspricht einer Stufe, und die Stufe bestimmt die geschuldete Reaktion. Drei Bedingungen geben ihr Bedeutung: Die Skalen werden einmal auf Projektebene festgelegt, die bewertete Folgendimension wird benannt, und die Bandregel steht vor jeder Bewertung fest.</p>
+        <div class="callout warning"><strong>Was die Matrix nicht behauptet.</strong> Sie analysiert nicht. Die Stufen sind ordinale Urteilsetiketten, keine gemessenen Gr&ouml;&szlig;en; der Abstand zwischen 3 und 4 ist keine Einheit von irgendetwas. Zwei Risiken in derselben Zelle k&ouml;nnen v&ouml;llig verschiedene Ma&szlig;nahmen verlangen, denn Zeitpunkt, Entdeckbarkeit, Umkehrbarkeit und die Unsicherheit der Sch&auml;tzung sind im Diagramm unsichtbar.</div>
+      </section>
+
+      <section id="statement-de">
+        <p class="section-label">Strukturierte Form</p>
+        <h2>Zustand, Abweichung, Gut, Folge</h2>
+        <blockquote>Da <strong>[Zustand]</strong> vorliegt, besteht die M&ouml;glichkeit einer <strong>[Abweichung]</strong>, die <strong>[betroffenes Gut]</strong> beeintr&auml;chtigt und damit zu <strong>[Folge]</strong> f&uuml;hrt.</blockquote><p>Der Zustand ist eine jetzt zutreffende Tatsache: &bdquo;die Zelle ist bei der minimalen Betriebstemperatur nicht qualifiziert&ldquo;, nicht &bdquo;die Batterie k&ouml;nnte ausfallen&ldquo;. Die Abweichung ist das unsichere Ereignis, das Gut ist das Getroffene, die Folge ist die glaubhafte Auswirkung auf eine Anforderung.</p><p>Die Form bew&auml;hrt sich an den S&auml;tzen, die sie zur&uuml;ckweist. &bdquo;Wir brauchen eine Ersatzantenne&ldquo; hat weder Zustand noch Folge: Das ist eine Minderung, und als Risiko abgelegt verdeckt sie das Bedenken und schlie&szlig;t jede andere Reaktion aus.</p>
+      </section>
+
+      <section id="scales-de">
+        <p class="section-label">Die zwei Achsen</p>
+        <h2>Einmal festgelegt, auf alles angewandt</h2>
+        <p>Beide Achsen sind ordinal. Die Bedeutung tragen die Bezeichnungen, eine Bewertung ist also nur haltbar, wenn sie an einer davon verankert ist. Einmal beschlossen, werden sie nie f&uuml;r ein einzelnes Risiko angepasst: Eine bewegliche Skala kann nichts vergleichen.</p>
+        <div class="table-wrap"><table><thead><tr><th>Stufe</th><th>Eintritt</th><th>Folge</th></tr></thead><tbody><tr><td>1</td><td>Sehr unwahrscheinlich</td><td>Minimal: vernachl&auml;ssigbare Missionsfolge</td></tr><tr><td>2</td><td>Unwahrscheinlich</td><td>Gering: beherrschbare Verschlechterung oder begrenzte Nacharbeit</td></tr><tr><td>3</td><td>M&ouml;glich</td><td>M&auml;&szlig;ig: Verlust von Anforderungsreserve oder erhebliche Nacharbeit</td></tr><tr><td>4</td><td>Wahrscheinlich</td><td>Gro&szlig;: Verlust einer wichtigen F&auml;higkeit oder ernstes Sicherheitsproblem</td></tr><tr><td>5</td><td>Sehr wahrscheinlich</td><td>Kritisch: Missionsverlust oder nicht hinnehmbares Sicherheitsergebnis</td></tr></tbody></table></div>
+      </section>
+
+      <section id="banding-de">
+        <p class="section-label">Entscheidungsregel</p>
+        <h2>Von der Zelle zur Verpflichtung</h2>
+        <p>Eine Zelle ist noch keine Entscheidung. Dieser Kurs verwendet die einfachste vertretbare Regel, die additive, im Risikoplan vor jeder Bewertung festgehalten.</p>
+        <div class="table-wrap"><table><thead><tr><th>Band</th><th>Regel</th><th>Was das Projekt schuldet</th></tr></thead><tbody><tr><td>Hoch</td><td>\(L+C \ge 8\)</td><td>Einen Minderungsplan: benannte Verantwortliche, Termin, Ausl&ouml;ser</td></tr><tr><td>Mittel</td><td>\(5 \le L+C \le 7\)</td><td>Minderung oder Beobachtung mit messbarem Indikator</td></tr><tr><td>Gering</td><td>\(L+C \le 4\)</td><td>Annehmen und beobachten, Annahme dokumentieren</td></tr></tbody></table></div>
+        <p>&Uuml;ber die \(25\) Zellen ergibt das \(6\) gering, \(13\) mittel und \(6\) hoch. Sie hat auch einen nennenswerten Mangel: Da nur die Summe z&auml;hlt, lesen sich \((C=1, L=5)\) und \((C=5, L=1)\) beide als mittel &mdash; ein sicheres &Auml;rgernis und ein unwahrscheinlicher Missionsverlust. Echte NASA-Matrizen sind deshalb nicht additiv; ihre B&auml;nder w&ouml;lben sich zur hohen Folge. Die additive Regel steht hier, weil sie transparent ist, nicht weil sie richtig w&auml;re.</p>
+      </section>
+
+      <section id="register-de">
+        <p class="section-label">Begleitendes Register</p>
+        <h2>Wo das Risiko handhabbar wird</h2>
+        <p>Die Matrix zeigt, wo die Risiken liegen; das Register erlaubt das Handeln. Jeder Eintrag tr&auml;gt eine dauerhafte Kennung, die Aussage, die Bewertungen mit Nachweis, eine benannte verantwortliche Person, die Reaktion mit messbarem Ausl&ouml;ser und die erwartete Restposition.</p>
+        <div class="table-wrap"><table><thead><tr><th>ID</th><th>Risiko</th><th>L/C</th><th>Rest</th><th>Verantw.</th><th>Reaktion und Ausl&ouml;ser</th></tr></thead><tbody><tr><td>R-01</td><td>Batterie nur bis \(-20\,^{\circ}\)C charakterisiert, vorhergesagtes Minimum \(-35\,^{\circ}\)C</td><td>3/4</td><td>1/4</td><td>EPS</td><td>Thermal-Vakuum-Test vor dem Einfrieren der Konfiguration. Ausl&ouml;ser: nutzbare Kapazit&auml;t unter dem \(1{,}25\)-fachen der Nachtzuweisung.</td></tr><tr><td>R-02</td><td>Antennenentfaltung nie bei repr&auml;sentativem Druck gepr&uuml;ft</td><td>2/4</td><td>1/4</td><td>COM</td><td>Umweltentfaltungstest und Positionssensorik. Ausl&ouml;ser: jede unvollst&auml;ndige Entfaltung in drei Zyklen.</td></tr><tr><td>R-03</td><td>Kompressionsverh&auml;ltnis aus simulierten statt repr&auml;sentativen Daten</td><td>3/3</td><td>2/3</td><td>Nutzlast</td><td>Repr&auml;sentative Daten aufzeichnen und neu validieren. Ausl&ouml;ser: gemessenes Verh&auml;ltnis unter 25&nbsp;%.</td></tr><tr><td>R-04</td><td>&Uuml;bergangslogik am Schreibtisch gepr&uuml;ft, nie auf Hardware ausgef&uuml;hrt</td><td>3/5</td><td>1/5</td><td>Avionik</td><td>Hardware-in-the-Loop-Kampagne vor dem Einfrieren des Softwarestands.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="algorithm-de">
+        <p class="section-label">Rechenalgorithmus</p>
+        <h2>Ein Risiko bewerten</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Folgendimension benennen</span></div><div><strong>2</strong><span>Zuerst die Folge bewerten</span></div><div><strong>3</strong><span>Eintritt bewerten, Nachweis angeben</span></div><div><strong>4</strong><span>Bei \((C,L)\) eintragen</span></div><div><strong>5</strong><span>Band ablesen</span></div><div><strong>6</strong><span>Restposition eintragen</span></div><div><strong>7</strong><span>Bei jedem Review neu bewerten</span></div></div>
+        <p>Die Folge zuerst zu bewerten ist keine Formalie. Teams, die mit dem Eintritt beginnen, mildern die Schwere systematisch ab, weil ein unwahrscheinlich wirkendes Ereignis nicht ernst wirkt. Bewerten Sie die Folge so, als sei die Abweichung bereits eingetreten.</p>
+        <div class="callout success"><strong>Der Pfeil, nicht der Punkt.</strong> Der Punkt sagt, wo das Projekt steht; der Pfeil sagt, was es vorhat und wie viel es sich davon verspricht. Ein Gremium kann einen Pfeil hinterfragen &mdash; ist die Minderung finanziert, liegt sie vor dem Einfrieren, ist die Reduktion glaubhaft? Ein Diagramm aus Punkten bietet nichts zum Hinterfragen.</div>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Bewertung von R-04, der &Uuml;bergang in den sicheren Modus</h2>
+        <p><strong>Aussage.</strong> Da die Modus&uuml;bergangslogik nur durch Schreibtischpr&uuml;fung verifiziert und nie in einer Hardware-in-the-Loop-Konfiguration ausgef&uuml;hrt wurde, besteht die M&ouml;glichkeit unbeabsichtigter Aktuatorbefehle beim &Uuml;bergang in den sicheren Modus, was die Lageregelung beeintr&auml;chtigt und zum Verlust der Plattform f&uuml;hrt.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Folge.</strong> Unbeabsichtigte Aktuatorbefehle in H&ouml;he nehmen die Plattform aus dem kontrollierten Flug, und sie ist nicht wiederherstellbar. Auf der Skala ist das <em>Kritisch</em>: \(C=5\).</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Eintritt.</strong> Der Nachweis ist nur eine Schreibtischpr&uuml;fung, und der &Uuml;bergang l&auml;uft &uuml;ber drei&szlig;ig Tage mindestens einmal je St&ouml;rfall. Ungetestete Logikpfade sind eine bekannte Fehlerquelle, also <em>M&ouml;glich</em> statt <em>Wahrscheinlich</em>: \(L=3\).</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Band.</strong> \[L+C = 3+5 = 8,\] und \(8 \ge 8\), das Risiko ist also <em>Hoch</em>: Ein Minderungsplan ist zwingend.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Restrisiko.</strong> Eine Hardware-in-the-Loop-Kampagne kann die Folge nicht ver&auml;ndern &mdash; ein unbeabsichtigter Befehl kostet weiterhin die Plattform &mdash; also bleibt \(C=5\), und nur der Eintritt bewegt sich auf \(L=1\): \[L+C = 1+5 = 6,\] also <em>Mittel</em>.</div></div>
+        <div class="result-box">\[ \boxed{ (C,L)=(5,3),\; L+C=8\ \text{Hoch} \;\longrightarrow\; (C,L)=(5,1),\; L+C=6\ \text{Mittel} } \]</div>
+        <p><strong>Deutung.</strong> Die Minderung kauft Nachweise, statt das Fahrzeug zu &auml;ndern; das Restrisiko bleibt &uuml;ber die Missionsdauer mittel, weil nichts die Folge eines Verlusts der Lageregelung mindert; und das h&ouml;chste Risiko des Projekts stammte aus Software, die niemand unter den Hardwarebedenken aufgef&uuml;hrt hatte. Letzteres ist der Normalfall.</p>
+      </section>
+
+      <section id="summary-de">
+        <p class="section-label">Arbeitsregeln</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regel</th><th>Aussage</th></tr></thead><tbody><tr><td>Risikoaussage</td><td>Da [Zustand] vorliegt, besteht die M&ouml;glichkeit einer [Abweichung], die [betroffenes Gut] beeintr&auml;chtigt und zu [Folge] f&uuml;hrt.</td></tr><tr><td>Bewertungsreihenfolge</td><td>Zuerst die Folge, dann der Eintritt, jeweils an einer Skalenbezeichnung verankert und mit dokumentiertem Nachweis.</td></tr><tr><td>B&auml;nder</td><td>\(L+C \le 4\) gering, \(5\) bis \(7\) mittel, \(\ge 8\) hoch. Vor der ersten Bewertung festgelegt.</td></tr><tr><td>Bandbelegung</td><td>\(6\) gering, \(13\) mittel, \(6\) hoch, von \(25\) Zellen.</td></tr><tr><td>Restrisiko</td><td>Jedes Risiko tr&auml;gt eine erwartete Zelle nach der Minderung. Diesen Pfeil bewertet das Gremium.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Häufige Fehler</p>
+        <h2>Was schiefgeht</h2>
+        <ul class="check-list"><li><strong>\(L\) und \(C\) multiplizieren.</strong> Das Produkt zweier ordinaler Etiketten misst nichts. Verwenden Sie die festgeschriebene Bandregel.</li><li><strong>Zuerst den Eintritt bewerten.</strong> Das mildert jedes Mal die Folge ab.</li><li><strong>Die Minderung als Risiko schreiben.</strong> Das Bedenken verschwindet, und jede andere Reaktion ist ausgeschlossen.</li><li><strong>Eine Bewertung ohne genannte Grundlage.</strong> Sagt das Register nicht, ob eine 3 aus einem Test oder einer Vermutung stammt, kann sie niemand gewichten oder revidieren.</li><li><strong>Die Matrix f&uuml;r die Analyse halten.</strong> Eine rote Zelle ohne Szenario, Nachweis und Zeitbezug gibt dem Pr&uuml;fer nichts Handhabbares.</li><li><strong>Leere Restspalte.</strong> Bedenken dokumentiert, nichts zugesagt. Kein Pfeil hei&szlig;t kein Plan.</li><li><strong>Ein Risiko, dessen Zelle sich nie bewegt.</strong> &Uuml;ber drei Reviews hei&szlig;t das: Die Minderung wirkt nicht, oder niemand bewertet neu.</li></ul>
+      </section>
+
+      <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
+        <h2>Literatur</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 6.4.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=risk-modules" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 19: Risk</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Bearbeitet nach Einheit VI des Skripts Luft- und Raumfahrtsystemtechnik (AE506) von Carlos Alberto Molina Holgu&iacute;n. Jede Zahl dieser Seite wurde eigens daf&uuml;r unabh&auml;ngig neu berechnet; kein Rechner deckt dieses Thema ab, daher ist die Neuberechnung die einzige Pr&uuml;fung. Die Bandbelegungen entstanden durch Aufz&auml;hlung aller 25 Zellen. Risiko R-04 erweitert das Dreier-Register des Skripts um ein hohes Risiko, damit das obere Band vorkommt.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="index.html?v=11"><span>Kursübersicht</span>&larr; Alle 22 Vorlesungen</a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>&copy; <span id="year"></span> Carlos Alberto Molina Holgu&iacute;n</p>
+    <p>Universidad Aut&oacute;noma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

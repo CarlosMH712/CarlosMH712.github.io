@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Requirements traceability in aerospace: building the RTM, the four standing audits for orphans and coverage, and using the trace chain to bound the impact of a requirement change." />
+  <meta name="author" content="Carlos Alberto Molina Holgu&iacute;n" />
+  <meta name="theme-color" content="#071d33" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Traceability and the RTM | Aerospace Systems Engineering</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:wght@600;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=11" data-ui-key="course">Aerospace Systems Engineering</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Aerospace Systems Engineering &middot; Lecture 09</p>
+        <h1>Traceability: The RTM and Change Control</h1>
+        <p class="hero-copy">The table that turns a requirement change from a conversation into an analysis, the four audits that keep it honest, and why the sideways links matter more than the downward ones.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Ingeniería de Sistemas Aeroespaciales &middot; Lecture 09</p>
+        <h1>Trazabilidad: la RTM y el control de cambios</h1>
+        <p class="hero-copy">La tabla que convierte un cambio de requisito de una conversaci&oacute;n en un an&aacute;lisis, las cuatro auditor&iacute;as que la mantienen honesta, y por qu&eacute; los enlaces laterales importan m&aacute;s que los descendentes.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Luft- und Raumfahrtsystemtechnik &middot; Vorlesung 09</p>
+        <h1>R&uuml;ckverfolgbarkeit: die RTM und &Auml;nderungslenkung</h1>
+        <p class="hero-copy">Die Tabelle, die eine Anforderungs&auml;nderung von einem Gespr&auml;ch in eine Analyse verwandelt, die vier Pr&uuml;fungen, die sie ehrlich halten, und warum die seitlichen Verkn&uuml;pfungen wichtiger sind als die abw&auml;rts gerichteten.</p>
+      </div>
+
+    <div class="hero-meta">
+        <span data-language="en">Estimated reading: 14 min</span><span data-language="es" hidden>Lectura estimada: 14 min</span><span data-language="de" hidden>Lesedauer: ca. 14 min</span>
+        <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+        <span data-language="en">Scope: the requirements baseline</span><span data-language="es" hidden>Alcance: la l&iacute;nea base de requisitos</span><span data-language="de" hidden>Umfang: die Anforderungsbasis</span>
+    </div>
+    <div class="button-row">
+      <a class="button secondary" href="index.html?v=11" data-ui-key="back">Back to course</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Engineering situation</a>
+        <a href="#model">Scope and limits</a>
+        <a href="#matrix">The matrix</a>
+        <a href="#audits">The four audits</a>
+        <a href="#algorithm">Change impact</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Operative rules</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#references">Sources</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Situaci&oacute;n de ingenier&iacute;a</a>
+        <a href="#model-es">Alcance y l&iacute;mites</a>
+        <a href="#matrix-es">La matriz</a>
+        <a href="#audits-es">Las cuatro auditor&iacute;as</a>
+        <a href="#algorithm-es">Impacto de cambio</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Reglas operativas</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Kontext</a>
+        <a href="#model-de">Geltungsbereich</a>
+        <a href="#matrix-de">Die Matrix</a>
+        <a href="#audits-de">Die vier Pr&uuml;fungen</a>
+        <a href="#algorithm-de">&Auml;nderungswirkung</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Arbeitsregeln</a>
+        <a href="#mistakes-de">H&auml;ufige Fehler</a>
+        <a href="#references-de">Quellen</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+
+      <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul><li>build a requirements traceability matrix with parent, allocation and verification for every row;</li><li>run the four standing audits and say what a hit on each one means;</li><li>distinguish an orphan requirement from an uncovered parent, and say which one loses missions;</li><li>trace a change downward through children and sideways through interfaces;</li><li>produce the affected-item list that a change request has to carry.</li></ul>
+      </section>
+
+      <section id="physics">
+        <p class="section-label">Engineering situation</p>
+        <h2>The change that only touched the payload</h2>
+        <p class="lead">The science team wants a higher sampling rate. It raises daily data volume from 1.4 to 2.0 Gbit, and the payload lead notes that the payload can do it without any hardware change. The request is approved in the meeting.</p><p>The payload really can do it. What nobody works out in the meeting is that the radio now needs half again as much contact time, that the extra transmitting draws from the night energy budget, and that a risk in the register moves. None of that is hidden &mdash; it is written down, in six rows of a table nobody opened.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 820 330" role="img" aria-label="A trace chain from one objective down to four requirements">
+            <defs><marker id="tr-arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#8fa6ba"></path></marker></defs>
+            <rect x="320" y="14" width="180" height="52" rx="6" fill="#eef4fa" stroke="#8fa6ba" stroke-width="1"></rect>
+            <text x="410" y="38" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">OBJ-01</text>
+            <text x="410" y="56" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">objective</text>
+            <rect x="320" y="100" width="180" height="52" rx="6" fill="#eef4fa" stroke="#8fa6ba" stroke-width="1"></rect>
+            <text x="410" y="124" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">SYS-PERF-021</text>
+            <text x="410" y="142" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">system</text>
+            <rect x="90" y="186" width="190" height="52" rx="6" fill="#f6dede" stroke="#b03a2e" stroke-width="2"></rect>
+            <text x="185" y="210" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">PAY-DATA-012</text>
+            <text x="185" y="228" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">subsystem &mdash; changed</text>
+            <rect x="320" y="186" width="180" height="52" rx="6" fill="#fbeed9" stroke="#c2924d" stroke-width="2"></rect>
+            <text x="410" y="210" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">COM-DATA-041</text>
+            <text x="410" y="228" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">subsystem &mdash; directly affected</text>
+            <rect x="540" y="186" width="190" height="52" rx="6" fill="#fbeed9" stroke="#c2924d" stroke-width="2"></rect>
+            <text x="635" y="210" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">EPS-PWR-018</text>
+            <text x="635" y="228" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">subsystem &mdash; indirectly affected, through an interface</text>
+            <rect x="320" y="268" width="180" height="48" rx="6" fill="#fbeed9" stroke="#c2924d" stroke-width="2"></rect>
+            <text x="410" y="292" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">COM-INT-007</text>
+            <text x="410" y="310" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">interface &mdash; directly affected</text>
+            <line x1="410" y1="66" x2="410" y2="96" stroke="#8fa6ba" stroke-width="2" marker-end="url(#tr-arrow)"></line>
+            <line x1="410" y1="152" x2="185" y2="182" stroke="#8fa6ba" stroke-width="2" marker-end="url(#tr-arrow)"></line>
+            <line x1="410" y1="152" x2="410" y2="182" stroke="#8fa6ba" stroke-width="2" marker-end="url(#tr-arrow)"></line>
+            <line x1="410" y1="238" x2="410" y2="264" stroke="#8fa6ba" stroke-width="2" marker-end="url(#tr-arrow)"></line>
+            <path d="M 500 212 L 536 212" stroke="#c2924d" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#tr-arrow)"></path>
+            <path d="M 280 212 L 316 212" stroke="#c2924d" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#tr-arrow)"></path>
+            </svg>
+            <figcaption>Change one requirement and the chain names the rest. Solid arrows are parent-child links; dashed ones are the sideways links through interfaces, which is the direction teams forget.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model">
+        <p class="section-label">Scope and limits</p>
+        <h2>What the matrix is for</h2>
+        <p>The <strong>requirements traceability matrix</strong> records, for every requirement, where it came from, which element owns it, and how it will be verified. Bidirectional traceability means both directions are usable: upward to ask <em>why does this exist</em>, downward to ask <em>what depends on it</em>.</p><p>Its purpose is narrow and it is worth stating plainly. The RTM makes a change analysable. Given one modified requirement it produces the list of everything that must be re-examined &mdash; and without it, that list is whatever the people in the room happen to remember.</p>
+        <div class="callout warning"><strong>What the matrix does not do.</strong> It records relationships; it does not check that they are correct. A requirement can trace cleanly to a parent that should never have existed, and the matrix will report full coverage. Traceability is an internal-consistency tool, and a project with a spotless RTM can still be building the wrong system.</div>
+      </section>
+
+      <section id="matrix">
+        <p class="section-label">The columns that earn their keep</p>
+        <h2>What a row must carry</h2>
+        <div class="table-wrap"><table><thead><tr><th>Req. ID</th><th>Parent</th><th>Requirement</th><th>Allocated to</th><th>Verif.</th></tr></thead><tbody><tr><td>SYS-PERF-014</td><td>OBJ-02</td><td>Maintain flight for at least 30 continuous days</td><td>1.0 System</td><td>A + D</td></tr><tr><td>SYS-PERF-021</td><td>OBJ-01</td><td>Deliver at least 90 % of generated science data per 24 h</td><td>1.0 System</td><td>A + D</td></tr><tr><td>EPS-PWR-018</td><td>SYS-PERF-014</td><td>Supply at least 620 Wh usable per night at -35 C</td><td>1.1.3 Power</td><td>T + A</td></tr><tr><td>COM-DATA-041</td><td>SYS-PERF-021</td><td>Sustain 2.0 Mbit/s at maximum slant range</td><td>1.1.4 Comm</td><td>T</td></tr><tr><td>PAY-DATA-012</td><td>SYS-PERF-021</td><td>Generate no more than 1.4 Gbit of science data per 24 h</td><td>1.2.1 Sensors</td><td>A</td></tr><tr><td>COM-INT-007</td><td>COM-DATA-041</td><td>Transfer frames at 2.5 Mbit/s in the format of ICD-04</td><td>1.1.2 / 1.1.4</td><td>T + I</td></tr></tbody></table></div>
+        <p>Two columns do most of the work. <em>Parent</em> is what makes the upward question answerable, and <em>allocated to</em> uses the product-tree identifier rather than a team name &mdash; because teams get reorganised and the tree does not. Reading SYS-PERF-021 downward gives the whole data-return chain: payload capped at 1.4 Gbit/day, downlink at 2.0 Mbit/s, internal interface at 2.5 Mbit/s. The gap between the last two is deliberate margin, and it is visible because both rows exist.</p>
+      </section>
+
+      <section id="audits">
+        <p class="section-label">Four queries, not a reading</p>
+        <h2>The standing audits</h2>
+        <div class="table-wrap"><table><thead><tr><th>Check</th><th>Filter for</th><th>What a hit means</th></tr></thead><tbody><tr><td>Orphan</td><td>Rows with no parent</td><td>An invented requirement, or one whose real source was never written down</td></tr><tr><td>Coverage</td><td>Parents with no children</td><td>Something the mission committed to that no element is responsible for</td></tr><tr><td>Allocation level</td><td>System requirements assigned straight to a component</td><td>A skipped level, and with it the trade-off that should have happened there</td></tr><tr><td>Verification feasibility</td><td>Rows verified only where the evidence cannot exist</td><td>A requirement that will be discovered unverifiable at test readiness</td></tr></tbody></table></div>
+        <p>The first two are worth distinguishing carefully because they fail differently. An <strong>orphan</strong> is a requirement nobody asked for: it adds cost and effort to something the mission may not need. An <strong>uncovered parent</strong> is a commitment nobody is delivering: the mission promised something and no element is responsible for it. Orphans waste money; uncovered parents lose missions.</p>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">Calculation algorithm</p>
+        <h2>Bounding a change</h2>
+        <div class="process-flow"><div><strong>1</strong><span>State the change as a delta to one identifier</span></div><div><strong>2</strong><span>Follow it down to its children</span></div><div><strong>3</strong><span>Follow each child to its allocation</span></div><div><strong>4</strong><span>Follow every affected element sideways through interfaces</span></div><div><strong>5</strong><span>Check the risk register</span></div><div><strong>6</strong><span>Check which verification evidence is invalidated</span></div><div><strong>7</strong><span>Assemble the affected-item list</span></div></div>
+        <p>Step four is the one teams skip, and it is where the expensive consequences live. Parent-child links are obvious because they were written deliberately; interface links were written by somebody else, for a different reason, and they are the path by which a payload change reaches the power budget.</p>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>Tracing the payload change</h2>
+        <p>The request raises PAY-DATA-012 from 1.4 to 2.0 Gbit per 24 hours. The identifier is the entry point; everything else follows from the matrix.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Upward first.</strong> PAY-DATA-012 traces to SYS-PERF-021, which requires 90&nbsp;% delivery. So the change does not merely move a payload number: it changes what the system-level requirement demands of everyone else.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Sideways to comm.</strong> Data to deliver rises from \(1.4\times0.90 = 1.26\) to \(2.0\times0.90 = 1.80\) Gbit. At the 2.0 Mbit/s of COM-DATA-041, contact time goes from \[\frac{1.26\times10^{9}}{2.0\times10^{6}} = 630\ \text{s} = 10.5\ \text{min}\] to \[\frac{1.80\times10^{9}}{2.0\times10^{6}} = 900\ \text{s} = 15.0\ \text{min}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Against what operations offers.</strong> The 18 min of daily contact now gives \(18/15.0 = 1.20\) instead of \(18/10.5 = 1.71\). The link still closes, but the margin against a missed pass has gone from 71&nbsp;% to 20&nbsp;%.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Sideways again, to power.</strong> The extra 4.5 min of transmitting per day at the 60 W transmitter draws \[4.5\ \text{min} \times \frac{1\ \text{h}}{60\ \text{min}} \times 60\ \text{W} = 4.5\ \text{Wh/day}\] from a night budget sized at 620 Wh. Small, but it is the step nobody in the meeting took.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Risk and verification.</strong> R-03 in the register concerns the compression ratio, and its consequence rises because there is now less downlink margin to absorb an error. The data-volume analysis that closed PAY-DATA-012 is invalidated and must be redone.</div></div>
+        <div class="result-box">\[ \boxed{ \text{contact } 10.5 \rightarrow 15.0\ \text{min/day},\quad \text{margin ratio } 1.71 \rightarrow 1.20,\quad +4.5\ \text{Wh/day} } \]</div>
+        <p><strong>Interpretation.</strong> Six items are affected by a change that was described as touching one. None of them was hidden and none required new analysis to find &mdash; only the matrix and ten minutes. That is the whole argument for keeping it: the alternative is not a slower analysis, it is the same decision made without one.</p>
+      </section>
+
+      <section id="summary">
+        <p class="section-label">Operative rules</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Statement</th></tr></thead><tbody><tr><td>One row per requirement</td><td>Never per document section. If a row needs <em>and</em>, it is two rows.</td></tr><tr><td>Every row has a parent</td><td>An objective, an expectation, a constraint, a higher requirement or a named analysis.</td></tr><tr><td>Verification is recorded when the requirement is written</td><td>Not later. If the method cannot be named now, the requirement is not verifiable now.</td></tr><tr><td>Four standing audits</td><td>Orphans, coverage, allocation level, verification feasibility. Run them, do not read for them.</td></tr><tr><td>Change impact runs down and sideways</td><td>Down through children and allocations, sideways through interfaces. The sideways direction is the one that gets missed.</td></tr><tr><td>The affected-item list is the change package</td><td>A change request without one is a description, and a board cannot act on a description.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes">
+        <p class="section-label">Common mistakes</p>
+        <h2>What goes wrong</h2>
+        <ul class="check-list"><li><strong>Tracing down but not sideways.</strong> Parent-child links were written deliberately and are easy to follow. Interface links are how a payload change reaches the power budget.</li><li><strong>Allocating to a team name.</strong> Teams are reorganised; the product tree is not. Use the identifier.</li><li><strong>Filling the verification column later.</strong> If the method cannot be named when the requirement is written, the requirement is not verifiable and now is when that is cheap to fix.</li><li><strong>Reading the matrix instead of querying it.</strong> The four audits are filters. Reading a hundred rows for orphans finds none of them.</li><li><strong>Treating full coverage as correctness.</strong> A requirement can trace cleanly to a parent that should never have existed.</li><li><strong>Approving a change without the affected-item list.</strong> A board asked to approve a description is being asked to approve a guess.</li></ul>
+      </section>
+
+      <section id="references" class="references">
+        <p class="section-label">Sources</p>
+        <h2>References</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 4.2.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=requirements-config" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 11: Requirements Configuration and CM</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adapted from Unit III of the Aerospace Systems Engineering (AE506) course script by Carlos Alberto Molina Holgu&iacute;n. Every number on this page was recomputed independently for it; no calculator covers this topic, so recomputation is the only check there is. The change-impact figures were recomputed from the data volumes, the link rate and the contact time; the before case reproduces the derivation of Lecture 06, which is how the two pages are kept consistent.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="derived-requirements.html?v=11"><span>Previous lecture</span>&larr; Derived Requirements</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+
+      <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Qu&eacute; deber&iacute;as poder hacer</h2>
+        <ul><li>construir una matriz de trazabilidad con padre, asignaci&oacute;n y verificaci&oacute;n en cada fila;</li><li>ejecutar las cuatro auditor&iacute;as permanentes y decir qu&eacute; significa un hallazgo en cada una;</li><li>distinguir un requisito hu&eacute;rfano de un padre sin cobertura, y decir cu&aacute;l pierde misiones;</li><li>rastrear un cambio hacia abajo por los hijos y de lado por las interfaces;</li><li>producir la lista de afectados que debe llevar una solicitud de cambio.</li></ul>
+      </section>
+
+      <section id="physics-es">
+        <p class="section-label">Situación de ingeniería</p>
+        <h2>El cambio que s&oacute;lo tocaba la carga &uacute;til</h2>
+        <p class="lead">El equipo de ciencia quiere una tasa de muestreo mayor. Eso sube el volumen diario de datos de 1.4 a 2.0 Gbit, y el l&iacute;der de carga &uacute;til nota que la carga &uacute;til puede hacerlo sin cambio de hardware. La solicitud se aprueba en la junta.</p><p>La carga &uacute;til s&iacute; puede. Lo que nadie calcula en la junta es que la radio ahora necesita la mitad m&aacute;s de tiempo de contacto, que la transmisi&oacute;n extra sale del presupuesto de energ&iacute;a nocturna, y que un riesgo del registro se mueve. Nada de eso est&aacute; oculto &mdash; est&aacute; escrito, en seis filas de una tabla que nadie abri&oacute;.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 820 330" role="img" aria-label="Una cadena de trazabilidad de un objetivo a cuatro requisitos">
+            <defs><marker id="tr-arrow-es" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#8fa6ba"></path></marker></defs>
+            <rect x="320" y="14" width="180" height="52" rx="6" fill="#eef4fa" stroke="#8fa6ba" stroke-width="1"></rect>
+            <text x="410" y="38" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">OBJ-01</text>
+            <text x="410" y="56" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">objetivo</text>
+            <rect x="320" y="100" width="180" height="52" rx="6" fill="#eef4fa" stroke="#8fa6ba" stroke-width="1"></rect>
+            <text x="410" y="124" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">SYS-PERF-021</text>
+            <text x="410" y="142" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">sistema</text>
+            <rect x="90" y="186" width="190" height="52" rx="6" fill="#f6dede" stroke="#b03a2e" stroke-width="2"></rect>
+            <text x="185" y="210" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">PAY-DATA-012</text>
+            <text x="185" y="228" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">subsistema &mdash; cambiado</text>
+            <rect x="320" y="186" width="180" height="52" rx="6" fill="#fbeed9" stroke="#c2924d" stroke-width="2"></rect>
+            <text x="410" y="210" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">COM-DATA-041</text>
+            <text x="410" y="228" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">subsistema &mdash; afectado directamente</text>
+            <rect x="540" y="186" width="190" height="52" rx="6" fill="#fbeed9" stroke="#c2924d" stroke-width="2"></rect>
+            <text x="635" y="210" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">EPS-PWR-018</text>
+            <text x="635" y="228" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">subsistema &mdash; afectado indirectamente, por una interfaz</text>
+            <rect x="320" y="268" width="180" height="48" rx="6" fill="#fbeed9" stroke="#c2924d" stroke-width="2"></rect>
+            <text x="410" y="292" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">COM-INT-007</text>
+            <text x="410" y="310" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">interfaz &mdash; afectado directamente</text>
+            <line x1="410" y1="66" x2="410" y2="96" stroke="#8fa6ba" stroke-width="2" marker-end="url(#tr-arrow-es)"></line>
+            <line x1="410" y1="152" x2="185" y2="182" stroke="#8fa6ba" stroke-width="2" marker-end="url(#tr-arrow-es)"></line>
+            <line x1="410" y1="152" x2="410" y2="182" stroke="#8fa6ba" stroke-width="2" marker-end="url(#tr-arrow-es)"></line>
+            <line x1="410" y1="238" x2="410" y2="264" stroke="#8fa6ba" stroke-width="2" marker-end="url(#tr-arrow-es)"></line>
+            <path d="M 500 212 L 536 212" stroke="#c2924d" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#tr-arrow-es)"></path>
+            <path d="M 280 212 L 316 212" stroke="#c2924d" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#tr-arrow-es)"></path>
+            </svg>
+            <figcaption>Cambia un requisito y la cadena nombra a los dem&aacute;s. Las flechas s&oacute;lidas son enlaces padre-hijo; las punteadas son los enlaces laterales por interfaces, la direcci&oacute;n que los equipos olvidan.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-es">
+        <p class="section-label">Alcance y límites</p>
+        <h2>Para qu&eacute; sirve la matriz</h2>
+        <p>La <strong>matriz de trazabilidad de requisitos</strong> registra, para cada requisito, de d&oacute;nde vino, qu&eacute; elemento lo posee y c&oacute;mo se verificar&aacute;. Trazabilidad bidireccional significa que ambas direcciones son utilizables: hacia arriba para preguntar <em>por qu&eacute; existe esto</em>, hacia abajo para preguntar <em>qu&eacute; depende de ello</em>.</p><p>Su prop&oacute;sito es estrecho y vale la pena decirlo claro. La RTM hace analizable un cambio. Dado un requisito modificado produce la lista de todo lo que debe reexaminarse &mdash; y sin ella, esa lista es lo que la gente en la sala alcance a recordar.</p>
+        <div class="callout warning"><strong>Lo que la matriz no hace.</strong> Registra relaciones; no verifica que sean correctas. Un requisito puede trazar limpiamente a un padre que nunca debi&oacute; existir, y la matriz reportar&aacute; cobertura completa. La trazabilidad es una herramienta de consistencia interna, y un proyecto con una RTM impecable puede seguir construyendo el sistema equivocado.</div>
+      </section>
+
+      <section id="matrix-es">
+        <p class="section-label">Las columnas que se ganan el sueldo</p>
+        <h2>Qu&eacute; debe llevar una fila</h2>
+        <div class="table-wrap"><table><thead><tr><th>ID</th><th>Padre</th><th>Requisito</th><th>Asignado a</th><th>Verif.</th></tr></thead><tbody><tr><td>SYS-PERF-014</td><td>OBJ-02</td><td>Mantener vuelo al menos 30 d&iacute;as continuos</td><td>1.0 Sistema</td><td>A + D</td></tr><tr><td>SYS-PERF-021</td><td>OBJ-01</td><td>Entregar al menos 90 % de los datos generados por 24 h</td><td>1.0 Sistema</td><td>A + D</td></tr><tr><td>EPS-PWR-018</td><td>SYS-PERF-014</td><td>Suministrar al menos 620 Wh utilizables por noche a -35 C</td><td>1.1.3 Potencia</td><td>T + A</td></tr><tr><td>COM-DATA-041</td><td>SYS-PERF-021</td><td>Sostener 2.0 Mbit/s a alcance oblicuo m&aacute;ximo</td><td>1.1.4 Comm</td><td>T</td></tr><tr><td>PAY-DATA-012</td><td>SYS-PERF-021</td><td>Generar no m&aacute;s de 1.4 Gbit de datos por 24 h</td><td>1.2.1 Sensores</td><td>A</td></tr><tr><td>COM-INT-007</td><td>COM-DATA-041</td><td>Transferir tramas a 2.5 Mbit/s en el formato de ICD-04</td><td>1.1.2 / 1.1.4</td><td>T + I</td></tr></tbody></table></div>
+        <p>Dos columnas hacen la mayor parte del trabajo. <em>Padre</em> es lo que hace respondible la pregunta ascendente, y <em>asignado a</em> usa el identificador del &aacute;rbol de productos y no un nombre de equipo &mdash; porque los equipos se reorganizan y el &aacute;rbol no. Leer SYS-PERF-021 hacia abajo da toda la cadena de retorno de datos: carga &uacute;til limitada a 1.4 Gbit/d&iacute;a, bajada a 2.0 Mbit/s, interfaz interna a 2.5 Mbit/s. La brecha entre las dos &uacute;ltimas es margen deliberado, y es visible porque ambas filas existen.</p>
+      </section>
+
+      <section id="audits-es">
+        <p class="section-label">Cuatro consultas, no una lectura</p>
+        <h2>Las auditor&iacute;as permanentes</h2>
+        <div class="table-wrap"><table><thead><tr><th>Chequeo</th><th>Filtrar por</th><th>Qu&eacute; significa un hallazgo</th></tr></thead><tbody><tr><td>Hu&eacute;rfano</td><td>Filas sin padre</td><td>Un requisito inventado, o uno cuya fuente real nunca se escribi&oacute;</td></tr><tr><td>Cobertura</td><td>Padres sin hijos</td><td>Algo a lo que la misi&oacute;n se comprometi&oacute; y de lo que ning&uacute;n elemento responde</td></tr><tr><td>Nivel de asignaci&oacute;n</td><td>Requisitos de sistema asignados directo a un componente</td><td>Un nivel saltado, y con &eacute;l el intercambio que deb&iacute;a ocurrir ah&iacute;</td></tr><tr><td>Factibilidad de verificaci&oacute;n</td><td>Filas verificadas s&oacute;lo donde la evidencia no puede existir</td><td>Un requisito que resultar&aacute; inverificable en la preparaci&oacute;n de prueba</td></tr></tbody></table></div>
+        <p>Las dos primeras vale la pena distinguirlas con cuidado porque fallan distinto. Un <strong>hu&eacute;rfano</strong> es un requisito que nadie pidi&oacute;: a&ntilde;ade costo y esfuerzo a algo que la misi&oacute;n quiz&aacute; no necesita. Un <strong>padre sin cobertura</strong> es un compromiso que nadie entrega: la misi&oacute;n prometi&oacute; algo y ning&uacute;n elemento responde por ello. Los hu&eacute;rfanos gastan dinero; los padres sin cobertura pierden misiones.</p>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Algoritmo de cálculo</p>
+        <h2>Acotar un cambio</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Enunciar el cambio como delta a un identificador</span></div><div><strong>2</strong><span>Seguirlo hacia abajo a sus hijos</span></div><div><strong>3</strong><span>Seguir cada hijo a su asignaci&oacute;n</span></div><div><strong>4</strong><span>Seguir cada elemento afectado de lado por las interfaces</span></div><div><strong>5</strong><span>Revisar el registro de riesgos</span></div><div><strong>6</strong><span>Revisar qu&eacute; evidencia de verificaci&oacute;n se invalida</span></div><div><strong>7</strong><span>Armar la lista de afectados</span></div></div>
+        <p>El paso cuatro es el que los equipos se saltan, y es donde viven las consecuencias caras. Los enlaces padre-hijo son obvios porque se escribieron a prop&oacute;sito; los de interfaz los escribi&oacute; alguien m&aacute;s, por otra raz&oacute;n, y son la ruta por la que un cambio de carga &uacute;til llega al presupuesto de potencia.</p>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>Rastrear el cambio de carga &uacute;til</h2>
+        <p>La solicitud sube PAY-DATA-012 de 1.4 a 2.0 Gbit por 24 horas. El identificador es el punto de entrada; todo lo dem&aacute;s se sigue de la matriz.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Primero hacia arriba.</strong> PAY-DATA-012 traza a SYS-PERF-021, que exige 90&nbsp;% de entrega. As&iacute; que el cambio no s&oacute;lo mueve un n&uacute;mero de carga &uacute;til: cambia lo que el requisito de sistema exige de todos los dem&aacute;s.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>De lado a comunicaciones.</strong> Los datos a entregar suben de \(1.4\times0.90 = 1.26\) a \(2.0\times0.90 = 1.80\) Gbit. A los 2.0 Mbit/s de COM-DATA-041, el tiempo de contacto pasa de \[\frac{1.26\times10^{9}}{2.0\times10^{6}} = 630\ \text{s} = 10.5\ \text{min}\] a \[\frac{1.80\times10^{9}}{2.0\times10^{6}} = 900\ \text{s} = 15.0\ \text{min}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Contra lo que ofrece operaciones.</strong> Los 18 min de contacto diario dan ahora \(18/15.0 = 1.20\) en vez de \(18/10.5 = 1.71\). El enlace sigue cerrando, pero el margen ante una pasada perdida cay&oacute; de 71&nbsp;% a 20&nbsp;%.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>De lado otra vez, a potencia.</strong> Los 4.5 min extra de transmisi&oacute;n diaria con el transmisor de 60 W consumen \[4.5\ \text{min} \times \frac{1\ \text{h}}{60\ \text{min}} \times 60\ \text{W} = 4.5\ \text{Wh/d&iacute;a}\] de un presupuesto nocturno dimensionado a 620 Wh. Peque&ntilde;o, pero es el paso que nadie dio en la junta.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Riesgo y verificaci&oacute;n.</strong> R-03 del registro trata de la raz&oacute;n de compresi&oacute;n, y su consecuencia sube porque ahora hay menos margen de bajada para absorber un error. El an&aacute;lisis de volumen de datos que cerr&oacute; PAY-DATA-012 queda invalidado y debe rehacerse.</div></div>
+        <div class="result-box">\[ \boxed{ \text{contacto } 10.5 \rightarrow 15.0\ \text{min/día},\quad \text{razón de margen } 1.71 \rightarrow 1.20,\quad +4.5\ \text{Wh/día} } \]</div>
+        <p><strong>Interpretaci&oacute;n.</strong> Seis elementos resultan afectados por un cambio que se describi&oacute; como tocando uno. Ninguno estaba oculto y ninguno requiri&oacute; an&aacute;lisis nuevo para hallarlo &mdash; s&oacute;lo la matriz y diez minutos. Ese es todo el argumento para mantenerla: la alternativa no es un an&aacute;lisis m&aacute;s lento, es la misma decisi&oacute;n tomada sin ninguno.</p>
+      </section>
+
+      <section id="summary-es">
+        <p class="section-label">Reglas operativas</p>
+        <h2>De un vistazo</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regla</th><th>Enunciado</th></tr></thead><tbody><tr><td>Una fila por requisito</td><td>Nunca por secci&oacute;n de documento. Si una fila necesita <em>y</em>, son dos filas.</td></tr><tr><td>Toda fila tiene un padre</td><td>Un objetivo, una expectativa, una restricci&oacute;n, un requisito superior o un an&aacute;lisis nombrado.</td></tr><tr><td>La verificaci&oacute;n se registra al escribir el requisito</td><td>No despu&eacute;s. Si el m&eacute;todo no puede nombrarse ahora, el requisito no es verificable ahora.</td></tr><tr><td>Cuatro auditor&iacute;as permanentes</td><td>Hu&eacute;rfanos, cobertura, nivel de asignaci&oacute;n, factibilidad de verificaci&oacute;n. Ejec&uacute;talas, no las leas.</td></tr><tr><td>El impacto de cambio corre hacia abajo y de lado</td><td>Abajo por hijos y asignaciones, de lado por interfaces. La direcci&oacute;n lateral es la que se olvida.</td></tr><tr><td>La lista de afectados es el paquete de cambio</td><td>Una solicitud sin ella es una descripci&oacute;n, y un comit&eacute; no puede actuar sobre una descripci&oacute;n.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-es">
+        <p class="section-label">Errores comunes</p>
+        <h2>Qu&eacute; sale mal</h2>
+        <ul class="check-list"><li><strong>Trazar hacia abajo pero no de lado.</strong> Los enlaces padre-hijo se escribieron a prop&oacute;sito y son f&aacute;ciles de seguir. Los de interfaz son c&oacute;mo un cambio de carga &uacute;til llega al presupuesto de potencia.</li><li><strong>Asignar a un nombre de equipo.</strong> Los equipos se reorganizan; el &aacute;rbol de productos no. Usa el identificador.</li><li><strong>Llenar la columna de verificaci&oacute;n despu&eacute;s.</strong> Si el m&eacute;todo no puede nombrarse al escribir el requisito, el requisito no es verificable y ahora es cuando arreglarlo es barato.</li><li><strong>Leer la matriz en vez de consultarla.</strong> Las cuatro auditor&iacute;as son filtros. Leer cien filas buscando hu&eacute;rfanos no encuentra ninguno.</li><li><strong>Tomar la cobertura completa por correcci&oacute;n.</strong> Un requisito puede trazar limpiamente a un padre que nunca debi&oacute; existir.</li><li><strong>Aprobar un cambio sin la lista de afectados.</strong> A un comit&eacute; al que se le pide aprobar una descripci&oacute;n se le est&aacute; pidiendo aprobar una conjetura.</li></ul>
+      </section>
+
+      <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
+        <h2>Referencias</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 4.2.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=requirements-config" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 11: Requirements Configuration and CM</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adaptado de la Unidad III del gui&oacute;n del curso Ingenier&iacute;a en Sistemas Aeroespaciales (AE506) de Carlos Alberto Molina Holgu&iacute;n. Cada n&uacute;mero de esta p&aacute;gina se recalcul&oacute; de forma independiente para ella; ninguna calculadora cubre este tema, as&iacute; que el rec&aacute;lculo es la &uacute;nica comprobaci&oacute;n disponible. Las cifras de impacto se recalcularon a partir de los vol&uacute;menes de datos, la tasa de enlace y el tiempo de contacto; el caso previo reproduce la derivaci&oacute;n de la lecture 06, que es c&oacute;mo se mantienen consistentes ambas p&aacute;ginas.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="derived-requirements.html?v=11"><span>Lecture anterior</span>&larr; Requisitos derivados</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+
+      <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie k&ouml;nnen sollten</h2>
+        <ul><li>eine Anforderungsverfolgungsmatrix mit Eltern, Zuordnung und Verifikation je Zeile aufbauen;</li><li>die vier st&auml;ndigen Pr&uuml;fungen ausf&uuml;hren und die Bedeutung jedes Treffers angeben;</li><li>eine verwaiste Anforderung von einer ungedeckten Elternanforderung unterscheiden und sagen, welche Missionen kostet;</li><li>eine &Auml;nderung nach unten &uuml;ber Kinder und seitlich &uuml;ber Schnittstellen verfolgen;</li><li>die Liste betroffener Elemente erstellen, die ein &Auml;nderungsantrag tragen muss.</li></ul>
+      </section>
+
+      <section id="physics-de">
+        <p class="section-label">Ingenieurtechnischer Kontext</p>
+        <h2>Die &Auml;nderung, die nur die Nutzlast betraf</h2>
+        <p class="lead">Das Wissenschaftsteam will eine h&ouml;here Abtastrate. Das hebt das t&auml;gliche Datenvolumen von 1,4 auf 2,0 Gbit, und die Nutzlastleitung merkt an, dass die Nutzlast das ohne Hardware&auml;nderung kann. Der Antrag wird in der Sitzung genehmigt.</p><p>Die Nutzlast kann es wirklich. Niemand rechnet in der Sitzung aus, dass der Funk nun die H&auml;lfte mehr Kontaktzeit braucht, dass das zus&auml;tzliche Senden aus dem Nachtenergiebudget geht und dass sich ein Risiko im Register verschiebt. Nichts davon ist verborgen &mdash; es steht geschrieben, in sechs Zeilen einer Tabelle, die niemand &ouml;ffnete.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 820 330" role="img" aria-label="Eine Verfolgungskette von einem Ziel zu vier Anforderungen">
+            <defs><marker id="tr-arrow-de" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#8fa6ba"></path></marker></defs>
+            <rect x="320" y="14" width="180" height="52" rx="6" fill="#eef4fa" stroke="#8fa6ba" stroke-width="1"></rect>
+            <text x="410" y="38" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">OBJ-01</text>
+            <text x="410" y="56" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">Ziel</text>
+            <rect x="320" y="100" width="180" height="52" rx="6" fill="#eef4fa" stroke="#8fa6ba" stroke-width="1"></rect>
+            <text x="410" y="124" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">SYS-PERF-021</text>
+            <text x="410" y="142" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">System</text>
+            <rect x="90" y="186" width="190" height="52" rx="6" fill="#f6dede" stroke="#b03a2e" stroke-width="2"></rect>
+            <text x="185" y="210" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">PAY-DATA-012</text>
+            <text x="185" y="228" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">Teilsystem &mdash; ge&auml;ndert</text>
+            <rect x="320" y="186" width="180" height="52" rx="6" fill="#fbeed9" stroke="#c2924d" stroke-width="2"></rect>
+            <text x="410" y="210" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">COM-DATA-041</text>
+            <text x="410" y="228" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">Teilsystem &mdash; direkt betroffen</text>
+            <rect x="540" y="186" width="190" height="52" rx="6" fill="#fbeed9" stroke="#c2924d" stroke-width="2"></rect>
+            <text x="635" y="210" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">EPS-PWR-018</text>
+            <text x="635" y="228" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">Teilsystem &mdash; indirekt betroffen, &uuml;ber eine Schnittstelle</text>
+            <rect x="320" y="268" width="180" height="48" rx="6" fill="#fbeed9" stroke="#c2924d" stroke-width="2"></rect>
+            <text x="410" y="292" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">COM-INT-007</text>
+            <text x="410" y="310" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">Schnittstelle &mdash; direkt betroffen</text>
+            <line x1="410" y1="66" x2="410" y2="96" stroke="#8fa6ba" stroke-width="2" marker-end="url(#tr-arrow-de)"></line>
+            <line x1="410" y1="152" x2="185" y2="182" stroke="#8fa6ba" stroke-width="2" marker-end="url(#tr-arrow-de)"></line>
+            <line x1="410" y1="152" x2="410" y2="182" stroke="#8fa6ba" stroke-width="2" marker-end="url(#tr-arrow-de)"></line>
+            <line x1="410" y1="238" x2="410" y2="264" stroke="#8fa6ba" stroke-width="2" marker-end="url(#tr-arrow-de)"></line>
+            <path d="M 500 212 L 536 212" stroke="#c2924d" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#tr-arrow-de)"></path>
+            <path d="M 280 212 L 316 212" stroke="#c2924d" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#tr-arrow-de)"></path>
+            </svg>
+            <figcaption>&Auml;ndert man eine Anforderung, benennt die Kette die &uuml;brigen. Durchgezogene Pfeile sind Eltern-Kind-Verkn&uuml;pfungen; gestrichelte sind die seitlichen &uuml;ber Schnittstellen &mdash; die Richtung, die Teams vergessen.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-de">
+        <p class="section-label">Geltungsbereich und Grenzen</p>
+        <h2>Wozu die Matrix dient</h2>
+        <p>Die <strong>Anforderungsverfolgungsmatrix</strong> erfasst f&uuml;r jede Anforderung ihre Herkunft, das zust&auml;ndige Element und die Verifikationsart. Bidirektionale Verfolgbarkeit hei&szlig;t, beide Richtungen sind nutzbar: nach oben f&uuml;r <em>warum existiert das</em>, nach unten f&uuml;r <em>was h&auml;ngt davon ab</em>.</p><p>Ihr Zweck ist eng und geh&ouml;rt klar gesagt. Die RTM macht eine &Auml;nderung analysierbar. Aus einer ge&auml;nderten Anforderung erzeugt sie die Liste alles neu zu Pr&uuml;fenden &mdash; ohne sie ist diese Liste das, woran sich die Anwesenden zuf&auml;llig erinnern.</p>
+        <div class="callout warning"><strong>Was die Matrix nicht leistet.</strong> Sie erfasst Beziehungen; sie pr&uuml;ft nicht deren Richtigkeit. Eine Anforderung kann sauber auf eine Elternanforderung zur&uuml;ckf&uuml;hren, die nie h&auml;tte existieren sollen, und die Matrix meldet volle Abdeckung. Verfolgbarkeit ist ein Werkzeug innerer Stimmigkeit; ein Projekt mit makelloser RTM kann dennoch das falsche System bauen.</div>
+      </section>
+
+      <section id="matrix-de">
+        <p class="section-label">Die Spalten, die sich lohnen</p>
+        <h2>Was eine Zeile tragen muss</h2>
+        <div class="table-wrap"><table><thead><tr><th>ID</th><th>Eltern</th><th>Anforderung</th><th>Zugeordnet</th><th>Verif.</th></tr></thead><tbody><tr><td>SYS-PERF-014</td><td>OBJ-02</td><td>Mindestens 30 Tage durchgehend fliegen</td><td>1.0 System</td><td>A + D</td></tr><tr><td>SYS-PERF-021</td><td>OBJ-01</td><td>Mindestens 90 % der erzeugten Daten je 24 h liefern</td><td>1.0 System</td><td>A + D</td></tr><tr><td>EPS-PWR-018</td><td>SYS-PERF-014</td><td>Mindestens 620 Wh nutzbar je Nacht bei -35 C liefern</td><td>1.1.3 Energie</td><td>T + A</td></tr><tr><td>COM-DATA-041</td><td>SYS-PERF-021</td><td>2,0 Mbit/s bei maximaler Schr&auml;gentfernung halten</td><td>1.1.4 Komm</td><td>T</td></tr><tr><td>PAY-DATA-012</td><td>SYS-PERF-021</td><td>H&ouml;chstens 1,4 Gbit Daten je 24 h erzeugen</td><td>1.2.1 Sensorik</td><td>A</td></tr><tr><td>COM-INT-007</td><td>COM-DATA-041</td><td>Rahmen mit 2,5 Mbit/s im Format ICD-04 &uuml;bertragen</td><td>1.1.2 / 1.1.4</td><td>T + I</td></tr></tbody></table></div>
+        <p>Zwei Spalten leisten die meiste Arbeit. <em>Eltern</em> macht die Aufw&auml;rtsfrage beantwortbar, und <em>zugeordnet</em> nutzt die Produktbaumkennung statt eines Teamnamens &mdash; denn Teams werden umorganisiert, der Baum nicht. SYS-PERF-021 abw&auml;rts gelesen ergibt die ganze Datenr&uuml;ckkette: Nutzlast auf 1,4 Gbit/Tag begrenzt, &Uuml;bertragung mit 2,0 Mbit/s, interne Schnittstelle mit 2,5 Mbit/s. Die L&uuml;cke zwischen den letzten beiden ist bewusste Reserve und sichtbar, weil beide Zeilen existieren.</p>
+      </section>
+
+      <section id="audits-de">
+        <p class="section-label">Vier Abfragen, kein Durchlesen</p>
+        <h2>Die st&auml;ndigen Pr&uuml;fungen</h2>
+        <div class="table-wrap"><table><thead><tr><th>Pr&uuml;fung</th><th>Filtern nach</th><th>Was ein Treffer bedeutet</th></tr></thead><tbody><tr><td>Waise</td><td>Zeilen ohne Elternanforderung</td><td>Eine erfundene Anforderung oder eine, deren Quelle nie erfasst wurde</td></tr><tr><td>Abdeckung</td><td>Eltern ohne Kinder</td><td>Eine Zusage der Mission, f&uuml;r die kein Element verantwortlich ist</td></tr><tr><td>Zuordnungsebene</td><td>Systemanforderungen direkt an eine Komponente</td><td>Eine &uuml;bersprungene Ebene und die dort f&auml;llige Abw&auml;gung</td></tr><tr><td>Verifizierbarkeit</td><td>Zeilen, die nur dort verifiziert werden, wo kein Nachweis m&ouml;glich ist</td><td>Eine Anforderung, die sich bei der Testbereitschaft als nicht pr&uuml;fbar erweist</td></tr></tbody></table></div>
+        <p>Die ersten beiden lohnen eine sorgf&auml;ltige Unterscheidung, denn sie scheitern verschieden. Eine <strong>Waise</strong> ist eine Anforderung, die niemand verlangte: Sie kostet Geld und Aufwand f&uuml;r etwas, das die Mission vielleicht nicht braucht. Eine <strong>ungedeckte Elternanforderung</strong> ist eine Zusage, die niemand erf&uuml;llt: Die Mission versprach etwas, und kein Element ist daf&uuml;r zust&auml;ndig. Waisen kosten Geld; ungedeckte Elternanforderungen kosten Missionen.</p>
+      </section>
+
+      <section id="algorithm-de">
+        <p class="section-label">Rechenalgorithmus</p>
+        <h2>Eine &Auml;nderung eingrenzen</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Die &Auml;nderung als Delta zu einer Kennung angeben</span></div><div><strong>2</strong><span>Ihr zu den Kindern folgen</span></div><div><strong>3</strong><span>Jedem Kind zu seiner Zuordnung folgen</span></div><div><strong>4</strong><span>Jedem betroffenen Element seitlich &uuml;ber Schnittstellen folgen</span></div><div><strong>5</strong><span>Das Risikoregister pr&uuml;fen</span></div><div><strong>6</strong><span>Pr&uuml;fen, welcher Verifikationsnachweis ung&uuml;ltig wird</span></div><div><strong>7</strong><span>Die Liste betroffener Elemente erstellen</span></div></div>
+        <p>Schritt vier &uuml;berspringen Teams, und dort sitzen die teuren Folgen. Eltern-Kind-Verkn&uuml;pfungen sind offensichtlich, weil sie bewusst geschrieben wurden; Schnittstellenverkn&uuml;pfungen schrieb jemand anderes aus anderem Grund &mdash; und sie sind der Weg, auf dem eine Nutzlast&auml;nderung das Energiebudget erreicht.</p>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Die Nutzlast&auml;nderung verfolgen</h2>
+        <p>Der Antrag hebt PAY-DATA-012 von 1,4 auf 2,0 Gbit je 24 Stunden. Die Kennung ist der Einstieg; alles Weitere folgt aus der Matrix.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Zuerst aufw&auml;rts.</strong> PAY-DATA-012 f&uuml;hrt auf SYS-PERF-021 zur&uuml;ck, das 90&nbsp;% Lieferung fordert. Die &Auml;nderung verschiebt also nicht nur eine Nutzlastzahl: Sie &auml;ndert, was die Systemanforderung von allen anderen verlangt.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Seitlich zur Kommunikation.</strong> Die zu liefernden Daten steigen von \(1{,}4\times0{,}90 = 1{,}26\) auf \(2{,}0\times0{,}90 = 1{,}80\) Gbit. Bei den 2,0 Mbit/s von COM-DATA-041 w&auml;chst die Kontaktzeit von \[\frac{1{,}26\times10^{9}}{2{,}0\times10^{6}} = 630\ \text{s} = 10{,}5\ \text{min}\] auf \[\frac{1{,}80\times10^{9}}{2{,}0\times10^{6}} = 900\ \text{s} = 15{,}0\ \text{min}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Gegen das Angebot des Betriebs.</strong> Die 18 min t&auml;glicher Kontakt ergeben nun \(18/15{,}0 = 1{,}20\) statt \(18/10{,}5 = 1{,}71\). Die Strecke schlie&szlig;t noch, aber die Reserve gegen eine verpasste Passage sank von 71&nbsp;% auf 20&nbsp;%.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Erneut seitlich, zur Energie.</strong> Die zus&auml;tzlichen 4,5 min Sendezeit pro Tag beim 60-W-Sender ziehen \[4{,}5\ \text{min} \times \frac{1\ \text{h}}{60\ \text{min}} \times 60\ \text{W} = 4{,}5\ \text{Wh/Tag}\] aus einem auf 620 Wh ausgelegten Nachtbudget. Klein, aber es ist der Schritt, den in der Sitzung niemand ging.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Risiko und Verifikation.</strong> R-03 im Register betrifft das Kompressionsverh&auml;ltnis, und seine Folge steigt, weil nun weniger &Uuml;bertragungsreserve einen Fehler auff&auml;ngt. Die Datenvolumenanalyse, die PAY-DATA-012 schloss, wird ung&uuml;ltig und ist zu wiederholen.</div></div>
+        <div class="result-box">\[ \boxed{ \text{Kontakt } 10{,}5 \rightarrow 15{,}0\ \text{min/Tag},\quad \text{Reserveverhältnis } 1{,}71 \rightarrow 1{,}20,\quad +4{,}5\ \text{Wh/Tag} } \]</div>
+        <p><strong>Deutung.</strong> Sechs Elemente sind von einer &Auml;nderung betroffen, die als Eingriff in eines beschrieben wurde. Keines war verborgen, keines erforderte neue Analysen &mdash; nur die Matrix und zehn Minuten. Das ist das ganze Argument f&uuml;r ihre Pflege: Die Alternative ist keine langsamere Analyse, sondern dieselbe Entscheidung ohne jede.</p>
+      </section>
+
+      <section id="summary-de">
+        <p class="section-label">Arbeitsregeln</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regel</th><th>Aussage</th></tr></thead><tbody><tr><td>Eine Zeile je Anforderung</td><td>Nie je Dokumentabschnitt. Braucht eine Zeile ein <em>und</em>, sind es zwei.</td></tr><tr><td>Jede Zeile hat eine Elternanforderung</td><td>Ein Ziel, eine Erwartung, eine Randbedingung, eine h&ouml;here Anforderung oder eine benannte Analyse.</td></tr><tr><td>Die Verifikation wird beim Schreiben erfasst</td><td>Nicht sp&auml;ter. Kann die Methode jetzt nicht genannt werden, ist die Anforderung jetzt nicht verifizierbar.</td></tr><tr><td>Vier st&auml;ndige Pr&uuml;fungen</td><td>Waisen, Abdeckung, Zuordnungsebene, Verifizierbarkeit. Ausf&uuml;hren, nicht durchlesen.</td></tr><tr><td>&Auml;nderungswirkung l&auml;uft nach unten und zur Seite</td><td>Nach unten &uuml;ber Kinder und Zuordnungen, zur Seite &uuml;ber Schnittstellen. Die seitliche wird &uuml;bersehen.</td></tr><tr><td>Die Liste betroffener Elemente ist das &Auml;nderungspaket</td><td>Ein Antrag ohne sie ist eine Beschreibung, und ein Gremium kann darauf nicht handeln.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Häufige Fehler</p>
+        <h2>Was schiefgeht</h2>
+        <ul class="check-list"><li><strong>Abw&auml;rts verfolgen, aber nicht seitlich.</strong> Eltern-Kind-Verkn&uuml;pfungen wurden bewusst geschrieben und sind leicht zu folgen. &Uuml;ber Schnittstellen erreicht eine Nutzlast&auml;nderung das Energiebudget.</li><li><strong>Einem Teamnamen zuordnen.</strong> Teams werden umorganisiert, der Produktbaum nicht. Verwenden Sie die Kennung.</li><li><strong>Die Verifikationsspalte sp&auml;ter f&uuml;llen.</strong> Kann die Methode beim Schreiben nicht genannt werden, ist die Anforderung nicht verifizierbar &mdash; und jetzt ist die Korrektur billig.</li><li><strong>Die Matrix lesen statt abfragen.</strong> Die vier Pr&uuml;fungen sind Filter. Hundert Zeilen nach Waisen durchzulesen findet keine.</li><li><strong>Volle Abdeckung f&uuml;r Richtigkeit halten.</strong> Eine Anforderung kann sauber auf eine Elternanforderung zur&uuml;ckf&uuml;hren, die nie h&auml;tte existieren sollen.</li><li><strong>Eine &Auml;nderung ohne Liste betroffener Elemente genehmigen.</strong> Ein Gremium, das eine Beschreibung genehmigen soll, soll eine Vermutung genehmigen.</li></ul>
+      </section>
+
+      <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
+        <h2>Literatur</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 4.2.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=requirements-config" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 11: Requirements Configuration and CM</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Bearbeitet nach Einheit III des Skripts Luft- und Raumfahrtsystemtechnik (AE506) von Carlos Alberto Molina Holgu&iacute;n. Jede Zahl dieser Seite wurde eigens daf&uuml;r unabh&auml;ngig neu berechnet; kein Rechner deckt dieses Thema ab, daher ist die Neuberechnung die einzige Pr&uuml;fung. Die Wirkungszahlen wurden aus Datenvolumen, Streckenrate und Kontaktzeit neu berechnet; der Ausgangsfall reproduziert die Herleitung aus Vorlesung 06, wodurch beide Seiten konsistent bleiben.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="derived-requirements.html?v=11"><span>Vorherige Vorlesung</span>&larr; Abgeleitete Anforderungen</a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>&copy; <span id="year"></span> Carlos Alberto Molina Holgu&iacute;n</p>
+    <p>Universidad Aut&oacute;noma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

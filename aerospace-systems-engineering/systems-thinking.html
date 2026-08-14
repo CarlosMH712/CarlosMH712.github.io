@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Systems thinking in aerospace: coupling between subsystems, the design feedback loop and its convergence condition, emergent properties, and why a technically correct local change can degrade the system." />
+  <meta name="author" content="Carlos Alberto Molina Holgu&iacute;n" />
+  <meta name="theme-color" content="#071d33" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Systems Thinking | Aerospace Systems Engineering</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:wght@600;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=11" data-ui-key="course">Aerospace Systems Engineering</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Aerospace Systems Engineering &middot; Lecture 02</p>
+        <h1>Systems Thinking: Coupling, Feedback, and Emergence</h1>
+        <p class="hero-copy">Why a change that is right for one subsystem can be wrong for the vehicle, how a design loop closes on itself, and which properties belong to no part at all.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Ingeniería de Sistemas Aeroespaciales &middot; Lecture 02</p>
+        <h1>Pensamiento sist&eacute;mico: acoplamiento, retroalimentaci&oacute;n y emergencia</h1>
+        <p class="hero-copy">Por qu&eacute; un cambio correcto para un subsistema puede ser incorrecto para el veh&iacute;culo, c&oacute;mo un lazo de dise&ntilde;o se cierra sobre s&iacute; mismo y qu&eacute; propiedades no pertenecen a ninguna parte.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Luft- und Raumfahrtsystemtechnik &middot; Vorlesung 02</p>
+        <h1>Systemdenken: Kopplung, R&uuml;ckkopplung und Emergenz</h1>
+        <p class="hero-copy">Warum eine f&uuml;r ein Teilsystem richtige &Auml;nderung f&uuml;r das Fahrzeug falsch sein kann, wie sich eine Entwurfsschleife schlie&szlig;t und welche Eigenschaften keinem Teil geh&ouml;ren.</p>
+      </div>
+
+    <div class="hero-meta">
+        <span data-language="en">Estimated reading: 12 min</span><span data-language="es" hidden>Lectura estimada: 12 min</span><span data-language="de" hidden>Lesedauer: ca. 12 min</span>
+        <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+        <span data-language="en">Model: linear induced-mass loop</span><span data-language="es" hidden>Modelo: lazo lineal de masa inducida</span><span data-language="de" hidden>Modell: lineare Schleife induzierter Masse</span>
+    </div>
+    <div class="button-row">
+      <a class="button secondary" href="index.html?v=11" data-ui-key="back">Back to course</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Engineering situation</a>
+        <a href="#model">Scope and limits</a>
+        <a href="#coupling">Coupling</a>
+        <a href="#emergence">Emergent properties</a>
+        <a href="#algorithm">Tracing a loop</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Operative rules</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#references">Sources</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Situaci&oacute;n de ingenier&iacute;a</a>
+        <a href="#model-es">Alcance y l&iacute;mites</a>
+        <a href="#coupling-es">Acoplamiento</a>
+        <a href="#emergence-es">Propiedades emergentes</a>
+        <a href="#algorithm-es">Rastrear un lazo</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Reglas operativas</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Kontext</a>
+        <a href="#model-de">Geltungsbereich</a>
+        <a href="#coupling-de">Kopplung</a>
+        <a href="#emergence-de">Emergente Eigenschaften</a>
+        <a href="#algorithm-de">Eine Schleife verfolgen</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Arbeitsregeln</a>
+        <a href="#mistakes-de">H&auml;ufige Fehler</a>
+        <a href="#references-de">Quellen</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+
+      <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul><li>identify couplings between subsystems and classify them as physical, informational, operational or organisational;</li><li>trace a change through a design loop and compute the total induced effect;</li><li>state the condition under which such a loop converges, and what it means when it does not;</li><li>name an emergent property and explain why no single subsystem owns it;</li><li>explain why couplings that cross a team boundary deserve the most attention.</li></ul>
+      </section>
+
+      <section id="physics">
+        <p class="section-label">Engineering situation</p>
+        <h2>The two-kilogram instrument</h2>
+        <p class="lead">The science team asks for a better instrument. It is 2.0 kg heavier than the one in the baseline. The payload lead approves it: there is 4.3 kg of mass margin, so the change fits.</p><p>It does not fit. A heavier payload needs more structure to carry it, and more structure needs more power to move it, and both of those weigh something in turn. The question is not whether 2.0 kg is less than 4.3 kg. The question is what 2.0 kg of payload actually costs at system level once the loop closes.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 780 250" role="img" aria-label="A closed mass-growth loop">
+            <defs><marker id="ms-arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0d568d"></path></marker></defs>
+            <rect x="30" y="40" width="150" height="52" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="105" y="71" text-anchor="middle" font-size="13" fill="#3f5162">Payload +2.0 kg</text>
+            <rect x="220" y="40" width="160" height="52" rx="6" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="300" y="71" text-anchor="middle" font-size="13" fill="#3f5162">Structure +0.25 kg/kg</text>
+            <rect x="420" y="40" width="160" height="52" rx="6" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="500" y="71" text-anchor="middle" font-size="13" fill="#3f5162">Power +0.15 kg/kg</text>
+            <rect x="620" y="40" width="130" height="52" rx="6" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="685" y="71" text-anchor="middle" font-size="13" fill="#3f5162">Total system mass</text>
+            <line x1="180" y1="66" x2="218" y2="66" stroke="#0d568d" stroke-width="2" marker-end="url(#ms-arrow)"></line>
+            <line x1="380" y1="66" x2="418" y2="66" stroke="#0d568d" stroke-width="2" marker-end="url(#ms-arrow)"></line>
+            <line x1="580" y1="66" x2="618" y2="66" stroke="#0d568d" stroke-width="2" marker-end="url(#ms-arrow)"></line>
+            <path d="M 685 92 L 685 150 L 105 150 L 105 94" fill="none" stroke="#b03a2e" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ms-arrow)"></path>
+            <text x="395" y="142" text-anchor="middle" font-size="13" font-style="italic" fill="#b03a2e">feeds back</text>
+            <text x="395" y="200" text-anchor="middle" font-size="15" fill="#071d33">r = 0.25 + 0.15 = 0.40</text>
+            <text x="395" y="224" text-anchor="middle" font-size="15" font-weight="600" fill="#071d33">total added mass = 2.0 / (1 - 0.40) = 3.33 kg</text>
+            </svg>
+            <figcaption>A change that returns to its own starting point. Each added kilogram induces another 0.40 kg, so a 2.0 kg payload increase costs 3.33 kg at system level.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model">
+        <p class="section-label">Scope and limits</p>
+        <h2>A first-order loop, deliberately</h2>
+        <p>Model each induced effect as a fixed fraction of the mass added. If every added kilogram of system mass brings \(r\) more kilograms with it, the additions form a geometric series and the total is</p>\[ \Delta m_{\text{total}} = \frac{\Delta m_0}{1-r}. \]<p>This is the mass-growth factor, and the same algebra describes a power loop, a data-rate loop, or a schedule loop. What matters pedagogically is not the coefficient but the shape: the effect returns to its own cause.</p>
+        <div class="callout warning"><strong>What this model does not claim.</strong> Real coefficients are not constant &mdash; structure scales nonlinearly, and a power system changes in steps when a battery string is added rather than smoothly. Use this to decide whether a change deserves a real analysis, never as the analysis itself. Its one honest output is the direction and rough size of the surprise.</div>
+      </section>
+
+      <section id="coupling">
+        <p class="section-label">Central definition</p>
+        <h2>Four kinds, one consequence</h2>
+        <p>Two elements are <strong>coupled</strong> when a change in one can alter the state, requirements, performance or behaviour of the other. The kind of coupling determines who has to be in the room when the change is discussed.</p>
+        <div class="table-wrap"><table><thead><tr><th>Kind of coupling</th><th>Example on the platform</th></tr></thead><tbody><tr><td>Physical</td><td>Payload heat load raises battery temperature and lowers usable capacity</td></tr><tr><td>Informational</td><td>Guidance accuracy depends on the sensor update rate the avionics can sustain</td></tr><tr><td>Operational</td><td>Ground-contact windows limit how much data can be downlinked per day</td></tr><tr><td>Organisational</td><td>Two teams hold different assumptions about the same interface</td></tr></tbody></table></div>
+        <p>The last row is the dangerous one. Physical couplings show up in analysis; organisational couplings show up at integration, when two internally correct products refuse to work together.</p>
+      </section>
+
+      <section id="emergence">
+        <p class="section-label">A property with no owner</p>
+        <h2>Emergent properties</h2>
+        <p>An <strong>emergent property</strong> arises from the organisation and interaction of several elements and cannot be assigned to any one of them. A reaction wheel has torque capability, a star tracker has measurement accuracy, a structure has stiffness &mdash; and <em>pointing performance</em> emerges from all of them together, plus disturbances, alignment, thermal deformation and timing.</p><p>Availability, reliability, maintainability, operational safety and total cost behave the same way. This has a practical consequence for the rest of the course: an emergent property cannot be verified at component level, because it does not exist there. It is the reason system-level testing exists at all.</p>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">Calculation algorithm</p>
+        <h2>Tracing a change</h2>
+        <div class="process-flow"><div><strong>1</strong><span>State the change in physical units</span></div><div><strong>2</strong><span>List what it directly affects</span></div><div><strong>3</strong><span>Ask what each of those affects</span></div><div><strong>4</strong><span>Find the return path</span></div><div><strong>5</strong><span>Estimate the induced fraction</span></div><div><strong>6</strong><span>Sum the loop</span></div><div><strong>7</strong><span>Check convergence</span></div></div>
+        <p>Step four is where most traces stop too early. If you cannot find a return path, either the change really is local &mdash; which is worth stating &mdash; or you have not gone far enough. Power, mass, thermal and data almost always close.</p>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>What two kilograms really cost</h2>
+        <p>The platform carries 4.3 kg of mass margin. The proposed instrument adds \(\Delta m_0 = 2.0\) kg of payload. Structural analysis gives 0.25 kg of added structure per kilogram carried, and the power system adds 0.15 kg per kilogram of system mass.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Induced fraction.</strong> \[r = 0.25 + 0.15 = 0.40.\] Every kilogram added to the system brings 0.40 kg with it.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>First rounds.</strong> The payload adds 2.000 kg; that induces \(0.40\times2.000 = 0.800\) kg; that induces \(0.320\) kg; then \(0.128\) kg. After four rounds the running total is \(3.248\) kg, already 97.4&nbsp;% of the final value.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Closed form.</strong> \[\Delta m_{\text{total}} = \frac{2.0}{1-0.40} = \frac{2.0}{0.60} = 3.33\ \text{kg}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Against the margin.</strong> The change consumes 3.33 kg of the 4.3 kg available, leaving 0.97 kg. The naive answer &mdash; 2.0 kg against 4.3 kg &mdash; understated the cost by two thirds of the remaining margin.</div></div>
+        <div class="result-box">\[ \boxed{ \Delta m_{\text{total}} = 3.33\ \text{kg},\quad \text{margin left} = 0.97\ \text{kg} } \]</div>
+        <p><strong>Interpretation.</strong> The change is still feasible, but it is not the change that was approved. And the loop carries its own warning: at \(r = 1\) the series does not converge at all, meaning no amount of redesign closes the mass budget at that payload. A team whose coefficients are creeping toward 1 does not have a mass problem, it has an architecture problem.</p>
+      </section>
+
+      <section id="summary">
+        <p class="section-label">Operative rules</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Statement</th></tr></thead><tbody><tr><td>Coupling</td><td>Two elements are coupled when a change in one alters the state, requirements or behaviour of the other.</td></tr><tr><td>Growth loop</td><td>\(\Delta m_{\text{total}} = \Delta m_0/(1-r)\), with \(r\) the mass induced per added kilogram.</td></tr><tr><td>Convergence</td><td>The loop converges only for \(r<1\). At \(r\ge 1\) the design has no solution at that payload.</td></tr><tr><td>Emergence</td><td>A property of the whole that belongs to no part: pointing accuracy, availability, reliability, cost.</td></tr><tr><td>Where to look</td><td>Couplings that cross a team boundary are where assumptions go inconsistent.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes">
+        <p class="section-label">Common mistakes</p>
+        <h2>What goes wrong</h2>
+        <ul class="check-list"><li><strong>Comparing a local change against a system margin.</strong> 2.0 kg of payload is not 2.0 kg of vehicle.</li><li><strong>Stopping the trace at the first subsystem.</strong> The interesting part of a loop is the return path.</li><li><strong>Optimising each subsystem separately.</strong> The sum of locally optimal parts is routinely a worse system, because every optimisation spends someone else&rsquo;s margin.</li><li><strong>Assigning an emergent property to a subsystem.</strong> Nobody owns pointing accuracy, so if it is allocated to one team it will be verified by nobody.</li><li><strong>Ignoring organisational coupling.</strong> Two teams with different assumptions about one interface produce two correct products that do not fit.</li><li><strong>Treating the coefficient as the answer.</strong> The model tells you whether to worry, not by how much.</li></ul>
+      </section>
+
+      <section id="references" class="references">
+        <p class="section-label">Sources</p>
+        <h2>References</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 2.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=margins-module" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 16: Margins</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adapted from Unit I of the Aerospace Systems Engineering (AE506) course script by Carlos Alberto Molina Holgu&iacute;n. Every number on this page was recomputed independently for it; no calculator covers this topic, so recomputation is the only check there is. The geometric series was summed both term by term and in closed form, and the two agree to within the rounding shown.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="what-is-a-system.html?v=11"><span>Previous lecture</span>&larr; What a System Is</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+
+      <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Qu&eacute; deber&iacute;as poder hacer</h2>
+        <ul><li>identificar acoplamientos entre subsistemas y clasificarlos como f&iacute;sicos, informacionales, operacionales u organizacionales;</li><li>rastrear un cambio por un lazo de dise&ntilde;o y calcular el efecto inducido total;</li><li>enunciar la condici&oacute;n bajo la cual ese lazo converge, y qu&eacute; significa que no lo haga;</li><li>nombrar una propiedad emergente y explicar por qu&eacute; ning&uacute;n subsistema la posee;</li><li>explicar por qu&eacute; los acoplamientos que cruzan fronteras de equipo merecen la mayor atenci&oacute;n.</li></ul>
+      </section>
+
+      <section id="physics-es">
+        <p class="section-label">Situación de ingeniería</p>
+        <h2>El instrumento de dos kilogramos</h2>
+        <p class="lead">El equipo de ciencia pide un instrumento mejor. Pesa 2.0 kg m&aacute;s que el de la l&iacute;nea base. El l&iacute;der de carga &uacute;til lo aprueba: hay 4.3 kg de margen de masa, as&iacute; que el cambio cabe.</p><p>No cabe. Una carga &uacute;til m&aacute;s pesada necesita m&aacute;s estructura que la soporte, y m&aacute;s estructura necesita m&aacute;s potencia para moverla, y ambas cosas pesan a su vez. La pregunta no es si 2.0 kg es menos que 4.3 kg. La pregunta es cu&aacute;nto cuestan realmente 2.0 kg de carga &uacute;til a nivel de sistema una vez que el lazo se cierra.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 780 250" role="img" aria-label="Un lazo cerrado de crecimiento de masa">
+            <defs><marker id="ms-arrow-es" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0d568d"></path></marker></defs>
+            <rect x="30" y="40" width="150" height="52" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="105" y="71" text-anchor="middle" font-size="13" fill="#3f5162">Carga &uacute;til +2.0 kg</text>
+            <rect x="220" y="40" width="160" height="52" rx="6" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="300" y="71" text-anchor="middle" font-size="13" fill="#3f5162">Estructura +0.25 kg/kg</text>
+            <rect x="420" y="40" width="160" height="52" rx="6" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="500" y="71" text-anchor="middle" font-size="13" fill="#3f5162">Potencia +0.15 kg/kg</text>
+            <rect x="620" y="40" width="130" height="52" rx="6" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="685" y="71" text-anchor="middle" font-size="13" fill="#3f5162">Masa total del sistema</text>
+            <line x1="180" y1="66" x2="218" y2="66" stroke="#0d568d" stroke-width="2" marker-end="url(#ms-arrow-es)"></line>
+            <line x1="380" y1="66" x2="418" y2="66" stroke="#0d568d" stroke-width="2" marker-end="url(#ms-arrow-es)"></line>
+            <line x1="580" y1="66" x2="618" y2="66" stroke="#0d568d" stroke-width="2" marker-end="url(#ms-arrow-es)"></line>
+            <path d="M 685 92 L 685 150 L 105 150 L 105 94" fill="none" stroke="#b03a2e" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ms-arrow-es)"></path>
+            <text x="395" y="142" text-anchor="middle" font-size="13" font-style="italic" fill="#b03a2e">retroalimenta</text>
+            <text x="395" y="200" text-anchor="middle" font-size="15" fill="#071d33">r = 0.25 + 0.15 = 0.40</text>
+            <text x="395" y="224" text-anchor="middle" font-size="15" font-weight="600" fill="#071d33">masa total a&ntilde;adida = 2.0 / (1 - 0.40) = 3.33 kg</text>
+            </svg>
+            <figcaption>Un cambio que regresa a su propio punto de partida. Cada kilogramo a&ntilde;adido induce otros 0.40 kg, as&iacute; que un aumento de 2.0 kg de carga &uacute;til cuesta 3.33 kg a nivel de sistema.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-es">
+        <p class="section-label">Alcance y límites</p>
+        <h2>Un lazo de primer orden, a prop&oacute;sito</h2>
+        <p>Modela cada efecto inducido como una fracci&oacute;n fija de la masa a&ntilde;adida. Si cada kilogramo a&ntilde;adido de masa del sistema trae consigo \(r\) kilogramos m&aacute;s, las adiciones forman una serie geom&eacute;trica y el total es</p>\[ \Delta m_{\text{total}} = \frac{\Delta m_0}{1-r}. \]<p>Este es el factor de crecimiento de masa, y el mismo &aacute;lgebra describe un lazo de potencia, uno de tasa de datos o uno de calendario. Lo que importa pedag&oacute;gicamente no es el coeficiente sino la forma: el efecto regresa a su propia causa.</p>
+        <div class="callout warning"><strong>Lo que este modelo no afirma.</strong> Los coeficientes reales no son constantes &mdash; la estructura escala de forma no lineal, y un sistema de potencia cambia a saltos cuando se a&ntilde;ade una rama de bater&iacute;a, no suavemente. &Uacute;salo para decidir si un cambio merece un an&aacute;lisis real, nunca como el an&aacute;lisis mismo. Su &uacute;nica salida honesta es la direcci&oacute;n y el tama&ntilde;o aproximado de la sorpresa.</div>
+      </section>
+
+      <section id="coupling-es">
+        <p class="section-label">Definici&oacute;n central</p>
+        <h2>Cuatro tipos, una consecuencia</h2>
+        <p>Dos elementos est&aacute;n <strong>acoplados</strong> cuando un cambio en uno puede alterar el estado, requisitos, desempe&ntilde;o o comportamiento del otro. El tipo de acoplamiento determina qui&eacute;n tiene que estar en la sala cuando se discute el cambio.</p>
+        <div class="table-wrap"><table><thead><tr><th>Tipo de acoplamiento</th><th>Ejemplo en la plataforma</th></tr></thead><tbody><tr><td>F&iacute;sico</td><td>La carga t&eacute;rmica de la carga &uacute;til sube la temperatura de bater&iacute;a y baja la capacidad utilizable</td></tr><tr><td>Informacional</td><td>La precisi&oacute;n de guiado depende de la tasa de actualizaci&oacute;n que la avi&oacute;nica sostiene</td></tr><tr><td>Operacional</td><td>Las ventanas de contacto limitan cu&aacute;ntos datos se bajan por d&iacute;a</td></tr><tr><td>Organizacional</td><td>Dos equipos sostienen supuestos distintos sobre la misma interfaz</td></tr></tbody></table></div>
+        <p>La &uacute;ltima fila es la peligrosa. Los acoplamientos f&iacute;sicos aparecen en el an&aacute;lisis; los organizacionales aparecen en la integraci&oacute;n, cuando dos productos internamente correctos se niegan a funcionar juntos.</p>
+      </section>
+
+      <section id="emergence-es">
+        <p class="section-label">Una propiedad sin due&ntilde;o</p>
+        <h2>Propiedades emergentes</h2>
+        <p>Una <strong>propiedad emergente</strong> surge de la organizaci&oacute;n e interacci&oacute;n de varios elementos y no puede asignarse a ninguno. Una rueda de reacci&oacute;n tiene capacidad de par, un rastreador de estrellas tiene precisi&oacute;n de medici&oacute;n, una estructura tiene rigidez &mdash; y el <em>desempe&ntilde;o de apuntamiento</em> emerge de todos juntos, m&aacute;s perturbaciones, alineaci&oacute;n, deformaci&oacute;n t&eacute;rmica y temporizaci&oacute;n.</p><p>Disponibilidad, confiabilidad, mantenibilidad, seguridad operacional y costo total se comportan igual. Esto tiene una consecuencia pr&aacute;ctica para el resto del curso: una propiedad emergente no puede verificarse a nivel de componente, porque ah&iacute; no existe. Es la raz&oacute;n de que exista la prueba a nivel de sistema.</p>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Algoritmo de cálculo</p>
+        <h2>Rastrear un cambio</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Enunciar el cambio en unidades f&iacute;sicas</span></div><div><strong>2</strong><span>Listar lo que afecta directamente</span></div><div><strong>3</strong><span>Preguntar qu&eacute; afecta cada uno de esos</span></div><div><strong>4</strong><span>Hallar la ruta de retorno</span></div><div><strong>5</strong><span>Estimar la fracci&oacute;n inducida</span></div><div><strong>6</strong><span>Sumar el lazo</span></div><div><strong>7</strong><span>Verificar convergencia</span></div></div>
+        <p>El paso cuatro es donde la mayor&iacute;a de los rastreos se detiene demasiado pronto. Si no encuentras ruta de retorno, o el cambio de verdad es local &mdash; lo cual vale la pena enunciar &mdash; o no has ido lo bastante lejos. Potencia, masa, t&eacute;rmica y datos casi siempre cierran.</p>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>Cu&aacute;nto cuestan realmente dos kilogramos</h2>
+        <p>La plataforma lleva 4.3 kg de margen de masa. El instrumento propuesto a&ntilde;ade \(\Delta m_0 = 2.0\) kg de carga &uacute;til. El an&aacute;lisis estructural da 0.25 kg de estructura a&ntilde;adida por kilogramo transportado, y el sistema de potencia a&ntilde;ade 0.15 kg por kilogramo de masa del sistema.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Fracci&oacute;n inducida.</strong> \[r = 0.25 + 0.15 = 0.40.\] Cada kilogramo a&ntilde;adido al sistema trae 0.40 kg consigo.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Primeras rondas.</strong> La carga &uacute;til a&ntilde;ade 2.000 kg; eso induce \(0.40\times2.000 = 0.800\) kg; eso induce \(0.320\) kg; luego \(0.128\) kg. Tras cuatro rondas el acumulado es \(3.248\) kg, ya el 97.4&nbsp;% del valor final.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Forma cerrada.</strong> \[\Delta m_{\text{total}} = \frac{2.0}{1-0.40} = \frac{2.0}{0.60} = 3.33\ \text{kg}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Contra el margen.</strong> El cambio consume 3.33 kg de los 4.3 kg disponibles, dejando 0.97 kg. La respuesta ingenua &mdash; 2.0 kg contra 4.3 kg &mdash; subestim&oacute; el costo en dos tercios del margen restante.</div></div>
+        <div class="result-box">\[ \boxed{ \Delta m_{\text{total}} = 3.33\ \text{kg},\quad \text{margen restante} = 0.97\ \text{kg} } \]</div>
+        <p><strong>Interpretaci&oacute;n.</strong> El cambio sigue siendo viable, pero no es el cambio que se aprob&oacute;. Y el lazo carga su propia advertencia: en \(r = 1\) la serie no converge, lo que significa que ning&uacute;n redise&ntilde;o cierra el presupuesto de masa con esa carga &uacute;til. Un equipo cuyos coeficientes se acercan a 1 no tiene un problema de masa, tiene un problema de arquitectura.</p>
+      </section>
+
+      <section id="summary-es">
+        <p class="section-label">Reglas operativas</p>
+        <h2>De un vistazo</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regla</th><th>Enunciado</th></tr></thead><tbody><tr><td>Acoplamiento</td><td>Dos elementos est&aacute;n acoplados cuando un cambio en uno altera el estado, requisitos o comportamiento del otro.</td></tr><tr><td>Lazo de crecimiento</td><td>\(\Delta m_{\text{total}} = \Delta m_0/(1-r)\), con \(r\) la masa inducida por kilogramo a&ntilde;adido.</td></tr><tr><td>Convergencia</td><td>El lazo converge s&oacute;lo si \(r<1\). Con \(r\ge 1\) el dise&ntilde;o no tiene soluci&oacute;n con esa carga &uacute;til.</td></tr><tr><td>Emergencia</td><td>Propiedad del todo que no pertenece a ninguna parte: precisi&oacute;n de apuntamiento, disponibilidad, confiabilidad, costo.</td></tr><tr><td>D&oacute;nde mirar</td><td>Los acoplamientos que cruzan la frontera de un equipo son donde los supuestos se vuelven inconsistentes.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-es">
+        <p class="section-label">Errores comunes</p>
+        <h2>Qu&eacute; sale mal</h2>
+        <ul class="check-list"><li><strong>Comparar un cambio local contra un margen de sistema.</strong> 2.0 kg de carga &uacute;til no son 2.0 kg de veh&iacute;culo.</li><li><strong>Detener el rastreo en el primer subsistema.</strong> La parte interesante de un lazo es la ruta de retorno.</li><li><strong>Optimizar cada subsistema por separado.</strong> La suma de partes localmente &oacute;ptimas es rutinariamente un sistema peor, porque cada optimizaci&oacute;n gasta el margen de otro.</li><li><strong>Asignar una propiedad emergente a un subsistema.</strong> Nadie posee la precisi&oacute;n de apuntamiento, as&iacute; que si se asigna a un equipo no la verificar&aacute; nadie.</li><li><strong>Ignorar el acoplamiento organizacional.</strong> Dos equipos con supuestos distintos sobre una interfaz producen dos productos correctos que no encajan.</li><li><strong>Tomar el coeficiente por la respuesta.</strong> El modelo dice si preocuparse, no cu&aacute;nto.</li></ul>
+      </section>
+
+      <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
+        <h2>Referencias</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 2.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=margins-module" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 16: Margins</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adaptado de la Unidad I del gui&oacute;n del curso Ingenier&iacute;a en Sistemas Aeroespaciales (AE506) de Carlos Alberto Molina Holgu&iacute;n. Cada n&uacute;mero de esta p&aacute;gina se recalcul&oacute; de forma independiente para ella; ninguna calculadora cubre este tema, as&iacute; que el rec&aacute;lculo es la &uacute;nica comprobaci&oacute;n disponible. La serie geom&eacute;trica se sum&oacute; t&eacute;rmino a t&eacute;rmino y en forma cerrada, y ambas coinciden dentro del redondeo mostrado.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="what-is-a-system.html?v=11"><span>Lecture anterior</span>&larr; Qu&eacute; es un sistema</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+
+      <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie k&ouml;nnen sollten</h2>
+        <ul><li>Kopplungen zwischen Teilsystemen erkennen und als physikalisch, informationell, betrieblich oder organisatorisch einordnen;</li><li>eine &Auml;nderung durch eine Entwurfsschleife verfolgen und die gesamte induzierte Wirkung berechnen;</li><li>die Konvergenzbedingung dieser Schleife angeben und was es bedeutet, wenn sie fehlt;</li><li>eine emergente Eigenschaft benennen und erkl&auml;ren, warum kein Teilsystem sie besitzt;</li><li>erkl&auml;ren, warum Kopplungen &uuml;ber Teamgrenzen die gr&ouml;&szlig;te Aufmerksamkeit verdienen.</li></ul>
+      </section>
+
+      <section id="physics-de">
+        <p class="section-label">Ingenieurtechnischer Kontext</p>
+        <h2>Das Zwei-Kilogramm-Instrument</h2>
+        <p class="lead">Das Wissenschaftsteam w&uuml;nscht ein besseres Instrument. Es ist 2,0 kg schwerer als das der Basiskonfiguration. Die Nutzlastleitung genehmigt es: Es gibt 4,3 kg Massenreserve, die &Auml;nderung passt also.</p><p>Sie passt nicht. Eine schwerere Nutzlast braucht mehr Struktur, und mehr Struktur braucht mehr Energie, und beides wiegt wiederum etwas. Die Frage ist nicht, ob 2,0 kg weniger als 4,3 kg sind. Die Frage ist, was 2,0 kg Nutzlast auf Systemebene wirklich kosten, sobald sich die Schleife schlie&szlig;t.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 780 250" role="img" aria-label="Eine geschlossene Massenwachstumsschleife">
+            <defs><marker id="ms-arrow-de" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0d568d"></path></marker></defs>
+            <rect x="30" y="40" width="150" height="52" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="105" y="71" text-anchor="middle" font-size="13" fill="#3f5162">Nutzlast +2,0 kg</text>
+            <rect x="220" y="40" width="160" height="52" rx="6" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="300" y="71" text-anchor="middle" font-size="13" fill="#3f5162">Struktur +0,25 kg/kg</text>
+            <rect x="420" y="40" width="160" height="52" rx="6" fill="#ffffff" stroke="#8fa6ba"></rect>
+            <text x="500" y="71" text-anchor="middle" font-size="13" fill="#3f5162">Energie +0,15 kg/kg</text>
+            <rect x="620" y="40" width="130" height="52" rx="6" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="685" y="71" text-anchor="middle" font-size="13" fill="#3f5162">Gesamtsystemmasse</text>
+            <line x1="180" y1="66" x2="218" y2="66" stroke="#0d568d" stroke-width="2" marker-end="url(#ms-arrow-de)"></line>
+            <line x1="380" y1="66" x2="418" y2="66" stroke="#0d568d" stroke-width="2" marker-end="url(#ms-arrow-de)"></line>
+            <line x1="580" y1="66" x2="618" y2="66" stroke="#0d568d" stroke-width="2" marker-end="url(#ms-arrow-de)"></line>
+            <path d="M 685 92 L 685 150 L 105 150 L 105 94" fill="none" stroke="#b03a2e" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ms-arrow-de)"></path>
+            <text x="395" y="142" text-anchor="middle" font-size="13" font-style="italic" fill="#b03a2e">r&uuml;ckgekoppelt</text>
+            <text x="395" y="200" text-anchor="middle" font-size="15" fill="#071d33">r = 0.25 + 0.15 = 0.40</text>
+            <text x="395" y="224" text-anchor="middle" font-size="15" font-weight="600" fill="#071d33">gesamte Zusatzmasse = 2,0 / (1 - 0,40) = 3,33 kg</text>
+            </svg>
+            <figcaption>Eine &Auml;nderung, die zu ihrem Ausgangspunkt zur&uuml;ckkehrt. Jedes zus&auml;tzliche Kilogramm bewirkt weitere 0,40 kg, ein Nutzlastzuwachs von 2,0 kg kostet also 3,33 kg auf Systemebene.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-de">
+        <p class="section-label">Geltungsbereich und Grenzen</p>
+        <h2>Eine Schleife erster Ordnung, mit Absicht</h2>
+        <p>Modellieren Sie jede induzierte Wirkung als festen Anteil der hinzugef&uuml;gten Masse. Bringt jedes zus&auml;tzliche Kilogramm Systemmasse \(r\) weitere Kilogramm mit sich, bilden die Zus&auml;tze eine geometrische Reihe, und die Summe ist</p>\[ \Delta m_{\text{total}} = \frac{\Delta m_0}{1-r}. \]<p>Das ist der Massenwachstumsfaktor, und dieselbe Algebra beschreibt eine Energie-, Datenraten- oder Terminschleife. P&auml;dagogisch z&auml;hlt nicht der Koeffizient, sondern die Form: Die Wirkung kehrt zu ihrer eigenen Ursache zur&uuml;ck.</p>
+        <div class="callout warning"><strong>Was dieses Modell nicht behauptet.</strong> Echte Koeffizienten sind nicht konstant &mdash; Struktur skaliert nichtlinear, und ein Energiesystem &auml;ndert sich sprunghaft, wenn ein Batteriestrang hinzukommt. Nutzen Sie es, um zu entscheiden, ob eine &Auml;nderung eine echte Analyse verdient, nie als die Analyse selbst. Sein einzig ehrliches Ergebnis sind Richtung und Gr&ouml;&szlig;enordnung der &Uuml;berraschung.</div>
+      </section>
+
+      <section id="coupling-de">
+        <p class="section-label">Zentrale Definition</p>
+        <h2>Vier Arten, eine Folge</h2>
+        <p>Zwei Elemente sind <strong>gekoppelt</strong>, wenn eine &Auml;nderung im einen Zustand, Anforderungen, Leistung oder Verhalten des anderen ver&auml;ndern kann. Die Art der Kopplung bestimmt, wer bei der Er&ouml;rterung der &Auml;nderung dabei sein muss.</p>
+        <div class="table-wrap"><table><thead><tr><th>Art der Kopplung</th><th>Beispiel auf der Plattform</th></tr></thead><tbody><tr><td>Physikalisch</td><td>Die W&auml;rmelast der Nutzlast erh&ouml;ht die Batterietemperatur und senkt die nutzbare Kapazit&auml;t</td></tr><tr><td>Informationell</td><td>Die F&uuml;hrungsgenauigkeit h&auml;ngt von der Sensorrate ab, die die Avionik tr&auml;gt</td></tr><tr><td>Betrieblich</td><td>Kontaktfenster begrenzen die t&auml;glich &uuml;bertragbare Datenmenge</td></tr><tr><td>Organisatorisch</td><td>Zwei Teams haben unterschiedliche Annahmen zur selben Schnittstelle</td></tr></tbody></table></div>
+        <p>Die letzte Zeile ist die gef&auml;hrliche. Physikalische Kopplungen zeigen sich in der Analyse; organisatorische zeigen sich bei der Integration, wenn zwei in sich korrekte Produkte nicht zusammenarbeiten.</p>
+      </section>
+
+      <section id="emergence-de">
+        <p class="section-label">Eine Eigenschaft ohne Eigent&uuml;mer</p>
+        <h2>Emergente Eigenschaften</h2>
+        <p>Eine <strong>emergente Eigenschaft</strong> entsteht aus der Anordnung und Wechselwirkung mehrerer Elemente und l&auml;sst sich keinem zuordnen. Ein Reaktionsrad hat Drehmoment, ein Sternsensor hat Messgenauigkeit, eine Struktur hat Steifigkeit &mdash; und die <em>Ausrichtleistung</em> entsteht aus allen zusammen, dazu St&ouml;rungen, Ausrichtung, thermische Verformung und Zeitverhalten.</p><p>Verf&uuml;gbarkeit, Zuverl&auml;ssigkeit, Wartbarkeit, Betriebssicherheit und Gesamtkosten verhalten sich ebenso. Das hat eine praktische Folge f&uuml;r den weiteren Kurs: Eine emergente Eigenschaft kann auf Komponentenebene nicht verifiziert werden, weil sie dort nicht existiert. Deshalb gibt es Tests auf Systemebene &uuml;berhaupt.</p>
+      </section>
+
+      <section id="algorithm-de">
+        <p class="section-label">Rechenalgorithmus</p>
+        <h2>Eine &Auml;nderung verfolgen</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Die &Auml;nderung in physikalischen Einheiten angeben</span></div><div><strong>2</strong><span>Direkt Betroffenes auflisten</span></div><div><strong>3</strong><span>Fragen, was jene betreffen</span></div><div><strong>4</strong><span>Den R&uuml;ckweg finden</span></div><div><strong>5</strong><span>Den induzierten Anteil sch&auml;tzen</span></div><div><strong>6</strong><span>Die Schleife summieren</span></div><div><strong>7</strong><span>Konvergenz pr&uuml;fen</span></div></div>
+        <p>Bei Schritt vier brechen die meisten Verfolgungen zu fr&uuml;h ab. Findet sich kein R&uuml;ckweg, ist die &Auml;nderung entweder wirklich lokal &mdash; was festzuhalten sich lohnt &mdash; oder Sie sind nicht weit genug gegangen. Energie, Masse, Thermik und Daten schlie&szlig;en fast immer.</p>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Was zwei Kilogramm wirklich kosten</h2>
+        <p>Die Plattform hat 4,3 kg Massenreserve. Das vorgeschlagene Instrument f&uuml;gt \(\Delta m_0 = 2,0\) kg Nutzlast hinzu. Die Strukturanalyse ergibt 0,25 kg zus&auml;tzliche Struktur je getragenem Kilogramm, und das Energiesystem f&uuml;gt 0,15 kg je Kilogramm Systemmasse hinzu.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Induzierter Anteil.</strong> \[r = 0{,}25 + 0{,}15 = 0{,}40.\] Jedes zus&auml;tzliche Kilogramm bringt 0,40 kg mit sich.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Erste Runden.</strong> Die Nutzlast f&uuml;gt 2,000 kg hinzu; das induziert \(0{,}40\times2{,}000 = 0{,}800\) kg; das induziert \(0{,}320\) kg; dann \(0{,}128\) kg. Nach vier Runden betr&auml;gt die Summe \(3{,}248\) kg, bereits 97,4&nbsp;% des Endwerts.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Geschlossene Form.</strong> \[\Delta m_{\text{total}} = \frac{2{,}0}{1-0{,}40} = \frac{2{,}0}{0{,}60} = 3{,}33\ \text{kg}.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Gegen die Reserve.</strong> Die &Auml;nderung verbraucht 3,33 kg der verf&uuml;gbaren 4,3 kg und l&auml;sst 0,97 kg. Die naive Antwort &mdash; 2,0 kg gegen 4,3 kg &mdash; untersch&auml;tzte die Kosten um zwei Drittel der Restreserve.</div></div>
+        <div class="result-box">\[ \boxed{ \Delta m_{\text{total}} = 3{,}33\ \text{kg},\quad \text{Restreserve} = 0{,}97\ \text{kg} } \]</div>
+        <p><strong>Deutung.</strong> Die &Auml;nderung bleibt machbar, ist aber nicht die genehmigte &Auml;nderung. Und die Schleife tr&auml;gt ihre eigene Warnung: Bei \(r = 1\) konvergiert die Reihe nicht mehr, das hei&szlig;t, kein Umkonstruieren schlie&szlig;t das Massenbudget bei dieser Nutzlast. Ein Team, dessen Koeffizienten gegen 1 kriechen, hat kein Massenproblem, sondern ein Architekturproblem.</p>
+      </section>
+
+      <section id="summary-de">
+        <p class="section-label">Arbeitsregeln</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regel</th><th>Aussage</th></tr></thead><tbody><tr><td>Kopplung</td><td>Zwei Elemente sind gekoppelt, wenn eine &Auml;nderung im einen Zustand, Anforderungen oder Verhalten des anderen ver&auml;ndert.</td></tr><tr><td>Wachstumsschleife</td><td>\(\Delta m_{\text{total}} = \Delta m_0/(1-r)\), mit \(r\) als induzierter Masse je zus&auml;tzlichem Kilogramm.</td></tr><tr><td>Konvergenz</td><td>Die Schleife konvergiert nur f&uuml;r \(r<1\). Bei \(r\ge 1\) hat der Entwurf bei dieser Nutzlast keine L&ouml;sung.</td></tr><tr><td>Emergenz</td><td>Eine Eigenschaft des Ganzen, die keinem Teil geh&ouml;rt: Ausrichtgenauigkeit, Verf&uuml;gbarkeit, Zuverl&auml;ssigkeit, Kosten.</td></tr><tr><td>Wo hinsehen</td><td>Kopplungen &uuml;ber Teamgrenzen hinweg sind die Stelle, an der Annahmen inkonsistent werden.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Häufige Fehler</p>
+        <h2>Was schiefgeht</h2>
+        <ul class="check-list"><li><strong>Eine lokale &Auml;nderung gegen eine Systemreserve halten.</strong> 2,0 kg Nutzlast sind nicht 2,0 kg Fahrzeug.</li><li><strong>Die Verfolgung beim ersten Teilsystem beenden.</strong> Das Interessante an einer Schleife ist der R&uuml;ckweg.</li><li><strong>Jedes Teilsystem einzeln optimieren.</strong> Die Summe lokal optimaler Teile ergibt regelm&auml;&szlig;ig ein schlechteres System, weil jede Optimierung fremde Reserve verbraucht.</li><li><strong>Eine emergente Eigenschaft einem Teilsystem zuweisen.</strong> Niemand besitzt die Ausrichtgenauigkeit; einem Team zugewiesen, verifiziert sie niemand.</li><li><strong>Organisatorische Kopplung ignorieren.</strong> Zwei Teams mit verschiedenen Annahmen zu einer Schnittstelle liefern zwei korrekte Produkte, die nicht passen.</li><li><strong>Den Koeffizienten f&uuml;r die Antwort halten.</strong> Das Modell sagt, ob man sich sorgen muss, nicht wie sehr.</li></ul>
+      </section>
+
+      <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
+        <h2>Literatur</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 2.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=margins-module" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 16: Margins</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Bearbeitet nach Einheit I des Skripts Luft- und Raumfahrtsystemtechnik (AE506) von Carlos Alberto Molina Holgu&iacute;n. Jede Zahl dieser Seite wurde eigens daf&uuml;r unabh&auml;ngig neu berechnet; kein Rechner deckt dieses Thema ab, daher ist die Neuberechnung die einzige Pr&uuml;fung. Die geometrische Reihe wurde gliedweise und in geschlossener Form summiert; beide stimmen im Rahmen der gezeigten Rundung &uuml;berein.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="what-is-a-system.html?v=11"><span>Vorherige Vorlesung</span>&larr; Was ein System ist</a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>&copy; <span id="year"></span> Carlos Alberto Molina Holgu&iacute;n</p>
+    <p>Universidad Aut&oacute;noma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

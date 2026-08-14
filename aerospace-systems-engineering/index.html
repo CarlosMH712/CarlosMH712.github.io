@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Aerospace Systems Engineering (AE506) lectures: mission definition, requirements, architecture and interfaces, trade studies, life cycle and risk, verification and validation, and technical management." />
+  <meta name="author" content="Carlos Alberto Molina Holgu&iacute;n" />
+  <meta name="theme-color" content="#071d33" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Aerospace Systems Engineering | Carlos Molina</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:wght@600;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=11" data-ui-key="course">Aerospace Systems Engineering</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="course-hero">
+    <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Teaching &middot; Aerospace Engineering</p>
+        <h1>Aerospace Systems Engineering</h1>
+        <p class="hero-copy">How an aerospace system is defined, decomposed, decided, reviewed and verified: mission definition, requirements, architecture and interfaces, trade studies, life cycle and risk, verification and validation, and technical management.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Docencia &middot; Ingenier&iacute;a Aeroespacial</p>
+        <h1>Ingenier&iacute;a de Sistemas Aeroespaciales</h1>
+        <p class="hero-copy">C&oacute;mo se define, descompone, decide, revisa y verifica un sistema aeroespacial: definici&oacute;n de misi&oacute;n, requisitos, arquitectura e interfaces, estudios de intercambio, ciclo de vida y riesgo, verificaci&oacute;n y validaci&oacute;n, y gesti&oacute;n t&eacute;cnica.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Lehre &middot; Luft- und Raumfahrttechnik</p>
+        <h1>Luft- und Raumfahrtsystemtechnik</h1>
+        <p class="hero-copy">Wie ein Luft- und Raumfahrtsystem definiert, zerlegt, entschieden, gepr&uuml;ft und verifiziert wird: Missionsdefinition, Anforderungen, Architektur und Schnittstellen, Abw&auml;gungsstudien, Lebenszyklus und Risiko, Verifikation und Validierung sowie technisches Management.</p>
+      </div>
+      <div class="hero-meta">
+        <span data-language="en">Requirements</span>
+        <span data-language="en">Architecture and interfaces</span>
+        <span data-language="en">Trade studies</span>
+        <span data-language="en">Risk and verification</span>
+        <span data-language="es" hidden>Requisitos</span>
+        <span data-language="es" hidden>Arquitectura e interfaces</span>
+        <span data-language="es" hidden>Estudios de intercambio</span>
+        <span data-language="es" hidden>Riesgo y verificaci&oacute;n</span>
+        <span data-language="de" hidden>Anforderungen</span>
+        <span data-language="de" hidden>Architektur und Schnittstellen</span>
+        <span data-language="de" hidden>Abw&auml;gungsstudien</span>
+        <span data-language="de" hidden>Risiko und Verifikation</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div data-language="en">
+        <p class="section-label">Lecture collection</p>
+        <h2 class="section-title">Course modules</h2>
+        <p class="section-intro">Each module states the engineering situation, defines the method, gives the procedure step by step, works one complete example with real numbers, and closes with the mistakes seen most often in student work.</p>
+        <div class="module-overview"><span>18 of 22 lectures available</span></div>
+      </div>
+      <div data-language="es" hidden>
+        <p class="section-label">Colecci&oacute;n de lectures</p>
+        <h2 class="section-title">M&oacute;dulos del curso</h2>
+        <p class="section-intro">Cada m&oacute;dulo plantea la situaci&oacute;n de ingenier&iacute;a, define el m&eacute;todo, da el procedimiento paso a paso, resuelve un ejemplo completo con n&uacute;meros reales y cierra con los errores m&aacute;s frecuentes en el trabajo de los estudiantes.</p>
+        <div class="module-overview"><span>18 de 22 lectures disponibles</span></div>
+      </div>
+      <div data-language="de" hidden>
+        <p class="section-label">Vorlesungssammlung</p>
+        <h2 class="section-title">Kursmodule</h2>
+        <p class="section-intro">Jedes Modul benennt den ingenieurtechnischen Kontext, definiert die Methode, gibt das Verfahren Schritt f&uuml;r Schritt an, rechnet ein vollst&auml;ndiges Beispiel mit echten Zahlen und schlie&szlig;t mit den h&auml;ufigsten Fehlern in studentischen Arbeiten.</p>
+        <div class="module-overview"><span>18 von 22 Vorlesungen verf&uuml;gbar</span></div>
+      </div>
+
+      <div class="course-grid" data-language="en">
+        <article class="course-card available">
+          <span class="course-card-number">01</span>
+          <h3>What a System Is and Where Its Boundaries Lie</h3>
+          <p>System, subsystem and component; end and enabling products; the system of interest and its operating environment.</p>
+          <span class="status">Available</span>
+          <a href="what-is-a-system.html?v=11">Open lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">02</span>
+          <h3>Systems Thinking: Coupling, Feedback, and Emergence</h3>
+          <p>Why local optimisation degrades the whole, how change propagates through a design loop, and which properties belong to no subsystem.</p>
+          <span class="status">Available</span>
+          <a href="systems-thinking.html?v=11">Open lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">03</span>
+          <h3>Life Cycle, the SE Engine, and Budgets with Margin</h3>
+          <p>NASA phases at a glance, the three process groups, and how to build a mass budget whose contingency reflects maturity.</p>
+          <span class="status">Available</span>
+          <a href="life-cycle-and-margins.html?v=11">Open lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">04</span>
+          <h3>Need, Goals, and Objectives</h3>
+          <p>Stating the problem without naming a solution, and turning a mission purpose into objectives that can be evaluated.</p>
+          <span class="status">Available</span>
+          <a href="need-goals-objectives.html?v=11">Open lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">05</span>
+          <h3>Stakeholders: Identification, Conflict, and the Register</h3>
+          <p>Sweeping the life cycle instead of the org chart, the influence–interest map, and recording conflicts before they become requirements.</p>
+          <span class="status">Available</span>
+          <a href="stakeholders.html?v=11">Open lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">06</span>
+          <h3>Concept of Operations and the Measures: MOE, MOP, TPM</h3>
+          <p>Mission phases and modes, off-nominal scenarios as a discovery tool, and the chain from stakeholder value to a tracked parameter.</p>
+          <span class="status">Available</span>
+          <a href="conops-and-measures.html?v=11">Open lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">07</span>
+          <h3>Anatomy of a Requirement and Quality Characteristics</h3>
+          <p>The sentence pattern, shall versus will versus should, the operating condition, and what makes a requirement verifiable.</p>
+          <span class="status">Available</span>
+          <a href="writing-requirements.html?v=11">Open lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">08</span>
+          <h3>Derived Requirements, Decomposition, and Allocation</h3>
+          <p>Where a subsystem number comes from, why flowdown is not copying, and how margin enters a derived value.</p>
+          <span class="status">Available</span>
+          <a href="derived-requirements.html?v=11">Open lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">09</span>
+          <h3>Traceability: The RTM and Change Control</h3>
+          <p>Building the matrix, the four audit checks, orphans and uncovered parents, and using it to bound the impact of a change.</p>
+          <span class="status">Available</span>
+          <a href="traceability-rtm.html?v=11">Open lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">10</span>
+          <h3>Functional Analysis and Logical Architecture</h3>
+          <p>Functions as verbs, the black-box view, decomposition depth, and grouping functions without naming hardware.</p>
+          <span class="status">Available</span>
+          <a href="functional-analysis.html?v=11">Open lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">11</span>
+          <h3>Physical Architecture, PBS, and WBS</h3>
+          <p>Functional allocation, the completeness rule at each node, enabling products, and why a PBS is not an org chart.</p>
+          <span class="status">Available</span>
+          <a href="pbs-and-wbs.html?v=11">Open lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">12</span>
+          <h3>Interfaces: The Interface Matrix, the N-Squared Diagram, and the ICD</h3>
+          <p>Finding every interaction systematically, naming what flows in each direction, and what an interface definition must contain.</p>
+          <span class="status">Available</span>
+          <a href="interfaces-n-squared.html?v=11">Open lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">13</span>
+          <h3>Framing the Decision: Constraints, Alternatives, and Criteria</h3>
+          <p>Screening before scoring, generating alternatives without premature convergence, and giving every criterion an operational definition.</p>
+          <span class="status">Available</span>
+          <a href="framing-the-decision.html?v=11">Open lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">14</span>
+          <h3>The Weighted Decision Matrix and Sensitivity Analysis</h3>
+          <p>Normalisation and utility, the weighted sum, and the crossover point that tells you how much disagreement a recommendation survives.</p>
+          <span class="status">Available</span>
+          <a href="weighted-decision-matrix.html?v=11">Open lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">15</span>
+          <h3>The Analytic Hierarchy Process and Technology Readiness</h3>
+          <p>Pairwise comparison, the priority vector, the consistency ratio, and why TRL measures risk rather than performance.</p>
+          <span class="status">Available</span>
+          <a href="ahp-and-trl.html?v=11">Open lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">16</span>
+          <h3>Phases, Baselines, and Technical Reviews</h3>
+          <p>Pre-Phase A through F, what a technical baseline is, and the difference between entrance and success criteria.</p>
+          <span class="status">Available</span>
+          <a href="phases-and-reviews.html?v=11">Open lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">17</span>
+          <h3>The Preliminary Design Review in Depth</h3>
+          <p>What a PDR must demonstrate, the data package, a readiness rubric, and turning findings into actions that close on evidence.</p>
+          <span class="status">Available</span>
+          <a href="preliminary-design-review.html?v=11">Open lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">18</span>
+          <h3>Risk: Structured Statements, the Matrix, and the Register</h3>
+          <p>The condition–departure–asset–consequence form, scoring likelihood and consequence consistently, and the register that makes a risk actionable.</p>
+          <span class="status">Available</span>
+          <a href="risk-matrix.html?v=11">Open lecture →</a>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">19</span>
+          <h3>FMEA and Fault Tree Analysis</h3>
+          <p>Bottom-up failure propagation with severity, occurrence and detection; top-down gate logic and the dominant contributor.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">20</span>
+          <h3>Integration and the Four Verification Methods</h3>
+          <p>Why integration is not assembly, the integration sequence, and choosing test, analysis, inspection or demonstration.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">21</span>
+          <h3>The Verification Matrix, Evidence, and Validation</h3>
+          <p>Building the VCRM, what closure requires beyond a completed test, and how a fully verified system can still fail validation.</p>
+          <span class="status">Planned</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">22</span>
+          <h3>Configuration Management, TPM Tracking, and MBSE</h3>
+          <p>Configuration items and the control board, reading a trend instead of a value, and what model-based systems engineering changes.</p>
+          <span class="status">Planned</span>
+        </article>
+      </div>
+
+      <div class="course-grid" data-language="es" hidden>
+        <article class="course-card available">
+          <span class="course-card-number">01</span>
+          <h3>Qué es un sistema y dónde están sus fronteras</h3>
+          <p>Sistema, subsistema y componente; productos finales y habilitadores; el sistema de interés y su entorno de operación.</p>
+          <span class="status">Disponible</span>
+          <a href="what-is-a-system.html?v=11">Abrir lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">02</span>
+          <h3>Pensamiento sistémico: acoplamiento, retroalimentación y emergencia</h3>
+          <p>Por qué la optimización local degrada el conjunto, cómo se propaga un cambio en un lazo de diseño y qué propiedades no pertenecen a ningún subsistema.</p>
+          <span class="status">Disponible</span>
+          <a href="systems-thinking.html?v=11">Abrir lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">03</span>
+          <h3>Ciclo de vida, el motor de SE y presupuestos con margen</h3>
+          <p>Las fases de la NASA de un vistazo, los tres grupos de procesos y cómo construir un presupuesto de masa cuya contingencia refleje la madurez.</p>
+          <span class="status">Disponible</span>
+          <a href="life-cycle-and-margins.html?v=11">Abrir lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">04</span>
+          <h3>Necesidad, metas y objetivos</h3>
+          <p>Enunciar el problema sin nombrar una solución y convertir el propósito de la misión en objetivos evaluables.</p>
+          <span class="status">Disponible</span>
+          <a href="need-goals-objectives.html?v=11">Abrir lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">05</span>
+          <h3>Stakeholders: identificación, conflicto y registro</h3>
+          <p>Recorrer el ciclo de vida en vez del organigrama, el mapa influencia–interés y registrar los conflictos antes de que se vuelvan requisitos.</p>
+          <span class="status">Disponible</span>
+          <a href="stakeholders.html?v=11">Abrir lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">06</span>
+          <h3>Concepto de operaciones y las medidas: MOE, MOP, TPM</h3>
+          <p>Fases y modos de misión, los escenarios fuera de lo nominal como herramienta de descubrimiento y la cadena del valor del stakeholder al parámetro rastreado.</p>
+          <span class="status">Disponible</span>
+          <a href="conops-and-measures.html?v=11">Abrir lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">07</span>
+          <h3>Anatomía de un requisito y características de calidad</h3>
+          <p>El patrón de redacción, shall frente a will y should, la condición de operación y qué hace verificable a un requisito.</p>
+          <span class="status">Disponible</span>
+          <a href="writing-requirements.html?v=11">Abrir lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">08</span>
+          <h3>Requisitos derivados, descomposición y asignación</h3>
+          <p>De dónde sale el número de un subsistema, por qué el flowdown no es copiar y cómo entra el margen en un valor derivado.</p>
+          <span class="status">Disponible</span>
+          <a href="derived-requirements.html?v=11">Abrir lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">09</span>
+          <h3>Trazabilidad: la RTM y el control de cambios</h3>
+          <p>Construir la matriz, los cuatro chequeos de auditoría, huérfanos y padres sin cobertura, y usarla para acotar el impacto de un cambio.</p>
+          <span class="status">Disponible</span>
+          <a href="traceability-rtm.html?v=11">Abrir lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">10</span>
+          <h3>Análisis funcional y arquitectura lógica</h3>
+          <p>Las funciones como verbos, la vista de caja negra, la profundidad de descomposición y agrupar funciones sin nombrar hardware.</p>
+          <span class="status">Disponible</span>
+          <a href="functional-analysis.html?v=11">Abrir lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">11</span>
+          <h3>Arquitectura física, PBS y WBS</h3>
+          <p>Asignación funcional, la regla de completitud en cada nodo, los productos habilitadores y por qué un PBS no es un organigrama.</p>
+          <span class="status">Disponible</span>
+          <a href="pbs-and-wbs.html?v=11">Abrir lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">12</span>
+          <h3>Interfaces: matriz de interfaces, diagrama N-cuadrado e ICD</h3>
+          <p>Encontrar toda interacción de forma sistemática, nombrar qué fluye en cada dirección y qué debe contener la definición de una interfaz.</p>
+          <span class="status">Disponible</span>
+          <a href="interfaces-n-squared.html?v=11">Abrir lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">13</span>
+          <h3>Enmarcar la decisión: restricciones, alternativas y criterios</h3>
+          <p>Filtrar antes de puntuar, generar alternativas sin convergencia prematura y dar a cada criterio una definición operativa.</p>
+          <span class="status">Disponible</span>
+          <a href="framing-the-decision.html?v=11">Abrir lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">14</span>
+          <h3>La matriz de decisión ponderada y el análisis de sensibilidad</h3>
+          <p>Normalización y utilidad, la suma ponderada y el punto de cruce que indica cuánto desacuerdo soporta una recomendación.</p>
+          <span class="status">Disponible</span>
+          <a href="weighted-decision-matrix.html?v=11">Abrir lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">15</span>
+          <h3>El proceso analítico jerárquico y la madurez tecnológica</h3>
+          <p>Comparación por pares, el vector de prioridades, la razón de consistencia y por qué el TRL mide riesgo y no desempeño.</p>
+          <span class="status">Disponible</span>
+          <a href="ahp-and-trl.html?v=11">Abrir lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">16</span>
+          <h3>Fases, líneas base y revisiones técnicas</h3>
+          <p>De la Pre-Fase A a la F, qué es una línea base técnica y la diferencia entre criterios de entrada y de éxito.</p>
+          <span class="status">Disponible</span>
+          <a href="phases-and-reviews.html?v=11">Abrir lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">17</span>
+          <h3>La revisión preliminar de diseño a fondo</h3>
+          <p>Qué debe demostrar una PDR, el paquete de datos, una rúbrica de preparación y convertir hallazgos en acciones que cierran con evidencia.</p>
+          <span class="status">Disponible</span>
+          <a href="preliminary-design-review.html?v=11">Abrir lecture →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">18</span>
+          <h3>Riesgo: enunciado estructurado, matriz y registro</h3>
+          <p>La forma condición–desviación–activo–consecuencia, puntuar probabilidad y consecuencia de manera consistente, y el registro que vuelve accionable un riesgo.</p>
+          <span class="status">Disponible</span>
+          <a href="risk-matrix.html?v=11">Abrir lecture →</a>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">19</span>
+          <h3>FMEA y árbol de fallos</h3>
+          <p>Propagación de fallos de abajo hacia arriba con severidad, ocurrencia y detección; lógica de compuertas de arriba hacia abajo y el contribuyente dominante.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">20</span>
+          <h3>Integración y los cuatro métodos de verificación</h3>
+          <p>Por qué integrar no es ensamblar, la secuencia de integración y elegir entre prueba, análisis, inspección o demostración.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">21</span>
+          <h3>La matriz de verificación, la evidencia y la validación</h3>
+          <p>Construir la VCRM, qué exige el cierre más allá de una prueba ejecutada y cómo un sistema plenamente verificado puede fallar la validación.</p>
+          <span class="status">Planeada</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">22</span>
+          <h3>Gestión de configuración, seguimiento de TPM y MBSE</h3>
+          <p>Elementos de configuración y el comité de control, leer una tendencia en vez de un valor, y qué cambia la ingeniería de sistemas basada en modelos.</p>
+          <span class="status">Planeada</span>
+        </article>
+      </div>
+
+      <div class="course-grid" data-language="de" hidden>
+        <article class="course-card available">
+          <span class="course-card-number">01</span>
+          <h3>Was ein System ist und wo seine Grenzen liegen</h3>
+          <p>System, Teilsystem und Komponente; End- und Hilfsprodukte; das betrachtete System und seine Einsatzumgebung.</p>
+          <span class="status">Verfügbar</span>
+          <a href="what-is-a-system.html?v=11">Vorlesung öffnen →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">02</span>
+          <h3>Systemdenken: Kopplung, Rückkopplung und Emergenz</h3>
+          <p>Warum lokale Optimierung das Ganze verschlechtert, wie sich eine Änderung durch eine Entwurfsschleife fortpflanzt und welche Eigenschaften keinem Teilsystem gehören.</p>
+          <span class="status">Verfügbar</span>
+          <a href="systems-thinking.html?v=11">Vorlesung öffnen →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">03</span>
+          <h3>Lebenszyklus, die SE-Maschine und Budgets mit Reserve</h3>
+          <p>Die NASA-Phasen im Überblick, die drei Prozessgruppen und wie ein Massenbudget entsteht, dessen Reserve den Reifegrad abbildet.</p>
+          <span class="status">Verfügbar</span>
+          <a href="life-cycle-and-margins.html?v=11">Vorlesung öffnen →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">04</span>
+          <h3>Bedarf, Ziele und Einzelziele</h3>
+          <p>Das Problem benennen, ohne eine Lösung vorwegzunehmen, und den Missionszweck in bewertbare Einzelziele überführen.</p>
+          <span class="status">Verfügbar</span>
+          <a href="need-goals-objectives.html?v=11">Vorlesung öffnen →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">05</span>
+          <h3>Interessenträger: Ermittlung, Konflikt und Register</h3>
+          <p>Den Lebenszyklus statt des Organigramms abschreiten, die Einfluss-Interesse-Matrix und Konflikte erfassen, bevor sie zu Anforderungen werden.</p>
+          <span class="status">Verfügbar</span>
+          <a href="stakeholders.html?v=11">Vorlesung öffnen →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">06</span>
+          <h3>Betriebskonzept und die Kenngrößen: MOE, MOP, TPM</h3>
+          <p>Missionsphasen und Betriebsarten, Störfallszenarien als Entdeckungswerkzeug und die Kette vom Nutzen des Interessenträgers zur verfolgten Kenngröße.</p>
+          <span class="status">Verfügbar</span>
+          <a href="conops-and-measures.html?v=11">Vorlesung öffnen →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">07</span>
+          <h3>Aufbau einer Anforderung und Qualitätsmerkmale</h3>
+          <p>Das Satzmuster, shall gegenüber will und should, die Betriebsbedingung und was eine Anforderung überprüfbar macht.</p>
+          <span class="status">Verfügbar</span>
+          <a href="writing-requirements.html?v=11">Vorlesung öffnen →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">08</span>
+          <h3>Abgeleitete Anforderungen, Zerlegung und Zuordnung</h3>
+          <p>Woher der Zahlenwert eines Teilsystems stammt, warum Flowdown kein Kopieren ist und wie Reserve in einen abgeleiteten Wert eingeht.</p>
+          <span class="status">Verfügbar</span>
+          <a href="derived-requirements.html?v=11">Vorlesung öffnen →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">09</span>
+          <h3>Rückverfolgbarkeit: die RTM und Änderungslenkung</h3>
+          <p>Die Matrix aufbauen, die vier Prüfungen, Waisen und ungedeckte Elternanforderungen, und damit die Auswirkung einer Änderung eingrenzen.</p>
+          <span class="status">Verfügbar</span>
+          <a href="traceability-rtm.html?v=11">Vorlesung öffnen →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">10</span>
+          <h3>Funktionsanalyse und logische Architektur</h3>
+          <p>Funktionen als Verben, die Black-Box-Sicht, die Zerlegungstiefe und das Gruppieren von Funktionen ohne Hardwarebezug.</p>
+          <span class="status">Verfügbar</span>
+          <a href="functional-analysis.html?v=11">Vorlesung öffnen →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">11</span>
+          <h3>Physische Architektur, PBS und WBS</h3>
+          <p>Funktionszuordnung, die Vollständigkeitsregel je Knoten, Hilfsprodukte und warum eine PBS kein Organigramm ist.</p>
+          <span class="status">Verfügbar</span>
+          <a href="pbs-and-wbs.html?v=11">Vorlesung öffnen →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">12</span>
+          <h3>Schnittstellen: Schnittstellenmatrix, N-Quadrat-Diagramm und ICD</h3>
+          <p>Jede Wechselwirkung systematisch finden, benennen was in welche Richtung fließt, und was eine Schnittstellendefinition enthalten muss.</p>
+          <span class="status">Verfügbar</span>
+          <a href="interfaces-n-squared.html?v=11">Vorlesung öffnen →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">13</span>
+          <h3>Die Entscheidung fassen: Randbedingungen, Alternativen und Kriterien</h3>
+          <p>Aussieben vor dem Bewerten, Alternativen ohne vorzeitige Konvergenz erzeugen und jedem Kriterium eine operative Definition geben.</p>
+          <span class="status">Verfügbar</span>
+          <a href="framing-the-decision.html?v=11">Vorlesung öffnen →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">14</span>
+          <h3>Die gewichtete Entscheidungsmatrix und die Sensitivitätsanalyse</h3>
+          <p>Normierung und Nutzen, die gewichtete Summe und der Umschlagpunkt, der zeigt, wie viel Uneinigkeit eine Empfehlung aushält.</p>
+          <span class="status">Verfügbar</span>
+          <a href="weighted-decision-matrix.html?v=11">Vorlesung öffnen →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">15</span>
+          <h3>Der analytische Hierarchieprozess und der Technologiereifegrad</h3>
+          <p>Paarweiser Vergleich, der Prioritätsvektor, das Konsistenzverhältnis und warum der TRL Risiko und nicht Leistung misst.</p>
+          <span class="status">Verfügbar</span>
+          <a href="ahp-and-trl.html?v=11">Vorlesung öffnen →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">16</span>
+          <h3>Phasen, Konfigurationsbasis und technische Reviews</h3>
+          <p>Von Vorphase A bis F, was eine technische Basis ist und der Unterschied zwischen Eintritts- und Erfolgskriterien.</p>
+          <span class="status">Verfügbar</span>
+          <a href="phases-and-reviews.html?v=11">Vorlesung öffnen →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">17</span>
+          <h3>Die vorläufige Entwurfsprüfung im Detail</h3>
+          <p>Was ein PDR nachweisen muss, das Datenpaket, eine Reifebewertung und Befunde in Maßnahmen überführen, die mit Nachweis schließen.</p>
+          <span class="status">Verfügbar</span>
+          <a href="preliminary-design-review.html?v=11">Vorlesung öffnen →</a>
+        </article>
+
+        <article class="course-card available">
+          <span class="course-card-number">18</span>
+          <h3>Risiko: strukturierte Aussagen, Matrix und Register</h3>
+          <p>Die Form Zustand–Abweichung–betroffenes Gut–Folge, Eintritt und Folge einheitlich bewerten, und das Register, das ein Risiko handhabbar macht.</p>
+          <span class="status">Verfügbar</span>
+          <a href="risk-matrix.html?v=11">Vorlesung öffnen →</a>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">19</span>
+          <h3>FMEA und Fehlerbaumanalyse</h3>
+          <p>Fehlerfortpflanzung von unten mit Schwere, Auftreten und Entdeckung; Gatterlogik von oben und der dominante Beitrag.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">20</span>
+          <h3>Integration und die vier Verifikationsmethoden</h3>
+          <p>Warum Integration kein Zusammenbau ist, die Integrationsreihenfolge und die Wahl zwischen Test, Analyse, Inspektion und Vorführung.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">21</span>
+          <h3>Die Verifikationsmatrix, der Nachweis und die Validierung</h3>
+          <p>Die VCRM aufbauen, was der Abschluss über einen durchgeführten Test hinaus verlangt, und wie ein voll verifiziertes System dennoch die Validierung verfehlt.</p>
+          <span class="status">Geplant</span>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">22</span>
+          <h3>Konfigurationsmanagement, TPM-Verfolgung und MBSE</h3>
+          <p>Konfigurationseinheiten und das Änderungsgremium, einen Trend statt eines Werts lesen, und was modellbasierte Systemtechnik verändert.</p>
+          <span class="status">Geplant</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div data-language="en">
+        <p class="section-label">Study path</p>
+        <h2 class="section-title">How a lecture is built</h2>
+      </div>
+      <div class="path-grid" data-language="en"><div class="path-step"><strong>1. Engineering situation</strong><span>The decision or failure at stake</span></div><div class="path-step"><strong>2. The method</strong><span>What it is, and what it does not decide</span></div><div class="path-step"><strong>3. Procedure and example</strong><span>Step by step, with real numbers</span></div><div class="path-step"><strong>4. Common mistakes</strong><span>What goes wrong, and why</span></div></div>
+      <div data-language="es" hidden>
+        <p class="section-label">Ruta de estudio</p>
+        <h2 class="section-title">C&oacute;mo est&aacute; construida una lecture</h2>
+      </div>
+      <div class="path-grid" data-language="es" hidden><div class="path-step"><strong>1. Situaci&oacute;n de ingenier&iacute;a</strong><span>La decisi&oacute;n o la falla en juego</span></div><div class="path-step"><strong>2. El m&eacute;todo</strong><span>Qu&eacute; es, y qu&eacute; no decide</span></div><div class="path-step"><strong>3. Procedimiento y ejemplo</strong><span>Paso a paso, con n&uacute;meros reales</span></div><div class="path-step"><strong>4. Errores comunes</strong><span>Qu&eacute; falla, y por qu&eacute;</span></div></div>
+      <div data-language="de" hidden>
+        <p class="section-label">Lernpfad</p>
+        <h2 class="section-title">Wie eine Vorlesung aufgebaut ist</h2>
+      </div>
+      <div class="path-grid" data-language="de" hidden><div class="path-step"><strong>1. Ingenieurtechnischer Kontext</strong><span>Die Entscheidung oder der Ausfall</span></div><div class="path-step"><strong>2. Die Methode</strong><span>Was sie ist, und was sie nicht entscheidet</span></div><div class="path-step"><strong>3. Verfahren und Beispiel</strong><span>Schritt f&uuml;r Schritt, mit echten Zahlen</span></div><div class="path-step"><strong>4. H&auml;ufige Fehler</strong><span>Was schiefgeht, und warum</span></div></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container references">
+      <h2 data-language="en">Primary references</h2><h2 data-language="es" hidden>Referencias principales</h2><h2 data-language="de" hidden>Prim&auml;rliteratur</h2>
+      <ol>
+        <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016.</li>
+        <li>National Aeronautics and Space Administration. <a href="https://nodis3.gsfc.nasa.gov/displayDir.cfm?t=NPR&amp;c=7123&amp;s=1D" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D</a>. Washington, DC: NASA, 2023.</li>
+        <li>Goldberg, B. E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+        <li>Guerra, L. A., et al. <a href="https://spacese.spacegrant.org/" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em> module series</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+        <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+      </ol>
+      <p class="source-note" data-language="en">Lecture material adapted from the Aerospace Systems Engineering (AE506) course script prepared by Carlos Alberto Molina Holgu&iacute;n, which follows the NASA Systems Engineering Handbook.</p>
+      <p class="source-note" data-language="es" hidden>Material de lectures adaptado del gui&oacute;n del curso Ingenier&iacute;a en Sistemas Aeroespaciales (AE506) elaborado por Carlos Alberto Molina Holgu&iacute;n, que sigue el NASA Systems Engineering Handbook.</p>
+      <p class="source-note" data-language="de" hidden>Vorlesungsmaterial bearbeitet nach dem Skript Luft- und Raumfahrtsystemtechnik (AE506) von Carlos Alberto Molina Holgu&iacute;n, das dem NASA Systems Engineering Handbook folgt.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>&copy; <span id="year"></span> Carlos Alberto Molina Holgu&iacute;n</p>
+    <p>Universidad Aut&oacute;noma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

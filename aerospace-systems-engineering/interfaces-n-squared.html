@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Interfaces in aerospace systems engineering: the interface matrix, the N-squared diagram with a stated direction convention, what an interface control document must fix, and how to count the interface inventory." />
+  <meta name="author" content="Carlos Alberto Molina Holgu&iacute;n" />
+  <meta name="theme-color" content="#071d33" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Interfaces and the N-Squared Diagram | Aerospace Systems Engineering</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:wght@600;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=11" data-ui-key="course">Aerospace Systems Engineering</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Aerospace Systems Engineering &middot; Lecture 12</p>
+        <h1>Interfaces: The Matrix, the N-Squared Diagram, and the ICD</h1>
+        <p class="hero-copy">How to find every interaction instead of the ones somebody remembered, how to say what flows in each direction, and what an interface definition has to fix before two teams can work apart.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Ingeniería de Sistemas Aeroespaciales &middot; Lecture 12</p>
+        <h1>Interfaces: la matriz, el diagrama N-cuadrado y el ICD</h1>
+        <p class="hero-copy">C&oacute;mo encontrar toda interacci&oacute;n en vez de las que alguien recuerda, c&oacute;mo decir qu&eacute; fluye en cada direcci&oacute;n, y qu&eacute; debe fijar una definici&oacute;n de interfaz antes de que dos equipos puedan trabajar separados.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Luft- und Raumfahrtsystemtechnik &middot; Vorlesung 12</p>
+        <h1>Schnittstellen: Matrix, N-Quadrat-Diagramm und ICD</h1>
+        <p class="hero-copy">Wie man jede Wechselwirkung findet statt der erinnerten, wie man benennt was in welche Richtung flie&szlig;t, und was eine Schnittstellendefinition festlegen muss, bevor zwei Teams getrennt arbeiten k&ouml;nnen.</p>
+      </div>
+
+    <div class="hero-meta">
+        <span data-language="en">Estimated reading: 14 min</span><span data-language="es" hidden>Lectura estimada: 14 min</span><span data-language="de" hidden>Lesedauer: ca. 14 min</span>
+        <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+        <span data-language="en">Scope: one level of the product tree</span><span data-language="es" hidden>Alcance: un nivel del &aacute;rbol de productos</span><span data-language="de" hidden>Umfang: eine Ebene des Produktbaums</span>
+    </div>
+    <div class="button-row">
+      <a class="button secondary" href="index.html?v=11" data-ui-key="back">Back to course</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Engineering situation</a>
+        <a href="#model">Scope and limits</a>
+        <a href="#nsquared">The N-squared diagram</a>
+        <a href="#icd">What a definition must fix</a>
+        <a href="#algorithm">Finding them all</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Operative rules</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#references">Sources</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Situaci&oacute;n de ingenier&iacute;a</a>
+        <a href="#model-es">Alcance y l&iacute;mites</a>
+        <a href="#nsquared-es">El diagrama N-cuadrado</a>
+        <a href="#icd-es">Qu&eacute; debe fijar una definici&oacute;n</a>
+        <a href="#algorithm-es">Encontrarlas todas</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Reglas operativas</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Kontext</a>
+        <a href="#model-de">Geltungsbereich</a>
+        <a href="#nsquared-de">Das N-Quadrat-Diagramm</a>
+        <a href="#icd-de">Was eine Definition festlegen muss</a>
+        <a href="#algorithm-de">Alle finden</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Arbeitsregeln</a>
+        <a href="#mistakes-de">H&auml;ufige Fehler</a>
+        <a href="#references-de">Quellen</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+
+      <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul><li>build an interface matrix and say why the empty cells matter as much as the full ones;</li><li>convert it into an N-squared diagram with a stated direction convention;</li><li>read a row and a column separately and say what each pass reveals;</li><li>count the interface inventory and use it to estimate coordination effort;</li><li>list what an interface definition must fix before two teams can work independently.</li></ul>
+      </section>
+
+      <section id="physics">
+        <p class="section-label">Engineering situation</p>
+        <h2>Six boxes and four lines</h2>
+        <p class="lead">Ask a team how many interfaces its architecture has and the answer comes from the block diagram on the wall: six boxes, four or five lines between them. It feels like a complete picture because it is the picture everybody has been looking at for months.</p><p>Six elements have fifteen possible pairs, and asking about all fifteen is not the same as drawing the ones that came to mind. The pairs that never got a line are not absent interfaces &mdash; they are unexamined ones, and there is no way to tell the two apart by looking at the diagram.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 520" role="img" aria-label="Interface matrix: which pairs interact at all">
+            <text x="140" y="101" text-anchor="end" font-size="12" fill="#3f5162">Payload</text>
+            <text x="187" y="48" text-anchor="middle" font-size="12" fill="#3f5162" transform="translate(0,0)">Payload</text>
+            <text x="140" y="175" text-anchor="end" font-size="12" fill="#3f5162">Avionics</text>
+            <text x="261" y="48" text-anchor="middle" font-size="12" fill="#3f5162" transform="translate(0,0)">Avionics</text>
+            <text x="140" y="249" text-anchor="end" font-size="12" fill="#3f5162">Power</text>
+            <text x="335" y="48" text-anchor="middle" font-size="12" fill="#3f5162" transform="translate(0,0)">Power</text>
+            <text x="140" y="323" text-anchor="end" font-size="12" fill="#3f5162">Comm</text>
+            <text x="409" y="48" text-anchor="middle" font-size="12" fill="#3f5162" transform="translate(0,0)">Comm</text>
+            <text x="140" y="397" text-anchor="end" font-size="12" fill="#3f5162">Struct./Thermal</text>
+            <text x="483" y="48" text-anchor="middle" font-size="12" fill="#3f5162" transform="translate(0,0)">Struct./Thermal</text>
+            <text x="140" y="471" text-anchor="end" font-size="12" fill="#3f5162">Ground</text>
+            <text x="557" y="48" text-anchor="middle" font-size="12" fill="#3f5162" transform="translate(0,0)">Ground</text>
+            <rect x="150" y="60" width="74" height="74" fill="#dfe7ee" stroke="#c9d4de"></rect>
+            <text x="187" y="102" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">&mdash;</text>
+            <rect x="224" y="60" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="261" y="102" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">D</text>
+            <rect x="298" y="60" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="335" y="102" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">E</text>
+            <rect x="372" y="60" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="446" y="60" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="483" y="102" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">M/T</text>
+            <rect x="520" y="60" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="150" y="134" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="187" y="176" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">D</text>
+            <rect x="224" y="134" width="74" height="74" fill="#dfe7ee" stroke="#c9d4de"></rect>
+            <text x="261" y="176" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">&mdash;</text>
+            <rect x="298" y="134" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="335" y="176" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">D/E</text>
+            <rect x="372" y="134" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="409" y="176" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">D</text>
+            <rect x="446" y="134" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="483" y="176" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">M/T</text>
+            <rect x="520" y="134" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="150" y="208" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="187" y="250" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">E</text>
+            <rect x="224" y="208" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="261" y="250" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">D/E</text>
+            <rect x="298" y="208" width="74" height="74" fill="#dfe7ee" stroke="#c9d4de"></rect>
+            <text x="335" y="250" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">&mdash;</text>
+            <rect x="372" y="208" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="409" y="250" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">E</text>
+            <rect x="446" y="208" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="483" y="250" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">M/T</text>
+            <rect x="520" y="208" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="150" y="282" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="224" y="282" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="261" y="324" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">D</text>
+            <rect x="298" y="282" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="335" y="324" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">E</text>
+            <rect x="372" y="282" width="74" height="74" fill="#dfe7ee" stroke="#c9d4de"></rect>
+            <text x="409" y="324" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">&mdash;</text>
+            <rect x="446" y="282" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="483" y="324" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">M/T</text>
+            <rect x="520" y="282" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="557" y="324" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">RF</text>
+            <rect x="150" y="356" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="187" y="398" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">M/T</text>
+            <rect x="224" y="356" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="261" y="398" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">M/T</text>
+            <rect x="298" y="356" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="335" y="398" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">M/T</text>
+            <rect x="372" y="356" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="409" y="398" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">M/T</text>
+            <rect x="446" y="356" width="74" height="74" fill="#dfe7ee" stroke="#c9d4de"></rect>
+            <text x="483" y="398" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">&mdash;</text>
+            <rect x="520" y="356" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="150" y="430" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="224" y="430" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="298" y="430" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="372" y="430" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="409" y="472" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">RF</text>
+            <rect x="446" y="430" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="520" y="430" width="74" height="74" fill="#dfe7ee" stroke="#c9d4de"></rect>
+            <text x="557" y="472" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">&mdash;</text>
+            <text x="400" y="538" text-anchor="middle" font-size="14" font-weight="600" fill="#071d33">10 of 15 pairs populated</text>
+            <text x="400" y="560" text-anchor="middle" font-size="12" fill="#3f5162">D = data &middot; E = electrical &middot; M = mechanical &middot; T = thermal &middot; RF = radio frequency</text>
+            </svg>
+            <figcaption>The interface matrix. Its value is not the letter in the cell but the question it forces on all fifteen pairs, including the five that turn out to be empty.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model">
+        <p class="section-label">Scope and limits</p>
+        <h2>Two tools, two questions</h2>
+        <p>The <strong>interface matrix</strong> answers <em>whether</em> two elements interact. It lists every element on both axes and forces one question on each of the \(N(N-1)/2\) pairs: do these two interact in any physical, informational, operational, human or environmental way? The answer is a type code, and its purpose is completeness.</p><p>The <strong>N-squared diagram</strong> answers <em>what</em> flows and <em>in which direction</em>. It puts the elements on the diagonal of an \(N\times N\) grid and fills each off-diagonal cell with the content of the exchange. That is what integration planning and interface documents actually need.</p>
+        <div class="callout warning"><strong>What the diagrams do not do.</strong> Neither one is a definition. A populated cell records that something flows and roughly what; it does not fix units, coordinate frames, timing, format, tolerances or who may change them. Two teams cannot work apart from a matrix &mdash; they can only agree that they will have to talk. The interface control document is where the agreement becomes usable.</div>
+      </section>
+
+      <section id="nsquared">
+        <p class="section-label">Direction matters</p>
+        <h2>Filling the N-squared diagram</h2>
+        <p>The convention used here is <em>row supplies column</em>: the cell in row \(i\), column \(j\) describes what element \(i\) sends to element \(j\). Reversing it silently reverses every interface on the page, so it belongs written on the diagram rather than assumed.</p>
+        <div class="table-wrap"><table><thead><tr><th></th><th>Payload</th><th>Avionics</th><th>Power</th><th>Comm</th><th>Struct./Th.</th><th>Ground</th></tr></thead><tbody><tr><td><strong>Payload</strong></td><td>&mdash;</td><td>Science data, 4 Mbit/s peak</td><td>Load profile, 45 W peak</td><td></td><td>Mounting loads; 30 W</td><td></td></tr><tr><td><strong>Avionics</strong></td><td>Commands; time sync</td><td>&mdash;</td><td>Load-shed commands</td><td>Downlink frames; TX enable</td><td>Heater commands</td><td></td></tr><tr><td><strong>Power</strong></td><td>Regulated 28 V</td><td>Regulated 5/28 V; telemetry</td><td>&mdash;</td><td>Regulated 28 V, 60 W</td><td>Battery dissipation</td><td></td></tr><tr><td><strong>Comm</strong></td><td></td><td>Uplink frames; link status</td><td>TX duty-cycle request</td><td>&mdash;</td><td>Antenna loads; RF heating</td><td>RF downlink S-band</td></tr><tr><td><strong>Struct./Th.</strong></td><td>Support; -35 to +45 C</td><td>Support; conducted temp.</td><td>Support; battery temp.</td><td>Support; boresight</td><td>&mdash;</td><td></td></tr><tr><td><strong>Ground</strong></td><td></td><td></td><td></td><td>RF uplink S-band</td><td></td><td>&mdash;</td></tr></tbody></table></div>
+        <p>Read it twice. A full row asks <em>what does this element produce</em>; a full column asks <em>what does it consume</em>. An empty row means an element that supplies nothing, an empty column means one that receives nothing, and either is a finding rather than a fact.</p>
+      </section>
+
+      <section id="icd">
+        <p class="section-label">From a cell to an agreement</p>
+        <h2>What an interface definition must fix</h2>
+        <div class="table-wrap"><table><thead><tr><th>An interface definition must fix</th><th>Because otherwise</th></tr></thead><tbody><tr><td>Units and their reference</td><td>Two teams build correct products in different units. This is what lost the Mars Climate Orbiter.</td></tr><tr><td>Coordinate frame and sign convention</td><td>A correct number arrives with the wrong sense, and nothing in either subsystem is wrong.</td></tr><tr><td>Timing and update rate</td><td>The data are right and arrive too late to be used, which no static check detects.</td></tr><tr><td>Format, protocol and error handling</td><td>Both sides work in isolation and neither knows what the other does with a corrupted frame.</td></tr><tr><td>Range, tolerance and off-nominal values</td><td>The interface works over the nominal range and fails at the edge nobody specified.</td></tr><tr><td>Owner on each side and change authority</td><td>The definition is correct and becomes obsolete the first time one side changes.</td></tr></tbody></table></div>
+        <p>The first row is not a historical curiosity. The Mars Climate Orbiter interface was documented, reviewed and agreed; what was not fixed was the unit in which one number would be expressed, and the mission was lost on an interface that everyone believed was defined.</p>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">Calculation algorithm</p>
+        <h2>Finding every interface</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Take one level of the product tree</span></div><div><strong>2</strong><span>Add the external systems</span></div><div><strong>3</strong><span>Define the type codes</span></div><div><strong>4</strong><span>Visit all \(N(N-1)/2\) pairs</span></div><div><strong>5</strong><span>Convert the populated pairs into a directed diagram</span></div><div><strong>6</strong><span>Name the content of every cell</span></div><div><strong>7</strong><span>Read rows, then columns</span></div><div><strong>8</strong><span>Count and assign owners</span></div></div>
+        <p>Step four is the whole method. Visiting a pair and concluding that nothing crosses is a result worth recording; skipping it leaves a blank that looks identical and means something entirely different. Mixing levels of the tree in step one produces pairs that cannot be compared, which is the other common way this goes wrong.</p>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>Six elements, twenty exchanges</h2>
+        <p>Apply both tools to the platform at the level of six elements: payload, avionics, power, comm, structure and thermal, and the ground segment.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>The pairs.</strong> Six elements give \[\frac{6\times5}{2} = 15\] distinct pairs. Ten are populated; five genuinely have nothing crossing, and recording that is part of the result.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>The exchanges.</strong> Those ten pairs resolve into \(2\times10 = 20\) directed exchanges in the N-squared diagram &mdash; roughly four times what the block diagram on the wall showed, and each one needs a definition, an owner and a verification method.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Reading the rows.</strong> Structure and thermal touches four of the other five elements. That is normal &mdash; structure carries everything &mdash; but it means any change to the structural layout propagates almost everywhere, so that element needs the strictest change control on the project.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Reading the ground row.</strong> The ground segment touches exactly one element, through a single RF pair. The entire mission&rsquo;s data return depends on that one interface, which makes it the most concentrated vulnerability in the architecture and explains why it dominates the fault tree of Lecture 19.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>The empty cells.</strong> Payload and comm exchange nothing: all science data goes through avionics. That is a deliberate architectural choice with a consequence &mdash; avionics becomes a single point of failure for data return and must be sized for the full payload rate rather than the downlink rate.</div></div>
+        <div class="result-box">\[ \boxed{ 15\ \text{pairs},\; 10\ \text{populated},\; 20\ \text{directed exchanges} } \]</div>
+        <p><strong>Interpretation.</strong> Twenty is the number that matters, and it is roughly four times what the team believed. Each of the twenty needs units, a coordinate frame, timing, a format and an owner on each side &mdash; which turns an afternoon&rsquo;s diagram into a real estimate of how much coordination this architecture costs. That estimate is available now, before any of it has been built.</p>
+      </section>
+
+      <section id="summary">
+        <p class="section-label">Operative rules</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Statement</th></tr></thead><tbody><tr><td>Ask about all pairs</td><td>\(N\) elements give \(N(N-1)/2\) pairs. A blank left because nobody looked is indistinguishable from no interface.</td></tr><tr><td>The N-squared diagram is directed</td><td>State the convention on the chart: this course uses <em>row supplies column</em>.</td></tr><tr><td>Name the content, not a mark</td><td>&ldquo;Science data, 4 Mbit/s peak&rdquo;, not &ldquo;X&rdquo;. If the content cannot be named, the interface is not understood.</td></tr><tr><td>Read rows and columns separately</td><td>A row asks what an element produces; a column asks what it consumes. The two passes catch different omissions.</td></tr><tr><td>Count the populated cells</td><td>That count is the interface inventory, and the first realistic estimate of coordination effort.</td></tr><tr><td>A line is not a definition</td><td>Units, frames, timing, format and tolerances are what make two sides compatible.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes">
+        <p class="section-label">Common mistakes</p>
+        <h2>What goes wrong</h2>
+        <ul class="check-list"><li><strong>Counting interfaces from the block diagram.</strong> It shows the ones somebody drew, not the ones that exist.</li><li><strong>Leaving a cell blank without visiting it.</strong> An unexamined pair looks exactly like a pair with no interface.</li><li><strong>Not stating the direction convention.</strong> Reversing <em>row supplies column</em> silently reverses every interface on the page.</li><li><strong>Marking a cell with X.</strong> &ldquo;Data&rdquo; is not a definition either. Name the content and, where known, the magnitude.</li><li><strong>Mixing levels of the product tree.</strong> Pairs from different levels cannot be compared and the count means nothing.</li><li><strong>Treating a line on a diagram as an interface definition.</strong> Units, frames, timing, format and tolerances are what let two teams work apart, and the Mars Climate Orbiter is what happens when one of them is missing.</li></ul>
+      </section>
+
+      <section id="references" class="references">
+        <p class="section-label">Sources</p>
+        <h2>References</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 6.3.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=interface-modules" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 15: Interface</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adapted from Unit IV of the Aerospace Systems Engineering (AE506) course script by Carlos Alberto Molina Holgu&iacute;n. Every number on this page was recomputed independently for it; no calculator covers this topic, so recomputation is the only check there is. The pair count, the populated count and the directed-exchange count were all tabulated from the interface matrix and N-squared diagram printed on this page, so the figures and the tables cannot disagree.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="pbs-and-wbs.html?v=11"><span>Previous lecture</span>&larr; PBS and WBS</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+
+      <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Qu&eacute; deber&iacute;as poder hacer</h2>
+        <ul><li>construir una matriz de interfaces y decir por qu&eacute; las celdas vac&iacute;as importan tanto como las llenas;</li><li>convertirla en un diagrama N-cuadrado con una convenci&oacute;n de direcci&oacute;n declarada;</li><li>leer una fila y una columna por separado y decir qu&eacute; revela cada pasada;</li><li>contar el inventario de interfaces y usarlo para estimar el esfuerzo de coordinaci&oacute;n;</li><li>listar qu&eacute; debe fijar una definici&oacute;n de interfaz antes de que dos equipos trabajen independientes.</li></ul>
+      </section>
+
+      <section id="physics-es">
+        <p class="section-label">Situación de ingeniería</p>
+        <h2>Seis cajas y cuatro l&iacute;neas</h2>
+        <p class="lead">Preg&uacute;ntale a un equipo cu&aacute;ntas interfaces tiene su arquitectura y la respuesta sale del diagrama de bloques de la pared: seis cajas, cuatro o cinco l&iacute;neas entre ellas. Se siente completo porque es la imagen que todos han estado viendo por meses.</p><p>Seis elementos tienen quince pares posibles, y preguntar por los quince no es lo mismo que dibujar los que vinieron a la mente. Los pares que nunca tuvieron l&iacute;nea no son interfaces ausentes &mdash; son interfaces no examinadas, y no hay forma de distinguirlas mirando el diagrama.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 520" role="img" aria-label="Matriz de interfaces: qu&eacute; pares interact&uacute;an">
+            <text x="140" y="101" text-anchor="end" font-size="12" fill="#3f5162">Carga &uacute;til</text>
+            <text x="187" y="48" text-anchor="middle" font-size="12" fill="#3f5162" transform="translate(0,0)">Carga &uacute;til</text>
+            <text x="140" y="175" text-anchor="end" font-size="12" fill="#3f5162">Avi&oacute;nica</text>
+            <text x="261" y="48" text-anchor="middle" font-size="12" fill="#3f5162" transform="translate(0,0)">Avi&oacute;nica</text>
+            <text x="140" y="249" text-anchor="end" font-size="12" fill="#3f5162">Potencia</text>
+            <text x="335" y="48" text-anchor="middle" font-size="12" fill="#3f5162" transform="translate(0,0)">Potencia</text>
+            <text x="140" y="323" text-anchor="end" font-size="12" fill="#3f5162">Comm</text>
+            <text x="409" y="48" text-anchor="middle" font-size="12" fill="#3f5162" transform="translate(0,0)">Comm</text>
+            <text x="140" y="397" text-anchor="end" font-size="12" fill="#3f5162">Estruct./T&eacute;rm.</text>
+            <text x="483" y="48" text-anchor="middle" font-size="12" fill="#3f5162" transform="translate(0,0)">Estruct./T&eacute;rm.</text>
+            <text x="140" y="471" text-anchor="end" font-size="12" fill="#3f5162">Tierra</text>
+            <text x="557" y="48" text-anchor="middle" font-size="12" fill="#3f5162" transform="translate(0,0)">Tierra</text>
+            <rect x="150" y="60" width="74" height="74" fill="#dfe7ee" stroke="#c9d4de"></rect>
+            <text x="187" y="102" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">&mdash;</text>
+            <rect x="224" y="60" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="261" y="102" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">D</text>
+            <rect x="298" y="60" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="335" y="102" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">E</text>
+            <rect x="372" y="60" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="446" y="60" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="483" y="102" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">M/T</text>
+            <rect x="520" y="60" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="150" y="134" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="187" y="176" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">D</text>
+            <rect x="224" y="134" width="74" height="74" fill="#dfe7ee" stroke="#c9d4de"></rect>
+            <text x="261" y="176" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">&mdash;</text>
+            <rect x="298" y="134" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="335" y="176" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">D/E</text>
+            <rect x="372" y="134" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="409" y="176" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">D</text>
+            <rect x="446" y="134" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="483" y="176" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">M/T</text>
+            <rect x="520" y="134" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="150" y="208" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="187" y="250" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">E</text>
+            <rect x="224" y="208" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="261" y="250" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">D/E</text>
+            <rect x="298" y="208" width="74" height="74" fill="#dfe7ee" stroke="#c9d4de"></rect>
+            <text x="335" y="250" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">&mdash;</text>
+            <rect x="372" y="208" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="409" y="250" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">E</text>
+            <rect x="446" y="208" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="483" y="250" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">M/T</text>
+            <rect x="520" y="208" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="150" y="282" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="224" y="282" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="261" y="324" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">D</text>
+            <rect x="298" y="282" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="335" y="324" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">E</text>
+            <rect x="372" y="282" width="74" height="74" fill="#dfe7ee" stroke="#c9d4de"></rect>
+            <text x="409" y="324" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">&mdash;</text>
+            <rect x="446" y="282" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="483" y="324" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">M/T</text>
+            <rect x="520" y="282" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="557" y="324" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">RF</text>
+            <rect x="150" y="356" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="187" y="398" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">M/T</text>
+            <rect x="224" y="356" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="261" y="398" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">M/T</text>
+            <rect x="298" y="356" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="335" y="398" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">M/T</text>
+            <rect x="372" y="356" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="409" y="398" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">M/T</text>
+            <rect x="446" y="356" width="74" height="74" fill="#dfe7ee" stroke="#c9d4de"></rect>
+            <text x="483" y="398" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">&mdash;</text>
+            <rect x="520" y="356" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="150" y="430" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="224" y="430" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="298" y="430" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="372" y="430" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="409" y="472" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">RF</text>
+            <rect x="446" y="430" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="520" y="430" width="74" height="74" fill="#dfe7ee" stroke="#c9d4de"></rect>
+            <text x="557" y="472" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">&mdash;</text>
+            <text x="400" y="538" text-anchor="middle" font-size="14" font-weight="600" fill="#071d33">10 de 15 pares poblados</text>
+            <text x="400" y="560" text-anchor="middle" font-size="12" fill="#3f5162">D = data &middot; E = electrical &middot; M = mechanical &middot; T = thermal &middot; RF = radio frequency</text>
+            </svg>
+            <figcaption>La matriz de interfaces. Su valor no es la letra en la celda sino la pregunta que obliga sobre los quince pares, incluidos los cinco que resultan vac&iacute;os.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-es">
+        <p class="section-label">Alcance y límites</p>
+        <h2>Dos herramientas, dos preguntas</h2>
+        <p>La <strong>matriz de interfaces</strong> responde <em>si</em> dos elementos interact&uacute;an. Lista todo elemento en ambos ejes y obliga una pregunta sobre cada uno de los \(N(N-1)/2\) pares: &iquest;interact&uacute;an estos dos de alguna forma f&iacute;sica, informacional, operacional, humana o ambiental? La respuesta es un c&oacute;digo de tipo, y su prop&oacute;sito es la completitud.</p><p>El <strong>diagrama N-cuadrado</strong> responde <em>qu&eacute;</em> fluye y <em>en qu&eacute; direcci&oacute;n</em>. Pone los elementos en la diagonal de una malla \(N\times N\) y llena cada celda fuera de la diagonal con el contenido del intercambio. Eso es lo que realmente necesitan la planeaci&oacute;n de integraci&oacute;n y los documentos de interfaz.</p>
+        <div class="callout warning"><strong>Lo que los diagramas no hacen.</strong> Ninguno es una definici&oacute;n. Una celda poblada registra que algo fluye y a grandes rasgos qu&eacute;; no fija unidades, marcos de coordenadas, temporizaci&oacute;n, formato, tolerancias ni qui&eacute;n puede cambiarlos. Dos equipos no pueden trabajar separados con una matriz &mdash; s&oacute;lo pueden acordar que tendr&aacute;n que hablar. El documento de control de interfaz es donde el acuerdo se vuelve utilizable.</div>
+      </section>
+
+      <section id="nsquared-es">
+        <p class="section-label">La direcci&oacute;n importa</p>
+        <h2>Llenar el diagrama N-cuadrado</h2>
+        <p>La convenci&oacute;n usada aqu&iacute; es <em>la fila alimenta a la columna</em>: la celda en fila \(i\), columna \(j\) describe qu&eacute; env&iacute;a el elemento \(i\) al elemento \(j\). Invertirla invierte en silencio toda interfaz de la p&aacute;gina, as&iacute; que va escrita en el diagrama y no supuesta.</p>
+        <div class="table-wrap"><table><thead><tr><th></th><th>Carga &uacute;til</th><th>Avi&oacute;nica</th><th>Potencia</th><th>Comm</th><th>Estr./T&eacute;rm.</th><th>Tierra</th></tr></thead><tbody><tr><td><strong>Carga &uacute;til</strong></td><td>&mdash;</td><td>Datos, 4 Mbit/s pico</td><td>Perfil de carga, 45 W pico</td><td></td><td>Cargas de montaje; 30 W</td><td></td></tr><tr><td><strong>Avi&oacute;nica</strong></td><td>Comandos; sincron&iacute;a</td><td>&mdash;</td><td>Comandos de desconexi&oacute;n</td><td>Tramas de bajada; habilitar TX</td><td>Comandos de calefactor</td><td></td></tr><tr><td><strong>Potencia</strong></td><td>28 V regulados</td><td>5/28 V regulados; telemetr&iacute;a</td><td>&mdash;</td><td>28 V regulados, 60 W</td><td>Disipaci&oacute;n de bater&iacute;a</td><td></td></tr><tr><td><strong>Comm</strong></td><td></td><td>Tramas de subida; estado</td><td>Solicitud de ciclo de TX</td><td>&mdash;</td><td>Cargas de antena; calor RF</td><td>Bajada RF banda S</td></tr><tr><td><strong>Estr./T&eacute;rm.</strong></td><td>Soporte; -35 a +45 C</td><td>Soporte; temp. conducida</td><td>Soporte; temp. de bater&iacute;a</td><td>Soporte; apuntamiento</td><td>&mdash;</td><td></td></tr><tr><td><strong>Tierra</strong></td><td></td><td></td><td></td><td>Subida RF banda S</td><td></td><td>&mdash;</td></tr></tbody></table></div>
+        <p>L&eacute;elo dos veces. Una fila completa pregunta <em>qu&eacute; produce este elemento</em>; una columna completa, <em>qu&eacute; consume</em>. Una fila vac&iacute;a significa un elemento que no alimenta nada, una columna vac&iacute;a uno que no recibe nada, y cualquiera es un hallazgo y no un hecho.</p>
+      </section>
+
+      <section id="icd-es">
+        <p class="section-label">De una celda a un acuerdo</p>
+        <h2>Qu&eacute; debe fijar una definici&oacute;n de interfaz</h2>
+        <div class="table-wrap"><table><thead><tr><th>Una definici&oacute;n de interfaz debe fijar</th><th>Porque si no</th></tr></thead><tbody><tr><td>Unidades y su referencia</td><td>Dos equipos construyen productos correctos en unidades distintas. Eso perdi&oacute; al Mars Climate Orbiter.</td></tr><tr><td>Marco de coordenadas y convenci&oacute;n de signo</td><td>Un n&uacute;mero correcto llega con el sentido equivocado, y nada en ninguno de los subsistemas est&aacute; mal.</td></tr><tr><td>Temporizaci&oacute;n y tasa de actualizaci&oacute;n</td><td>Los datos son correctos y llegan tarde para usarse, lo que ninguna verificaci&oacute;n est&aacute;tica detecta.</td></tr><tr><td>Formato, protocolo y manejo de errores</td><td>Ambos lados funcionan aislados y ninguno sabe qu&eacute; hace el otro con una trama corrupta.</td></tr><tr><td>Rango, tolerancia y valores fuera de lo nominal</td><td>La interfaz funciona en el rango nominal y falla en el borde que nadie especific&oacute;.</td></tr><tr><td>Due&ntilde;o de cada lado y autoridad de cambio</td><td>La definici&oacute;n es correcta y queda obsoleta la primera vez que un lado cambia.</td></tr></tbody></table></div>
+        <p>La primera fila no es una curiosidad hist&oacute;rica. La interfaz del Mars Climate Orbiter estaba documentada, revisada y acordada; lo que no se fij&oacute; fue la unidad en que se expresar&iacute;a un n&uacute;mero, y la misi&oacute;n se perdi&oacute; en una interfaz que todos cre&iacute;an definida.</p>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Algoritmo de cálculo</p>
+        <h2>Encontrar toda interfaz</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Tomar un nivel del &aacute;rbol de productos</span></div><div><strong>2</strong><span>A&ntilde;adir los sistemas externos</span></div><div><strong>3</strong><span>Definir los c&oacute;digos de tipo</span></div><div><strong>4</strong><span>Visitar los \(N(N-1)/2\) pares</span></div><div><strong>5</strong><span>Convertir los pares poblados en un diagrama dirigido</span></div><div><strong>6</strong><span>Nombrar el contenido de cada celda</span></div><div><strong>7</strong><span>Leer filas, luego columnas</span></div><div><strong>8</strong><span>Contar y asignar due&ntilde;os</span></div></div>
+        <p>El paso cuatro es todo el m&eacute;todo. Visitar un par y concluir que nada lo cruza es un resultado que vale la pena registrar; saltarlo deja un blanco que se ve id&eacute;ntico y significa algo completamente distinto. Mezclar niveles del &aacute;rbol en el paso uno produce pares que no pueden compararse, que es la otra forma com&uacute;n de que esto falle.</p>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>Seis elementos, veinte intercambios</h2>
+        <p>Aplica ambas herramientas a la plataforma al nivel de seis elementos: carga &uacute;til, avi&oacute;nica, potencia, comunicaciones, estructura y t&eacute;rmico, y el segmento terreno.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Los pares.</strong> Seis elementos dan \[\frac{6\times5}{2} = 15\] pares distintos. Diez est&aacute;n poblados; cinco genuinamente no tienen nada cruzando, y registrarlo es parte del resultado.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Los intercambios.</strong> Esos diez pares se resuelven en \(2\times10 = 20\) intercambios dirigidos en el diagrama N-cuadrado &mdash; cerca de cuatro veces lo que mostraba el diagrama de bloques de la pared, y cada uno necesita definici&oacute;n, due&ntilde;o y m&eacute;todo de verificaci&oacute;n.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Leer las filas.</strong> Estructura y t&eacute;rmico toca cuatro de los otros cinco elementos. Es normal &mdash; la estructura carga con todo &mdash; pero significa que todo cambio en la disposici&oacute;n estructural se propaga casi a todas partes, as&iacute; que ese elemento necesita el control de cambios m&aacute;s estricto del proyecto.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Leer la fila de tierra.</strong> El segmento terreno toca exactamente un elemento, por un solo par RF. Todo el retorno de datos de la misi&oacute;n depende de esa &uacute;nica interfaz, lo que la vuelve la vulnerabilidad m&aacute;s concentrada de la arquitectura y explica por qu&eacute; domina el &aacute;rbol de fallos de la lecture 19.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Las celdas vac&iacute;as.</strong> Carga &uacute;til y comunicaciones no intercambian nada: todos los datos cient&iacute;ficos pasan por avi&oacute;nica. Es una elecci&oacute;n arquitect&oacute;nica deliberada con una consecuencia &mdash; la avi&oacute;nica se vuelve un punto &uacute;nico de falla para el retorno de datos y debe dimensionarse para la tasa completa de la carga &uacute;til y no para la de bajada.</div></div>
+        <div class="result-box">\[ \boxed{ 15\ \text{pares},\; 10\ \text{poblados},\; 20\ \text{intercambios dirigidos} } \]</div>
+        <p><strong>Interpretaci&oacute;n.</strong> Veinte es el n&uacute;mero que importa, y es cerca de cuatro veces lo que el equipo cre&iacute;a. Cada uno de los veinte necesita unidades, marco de coordenadas, temporizaci&oacute;n, formato y due&ntilde;o de cada lado &mdash; lo que convierte el diagrama de una tarde en una estimaci&oacute;n real de cu&aacute;nta coordinaci&oacute;n cuesta esta arquitectura. Esa estimaci&oacute;n est&aacute; disponible ahora, antes de construir nada.</p>
+      </section>
+
+      <section id="summary-es">
+        <p class="section-label">Reglas operativas</p>
+        <h2>De un vistazo</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regla</th><th>Enunciado</th></tr></thead><tbody><tr><td>Pregunta por todos los pares</td><td>\(N\) elementos dan \(N(N-1)/2\) pares. Un blanco por no haber mirado es indistinguible de no haber interfaz.</td></tr><tr><td>El diagrama N-cuadrado es dirigido</td><td>Enuncia la convenci&oacute;n en la gr&aacute;fica: este curso usa <em>la fila alimenta a la columna</em>.</td></tr><tr><td>Nombra el contenido, no una marca</td><td>&laquo;Datos, 4 Mbit/s pico&raquo;, no &laquo;X&raquo;. Si no puede nombrarse el contenido, la interfaz no se entiende.</td></tr><tr><td>Lee filas y columnas por separado</td><td>Una fila pregunta qu&eacute; produce un elemento; una columna qu&eacute; consume. Las dos pasadas atrapan omisiones distintas.</td></tr><tr><td>Cuenta las celdas pobladas</td><td>Ese conteo es el inventario de interfaces, y la primera estimaci&oacute;n realista del esfuerzo de coordinaci&oacute;n.</td></tr><tr><td>Una l&iacute;nea no es una definici&oacute;n</td><td>Unidades, marcos, temporizaci&oacute;n, formato y tolerancias son lo que hace compatibles a dos lados.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-es">
+        <p class="section-label">Errores comunes</p>
+        <h2>Qu&eacute; sale mal</h2>
+        <ul class="check-list"><li><strong>Contar interfaces desde el diagrama de bloques.</strong> Muestra las que alguien dibuj&oacute;, no las que existen.</li><li><strong>Dejar una celda en blanco sin visitarla.</strong> Un par no examinado se ve exactamente igual que un par sin interfaz.</li><li><strong>No declarar la convenci&oacute;n de direcci&oacute;n.</strong> Invertir <em>la fila alimenta a la columna</em> invierte en silencio toda interfaz de la p&aacute;gina.</li><li><strong>Marcar una celda con X.</strong> &laquo;Datos&raquo; tampoco es una definici&oacute;n. Nombra el contenido y, si se conoce, la magnitud.</li><li><strong>Mezclar niveles del &aacute;rbol de productos.</strong> Pares de niveles distintos no pueden compararse y el conteo no significa nada.</li><li><strong>Tomar una l&iacute;nea del diagrama por una definici&oacute;n de interfaz.</strong> Unidades, marcos, temporizaci&oacute;n, formato y tolerancias son lo que permite a dos equipos trabajar separados, y el Mars Climate Orbiter es lo que pasa cuando falta uno.</li></ul>
+      </section>
+
+      <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
+        <h2>Referencias</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 6.3.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=interface-modules" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 15: Interface</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adaptado de la Unidad IV del gui&oacute;n del curso Ingenier&iacute;a en Sistemas Aeroespaciales (AE506) de Carlos Alberto Molina Holgu&iacute;n. Cada n&uacute;mero de esta p&aacute;gina se recalcul&oacute; de forma independiente para ella; ninguna calculadora cubre este tema, as&iacute; que el rec&aacute;lculo es la &uacute;nica comprobaci&oacute;n disponible. El conteo de pares, el de poblados y el de intercambios dirigidos se tabularon de la matriz de interfaces y del diagrama N-cuadrado impresos en esta p&aacute;gina, as&iacute; que las cifras y las tablas no pueden discrepar.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="pbs-and-wbs.html?v=11"><span>Lecture anterior</span>&larr; PBS y WBS</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+
+      <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie k&ouml;nnen sollten</h2>
+        <ul><li>eine Schnittstellenmatrix aufbauen und begr&uuml;nden, warum leere Zellen so wichtig sind wie volle;</li><li>sie in ein N-Quadrat-Diagramm mit genannter Richtungskonvention &uuml;berf&uuml;hren;</li><li>eine Zeile und eine Spalte getrennt lesen und sagen, was jeder Durchgang zeigt;</li><li>das Schnittstelleninventar z&auml;hlen und daraus den Koordinationsaufwand sch&auml;tzen;</li><li>auflisten, was eine Schnittstellendefinition festlegen muss, bevor zwei Teams unabh&auml;ngig arbeiten.</li></ul>
+      </section>
+
+      <section id="physics-de">
+        <p class="section-label">Ingenieurtechnischer Kontext</p>
+        <h2>Sechs K&auml;sten und vier Linien</h2>
+        <p class="lead">Fragt man ein Team, wie viele Schnittstellen seine Architektur hat, kommt die Antwort vom Blockdiagramm an der Wand: sechs K&auml;sten, vier oder f&uuml;nf Linien. Es wirkt vollst&auml;ndig, weil es das Bild ist, das alle seit Monaten betrachten.</p><p>Sechs Elemente haben f&uuml;nfzehn m&ouml;gliche Paare, und alle f&uuml;nfzehn abzufragen ist etwas anderes, als die eingefallenen zu zeichnen. Paare ohne Linie sind keine fehlenden Schnittstellen &mdash; sie sind ungepr&uuml;fte, und im Diagramm sind beide nicht zu unterscheiden.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 520" role="img" aria-label="Schnittstellenmatrix: welche Paare wechselwirken">
+            <text x="140" y="101" text-anchor="end" font-size="12" fill="#3f5162">Nutzlast</text>
+            <text x="187" y="48" text-anchor="middle" font-size="12" fill="#3f5162" transform="translate(0,0)">Nutzlast</text>
+            <text x="140" y="175" text-anchor="end" font-size="12" fill="#3f5162">Avionik</text>
+            <text x="261" y="48" text-anchor="middle" font-size="12" fill="#3f5162" transform="translate(0,0)">Avionik</text>
+            <text x="140" y="249" text-anchor="end" font-size="12" fill="#3f5162">Energie</text>
+            <text x="335" y="48" text-anchor="middle" font-size="12" fill="#3f5162" transform="translate(0,0)">Energie</text>
+            <text x="140" y="323" text-anchor="end" font-size="12" fill="#3f5162">Komm</text>
+            <text x="409" y="48" text-anchor="middle" font-size="12" fill="#3f5162" transform="translate(0,0)">Komm</text>
+            <text x="140" y="397" text-anchor="end" font-size="12" fill="#3f5162">Struk./Therm.</text>
+            <text x="483" y="48" text-anchor="middle" font-size="12" fill="#3f5162" transform="translate(0,0)">Struk./Therm.</text>
+            <text x="140" y="471" text-anchor="end" font-size="12" fill="#3f5162">Boden</text>
+            <text x="557" y="48" text-anchor="middle" font-size="12" fill="#3f5162" transform="translate(0,0)">Boden</text>
+            <rect x="150" y="60" width="74" height="74" fill="#dfe7ee" stroke="#c9d4de"></rect>
+            <text x="187" y="102" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">&mdash;</text>
+            <rect x="224" y="60" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="261" y="102" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">D</text>
+            <rect x="298" y="60" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="335" y="102" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">E</text>
+            <rect x="372" y="60" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="446" y="60" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="483" y="102" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">M/T</text>
+            <rect x="520" y="60" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="150" y="134" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="187" y="176" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">D</text>
+            <rect x="224" y="134" width="74" height="74" fill="#dfe7ee" stroke="#c9d4de"></rect>
+            <text x="261" y="176" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">&mdash;</text>
+            <rect x="298" y="134" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="335" y="176" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">D/E</text>
+            <rect x="372" y="134" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="409" y="176" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">D</text>
+            <rect x="446" y="134" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="483" y="176" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">M/T</text>
+            <rect x="520" y="134" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="150" y="208" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="187" y="250" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">E</text>
+            <rect x="224" y="208" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="261" y="250" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">D/E</text>
+            <rect x="298" y="208" width="74" height="74" fill="#dfe7ee" stroke="#c9d4de"></rect>
+            <text x="335" y="250" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">&mdash;</text>
+            <rect x="372" y="208" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="409" y="250" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">E</text>
+            <rect x="446" y="208" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="483" y="250" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">M/T</text>
+            <rect x="520" y="208" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="150" y="282" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="224" y="282" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="261" y="324" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">D</text>
+            <rect x="298" y="282" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="335" y="324" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">E</text>
+            <rect x="372" y="282" width="74" height="74" fill="#dfe7ee" stroke="#c9d4de"></rect>
+            <text x="409" y="324" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">&mdash;</text>
+            <rect x="446" y="282" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="483" y="324" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">M/T</text>
+            <rect x="520" y="282" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="557" y="324" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">RF</text>
+            <rect x="150" y="356" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="187" y="398" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">M/T</text>
+            <rect x="224" y="356" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="261" y="398" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">M/T</text>
+            <rect x="298" y="356" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="335" y="398" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">M/T</text>
+            <rect x="372" y="356" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="409" y="398" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">M/T</text>
+            <rect x="446" y="356" width="74" height="74" fill="#dfe7ee" stroke="#c9d4de"></rect>
+            <text x="483" y="398" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">&mdash;</text>
+            <rect x="520" y="356" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="150" y="430" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="224" y="430" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="298" y="430" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="372" y="430" width="74" height="74" fill="#e8f1e9" stroke="#c9d4de"></rect>
+            <text x="409" y="472" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">RF</text>
+            <rect x="446" y="430" width="74" height="74" fill="#ffffff" stroke="#c9d4de"></rect>
+            <rect x="520" y="430" width="74" height="74" fill="#dfe7ee" stroke="#c9d4de"></rect>
+            <text x="557" y="472" text-anchor="middle" font-size="13" font-weight="600" fill="#3f5162">&mdash;</text>
+            <text x="400" y="538" text-anchor="middle" font-size="14" font-weight="600" fill="#071d33">10 von 15 Paaren belegt</text>
+            <text x="400" y="560" text-anchor="middle" font-size="12" fill="#3f5162">D = data &middot; E = electrical &middot; M = mechanical &middot; T = thermal &middot; RF = radio frequency</text>
+            </svg>
+            <figcaption>Die Schnittstellenmatrix. Ihr Wert ist nicht der Buchstabe in der Zelle, sondern die Frage, die sie zu allen f&uuml;nfzehn Paaren erzwingt &mdash; auch zu den f&uuml;nf leeren.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-de">
+        <p class="section-label">Geltungsbereich und Grenzen</p>
+        <h2>Zwei Werkzeuge, zwei Fragen</h2>
+        <p>Die <strong>Schnittstellenmatrix</strong> beantwortet, <em>ob</em> zwei Elemente wechselwirken. Sie f&uuml;hrt alle Elemente auf beiden Achsen und erzwingt zu jedem der \(N(N-1)/2\) Paare eine Frage: Wechselwirken diese beiden physisch, informationell, betrieblich, menschlich oder &uuml;ber die Umgebung? Die Antwort ist ein Typcode, ihr Zweck die Vollst&auml;ndigkeit.</p><p>Das <strong>N-Quadrat-Diagramm</strong> beantwortet, <em>was</em> flie&szlig;t und <em>in welche Richtung</em>. Es setzt die Elemente auf die Diagonale eines \(N\times N\)-Rasters und f&uuml;llt jede Nebenzelle mit dem Inhalt des Austauschs. Das brauchen Integrationsplanung und Schnittstellendokumente wirklich.</p>
+        <div class="callout warning"><strong>Was die Diagramme nicht leisten.</strong> Keines ist eine Definition. Eine belegte Zelle h&auml;lt fest, dass etwas flie&szlig;t und ungef&auml;hr was; sie legt weder Einheiten, Bezugssysteme, Zeitverhalten, Format, Toleranzen noch &Auml;nderungsbefugnis fest. Mit einer Matrix k&ouml;nnen zwei Teams nicht getrennt arbeiten &mdash; nur vereinbaren, dass sie reden m&uuml;ssen. Erst das Schnittstellendokument macht die Vereinbarung nutzbar.</div>
+      </section>
+
+      <section id="nsquared-de">
+        <p class="section-label">Die Richtung z&auml;hlt</p>
+        <h2>Das N-Quadrat-Diagramm f&uuml;llen</h2>
+        <p>Die hier genutzte Konvention lautet <em>Zeile liefert an Spalte</em>: Die Zelle in Zeile \(i\), Spalte \(j\) beschreibt, was Element \(i\) an Element \(j\) sendet. Ihre Umkehrung dreht stillschweigend jede Schnittstelle um &mdash; sie geh&ouml;rt ins Diagramm geschrieben, nicht vorausgesetzt.</p>
+        <div class="table-wrap"><table><thead><tr><th></th><th>Nutzlast</th><th>Avionik</th><th>Energie</th><th>Komm</th><th>Struk./Therm.</th><th>Boden</th></tr></thead><tbody><tr><td><strong>Nutzlast</strong></td><td>&mdash;</td><td>Daten, 4 Mbit/s Spitze</td><td>Lastprofil, 45 W Spitze</td><td></td><td>Montagelasten; 30 W</td><td></td></tr><tr><td><strong>Avionik</strong></td><td>Befehle; Zeitsync</td><td>&mdash;</td><td>Lastabwurfbefehle</td><td>Sendrahmen; TX frei</td><td>Heizerbefehle</td><td></td></tr><tr><td><strong>Energie</strong></td><td>28 V geregelt</td><td>5/28 V geregelt; Telemetrie</td><td>&mdash;</td><td>28 V geregelt, 60 W</td><td>Batterieverlustw&auml;rme</td><td></td></tr><tr><td><strong>Komm</strong></td><td></td><td>Empfangsrahmen; Status</td><td>TX-Taktanforderung</td><td>&mdash;</td><td>Antennenlasten; HF-W&auml;rme</td><td>HF-Abstrahlung S-Band</td></tr><tr><td><strong>Struk./Therm.</strong></td><td>Halterung; -35 bis +45 C</td><td>Halterung; Leittemperatur</td><td>Halterung; Batterietemp.</td><td>Halterung; Ausrichtung</td><td>&mdash;</td><td></td></tr><tr><td><strong>Boden</strong></td><td></td><td></td><td></td><td>HF-Empfang S-Band</td><td></td><td>&mdash;</td></tr></tbody></table></div>
+        <p>Lesen Sie es zweimal. Eine ganze Zeile fragt, <em>was dieses Element liefert</em>; eine ganze Spalte, <em>was es aufnimmt</em>. Eine leere Zeile bedeutet ein Element, das nichts liefert, eine leere Spalte eines, das nichts empf&auml;ngt &mdash; beides ein Befund, keine Tatsache.</p>
+      </section>
+
+      <section id="icd-de">
+        <p class="section-label">Von der Zelle zur Vereinbarung</p>
+        <h2>Was eine Schnittstellendefinition festlegen muss</h2>
+        <div class="table-wrap"><table><thead><tr><th>Eine Schnittstellendefinition muss festlegen</th><th>Weil sonst</th></tr></thead><tbody><tr><td>Einheiten und ihr Bezug</td><td>Zwei Teams bauen korrekte Produkte in verschiedenen Einheiten. Das kostete den Mars Climate Orbiter.</td></tr><tr><td>Koordinatensystem und Vorzeichenkonvention</td><td>Eine korrekte Zahl kommt mit falschem Vorzeichen an, und in keinem Teilsystem ist etwas falsch.</td></tr><tr><td>Zeitverhalten und Aktualisierungsrate</td><td>Die Daten stimmen und kommen zu sp&auml;t; keine statische Pr&uuml;fung erkennt das.</td></tr><tr><td>Format, Protokoll und Fehlerbehandlung</td><td>Beide Seiten funktionieren isoliert, und keine wei&szlig;, was die andere mit einem fehlerhaften Rahmen tut.</td></tr><tr><td>Bereich, Toleranz und Grenzwerte</td><td>Die Schnittstelle funktioniert im Normalbereich und versagt am nicht spezifizierten Rand.</td></tr><tr><td>Verantwortliche beidseits und &Auml;nderungsbefugnis</td><td>Die Definition ist korrekt und veraltet, sobald eine Seite sich &auml;ndert.</td></tr></tbody></table></div>
+        <p>Die erste Zeile ist keine historische Kuriosit&auml;t. Die Schnittstelle des Mars Climate Orbiter war dokumentiert, gepr&uuml;ft und vereinbart; nicht festgelegt war die Einheit einer Zahl &mdash; und die Mission ging an einer Schnittstelle verloren, die alle f&uuml;r definiert hielten.</p>
+      </section>
+
+      <section id="algorithm-de">
+        <p class="section-label">Rechenalgorithmus</p>
+        <h2>Jede Schnittstelle finden</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Eine Ebene des Produktbaums nehmen</span></div><div><strong>2</strong><span>Die externen Systeme erg&auml;nzen</span></div><div><strong>3</strong><span>Die Typcodes festlegen</span></div><div><strong>4</strong><span>Alle \(N(N-1)/2\) Paare besuchen</span></div><div><strong>5</strong><span>Die belegten Paare in ein gerichtetes Diagramm &uuml;berf&uuml;hren</span></div><div><strong>6</strong><span>Den Inhalt jeder Zelle benennen</span></div><div><strong>7</strong><span>Zeilen lesen, dann Spalten</span></div><div><strong>8</strong><span>Z&auml;hlen und Verantwortliche zuweisen</span></div></div>
+        <p>Schritt vier ist die ganze Methode. Ein Paar zu pr&uuml;fen und festzustellen, dass nichts quert, ist ein festhaltenswertes Ergebnis; es zu &uuml;berspringen l&auml;sst ein identisch aussehendes Leerfeld mit ganz anderer Bedeutung. Ebenen zu mischen erzeugt unvergleichbare Paare &mdash; der andere h&auml;ufige Fehlweg.</p>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Sechs Elemente, zwanzig Austausche</h2>
+        <p>Wenden Sie beide Werkzeuge auf die Plattform mit sechs Elementen an: Nutzlast, Avionik, Energie, Kommunikation, Struktur und Thermik sowie Bodensegment.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Die Paare.</strong> Sechs Elemente ergeben \[\frac{6\times5}{2} = 15\] Paare. Zehn sind belegt; f&uuml;nf haben tats&auml;chlich keinen &Uuml;bergang, und das festzuhalten geh&ouml;rt zum Ergebnis.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Die Austausche.</strong> Diese zehn Paare ergeben \(2\times10 = 20\) gerichtete Austausche im N-Quadrat-Diagramm &mdash; etwa das Vierfache des Wanddiagramms, und jeder braucht Definition, Verantwortliche und Verifikationsmethode.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Die Zeilen lesen.</strong> Struktur und Thermik ber&uuml;hrt vier der f&uuml;nf anderen Elemente. Das ist normal &mdash; die Struktur tr&auml;gt alles &mdash;, bedeutet aber, dass jede &Auml;nderung der Struktur fast &uuml;berall wirkt; dieses Element braucht die strengste &Auml;nderungslenkung im Projekt.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Die Bodenzeile lesen.</strong> Das Bodensegment ber&uuml;hrt genau ein Element &uuml;ber ein einziges HF-Paar. Die gesamte Datenr&uuml;ckf&uuml;hrung h&auml;ngt an dieser einen Schnittstelle &mdash; die konzentrierteste Schwachstelle der Architektur und der Grund, warum sie den Fehlerbaum aus Vorlesung 19 dominiert.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Die leeren Zellen.</strong> Nutzlast und Kommunikation tauschen nichts aus: Alle Wissenschaftsdaten laufen &uuml;ber die Avionik. Eine bewusste Architekturentscheidung mit Folge &mdash; die Avionik wird zum Einzelfehlerpunkt der Daten&uuml;bertragung und muss auf die volle Nutzlastrate ausgelegt werden, nicht auf die &Uuml;bertragungsrate.</div></div>
+        <div class="result-box">\[ \boxed{ 15\ \text{Paare},\; 10\ \text{belegt},\; 20\ \text{gerichtete Austausche} } \]</div>
+        <p><strong>Deutung.</strong> Zwanzig ist die entscheidende Zahl, etwa das Vierfache der Annahme des Teams. Jeder der zwanzig braucht Einheiten, Bezugssystem, Zeitverhalten, Format und beidseitige Verantwortliche &mdash; damit wird aus dem Nachmittagsdiagramm eine echte Sch&auml;tzung des Koordinationsaufwands dieser Architektur. Und zwar jetzt, bevor irgendetwas gebaut ist.</p>
+      </section>
+
+      <section id="summary-de">
+        <p class="section-label">Arbeitsregeln</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regel</th><th>Aussage</th></tr></thead><tbody><tr><td>Alle Paare abfragen</td><td>\(N\) Elemente ergeben \(N(N-1)/2\) Paare. Ein Leerfeld aus Nichthinsehen ist von &bdquo;keine Schnittstelle&ldquo; ununterscheidbar.</td></tr><tr><td>Das N-Quadrat-Diagramm ist gerichtet</td><td>Die Konvention geh&ouml;rt ins Diagramm: Dieser Kurs nutzt <em>Zeile liefert an Spalte</em>.</td></tr><tr><td>Den Inhalt nennen, keine Markierung</td><td>&bdquo;Daten, 4 Mbit/s Spitze&ldquo;, nicht &bdquo;X&ldquo;. Ist der Inhalt nicht benennbar, ist die Schnittstelle nicht verstanden.</td></tr><tr><td>Zeilen und Spalten getrennt lesen</td><td>Eine Zeile fragt, was ein Element liefert; eine Spalte, was es aufnimmt. Beide Durchg&auml;nge finden Verschiedenes.</td></tr><tr><td>Belegte Zellen z&auml;hlen</td><td>Diese Zahl ist das Schnittstelleninventar und die erste realistische Sch&auml;tzung des Koordinationsaufwands.</td></tr><tr><td>Eine Linie ist keine Definition</td><td>Einheiten, Bezugssysteme, Zeitverhalten, Format und Toleranzen machen zwei Seiten kompatibel.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Häufige Fehler</p>
+        <h2>Was schiefgeht</h2>
+        <ul class="check-list"><li><strong>Schnittstellen aus dem Blockdiagramm z&auml;hlen.</strong> Es zeigt die gezeichneten, nicht die vorhandenen.</li><li><strong>Eine Zelle unbesucht leer lassen.</strong> Ein ungepr&uuml;ftes Paar sieht genauso aus wie ein Paar ohne Schnittstelle.</li><li><strong>Die Richtungskonvention nicht nennen.</strong> Die Umkehr von <em>Zeile liefert an Spalte</em> dreht stillschweigend jede Schnittstelle um.</li><li><strong>Eine Zelle mit X markieren.</strong> &bdquo;Daten&ldquo; ist auch keine Definition. Nennen Sie Inhalt und, wenn bekannt, Gr&ouml;&szlig;e.</li><li><strong>Ebenen des Produktbaums mischen.</strong> Paare verschiedener Ebenen sind unvergleichbar, und die Z&auml;hlung bedeutet nichts.</li><li><strong>Eine Linie im Diagramm f&uuml;r eine Definition halten.</strong> Einheiten, Bezugssysteme, Zeitverhalten, Format und Toleranzen erlauben getrenntes Arbeiten &mdash; und der Mars Climate Orbiter zeigt, was bei einem fehlenden Punkt geschieht.</li></ul>
+      </section>
+
+      <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
+        <h2>Literatur</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 6.3.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=interface-modules" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 15: Interface</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Bearbeitet nach Einheit IV des Skripts Luft- und Raumfahrtsystemtechnik (AE506) von Carlos Alberto Molina Holgu&iacute;n. Jede Zahl dieser Seite wurde eigens daf&uuml;r unabh&auml;ngig neu berechnet; kein Rechner deckt dieses Thema ab, daher ist die Neuberechnung die einzige Pr&uuml;fung. Paarzahl, Belegungszahl und Zahl der gerichteten Austausche wurden aus der auf dieser Seite abgedruckten Schnittstellenmatrix und dem N-Quadrat-Diagramm ermittelt; Zahlen und Tabellen k&ouml;nnen nicht abweichen.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="pbs-and-wbs.html?v=11"><span>Vorherige Vorlesung</span>&larr; PBS und WBS</a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>&copy; <span id="year"></span> Carlos Alberto Molina Holgu&iacute;n</p>
+    <p>Universidad Aut&oacute;noma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

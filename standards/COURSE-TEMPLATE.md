@@ -22,8 +22,18 @@ course does not have to rediscover any of it.
 `lecture.css` and `lecture.js` are **copied into each course folder**, not
 linked from the repository root. They are ~19 kB and ~5 kB; duplicating them
 is cheaper than coupling every course to a single file that no course owns.
-Copy them from `aerodynamics-ii/` and do not edit them per course — if a change
-is needed, make it in every course folder at once.
+Copy them from `aerodynamics-ii/`. **`lecture.css` is identical in every course**
+— if it changes, it changes everywhere at once, in one commit, with `?v=N`
+raised.
+
+**`lecture.js` is not.** Its `ui` object is course-owned and *must* be edited on
+copy: it carries `course: "Aerodynamics II"` and one label per calculator that
+course uses. Copied unedited into `fluid-mechanics/`, the back button reads
+"Aerodynamics II" and the calculator keys name apps the course does not use. On
+copy, replace the `course` string in the three languages and replace the
+calculator keys with the ones this course actually links to. Everything below the
+`ui` object — the language switch, the storage, the MathJax rebuild — is shared
+and is changed everywhere at once.
 
 ---
 
@@ -159,9 +169,11 @@ somewhere different from the third.
 **Last lecture**: no next — use back-to-course, and let the `next-nav` close
 with the course index.
 
-The `data-ui-key` values available from `lecture.js` are `previous`, `next`,
-`back`, `home`, `course`, `tools`, `contents`, `calculator`, `nozzleCalculator`,
-`turbofanCalculator`, `turbojetCalculator`, `ramjetCalculator`, `repository`.
+The `data-ui-key` values every course has are `previous`, `next`, `back`, `home`,
+`course`, `tools`, `contents`, `repository`. On top of those, each course's
+`lecture.js` defines one key per calculator it links to — Aerodynamics II has
+`calculator`, `nozzleCalculator`, `turbofanCalculator`, `turbojetCalculator`,
+`ramjetCalculator`; another course defines its own and does not inherit these.
 Anything else must be written out three times inside the language articles.
 
 ---

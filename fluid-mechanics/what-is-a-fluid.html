@@ -1,0 +1,1853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="What distinguishes a fluid from a solid, the no-slip condition, the continuum hypothesis and the Knudsen number, flow classification, control volumes, and dimensional homogeneity." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>What a Fluid Is and How Flows Are Classified | Fluid Mechanics</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=11" data-ui-key="course">Fluid Mechanics</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+    <div data-language="en">
+      <p class="eyebrow">Fluid Mechanics · Lecture 01</p>
+      <h1>What a Fluid Is and How Flows Are Classified</h1>
+      <p class="hero-copy">The response to shear stress that separates a fluid from a solid, the no-slip condition, the limits of the continuum model, and the classification that decides which equations a problem needs.</p>
+    </div>
+
+    <div data-language="es" hidden>
+      <p class="eyebrow">Mecánica de Fluidos · Lecture 01</p>
+      <h1>Qué es un fluido y cómo se clasifican los flujos</h1>
+      <p class="hero-copy">La respuesta al esfuerzo cortante que separa a un fluido de un sólido, la condición de no deslizamiento, los límites del modelo continuo y la clasificación que decide qué ecuaciones necesita un problema.</p>
+    </div>
+
+    <div data-language="de" hidden>
+      <p class="eyebrow">Strömungsmechanik · Vorlesung 01</p>
+      <h1>Was ein Fluid ist und wie Strömungen klassifiziert werden</h1>
+      <p class="hero-copy">Die Reaktion auf Schubspannung, die ein Fluid von einem Festkörper trennt, die Haftbedingung, die Grenzen des Kontinuumsmodells und die Klassifikation, die über die benötigten Gleichungen entscheidet.</p>
+    </div>
+
+    <div class="hero-meta">
+      <span data-language="en">Estimated reading: 35 min</span><span data-language="es" hidden>Lectura estimada: 35 min</span><span data-language="de" hidden>Lesedauer: ca. 35 min</span>
+      <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+      <span data-language="en">Model: single-phase continuum</span><span data-language="es" hidden>Modelo: medio continuo monofásico</span><span data-language="de" hidden>Modell: einphasiges Kontinuum</span>
+    </div>
+    <div class="button-row">
+      <a class="button secondary" href="index.html?v=11" data-ui-key="back">Back to course</a>
+      <a class="button primary" href="fluid-properties-density.html?v=11"><span data-ui-key="next">Next lecture</span> →</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Physical picture</a>
+        <a href="#model">Model and assumptions</a>
+        <a href="#shear">Shear stress and the definition</a>
+        <a href="#noslip">The no-slip condition</a>
+        <a href="#classification">Classification of flows</a>
+        <a href="#controlvolume">System and control volume</a>
+        <a href="#dimensions">Dimensions and homogeneity</a>
+        <a href="#algorithm">Calculation algorithm</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Key equations</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#advanced">Further topics</a>
+        <a href="#references">Sources</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Panorama físico</a>
+        <a href="#model-es">Modelo e hipótesis</a>
+        <a href="#shear-es">Esfuerzo cortante y definición</a>
+        <a href="#noslip-es">Condición de no deslizamiento</a>
+        <a href="#classification-es">Clasificación de los flujos</a>
+        <a href="#controlvolume-es">Sistema y volumen de control</a>
+        <a href="#dimensions-es">Dimensiones y homogeneidad</a>
+        <a href="#algorithm-es">Algoritmo de cálculo</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Ecuaciones clave</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#advanced-es">Temas complementarios</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Physikalisches Bild</a>
+        <a href="#model-de">Modell und Annahmen</a>
+        <a href="#shear-de">Schubspannung und Definition</a>
+        <a href="#noslip-de">Die Haftbedingung</a>
+        <a href="#classification-de">Klassifikation der Strömungen</a>
+        <a href="#controlvolume-de">System und Kontrollvolumen</a>
+        <a href="#dimensions-de">Dimensionen und Homogenität</a>
+        <a href="#algorithm-de">Rechenalgorithmus</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Kerngleichungen</a>
+        <a href="#mistakes-de">Häufige Fehler</a>
+        <a href="#advanced-de">Weiterführende Themen</a>
+        <a href="#references-de">Quellen</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+      <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul>
+          <li>Explain why continuous deformation under any shear stress, however small, is what defines a fluid.</li>
+          <li>State the no-slip condition and explain why it forces a velocity gradient near every wall.</li>
+          <li>Decide whether the continuum model applies by evaluating the Knudsen number \(\mathrm{Kn}=\lambda/L\).</li>
+          <li>Classify a given flow as viscous or inviscid, internal or external, compressible or incompressible, laminar or turbulent, steady or unsteady.</li>
+          <li>Distinguish a closed system from a control volume, and choose the control surface where properties are known.</li>
+          <li>Use dimensional homogeneity to reject an incorrect equation before substituting any numbers.</li>
+        </ul>
+      </section>
+
+      <section id="physics">
+        <p class="section-label">Physical picture</p>
+        <h2>A fluid cannot hold a shear stress at rest</h2>
+        <p class="lead">
+          Push tangentially on a block of rubber and it deforms through a finite angle, then stops.
+          Push tangentially on water with the same stress and it never stops: it keeps deforming for
+          as long as the stress is applied. That difference — a finite strain versus an unbounded
+          strain rate — is the whole definition, and everything else in the course follows from it.
+        </p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 860 300" role="img" aria-label="A solid reaches a finite shear strain; a fluid deforms continuously">
+            <defs>
+              <marker id="fm1-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="#0d568d"></path>
+              </marker>
+            </defs>
+
+            <rect x="40" y="230" width="330" height="16" fill="#d8e2ea"></rect>
+            <line x1="40" y1="230" x2="370" y2="230" stroke="#071d33" stroke-width="4"></line>
+            <rect x="90" y="110" width="200" height="120" fill="none" stroke="#607181" stroke-width="2" stroke-dasharray="6 5"></rect>
+            <polygon points="90,230 290,230 345,110 145,110" fill="#eaf4fb" stroke="#071d33" stroke-width="3"></polygon>
+            <line x1="145" y1="100" x2="255" y2="100" stroke="#0d568d" stroke-width="4" marker-end="url(#fm1-arrow)"></line>
+            <text x="265" y="106" font-size="19" fill="#0d568d">F</text>
+            <text x="100" y="180" font-size="18" fill="#071d33">solid</text>
+            <text x="118" y="204" font-size="17" fill="#607181">α stops</text>
+            <text x="40" y="278" font-size="17" fill="#607181">(a) finite strain, then equilibrium</text>
+
+            <rect x="490" y="230" width="330" height="16" fill="#d8e2ea"></rect>
+            <line x1="490" y1="230" x2="820" y2="230" stroke="#071d33" stroke-width="4"></line>
+            <rect x="540" y="110" width="200" height="120" fill="none" stroke="#607181" stroke-width="2" stroke-dasharray="6 5"></rect>
+            <polygon points="540,230 740,230 775,110 575,110" fill="none" stroke="#d67b28" stroke-width="2"></polygon>
+            <polygon points="540,230 740,230 815,110 615,110" fill="none" stroke="#d67b28" stroke-width="2"></polygon>
+            <polygon points="540,230 740,230 745,110 545,110" fill="#fdf1e5" stroke="#d67b28" stroke-width="3"></polygon>
+            <line x1="545" y1="100" x2="655" y2="100" stroke="#0d568d" stroke-width="4" marker-end="url(#fm1-arrow)"></line>
+            <text x="665" y="106" font-size="19" fill="#0d568d">F</text>
+            <text x="552" y="180" font-size="18" fill="#071d33">fluid</text>
+            <text x="562" y="204" font-size="17" fill="#607181">α grows</text>
+            <text x="490" y="278" font-size="17" fill="#607181">(b) unbounded strain: this is flow</text>
+          </svg>
+          <figcaption>
+            The same tangential stress applied to a solid and to a fluid. The solid reaches equilibrium
+            at a finite angle; the fluid keeps deforming, and that continuous deformation is what we call flow.
+          </figcaption>
+        </figure>
+
+        <div class="callout success">
+          <strong>Consequence for statics.</strong> A fluid at rest cannot sustain a net tangential stress —
+          if it could, it would be deforming and therefore not at rest. So in hydrostatics the only stress
+          left is the normal one, and we call it pressure. Lectures 04 to 08 are built entirely on that sentence.
+        </div>
+      </section>
+
+      <section id="model">
+        <p class="section-label">Model and assumptions</p>
+        <h2>The continuum hypothesis</h2>
+        <p>
+          Matter is molecular, but engineering fluid mechanics treats it as a <strong>continuum</strong>:
+          density, pressure, temperature and velocity are taken to be continuous functions of position and time,
+        </p>
+        <div class="equation-card">
+          \[
+          \rho=\rho(x,y,z,t),\qquad p=p(x,y,z,t),\qquad \vec{V}=\vec{V}(x,y,z,t).
+          \]
+        </div>
+        <p>
+          This is legitimate when a volume small enough to be treated as a point still contains enough molecules
+          for the average to be steady. In a gas, the relevant molecular length is the <strong>mean free path</strong>
+          \(\lambda\), the average distance a molecule travels between collisions, and the test is the
+          <strong>Knudsen number</strong>:
+        </p>
+        <div class="equation-card">
+          \[
+          \boxed{\ \mathrm{Kn}=\frac{\lambda}{L}\ }
+          \]
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Range</th><th>Recommended model</th></tr></thead>
+            <tbody>
+              <tr><td>\(\mathrm{Kn}&lt;0.01\)</td><td>Ordinary continuum</td></tr>
+              <tr><td>\(0.01\lesssim\mathrm{Kn}&lt;0.1\)</td><td>Continuum with slip corrections</td></tr>
+              <tr><td>\(0.1\lesssim\mathrm{Kn}&lt;10\)</td><td>Transition regime</td></tr>
+              <tr><td>\(\mathrm{Kn}\gtrsim10\)</td><td>Free molecular flow</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>The rest of the model, carried by every lecture in this course unless stated otherwise:</p>
+        <ul>
+          <li>a single phase, homogeneous and chemically inert;</li>
+          <li>properties defined at every point, so derivatives such as \(\partial u/\partial y\) exist;</li>
+          <li>the fluid adheres to solid walls (the no-slip condition below);</li>
+          <li>absolute pressure and absolute temperature in every thermodynamic relation.</li>
+        </ul>
+
+        <div class="callout warning">
+          <strong>What the model does not claim.</strong> It does not claim that the continuum is universally valid.
+          It fails in rarefied gases — high vacuum, the upper atmosphere, micro- and nano-channels — where
+          \(\mathrm{Kn}\) is no longer small, and near a shock wave, whose thickness is a few mean free paths.
+          It also says nothing about multiphase flow, cavitating flow, or flows where chemical reaction changes
+          the composition. In those cases the equations of this course are not corrected; they are replaced.
+        </div>
+      </section>
+
+      <section id="shear">
+        <p class="section-label">Central definition</p>
+        <h2>Stress, and the response that defines a fluid</h2>
+
+        <p>Stress is force per unit area. Splitting the force acting on a surface element into a normal and a tangential part gives</p>
+
+        <div class="equation-card">
+          \[
+          \sigma=\frac{F_n}{A},\qquad \tau=\frac{F_t}{A}.
+          \]
+        </div>
+
+        <p>
+          An elastic solid resists a shear stress \(\tau\) by deforming through a finite angle \(\alpha\);
+          remove the load below the elastic limit and it returns. A fluid subjected to any \(\tau&gt;0\),
+          however small, deforms <em>continuously</em>. The relevant kinematic quantity is therefore not the
+          strain \(\alpha\) but the strain rate \(\dot{\alpha}=d\alpha/dt\), and it never reaches equilibrium
+          while \(\tau\) is applied.
+        </p>
+
+        <div class="definition-grid">
+          <div class="definition"><strong>Solid</strong><span>\(\tau \mapsto \alpha\) finite</span></div>
+          <div class="definition"><strong>Fluid</strong><span>\(\tau \mapsto \dot{\alpha}\) sustained</span></div>
+        </div>
+
+        <p>
+          Liquids and gases are both fluids by this test, and they differ only in degree. A liquid holds an almost
+          fixed volume and can form a free surface; a gas expands to fill its container and has no stable free
+          surface. The distinction matters for which terms survive in an equation, not for the definition itself.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Feature</th><th>Liquid</th><th>Gas</th></tr></thead>
+            <tbody>
+              <tr><td>Volume</td><td>Approximately fixed</td><td>Fills the container</td></tr>
+              <tr><td>Free surface</td><td>Forms one under gravity</td><td>None in a closed vessel</td></tr>
+              <tr><td>Compressibility</td><td>Usually negligible</td><td>May dominate the problem</td></tr>
+              <tr><td>Intermolecular forces</td><td>Relatively strong</td><td>Relatively weak</td></tr>
+              <tr><td>Examples</td><td>Water, oil, fuel, mercury</td><td>Air, helium, nitrogen, steam</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>
+          One vocabulary note that returns in Lecture 02: a <strong>gas</strong> is far from condensation,
+          whereas a <strong>vapour</strong> is a gaseous phase near saturation. The difference is what makes
+          vapour pressure and cavitation meaningful.
+        </p>
+      </section>
+
+      <section id="noslip">
+        <p class="section-label">Wall boundary condition</p>
+        <h2>The no-slip condition</h2>
+
+        <p>Experiment shows that fluid in direct contact with a solid surface takes the velocity of that surface:</p>
+
+        <div class="equation-card">
+          \[
+          \boxed{\ \vec{V}_{\text{fluid at wall}}=\vec{V}_{\text{wall}}\ }
+          \]
+        </div>
+
+        <p>
+          For a stationary wall this reduces to \(\vec{V}=\vec{0}\) at the surface. The condition is not a
+          separate law; it is an observed consequence of molecular interaction between fluid and solid, and it
+          is the boundary condition that closes almost every problem in this course.
+        </p>
+
+        <p>
+          Its immediate consequence is that a velocity gradient must exist near every wall. Far from the surface
+          the fluid moves at the free-stream speed \(U\); at the surface it moves at zero. The region across which
+          that adjustment happens is the <strong>boundary layer</strong>, and inside it the shear stresses that
+          Lecture 03 quantifies are large. Outside it, an inviscid approximation is often defensible.
+        </p>
+
+        <div class="callout">
+          <strong>Read it carefully.</strong> No-slip does not say that the fluid stops. It says that the layer in
+          immediate contact with the wall shares the wall's velocity. Everything above it changes speed gradually,
+          and viscosity is what transmits that change outward.
+        </div>
+      </section>
+
+      <section id="classification">
+        <p class="section-label">Model selection</p>
+        <h2>Classifying a flow chooses its equations</h2>
+
+        <p>
+          A flow is classified along several independent axes at once, and each axis removes or keeps a term in the
+          governing equations. Air over a car is simultaneously external, viscous, turbulent, effectively
+          incompressible, three-dimensional, and steady on average.
+        </p>
+
+        <h3>Viscous and inviscid</h3>
+        <p>
+          Every real fluid has viscosity. <em>Inviscid</em> is a statement about the region being analysed, not about
+          the fluid: it means the viscous terms are small there compared with pressure and inertia. It is an
+          approximation that must be justified, never a property of the substance.
+        </p>
+
+        <h3>Internal, external, and open channel</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Type</th><th>Physical feature</th><th>Examples</th></tr></thead>
+            <tbody>
+              <tr><td>Internal</td><td>Fluid fully confined by walls</td><td>Full pipe, duct, heat exchanger</td></tr>
+              <tr><td>External</td><td>Body immersed in an unconfined stream</td><td>Aerofoil, car, cylinder, building</td></tr>
+              <tr><td>Open channel</td><td>Liquid with a free surface</td><td>River, canal, partly filled drain</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Compressible and incompressible</h3>
+        <p>
+          A flow is incompressible when the density of a fluid particle changes negligibly along its path.
+          For gases the decision is made with the Mach number, \(\mathrm{Ma}=V/c\), where \(c\) is the local speed
+          of sound derived in Lecture 02:
+        </p>
+        <div class="equation-card">
+          \[
+          \mathrm{Ma}&lt;0.3\quad\Longrightarrow\quad\text{the incompressible approximation is usually acceptable.}
+          \]
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Regime</th><th>Approximate range</th></tr></thead>
+            <tbody>
+              <tr><td>Low speed, compressibility usually small</td><td>\(\mathrm{Ma}&lt;0.3\)</td></tr>
+              <tr><td>Compressible subsonic</td><td>\(0.3\lesssim\mathrm{Ma}&lt;0.8\)</td></tr>
+              <tr><td>Transonic</td><td>\(0.8\lesssim\mathrm{Ma}\lesssim1.2\)</td></tr>
+              <tr><td>Supersonic</td><td>\(1.2\lesssim\mathrm{Ma}&lt;5\)</td></tr>
+              <tr><td>Hypersonic</td><td>\(\mathrm{Ma}\gtrsim5\)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          The threshold is a criterion on the flow, not on the fluid. Air is compressible; a flow of air at
+          \(\mathrm{Ma}=0.05\) is not. The caveat is that \(\mathrm{Ma}&lt;0.3\) assumes no intense heating and no
+          large imposed pressure change.
+        </p>
+
+        <h3>Laminar, transitional, and turbulent</h3>
+        <p>
+          Laminar flow moves in orderly layers with little transverse mixing; turbulent flow carries irregular
+          fluctuations, intense mixing and vortical structures. The parameter that separates them is the
+          Reynolds number,
+        </p>
+        <div class="equation-card">
+          \[
+          \boxed{\ \mathrm{Re}=\frac{\rho V L}{\mu}=\frac{V L}{\nu}\ }
+          \]
+        </div>
+        <p>
+          where \(L\) is the characteristic length of the geometry: the diameter in a pipe, the chord of an
+          aerofoil, the distance from the leading edge on a flat plate, or the hydraulic diameter of a duct.
+          The Reynolds number compares inertial to viscous forces — small values mean viscous dominance, large
+          values mean inertial dominance and a greater likelihood of turbulence. The numerical threshold depends
+          on the geometry and is not universal: about \(2300\) in a circular pipe, about \(5\times10^{5}\) on a
+          smooth flat plate.
+        </p>
+
+        <h3>Steady and unsteady, uniform and non-uniform</h3>
+        <p>
+          A flow is steady when properties at a fixed point in space do not change with time,
+          \(\partial(\cdot)/\partial t=0\), and unsteady otherwise. It is uniform when a property does not change
+          from point to point, \(\nabla(\cdot)=0\), and non-uniform otherwise. These are independent: fully
+          developed pipe flow is steady but not uniform across the section.
+        </p>
+
+        <h3>Dimensionality</h3>
+        <p>
+          One-, two- or three-dimensional refers to how many coordinates the relevant changes need — the average
+          flow in a long pipe is one-dimensional, the ideal flow over a high-aspect-ratio wing is
+          two-dimensional, and the flow around a finite wing is three-dimensional.
+        </p>
+
+        <div class="callout success">
+          <strong>Practical habit.</strong> Before touching an equation, write a one-line classification card:
+          fluid, geometry, expected regime, whether compressibility, viscosity, gravity or a free surface matter,
+          and whether the problem is time-dependent. That card selects the equations; skipping it is what produces
+          a correct calculation of the wrong model.
+        </div>
+      </section>
+
+      <section id="controlvolume">
+        <p class="section-label">Frame of analysis</p>
+        <h2>System, boundary, and control volume</h2>
+
+        <p>
+          A <strong>system</strong> (or control mass) is a fixed quantity of matter chosen for analysis; everything
+          else is the <strong>surroundings</strong>, and the real or imaginary surface between them is the
+          <strong>boundary</strong>. Choosing instead a region of space fixed relative to the observer gives a
+          <strong>control volume</strong>, whose boundary is the <strong>control surface</strong>.
+        </p>
+
+        <div class="definition-grid">
+          <div class="definition"><strong>Closed system</strong><span>Fixed mass; energy may cross, mass may not</span></div>
+          <div class="definition"><strong>Control volume</strong><span>Mass, momentum and energy may all cross</span></div>
+        </div>
+
+        <p>
+          Fluid mechanics works almost entirely with control volumes, because following a fixed parcel of fluid
+          through a pump is far less useful than watching what crosses the inlet and outlet. Lecture 12 makes the
+          translation between the two viewpoints exact through the Reynolds transport theorem; until then, the
+          control volume is used directly.
+        </p>
+
+        <p>
+          The choice of control volume is not unique — it is a modelling decision, and a good one cuts the inlets
+          and outlets where properties are known or can reasonably be approximated:
+        </p>
+        <ul>
+          <li>for a pump, surfaces at the inlet and outlet where pressure, flow rate and elevation are known;</li>
+          <li>for a nozzle, sections where area and two thermodynamic properties are known;</li>
+          <li>for an elbow, a volume enclosing the whole fitting, so the force appears as a reaction;</li>
+          <li>for a tank being filled or drained, the fluid inside the tank.</li>
+        </ul>
+
+        <div class="callout">
+          <strong>The first step is not a formula.</strong> It is a sketch: draw the control volume, mark inlets and
+          outlets, fix the sign convention, and write the assumptions. Every later lecture in this course assumes
+          that step has been taken.
+        </div>
+      </section>
+
+      <section id="dimensions">
+        <p class="section-label">Dimensional consistency</p>
+        <h2>Dimensions, units, and homogeneity</h2>
+
+        <p>
+          A <strong>dimension</strong> is the physical kind of a quantity — mass, length, time, temperature.
+          A <strong>unit</strong> is a particular way of measuring it — kilogram, metre, second, kelvin. Pressure has
+          the dimension of force per area,
+        </p>
+        <div class="equation-card">
+          \[
+          [p]=\frac{[F]}{[L]^{2}}=\frac{m\,l\,t^{-2}}{l^{2}}=m\,l^{-1}t^{-2},
+          \qquad 1\ \text{Pa}=1\ \frac{\text{N}}{\text{m}^{2}}=1\ \frac{\text{kg}}{\text{m}\cdot\text{s}^{2}}.
+          \]
+        </div>
+
+        <p>
+          An equation is <strong>dimensionally homogeneous</strong> when every term that is added or equated carries
+          the same dimensions. In the head form of the Bernoulli equation, which Lecture 14 derives,
+        </p>
+        <div class="equation-card">
+          \[
+          \frac{p}{\rho g}+\frac{V^{2}}{2g}+z=\text{constant},
+          \]
+        </div>
+        <p>all three terms are lengths. Checking the first one:</p>
+        <div class="equation-card">
+          \[
+          \frac{p}{\rho g}
+          =\frac{\text{N}/\text{m}^{2}}{(\text{kg}/\text{m}^{3})(\text{m}/\text{s}^{2})}
+          =\frac{\text{kg}/(\text{m}\cdot\text{s}^{2})}{\text{kg}/(\text{m}^{2}\cdot\text{s}^{2})}
+          =\text{m}.
+          \]
+        </div>
+        <p>
+          So \(p/(\rho g)\) is a length, and in hydraulics it is called the <em>pressure head</em>. The same check
+          catches conversion errors before a calculation is finished.
+        </p>
+
+        <div class="callout success">
+          <strong>The asymmetry that makes it useful.</strong> Dimensional homogeneity does not prove an equation
+          right, but an equation that is not homogeneous is certainly wrong. It is a cheap one-way test, and
+          Lecture 20 turns it into a systematic method.
+        </div>
+
+        <h3>Absolute and gauge pressure</h3>
+        <p>Thermodynamic relations require absolute pressure. The conversion is</p>
+        <div class="equation-card">
+          \[
+          p_{\text{abs}}=p_{\text{gauge}}+p_{\text{atm}},
+          \qquad
+          p_{\text{abs}}=p_{\text{atm}}-p_{\text{vac}}.
+          \]
+        </div>
+        <p>
+          Substituting a gauge pressure into \(p=\rho R T\) is one of the most common errors in the course, and it
+          is silent: the number produced is plausible and wrong. Temperature must likewise be absolute — kelvin or
+          rankine.
+        </p>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">Calculation algorithm</p>
+        <h2>The protocol used in every worked example</h2>
+
+        <div class="process-flow">
+          <div><strong>1</strong><span>State what is asked</span></div>
+          <div><strong>2</strong><span>Sketch the system or control volume</span></div>
+          <div><strong>3</strong><span>List data with units</span></div>
+          <div><strong>4</strong><span>Declare assumptions</span></div>
+          <div><strong>5</strong><span>Classify the flow, then select equations</span></div>
+          <div><strong>6</strong><span>Substitute in consistent units</span></div>
+          <div><strong>7</strong><span>Check magnitude, units, sign, and physical sense</span></div>
+        </div>
+
+        <p>
+          Step 5 is the one students skip. It is also the one that decides whether the answer means anything:
+          the arithmetic of step 6 cannot repair a model chosen without it.
+        </p>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>Classifying the flow over a flat plate</h2>
+
+        <div class="example">
+          <p>
+            Air at \(T=20\ ^\circ\text{C}\) and \(p=101.325\ \text{kPa}\) flows at \(V=25\ \text{m/s}\) over a flat
+            plate of length \(L=0.60\ \text{m}\). Take \(R=287\ \text{J/(kg}\cdot\text{K)}\), \(\gamma=1.4\),
+            \(\mu=1.825\times10^{-5}\ \text{kg/(m}\cdot\text{s)}\), an effective molecular diameter
+            \(d=3.7\times10^{-10}\ \text{m}\), and \(k_B=1.380649\times10^{-23}\ \text{J/K}\).
+            Is the continuum model valid? Is the flow compressible? Is it laminar at the trailing edge?
+          </p>
+
+          <div class="solution-step"><span class="solution-step-number">1</span><div>
+            Density from the ideal-gas relation, with absolute pressure and absolute temperature:
+            \[\rho=\frac{p}{RT}=\frac{101\,325}{(287)(293.15)}=\frac{101\,325}{84\,134.05}=1.2043\ \text{kg/m}^3.\]
+          </div></div>
+
+          <div class="solution-step"><span class="solution-step-number">2</span><div>
+            Mean free path, from kinetic theory:
+            \[\lambda=\frac{k_B T}{\sqrt{2}\,\pi d^{2} p}
+            =\frac{(1.380649\times10^{-23})(293.15)}{\sqrt{2}\,\pi(3.7\times10^{-10})^{2}(101\,325)}
+            =6.567\times10^{-8}\ \text{m}.\]
+          </div></div>
+
+          <div class="solution-step"><span class="solution-step-number">3</span><div>
+            Knudsen number against the plate length:
+            \[\mathrm{Kn}=\frac{\lambda}{L}=\frac{6.567\times10^{-8}}{0.60}=1.09\times10^{-7}\ \ll\ 0.01.\]
+            The continuum model applies with a margin of five orders of magnitude.
+          </div></div>
+
+          <div class="solution-step"><span class="solution-step-number">4</span><div>
+            Speed of sound and Mach number:
+            \[c=\sqrt{\gamma R T}=\sqrt{(1.4)(287)(293.15)}=343.20\ \text{m/s},
+            \qquad \mathrm{Ma}=\frac{25}{343.20}=0.0728.\]
+            Well below \(0.3\), so the flow is treated as incompressible.
+          </div></div>
+
+          <div class="solution-step"><span class="solution-step-number">5</span><div>
+            Reynolds number at the trailing edge:
+            \[\mathrm{Re}_L=\frac{\rho V L}{\mu}=\frac{(1.2043)(25)(0.60)}{1.825\times10^{-5}}=9.90\times10^{5}.\]
+            Above the flat-plate transition value of roughly \(5\times10^{5}\), so the boundary layer is
+            turbulent well before the trailing edge.
+          </div></div>
+
+          <div class="result-box">
+            \[
+            \boxed{
+            \mathrm{Kn}=1.09\times10^{-7},\quad
+            \mathrm{Ma}=0.0728,\quad
+            \mathrm{Re}_L=9.90\times10^{5}
+            }
+            \]
+          </div>
+
+          <p>
+            <strong>Interpretation.</strong> The classification card reads: external, viscous, incompressible,
+            continuum, steady, two-dimensional, turbulent over most of the plate. That card, not the three numbers,
+            is the deliverable — it is what tells you which equations the rest of the course lets you use here.
+          </p>
+        </div>
+      </section>
+
+      <section id="summary">
+        <p class="section-label">Key equations</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Relation</th><th>Expression</th><th>Applies when</th></tr></thead>
+            <tbody>
+              <tr><td>Normal and shear stress</td><td>\(\sigma=F_n/A,\quad \tau=F_t/A\)</td><td>always</td></tr>
+              <tr><td>No-slip condition</td><td>\(\vec{V}_{\text{fluid at wall}}=\vec{V}_{\text{wall}}\)</td><td>viscous fluid on a solid surface</td></tr>
+              <tr><td>Knudsen number</td><td>\(\mathrm{Kn}=\lambda/L\)</td><td>continuum valid for \(\mathrm{Kn}&lt;0.01\)</td></tr>
+              <tr><td>Mach number</td><td>\(\mathrm{Ma}=V/c\)</td><td>incompressible approximation for \(\mathrm{Ma}&lt;0.3\)</td></tr>
+              <tr><td>Reynolds number</td><td>\(\mathrm{Re}=\rho V L/\mu=VL/\nu\)</td><td>threshold depends on geometry</td></tr>
+              <tr><td>Steady flow</td><td>\(\partial(\cdot)/\partial t=0\)</td><td>at a fixed point in space</td></tr>
+              <tr><td>Uniform flow</td><td>\(\nabla(\cdot)=0\)</td><td>over the region considered</td></tr>
+              <tr><td>Absolute pressure</td><td>\(p_{\text{abs}}=p_{\text{gauge}}+p_{\text{atm}}\)</td><td>required in all thermodynamic relations</td></tr>
+              <tr><td>Ideal gas</td><td>\(p=\rho R T\)</td><td>absolute \(p\) and \(T\) only</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="mistakes">
+        <p class="section-label">Common mistakes</p>
+        <h2>Common mistakes</h2>
+        <ul class="check-list">
+          <li><strong>Calling a fluid "inviscid".</strong> Inviscid describes a region of a flow where viscous terms are negligible, not a substance. Every real fluid has viscosity; the approximation has to be justified for the region, and it fails inside every boundary layer.</li>
+          <li><strong>Substituting gauge pressure into \(p=\rho R T\).</strong> Thermodynamic relations need absolute pressure and absolute temperature. The result of using gauge pressure is a wrong density that looks entirely reasonable.</li>
+          <li><strong>Treating \(\mathrm{Ma}&lt;0.3\) as a property of air.</strong> It is a criterion on the flow. The same air is compressible in a nozzle and incompressible in a ventilation duct.</li>
+          <li><strong>Using \(\mathrm{Re}=2300\) everywhere.</strong> That threshold belongs to circular pipes. A flat plate transitions near \(5\times10^{5}\), and the characteristic length \(L\) must match the geometry the threshold was measured on.</li>
+          <li><strong>Confusing steady with uniform.</strong> Steady means no change in time at a point; uniform means no change from point to point. Fully developed pipe flow is steady and strongly non-uniform.</li>
+          <li><strong>Reading no-slip as "the fluid stops at the wall".</strong> It means the fluid at the wall matches the wall's velocity. On a moving wall that velocity is not zero, and the whole of Couette flow depends on it.</li>
+          <li><strong>Assuming the continuum always holds.</strong> It is a hypothesis with a test. In the upper atmosphere, in high vacuum and in microchannels, \(\mathrm{Kn}\) is not small and the equations of this course do not apply.</li>
+          <li><strong>Reporting more significant figures than the data carry.</strong> Keep extra digits in intermediate steps, then round at the end according to the input uncertainty. Writing \(\dot{\mathcal{V}}=0.003718526\ \text{m}^3/\text{s}\) from two-figure data claims a precision that does not exist.</li>
+        </ul>
+      </section>
+
+      <section id="advanced">
+        <p class="section-label">Further topics</p>
+        <h2>Deferred to later lectures</h2>
+        <p>
+          This lecture names several quantities without deriving them, so that the classification can be done on
+          day one. Each is developed where it belongs:
+        </p>
+        <ul>
+          <li><strong>Density, specific weight and specific gravity</strong>, vapour pressure and cavitation, bulk modulus and the speed of sound \(c\) — Lecture 02.</li>
+          <li><strong>Viscosity</strong> \(\mu\) and \(\nu\), Newton's law of viscosity, non-Newtonian behaviour, and surface tension — Lecture 03.</li>
+          <li><strong>Pressure as the surviving stress in a fluid at rest</strong> — Lectures 04 to 08.</li>
+          <li><strong>The exact translation between system and control volume</strong> — the Reynolds transport theorem, Lecture 12.</li>
+          <li><strong>Why \(\mathrm{Re}\), \(\mathrm{Ma}\) and the other groups are the right parameters at all</strong> — dimensional analysis, Lectures 20 to 23.</li>
+        </ul>
+        <p>
+          Slip-corrected and rarefied-gas models, and the kinetic theory behind the mean free path, are outside the
+          scope of MC611 and are treated in a gas-dynamics or microfluidics course.
+        </p>
+      </section>
+
+      <section id="references" class="references">
+        <p class="section-label">Sources</p>
+        <h2>References</h2>
+        <ol>
+          <li>Çengel, Y. A., and J. M. Cimbala. <em>Fluid Mechanics: Fundamentals and Applications</em>, 4th ed. New York: McGraw-Hill Education, 2018, Chapters 1 and 2.</li>
+          <li>White, F. M. <em>Fluid Mechanics</em>, 8th ed. New York: McGraw-Hill Education, 2016, Chapter 1.</li>
+          <li>Newell, D. B., and E. Tiesinga, eds. <a href="https://physics.nist.gov/cuu/Constants/" target="_blank" rel="noopener noreferrer"><em>The International System of Units (SI)</em>, NIST Special Publication 330</a>. Gaithersburg, MD: National Institute of Standards and Technology, 2019.</li>
+          <li>Mott, R. L., and J. A. Untener. <em>Applied Fluid Mechanics</em>, 7th ed. Upper Saddle River, NJ: Pearson, 2015, Chapter 1.</li>
+          <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Mecánica de Fluidos (MC611)</em>. Chihuahua, Mexico.</li>
+        </ol>
+        <p class="source-note">Adapted from Unit I of the Fluid Mechanics (MC611) course notes by Carlos Alberto Molina Holguín. Every number in the worked example was recomputed independently for this page; none was transcribed from the script or from a table.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="index.html?v=11"><span>Course index</span>← All 36 lectures</a>
+        <a class="next-link" href="fluid-properties-density.html?v=11"><span>Next lecture</span>Density, Vapour Pressure, and Compressibility →</a>
+      </nav>
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+      <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Lo que debe poder hacer</h2>
+        <ul>
+          <li>Explicar por qué la deformación continua ante cualquier esfuerzo cortante, por pequeño que sea, es lo que define a un fluido.</li>
+          <li>Enunciar la condición de no deslizamiento y explicar por qué obliga a que exista un gradiente de velocidad junto a toda pared.</li>
+          <li>Decidir si aplica el modelo continuo evaluando el número de Knudsen \(\mathrm{Kn}=\lambda/L\).</li>
+          <li>Clasificar un flujo dado como viscoso o invíscido, interno o externo, compresible o incompresible, laminar o turbulento, estacionario o no estacionario.</li>
+          <li>Distinguir un sistema cerrado de un volumen de control, y elegir la superficie de control donde las propiedades se conocen.</li>
+          <li>Usar la homogeneidad dimensional para descartar una ecuación incorrecta antes de sustituir números.</li>
+        </ul>
+      </section>
+
+      <section id="physics-es">
+        <p class="section-label">Panorama físico</p>
+        <h2>Un fluido no puede sostener un esfuerzo cortante en reposo</h2>
+        <p class="lead">
+          Empuje tangencialmente un bloque de hule y se deforma un ángulo finito, y ahí se detiene.
+          Empuje tangencialmente el agua con el mismo esfuerzo y nunca se detiene: sigue deformándose mientras
+          el esfuerzo se aplique. Esa diferencia — una deformación finita frente a una razón de deformación
+          sostenida — es toda la definición, y de ella se sigue el resto del curso.
+        </p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 860 300" role="img" aria-label="Un sólido alcanza una deformación finita; un fluido se deforma continuamente">
+            <defs>
+              <marker id="fm1-arrow-es" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="#0d568d"></path>
+              </marker>
+            </defs>
+
+            <rect x="40" y="230" width="330" height="16" fill="#d8e2ea"></rect>
+            <line x1="40" y1="230" x2="370" y2="230" stroke="#071d33" stroke-width="4"></line>
+            <rect x="90" y="110" width="200" height="120" fill="none" stroke="#607181" stroke-width="2" stroke-dasharray="6 5"></rect>
+            <polygon points="90,230 290,230 345,110 145,110" fill="#eaf4fb" stroke="#071d33" stroke-width="3"></polygon>
+            <line x1="145" y1="100" x2="255" y2="100" stroke="#0d568d" stroke-width="4" marker-end="url(#fm1-arrow-es)"></line>
+            <text x="265" y="106" font-size="19" fill="#0d568d">F</text>
+            <text x="100" y="180" font-size="18" fill="#071d33">sólido</text>
+            <text x="112" y="204" font-size="17" fill="#607181">α se detiene</text>
+            <text x="40" y="278" font-size="17" fill="#607181">(a) deformación finita y equilibrio</text>
+
+            <rect x="490" y="230" width="330" height="16" fill="#d8e2ea"></rect>
+            <line x1="490" y1="230" x2="820" y2="230" stroke="#071d33" stroke-width="4"></line>
+            <rect x="540" y="110" width="200" height="120" fill="none" stroke="#607181" stroke-width="2" stroke-dasharray="6 5"></rect>
+            <polygon points="540,230 740,230 775,110 575,110" fill="none" stroke="#d67b28" stroke-width="2"></polygon>
+            <polygon points="540,230 740,230 815,110 615,110" fill="none" stroke="#d67b28" stroke-width="2"></polygon>
+            <polygon points="540,230 740,230 745,110 545,110" fill="#fdf1e5" stroke="#d67b28" stroke-width="3"></polygon>
+            <line x1="545" y1="100" x2="655" y2="100" stroke="#0d568d" stroke-width="4" marker-end="url(#fm1-arrow-es)"></line>
+            <text x="665" y="106" font-size="19" fill="#0d568d">F</text>
+            <text x="552" y="180" font-size="18" fill="#071d33">fluido</text>
+            <text x="560" y="204" font-size="17" fill="#607181">α crece</text>
+            <text x="490" y="278" font-size="17" fill="#607181">(b) deformación sostenida: esto es flujo</text>
+          </svg>
+          <figcaption>
+            El mismo esfuerzo tangencial aplicado a un sólido y a un fluido. El sólido alcanza el equilibrio
+            en un ángulo finito; el fluido sigue deformándose, y esa deformación continua es lo que llamamos flujo.
+          </figcaption>
+        </figure>
+
+        <div class="callout success">
+          <strong>Consecuencia para la estática.</strong> Un fluido en reposo no puede sostener un esfuerzo
+          tangencial neto — si pudiera, se estaría deformando y por lo tanto no estaría en reposo. Así que en
+          hidrostática el único esfuerzo que queda es el normal, y se llama presión. Las lectures 04 a 08 se
+          construyen enteramente sobre esa frase.
+        </div>
+      </section>
+
+      <section id="model-es">
+        <p class="section-label">Modelo e hipótesis</p>
+        <h2>La hipótesis de medio continuo</h2>
+        <p>
+          La materia es molecular, pero la mecánica de fluidos de ingeniería la trata como un
+          <strong>medio continuo</strong>: densidad, presión, temperatura y velocidad se toman como funciones
+          continuas de la posición y el tiempo,
+        </p>
+        <div class="equation-card">
+          \[
+          \rho=\rho(x,y,z,t),\qquad p=p(x,y,z,t),\qquad \vec{V}=\vec{V}(x,y,z,t).
+          \]
+        </div>
+        <p>
+          Esto es legítimo cuando un volumen suficientemente pequeño para tratarse como un punto todavía contiene
+          moléculas suficientes para que el promedio sea estable. En un gas la longitud molecular relevante es el
+          <strong>recorrido libre medio</strong> \(\lambda\), la distancia promedio que recorre una molécula entre
+          colisiones, y la prueba es el <strong>número de Knudsen</strong>:
+        </p>
+        <div class="equation-card">
+          \[
+          \boxed{\ \mathrm{Kn}=\frac{\lambda}{L}\ }
+          \]
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Rango</th><th>Modelo recomendado</th></tr></thead>
+            <tbody>
+              <tr><td>\(\mathrm{Kn}&lt;0.01\)</td><td>Medio continuo usual</td></tr>
+              <tr><td>\(0.01\lesssim\mathrm{Kn}&lt;0.1\)</td><td>Continuo con correcciones de deslizamiento</td></tr>
+              <tr><td>\(0.1\lesssim\mathrm{Kn}&lt;10\)</td><td>Régimen de transición</td></tr>
+              <tr><td>\(\mathrm{Kn}\gtrsim10\)</td><td>Flujo molecular libre</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>El resto del modelo, vigente en todas las lectures del curso salvo indicación contraria:</p>
+        <ul>
+          <li>una sola fase, homogénea y químicamente inerte;</li>
+          <li>propiedades definidas en cada punto, de modo que existan derivadas como \(\partial u/\partial y\);</li>
+          <li>el fluido se adhiere a las paredes sólidas (la condición de no deslizamiento, más abajo);</li>
+          <li>presión absoluta y temperatura absoluta en toda relación termodinámica.</li>
+        </ul>
+
+        <div class="callout warning">
+          <strong>Lo que el modelo no afirma.</strong> No afirma que el continuo sea universalmente válido.
+          Falla en gases enrarecidos — alto vacío, alta atmósfera, micro y nanocanales — donde \(\mathrm{Kn}\)
+          deja de ser pequeño, y cerca de una onda de choque, cuyo espesor es de unos pocos recorridos libres
+          medios. Tampoco dice nada sobre flujo multifásico, flujo con cavitación, ni flujos donde una reacción
+          química cambia la composición. En esos casos las ecuaciones de este curso no se corrigen: se sustituyen.
+        </div>
+      </section>
+
+      <section id="shear-es">
+        <p class="section-label">Definición central</p>
+        <h2>Esfuerzo, y la respuesta que define a un fluido</h2>
+
+        <p>El esfuerzo es fuerza por unidad de área. Separando la fuerza sobre un elemento de superficie en una parte normal y una tangencial:</p>
+
+        <div class="equation-card">
+          \[
+          \sigma=\frac{F_n}{A},\qquad \tau=\frac{F_t}{A}.
+          \]
+        </div>
+
+        <p>
+          Un sólido elástico resiste un esfuerzo cortante \(\tau\) deformándose un ángulo finito \(\alpha\);
+          si se retira la carga sin superar el límite elástico, recupera su forma. Un fluido sometido a cualquier
+          \(\tau&gt;0\), por pequeño que sea, se deforma <em>continuamente</em>. La cantidad cinemática relevante
+          no es entonces la deformación \(\alpha\) sino la razón de deformación \(\dot{\alpha}=d\alpha/dt\), que
+          nunca alcanza el equilibrio mientras \(\tau\) se aplique.
+        </p>
+
+        <div class="definition-grid">
+          <div class="definition"><strong>Sólido</strong><span>\(\tau \mapsto \alpha\) finito</span></div>
+          <div class="definition"><strong>Fluido</strong><span>\(\tau \mapsto \dot{\alpha}\) sostenido</span></div>
+        </div>
+
+        <p>
+          Líquidos y gases son ambos fluidos según esta prueba, y difieren sólo en grado. Un líquido conserva un
+          volumen casi fijo y puede formar superficie libre; un gas se expande hasta llenar su recipiente y no
+          tiene superficie libre estable. La distinción importa para saber qué términos sobreviven en una
+          ecuación, no para la definición misma.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Característica</th><th>Líquido</th><th>Gas</th></tr></thead>
+            <tbody>
+              <tr><td>Volumen</td><td>Aproximadamente fijo</td><td>Llena el recipiente</td></tr>
+              <tr><td>Superficie libre</td><td>La forma bajo gravedad</td><td>Ninguna en recipiente cerrado</td></tr>
+              <tr><td>Compresibilidad</td><td>Normalmente despreciable</td><td>Puede dominar el problema</td></tr>
+              <tr><td>Fuerzas intermoleculares</td><td>Relativamente fuertes</td><td>Relativamente débiles</td></tr>
+              <tr><td>Ejemplos</td><td>Agua, aceite, combustible, mercurio</td><td>Aire, helio, nitrógeno, vapor</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>
+          Una nota de vocabulario que reaparece en la Lecture 02: un <strong>gas</strong> está lejos de la
+          condensación, mientras que un <strong>vapor</strong> es una fase gaseosa cercana a la saturación.
+          Esa diferencia es la que da sentido a la presión de vapor y a la cavitación.
+        </p>
+      </section>
+
+      <section id="noslip-es">
+        <p class="section-label">Condición en la pared</p>
+        <h2>La condición de no deslizamiento</h2>
+
+        <p>El experimento muestra que el fluido en contacto directo con una superficie sólida adopta la velocidad de esa superficie:</p>
+
+        <div class="equation-card">
+          \[
+          \boxed{\ \vec{V}_{\text{fluido en pared}}=\vec{V}_{\text{pared}}\ }
+          \]
+        </div>
+
+        <p>
+          Para una pared fija esto se reduce a \(\vec{V}=\vec{0}\) en la superficie. La condición no es una ley
+          aparte; es una consecuencia observada de la interacción molecular entre fluido y sólido, y es la
+          condición de frontera que cierra casi todos los problemas del curso.
+        </p>
+
+        <p>
+          Su consecuencia inmediata es que debe existir un gradiente de velocidad junto a toda pared. Lejos de la
+          superficie el fluido se mueve a la velocidad de corriente libre \(U\); en la superficie se mueve a cero.
+          La región donde ocurre ese ajuste es la <strong>capa límite</strong>, y dentro de ella los esfuerzos
+          cortantes que cuantifica la Lecture 03 son grandes. Fuera de ella, una aproximación invíscida suele ser
+          defendible.
+        </p>
+
+        <div class="callout">
+          <strong>Léala con cuidado.</strong> El no deslizamiento no dice que el fluido se detenga. Dice que la capa
+          en contacto inmediato con la pared comparte la velocidad de la pared. Todo lo que está encima cambia de
+          velocidad gradualmente, y la viscosidad es lo que transmite ese cambio hacia afuera.
+        </div>
+      </section>
+
+      <section id="classification-es">
+        <p class="section-label">Selección del modelo</p>
+        <h2>Clasificar un flujo es elegir sus ecuaciones</h2>
+
+        <p>
+          Un flujo se clasifica simultáneamente en varios ejes independientes, y cada eje conserva o elimina un
+          término de las ecuaciones gobernantes. El aire alrededor de un automóvil es a la vez externo, viscoso,
+          turbulento, prácticamente incompresible, tridimensional y estacionario en promedio.
+        </p>
+
+        <h3>Viscoso e invíscido</h3>
+        <p>
+          Todo fluido real tiene viscosidad. <em>Invíscido</em> es una afirmación sobre la región analizada, no
+          sobre el fluido: significa que ahí los términos viscosos son pequeños frente a la presión y la inercia.
+          Es una aproximación que debe justificarse, nunca una propiedad de la sustancia.
+        </p>
+
+        <h3>Interno, externo y en canal abierto</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Tipo</th><th>Rasgo físico</th><th>Ejemplos</th></tr></thead>
+            <tbody>
+              <tr><td>Interno</td><td>Fluido completamente confinado por paredes</td><td>Tubería llena, ducto, intercambiador</td></tr>
+              <tr><td>Externo</td><td>Cuerpo inmerso en una corriente no confinada</td><td>Perfil alar, automóvil, cilindro, edificio</td></tr>
+              <tr><td>Canal abierto</td><td>Líquido con superficie libre</td><td>Río, canal, drenaje parcialmente lleno</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Compresible e incompresible</h3>
+        <p>
+          Un flujo es incompresible cuando la densidad de una partícula de fluido cambia de manera despreciable a
+          lo largo de su trayectoria. Para gases la decisión se toma con el número de Mach, \(\mathrm{Ma}=V/c\),
+          donde \(c\) es la velocidad local del sonido que se deduce en la Lecture 02:
+        </p>
+        <div class="equation-card">
+          \[
+          \mathrm{Ma}&lt;0.3\quad\Longrightarrow\quad\text{la aproximación incompresible suele ser aceptable.}
+          \]
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Régimen</th><th>Intervalo aproximado</th></tr></thead>
+            <tbody>
+              <tr><td>Baja velocidad, compresibilidad usualmente pequeña</td><td>\(\mathrm{Ma}&lt;0.3\)</td></tr>
+              <tr><td>Subsónico compresible</td><td>\(0.3\lesssim\mathrm{Ma}&lt;0.8\)</td></tr>
+              <tr><td>Transónico</td><td>\(0.8\lesssim\mathrm{Ma}\lesssim1.2\)</td></tr>
+              <tr><td>Supersónico</td><td>\(1.2\lesssim\mathrm{Ma}&lt;5\)</td></tr>
+              <tr><td>Hipersónico</td><td>\(\mathrm{Ma}\gtrsim5\)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          El umbral es un criterio sobre el flujo, no sobre el fluido. El aire es compresible; un flujo de aire a
+          \(\mathrm{Ma}=0.05\) no lo es. La salvedad es que \(\mathrm{Ma}&lt;0.3\) supone que no hay calentamiento
+          intenso ni un cambio de presión impuesto de gran magnitud.
+        </p>
+
+        <h3>Laminar, de transición y turbulento</h3>
+        <p>
+          El flujo laminar se mueve en capas ordenadas con poca mezcla transversal; el turbulento presenta
+          fluctuaciones irregulares, mezcla intensa y estructuras vorticosas. El parámetro que los separa es el
+          número de Reynolds,
+        </p>
+        <div class="equation-card">
+          \[
+          \boxed{\ \mathrm{Re}=\frac{\rho V L}{\mu}=\frac{V L}{\nu}\ }
+          \]
+        </div>
+        <p>
+          donde \(L\) es la longitud característica de la geometría: el diámetro en una tubería, la cuerda de un
+          perfil, la distancia desde el borde de ataque en una placa plana, o el diámetro hidráulico de un ducto.
+          El número de Reynolds compara las fuerzas de inercia con las viscosas — valores pequeños indican dominio
+          viscoso, valores grandes indican dominio de la inercia y mayor probabilidad de turbulencia. El umbral
+          numérico depende de la geometría y no es universal: alrededor de \(2300\) en tubería circular, alrededor
+          de \(5\times10^{5}\) en placa plana lisa.
+        </p>
+
+        <h3>Estacionario y no estacionario, uniforme y no uniforme</h3>
+        <p>
+          Un flujo es estacionario cuando las propiedades en un punto fijo del espacio no cambian con el tiempo,
+          \(\partial(\cdot)/\partial t=0\), y no estacionario en caso contrario. Es uniforme cuando una propiedad
+          no cambia de un punto a otro, \(\nabla(\cdot)=0\), y no uniforme en caso contrario. Son independientes:
+          el flujo desarrollado en una tubería es estacionario pero no uniforme en la sección.
+        </p>
+
+        <h3>Dimensionalidad</h3>
+        <p>
+          Uni, bi o tridimensional se refiere a cuántas coordenadas necesitan los cambios relevantes — el flujo
+          promedio en una tubería larga es unidimensional, el flujo ideal sobre un ala de gran alargamiento es
+          bidimensional, y el flujo alrededor de un ala finita es tridimensional.
+        </p>
+
+        <div class="callout success">
+          <strong>Hábito práctico.</strong> Antes de tocar una ecuación, escriba una ficha de clasificación de un
+          renglón: fluido, geometría, régimen esperado, si importan compresibilidad, viscosidad, gravedad o
+          superficie libre, y si el problema depende del tiempo. Esa ficha selecciona las ecuaciones; omitirla es
+          lo que produce un cálculo correcto del modelo equivocado.
+        </div>
+      </section>
+
+      <section id="controlvolume-es">
+        <p class="section-label">Marco de análisis</p>
+        <h2>Sistema, frontera y volumen de control</h2>
+
+        <p>
+          Un <strong>sistema</strong> (o masa de control) es una cantidad fija de materia elegida para el análisis;
+          todo lo demás son los <strong>alrededores</strong>, y la superficie real o imaginaria entre ambos es la
+          <strong>frontera</strong>. Elegir en cambio una región del espacio fija respecto al observador da un
+          <strong>volumen de control</strong>, cuya frontera es la <strong>superficie de control</strong>.
+        </p>
+
+        <div class="definition-grid">
+          <div class="definition"><strong>Sistema cerrado</strong><span>Masa fija; puede cruzar energía, no masa</span></div>
+          <div class="definition"><strong>Volumen de control</strong><span>Pueden cruzar masa, cantidad de movimiento y energía</span></div>
+        </div>
+
+        <p>
+          La mecánica de fluidos trabaja casi siempre con volúmenes de control, porque seguir una porción fija de
+          fluido a través de una bomba es mucho menos útil que observar qué cruza la entrada y la salida. La
+          Lecture 12 hace exacta la traducción entre ambos puntos de vista mediante el teorema de transporte de
+          Reynolds; hasta entonces el volumen de control se usa directamente.
+        </p>
+
+        <p>
+          La elección del volumen de control no es única — es una decisión de modelado, y una buena elección corta
+          las entradas y salidas donde las propiedades se conocen o pueden aproximarse razonablemente:
+        </p>
+        <ul>
+          <li>en una bomba, superficies en la entrada y la salida donde se conocen presión, gasto y elevación;</li>
+          <li>en una tobera, secciones donde se conocen el área y dos propiedades termodinámicas;</li>
+          <li>en un codo, un volumen que envuelve todo el accesorio, para que la fuerza aparezca como reacción;</li>
+          <li>en un tanque que se llena o se vacía, el fluido contenido en el tanque.</li>
+        </ul>
+
+        <div class="callout">
+          <strong>El primer paso no es una fórmula.</strong> Es un esquema: dibujar el volumen de control, marcar
+          entradas y salidas, fijar la convención de signos y escribir las hipótesis. Todas las lectures
+          posteriores del curso suponen que ese paso ya se dio.
+        </div>
+      </section>
+
+      <section id="dimensions-es">
+        <p class="section-label">Consistencia dimensional</p>
+        <h2>Dimensiones, unidades y homogeneidad</h2>
+
+        <p>
+          Una <strong>dimensión</strong> es el tipo físico de una cantidad — masa, longitud, tiempo, temperatura.
+          Una <strong>unidad</strong> es una forma particular de medirla — kilogramo, metro, segundo, kelvin.
+          La presión tiene dimensión de fuerza por área,
+        </p>
+        <div class="equation-card">
+          \[
+          [p]=\frac{[F]}{[L]^{2}}=\frac{m\,l\,t^{-2}}{l^{2}}=m\,l^{-1}t^{-2},
+          \qquad 1\ \text{Pa}=1\ \frac{\text{N}}{\text{m}^{2}}=1\ \frac{\text{kg}}{\text{m}\cdot\text{s}^{2}}.
+          \]
+        </div>
+
+        <p>
+          Una ecuación es <strong>dimensionalmente homogénea</strong> cuando todos los términos que se suman o se
+          igualan tienen las mismas dimensiones. En la forma de carga de la ecuación de Bernoulli, que deduce la
+          Lecture 14,
+        </p>
+        <div class="equation-card">
+          \[
+          \frac{p}{\rho g}+\frac{V^{2}}{2g}+z=\text{constante},
+          \]
+        </div>
+        <p>los tres términos son longitudes. Verificando el primero:</p>
+        <div class="equation-card">
+          \[
+          \frac{p}{\rho g}
+          =\frac{\text{N}/\text{m}^{2}}{(\text{kg}/\text{m}^{3})(\text{m}/\text{s}^{2})}
+          =\frac{\text{kg}/(\text{m}\cdot\text{s}^{2})}{\text{kg}/(\text{m}^{2}\cdot\text{s}^{2})}
+          =\text{m}.
+          \]
+        </div>
+        <p>
+          Así que \(p/(\rho g)\) es una longitud, y en hidráulica se llama <em>carga de presión</em>. La misma
+          revisión detecta errores de conversión antes de terminar un cálculo.
+        </p>
+
+        <div class="callout success">
+          <strong>La asimetría que la hace útil.</strong> La homogeneidad dimensional no demuestra que una ecuación
+          sea correcta, pero una ecuación que no es homogénea es con certeza incorrecta. Es una prueba barata y de
+          un solo sentido, y la Lecture 20 la convierte en un método sistemático.
+        </div>
+
+        <h3>Presión absoluta y manométrica</h3>
+        <p>Las relaciones termodinámicas exigen presión absoluta. La conversión es</p>
+        <div class="equation-card">
+          \[
+          p_{\text{abs}}=p_{\text{man}}+p_{\text{atm}},
+          \qquad
+          p_{\text{abs}}=p_{\text{atm}}-p_{\text{vac}}.
+          \]
+        </div>
+        <p>
+          Sustituir presión manométrica en \(p=\rho R T\) es uno de los errores más frecuentes del curso, y es
+          silencioso: el número que produce es plausible y está mal. La temperatura debe ser igualmente absoluta
+          — kelvin o rankine.
+        </p>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Algoritmo de cálculo</p>
+        <h2>El protocolo usado en todos los ejemplos resueltos</h2>
+
+        <div class="process-flow">
+          <div><strong>1</strong><span>Enunciar qué se pide</span></div>
+          <div><strong>2</strong><span>Esquematizar el sistema o volumen de control</span></div>
+          <div><strong>3</strong><span>Listar datos con unidades</span></div>
+          <div><strong>4</strong><span>Declarar hipótesis</span></div>
+          <div><strong>5</strong><span>Clasificar el flujo y luego elegir ecuaciones</span></div>
+          <div><strong>6</strong><span>Sustituir en unidades consistentes</span></div>
+          <div><strong>7</strong><span>Verificar magnitud, unidades, signo y sentido físico</span></div>
+        </div>
+
+        <p>
+          El paso 5 es el que los estudiantes omiten. También es el que decide si la respuesta significa algo:
+          la aritmética del paso 6 no puede reparar un modelo elegido sin él.
+        </p>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>Clasificación del flujo sobre una placa plana</h2>
+
+        <div class="example">
+          <p>
+            Aire a \(T=20\ ^\circ\text{C}\) y \(p=101.325\ \text{kPa}\) fluye a \(V=25\ \text{m/s}\) sobre una placa
+            plana de longitud \(L=0.60\ \text{m}\). Tome \(R=287\ \text{J/(kg}\cdot\text{K)}\), \(\gamma=1.4\),
+            \(\mu=1.825\times10^{-5}\ \text{kg/(m}\cdot\text{s)}\), un diámetro molecular efectivo
+            \(d=3.7\times10^{-10}\ \text{m}\) y \(k_B=1.380649\times10^{-23}\ \text{J/K}\).
+            ¿Es válido el modelo continuo? ¿Es compresible el flujo? ¿Es laminar en el borde de salida?
+          </p>
+
+          <div class="solution-step"><span class="solution-step-number">1</span><div>
+            Densidad con la relación de gas ideal, en presión y temperatura absolutas:
+            \[\rho=\frac{p}{RT}=\frac{101\,325}{(287)(293.15)}=\frac{101\,325}{84\,134.05}=1.2043\ \text{kg/m}^3.\]
+          </div></div>
+
+          <div class="solution-step"><span class="solution-step-number">2</span><div>
+            Recorrido libre medio, de la teoría cinética:
+            \[\lambda=\frac{k_B T}{\sqrt{2}\,\pi d^{2} p}
+            =\frac{(1.380649\times10^{-23})(293.15)}{\sqrt{2}\,\pi(3.7\times10^{-10})^{2}(101\,325)}
+            =6.567\times10^{-8}\ \text{m}.\]
+          </div></div>
+
+          <div class="solution-step"><span class="solution-step-number">3</span><div>
+            Número de Knudsen frente a la longitud de la placa:
+            \[\mathrm{Kn}=\frac{\lambda}{L}=\frac{6.567\times10^{-8}}{0.60}=1.09\times10^{-7}\ \ll\ 0.01.\]
+            El modelo continuo aplica con un margen de cinco órdenes de magnitud.
+          </div></div>
+
+          <div class="solution-step"><span class="solution-step-number">4</span><div>
+            Velocidad del sonido y número de Mach:
+            \[c=\sqrt{\gamma R T}=\sqrt{(1.4)(287)(293.15)}=343.20\ \text{m/s},
+            \qquad \mathrm{Ma}=\frac{25}{343.20}=0.0728.\]
+            Muy por debajo de \(0.3\), así que el flujo se trata como incompresible.
+          </div></div>
+
+          <div class="solution-step"><span class="solution-step-number">5</span><div>
+            Número de Reynolds en el borde de salida:
+            \[\mathrm{Re}_L=\frac{\rho V L}{\mu}=\frac{(1.2043)(25)(0.60)}{1.825\times10^{-5}}=9.90\times10^{5}.\]
+            Por encima del valor de transición en placa plana, del orden de \(5\times10^{5}\), así que la capa
+            límite es turbulenta bastante antes del borde de salida.
+          </div></div>
+
+          <div class="result-box">
+            \[
+            \boxed{
+            \mathrm{Kn}=1.09\times10^{-7},\quad
+            \mathrm{Ma}=0.0728,\quad
+            \mathrm{Re}_L=9.90\times10^{5}
+            }
+            \]
+          </div>
+
+          <p>
+            <strong>Interpretación.</strong> La ficha de clasificación queda: externo, viscoso, incompresible,
+            continuo, estacionario, bidimensional, turbulento en la mayor parte de la placa. Esa ficha, y no los
+            tres números, es el entregable — es lo que dice qué ecuaciones del resto del curso pueden usarse aquí.
+          </p>
+        </div>
+      </section>
+
+      <section id="summary-es">
+        <p class="section-label">Ecuaciones clave</p>
+        <h2>De un vistazo</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Relación</th><th>Expresión</th><th>Aplica cuando</th></tr></thead>
+            <tbody>
+              <tr><td>Esfuerzo normal y cortante</td><td>\(\sigma=F_n/A,\quad \tau=F_t/A\)</td><td>siempre</td></tr>
+              <tr><td>Condición de no deslizamiento</td><td>\(\vec{V}_{\text{fluido en pared}}=\vec{V}_{\text{pared}}\)</td><td>fluido viscoso sobre superficie sólida</td></tr>
+              <tr><td>Número de Knudsen</td><td>\(\mathrm{Kn}=\lambda/L\)</td><td>continuo válido si \(\mathrm{Kn}&lt;0.01\)</td></tr>
+              <tr><td>Número de Mach</td><td>\(\mathrm{Ma}=V/c\)</td><td>aproximación incompresible si \(\mathrm{Ma}&lt;0.3\)</td></tr>
+              <tr><td>Número de Reynolds</td><td>\(\mathrm{Re}=\rho V L/\mu=VL/\nu\)</td><td>el umbral depende de la geometría</td></tr>
+              <tr><td>Flujo estacionario</td><td>\(\partial(\cdot)/\partial t=0\)</td><td>en un punto fijo del espacio</td></tr>
+              <tr><td>Flujo uniforme</td><td>\(\nabla(\cdot)=0\)</td><td>en la región considerada</td></tr>
+              <tr><td>Presión absoluta</td><td>\(p_{\text{abs}}=p_{\text{man}}+p_{\text{atm}}\)</td><td>obligatoria en toda relación termodinámica</td></tr>
+              <tr><td>Gas ideal</td><td>\(p=\rho R T\)</td><td>sólo con \(p\) y \(T\) absolutas</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="mistakes-es">
+        <p class="section-label">Errores comunes</p>
+        <h2>Errores comunes</h2>
+        <ul class="check-list">
+          <li><strong>Llamar "invíscido" a un fluido.</strong> Invíscido describe una región del flujo donde los términos viscosos son despreciables, no una sustancia. Todo fluido real tiene viscosidad; la aproximación debe justificarse para la región, y falla dentro de toda capa límite.</li>
+          <li><strong>Sustituir presión manométrica en \(p=\rho R T\).</strong> Las relaciones termodinámicas necesitan presión y temperatura absolutas. El resultado de usar presión manométrica es una densidad incorrecta con apariencia razonable.</li>
+          <li><strong>Tratar \(\mathrm{Ma}&lt;0.3\) como una propiedad del aire.</strong> Es un criterio sobre el flujo. El mismo aire es compresible en una tobera e incompresible en un ducto de ventilación.</li>
+          <li><strong>Usar \(\mathrm{Re}=2300\) en todas partes.</strong> Ese umbral corresponde a tuberías circulares. Una placa plana transiciona cerca de \(5\times10^{5}\), y la longitud característica \(L\) debe coincidir con la geometría sobre la que se midió el umbral.</li>
+          <li><strong>Confundir estacionario con uniforme.</strong> Estacionario significa sin cambio en el tiempo en un punto; uniforme significa sin cambio de un punto a otro. El flujo desarrollado en tubería es estacionario y fuertemente no uniforme.</li>
+          <li><strong>Leer el no deslizamiento como "el fluido se detiene en la pared".</strong> Significa que el fluido en la pared iguala la velocidad de la pared. En una pared móvil esa velocidad no es cero, y todo el flujo de Couette depende de ello.</li>
+          <li><strong>Suponer que el continuo siempre se cumple.</strong> Es una hipótesis con una prueba. En la alta atmósfera, en alto vacío y en microcanales, \(\mathrm{Kn}\) no es pequeño y las ecuaciones de este curso no aplican.</li>
+          <li><strong>Reportar más cifras significativas de las que traen los datos.</strong> Conserve dígitos adicionales en pasos intermedios y redondee al final según la incertidumbre de entrada. Escribir \(\dot{\mathcal{V}}=0.003718526\ \text{m}^3/\text{s}\) a partir de datos de dos cifras reclama una precisión que no existe.</li>
+        </ul>
+      </section>
+
+      <section id="advanced-es">
+        <p class="section-label">Temas complementarios</p>
+        <h2>Diferido a lectures posteriores</h2>
+        <p>
+          Esta lecture nombra varias cantidades sin deducirlas, para que la clasificación pueda hacerse desde el
+          primer día. Cada una se desarrolla donde le corresponde:
+        </p>
+        <ul>
+          <li><strong>Densidad, peso específico y gravedad específica</strong>, presión de vapor y cavitación, módulo volumétrico y velocidad del sonido \(c\) — Lecture 02.</li>
+          <li><strong>Viscosidad</strong> \(\mu\) y \(\nu\), ley de viscosidad de Newton, comportamiento no newtoniano y tensión superficial — Lecture 03.</li>
+          <li><strong>La presión como el esfuerzo que sobrevive en un fluido en reposo</strong> — Lectures 04 a 08.</li>
+          <li><strong>La traducción exacta entre sistema y volumen de control</strong> — el teorema de transporte de Reynolds, Lecture 12.</li>
+          <li><strong>Por qué \(\mathrm{Re}\), \(\mathrm{Ma}\) y los demás grupos son los parámetros correctos</strong> — análisis dimensional, Lectures 20 a 23.</li>
+        </ul>
+        <p>
+          Los modelos con corrección de deslizamiento y de gas enrarecido, y la teoría cinética detrás del
+          recorrido libre medio, quedan fuera del alcance de MC611 y se tratan en un curso de dinámica de gases o
+          de microfluidos.
+        </p>
+      </section>
+
+      <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
+        <h2>Referencias</h2>
+        <ol>
+          <li>Çengel, Y. A., y J. M. Cimbala. <em>Mecánica de fluidos: fundamentos y aplicaciones</em>, 4.ª ed. Ciudad de México: McGraw-Hill Education, 2018, capítulos 1 y 2.</li>
+          <li>White, F. M. <em>Fluid Mechanics</em>, 8.ª ed. Nueva York: McGraw-Hill Education, 2016, capítulo 1.</li>
+          <li>Newell, D. B., y E. Tiesinga, eds. <a href="https://physics.nist.gov/cuu/Constants/" target="_blank" rel="noopener noreferrer"><em>The International System of Units (SI)</em>, NIST Special Publication 330</a>. Gaithersburg, MD: National Institute of Standards and Technology, 2019.</li>
+          <li>Mott, R. L., y J. A. Untener. <em>Mecánica de fluidos aplicada</em>, 7.ª ed. Ciudad de México: Pearson, 2015, capítulo 1.</li>
+          <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Mecánica de Fluidos (MC611)</em>. Chihuahua, México.</li>
+        </ol>
+        <p class="source-note">Adaptado de la Unidad I de los apuntes de Mecánica de Fluidos (MC611) de Carlos Alberto Molina Holguín. Todos los números del ejemplo resuelto se recalcularon de manera independiente para esta página; ninguno se transcribió del script ni de una tabla.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="index.html?v=11"><span>Índice del curso</span>← Las 36 lectures</a>
+        <a class="next-link" href="fluid-properties-density.html?v=11"><span>Siguiente lecture</span>Densidad, presión de vapor y compresibilidad →</a>
+      </nav>
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+      <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie danach können sollten</h2>
+        <ul>
+          <li>Erklären, warum die fortwährende Verformung unter jeder noch so kleinen Schubspannung ein Fluid definiert.</li>
+          <li>Die Haftbedingung angeben und erklären, warum sie an jeder Wand einen Geschwindigkeitsgradienten erzwingt.</li>
+          <li>Über die Gültigkeit des Kontinuumsmodells anhand der Knudsen-Zahl \(\mathrm{Kn}=\lambda/L\) entscheiden.</li>
+          <li>Eine gegebene Strömung als reibungsbehaftet oder reibungsfrei, innen oder außen, kompressibel oder inkompressibel, laminar oder turbulent, stationär oder instationär einordnen.</li>
+          <li>Ein geschlossenes System von einem Kontrollvolumen unterscheiden und die Kontrollfläche dort legen, wo die Größen bekannt sind.</li>
+          <li>Mit dimensionaler Homogenität eine falsche Gleichung verwerfen, bevor Zahlen eingesetzt werden.</li>
+        </ul>
+      </section>
+
+      <section id="physics-de">
+        <p class="section-label">Physikalisches Bild</p>
+        <h2>Ein ruhendes Fluid kann keine Schubspannung tragen</h2>
+        <p class="lead">
+          Drückt man tangential auf einen Gummiblock, verformt er sich um einen endlichen Winkel und bleibt dann
+          stehen. Drückt man mit derselben Spannung tangential auf Wasser, hört es nie auf: es verformt sich
+          weiter, solange die Spannung wirkt. Dieser Unterschied — endliche Verformung gegenüber anhaltender
+          Verformungsrate — ist die gesamte Definition, und alles Weitere im Kurs folgt daraus.
+        </p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 860 300" role="img" aria-label="Ein Festkörper erreicht eine endliche Scherung; ein Fluid verformt sich fortwährend">
+            <defs>
+              <marker id="fm1-arrow-de" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="#0d568d"></path>
+              </marker>
+            </defs>
+
+            <rect x="40" y="230" width="330" height="16" fill="#d8e2ea"></rect>
+            <line x1="40" y1="230" x2="370" y2="230" stroke="#071d33" stroke-width="4"></line>
+            <rect x="90" y="110" width="200" height="120" fill="none" stroke="#607181" stroke-width="2" stroke-dasharray="6 5"></rect>
+            <polygon points="90,230 290,230 345,110 145,110" fill="#eaf4fb" stroke="#071d33" stroke-width="3"></polygon>
+            <line x1="145" y1="100" x2="255" y2="100" stroke="#0d568d" stroke-width="4" marker-end="url(#fm1-arrow-de)"></line>
+            <text x="265" y="106" font-size="19" fill="#0d568d">F</text>
+            <text x="100" y="180" font-size="18" fill="#071d33">Festkörper</text>
+            <text x="112" y="204" font-size="17" fill="#607181">α bleibt stehen</text>
+            <text x="40" y="278" font-size="17" fill="#607181">(a) endliche Verformung, dann Gleichgewicht</text>
+
+            <rect x="490" y="230" width="330" height="16" fill="#d8e2ea"></rect>
+            <line x1="490" y1="230" x2="820" y2="230" stroke="#071d33" stroke-width="4"></line>
+            <rect x="540" y="110" width="200" height="120" fill="none" stroke="#607181" stroke-width="2" stroke-dasharray="6 5"></rect>
+            <polygon points="540,230 740,230 775,110 575,110" fill="none" stroke="#d67b28" stroke-width="2"></polygon>
+            <polygon points="540,230 740,230 815,110 615,110" fill="none" stroke="#d67b28" stroke-width="2"></polygon>
+            <polygon points="540,230 740,230 745,110 545,110" fill="#fdf1e5" stroke="#d67b28" stroke-width="3"></polygon>
+            <line x1="545" y1="100" x2="655" y2="100" stroke="#0d568d" stroke-width="4" marker-end="url(#fm1-arrow-de)"></line>
+            <text x="665" y="106" font-size="19" fill="#0d568d">F</text>
+            <text x="552" y="180" font-size="18" fill="#071d33">Fluid</text>
+            <text x="560" y="204" font-size="17" fill="#607181">α wächst</text>
+            <text x="490" y="278" font-size="17" fill="#607181">(b) anhaltende Verformung: das ist Strömung</text>
+          </svg>
+          <figcaption>
+            Dieselbe Tangentialspannung auf einen Festkörper und auf ein Fluid. Der Festkörper erreicht bei einem
+            endlichen Winkel das Gleichgewicht; das Fluid verformt sich weiter, und genau diese fortwährende
+            Verformung nennen wir Strömung.
+          </figcaption>
+        </figure>
+
+        <div class="callout success">
+          <strong>Folge für die Statik.</strong> Ein ruhendes Fluid kann keine resultierende Tangentialspannung
+          tragen — könnte es das, würde es sich verformen und wäre folglich nicht in Ruhe. In der Hydrostatik
+          bleibt daher nur die Normalspannung, und die heißt Druck. Die Vorlesungen 04 bis 08 bauen vollständig
+          auf diesem Satz auf.
+        </div>
+      </section>
+
+      <section id="model-de">
+        <p class="section-label">Modell und Annahmen</p>
+        <h2>Die Kontinuumshypothese</h2>
+        <p>
+          Materie ist molekular, doch die technische Strömungsmechanik behandelt sie als <strong>Kontinuum</strong>:
+          Dichte, Druck, Temperatur und Geschwindigkeit gelten als stetige Funktionen von Ort und Zeit,
+        </p>
+        <div class="equation-card">
+          \[
+          \rho=\rho(x,y,z,t),\qquad p=p(x,y,z,t),\qquad \vec{V}=\vec{V}(x,y,z,t).
+          \]
+        </div>
+        <p>
+          Das ist zulässig, wenn ein Volumen, das klein genug ist, um als Punkt zu gelten, noch genügend Moleküle
+          enthält, damit der Mittelwert stabil bleibt. In einem Gas ist die maßgebliche molekulare Länge die
+          <strong>mittlere freie Weglänge</strong> \(\lambda\), also die mittlere Strecke zwischen zwei Stößen,
+          und das Kriterium ist die <strong>Knudsen-Zahl</strong>:
+        </p>
+        <div class="equation-card">
+          \[
+          \boxed{\ \mathrm{Kn}=\frac{\lambda}{L}\ }
+          \]
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Bereich</th><th>Empfohlenes Modell</th></tr></thead>
+            <tbody>
+              <tr><td>\(\mathrm{Kn}&lt;0{,}01\)</td><td>Übliches Kontinuum</td></tr>
+              <tr><td>\(0{,}01\lesssim\mathrm{Kn}&lt;0{,}1\)</td><td>Kontinuum mit Schlupfkorrektur</td></tr>
+              <tr><td>\(0{,}1\lesssim\mathrm{Kn}&lt;10\)</td><td>Übergangsbereich</td></tr>
+              <tr><td>\(\mathrm{Kn}\gtrsim10\)</td><td>Freie Molekularströmung</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>Der übrige Modellrahmen gilt in jeder Vorlesung dieses Kurses, sofern nichts anderes gesagt wird:</p>
+        <ul>
+          <li>eine einzige Phase, homogen und chemisch inert;</li>
+          <li>in jedem Punkt definierte Größen, sodass Ableitungen wie \(\partial u/\partial y\) existieren;</li>
+          <li>das Fluid haftet an festen Wänden (Haftbedingung, siehe unten);</li>
+          <li>absoluter Druck und absolute Temperatur in jeder thermodynamischen Beziehung.</li>
+        </ul>
+
+        <div class="callout warning">
+          <strong>Was das Modell nicht behauptet.</strong> Es behauptet nicht, dass das Kontinuum allgemein gültig
+          sei. Es versagt in verdünnten Gasen — Hochvakuum, obere Atmosphäre, Mikro- und Nanokanäle — wo
+          \(\mathrm{Kn}\) nicht mehr klein ist, sowie in der Nähe eines Verdichtungsstoßes, dessen Dicke nur
+          wenige mittlere freie Weglängen beträgt. Es sagt auch nichts über Mehrphasenströmung, Kavitation oder
+          Strömungen, in denen eine chemische Reaktion die Zusammensetzung ändert. Dort werden die Gleichungen
+          dieses Kurses nicht korrigiert, sondern ersetzt.
+        </div>
+      </section>
+
+      <section id="shear-de">
+        <p class="section-label">Zentrale Definition</p>
+        <h2>Spannung und die Reaktion, die ein Fluid definiert</h2>
+
+        <p>Spannung ist Kraft je Fläche. Zerlegt man die Kraft auf ein Flächenelement in Normal- und Tangentialanteil:</p>
+
+        <div class="equation-card">
+          \[
+          \sigma=\frac{F_n}{A},\qquad \tau=\frac{F_t}{A}.
+          \]
+        </div>
+
+        <p>
+          Ein elastischer Festkörper hält einer Schubspannung \(\tau\) durch Verformung um einen endlichen Winkel
+          \(\alpha\) stand; wird die Last unterhalb der Elastizitätsgrenze weggenommen, kehrt er zurück. Ein Fluid
+          verformt sich unter jeder noch so kleinen Spannung \(\tau&gt;0\) <em>fortwährend</em>. Die maßgebliche
+          kinematische Größe ist daher nicht die Verformung \(\alpha\), sondern die Verformungsrate
+          \(\dot{\alpha}=d\alpha/dt\), und sie erreicht kein Gleichgewicht, solange \(\tau\) wirkt.
+        </p>
+
+        <div class="definition-grid">
+          <div class="definition"><strong>Festkörper</strong><span>\(\tau \mapsto \alpha\) endlich</span></div>
+          <div class="definition"><strong>Fluid</strong><span>\(\tau \mapsto \dot{\alpha}\) anhaltend</span></div>
+        </div>
+
+        <p>
+          Flüssigkeiten und Gase sind nach diesem Kriterium beide Fluide und unterscheiden sich nur graduell.
+          Eine Flüssigkeit hält ein nahezu festes Volumen und kann eine freie Oberfläche bilden; ein Gas dehnt
+          sich aus, bis es sein Gefäß füllt, und hat keine stabile freie Oberfläche. Der Unterschied entscheidet
+          darüber, welche Terme in einer Gleichung überleben, nicht über die Definition selbst.
+        </p>
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Merkmal</th><th>Flüssigkeit</th><th>Gas</th></tr></thead>
+            <tbody>
+              <tr><td>Volumen</td><td>Nahezu fest</td><td>Füllt das Gefäß</td></tr>
+              <tr><td>Freie Oberfläche</td><td>Bildet sich unter Schwerkraft</td><td>Keine im geschlossenen Gefäß</td></tr>
+              <tr><td>Kompressibilität</td><td>Meist vernachlässigbar</td><td>Kann das Problem beherrschen</td></tr>
+              <tr><td>Zwischenmolekulare Kräfte</td><td>Relativ stark</td><td>Relativ schwach</td></tr>
+              <tr><td>Beispiele</td><td>Wasser, Öl, Kraftstoff, Quecksilber</td><td>Luft, Helium, Stickstoff, Dampf</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>
+          Eine Begriffsnotiz, die in Vorlesung 02 wiederkehrt: ein <strong>Gas</strong> ist weit von der
+          Kondensation entfernt, ein <strong>Dampf</strong> dagegen eine gasförmige Phase nahe der Sättigung.
+          Dieser Unterschied macht Dampfdruck und Kavitation überhaupt erst sinnvoll.
+        </p>
+      </section>
+
+      <section id="noslip-de">
+        <p class="section-label">Wandrandbedingung</p>
+        <h2>Die Haftbedingung</h2>
+
+        <p>Das Experiment zeigt: Fluid in unmittelbarem Kontakt mit einer festen Oberfläche nimmt deren Geschwindigkeit an:</p>
+
+        <div class="equation-card">
+          \[
+          \boxed{\ \vec{V}_{\text{Fluid an der Wand}}=\vec{V}_{\text{Wand}}\ }
+          \]
+        </div>
+
+        <p>
+          Für eine ruhende Wand wird daraus \(\vec{V}=\vec{0}\) an der Oberfläche. Die Bedingung ist kein
+          eigenständiges Gesetz; sie ist eine beobachtete Folge der molekularen Wechselwirkung zwischen Fluid und
+          Festkörper und die Randbedingung, die fast jedes Problem dieses Kurses schließt.
+        </p>
+
+        <p>
+          Unmittelbar folgt daraus, dass an jeder Wand ein Geschwindigkeitsgradient bestehen muss. Weit von der
+          Oberfläche bewegt sich das Fluid mit der Anströmgeschwindigkeit \(U\); an der Oberfläche mit null. Der
+          Bereich, über den dieser Ausgleich stattfindet, ist die <strong>Grenzschicht</strong>, und in ihr sind
+          die von Vorlesung 03 quantifizierten Schubspannungen groß. Außerhalb ist eine reibungsfreie Näherung oft
+          vertretbar.
+        </p>
+
+        <div class="callout">
+          <strong>Genau lesen.</strong> Die Haftbedingung sagt nicht, dass das Fluid stehen bleibt. Sie sagt, dass
+          die Schicht in unmittelbarem Wandkontakt die Wandgeschwindigkeit teilt. Alles darüber ändert seine
+          Geschwindigkeit allmählich, und die Viskosität überträgt diese Änderung nach außen.
+        </div>
+      </section>
+
+      <section id="classification-de">
+        <p class="section-label">Modellauswahl</p>
+        <h2>Eine Strömung zu klassifizieren heißt, ihre Gleichungen zu wählen</h2>
+
+        <p>
+          Eine Strömung wird gleichzeitig entlang mehrerer unabhängiger Achsen eingeordnet, und jede Achse behält
+          oder streicht einen Term der Grundgleichungen. Die Luft um ein Auto ist zugleich äußere, reibungsbehaftete,
+          turbulente, praktisch inkompressible, dreidimensionale und im Mittel stationäre Strömung.
+        </p>
+
+        <h3>Reibungsbehaftet und reibungsfrei</h3>
+        <p>
+          Jedes reale Fluid hat Viskosität. <em>Reibungsfrei</em> ist eine Aussage über den betrachteten Bereich,
+          nicht über das Fluid: sie besagt, dass dort die viskosen Terme gegenüber Druck und Trägheit klein sind.
+          Das ist eine zu begründende Näherung, niemals eine Stoffeigenschaft.
+        </p>
+
+        <h3>Innen, außen und Gerinne</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Typ</th><th>Physikalisches Merkmal</th><th>Beispiele</th></tr></thead>
+            <tbody>
+              <tr><td>Innenströmung</td><td>Fluid vollständig von Wänden umschlossen</td><td>Volles Rohr, Kanal, Wärmeübertrager</td></tr>
+              <tr><td>Außenströmung</td><td>Körper in unbegrenzter Anströmung</td><td>Profil, Fahrzeug, Zylinder, Gebäude</td></tr>
+              <tr><td>Gerinneströmung</td><td>Flüssigkeit mit freier Oberfläche</td><td>Fluss, Kanal, teilgefüllte Leitung</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Kompressibel und inkompressibel</h3>
+        <p>
+          Eine Strömung ist inkompressibel, wenn sich die Dichte eines Fluidteilchens längs seiner Bahn
+          vernachlässigbar ändert. Bei Gasen entscheidet die Mach-Zahl \(\mathrm{Ma}=V/c\), wobei \(c\) die in
+          Vorlesung 02 hergeleitete örtliche Schallgeschwindigkeit ist:
+        </p>
+        <div class="equation-card">
+          \[
+          \mathrm{Ma}&lt;0{,}3\quad\Longrightarrow\quad\text{die inkompressible Näherung ist meist vertretbar.}
+          \]
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Bereich</th><th>Ungefährer Bereich</th></tr></thead>
+            <tbody>
+              <tr><td>Niedrige Geschwindigkeit, Kompressibilität meist klein</td><td>\(\mathrm{Ma}&lt;0{,}3\)</td></tr>
+              <tr><td>Kompressibler Unterschall</td><td>\(0{,}3\lesssim\mathrm{Ma}&lt;0{,}8\)</td></tr>
+              <tr><td>Transsonisch</td><td>\(0{,}8\lesssim\mathrm{Ma}\lesssim1{,}2\)</td></tr>
+              <tr><td>Überschall</td><td>\(1{,}2\lesssim\mathrm{Ma}&lt;5\)</td></tr>
+              <tr><td>Hyperschall</td><td>\(\mathrm{Ma}\gtrsim5\)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Die Schwelle ist ein Kriterium für die Strömung, nicht für das Fluid. Luft ist kompressibel; eine
+          Luftströmung bei \(\mathrm{Ma}=0{,}05\) ist es nicht. Vorbehalt: \(\mathrm{Ma}&lt;0{,}3\) setzt voraus,
+          dass weder starke Erwärmung noch große aufgeprägte Druckänderungen vorliegen.
+        </p>
+
+        <h3>Laminar, transitionell und turbulent</h3>
+        <p>
+          Laminare Strömung bewegt sich in geordneten Schichten mit geringer Quervermischung; turbulente Strömung
+          zeigt unregelmäßige Schwankungen, intensive Vermischung und Wirbelstrukturen. Der trennende Parameter
+          ist die Reynolds-Zahl,
+        </p>
+        <div class="equation-card">
+          \[
+          \boxed{\ \mathrm{Re}=\frac{\rho V L}{\mu}=\frac{V L}{\nu}\ }
+          \]
+        </div>
+        <p>
+          wobei \(L\) die charakteristische Länge der Geometrie ist: der Durchmesser im Rohr, die Profiltiefe, der
+          Abstand von der Vorderkante an einer ebenen Platte oder der hydraulische Durchmesser eines Kanals. Die
+          Reynolds-Zahl vergleicht Trägheits- mit Zähigkeitskräften — kleine Werte bedeuten Zähigkeitsdominanz,
+          große Werte Trägheitsdominanz und höhere Turbulenzwahrscheinlichkeit. Die Zahlenschwelle hängt von der
+          Geometrie ab und ist nicht universell: etwa \(2300\) im Kreisrohr, etwa \(5\times10^{5}\) an der glatten
+          ebenen Platte.
+        </p>
+
+        <h3>Stationär und instationär, gleichförmig und ungleichförmig</h3>
+        <p>
+          Eine Strömung ist stationär, wenn sich die Größen an einem raumfesten Punkt zeitlich nicht ändern,
+          \(\partial(\cdot)/\partial t=0\), sonst instationär. Sie ist gleichförmig, wenn sich eine Größe von Ort
+          zu Ort nicht ändert, \(\nabla(\cdot)=0\), sonst ungleichförmig. Beides ist unabhängig: die voll
+          ausgebildete Rohrströmung ist stationär, über den Querschnitt aber stark ungleichförmig.
+        </p>
+
+        <h3>Dimensionalität</h3>
+        <p>
+          Ein-, zwei- oder dreidimensional bezieht sich darauf, wie viele Koordinaten die relevanten Änderungen
+          benötigen — die mittlere Strömung im langen Rohr ist eindimensional, die ideale Strömung über einen
+          Flügel großer Streckung zweidimensional, die Strömung um einen endlichen Flügel dreidimensional.
+        </p>
+
+        <div class="callout success">
+          <strong>Praktische Gewohnheit.</strong> Bevor Sie eine Gleichung anfassen, schreiben Sie eine einzeilige
+          Klassifikationskarte: Fluid, Geometrie, erwarteter Bereich, ob Kompressibilität, Viskosität, Schwerkraft
+          oder eine freie Oberfläche zählen, und ob das Problem zeitabhängig ist. Diese Karte wählt die
+          Gleichungen; sie zu überspringen liefert eine korrekte Rechnung zum falschen Modell.
+        </div>
+      </section>
+
+      <section id="controlvolume-de">
+        <p class="section-label">Analyserahmen</p>
+        <h2>System, Grenze und Kontrollvolumen</h2>
+
+        <p>
+          Ein <strong>System</strong> (oder Kontrollmasse) ist eine festgelegte Stoffmenge, die zur Analyse gewählt
+          wird; alles Übrige ist die <strong>Umgebung</strong>, und die reale oder gedachte Trennfläche ist die
+          <strong>Grenze</strong>. Wählt man stattdessen einen relativ zum Beobachter festen Raumbereich, erhält
+          man ein <strong>Kontrollvolumen</strong>, dessen Rand die <strong>Kontrollfläche</strong> ist.
+        </p>
+
+        <div class="definition-grid">
+          <div class="definition"><strong>Geschlossenes System</strong><span>Feste Masse; Energie darf übertreten, Masse nicht</span></div>
+          <div class="definition"><strong>Kontrollvolumen</strong><span>Masse, Impuls und Energie dürfen übertreten</span></div>
+        </div>
+
+        <p>
+          Die Strömungsmechanik arbeitet fast durchweg mit Kontrollvolumina, denn ein festes Fluidpaket durch eine
+          Pumpe zu verfolgen ist weit weniger nützlich, als zu beobachten, was Ein- und Austritt durchquert.
+          Vorlesung 12 macht die Übersetzung zwischen beiden Sichtweisen mit dem Reynoldsschen Transporttheorem
+          exakt; bis dahin wird das Kontrollvolumen unmittelbar verwendet.
+        </p>
+
+        <p>
+          Die Wahl des Kontrollvolumens ist nicht eindeutig — sie ist eine Modellentscheidung, und eine gute Wahl
+          schneidet Ein- und Austritte dort, wo die Größen bekannt oder sinnvoll abschätzbar sind:
+        </p>
+        <ul>
+          <li>bei einer Pumpe Flächen an Ein- und Austritt, wo Druck, Volumenstrom und Höhe bekannt sind;</li>
+          <li>bei einer Düse Querschnitte, in denen Fläche und zwei thermodynamische Größen bekannt sind;</li>
+          <li>bei einem Krümmer ein Volumen um das gesamte Formstück, damit die Kraft als Reaktion erscheint;</li>
+          <li>bei einem Behälter beim Füllen oder Entleeren das darin enthaltene Fluid.</li>
+        </ul>
+
+        <div class="callout">
+          <strong>Der erste Schritt ist keine Formel.</strong> Er ist eine Skizze: Kontrollvolumen zeichnen, Ein-
+          und Austritte markieren, Vorzeichen festlegen und die Annahmen aufschreiben. Jede spätere Vorlesung
+          dieses Kurses setzt diesen Schritt voraus.
+        </div>
+      </section>
+
+      <section id="dimensions-de">
+        <p class="section-label">Dimensionale Konsistenz</p>
+        <h2>Dimensionen, Einheiten und Homogenität</h2>
+
+        <p>
+          Eine <strong>Dimension</strong> ist die physikalische Art einer Größe — Masse, Länge, Zeit, Temperatur.
+          Eine <strong>Einheit</strong> ist eine bestimmte Art, sie zu messen — Kilogramm, Meter, Sekunde, Kelvin.
+          Druck hat die Dimension Kraft je Fläche,
+        </p>
+        <div class="equation-card">
+          \[
+          [p]=\frac{[F]}{[L]^{2}}=\frac{m\,l\,t^{-2}}{l^{2}}=m\,l^{-1}t^{-2},
+          \qquad 1\ \text{Pa}=1\ \frac{\text{N}}{\text{m}^{2}}=1\ \frac{\text{kg}}{\text{m}\cdot\text{s}^{2}}.
+          \]
+        </div>
+
+        <p>
+          Eine Gleichung ist <strong>dimensional homogen</strong>, wenn alle addierten oder gleichgesetzten Terme
+          dieselben Dimensionen tragen. In der Höhenform der Bernoulli-Gleichung, die Vorlesung 14 herleitet,
+        </p>
+        <div class="equation-card">
+          \[
+          \frac{p}{\rho g}+\frac{V^{2}}{2g}+z=\text{konstant},
+          \]
+        </div>
+        <p>sind alle drei Terme Längen. Prüfung des ersten:</p>
+        <div class="equation-card">
+          \[
+          \frac{p}{\rho g}
+          =\frac{\text{N}/\text{m}^{2}}{(\text{kg}/\text{m}^{3})(\text{m}/\text{s}^{2})}
+          =\frac{\text{kg}/(\text{m}\cdot\text{s}^{2})}{\text{kg}/(\text{m}^{2}\cdot\text{s}^{2})}
+          =\text{m}.
+          \]
+        </div>
+        <p>
+          Also ist \(p/(\rho g)\) eine Länge und heißt in der Hydraulik <em>Druckhöhe</em>. Dieselbe Prüfung findet
+          Umrechnungsfehler, bevor eine Rechnung fertig ist.
+        </p>
+
+        <div class="callout success">
+          <strong>Die Asymmetrie, die das nützlich macht.</strong> Dimensionale Homogenität beweist nicht, dass
+          eine Gleichung richtig ist, aber eine nicht homogene Gleichung ist mit Sicherheit falsch. Das ist ein
+          billiger einseitiger Test, und Vorlesung 20 macht daraus ein systematisches Verfahren.
+        </div>
+
+        <h3>Absolutdruck und Überdruck</h3>
+        <p>Thermodynamische Beziehungen verlangen Absolutdruck. Die Umrechnung lautet</p>
+        <div class="equation-card">
+          \[
+          p_{\text{abs}}=p_{\text{ü}}+p_{\text{atm}},
+          \qquad
+          p_{\text{abs}}=p_{\text{atm}}-p_{\text{vak}}.
+          \]
+        </div>
+        <p>
+          Überdruck in \(p=\rho R T\) einzusetzen gehört zu den häufigsten Fehlern des Kurses, und er ist
+          lautlos: die erzeugte Zahl wirkt plausibel und ist falsch. Die Temperatur muss ebenso absolut sein —
+          Kelvin oder Rankine.
+        </p>
+      </section>
+
+      <section id="algorithm-de">
+        <p class="section-label">Rechenalgorithmus</p>
+        <h2>Das in jedem Rechenbeispiel verwendete Vorgehen</h2>
+
+        <div class="process-flow">
+          <div><strong>1</strong><span>Angeben, was gesucht ist</span></div>
+          <div><strong>2</strong><span>System oder Kontrollvolumen skizzieren</span></div>
+          <div><strong>3</strong><span>Daten mit Einheiten auflisten</span></div>
+          <div><strong>4</strong><span>Annahmen benennen</span></div>
+          <div><strong>5</strong><span>Strömung klassifizieren, dann Gleichungen wählen</span></div>
+          <div><strong>6</strong><span>In konsistenten Einheiten einsetzen</span></div>
+          <div><strong>7</strong><span>Größenordnung, Einheiten, Vorzeichen und Sinn prüfen</span></div>
+        </div>
+
+        <p>
+          Schritt 5 wird am häufigsten übersprungen. Er entscheidet zugleich, ob das Ergebnis etwas bedeutet:
+          die Arithmetik von Schritt 6 kann ein ohne ihn gewähltes Modell nicht reparieren.
+        </p>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Klassifikation der Strömung über eine ebene Platte</h2>
+
+        <div class="example">
+          <p>
+            Luft bei \(T=20\ ^\circ\text{C}\) und \(p=101{,}325\ \text{kPa}\) strömt mit \(V=25\ \text{m/s}\) über
+            eine ebene Platte der Länge \(L=0{,}60\ \text{m}\). Gegeben:
+            \(R=287\ \text{J/(kg}\cdot\text{K)}\), \(\gamma=1{,}4\),
+            \(\mu=1{,}825\times10^{-5}\ \text{kg/(m}\cdot\text{s)}\), ein effektiver Moleküldurchmesser
+            \(d=3{,}7\times10^{-10}\ \text{m}\) und \(k_B=1{,}380649\times10^{-23}\ \text{J/K}\).
+            Gilt das Kontinuumsmodell? Ist die Strömung kompressibel? Ist sie an der Hinterkante laminar?
+          </p>
+
+          <div class="solution-step"><span class="solution-step-number">1</span><div>
+            Dichte aus der idealen Gasgleichung, mit absolutem Druck und absoluter Temperatur:
+            \[\rho=\frac{p}{RT}=\frac{101\,325}{(287)(293{,}15)}=\frac{101\,325}{84\,134{,}05}=1{,}2043\ \text{kg/m}^3.\]
+          </div></div>
+
+          <div class="solution-step"><span class="solution-step-number">2</span><div>
+            Mittlere freie Weglänge aus der kinetischen Theorie:
+            \[\lambda=\frac{k_B T}{\sqrt{2}\,\pi d^{2} p}
+            =\frac{(1{,}380649\times10^{-23})(293{,}15)}{\sqrt{2}\,\pi(3{,}7\times10^{-10})^{2}(101\,325)}
+            =6{,}567\times10^{-8}\ \text{m}.\]
+          </div></div>
+
+          <div class="solution-step"><span class="solution-step-number">3</span><div>
+            Knudsen-Zahl bezogen auf die Plattenlänge:
+            \[\mathrm{Kn}=\frac{\lambda}{L}=\frac{6{,}567\times10^{-8}}{0{,}60}=1{,}09\times10^{-7}\ \ll\ 0{,}01.\]
+            Das Kontinuumsmodell gilt mit fünf Größenordnungen Reserve.
+          </div></div>
+
+          <div class="solution-step"><span class="solution-step-number">4</span><div>
+            Schallgeschwindigkeit und Mach-Zahl:
+            \[c=\sqrt{\gamma R T}=\sqrt{(1{,}4)(287)(293{,}15)}=343{,}20\ \text{m/s},
+            \qquad \mathrm{Ma}=\frac{25}{343{,}20}=0{,}0728.\]
+            Deutlich unter \(0{,}3\), die Strömung wird daher als inkompressibel behandelt.
+          </div></div>
+
+          <div class="solution-step"><span class="solution-step-number">5</span><div>
+            Reynolds-Zahl an der Hinterkante:
+            \[\mathrm{Re}_L=\frac{\rho V L}{\mu}=\frac{(1{,}2043)(25)(0{,}60)}{1{,}825\times10^{-5}}=9{,}90\times10^{5}.\]
+            Über dem Umschlagwert der ebenen Platte von etwa \(5\times10^{5}\); die Grenzschicht ist also lange
+            vor der Hinterkante turbulent.
+          </div></div>
+
+          <div class="result-box">
+            \[
+            \boxed{
+            \mathrm{Kn}=1{,}09\times10^{-7},\quad
+            \mathrm{Ma}=0{,}0728,\quad
+            \mathrm{Re}_L=9{,}90\times10^{5}
+            }
+            \]
+          </div>
+
+          <p>
+            <strong>Deutung.</strong> Die Klassifikationskarte lautet: äußere, reibungsbehaftete, inkompressible,
+            kontinuierliche, stationäre, zweidimensionale Strömung, über den größten Teil der Platte turbulent.
+            Diese Karte, nicht die drei Zahlen, ist das Ergebnis — sie sagt, welche Gleichungen des übrigen
+            Kurses hier verwendet werden dürfen.
+          </p>
+        </div>
+      </section>
+
+      <section id="summary-de">
+        <p class="section-label">Kerngleichungen</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Beziehung</th><th>Ausdruck</th><th>Gültig wenn</th></tr></thead>
+            <tbody>
+              <tr><td>Normal- und Schubspannung</td><td>\(\sigma=F_n/A,\quad \tau=F_t/A\)</td><td>immer</td></tr>
+              <tr><td>Haftbedingung</td><td>\(\vec{V}_{\text{Fluid an der Wand}}=\vec{V}_{\text{Wand}}\)</td><td>zähes Fluid an fester Oberfläche</td></tr>
+              <tr><td>Knudsen-Zahl</td><td>\(\mathrm{Kn}=\lambda/L\)</td><td>Kontinuum gültig für \(\mathrm{Kn}&lt;0{,}01\)</td></tr>
+              <tr><td>Mach-Zahl</td><td>\(\mathrm{Ma}=V/c\)</td><td>inkompressible Näherung für \(\mathrm{Ma}&lt;0{,}3\)</td></tr>
+              <tr><td>Reynolds-Zahl</td><td>\(\mathrm{Re}=\rho V L/\mu=VL/\nu\)</td><td>Schwelle hängt von der Geometrie ab</td></tr>
+              <tr><td>Stationäre Strömung</td><td>\(\partial(\cdot)/\partial t=0\)</td><td>an einem raumfesten Punkt</td></tr>
+              <tr><td>Gleichförmige Strömung</td><td>\(\nabla(\cdot)=0\)</td><td>im betrachteten Bereich</td></tr>
+              <tr><td>Absolutdruck</td><td>\(p_{\text{abs}}=p_{\text{ü}}+p_{\text{atm}}\)</td><td>in jeder thermodynamischen Beziehung nötig</td></tr>
+              <tr><td>Ideales Gas</td><td>\(p=\rho R T\)</td><td>nur mit absolutem \(p\) und \(T\)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Häufige Fehler</p>
+        <h2>Häufige Fehler</h2>
+        <ul class="check-list">
+          <li><strong>Ein Fluid „reibungsfrei“ nennen.</strong> Reibungsfrei beschreibt einen Strömungsbereich, in dem die viskosen Terme vernachlässigbar sind, keinen Stoff. Jedes reale Fluid hat Viskosität; die Näherung ist für den Bereich zu begründen und versagt in jeder Grenzschicht.</li>
+          <li><strong>Überdruck in \(p=\rho R T\) einsetzen.</strong> Thermodynamische Beziehungen brauchen absoluten Druck und absolute Temperatur. Mit Überdruck entsteht eine falsche Dichte, die völlig plausibel aussieht.</li>
+          <li><strong>\(\mathrm{Ma}&lt;0{,}3\) für eine Eigenschaft der Luft halten.</strong> Es ist ein Kriterium für die Strömung. Dieselbe Luft ist in einer Düse kompressibel und im Lüftungskanal inkompressibel.</li>
+          <li><strong>\(\mathrm{Re}=2300\) überall verwenden.</strong> Diese Schwelle gehört zum Kreisrohr. Eine ebene Platte schlägt nahe \(5\times10^{5}\) um, und die charakteristische Länge \(L\) muss zu der Geometrie passen, an der die Schwelle gemessen wurde.</li>
+          <li><strong>Stationär mit gleichförmig verwechseln.</strong> Stationär heißt: zeitlich unverändert an einem Punkt; gleichförmig heißt: von Ort zu Ort unverändert. Die voll ausgebildete Rohrströmung ist stationär und stark ungleichförmig.</li>
+          <li><strong>Die Haftbedingung als „das Fluid bleibt an der Wand stehen“ lesen.</strong> Sie besagt, dass das Fluid an der Wand deren Geschwindigkeit annimmt. An einer bewegten Wand ist diese nicht null, und die gesamte Couette-Strömung beruht darauf.</li>
+          <li><strong>Annehmen, das Kontinuum gelte immer.</strong> Es ist eine Hypothese mit einem Test. In der oberen Atmosphäre, im Hochvakuum und in Mikrokanälen ist \(\mathrm{Kn}\) nicht klein, und die Gleichungen dieses Kurses gelten nicht.</li>
+          <li><strong>Mehr signifikante Stellen angeben, als die Daten hergeben.</strong> In Zwischenschritten zusätzliche Stellen mitführen und am Ende nach der Eingangsunsicherheit runden. \(\dot{\mathcal{V}}=0{,}003718526\ \text{m}^3/\text{s}\) aus zweistelligen Daten behauptet eine Genauigkeit, die es nicht gibt.</li>
+        </ul>
+      </section>
+
+      <section id="advanced-de">
+        <p class="section-label">Weiterführende Themen</p>
+        <h2>Auf spätere Vorlesungen verschoben</h2>
+        <p>
+          Diese Vorlesung nennt mehrere Größen, ohne sie herzuleiten, damit die Klassifikation vom ersten Tag an
+          möglich ist. Jede wird dort entwickelt, wo sie hingehört:
+        </p>
+        <ul>
+          <li><strong>Dichte, spezifisches Gewicht und relative Dichte</strong>, Dampfdruck und Kavitation, Kompressionsmodul und Schallgeschwindigkeit \(c\) — Vorlesung 02.</li>
+          <li><strong>Viskosität</strong> \(\mu\) und \(\nu\), newtonsches Viskositätsgesetz, nichtnewtonsches Verhalten und Oberflächenspannung — Vorlesung 03.</li>
+          <li><strong>Druck als die im ruhenden Fluid verbleibende Spannung</strong> — Vorlesungen 04 bis 08.</li>
+          <li><strong>Die exakte Übersetzung zwischen System und Kontrollvolumen</strong> — das Reynoldssche Transporttheorem, Vorlesung 12.</li>
+          <li><strong>Warum \(\mathrm{Re}\), \(\mathrm{Ma}\) und die übrigen Kennzahlen überhaupt die richtigen Parameter sind</strong> — Dimensionsanalyse, Vorlesungen 20 bis 23.</li>
+        </ul>
+        <p>
+          Schlupfkorrigierte Modelle und Modelle verdünnter Gase sowie die kinetische Theorie hinter der mittleren
+          freien Weglänge liegen außerhalb von MC611 und gehören in eine Gasdynamik- oder Mikrofluidik-Vorlesung.
+        </p>
+      </section>
+
+      <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
+        <h2>Literatur</h2>
+        <ol>
+          <li>Çengel, Y. A., und J. M. Cimbala. <em>Fluid Mechanics: Fundamentals and Applications</em>, 4. Aufl. New York: McGraw-Hill Education, 2018, Kapitel 1 und 2.</li>
+          <li>White, F. M. <em>Fluid Mechanics</em>, 8. Aufl. New York: McGraw-Hill Education, 2016, Kapitel 1.</li>
+          <li>Newell, D. B., und E. Tiesinga, Hrsg. <a href="https://physics.nist.gov/cuu/Constants/" target="_blank" rel="noopener noreferrer"><em>The International System of Units (SI)</em>, NIST Special Publication 330</a>. Gaithersburg, MD: National Institute of Standards and Technology, 2019.</li>
+          <li>Mott, R. L., und J. A. Untener. <em>Applied Fluid Mechanics</em>, 7. Aufl. Upper Saddle River, NJ: Pearson, 2015, Kapitel 1.</li>
+          <li>Universidad Autónoma de Chihuahua, Facultad de Ingeniería. <em>Programa analítico de la unidad de aprendizaje: Mecánica de Fluidos (MC611)</em>. Chihuahua, Mexiko.</li>
+        </ol>
+        <p class="source-note">Bearbeitet nach Einheit I des Vorlesungsskripts Strömungsmechanik (MC611) von Carlos Alberto Molina Holguín. Alle Zahlen des Rechenbeispiels wurden für diese Seite unabhängig neu berechnet; keine wurde aus dem Skript oder einer Tabelle übernommen.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="index.html?v=11"><span>Kursübersicht</span>← Alle 36 Vorlesungen</a>
+        <a class="next-link" href="fluid-properties-density.html?v=11"><span>Nächste Vorlesung</span>Dichte, Dampfdruck und Kompressibilität →</a>
+      </nav>
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>© <span id="year"></span> Carlos Alberto Molina Holguín</p>
+    <p>Universidad Autónoma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

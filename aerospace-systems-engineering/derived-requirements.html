@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Derived requirements in aerospace systems engineering: decomposition versus allocation, why flowdown is not copying, how an analysis produces a subsystem number, and the difference between a requirement, a design target and margin." />
+  <meta name="author" content="Carlos Alberto Molina Holgu&iacute;n" />
+  <meta name="theme-color" content="#071d33" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Derived Requirements | Aerospace Systems Engineering</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:wght@600;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=11" data-ui-key="course">Aerospace Systems Engineering</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Aerospace Systems Engineering &middot; Lecture 08</p>
+        <h1>Derived Requirements, Decomposition, and Allocation</h1>
+        <p class="hero-copy">Where a subsystem number actually comes from, why repeating the parent&rsquo;s words allocates nothing, and how margin enters without anyone noticing.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Ingeniería de Sistemas Aeroespaciales &middot; Lecture 08</p>
+        <h1>Requisitos derivados, descomposici&oacute;n y asignaci&oacute;n</h1>
+        <p class="hero-copy">De d&oacute;nde sale realmente el n&uacute;mero de un subsistema, por qu&eacute; repetir las palabras del padre no asigna nada, y c&oacute;mo entra el margen sin que nadie lo note.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Luft- und Raumfahrtsystemtechnik &middot; Vorlesung 08</p>
+        <h1>Abgeleitete Anforderungen, Zerlegung und Zuordnung</h1>
+        <p class="hero-copy">Woher die Zahl eines Teilsystems wirklich stammt, warum das Wiederholen der Elternworte nichts zuordnet, und wie Reserve unbemerkt hineingelangt.</p>
+      </div>
+
+    <div class="hero-meta">
+        <span data-language="en">Estimated reading: 13 min</span><span data-language="es" hidden>Lectura estimada: 13 min</span><span data-language="de" hidden>Lesedauer: ca. 13 min</span>
+        <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+        <span data-language="en">Scope: one level of the product tree</span><span data-language="es" hidden>Alcance: un nivel del &aacute;rbol de productos</span><span data-language="de" hidden>Umfang: eine Ebene des Produktbaums</span>
+    </div>
+    <div class="button-row">
+      <a class="button secondary" href="index.html?v=11" data-ui-key="back">Back to course</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Engineering situation</a>
+        <a href="#model">Scope and limits</a>
+        <a href="#flowdown">Flowdown is not copying</a>
+        <a href="#margin">Requirement, target, margin</a>
+        <a href="#algorithm">Deriving one</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Operative rules</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#references">Sources</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Situaci&oacute;n de ingenier&iacute;a</a>
+        <a href="#model-es">Alcance y l&iacute;mites</a>
+        <a href="#flowdown-es">El flowdown no es copiar</a>
+        <a href="#margin-es">Requisito, objetivo, margen</a>
+        <a href="#algorithm-es">Derivar uno</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Reglas operativas</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Kontext</a>
+        <a href="#model-de">Geltungsbereich</a>
+        <a href="#flowdown-de">Flowdown ist kein Kopieren</a>
+        <a href="#margin-de">Anforderung, Zielwert, Reserve</a>
+        <a href="#algorithm-de">Eine ableiten</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Arbeitsregeln</a>
+        <a href="#mistakes-de">H&auml;ufige Fehler</a>
+        <a href="#references-de">Quellen</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+
+      <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul><li>distinguish decomposition from allocation, and say what each one produces;</li><li>derive a subsystem requirement from a system one by an explicit calculation;</li><li>recognise a flowdown that copied the parent instead of translating it;</li><li>check that a set of allocations sums to no more than the parent allows;</li><li>separate the requirement, the design target and the margin between them.</li></ul>
+      </section>
+
+      <section id="physics">
+        <p class="section-label">Engineering situation</p>
+        <h2>Where did 620 come from?</h2>
+        <p class="lead">The power subsystem specification says 620 Wh. A reviewer asks where that number came from, and the answer is that it was in the last project&rsquo;s specification.</p><p>That is not a derivation, it is an inheritance. The number may even be right, but nobody can tell &mdash; and when the payload later asks for a longer night measurement, nobody can say whether 620 still holds. A derived requirement without its analysis is a number that cannot be defended and cannot be changed.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 820 300" role="img" aria-label="Decomposition of one system requirement into three derived ones">
+            <defs><marker id="dr-arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0d568d"></path></marker></defs>
+            <rect x="290" y="20" width="240" height="62" rx="7" fill="#eef4fa" stroke="#071d33" stroke-width="2"></rect>
+            <text x="410" y="42" text-anchor="middle" font-size="14" font-weight="700" fill="#071d33">SYS-PERF-014</text>
+            <text x="410" y="62" text-anchor="middle" font-size="12" fill="#3f5162">30 continuous days of flight</text>
+            <text x="410" y="77" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">System</text>
+            <rect x="25" y="168" width="240" height="76" rx="7" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="145" y="190" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">EPS-PWR-018</text>
+            <text x="145" y="210" text-anchor="middle" font-size="12" fill="#3f5162">620 Wh usable per night at -35 C</text>
+            <text x="145" y="230" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">1.1.3 Power</text>
+            <path d="M 410 84 L 410 130 L 145 130 L 145 164" fill="none" stroke="#0d568d" stroke-width="2" marker-end="url(#dr-arrow)"></path>
+            <rect x="293" y="168" width="240" height="76" rx="7" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="413" y="190" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">THM-TMP-004</text>
+            <text x="413" y="210" text-anchor="middle" font-size="12" fill="#3f5162">cell above -35 C at all times</text>
+            <text x="413" y="230" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">1.1.5 Thermal</text>
+            <path d="M 410 84 L 410 130 L 413 130 L 413 164" fill="none" stroke="#0d568d" stroke-width="2" marker-end="url(#dr-arrow)"></path>
+            <rect x="561" y="168" width="240" height="76" rx="7" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="681" y="190" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">STR-LOA-009</text>
+            <text x="681" y="210" text-anchor="middle" font-size="12" fill="#3f5162">30-day fatigue load spectrum</text>
+            <text x="681" y="230" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">1.1.1 Airframe</text>
+            <path d="M 410 84 L 410 130 L 681 130 L 681 164" fill="none" stroke="#0d568d" stroke-width="2" marker-end="url(#dr-arrow)"></path>
+            <text x="410" y="272" text-anchor="middle" font-size="13" font-style="italic" fill="#0d568d">derived, with an analysis behind each</text>
+            </svg>
+            <figcaption>One system requirement, three derived ones. None of them repeats the parent&rsquo;s words, and each rests on an analysis that has to be recorded with it.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model">
+        <p class="section-label">Scope and limits</p>
+        <h2>Two operations, often confused</h2>
+        <p><strong>Decomposition</strong> breaks a requirement into the parts that together satisfy it. <strong>Allocation</strong> assigns each part to an element of the product tree. They are different operations and they can fail independently: a well-decomposed requirement assigned to the wrong element is as broken as a badly decomposed one.</p><p>Between them sits <strong>derivation</strong>, which is where the engineering happens. A derived requirement is one that no stakeholder asked for and that the design nonetheless needs, because an analysis showed that the parent cannot be met without it.</p>
+        <div class="callout warning"><strong>What derivation cannot fix.</strong> If the parent requirement is wrong, a correct derivation propagates the error downward with more precision and more confidence. Derivation checks internal consistency, never external validity. That is why the parent has to trace to a stakeholder, and why the traceability of the next lecture runs in both directions rather than only down.</div>
+      </section>
+
+      <section id="flowdown">
+        <p class="section-label">The commonest failure</p>
+        <h2>Translate, do not repeat</h2>
+        <p>A child requirement written in the parent&rsquo;s words looks like flowdown and allocates nothing. The subsystem cannot design against it, cannot verify it, and cannot tell whether it has met it &mdash; because the sentence describes a system-level outcome that no single subsystem produces.</p>
+        <div class="table-wrap"><table><thead><tr><th>Parent says</th><th>Child must not say</th><th>Child says</th></tr></thead><tbody><tr><td>Deliver 90 % of science data daily</td><td>The comm subsystem shall deliver 90 % of science data</td><td>The comm subsystem shall sustain 2.0 Mbit/s at maximum slant range</td></tr><tr><td>Fly 30 continuous days</td><td>The battery shall fly 30 continuous days</td><td>The EPS shall supply 620 Wh usable per nighttime period at -35 C</td></tr><tr><td>Survey 25 km&sup2; every 24 h</td><td>The airframe shall survey 25 km&sup2; every 24 h</td><td>The airframe shall sustain 25 m/s cruise at the survey altitude</td></tr></tbody></table></div>
+        <p>The middle column of each row is a real sentence from a real specification. Each is grammatical, each contains <em>shall</em>, and none of them can be verified by the element it was given to.</p>
+      </section>
+
+      <section id="margin">
+        <p class="section-label">Three numbers, not one</p>
+        <h2>Requirement, target, margin</h2>
+        <p>The <strong>requirement</strong> is what must be met. The <strong>design target</strong> is what the team aims at, which is deliberately better. The <strong>margin</strong> is the gap, and it exists because the requirement will be verified against a real article whose properties are not yet known.</p><p>Collapsing the three into one number is how margin disappears. If the specification says 620 Wh and the battery is sized to 620 Wh, the first unfavourable test result is a requirement violation rather than a consumed margin. Sizing to a target above the requirement is what gives the project somewhere to lose from.</p>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">Calculation algorithm</p>
+        <h2>Deriving a requirement</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Take one parent requirement</span></div><div><strong>2</strong><span>Ask what must be true for it to hold</span></div><div><strong>3</strong><span>Do the analysis</span></div><div><strong>4</strong><span>Write the child in the child&rsquo;s units</span></div><div><strong>5</strong><span>Allocate it to a product-tree element</span></div><div><strong>6</strong><span>Check the allocations sum</span></div><div><strong>7</strong><span>Record the analysis as rationale</span></div></div>
+        <p>Step six is a two-minute arithmetic check that catches a large class of errors. If the parts sum to more than the parent allows, the allocation is not ambitious &mdash; it is arithmetically impossible, and every subsystem will meet its number while the system misses its own.</p>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>From 30 days to 620 watt-hours</h2>
+        <p>The parent is SYS-PERF-014: <em>the platform shall maintain flight for at least 30 continuous days</em>. Nothing in it mentions energy. The derivation runs through the operational concept: at the survey latitude the night lasts 10.0 h, during which the solar array produces nothing.</p>
+        <div class="table-wrap"><table><thead><tr><th>Consumer</th><th>Night load [W]</th><th>Basis</th></tr></thead><tbody><tr><td>Avionics</td><td>18.0</td><td>Vendor data, continuous</td></tr><tr><td>Comm, standby</td><td>6.0</td><td>Receiver on, transmitter off</td></tr><tr><td>Payload, reduced mode</td><td>22.0</td><td>Analysis of the night measurement plan</td></tr><tr><td>Thermal control</td><td>12.0</td><td>Heater duty from the thermal model</td></tr><tr><td>Harness losses</td><td>4.0</td><td>Analysis, 7 % of distributed power</td></tr><tr><td><strong>Total</strong></td><td><strong>62.0</strong></td><td></td></tr></tbody></table></div>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>The night load.</strong> Summing the allocation gives \[P_{\text{night}} = 18.0+6.0+22.0+12.0+4.0 = 62.0\ \text{W}.\] Each line has a basis; the harness figure is itself derived, at 7&nbsp;% of distributed power.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>The energy the requirement implies.</strong> \[E = P_{\text{night}}\,t_{\text{night}} = 62.0 \times 10.0 = 620\ \text{Wh}.\] This is where the number came from, and it is the sentence that should sit in the rationale field.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>The design target.</strong> The risk register carries a trigger at \(1.25\) times the allocation, so the battery is sized to \[1.25 \times 620 = 775\ \text{Wh}\] usable. The requirement stays at 620; the extra 155 Wh is margin, held deliberately and visible as such.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>The sibling requirements.</strong> The same parent also derives a thermal requirement &mdash; keep the cell above \(-35\,^{\circ}\)C, since the 620 Wh is only usable at that temperature &mdash; and a structural one for a 30-day fatigue spectrum. Neither is about energy, and neither would have been found by looking only at the power subsystem.</div></div>
+        <div class="result-box">\[ \boxed{ 62.0\ \text{W} \times 10.0\ \text{h} = 620\ \text{Wh required},\quad 1.25 \times 620 = 775\ \text{Wh design target} } \]</div>
+        <p><strong>Interpretation.</strong> Two things are worth noticing. The 620 Wh is not a power-subsystem decision at all &mdash; it is an arithmetic consequence of a load allocation that five other teams contributed to, which is why changing any of those loads changes the battery. And the parent produced three children in three different disciplines: a derivation that yields requirements in only one subsystem has almost certainly stopped too early.</p>
+      </section>
+
+      <section id="summary">
+        <p class="section-label">Operative rules</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Statement</th></tr></thead><tbody><tr><td>Decomposition splits, allocation assigns</td><td>Decomposition breaks a requirement into parts; allocation gives each part an owner in the product tree.</td></tr><tr><td>Flowdown is not copying</td><td>A child requirement is in the child&rsquo;s units and vocabulary. Repeating the parent&rsquo;s words allocates nothing.</td></tr><tr><td>Every derived value has an analysis</td><td>The number came from somewhere. Record where, or nobody can judge a change to it later.</td></tr><tr><td>Allocations must sum</td><td>If the parts add up to more than the parent allows, the allocation is wrong, not optimistic.</td></tr><tr><td>Requirement, target and margin are three numbers</td><td>The requirement is the obligation, the target is what the design aims at, the gap is margin held on purpose.</td></tr><tr><td>One parent can have several children</td><td>And one child can serve several parents. Both directions are recorded in the matrix of the next lecture.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes">
+        <p class="section-label">Common mistakes</p>
+        <h2>What goes wrong</h2>
+        <ul class="check-list"><li><strong>Copying the parent into the child.</strong> &ldquo;The comm subsystem shall deliver 90 % of science data&rdquo; allocates nothing that the comm subsystem can design to or verify.</li><li><strong>Inheriting a number from the last project.</strong> It may be right, but without the analysis nobody can tell, and nobody can judge a change to it.</li><li><strong>Allocations that do not sum.</strong> Five subsystems each meeting their number while the system misses its own is an arithmetic failure, not bad luck.</li><li><strong>Sizing the design to the requirement.</strong> Then the first unfavourable measurement is a violation instead of a consumed margin.</li><li><strong>Deriving in one discipline only.</strong> An endurance requirement produces power, thermal and structural children; finding only one means the derivation stopped early.</li><li><strong>Treating derivation as validation.</strong> A perfect derivation from a wrong parent propagates the error downward with more confidence than it started with.</li></ul>
+      </section>
+
+      <section id="references" class="references">
+        <p class="section-label">Sources</p>
+        <h2>References</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 4.2.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=requirements---basics" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 9: Requirements &mdash; Basics</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adapted from Unit III of the Aerospace Systems Engineering (AE506) course script by Carlos Alberto Molina Holgu&iacute;n. Every number on this page was recomputed independently for it; no calculator covers this topic, so recomputation is the only check there is. The load allocation was summed and the energy and design target computed from it; the night duration and the 1.25 trigger factor come from the operations concept and the risk register respectively, and both are stated where they are used.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="writing-requirements.html?v=11"><span>Previous lecture</span>&larr; Writing Requirements</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+
+      <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Qu&eacute; deber&iacute;as poder hacer</h2>
+        <ul><li>distinguir descomposici&oacute;n de asignaci&oacute;n, y decir qu&eacute; produce cada una;</li><li>derivar un requisito de subsistema de uno de sistema mediante un c&aacute;lculo expl&iacute;cito;</li><li>reconocer un flowdown que copi&oacute; al padre en vez de traducirlo;</li><li>verificar que un conjunto de asignaciones no sume m&aacute;s de lo que el padre permite;</li><li>separar el requisito, el objetivo de dise&ntilde;o y el margen entre ambos.</li></ul>
+      </section>
+
+      <section id="physics-es">
+        <p class="section-label">Situación de ingeniería</p>
+        <h2>&iquest;De d&oacute;nde sali&oacute; 620?</h2>
+        <p class="lead">La especificaci&oacute;n del subsistema de potencia dice 620 Wh. Un revisor pregunta de d&oacute;nde sali&oacute; ese n&uacute;mero, y la respuesta es que estaba en la especificaci&oacute;n del proyecto anterior.</p><p>Eso no es una derivaci&oacute;n, es una herencia. El n&uacute;mero hasta podr&iacute;a estar bien, pero nadie puede saberlo &mdash; y cuando la carga &uacute;til pida despu&eacute;s una medici&oacute;n nocturna m&aacute;s larga, nadie podr&aacute; decir si 620 sigue valiendo. Un requisito derivado sin su an&aacute;lisis es un n&uacute;mero que no puede defenderse ni cambiarse.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 820 300" role="img" aria-label="Descomposici&oacute;n de un requisito de sistema en tres derivados">
+            <defs><marker id="dr-arrow-es" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0d568d"></path></marker></defs>
+            <rect x="290" y="20" width="240" height="62" rx="7" fill="#eef4fa" stroke="#071d33" stroke-width="2"></rect>
+            <text x="410" y="42" text-anchor="middle" font-size="14" font-weight="700" fill="#071d33">SYS-PERF-014</text>
+            <text x="410" y="62" text-anchor="middle" font-size="12" fill="#3f5162">30 d&iacute;as continuos de vuelo</text>
+            <text x="410" y="77" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">Sistema</text>
+            <rect x="25" y="168" width="240" height="76" rx="7" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="145" y="190" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">EPS-PWR-018</text>
+            <text x="145" y="210" text-anchor="middle" font-size="12" fill="#3f5162">620 Wh utilizables por noche a -35 C</text>
+            <text x="145" y="230" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">1.1.3 Potencia</text>
+            <path d="M 410 84 L 410 130 L 145 130 L 145 164" fill="none" stroke="#0d568d" stroke-width="2" marker-end="url(#dr-arrow-es)"></path>
+            <rect x="293" y="168" width="240" height="76" rx="7" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="413" y="190" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">THM-TMP-004</text>
+            <text x="413" y="210" text-anchor="middle" font-size="12" fill="#3f5162">celda sobre -35 C en todo momento</text>
+            <text x="413" y="230" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">1.1.5 T&eacute;rmico</text>
+            <path d="M 410 84 L 410 130 L 413 130 L 413 164" fill="none" stroke="#0d568d" stroke-width="2" marker-end="url(#dr-arrow-es)"></path>
+            <rect x="561" y="168" width="240" height="76" rx="7" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="681" y="190" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">STR-LOA-009</text>
+            <text x="681" y="210" text-anchor="middle" font-size="12" fill="#3f5162">espectro de carga por fatiga a 30 d&iacute;as</text>
+            <text x="681" y="230" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">1.1.1 Fuselaje</text>
+            <path d="M 410 84 L 410 130 L 681 130 L 681 164" fill="none" stroke="#0d568d" stroke-width="2" marker-end="url(#dr-arrow-es)"></path>
+            <text x="410" y="272" text-anchor="middle" font-size="13" font-style="italic" fill="#0d568d">derivados, con un an&aacute;lisis detr&aacute;s de cada uno</text>
+            </svg>
+            <figcaption>Un requisito de sistema, tres derivados. Ninguno repite las palabras del padre, y cada uno descansa en un an&aacute;lisis que debe registrarse con &eacute;l.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-es">
+        <p class="section-label">Alcance y límites</p>
+        <h2>Dos operaciones, a menudo confundidas</h2>
+        <p>La <strong>descomposici&oacute;n</strong> parte un requisito en las piezas que juntas lo satisfacen. La <strong>asignaci&oacute;n</strong> adjudica cada pieza a un elemento del &aacute;rbol de productos. Son operaciones distintas y pueden fallar por separado: un requisito bien descompuesto pero asignado al elemento equivocado est&aacute; tan roto como uno mal descompuesto.</p><p>Entre ambas est&aacute; la <strong>derivaci&oacute;n</strong>, donde ocurre la ingenier&iacute;a. Un requisito derivado es uno que ning&uacute;n stakeholder pidi&oacute; y que el dise&ntilde;o sin embargo necesita, porque un an&aacute;lisis mostr&oacute; que el padre no puede cumplirse sin &eacute;l.</p>
+        <div class="callout warning"><strong>Lo que la derivaci&oacute;n no puede arreglar.</strong> Si el requisito padre est&aacute; mal, una derivaci&oacute;n correcta propaga el error hacia abajo con m&aacute;s precisi&oacute;n y m&aacute;s confianza. La derivaci&oacute;n verifica consistencia interna, nunca validez externa. Por eso el padre debe trazar a un stakeholder, y por eso la trazabilidad de la siguiente lecture corre en ambos sentidos y no s&oacute;lo hacia abajo.</div>
+      </section>
+
+      <section id="flowdown-es">
+        <p class="section-label">La falla m&aacute;s com&uacute;n</p>
+        <h2>Traducir, no repetir</h2>
+        <p>Un requisito hijo escrito con las palabras del padre parece flowdown y no asigna nada. El subsistema no puede dise&ntilde;ar contra &eacute;l, no puede verificarlo y no puede saber si lo cumpli&oacute; &mdash; porque la frase describe un resultado de nivel sistema que ning&uacute;n subsistema produce solo.</p>
+        <div class="table-wrap"><table><thead><tr><th>El padre dice</th><th>El hijo no debe decir</th><th>El hijo dice</th></tr></thead><tbody><tr><td>Entregar 90 % de datos cient&iacute;ficos a diario</td><td>El subsistema de comunicaciones deber&aacute; entregar 90 % de los datos</td><td>El subsistema de comunicaciones deber&aacute; sostener 2.0 Mbit/s a alcance oblicuo m&aacute;ximo</td></tr><tr><td>Volar 30 d&iacute;as continuos</td><td>La bater&iacute;a deber&aacute; volar 30 d&iacute;as continuos</td><td>El EPS deber&aacute; suministrar 620 Wh utilizables por periodo nocturno a -35 C</td></tr><tr><td>Inspeccionar 25 km&sup2; cada 24 h</td><td>El fuselaje deber&aacute; inspeccionar 25 km&sup2; cada 24 h</td><td>El fuselaje deber&aacute; sostener crucero de 25 m/s a la altitud de inspecci&oacute;n</td></tr></tbody></table></div>
+        <p>La columna central de cada fila es una frase real de una especificaci&oacute;n real. Cada una es gramatical, cada una contiene <em>shall</em>, y ninguna puede verificarla el elemento al que se le dio.</p>
+      </section>
+
+      <section id="margin-es">
+        <p class="section-label">Tres n&uacute;meros, no uno</p>
+        <h2>Requisito, objetivo, margen</h2>
+        <p>El <strong>requisito</strong> es lo que debe cumplirse. El <strong>objetivo de dise&ntilde;o</strong> es a lo que apunta el equipo, deliberadamente mejor. El <strong>margen</strong> es la brecha, y existe porque el requisito se verificar&aacute; contra un art&iacute;culo real cuyas propiedades a&uacute;n no se conocen.</p><p>Colapsar los tres en un n&uacute;mero es como desaparece el margen. Si la especificaci&oacute;n dice 620 Wh y la bater&iacute;a se dimensiona a 620 Wh, el primer resultado de prueba desfavorable es una violaci&oacute;n de requisito y no un margen consumido. Dimensionar a un objetivo por encima del requisito es lo que le da al proyecto de d&oacute;nde perder.</p>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Algoritmo de cálculo</p>
+        <h2>Derivar un requisito</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Tomar un requisito padre</span></div><div><strong>2</strong><span>Preguntar qu&eacute; debe ser cierto para que se cumpla</span></div><div><strong>3</strong><span>Hacer el an&aacute;lisis</span></div><div><strong>4</strong><span>Escribir el hijo en las unidades del hijo</span></div><div><strong>5</strong><span>Asignarlo a un elemento del &aacute;rbol de productos</span></div><div><strong>6</strong><span>Verificar que las asignaciones sumen</span></div><div><strong>7</strong><span>Registrar el an&aacute;lisis como justificaci&oacute;n</span></div></div>
+        <p>El paso seis es una verificaci&oacute;n aritm&eacute;tica de dos minutos que atrapa una gran clase de errores. Si las partes suman m&aacute;s de lo que el padre permite, la asignaci&oacute;n no es ambiciosa &mdash; es aritm&eacute;ticamente imposible, y cada subsistema cumplir&aacute; su n&uacute;mero mientras el sistema incumple el suyo.</p>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>De 30 d&iacute;as a 620 vatios-hora</h2>
+        <p>El padre es SYS-PERF-014: <em>la plataforma deber&aacute; mantener vuelo por al menos 30 d&iacute;as continuos</em>. Nada en &eacute;l menciona energ&iacute;a. La derivaci&oacute;n pasa por el concepto de operaciones: a la latitud de inspecci&oacute;n la noche dura 10.0 h, durante las cuales el arreglo solar no produce nada.</p>
+        <div class="table-wrap"><table><thead><tr><th>Consumidor</th><th>Carga nocturna [W]</th><th>Base</th></tr></thead><tbody><tr><td>Avi&oacute;nica</td><td>18.0</td><td>Datos de proveedor, continuo</td></tr><tr><td>Comunicaciones, en espera</td><td>6.0</td><td>Receptor encendido, transmisor apagado</td></tr><tr><td>Carga &uacute;til, modo reducido</td><td>22.0</td><td>An&aacute;lisis del plan de medici&oacute;n nocturna</td></tr><tr><td>Control t&eacute;rmico</td><td>12.0</td><td>Ciclo de calefactores del modelo t&eacute;rmico</td></tr><tr><td>P&eacute;rdidas de arn&eacute;s</td><td>4.0</td><td>An&aacute;lisis, 7 % de la potencia distribuida</td></tr><tr><td><strong>Total</strong></td><td><strong>62.0</strong></td><td></td></tr></tbody></table></div>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>La carga nocturna.</strong> Sumando la asignaci&oacute;n da \[P_{\text{noche}} = 18.0+6.0+22.0+12.0+4.0 = 62.0\ \text{W}.\] Cada rengl&oacute;n tiene una base; la cifra del arn&eacute;s es a su vez derivada, al 7&nbsp;% de la potencia distribuida.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>La energ&iacute;a que implica el requisito.</strong> \[E = P_{\text{noche}}\,t_{\text{noche}} = 62.0 \times 10.0 = 620\ \text{Wh}.\] De ah&iacute; sali&oacute; el n&uacute;mero, y esa es la frase que debe ir en el campo de justificaci&oacute;n.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>El objetivo de dise&ntilde;o.</strong> El registro de riesgos lleva un disparador en \(1.25\) veces la asignaci&oacute;n, as&iacute; que la bater&iacute;a se dimensiona a \[1.25 \times 620 = 775\ \text{Wh}\] utilizables. El requisito se queda en 620; los 155 Wh extra son margen, sostenido a prop&oacute;sito y visible como tal.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Los requisitos hermanos.</strong> El mismo padre deriva tambi&eacute;n un requisito t&eacute;rmico &mdash; mantener la celda sobre \(-35\,^{\circ}\)C, ya que los 620 Wh s&oacute;lo son utilizables a esa temperatura &mdash; y uno estructural para un espectro de fatiga de 30 d&iacute;as. Ninguno trata de energ&iacute;a, y ninguno se habr&iacute;a hallado mirando s&oacute;lo el subsistema de potencia.</div></div>
+        <div class="result-box">\[ \boxed{ 62.0\ \text{W} \times 10.0\ \text{h} = 620\ \text{Wh requeridos},\quad 1.25 \times 620 = 775\ \text{Wh objetivo} } \]</div>
+        <p><strong>Interpretaci&oacute;n.</strong> Vale la pena notar dos cosas. Los 620 Wh no son una decisi&oacute;n del subsistema de potencia &mdash; son una consecuencia aritm&eacute;tica de una asignaci&oacute;n de cargas a la que contribuyeron otros cinco equipos, por lo que cambiar cualquiera de esas cargas cambia la bater&iacute;a. Y el padre produjo tres hijos en tres disciplinas distintas: una derivaci&oacute;n que arroja requisitos en un solo subsistema casi con seguridad se detuvo demasiado pronto.</p>
+      </section>
+
+      <section id="summary-es">
+        <p class="section-label">Reglas operativas</p>
+        <h2>De un vistazo</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regla</th><th>Enunciado</th></tr></thead><tbody><tr><td>La descomposici&oacute;n divide, la asignaci&oacute;n adjudica</td><td>La descomposici&oacute;n parte un requisito; la asignaci&oacute;n da a cada parte un due&ntilde;o en el &aacute;rbol de productos.</td></tr><tr><td>El flowdown no es copiar</td><td>Un requisito hijo va en las unidades y el vocabulario del hijo. Repetir las palabras del padre no asigna nada.</td></tr><tr><td>Todo valor derivado tiene un an&aacute;lisis</td><td>El n&uacute;mero vino de alg&uacute;n lado. Registra de d&oacute;nde, o nadie podr&aacute; juzgar despu&eacute;s un cambio.</td></tr><tr><td>Las asignaciones deben sumar</td><td>Si las partes suman m&aacute;s de lo que el padre permite, la asignaci&oacute;n est&aacute; mal, no es optimista.</td></tr><tr><td>Requisito, objetivo y margen son tres n&uacute;meros</td><td>El requisito es la obligaci&oacute;n, el objetivo es a lo que apunta el dise&ntilde;o, la brecha es margen sostenido a prop&oacute;sito.</td></tr><tr><td>Un padre puede tener varios hijos</td><td>Y un hijo puede servir a varios padres. Ambas direcciones se registran en la matriz de la siguiente lecture.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-es">
+        <p class="section-label">Errores comunes</p>
+        <h2>Qu&eacute; sale mal</h2>
+        <ul class="check-list"><li><strong>Copiar el padre en el hijo.</strong> &laquo;El subsistema de comunicaciones deber&aacute; entregar 90 % de los datos&raquo; no asigna nada que ese subsistema pueda dise&ntilde;ar ni verificar.</li><li><strong>Heredar un n&uacute;mero del proyecto anterior.</strong> Podr&iacute;a estar bien, pero sin el an&aacute;lisis nadie puede saberlo, ni juzgar un cambio.</li><li><strong>Asignaciones que no suman.</strong> Cinco subsistemas cumpliendo su n&uacute;mero mientras el sistema incumple el suyo es una falla aritm&eacute;tica, no mala suerte.</li><li><strong>Dimensionar el dise&ntilde;o al requisito.</strong> Entonces la primera medici&oacute;n desfavorable es una violaci&oacute;n en vez de un margen consumido.</li><li><strong>Derivar en una sola disciplina.</strong> Un requisito de autonom&iacute;a produce hijos de potencia, t&eacute;rmicos y estructurales; hallar s&oacute;lo uno significa que la derivaci&oacute;n se detuvo pronto.</li><li><strong>Tomar la derivaci&oacute;n por validaci&oacute;n.</strong> Una derivaci&oacute;n perfecta de un padre equivocado propaga el error hacia abajo con m&aacute;s confianza de la que ten&iacute;a al empezar.</li></ul>
+      </section>
+
+      <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
+        <h2>Referencias</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 4.2.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=requirements---basics" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 9: Requirements &mdash; Basics</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adaptado de la Unidad III del gui&oacute;n del curso Ingenier&iacute;a en Sistemas Aeroespaciales (AE506) de Carlos Alberto Molina Holgu&iacute;n. Cada n&uacute;mero de esta p&aacute;gina se recalcul&oacute; de forma independiente para ella; ninguna calculadora cubre este tema, as&iacute; que el rec&aacute;lculo es la &uacute;nica comprobaci&oacute;n disponible. La asignaci&oacute;n de cargas se sum&oacute; y de ah&iacute; se calcularon la energ&iacute;a y el objetivo de dise&ntilde;o; la duraci&oacute;n de la noche y el factor de disparo 1.25 vienen del concepto de operaciones y del registro de riesgos, y ambos se declaran donde se usan.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="writing-requirements.html?v=11"><span>Lecture anterior</span>&larr; Redactar requisitos</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+
+      <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie k&ouml;nnen sollten</h2>
+        <ul><li>Zerlegung von Zuordnung unterscheiden und sagen, was jede erzeugt;</li><li>eine Teilsystemanforderung durch eine explizite Rechnung aus einer Systemanforderung ableiten;</li><li>einen Flowdown erkennen, der die Elternanforderung kopiert statt &uuml;bersetzt hat;</li><li>pr&uuml;fen, dass Zuordnungen die Elternvorgabe nicht &uuml;berschreiten;</li><li>Anforderung, Entwurfszielwert und die Reserve dazwischen trennen.</li></ul>
+      </section>
+
+      <section id="physics-de">
+        <p class="section-label">Ingenieurtechnischer Kontext</p>
+        <h2>Woher kamen die 620?</h2>
+        <p class="lead">Die Spezifikation des Energiesystems nennt 620 Wh. Ein Pr&uuml;fer fragt, woher die Zahl stammt, und die Antwort lautet: aus der Spezifikation des letzten Projekts.</p><p>Das ist keine Ableitung, sondern eine Erbschaft. Die Zahl mag sogar stimmen, aber niemand kann es beurteilen &mdash; und wenn die Nutzlast sp&auml;ter eine l&auml;ngere Nachtmessung verlangt, kann niemand sagen, ob 620 noch gilt. Eine abgeleitete Anforderung ohne ihre Analyse ist eine Zahl, die weder verteidigt noch ge&auml;ndert werden kann.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 820 300" role="img" aria-label="Zerlegung einer Systemanforderung in drei abgeleitete">
+            <defs><marker id="dr-arrow-de" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0d568d"></path></marker></defs>
+            <rect x="290" y="20" width="240" height="62" rx="7" fill="#eef4fa" stroke="#071d33" stroke-width="2"></rect>
+            <text x="410" y="42" text-anchor="middle" font-size="14" font-weight="700" fill="#071d33">SYS-PERF-014</text>
+            <text x="410" y="62" text-anchor="middle" font-size="12" fill="#3f5162">30 Tage Dauerflug</text>
+            <text x="410" y="77" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">System</text>
+            <rect x="25" y="168" width="240" height="76" rx="7" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="145" y="190" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">EPS-PWR-018</text>
+            <text x="145" y="210" text-anchor="middle" font-size="12" fill="#3f5162">620 Wh nutzbar je Nacht bei -35 C</text>
+            <text x="145" y="230" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">1.1.3 Energie</text>
+            <path d="M 410 84 L 410 130 L 145 130 L 145 164" fill="none" stroke="#0d568d" stroke-width="2" marker-end="url(#dr-arrow-de)"></path>
+            <rect x="293" y="168" width="240" height="76" rx="7" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="413" y="190" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">THM-TMP-004</text>
+            <text x="413" y="210" text-anchor="middle" font-size="12" fill="#3f5162">Zelle jederzeit &uuml;ber -35 C</text>
+            <text x="413" y="230" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">1.1.5 Thermik</text>
+            <path d="M 410 84 L 410 130 L 413 130 L 413 164" fill="none" stroke="#0d568d" stroke-width="2" marker-end="url(#dr-arrow-de)"></path>
+            <rect x="561" y="168" width="240" height="76" rx="7" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="681" y="190" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">STR-LOA-009</text>
+            <text x="681" y="210" text-anchor="middle" font-size="12" fill="#3f5162">Lastspektrum f&uuml;r 30 Tage Erm&uuml;dung</text>
+            <text x="681" y="230" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">1.1.1 Zelle</text>
+            <path d="M 410 84 L 410 130 L 681 130 L 681 164" fill="none" stroke="#0d568d" stroke-width="2" marker-end="url(#dr-arrow-de)"></path>
+            <text x="410" y="272" text-anchor="middle" font-size="13" font-style="italic" fill="#0d568d">abgeleitet, jeweils mit einer Analyse dahinter</text>
+            </svg>
+            <figcaption>Eine Systemanforderung, drei abgeleitete. Keine wiederholt die Worte der Elternanforderung, und jede beruht auf einer Analyse, die mit ihr zu dokumentieren ist.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-de">
+        <p class="section-label">Geltungsbereich und Grenzen</p>
+        <h2>Zwei Vorg&auml;nge, oft verwechselt</h2>
+        <p>Die <strong>Zerlegung</strong> teilt eine Anforderung in die Teile, die sie zusammen erf&uuml;llen. Die <strong>Zuordnung</strong> weist jeden Teil einem Element des Produktbaums zu. Es sind verschiedene Vorg&auml;nge, die unabh&auml;ngig scheitern k&ouml;nnen: Eine gut zerlegte, aber falsch zugeordnete Anforderung ist so defekt wie eine schlecht zerlegte.</p><p>Dazwischen liegt die <strong>Ableitung</strong>, wo die Ingenieurarbeit stattfindet. Eine abgeleitete Anforderung hat kein Interessentr&auml;ger verlangt, und der Entwurf braucht sie dennoch, weil eine Analyse zeigte, dass die Elternanforderung ohne sie nicht erf&uuml;llbar ist.</p>
+        <div class="callout warning"><strong>Was die Ableitung nicht heilt.</strong> Ist die Elternanforderung falsch, tr&auml;gt eine korrekte Ableitung den Fehler mit gr&ouml;&szlig;erer Pr&auml;zision und mehr Zuversicht nach unten. Die Ableitung pr&uuml;ft innere Stimmigkeit, nie &auml;u&szlig;ere G&uuml;ltigkeit. Deshalb muss die Elternanforderung auf einen Interessentr&auml;ger zur&uuml;ckf&uuml;hren, und deshalb l&auml;uft die R&uuml;ckverfolgbarkeit der n&auml;chsten Vorlesung in beide Richtungen.</div>
+      </section>
+
+      <section id="flowdown-de">
+        <p class="section-label">Der h&auml;ufigste Fehler</p>
+        <h2>&Uuml;bersetzen, nicht wiederholen</h2>
+        <p>Eine Kindanforderung in den Worten der Elternanforderung sieht nach Flowdown aus und ordnet nichts zu. Das Teilsystem kann weder danach entwerfen noch verifizieren noch feststellen, ob es sie erf&uuml;llt hat &mdash; denn der Satz beschreibt ein Systemergebnis, das kein einzelnes Teilsystem erzeugt.</p>
+        <div class="table-wrap"><table><thead><tr><th>Elternanforderung</th><th>Kindanforderung darf nicht</th><th>Kindanforderung sagt</th></tr></thead><tbody><tr><td>T&auml;glich 90 % der Wissenschaftsdaten liefern</td><td>Das Kommunikationssystem muss 90 % der Daten liefern</td><td>Das Kommunikationssystem muss 2,0 Mbit/s bei maximaler Schr&auml;gentfernung halten</td></tr><tr><td>30 Tage durchgehend fliegen</td><td>Die Batterie muss 30 Tage durchgehend fliegen</td><td>Das EPS muss 620 Wh nutzbar je Nachtphase bei -35 C liefern</td></tr><tr><td>Alle 24 h 25 km&sup2; vermessen</td><td>Die Zelle muss alle 24 h 25 km&sup2; vermessen</td><td>Die Zelle muss 25 m/s Reisegeschwindigkeit auf Vermessungsh&ouml;he halten</td></tr></tbody></table></div>
+        <p>Die mittlere Spalte jeder Zeile ist ein echter Satz aus einer echten Spezifikation. Jeder ist grammatisch, jeder enth&auml;lt <em>shall</em>, und keiner l&auml;sst sich von dem Element verifizieren, dem er zugewiesen wurde.</p>
+      </section>
+
+      <section id="margin-de">
+        <p class="section-label">Drei Zahlen, nicht eine</p>
+        <h2>Anforderung, Zielwert, Reserve</h2>
+        <p>Die <strong>Anforderung</strong> ist das, was erf&uuml;llt werden muss. Der <strong>Entwurfszielwert</strong> ist das Ziel des Teams, bewusst besser. Die <strong>Reserve</strong> ist die L&uuml;cke, und sie besteht, weil die Anforderung gegen ein reales Exemplar mit noch unbekannten Eigenschaften verifiziert wird.</p><p>Die drei zu einer Zahl zu verschmelzen l&auml;sst die Reserve verschwinden. Nennt die Spezifikation 620 Wh und wird die Batterie auf 620 Wh ausgelegt, ist das erste ung&uuml;nstige Testergebnis eine Anforderungsverletzung statt einer verbrauchten Reserve. Die Auslegung auf einen Zielwert oberhalb der Anforderung gibt dem Projekt etwas zum Verlieren.</p>
+      </section>
+
+      <section id="algorithm-de">
+        <p class="section-label">Rechenalgorithmus</p>
+        <h2>Eine Anforderung ableiten</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Eine Elternanforderung nehmen</span></div><div><strong>2</strong><span>Fragen, was gelten muss, damit sie h&auml;lt</span></div><div><strong>3</strong><span>Die Analyse durchf&uuml;hren</span></div><div><strong>4</strong><span>Das Kind in den Einheiten des Kindes schreiben</span></div><div><strong>5</strong><span>Es einem Produktbaumelement zuordnen</span></div><div><strong>6</strong><span>Pr&uuml;fen, dass die Zuordnungen aufgehen</span></div><div><strong>7</strong><span>Die Analyse als Begr&uuml;ndung erfassen</span></div></div>
+        <p>Schritt sechs ist eine zweimin&uuml;tige Rechenpr&uuml;fung, die eine gro&szlig;e Fehlerklasse abf&auml;ngt. &Uuml;bersteigt die Summe der Teile die Elternvorgabe, ist die Zuordnung nicht ehrgeizig &mdash; sie ist rechnerisch unm&ouml;glich, und jedes Teilsystem erf&uuml;llt seine Zahl, w&auml;hrend das System seine verfehlt.</p>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Von 30 Tagen zu 620 Wattstunden</h2>
+        <p>Die Elternanforderung ist SYS-PERF-014: <em>die Plattform muss mindestens 30 Tage durchgehend fliegen</em>. Von Energie ist darin keine Rede. Die Ableitung f&uuml;hrt &uuml;ber das Betriebskonzept: Auf der Vermessungsbreite dauert die Nacht 10,0 h, in der das Solarfeld nichts liefert.</p>
+        <div class="table-wrap"><table><thead><tr><th>Verbraucher</th><th>Nachtlast [W]</th><th>Grundlage</th></tr></thead><tbody><tr><td>Avionik</td><td>18,0</td><td>Herstellerdaten, dauerhaft</td></tr><tr><td>Kommunikation, Bereitschaft</td><td>6,0</td><td>Empf&auml;nger an, Sender aus</td></tr><tr><td>Nutzlast, reduzierter Modus</td><td>22,0</td><td>Analyse des n&auml;chtlichen Messplans</td></tr><tr><td>Thermalregelung</td><td>12,0</td><td>Heizertaktung aus dem Thermalmodell</td></tr><tr><td>Kabelbaumverluste</td><td>4,0</td><td>Analyse, 7 % der verteilten Leistung</td></tr><tr><td><strong>Summe</strong></td><td><strong>62,0</strong></td><td></td></tr></tbody></table></div>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Die Nachtlast.</strong> Die Summe der Zuordnung ergibt \[P_{\text{Nacht}} = 18{,}0+6{,}0+22{,}0+12{,}0+4{,}0 = 62{,}0\ \text{W}.\] Jede Zeile hat eine Grundlage; der Kabelbaumwert ist selbst abgeleitet, mit 7&nbsp;% der verteilten Leistung.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Die implizierte Energie.</strong> \[E = P_{\text{Nacht}}\,t_{\text{Nacht}} = 62{,}0 \times 10{,}0 = 620\ \text{Wh}.\] Daher stammt die Zahl, und dieser Satz geh&ouml;rt in das Begr&uuml;ndungsfeld.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Der Entwurfszielwert.</strong> Das Risikoregister f&uuml;hrt einen Ausl&ouml;ser beim \(1{,}25\)-fachen der Zuweisung, die Batterie wird also auf \[1{,}25 \times 620 = 775\ \text{Wh}\] nutzbar ausgelegt. Die Anforderung bleibt bei 620; die zus&auml;tzlichen 155 Wh sind bewusst gehaltene und sichtbare Reserve.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Die Geschwisteranforderungen.</strong> Dieselbe Elternanforderung leitet auch eine thermische ab &mdash; die Zelle &uuml;ber \(-35\,^{\circ}\)C halten, da die 620 Wh nur dort nutzbar sind &mdash; und eine strukturelle f&uuml;r ein 30-Tage-Erm&uuml;dungsspektrum. Keine betrifft Energie, und keine w&auml;re beim alleinigen Blick auf das Energiesystem gefunden worden.</div></div>
+        <div class="result-box">\[ \boxed{ 62{,}0\ \text{W} \times 10{,}0\ \text{h} = 620\ \text{Wh gefordert},\quad 1{,}25 \times 620 = 775\ \text{Wh Zielwert} } \]</div>
+        <p><strong>Deutung.</strong> Zweierlei ist bemerkenswert. Die 620 Wh sind keine Entscheidung des Energiesystems &mdash; sie sind eine rechnerische Folge einer Lastzuordnung, zu der f&uuml;nf andere Teams beitrugen; jede &Auml;nderung dieser Lasten &auml;ndert die Batterie. Und die Elternanforderung erzeugte drei Kinder in drei Disziplinen: Eine Ableitung, die nur in einem Teilsystem Anforderungen liefert, hat fast sicher zu fr&uuml;h aufgeh&ouml;rt.</p>
+      </section>
+
+      <section id="summary-de">
+        <p class="section-label">Arbeitsregeln</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regel</th><th>Aussage</th></tr></thead><tbody><tr><td>Zerlegung teilt, Zuordnung weist zu</td><td>Die Zerlegung teilt eine Anforderung; die Zuordnung gibt jedem Teil einen Verantwortlichen im Produktbaum.</td></tr><tr><td>Flowdown ist kein Kopieren</td><td>Eine Kindanforderung steht in den Einheiten und im Vokabular des Kindes. Die Elternworte zu wiederholen ordnet nichts zu.</td></tr><tr><td>Jeder abgeleitete Wert hat eine Analyse</td><td>Die Zahl kam von irgendwoher. Halten Sie fest woher, sonst kann sp&auml;ter niemand eine &Auml;nderung beurteilen.</td></tr><tr><td>Zuordnungen m&uuml;ssen aufgehen</td><td>&Uuml;bersteigt die Summe der Teile die Elternvorgabe, ist die Zuordnung falsch, nicht optimistisch.</td></tr><tr><td>Anforderung, Zielwert und Reserve sind drei Zahlen</td><td>Die Anforderung ist die Pflicht, der Zielwert das Entwurfsziel, die L&uuml;cke bewusst gehaltene Reserve.</td></tr><tr><td>Eine Elternanforderung kann mehrere Kinder haben</td><td>Und ein Kind kann mehreren Eltern dienen. Beide Richtungen stehen in der Matrix der n&auml;chsten Vorlesung.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Häufige Fehler</p>
+        <h2>Was schiefgeht</h2>
+        <ul class="check-list"><li><strong>Die Elternanforderung ins Kind kopieren.</strong> &bdquo;Das Kommunikationssystem muss 90 % der Daten liefern&ldquo; ordnet nichts zu, wonach dieses System entwerfen oder verifizieren k&ouml;nnte.</li><li><strong>Eine Zahl aus dem letzten Projekt erben.</strong> Sie mag stimmen, aber ohne die Analyse kann es niemand beurteilen und niemand eine &Auml;nderung bewerten.</li><li><strong>Zuordnungen, die nicht aufgehen.</strong> F&uuml;nf Teilsysteme erf&uuml;llen ihre Zahl, das System verfehlt seine &mdash; ein Rechenfehler, kein Pech.</li><li><strong>Den Entwurf auf die Anforderung auslegen.</strong> Dann ist die erste ung&uuml;nstige Messung eine Verletzung statt einer verbrauchten Reserve.</li><li><strong>Nur in einer Disziplin ableiten.</strong> Eine Ausdaueranforderung erzeugt Energie-, Thermal- und Strukturkinder; nur eines zu finden hei&szlig;t, die Ableitung brach fr&uuml;h ab.</li><li><strong>Ableitung f&uuml;r Validierung halten.</strong> Eine perfekte Ableitung aus einer falschen Elternanforderung tr&auml;gt den Fehler mit mehr Zuversicht nach unten, als er begann.</li></ul>
+      </section>
+
+      <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
+        <h2>Literatur</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 4.2.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=requirements---basics" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 9: Requirements &mdash; Basics</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Bearbeitet nach Einheit III des Skripts Luft- und Raumfahrtsystemtechnik (AE506) von Carlos Alberto Molina Holgu&iacute;n. Jede Zahl dieser Seite wurde eigens daf&uuml;r unabh&auml;ngig neu berechnet; kein Rechner deckt dieses Thema ab, daher ist die Neuberechnung die einzige Pr&uuml;fung. Die Lastzuordnung wurde summiert und daraus Energie und Zielwert berechnet; Nachtdauer und der Ausl&ouml;sefaktor 1,25 stammen aus Betriebskonzept bzw. Risikoregister und sind an der Verwendungsstelle genannt.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="writing-requirements.html?v=11"><span>Vorherige Vorlesung</span>&larr; Anforderungen schreiben</a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>&copy; <span id="year"></span> Carlos Alberto Molina Holgu&iacute;n</p>
+    <p>Universidad Aut&oacute;noma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

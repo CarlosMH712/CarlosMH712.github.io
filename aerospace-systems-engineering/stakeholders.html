@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Identifying stakeholders in an aerospace project by sweeping the life cycle, the influence-interest map, primary versus secondary roles, veto authority, and recording conflicts before they become requirements." />
+  <meta name="author" content="Carlos Alberto Molina Holgu&iacute;n" />
+  <meta name="theme-color" content="#071d33" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Stakeholders | Aerospace Systems Engineering</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:wght@600;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=11" data-ui-key="course">Aerospace Systems Engineering</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Aerospace Systems Engineering &middot; Lecture 05</p>
+        <h1>Stakeholders: Identification, Conflict, and the Register</h1>
+        <p class="hero-copy">Why the customer is never the whole list, how to find the parties who can stop a mission without caring about it, and what to do with two expectations that cannot both be met.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Ingeniería de Sistemas Aeroespaciales &middot; Lecture 05</p>
+        <h1>Stakeholders: identificaci&oacute;n, conflicto y registro</h1>
+        <p class="hero-copy">Por qu&eacute; el cliente nunca es toda la lista, c&oacute;mo encontrar a quienes pueden detener una misi&oacute;n sin que les importe, y qu&eacute; hacer con dos expectativas que no pueden cumplirse ambas.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Luft- und Raumfahrtsystemtechnik &middot; Vorlesung 05</p>
+        <h1>Interessentr&auml;ger: Ermittlung, Konflikt und Register</h1>
+        <p class="hero-copy">Warum der Kunde nie die ganze Liste ist, wie man jene findet, die eine Mission stoppen k&ouml;nnen, ohne sich f&uuml;r sie zu interessieren, und was mit zwei unvereinbaren Erwartungen zu tun ist.</p>
+      </div>
+
+    <div class="hero-meta">
+        <span data-language="en">Estimated reading: 12 min</span><span data-language="es" hidden>Lectura estimada: 12 min</span><span data-language="de" hidden>Lesedauer: ca. 12 min</span>
+        <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+        <span data-language="en">Scope: qualitative, before requirements</span><span data-language="es" hidden>Alcance: cualitativo, antes de requisitos</span><span data-language="de" hidden>Umfang: qualitativ, vor den Anforderungen</span>
+    </div>
+    <div class="button-row">
+      <a class="button secondary" href="index.html?v=11" data-ui-key="back">Back to course</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Engineering situation</a>
+        <a href="#model">Scope and limits</a>
+        <a href="#sweep">The life-cycle sweep</a>
+        <a href="#conflict">Conflicts</a>
+        <a href="#algorithm">Building the register</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Operative rules</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#references">Sources</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Situaci&oacute;n de ingenier&iacute;a</a>
+        <a href="#model-es">Alcance y l&iacute;mites</a>
+        <a href="#sweep-es">El recorrido del ciclo de vida</a>
+        <a href="#conflict-es">Conflictos</a>
+        <a href="#algorithm-es">Construir el registro</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Reglas operativas</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Kontext</a>
+        <a href="#model-de">Geltungsbereich</a>
+        <a href="#sweep-de">Der Lebenszyklus-Durchgang</a>
+        <a href="#conflict-de">Konflikte</a>
+        <a href="#algorithm-de">Das Register aufbauen</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Arbeitsregeln</a>
+        <a href="#mistakes-de">H&auml;ufige Fehler</a>
+        <a href="#references-de">Quellen</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+
+      <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul><li>find stakeholders by sweeping the life cycle rather than reading an organisation chart;</li><li>classify each as primary or secondary, and explain why that is not a ranking of importance;</li><li>identify the parties who hold veto authority and place them on the influence&ndash;interest map;</li><li>record an expectation with its source, so it can be reconciled rather than argued about;</li><li>log a conflict between two expectations instead of resolving it silently.</li></ul>
+      </section>
+
+      <section id="physics">
+        <p class="section-label">Engineering situation</p>
+        <h2>The three names on the whiteboard</h2>
+        <p class="lead">At kickoff the team lists its stakeholders: the sponsor who is paying, the science team who asked for the data, and the operations group who will fly it. Three names, and the meeting moves on.</p><p>Eleven months later the airspace authority declines to approve the flight profile, and the design that satisfied all three names has to change. The authority was never hostile and never hidden. It was simply not on a list that was assembled by asking who was in the room.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 400" role="img" aria-label="Influence and interest map with nine stakeholders placed">
+            <rect x="90" y="40" width="430" height="300" fill="#fbfcfd" stroke="#c9d4de"></rect>
+            <line x1="305" y1="40" x2="305" y2="340" stroke="#c9d4de" stroke-dasharray="5 4"></line>
+            <line x1="90" y1="190" x2="520" y2="190" stroke="#c9d4de" stroke-dasharray="5 4"></line>
+            <text x="197" y="62" text-anchor="middle" font-size="13" font-weight="600" fill="#8fa6ba">Keep satisfied</text>
+            <text x="412" y="62" text-anchor="middle" font-size="13" font-weight="600" fill="#8fa6ba">Engage closely</text>
+            <text x="197" y="330" text-anchor="middle" font-size="13" font-weight="600" fill="#8fa6ba">Monitor</text>
+            <text x="412" y="330" text-anchor="middle" font-size="13" font-weight="600" fill="#8fa6ba">Keep informed</text>
+            <circle cx="326" cy="70" r="7" fill="#0d568d"></circle>
+            <text x="338" y="74" text-anchor="start" font-size="12" fill="#3f5162">Sponsor</text>
+            <circle cx="498" cy="175" r="7" fill="#0d568d"></circle>
+            <text x="486" y="179" text-anchor="end" font-size="12" fill="#3f5162">Science team</text>
+            <circle cx="455" cy="205" r="7" fill="#0d568d"></circle>
+            <text x="443" y="209" text-anchor="end" font-size="12" fill="#3f5162">Operations</text>
+            <circle cx="391" cy="265" r="7" fill="#8fa6ba"></circle>
+            <text x="403" y="269" text-anchor="start" font-size="12" fill="#3f5162">Maintenance</text>
+            <circle cx="197" cy="63" r="7" fill="#b03a2e"></circle>
+            <text x="209" y="67" text-anchor="start" font-size="12" fill="#3f5162">Regulator</text>
+            <circle cx="240" cy="160" r="7" fill="#8fa6ba"></circle>
+            <text x="252" y="164" text-anchor="start" font-size="12" fill="#3f5162">Field services</text>
+            <circle cx="477" cy="280" r="7" fill="#0d568d"></circle>
+            <text x="465" y="284" text-anchor="end" font-size="12" fill="#3f5162">Data users</text>
+            <circle cx="176" cy="99" r="7" fill="#b03a2e"></circle>
+            <text x="188" y="103" text-anchor="start" font-size="12" fill="#3f5162">Range safety</text>
+            <circle cx="154" cy="250" r="7" fill="#8fa6ba"></circle>
+            <text x="166" y="254" text-anchor="start" font-size="12" fill="#3f5162">Disposal</text>
+            <text x="305" y="372" text-anchor="middle" font-size="14" font-weight="600" fill="#071d33">Interest</text>
+            <text x="14" y="30" font-size="14" font-weight="600" fill="#071d33">Influence</text>
+            <circle cx="560" cy="70" r="7" fill="#0d568d"></circle><text x="578" y="74" font-size="13" fill="#3f5162">Primary</text>
+            <circle cx="560" cy="100" r="7" fill="#b03a2e"></circle><text x="578" y="104" font-size="13" fill="#3f5162">Secondary, holds veto</text>
+            <circle cx="560" cy="130" r="7" fill="#8fa6ba"></circle><text x="578" y="134" font-size="13" fill="#3f5162">Secondary</text>
+            <text x="552" y="190" font-size="13" font-style="italic" fill="#b03a2e" >Both veto holders are</text>
+            <text x="552" y="210" font-size="13" font-style="italic" fill="#b03a2e" >secondary by role.</text>
+            </svg>
+            <figcaption>Nine stakeholders found by sweeping the life cycle. The two who can stop the mission sit in the upper left, and neither is the customer.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model">
+        <p class="section-label">Scope and limits</p>
+        <h2>Who counts, and who can stop you</h2>
+        <p>A <strong>stakeholder</strong> is any party whose expectations, authority or operational knowledge affects the mission. The register that lists them is where requirements come from: in the next units, every requirement must trace to an entry here or to a documented derivation.</p><p>Two classifications matter and they are independent. <strong>Primary</strong> stakeholders drive mission success, acceptance, authorisation or operation directly. <strong>Veto authority</strong> is the power to stop the mission. A regulator is typically secondary by role and decisive by authority, and conflating the two is how the opening story happens.</p>
+        <div class="callout warning"><strong>What the map does not decide.</strong> The influence&ndash;interest quadrants set how often you talk to someone, not whose expectation wins. A stakeholder in &ldquo;monitor&rdquo; can still hold a requirement the mission cannot violate. Use the map to plan engagement, and the conflict log to decide content.</div>
+      </section>
+
+      <section id="sweep">
+        <p class="section-label">The method</p>
+        <h2>Walking the phases</h2>
+        <p>An organisation chart shows who works for the project today. The stakeholders who arrive late &mdash; and whose requirements are therefore expensive &mdash; are attached to phases the project has not reached yet. So the sweep is over phases, not people.</p>
+        <div class="table-wrap"><table><thead><tr><th>Phase</th><th>Ask who...</th><th>Found here</th></tr></thead><tbody><tr><td>Concept</td><td>funds it and decides it goes ahead</td><td>Sponsor</td></tr><tr><td>Definition</td><td>will use the product of the mission</td><td>Science team, data users</td></tr><tr><td>Development</td><td>must approve or certify before it flies</td><td>Regulator, range safety</td></tr><tr><td>Deployment</td><td>physically handles and launches it</td><td>Field services</td></tr><tr><td>Operations</td><td>flies it day to day and keeps it working</td><td>Operations, maintenance</td></tr><tr><td>Disposal</td><td>is responsible when it stops flying</td><td>Disposal authority</td></tr></tbody></table></div>
+      </section>
+
+      <section id="conflict">
+        <p class="section-label">What to do with disagreement</p>
+        <h2>Conflicts are findings, not problems</h2>
+        <p>Two stakeholders wanting incompatible things is normal and is not a failure of the elicitation. It becomes a failure only when it is settled quietly, because then the losing expectation returns later as a change request with no record of why it was overruled.</p>
+        <div class="table-wrap"><table><thead><tr><th>Conflict</th><th>Between</th><th>Resolved by</th></tr></thead><tbody><tr><td>Autonomy against observability</td><td>Concept of operations and the operations team</td><td>Human&ndash;system function allocation, in the ConOps of the next lecture</td></tr><tr><td>Access against minimum mass</td><td>Maintenance and the structures team</td><td>A design decision that must be recorded, because it will be revisited at every mass review</td></tr><tr><td>Data volume against cost</td><td>Science team and sponsor</td><td>An objective with a threshold, so the trade is made once instead of in every meeting</td></tr></tbody></table></div>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">Calculation algorithm</p>
+        <h2>Building the register</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Sweep the six phases</span></div><div><strong>2</strong><span>Add anyone who can stop the mission</span></div><div><strong>3</strong><span>Record role, expectation, source</span></div><div><strong>4</strong><span>Classify primary or secondary</span></div><div><strong>5</strong><span>Place on the influence&ndash;interest map</span></div><div><strong>6</strong><span>Log every conflict</span></div><div><strong>7</strong><span>Revisit when a requirement will not trace</span></div></div>
+        <p>The last step is the one that keeps the register honest for the rest of the project. When a requirement appears that traces to nothing, the usual cause is not a bad requirement &mdash; it is a stakeholder who was never written down.</p>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>Three names become nine</h2>
+        <p>Apply the sweep to the atmospheric research platform, whose kickoff list held the sponsor, the science team and operations.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>The sweep.</strong> Six phases produce nine stakeholders. The kickoff list had three of them, so two thirds of the parties who will impose requirements were missing from the document that requirements are supposed to trace to.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Classification.</strong> Four are primary &mdash; sponsor, science team, operations, data users. Five are secondary. That split says nothing about who matters most.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Veto authority.</strong> Two parties can stop the mission: the airspace regulator and range safety. <em>Both are secondary by role.</em> Neither cares about the science, and neither appears on any list built by asking who wants the data.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Conflicts.</strong> Three surface immediately, and none is technical yet: autonomy against observability, maintenance access against minimum mass, and data volume against cost. Recording them now is what stops each from arriving as a redesign after the critical design review.</div></div>
+        <div class="result-box">\[ \boxed{ 9\ \text{stakeholders},\quad 4\ \text{primary},\quad 2\ \text{with veto, both secondary} } \]</div>
+        <p><strong>Interpretation.</strong> The number that matters is not nine, it is two: the parties who can stop the mission and who would never have been found by asking who wants the product. Everything else in this lecture exists to make sure a project finds those two in month one rather than month eleven.</p>
+      </section>
+
+      <section id="summary">
+        <p class="section-label">Operative rules</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Statement</th></tr></thead><tbody><tr><td>Sweep the life cycle, not the org chart</td><td>Walk concept to disposal and ask who acts, decides, approves, operates or is affected.</td></tr><tr><td>Primary is not the same as decisive</td><td>A secondary stakeholder with veto authority can stop the mission regardless of the science.</td></tr><tr><td>Record the source of every expectation</td><td>Who said it, when, in what forum. An unattributed expectation cannot be reconciled later.</td></tr><tr><td>Log conflicts, do not settle them quietly</td><td>A conflict resolved in favour of whoever spoke last returns as a change request.</td></tr><tr><td>An untraceable requirement means a missing stakeholder</td><td>If nothing in the register accounts for it, go back to the register.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes">
+        <p class="section-label">Common mistakes</p>
+        <h2>What goes wrong</h2>
+        <ul class="check-list"><li><strong>Listing only the customer.</strong> The parties who impose the most expensive requirements are usually not paying for the mission.</li><li><strong>Building the list from who is in the room.</strong> Everyone attached to a later phase is invisible at kickoff, and they arrive with requirements anyway.</li><li><strong>Confusing secondary with unimportant.</strong> A regulator is secondary by role and can end the project.</li><li><strong>Recording an expectation with no source.</strong> When two expectations conflict, an unattributed one cannot be checked, defended or withdrawn.</li><li><strong>Resolving conflicts silently.</strong> The expectation that lost returns as a change request, and by then nobody remembers the reasoning.</li><li><strong>Treating the register as a start-up artefact.</strong> New stakeholders appear at every phase transition; a register frozen in month one is wrong by month six.</li></ul>
+      </section>
+
+      <section id="references" class="references">
+        <p class="section-label">Sources</p>
+        <h2>References</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 4.1.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=scope-conops" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 5: Scope and ConOps</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adapted from Unit II of the Aerospace Systems Engineering (AE506) course script by Carlos Alberto Molina Holgu&iacute;n. Every number on this page was recomputed independently for it; no calculator covers this topic, so recomputation is the only check there is. The counts in the example were obtained by tabulating the nine register entries by role and by veto authority, not carried over from the script.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="need-goals-objectives.html?v=11"><span>Previous lecture</span>&larr; Need, Goals, Objectives</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+
+      <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Qu&eacute; deber&iacute;as poder hacer</h2>
+        <ul><li>encontrar stakeholders recorriendo el ciclo de vida en vez de leer un organigrama;</li><li>clasificar cada uno como primario o secundario, y explicar por qu&eacute; eso no es un ranking de importancia;</li><li>identificar a quienes tienen autoridad de veto y ubicarlos en el mapa influencia&ndash;inter&eacute;s;</li><li>registrar una expectativa con su fuente, para poder reconciliarla en vez de discutirla;</li><li>registrar un conflicto entre dos expectativas en vez de resolverlo en silencio.</li></ul>
+      </section>
+
+      <section id="physics-es">
+        <p class="section-label">Situación de ingeniería</p>
+        <h2>Los tres nombres en el pizarr&oacute;n</h2>
+        <p class="lead">En el arranque el equipo lista sus stakeholders: el patrocinador que paga, el equipo cient&iacute;fico que pidi&oacute; los datos y el grupo de operaciones que lo volar&aacute;. Tres nombres, y la junta sigue.</p><p>Once meses despu&eacute;s la autoridad a&eacute;rea no aprueba el perfil de vuelo, y el dise&ntilde;o que satisfac&iacute;a a los tres nombres tiene que cambiar. La autoridad nunca fue hostil ni estuvo oculta. Simplemente no estaba en una lista armada preguntando qui&eacute;n estaba en la sala.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 400" role="img" aria-label="Mapa de influencia e inter&eacute;s con nueve stakeholders ubicados">
+            <rect x="90" y="40" width="430" height="300" fill="#fbfcfd" stroke="#c9d4de"></rect>
+            <line x1="305" y1="40" x2="305" y2="340" stroke="#c9d4de" stroke-dasharray="5 4"></line>
+            <line x1="90" y1="190" x2="520" y2="190" stroke="#c9d4de" stroke-dasharray="5 4"></line>
+            <text x="197" y="62" text-anchor="middle" font-size="13" font-weight="600" fill="#8fa6ba">Mantener satisfecho</text>
+            <text x="412" y="62" text-anchor="middle" font-size="13" font-weight="600" fill="#8fa6ba">Involucrar de cerca</text>
+            <text x="197" y="330" text-anchor="middle" font-size="13" font-weight="600" fill="#8fa6ba">Monitorear</text>
+            <text x="412" y="330" text-anchor="middle" font-size="13" font-weight="600" fill="#8fa6ba">Mantener informado</text>
+            <circle cx="326" cy="70" r="7" fill="#0d568d"></circle>
+            <text x="338" y="74" text-anchor="start" font-size="12" fill="#3f5162">Patrocinador</text>
+            <circle cx="498" cy="175" r="7" fill="#0d568d"></circle>
+            <text x="486" y="179" text-anchor="end" font-size="12" fill="#3f5162">Equipo cient&iacute;fico</text>
+            <circle cx="455" cy="205" r="7" fill="#0d568d"></circle>
+            <text x="443" y="209" text-anchor="end" font-size="12" fill="#3f5162">Operaciones</text>
+            <circle cx="391" cy="265" r="7" fill="#8fa6ba"></circle>
+            <text x="403" y="269" text-anchor="start" font-size="12" fill="#3f5162">Mantenimiento</text>
+            <circle cx="197" cy="63" r="7" fill="#b03a2e"></circle>
+            <text x="209" y="67" text-anchor="start" font-size="12" fill="#3f5162">Regulador</text>
+            <circle cx="240" cy="160" r="7" fill="#8fa6ba"></circle>
+            <text x="252" y="164" text-anchor="start" font-size="12" fill="#3f5162">Servicios de campo</text>
+            <circle cx="477" cy="280" r="7" fill="#0d568d"></circle>
+            <text x="465" y="284" text-anchor="end" font-size="12" fill="#3f5162">Usuarios de datos</text>
+            <circle cx="176" cy="99" r="7" fill="#b03a2e"></circle>
+            <text x="188" y="103" text-anchor="start" font-size="12" fill="#3f5162">Seguridad de rango</text>
+            <circle cx="154" cy="250" r="7" fill="#8fa6ba"></circle>
+            <text x="166" y="254" text-anchor="start" font-size="12" fill="#3f5162">Disposici&oacute;n final</text>
+            <text x="305" y="372" text-anchor="middle" font-size="14" font-weight="600" fill="#071d33">Inter&eacute;s</text>
+            <text x="14" y="30" font-size="14" font-weight="600" fill="#071d33">Influencia</text>
+            <circle cx="560" cy="70" r="7" fill="#0d568d"></circle><text x="578" y="74" font-size="13" fill="#3f5162">Primario</text>
+            <circle cx="560" cy="100" r="7" fill="#b03a2e"></circle><text x="578" y="104" font-size="13" fill="#3f5162">Secundario, con veto</text>
+            <circle cx="560" cy="130" r="7" fill="#8fa6ba"></circle><text x="578" y="134" font-size="13" fill="#3f5162">Secundario</text>
+            <text x="552" y="190" font-size="13" font-style="italic" fill="#b03a2e" >Ambos con veto son</text>
+            <text x="552" y="210" font-size="13" font-style="italic" fill="#b03a2e" >secundarios por rol.</text>
+            </svg>
+            <figcaption>Nueve stakeholders hallados recorriendo el ciclo de vida. Los dos que pueden detener la misi&oacute;n est&aacute;n arriba a la izquierda, y ninguno es el cliente.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-es">
+        <p class="section-label">Alcance y límites</p>
+        <h2>Qui&eacute;n cuenta, y qui&eacute;n puede detenerte</h2>
+        <p>Un <strong>stakeholder</strong> es cualquier parte cuyas expectativas, autoridad o conocimiento operativo afecta a la misi&oacute;n. El registro que los lista es de donde vienen los requisitos: en las siguientes unidades, todo requisito debe trazar a una entrada de aqu&iacute; o a una derivaci&oacute;n documentada.</p><p>Dos clasificaciones importan y son independientes. Los stakeholders <strong>primarios</strong> impulsan directamente el &eacute;xito, la aceptaci&oacute;n, la autorizaci&oacute;n o la operaci&oacute;n. La <strong>autoridad de veto</strong> es el poder de detener la misi&oacute;n. Un regulador suele ser secundario por rol y decisivo por autoridad, y confundir ambas cosas es como ocurre la historia inicial.</p>
+        <div class="callout warning"><strong>Lo que el mapa no decide.</strong> Los cuadrantes de influencia e inter&eacute;s fijan cada cu&aacute;nto hablas con alguien, no de qui&eacute;n gana la expectativa. Un stakeholder en &laquo;monitorear&raquo; puede sostener un requisito que la misi&oacute;n no puede violar. Usa el mapa para planear la interacci&oacute;n y el registro de conflictos para decidir el contenido.</div>
+      </section>
+
+      <section id="sweep-es">
+        <p class="section-label">El m&eacute;todo</p>
+        <h2>Recorrer las fases</h2>
+        <p>Un organigrama muestra qui&eacute;n trabaja hoy para el proyecto. Los stakeholders que llegan tarde &mdash; y cuyos requisitos por eso son caros &mdash; est&aacute;n ligados a fases a las que el proyecto no ha llegado. As&iacute; que el recorrido es por fases, no por personas.</p>
+        <div class="table-wrap"><table><thead><tr><th>Fase</th><th>Preguntar qui&eacute;n...</th><th>Encontrado aqu&iacute;</th></tr></thead><tbody><tr><td>Concepto</td><td>lo financia y decide que siga</td><td>Patrocinador</td></tr><tr><td>Definici&oacute;n</td><td>usar&aacute; el producto de la misi&oacute;n</td><td>Equipo cient&iacute;fico, usuarios de datos</td></tr><tr><td>Desarrollo</td><td>debe aprobar o certificar antes del vuelo</td><td>Regulador, seguridad de rango</td></tr><tr><td>Despliegue</td><td>lo maneja f&iacute;sicamente y lo lanza</td><td>Servicios de campo</td></tr><tr><td>Operaciones</td><td>lo vuela d&iacute;a a d&iacute;a y lo mantiene funcionando</td><td>Operaciones, mantenimiento</td></tr><tr><td>Disposici&oacute;n</td><td>es responsable cuando deja de volar</td><td>Autoridad de disposici&oacute;n</td></tr></tbody></table></div>
+      </section>
+
+      <section id="conflict-es">
+        <p class="section-label">Qu&eacute; hacer con el desacuerdo</p>
+        <h2>Los conflictos son hallazgos, no problemas</h2>
+        <p>Que dos stakeholders quieran cosas incompatibles es normal y no es una falla de la elicitaci&oacute;n. Se vuelve falla s&oacute;lo cuando se zanja en silencio, porque entonces la expectativa perdedora regresa despu&eacute;s como solicitud de cambio sin registro de por qu&eacute; se descart&oacute;.</p>
+        <div class="table-wrap"><table><thead><tr><th>Conflicto</th><th>Entre</th><th>Se resuelve por</th></tr></thead><tbody><tr><td>Autonom&iacute;a contra observabilidad</td><td>El concepto de operaciones y el equipo de operaciones</td><td>Asignaci&oacute;n de funciones humano&ndash;sistema, en el ConOps de la siguiente lecture</td></tr><tr><td>Acceso contra masa m&iacute;nima</td><td>Mantenimiento y el equipo de estructuras</td><td>Una decisi&oacute;n de dise&ntilde;o que debe registrarse, porque se revisitar&aacute; en cada revisi&oacute;n de masa</td></tr><tr><td>Volumen de datos contra costo</td><td>Equipo cient&iacute;fico y patrocinador</td><td>Un objetivo con umbral, para que el intercambio se haga una vez y no en cada junta</td></tr></tbody></table></div>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Algoritmo de cálculo</p>
+        <h2>Construir el registro</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Recorrer las seis fases</span></div><div><strong>2</strong><span>A&ntilde;adir a quien pueda detener la misi&oacute;n</span></div><div><strong>3</strong><span>Registrar rol, expectativa, fuente</span></div><div><strong>4</strong><span>Clasificar primario o secundario</span></div><div><strong>5</strong><span>Ubicar en el mapa influencia&ndash;inter&eacute;s</span></div><div><strong>6</strong><span>Registrar cada conflicto</span></div><div><strong>7</strong><span>Revisitar cuando un requisito no trace</span></div></div>
+        <p>El &uacute;ltimo paso es el que mantiene honesto el registro durante el resto del proyecto. Cuando aparece un requisito que no traza a nada, la causa usual no es un mal requisito &mdash; es un stakeholder que nunca se escribi&oacute;.</p>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>Tres nombres se vuelven nueve</h2>
+        <p>Aplica el recorrido a la plataforma de investigaci&oacute;n atmosf&eacute;rica, cuya lista de arranque ten&iacute;a al patrocinador, al equipo cient&iacute;fico y a operaciones.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>El recorrido.</strong> Seis fases producen nueve stakeholders. La lista de arranque ten&iacute;a tres, as&iacute; que dos tercios de las partes que impondr&aacute;n requisitos faltaban del documento al que los requisitos deben trazar.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Clasificaci&oacute;n.</strong> Cuatro son primarios &mdash; patrocinador, equipo cient&iacute;fico, operaciones, usuarios de datos. Cinco son secundarios. Esa divisi&oacute;n no dice nada sobre qui&eacute;n importa m&aacute;s.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Autoridad de veto.</strong> Dos partes pueden detener la misi&oacute;n: el regulador a&eacute;reo y seguridad de rango. <em>Ambos son secundarios por rol.</em> A ninguno le interesa la ciencia, y ninguno aparece en una lista armada preguntando qui&eacute;n quiere los datos.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Conflictos.</strong> Tres afloran de inmediato, y ninguno es t&eacute;cnico todav&iacute;a: autonom&iacute;a contra observabilidad, acceso de mantenimiento contra masa m&iacute;nima, y volumen de datos contra costo. Registrarlos ahora es lo que evita que cada uno llegue como redise&ntilde;o despu&eacute;s de la revisi&oacute;n cr&iacute;tica.</div></div>
+        <div class="result-box">\[ \boxed{ 9\ \text{stakeholders},\quad 4\ \text{primarios},\quad 2\ \text{con veto, ambos secundarios} } \]</div>
+        <p><strong>Interpretaci&oacute;n.</strong> El n&uacute;mero que importa no es nueve, es dos: las partes que pueden detener la misi&oacute;n y que jam&aacute;s se habr&iacute;an encontrado preguntando qui&eacute;n quiere el producto. Todo lo dem&aacute;s en esta lecture existe para asegurar que un proyecto encuentre a esos dos en el mes uno y no en el once.</p>
+      </section>
+
+      <section id="summary-es">
+        <p class="section-label">Reglas operativas</p>
+        <h2>De un vistazo</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regla</th><th>Enunciado</th></tr></thead><tbody><tr><td>Recorre el ciclo de vida, no el organigrama</td><td>Camina de concepto a disposici&oacute;n y pregunta qui&eacute;n act&uacute;a, decide, aprueba, opera o resulta afectado.</td></tr><tr><td>Primario no es lo mismo que decisivo</td><td>Un stakeholder secundario con autoridad de veto puede detener la misi&oacute;n sin importar la ciencia.</td></tr><tr><td>Registra la fuente de cada expectativa</td><td>Qui&eacute;n lo dijo, cu&aacute;ndo, en qu&eacute; foro. Una expectativa sin atribuci&oacute;n no puede reconciliarse despu&eacute;s.</td></tr><tr><td>Registra los conflictos, no los zanjes en silencio</td><td>Un conflicto resuelto a favor del que habl&oacute; al final regresa como solicitud de cambio.</td></tr><tr><td>Un requisito sin trazabilidad significa un stakeholder faltante</td><td>Si nada en el registro lo explica, regresa al registro.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-es">
+        <p class="section-label">Errores comunes</p>
+        <h2>Qu&eacute; sale mal</h2>
+        <ul class="check-list"><li><strong>Listar s&oacute;lo al cliente.</strong> Las partes que imponen los requisitos m&aacute;s caros normalmente no pagan la misi&oacute;n.</li><li><strong>Armar la lista con quien est&aacute; en la sala.</strong> Todo el que est&aacute; ligado a una fase posterior es invisible en el arranque, y llega con requisitos de todos modos.</li><li><strong>Confundir secundario con poco importante.</strong> Un regulador es secundario por rol y puede terminar el proyecto.</li><li><strong>Registrar una expectativa sin fuente.</strong> Cuando dos expectativas chocan, una sin atribuci&oacute;n no puede verificarse, defenderse ni retirarse.</li><li><strong>Resolver conflictos en silencio.</strong> La expectativa que perdi&oacute; regresa como solicitud de cambio, y para entonces nadie recuerda el razonamiento.</li><li><strong>Tratar el registro como artefacto de arranque.</strong> Aparecen stakeholders nuevos en cada transici&oacute;n de fase; un registro congelado en el mes uno est&aacute; mal en el mes seis.</li></ul>
+      </section>
+
+      <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
+        <h2>Referencias</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 4.1.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=scope-conops" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 5: Scope and ConOps</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adaptado de la Unidad II del gui&oacute;n del curso Ingenier&iacute;a en Sistemas Aeroespaciales (AE506) de Carlos Alberto Molina Holgu&iacute;n. Cada n&uacute;mero de esta p&aacute;gina se recalcul&oacute; de forma independiente para ella; ninguna calculadora cubre este tema, as&iacute; que el rec&aacute;lculo es la &uacute;nica comprobaci&oacute;n disponible. Los conteos del ejemplo se obtuvieron tabulando las nueve entradas del registro por rol y por autoridad de veto, no se arrastraron del gui&oacute;n.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="need-goals-objectives.html?v=11"><span>Lecture anterior</span>&larr; Necesidad, metas, objetivos</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+
+      <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie k&ouml;nnen sollten</h2>
+        <ul><li>Interessentr&auml;ger durch Abschreiten des Lebenszyklus statt &uuml;ber ein Organigramm finden;</li><li>jeden als prim&auml;r oder sekund&auml;r einordnen und erkl&auml;ren, warum das keine Rangfolge der Wichtigkeit ist;</li><li>die Tr&auml;ger von Vetorechten erkennen und in der Einfluss-Interesse-Matrix eintragen;</li><li>eine Erwartung mit ihrer Quelle erfassen, damit sie abgeglichen und nicht bestritten wird;</li><li>einen Konflikt zwischen zwei Erwartungen protokollieren statt still zu entscheiden.</li></ul>
+      </section>
+
+      <section id="physics-de">
+        <p class="section-label">Ingenieurtechnischer Kontext</p>
+        <h2>Die drei Namen an der Tafel</h2>
+        <p class="lead">Beim Auftakt listet das Team seine Interessentr&auml;ger: den zahlenden Auftraggeber, das Wissenschaftsteam, das die Daten wollte, und die Betriebsgruppe, die fliegen wird. Drei Namen, und die Sitzung geht weiter.</p><p>Elf Monate sp&auml;ter genehmigt die Luftfahrtbeh&ouml;rde das Flugprofil nicht, und der Entwurf, der alle drei zufriedenstellte, muss sich &auml;ndern. Die Beh&ouml;rde war nie feindselig und nie verborgen. Sie stand nur nicht auf einer Liste, die durch die Frage entstand, wer im Raum sa&szlig;.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 400" role="img" aria-label="Einfluss-Interesse-Matrix mit neun eingetragenen Interessentr&auml;gern">
+            <rect x="90" y="40" width="430" height="300" fill="#fbfcfd" stroke="#c9d4de"></rect>
+            <line x1="305" y1="40" x2="305" y2="340" stroke="#c9d4de" stroke-dasharray="5 4"></line>
+            <line x1="90" y1="190" x2="520" y2="190" stroke="#c9d4de" stroke-dasharray="5 4"></line>
+            <text x="197" y="62" text-anchor="middle" font-size="13" font-weight="600" fill="#8fa6ba">Zufrieden halten</text>
+            <text x="412" y="62" text-anchor="middle" font-size="13" font-weight="600" fill="#8fa6ba">Eng einbinden</text>
+            <text x="197" y="330" text-anchor="middle" font-size="13" font-weight="600" fill="#8fa6ba">Beobachten</text>
+            <text x="412" y="330" text-anchor="middle" font-size="13" font-weight="600" fill="#8fa6ba">Informiert halten</text>
+            <circle cx="326" cy="70" r="7" fill="#0d568d"></circle>
+            <text x="338" y="74" text-anchor="start" font-size="12" fill="#3f5162">Auftraggeber</text>
+            <circle cx="498" cy="175" r="7" fill="#0d568d"></circle>
+            <text x="486" y="179" text-anchor="end" font-size="12" fill="#3f5162">Wissenschaftsteam</text>
+            <circle cx="455" cy="205" r="7" fill="#0d568d"></circle>
+            <text x="443" y="209" text-anchor="end" font-size="12" fill="#3f5162">Betrieb</text>
+            <circle cx="391" cy="265" r="7" fill="#8fa6ba"></circle>
+            <text x="403" y="269" text-anchor="start" font-size="12" fill="#3f5162">Wartung</text>
+            <circle cx="197" cy="63" r="7" fill="#b03a2e"></circle>
+            <text x="209" y="67" text-anchor="start" font-size="12" fill="#3f5162">Beh&ouml;rde</text>
+            <circle cx="240" cy="160" r="7" fill="#8fa6ba"></circle>
+            <text x="252" y="164" text-anchor="start" font-size="12" fill="#3f5162">Feldservice</text>
+            <circle cx="477" cy="280" r="7" fill="#0d568d"></circle>
+            <text x="465" y="284" text-anchor="end" font-size="12" fill="#3f5162">Datennutzer</text>
+            <circle cx="176" cy="99" r="7" fill="#b03a2e"></circle>
+            <text x="188" y="103" text-anchor="start" font-size="12" fill="#3f5162">Bereichssicherheit</text>
+            <circle cx="154" cy="250" r="7" fill="#8fa6ba"></circle>
+            <text x="166" y="254" text-anchor="start" font-size="12" fill="#3f5162">Entsorgung</text>
+            <text x="305" y="372" text-anchor="middle" font-size="14" font-weight="600" fill="#071d33">Interesse</text>
+            <text x="14" y="30" font-size="14" font-weight="600" fill="#071d33">Einfluss</text>
+            <circle cx="560" cy="70" r="7" fill="#0d568d"></circle><text x="578" y="74" font-size="13" fill="#3f5162">Prim&auml;r</text>
+            <circle cx="560" cy="100" r="7" fill="#b03a2e"></circle><text x="578" y="104" font-size="13" fill="#3f5162">Sekund&auml;r, mit Veto</text>
+            <circle cx="560" cy="130" r="7" fill="#8fa6ba"></circle><text x="578" y="134" font-size="13" fill="#3f5162">Sekund&auml;r</text>
+            <text x="552" y="190" font-size="13" font-style="italic" fill="#b03a2e" >Beide Veto-Tr&auml;ger sind</text>
+            <text x="552" y="210" font-size="13" font-style="italic" fill="#b03a2e" >rollenm&auml;&szlig;ig sekund&auml;r.</text>
+            </svg>
+            <figcaption>Neun Interessentr&auml;ger, gefunden durch Abschreiten des Lebenszyklus. Die beiden, die die Mission stoppen k&ouml;nnen, liegen oben links, und keiner ist der Kunde.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-de">
+        <p class="section-label">Geltungsbereich und Grenzen</p>
+        <h2>Wer z&auml;hlt, und wer Sie stoppen kann</h2>
+        <p>Ein <strong>Interessentr&auml;ger</strong> ist jede Partei, deren Erwartungen, Befugnis oder Betriebswissen die Mission beeinflusst. Das Register, das sie auflistet, ist die Quelle der Anforderungen: In den n&auml;chsten Einheiten muss jede Anforderung auf einen Eintrag hier oder eine dokumentierte Ableitung zur&uuml;ckf&uuml;hren.</p><p>Zwei Einordnungen z&auml;hlen, und sie sind unabh&auml;ngig. <strong>Prim&auml;re</strong> Interessentr&auml;ger treiben Erfolg, Abnahme, Genehmigung oder Betrieb unmittelbar. <strong>Vetorecht</strong> ist die Macht, die Mission zu stoppen. Eine Beh&ouml;rde ist meist rollenm&auml;&szlig;ig sekund&auml;r und befugnism&auml;&szlig;ig entscheidend; beides zu verwechseln f&uuml;hrt zur Eingangsgeschichte.</p>
+        <div class="callout warning"><strong>Was die Matrix nicht entscheidet.</strong> Die Einfluss-Interesse-Quadranten regeln, wie oft man mit jemandem spricht, nicht wessen Erwartung gewinnt. Ein Interessentr&auml;ger im Feld &bdquo;Beobachten&ldquo; kann eine Anforderung halten, die die Mission nicht verletzen darf. Die Matrix plant die Einbindung, das Konfliktprotokoll entscheidet den Inhalt.</div>
+      </section>
+
+      <section id="sweep-de">
+        <p class="section-label">Die Methode</p>
+        <h2>Die Phasen abschreiten</h2>
+        <p>Ein Organigramm zeigt, wer heute f&uuml;r das Projekt arbeitet. Die sp&auml;t auftauchenden Interessentr&auml;ger &mdash; deren Anforderungen deshalb teuer sind &mdash; h&auml;ngen an Phasen, die das Projekt noch nicht erreicht hat. Der Durchgang geht also &uuml;ber Phasen, nicht &uuml;ber Personen.</p>
+        <div class="table-wrap"><table><thead><tr><th>Phase</th><th>Fragen, wer...</th><th>Hier gefunden</th></tr></thead><tbody><tr><td>Konzept</td><td>finanziert und &uuml;ber die Fortf&uuml;hrung entscheidet</td><td>Auftraggeber</td></tr><tr><td>Definition</td><td>das Missionsergebnis nutzt</td><td>Wissenschaftsteam, Datennutzer</td></tr><tr><td>Entwicklung</td><td>vor dem Flug genehmigen oder zertifizieren muss</td><td>Beh&ouml;rde, Bereichssicherheit</td></tr><tr><td>Bereitstellung</td><td>es physisch handhabt und startet</td><td>Feldservice</td></tr><tr><td>Betrieb</td><td>es t&auml;glich betreibt und instand h&auml;lt</td><td>Betrieb, Wartung</td></tr><tr><td>Entsorgung</td><td>verantwortlich ist, wenn es nicht mehr fliegt</td><td>Entsorgungsstelle</td></tr></tbody></table></div>
+      </section>
+
+      <section id="conflict-de">
+        <p class="section-label">Umgang mit Uneinigkeit</p>
+        <h2>Konflikte sind Befunde, keine Probleme</h2>
+        <p>Dass zwei Interessentr&auml;ger Unvereinbares wollen, ist normal und kein Fehler der Erhebung. Ein Fehler wird es erst, wenn es still entschieden wird, denn dann kehrt die unterlegene Erwartung sp&auml;ter als &Auml;nderungsantrag zur&uuml;ck, ohne Nachweis, warum sie &uuml;berstimmt wurde.</p>
+        <div class="table-wrap"><table><thead><tr><th>Konflikt</th><th>Zwischen</th><th>Gel&ouml;st durch</th></tr></thead><tbody><tr><td>Autonomie gegen Beobachtbarkeit</td><td>Betriebskonzept und Betriebsteam</td><td>Mensch-System-Funktionszuordnung, im Betriebskonzept der n&auml;chsten Vorlesung</td></tr><tr><td>Zug&auml;nglichkeit gegen Minimalmasse</td><td>Wartung und Strukturteam</td><td>Eine zu dokumentierende Entwurfsentscheidung, denn sie kommt bei jeder Massenpr&uuml;fung wieder</td></tr><tr><td>Datenvolumen gegen Kosten</td><td>Wissenschaftsteam und Auftraggeber</td><td>Ein Einzelziel mit Schwelle, damit die Abw&auml;gung einmal statt in jeder Sitzung erfolgt</td></tr></tbody></table></div>
+      </section>
+
+      <section id="algorithm-de">
+        <p class="section-label">Rechenalgorithmus</p>
+        <h2>Das Register aufbauen</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Die sechs Phasen abschreiten</span></div><div><strong>2</strong><span>Alle erg&auml;nzen, die die Mission stoppen k&ouml;nnen</span></div><div><strong>3</strong><span>Rolle, Erwartung, Quelle erfassen</span></div><div><strong>4</strong><span>Als prim&auml;r oder sekund&auml;r einordnen</span></div><div><strong>5</strong><span>In der Einfluss-Interesse-Matrix eintragen</span></div><div><strong>6</strong><span>Jeden Konflikt protokollieren</span></div><div><strong>7</strong><span>Zur&uuml;ckkehren, wenn eine Anforderung nicht r&uuml;ckf&uuml;hrbar ist</span></div></div>
+        <p>Der letzte Schritt h&auml;lt das Register f&uuml;r den Rest des Projekts ehrlich. Erscheint eine Anforderung, die auf nichts zur&uuml;ckf&uuml;hrt, liegt es meist nicht an der Anforderung &mdash; sondern an einem nie erfassten Interessentr&auml;ger.</p>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Aus drei Namen werden neun</h2>
+        <p>Wenden Sie den Durchgang auf die atmosph&auml;rische Forschungsplattform an, deren Auftaktliste Auftraggeber, Wissenschaftsteam und Betrieb enthielt.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Der Durchgang.</strong> Sechs Phasen ergeben neun Interessentr&auml;ger. Die Auftaktliste hatte drei, es fehlten also zwei Drittel der Parteien, die Anforderungen stellen werden, in genau dem Dokument, auf das Anforderungen zur&uuml;ckf&uuml;hren sollen.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Einordnung.</strong> Vier sind prim&auml;r &mdash; Auftraggeber, Wissenschaftsteam, Betrieb, Datennutzer. F&uuml;nf sind sekund&auml;r. Diese Aufteilung sagt nichts dar&uuml;ber, wer am wichtigsten ist.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Vetorecht.</strong> Zwei Parteien k&ouml;nnen die Mission stoppen: die Luftfahrtbeh&ouml;rde und die Bereichssicherheit. <em>Beide sind rollenm&auml;&szlig;ig sekund&auml;r.</em> Keiner interessiert sich f&uuml;r die Wissenschaft, und keiner steht auf einer Liste, die nach den Datenempf&auml;ngern fragt.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Konflikte.</strong> Drei zeigen sich sofort, und keiner ist bisher technisch: Autonomie gegen Beobachtbarkeit, Wartungszugang gegen Minimalmasse, Datenvolumen gegen Kosten. Sie jetzt zu erfassen verhindert, dass jeder nach der kritischen Entwurfspr&uuml;fung als Neukonstruktion eintrifft.</div></div>
+        <div class="result-box">\[ \boxed{ 9\ \text{Interessenträger},\quad 4\ \text{primär},\quad 2\ \text{mit Veto, beide sekundär} } \]</div>
+        <p><strong>Deutung.</strong> Die entscheidende Zahl ist nicht neun, sondern zwei: die Parteien, die die Mission stoppen k&ouml;nnen und die man nie gefunden h&auml;tte, indem man fragt, wer das Produkt will. Alles andere in dieser Vorlesung dient dazu, dass ein Projekt diese zwei im ersten Monat findet statt im elften.</p>
+      </section>
+
+      <section id="summary-de">
+        <p class="section-label">Arbeitsregeln</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regel</th><th>Aussage</th></tr></thead><tbody><tr><td>Den Lebenszyklus abschreiten, nicht das Organigramm</td><td>Von Konzept bis Entsorgung fragen, wer handelt, entscheidet, genehmigt, betreibt oder betroffen ist.</td></tr><tr><td>Prim&auml;r ist nicht gleich entscheidend</td><td>Ein sekund&auml;rer Interessentr&auml;ger mit Vetorecht kann die Mission unabh&auml;ngig von der Wissenschaft stoppen.</td></tr><tr><td>Die Quelle jeder Erwartung erfassen</td><td>Wer sagte es, wann, in welchem Rahmen. Eine unzugeordnete Erwartung l&auml;sst sich sp&auml;ter nicht abgleichen.</td></tr><tr><td>Konflikte protokollieren, nicht still entscheiden</td><td>Ein zugunsten des Letztsprechenden gel&ouml;ster Konflikt kehrt als &Auml;nderungsantrag zur&uuml;ck.</td></tr><tr><td>Eine nicht r&uuml;ckf&uuml;hrbare Anforderung bedeutet einen fehlenden Interessentr&auml;ger</td><td>Erkl&auml;rt nichts im Register sie, geht es zur&uuml;ck zum Register.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Häufige Fehler</p>
+        <h2>Was schiefgeht</h2>
+        <ul class="check-list"><li><strong>Nur den Kunden auflisten.</strong> Die Parteien mit den teuersten Anforderungen zahlen meist nicht f&uuml;r die Mission.</li><li><strong>Die Liste aus den Anwesenden bilden.</strong> Wer an einer sp&auml;teren Phase h&auml;ngt, ist beim Auftakt unsichtbar &mdash; und kommt trotzdem mit Anforderungen.</li><li><strong>Sekund&auml;r mit unwichtig verwechseln.</strong> Eine Beh&ouml;rde ist rollenm&auml;&szlig;ig sekund&auml;r und kann das Projekt beenden.</li><li><strong>Eine Erwartung ohne Quelle erfassen.</strong> Bei einem Konflikt l&auml;sst sich eine unzugeordnete Erwartung weder pr&uuml;fen noch verteidigen noch zur&uuml;ckziehen.</li><li><strong>Konflikte still l&ouml;sen.</strong> Die unterlegene Erwartung kehrt als &Auml;nderungsantrag zur&uuml;ck, und dann erinnert sich niemand an die Begr&uuml;ndung.</li><li><strong>Das Register als Startartefakt behandeln.</strong> Bei jedem Phasenwechsel kommen neue hinzu; ein im ersten Monat eingefrorenes Register ist im sechsten falsch.</li></ul>
+      </section>
+
+      <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
+        <h2>Literatur</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 4.1.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=scope-conops" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 5: Scope and ConOps</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Bearbeitet nach Einheit II des Skripts Luft- und Raumfahrtsystemtechnik (AE506) von Carlos Alberto Molina Holgu&iacute;n. Jede Zahl dieser Seite wurde eigens daf&uuml;r unabh&auml;ngig neu berechnet; kein Rechner deckt dieses Thema ab, daher ist die Neuberechnung die einzige Pr&uuml;fung. Die Z&auml;hlungen im Beispiel entstanden durch Auswertung der neun Registereintr&auml;ge nach Rolle und Vetorecht, nicht durch &Uuml;bernahme aus dem Skript.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="need-goals-objectives.html?v=11"><span>Vorherige Vorlesung</span>&larr; Bedarf, Ziele, Einzelziele</a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>&copy; <span id="year"></span> Carlos Alberto Molina Holgu&iacute;n</p>
+    <p>Universidad Aut&oacute;noma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

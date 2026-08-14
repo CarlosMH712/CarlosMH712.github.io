@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="The NASA project life cycle, the three process groups of the systems engineering engine, and how to build a mass budget whose contingency reflects the maturity of each estimate." />
+  <meta name="author" content="Carlos Alberto Molina Holgu&iacute;n" />
+  <meta name="theme-color" content="#071d33" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Life Cycle and Margins | Aerospace Systems Engineering</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:wght@600;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=11" data-ui-key="course">Aerospace Systems Engineering</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Aerospace Systems Engineering &middot; Lecture 03</p>
+        <h1>Life Cycle, the SE Engine, and Budgets with Margin</h1>
+        <p class="hero-copy">Why projects are cut into phases, what the three process groups do, and how to build a budget whose contingency tells you which estimates are actually weak.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Ingeniería de Sistemas Aeroespaciales &middot; Lecture 03</p>
+        <h1>Ciclo de vida, el motor de SE y presupuestos con margen</h1>
+        <p class="hero-copy">Por qu&eacute; los proyectos se cortan en fases, qu&eacute; hacen los tres grupos de procesos y c&oacute;mo construir un presupuesto cuya contingencia te diga qu&eacute; estimaciones son realmente d&eacute;biles.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Luft- und Raumfahrtsystemtechnik &middot; Vorlesung 03</p>
+        <h1>Lebenszyklus, die SE-Maschine und Budgets mit Reserve</h1>
+        <p class="hero-copy">Warum Projekte in Phasen geschnitten werden, was die drei Prozessgruppen tun und wie ein Budget entsteht, dessen Reserve zeigt, welche Sch&auml;tzungen wirklich schwach sind.</p>
+      </div>
+
+    <div class="hero-meta">
+        <span data-language="en">Estimated reading: 14 min</span><span data-language="es" hidden>Lectura estimada: 14 min</span><span data-language="de" hidden>Lesedauer: ca. 14 min</span>
+        <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+        <span data-language="en">Model: mass budget, linear contingency</span><span data-language="es" hidden>Modelo: presupuesto de masa, contingencia lineal</span><span data-language="de" hidden>Modell: Massenbudget, lineare Reserve</span>
+    </div>
+    <div class="button-row">
+      <a class="button secondary" href="index.html?v=11" data-ui-key="back">Back to course</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Engineering situation</a>
+        <a href="#model">Scope and limits</a>
+        <a href="#engine">The SE engine</a>
+        <a href="#margin">Contingency and margin</a>
+        <a href="#algorithm">Building a budget</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Operative rules</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#references">Sources</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Situaci&oacute;n de ingenier&iacute;a</a>
+        <a href="#model-es">Alcance y l&iacute;mites</a>
+        <a href="#engine-es">El motor de SE</a>
+        <a href="#margin-es">Contingencia y margen</a>
+        <a href="#algorithm-es">Construir un presupuesto</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Reglas operativas</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Kontext</a>
+        <a href="#model-de">Geltungsbereich</a>
+        <a href="#engine-de">Die SE-Maschine</a>
+        <a href="#margin-de">Reserve und Marge</a>
+        <a href="#algorithm-de">Ein Budget aufbauen</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Arbeitsregeln</a>
+        <a href="#mistakes-de">H&auml;ufige Fehler</a>
+        <a href="#references-de">Quellen</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+
+      <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul><li>name the NASA life-cycle phases and say what each one has to produce;</li><li>state the three process groups of the SE engine and the question each answers;</li><li>distinguish contingency from margin, and say who owns each;</li><li>assign contingency by the maturity of an estimate rather than by a flat percentage;</li><li>compute a system margin and judge it against the phase the project is in.</li></ul>
+      </section>
+
+      <section id="physics">
+        <p class="section-label">Engineering situation</p>
+        <h2>Twenty-one percent that was not there</h2>
+        <p class="lead">A team reports 41.0 kg against a 52.0 kg limit and calls the mass budget healthy: 21&nbsp;% margin, comfortably above what a preliminary design review expects.</p><p>Two of those estimates come from a spreadsheet that scaled a similar instrument. One comes from a supplier quote. One was weighed. Treating all four as equally trustworthy is what produces the 21&nbsp;% figure, and it is the reason mass budgets look fine until they suddenly do not.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 820 210" role="img" aria-label="The seven NASA life-cycle phases with commitment rising across them">
+            <defs><marker id="lc-arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0d568d"></path></marker></defs>
+            <rect x="20" y="60" width="100" height="62" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="70" y="82" text-anchor="middle" font-size="15" font-weight="700" fill="#071d33">Pre-A</text>
+            <text x="70" y="104" text-anchor="middle" font-size="11" fill="#3f5162">Concept studies</text>
+            <rect x="132" y="60" width="100" height="62" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="182" y="82" text-anchor="middle" font-size="15" font-weight="700" fill="#071d33">A</text>
+            <text x="182" y="104" text-anchor="middle" font-size="11" fill="#3f5162">Concept and technology</text>
+            <rect x="244" y="60" width="100" height="62" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="294" y="82" text-anchor="middle" font-size="15" font-weight="700" fill="#071d33">B</text>
+            <text x="294" y="104" text-anchor="middle" font-size="11" fill="#3f5162">Preliminary design</text>
+            <rect x="356" y="60" width="100" height="62" rx="6" fill="#fbeed9" stroke="#8fa6ba"></rect>
+            <text x="406" y="82" text-anchor="middle" font-size="15" font-weight="700" fill="#071d33">C</text>
+            <text x="406" y="104" text-anchor="middle" font-size="11" fill="#3f5162">Final design</text>
+            <rect x="468" y="60" width="100" height="62" rx="6" fill="#fbeed9" stroke="#8fa6ba"></rect>
+            <text x="518" y="82" text-anchor="middle" font-size="15" font-weight="700" fill="#071d33">D</text>
+            <text x="518" y="104" text-anchor="middle" font-size="11" fill="#3f5162">Build, test, launch</text>
+            <rect x="580" y="60" width="100" height="62" rx="6" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="630" y="82" text-anchor="middle" font-size="15" font-weight="700" fill="#071d33">E</text>
+            <text x="630" y="104" text-anchor="middle" font-size="11" fill="#3f5162">Operations</text>
+            <rect x="692" y="60" width="100" height="62" rx="6" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="742" y="82" text-anchor="middle" font-size="15" font-weight="700" fill="#071d33">F</text>
+            <text x="742" y="104" text-anchor="middle" font-size="11" fill="#3f5162">Closeout</text>
+            <line x1="20" y1="40" x2="800" y2="40" stroke="#0d568d" stroke-width="2" marker-end="url(#lc-arrow)"></line>
+            <text x="410" y="30" text-anchor="middle" font-size="14" font-weight="600" fill="#0d568d">Increasing commitment, decreasing freedom to change</text>
+            <text x="410" y="160" text-anchor="middle" font-size="13" fill="#3f5162">Formulation: Pre-A to B          |          Implementation: C to F</text>
+            <text x="410" y="186" text-anchor="middle" font-size="13" font-style="italic" fill="#b03a2e">Most of the eventual cost is committed before Phase C begins</text>
+            </svg>
+            <figcaption>The seven phases. Their purpose is not administrative: each decision point requires more technical evidence than the last, because each commits more of the eventual cost.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model">
+        <p class="section-label">Scope and limits</p>
+        <h2>Phases, and what they are for</h2>
+        <p>NASA cuts a project into seven phases separated by decision points. The purpose is not administrative control: it is that increasingly consequential commitments should rest on increasingly mature evidence. A concept good enough to justify further study is not good enough to authorise fabrication.</p><p>The consequence for budgets is direct. Early in the life cycle an estimate is a guess and needs a lot of room; late in the life cycle most masses are measured and need very little. A budget that ignores this reports the same number with wildly different meaning at each milestone.</p>
+        <div class="callout warning"><strong>What the percentages are not.</strong> The contingency figures in this lecture are common practice, not a standard. Every project sets its own in its systems engineering management plan, and a mission with flight heritage legitimately uses smaller ones than a first-of-a-kind design. Copying these numbers into a project without asking where they came from is the same error as trusting an estimate without asking its basis.</div>
+      </section>
+
+      <section id="engine">
+        <p class="section-label">Three groups, one loop</p>
+        <h2>The systems engineering engine</h2>
+        <div class="table-wrap"><table><thead><tr><th>Process group</th><th>Question it answers</th><th>Direction</th></tr></thead><tbody><tr><td>System design</td><td>What must the system do, and what shall it be?</td><td>Top-down</td></tr><tr><td>Product realisation</td><td>Does what we built do it, and is it the right thing?</td><td>Bottom-up</td></tr><tr><td>Technical management</td><td>Do the products still agree with each other?</td><td>Throughout</td></tr></tbody></table></div>
+        <p>The engine is applied recursively: the same three groups run at system level, then again at subsystem level, then again at component level. What changes is the scope, not the questions. And it never runs once &mdash; design and realisation interleave, because a verification result routinely sends a requirement back for revision.</p>
+      </section>
+
+      <section id="margin">
+        <p class="section-label">Two reserves, two owners</p>
+        <h2>Contingency is not margin</h2>
+        <p><strong>Contingency</strong> covers the expected growth of an estimate as detail is added. It belongs to the element owner and is consumed as the design matures. <strong>Margin</strong> covers what the project does not yet know about at all. It is held at system level and released deliberately.</p><p>Letting subsystem owners quietly draw on system margin is the standard mechanism by which a project arrives at its critical design review overweight. The two reserves must appear as separate columns, or the distinction does not survive contact with a spreadsheet.</p>
+        <div class="table-wrap"><table><thead><tr><th>Milestone</th><th>Margin usually expected</th></tr></thead><tbody><tr><td>Concept</td><td>25 to 30 %</td></tr><tr><td>Preliminary design review</td><td>15 to 20 %</td></tr><tr><td>Critical design review</td><td>about 10 %</td></tr><tr><td>Delivery</td><td>3 to 5 %</td></tr></tbody></table></div>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">Calculation algorithm</p>
+        <h2>Building a mass budget</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Establish the limit</span></div><div><strong>2</strong><span>List every element, including harness and brackets</span></div><div><strong>3</strong><span>Record each estimate and its basis</span></div><div><strong>4</strong><span>Apply contingency by maturity</span></div><div><strong>5</strong><span>Sum to the predicted mass</span></div><div><strong>6</strong><span>Compute the system margin</span></div><div><strong>7</strong><span>Compare to the phase</span></div></div>
+        <p>Step three is the one that does the work. Recording the basis &mdash; analogy, analysis, vendor data, measured &mdash; is what lets step four assign contingency honestly, and it is also what tells the project where to spend its remaining analysis effort.</p>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>The platform at its preliminary design review</h2>
+        <p>The atmospheric research platform has a 52.00 kg limit. Seven elements, each with its estimate and the basis behind it.</p>
+        <div class="table-wrap"><table><thead><tr><th>Element</th><th>CBE [kg]</th><th>Basis</th><th>Cont. [%]</th><th>Predicted [kg]</th></tr></thead><tbody><tr><td>Airframe</td><td>14.00</td><td>Analysis</td><td>15</td><td>16.10</td></tr><tr><td>Avionics</td><td>3.20</td><td>Vendor data</td><td>10</td><td>3.52</td></tr><tr><td>Power</td><td>11.50</td><td>Analysis</td><td>15</td><td>13.23</td></tr><tr><td>Comm</td><td>2.40</td><td>Vendor data</td><td>10</td><td>2.64</td></tr><tr><td>Sensor suite</td><td>6.00</td><td>Analogy</td><td>25</td><td>7.50</td></tr><tr><td>Data unit</td><td>1.10</td><td>Measured</td><td>5</td><td>1.16</td></tr><tr><td>Harness and brackets</td><td>2.80</td><td>Analogy</td><td>30</td><td>3.64</td></tr><tr><td><strong>Total</strong></td><td><strong>41.00</strong></td><td></td><td></td><td><strong>47.78</strong></td></tr></tbody></table></div>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Naive margin.</strong> Against the current best estimates alone, \[\frac{52.00-41.00}{52.00} = \frac{11.00}{52.00} = 21.2\ \%.\] This is the number the team reported.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Predicted mass.</strong> Applying each contingency and summing gives 47.78 kg. The contingency itself is \(47.78-41.00 = 6.78\) kg.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>System margin.</strong> \[\frac{52.00-47.78}{52.00} = \frac{4.22}{52.00} = 8.1\ \%.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Where the contingency lives.</strong> The sensor suite contributes 1.50 kg and the harness group 0.84 kg, together 2.34 kg &mdash; 34.5&nbsp;% of all the contingency in the budget. Both rest on analogy.</div></div>
+        <div class="result-box">\[ \boxed{ \text{naive } 21.2\ \% \;\longrightarrow\; \text{maturity-weighted } 8.1\ \% } \]</div>
+        <p><strong>Interpretation.</strong> At 8.1&nbsp;% the platform is below the 15 to 20&nbsp;% normally expected at a preliminary design review, so the budget is a finding rather than a footnote. But the budget also says what to do about it: a general mass-reduction campaign is the wrong response, because a third of the contingency sits in two elements estimated by analogy. Analysing those two converts contingency into either margin or a known problem, and it is far cheaper than removing mass everywhere.</p>
+      </section>
+
+      <section id="summary">
+        <p class="section-label">Operative rules</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Statement</th></tr></thead><tbody><tr><td>Phases exist for evidence</td><td>Each decision point demands more technical evidence, because each commits more cost.</td></tr><tr><td>Contingency vs margin</td><td>Contingency covers expected growth and belongs to the element owner. Margin covers the unknown and is held at system level.</td></tr><tr><td>Contingency by maturity</td><td>Roughly 20 to 30 % for an estimate by analogy, 10 to 15 % by analysis or vendor data, 2 to 5 % measured.</td></tr><tr><td>Margin</td><td>\(\text{margin} = (\text{limit}-\text{predicted})/\text{limit}\), predicted including contingency.</td></tr><tr><td>A flat percentage hides the problem</td><td>One uniform contingency conceals which elements are actually uncertain.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes">
+        <p class="section-label">Common mistakes</p>
+        <h2>What goes wrong</h2>
+        <ul class="check-list"><li><strong>Reporting margin against current best estimates.</strong> Without contingency the figure flatters the design by roughly a factor of two.</li><li><strong>One flat contingency for everything.</strong> It hides which elements are actually uncertain, which is the only useful thing the column tells you.</li><li><strong>Letting subsystems draw on system margin.</strong> Margin has one owner. If everyone can spend it, it is gone before anyone notices.</li><li><strong>Forgetting harness, brackets, fasteners and blankets.</strong> They are unglamorous, poorly estimated, and routinely several percent of dry mass.</li><li><strong>Treating a healthy margin at the wrong phase as good news.</strong> Meeting the delivery figure at preliminary design usually means the estimates are optimistic, not that the project is ahead.</li><li><strong>Reading the budget as a number rather than a distribution.</strong> Where the contingency sits tells you what to analyse next.</li></ul>
+      </section>
+
+      <section id="references" class="references">
+        <p class="section-label">Sources</p>
+        <h2>References</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Sections 2 and 3.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=project-life-cycle" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 4: Project Life Cycle</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adapted from Unit I of the Aerospace Systems Engineering (AE506) course script by Carlos Alberto Molina Holgu&iacute;n. Every number on this page was recomputed independently for it; no calculator covers this topic, so recomputation is the only check there is. The budget was recomputed from the estimate and contingency columns rather than transcribed, so the totals carry no rounding from the source table.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="systems-thinking.html?v=11"><span>Previous lecture</span>&larr; Systems Thinking</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+
+      <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Qu&eacute; deber&iacute;as poder hacer</h2>
+        <ul><li>nombrar las fases del ciclo de vida NASA y decir qu&eacute; debe producir cada una;</li><li>enunciar los tres grupos de procesos del motor de SE y la pregunta que responde cada uno;</li><li>distinguir contingencia de margen, y decir de qui&eacute;n es cada uno;</li><li>asignar contingencia por la madurez de una estimaci&oacute;n y no por un porcentaje plano;</li><li>calcular un margen de sistema y juzgarlo contra la fase en que est&aacute; el proyecto.</li></ul>
+      </section>
+
+      <section id="physics-es">
+        <p class="section-label">Situación de ingeniería</p>
+        <h2>Veintiuno por ciento que no estaba</h2>
+        <p class="lead">Un equipo reporta 41.0 kg contra un l&iacute;mite de 52.0 kg y llama sano al presupuesto de masa: 21&nbsp;% de margen, c&oacute;modamente por encima de lo que espera una revisi&oacute;n preliminar de dise&ntilde;o.</p><p>Dos de esas estimaciones vienen de una hoja de c&aacute;lculo que escal&oacute; un instrumento parecido. Una viene de una cotizaci&oacute;n de proveedor. Una se pes&oacute;. Tratar las cuatro como igualmente confiables es lo que produce la cifra de 21&nbsp;%, y es la raz&oacute;n de que los presupuestos de masa se vean bien hasta que de pronto dejan de verse bien.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 820 210" role="img" aria-label="Las siete fases del ciclo de vida NASA con el compromiso creciendo a lo largo">
+            <defs><marker id="lc-arrow-es" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0d568d"></path></marker></defs>
+            <rect x="20" y="60" width="100" height="62" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="70" y="82" text-anchor="middle" font-size="15" font-weight="700" fill="#071d33">Pre-A</text>
+            <text x="70" y="104" text-anchor="middle" font-size="11" fill="#3f5162">Estudios de concepto</text>
+            <rect x="132" y="60" width="100" height="62" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="182" y="82" text-anchor="middle" font-size="15" font-weight="700" fill="#071d33">A</text>
+            <text x="182" y="104" text-anchor="middle" font-size="11" fill="#3f5162">Concepto y tecnolog&iacute;a</text>
+            <rect x="244" y="60" width="100" height="62" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="294" y="82" text-anchor="middle" font-size="15" font-weight="700" fill="#071d33">B</text>
+            <text x="294" y="104" text-anchor="middle" font-size="11" fill="#3f5162">Dise&ntilde;o preliminar</text>
+            <rect x="356" y="60" width="100" height="62" rx="6" fill="#fbeed9" stroke="#8fa6ba"></rect>
+            <text x="406" y="82" text-anchor="middle" font-size="15" font-weight="700" fill="#071d33">C</text>
+            <text x="406" y="104" text-anchor="middle" font-size="11" fill="#3f5162">Dise&ntilde;o final</text>
+            <rect x="468" y="60" width="100" height="62" rx="6" fill="#fbeed9" stroke="#8fa6ba"></rect>
+            <text x="518" y="82" text-anchor="middle" font-size="15" font-weight="700" fill="#071d33">D</text>
+            <text x="518" y="104" text-anchor="middle" font-size="11" fill="#3f5162">Construcci&oacute;n, prueba, lanzamiento</text>
+            <rect x="580" y="60" width="100" height="62" rx="6" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="630" y="82" text-anchor="middle" font-size="15" font-weight="700" fill="#071d33">E</text>
+            <text x="630" y="104" text-anchor="middle" font-size="11" fill="#3f5162">Operaciones</text>
+            <rect x="692" y="60" width="100" height="62" rx="6" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="742" y="82" text-anchor="middle" font-size="15" font-weight="700" fill="#071d33">F</text>
+            <text x="742" y="104" text-anchor="middle" font-size="11" fill="#3f5162">Cierre</text>
+            <line x1="20" y1="40" x2="800" y2="40" stroke="#0d568d" stroke-width="2" marker-end="url(#lc-arrow-es)"></line>
+            <text x="410" y="30" text-anchor="middle" font-size="14" font-weight="600" fill="#0d568d">Compromiso creciente, libertad de cambio decreciente</text>
+            <text x="410" y="160" text-anchor="middle" font-size="13" fill="#3f5162">Formulaci&oacute;n: Pre-A a B          |          Implementaci&oacute;n: C a F</text>
+            <text x="410" y="186" text-anchor="middle" font-size="13" font-style="italic" fill="#b03a2e">La mayor parte del costo eventual se compromete antes de que empiece la Fase C</text>
+            </svg>
+            <figcaption>Las siete fases. Su prop&oacute;sito no es administrativo: cada punto de decisi&oacute;n exige m&aacute;s evidencia t&eacute;cnica que el anterior, porque compromete m&aacute;s del costo eventual.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-es">
+        <p class="section-label">Alcance y límites</p>
+        <h2>Fases, y para qu&eacute; sirven</h2>
+        <p>La NASA corta un proyecto en siete fases separadas por puntos de decisi&oacute;n. El prop&oacute;sito no es control administrativo: es que compromisos cada vez m&aacute;s consecuentes descansen en evidencia cada vez m&aacute;s madura. Un concepto bueno para justificar m&aacute;s estudio no es bueno para autorizar fabricaci&oacute;n.</p><p>La consecuencia para los presupuestos es directa. Temprano en el ciclo de vida una estimaci&oacute;n es una conjetura y necesita mucho espacio; tarde en el ciclo la mayor&iacute;a de las masas est&aacute;n medidas y necesitan muy poco. Un presupuesto que ignora esto reporta el mismo n&uacute;mero con significado muy distinto en cada hito.</p>
+        <div class="callout warning"><strong>Lo que los porcentajes no son.</strong> Las cifras de contingencia de esta lecture son pr&aacute;ctica com&uacute;n, no un est&aacute;ndar. Cada proyecto fija las suyas en su plan de gesti&oacute;n de ingenier&iacute;a de sistemas, y una misi&oacute;n con herencia de vuelo usa leg&iacute;timamente cifras menores que un dise&ntilde;o primero en su tipo. Copiar estos n&uacute;meros sin preguntar de d&oacute;nde vienen es el mismo error que confiar en una estimaci&oacute;n sin preguntar su base.</div>
+      </section>
+
+      <section id="engine-es">
+        <p class="section-label">Tres grupos, un lazo</p>
+        <h2>El motor de ingenier&iacute;a de sistemas</h2>
+        <div class="table-wrap"><table><thead><tr><th>Grupo de procesos</th><th>Pregunta que responde</th><th>Direcci&oacute;n</th></tr></thead><tbody><tr><td>Dise&ntilde;o del sistema</td><td>&iquest;Qu&eacute; debe hacer el sistema y qu&eacute; ser&aacute;?</td><td>De arriba hacia abajo</td></tr><tr><td>Realizaci&oacute;n del producto</td><td>&iquest;Lo que construimos lo hace, y es lo correcto?</td><td>De abajo hacia arriba</td></tr><tr><td>Gesti&oacute;n t&eacute;cnica</td><td>&iquest;Los productos siguen concordando entre s&iacute;?</td><td>En todo momento</td></tr></tbody></table></div>
+        <p>El motor se aplica recursivamente: los mismos tres grupos corren a nivel de sistema, luego otra vez a nivel de subsistema, luego a nivel de componente. Lo que cambia es el alcance, no las preguntas. Y nunca corre una sola vez &mdash; dise&ntilde;o y realizaci&oacute;n se entrelazan, porque un resultado de verificaci&oacute;n rutinariamente devuelve un requisito a revisi&oacute;n.</p>
+      </section>
+
+      <section id="margin-es">
+        <p class="section-label">Dos reservas, dos due&ntilde;os</p>
+        <h2>La contingencia no es margen</h2>
+        <p>La <strong>contingencia</strong> cubre el crecimiento esperado de una estimaci&oacute;n conforme se a&ntilde;ade detalle. Es del due&ntilde;o del elemento y se consume al madurar el dise&ntilde;o. El <strong>margen</strong> cubre lo que el proyecto todav&iacute;a no sabe. Se retiene a nivel de sistema y se libera deliberadamente.</p><p>Dejar que los due&ntilde;os de subsistema echen mano del margen de sistema en silencio es el mecanismo est&aacute;ndar por el que un proyecto llega pasado de peso a su revisi&oacute;n cr&iacute;tica de dise&ntilde;o. Las dos reservas deben aparecer como columnas separadas, o la distinci&oacute;n no sobrevive al contacto con una hoja de c&aacute;lculo.</p>
+        <div class="table-wrap"><table><thead><tr><th>Hito</th><th>Margen usualmente esperado</th></tr></thead><tbody><tr><td>Concepto</td><td>25 a 30 %</td></tr><tr><td>Revisi&oacute;n preliminar de dise&ntilde;o</td><td>15 a 20 %</td></tr><tr><td>Revisi&oacute;n cr&iacute;tica de dise&ntilde;o</td><td>cerca de 10 %</td></tr><tr><td>Entrega</td><td>3 a 5 %</td></tr></tbody></table></div>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Algoritmo de cálculo</p>
+        <h2>Construir un presupuesto de masa</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Establecer el l&iacute;mite</span></div><div><strong>2</strong><span>Listar todo elemento, incluidos arn&eacute;s y soportes</span></div><div><strong>3</strong><span>Registrar cada estimaci&oacute;n y su base</span></div><div><strong>4</strong><span>Aplicar contingencia por madurez</span></div><div><strong>5</strong><span>Sumar a la masa prevista</span></div><div><strong>6</strong><span>Calcular el margen de sistema</span></div><div><strong>7</strong><span>Comparar con la fase</span></div></div>
+        <p>El paso tres es el que hace el trabajo. Registrar la base &mdash; analog&iacute;a, an&aacute;lisis, datos de proveedor, medido &mdash; es lo que permite al paso cuatro asignar contingencia con honestidad, y tambi&eacute;n lo que le dice al proyecto d&oacute;nde gastar el esfuerzo de an&aacute;lisis restante.</p>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>La plataforma en su revisi&oacute;n preliminar</h2>
+        <p>La plataforma de investigaci&oacute;n atmosf&eacute;rica tiene un l&iacute;mite de 52.00 kg. Siete elementos, cada uno con su estimaci&oacute;n y la base detr&aacute;s.</p>
+        <div class="table-wrap"><table><thead><tr><th>Elemento</th><th>CBE [kg]</th><th>Base</th><th>Cont. [%]</th><th>Previsto [kg]</th></tr></thead><tbody><tr><td>Fuselaje</td><td>14.00</td><td>An&aacute;lisis</td><td>15</td><td>16.10</td></tr><tr><td>Avi&oacute;nica</td><td>3.20</td><td>Datos de proveedor</td><td>10</td><td>3.52</td></tr><tr><td>Potencia</td><td>11.50</td><td>An&aacute;lisis</td><td>15</td><td>13.23</td></tr><tr><td>Comunicaciones</td><td>2.40</td><td>Datos de proveedor</td><td>10</td><td>2.64</td></tr><tr><td>Sensores</td><td>6.00</td><td>Analog&iacute;a</td><td>25</td><td>7.50</td></tr><tr><td>Unidad de datos</td><td>1.10</td><td>Medido</td><td>5</td><td>1.16</td></tr><tr><td>Arn&eacute;s y soportes</td><td>2.80</td><td>Analog&iacute;a</td><td>30</td><td>3.64</td></tr><tr><td><strong>Total</strong></td><td><strong>41.00</strong></td><td></td><td></td><td><strong>47.78</strong></td></tr></tbody></table></div>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Margen ingenuo.</strong> Contra las mejores estimaciones actuales solas, \[\frac{52.00-41.00}{52.00} = \frac{11.00}{52.00} = 21.2\ \%.\] Este es el n&uacute;mero que report&oacute; el equipo.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Masa prevista.</strong> Aplicando cada contingencia y sumando da 47.78 kg. La contingencia misma es \(47.78-41.00 = 6.78\) kg.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Margen de sistema.</strong> \[\frac{52.00-47.78}{52.00} = \frac{4.22}{52.00} = 8.1\ \%.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>D&oacute;nde vive la contingencia.</strong> Los sensores aportan 1.50 kg y el grupo de arn&eacute;s 0.84 kg, juntos 2.34 kg &mdash; 34.5&nbsp;% de toda la contingencia del presupuesto. Ambos descansan en analog&iacute;a.</div></div>
+        <div class="result-box">\[ \boxed{ \text{ingenuo } 21.2\ \% \;\longrightarrow\; \text{ponderado por madurez } 8.1\ \% } \]</div>
+        <p><strong>Interpretaci&oacute;n.</strong> Con 8.1&nbsp;% la plataforma est&aacute; por debajo del 15 a 20&nbsp;% normalmente esperado en una revisi&oacute;n preliminar de dise&ntilde;o, as&iacute; que el presupuesto es un hallazgo y no una nota al pie. Pero el presupuesto tambi&eacute;n dice qu&eacute; hacer: una campa&ntilde;a general de reducci&oacute;n de masa es la respuesta equivocada, porque un tercio de la contingencia est&aacute; en dos elementos estimados por analog&iacute;a. Analizar esos dos convierte contingencia en margen o en un problema conocido, y es mucho m&aacute;s barato que quitar masa en todas partes.</p>
+      </section>
+
+      <section id="summary-es">
+        <p class="section-label">Reglas operativas</p>
+        <h2>De un vistazo</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regla</th><th>Enunciado</th></tr></thead><tbody><tr><td>Las fases existen por la evidencia</td><td>Cada punto de decisi&oacute;n exige m&aacute;s evidencia t&eacute;cnica, porque compromete m&aacute;s costo.</td></tr><tr><td>Contingencia vs margen</td><td>La contingencia cubre el crecimiento esperado y es del due&ntilde;o del elemento. El margen cubre lo desconocido y se retiene a nivel de sistema.</td></tr><tr><td>Contingencia por madurez</td><td>Cerca de 20 a 30 % por analog&iacute;a, 10 a 15 % por an&aacute;lisis o datos de proveedor, 2 a 5 % medido.</td></tr><tr><td>Margen</td><td>\(\text{margen} = (\text{l&iacute;mite}-\text{previsto})/\text{l&iacute;mite}\), previsto incluyendo contingencia.</td></tr><tr><td>Un porcentaje plano esconde el problema</td><td>Una contingencia uniforme oculta qu&eacute; elementos son realmente inciertos.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-es">
+        <p class="section-label">Errores comunes</p>
+        <h2>Qu&eacute; sale mal</h2>
+        <ul class="check-list"><li><strong>Reportar margen contra las mejores estimaciones actuales.</strong> Sin contingencia la cifra halaga al dise&ntilde;o por un factor cercano a dos.</li><li><strong>Una contingencia plana para todo.</strong> Esconde qu&eacute; elementos son realmente inciertos, que es lo &uacute;nico &uacute;til que dice esa columna.</li><li><strong>Dejar que los subsistemas usen el margen de sistema.</strong> El margen tiene un due&ntilde;o. Si todos pueden gastarlo, se acaba antes de que alguien lo note.</li><li><strong>Olvidar arn&eacute;s, soportes, sujetadores y mantas.</strong> Son poco glamorosos, mal estimados y rutinariamente varios por ciento de la masa seca.</li><li><strong>Tomar un margen sano en la fase equivocada por buena noticia.</strong> Cumplir la cifra de entrega en dise&ntilde;o preliminar suele significar que las estimaciones son optimistas, no que el proyecto va adelantado.</li><li><strong>Leer el presupuesto como un n&uacute;mero y no como una distribuci&oacute;n.</strong> D&oacute;nde est&aacute; la contingencia te dice qu&eacute; analizar despu&eacute;s.</li></ul>
+      </section>
+
+      <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
+        <h2>Referencias</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Sections 2 and 3.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=project-life-cycle" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 4: Project Life Cycle</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adaptado de la Unidad I del gui&oacute;n del curso Ingenier&iacute;a en Sistemas Aeroespaciales (AE506) de Carlos Alberto Molina Holgu&iacute;n. Cada n&uacute;mero de esta p&aacute;gina se recalcul&oacute; de forma independiente para ella; ninguna calculadora cubre este tema, as&iacute; que el rec&aacute;lculo es la &uacute;nica comprobaci&oacute;n disponible. El presupuesto se recalcul&oacute; desde las columnas de estimaci&oacute;n y contingencia en vez de transcribirse, as&iacute; que los totales no arrastran redondeo de la tabla fuente.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="systems-thinking.html?v=11"><span>Lecture anterior</span>&larr; Pensamiento sist&eacute;mico</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+
+      <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie k&ouml;nnen sollten</h2>
+        <ul><li>die NASA-Lebenszyklusphasen benennen und angeben, was jede liefern muss;</li><li>die drei Prozessgruppen der SE-Maschine und ihre jeweilige Frage nennen;</li><li>Zuschlagsreserve von Systemmarge unterscheiden und sagen, wem jede geh&ouml;rt;</li><li>Reserve nach dem Reifegrad einer Sch&auml;tzung zuweisen statt pauschal;</li><li>eine Systemmarge berechnen und gegen die Projektphase beurteilen.</li></ul>
+      </section>
+
+      <section id="physics-de">
+        <p class="section-label">Ingenieurtechnischer Kontext</p>
+        <h2>Einundzwanzig Prozent, die nicht da waren</h2>
+        <p class="lead">Ein Team meldet 41,0 kg gegen eine Grenze von 52,0 kg und nennt das Massenbudget gesund: 21&nbsp;% Reserve, deutlich &uuml;ber dem, was eine vorl&auml;ufige Entwurfspr&uuml;fung erwartet.</p><p>Zwei dieser Sch&auml;tzungen stammen aus einer Tabelle, die ein &auml;hnliches Instrument hochskaliert hat. Eine stammt aus einem Lieferantenangebot. Eine wurde gewogen. Alle vier gleich zu behandeln erzeugt die 21-Prozent-Zahl, und deshalb sehen Massenbudgets gut aus, bis sie es pl&ouml;tzlich nicht mehr tun.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 820 210" role="img" aria-label="Die sieben NASA-Lebenszyklusphasen mit steigender Bindung">
+            <defs><marker id="lc-arrow-de" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0d568d"></path></marker></defs>
+            <rect x="20" y="60" width="100" height="62" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="70" y="82" text-anchor="middle" font-size="15" font-weight="700" fill="#071d33">Pre-A</text>
+            <text x="70" y="104" text-anchor="middle" font-size="11" fill="#3f5162">Konzeptstudien</text>
+            <rect x="132" y="60" width="100" height="62" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="182" y="82" text-anchor="middle" font-size="15" font-weight="700" fill="#071d33">A</text>
+            <text x="182" y="104" text-anchor="middle" font-size="11" fill="#3f5162">Konzept und Technologie</text>
+            <rect x="244" y="60" width="100" height="62" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="294" y="82" text-anchor="middle" font-size="15" font-weight="700" fill="#071d33">B</text>
+            <text x="294" y="104" text-anchor="middle" font-size="11" fill="#3f5162">Vorentwurf</text>
+            <rect x="356" y="60" width="100" height="62" rx="6" fill="#fbeed9" stroke="#8fa6ba"></rect>
+            <text x="406" y="82" text-anchor="middle" font-size="15" font-weight="700" fill="#071d33">C</text>
+            <text x="406" y="104" text-anchor="middle" font-size="11" fill="#3f5162">Detailentwurf</text>
+            <rect x="468" y="60" width="100" height="62" rx="6" fill="#fbeed9" stroke="#8fa6ba"></rect>
+            <text x="518" y="82" text-anchor="middle" font-size="15" font-weight="700" fill="#071d33">D</text>
+            <text x="518" y="104" text-anchor="middle" font-size="11" fill="#3f5162">Bau, Test, Start</text>
+            <rect x="580" y="60" width="100" height="62" rx="6" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="630" y="82" text-anchor="middle" font-size="15" font-weight="700" fill="#071d33">E</text>
+            <text x="630" y="104" text-anchor="middle" font-size="11" fill="#3f5162">Betrieb</text>
+            <rect x="692" y="60" width="100" height="62" rx="6" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="742" y="82" text-anchor="middle" font-size="15" font-weight="700" fill="#071d33">F</text>
+            <text x="742" y="104" text-anchor="middle" font-size="11" fill="#3f5162">Abschluss</text>
+            <line x1="20" y1="40" x2="800" y2="40" stroke="#0d568d" stroke-width="2" marker-end="url(#lc-arrow-de)"></line>
+            <text x="410" y="30" text-anchor="middle" font-size="14" font-weight="600" fill="#0d568d">Wachsende Bindung, abnehmende &Auml;nderungsfreiheit</text>
+            <text x="410" y="160" text-anchor="middle" font-size="13" fill="#3f5162">Formulierung: Vor-A bis B          |          Umsetzung: C bis F</text>
+            <text x="410" y="186" text-anchor="middle" font-size="13" font-style="italic" fill="#b03a2e">Der Gro&szlig;teil der sp&auml;teren Kosten ist vor Beginn von Phase C gebunden</text>
+            </svg>
+            <figcaption>Die sieben Phasen. Ihr Zweck ist nicht administrativ: Jeder Entscheidungspunkt verlangt mehr technische Nachweise als der vorige, weil er mehr der sp&auml;teren Kosten bindet.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-de">
+        <p class="section-label">Geltungsbereich und Grenzen</p>
+        <h2>Phasen und wozu sie dienen</h2>
+        <p>Die NASA teilt ein Projekt in sieben Phasen mit Entscheidungspunkten. Der Zweck ist keine Verwaltungskontrolle: Zunehmend folgenreiche Bindungen sollen auf zunehmend reifen Nachweisen beruhen. Ein Konzept, das weitere Studien rechtfertigt, rechtfertigt keine Fertigung.</p><p>Die Folge f&uuml;r Budgets ist unmittelbar. Fr&uuml;h ist eine Sch&auml;tzung eine Vermutung und braucht viel Raum; sp&auml;t sind die meisten Massen gemessen und brauchen wenig. Ein Budget, das dies ignoriert, meldet dieselbe Zahl mit sehr unterschiedlicher Bedeutung.</p>
+        <div class="callout warning"><strong>Was die Prozents&auml;tze nicht sind.</strong> Die Reservewerte dieser Vorlesung sind g&auml;ngige Praxis, kein Standard. Jedes Projekt legt eigene im Systems-Engineering-Managementplan fest, und eine Mission mit Flugerbe nutzt zu Recht kleinere als ein Erstentwurf. Diese Zahlen ungepr&uuml;ft zu &uuml;bernehmen ist derselbe Fehler wie einer Sch&auml;tzung ohne Grundlage zu trauen.</div>
+      </section>
+
+      <section id="engine-de">
+        <p class="section-label">Drei Gruppen, eine Schleife</p>
+        <h2>Die Systems-Engineering-Maschine</h2>
+        <div class="table-wrap"><table><thead><tr><th>Prozessgruppe</th><th>Beantwortete Frage</th><th>Richtung</th></tr></thead><tbody><tr><td>Systementwurf</td><td>Was muss das System leisten, und was soll es sein?</td><td>Von oben nach unten</td></tr><tr><td>Produktrealisierung</td><td>Tut das Gebaute es, und ist es das Richtige?</td><td>Von unten nach oben</td></tr><tr><td>Technisches Management</td><td>Stimmen die Produkte noch &uuml;berein?</td><td>Durchg&auml;ngig</td></tr></tbody></table></div>
+        <p>Die Maschine wird rekursiv angewandt: dieselben drei Gruppen auf Systemebene, dann auf Teilsystemebene, dann auf Komponentenebene. Es &auml;ndert sich der Umfang, nicht die Fragen. Und sie l&auml;uft nie nur einmal &mdash; Entwurf und Realisierung verschr&auml;nken sich, weil ein Verifikationsergebnis regelm&auml;&szlig;ig eine Anforderung zur &Uuml;berarbeitung zur&uuml;ckschickt.</p>
+      </section>
+
+      <section id="margin-de">
+        <p class="section-label">Zwei Reserven, zwei Eigent&uuml;mer</p>
+        <h2>Reserve ist nicht Marge</h2>
+        <p>Die <strong>Zuschlagsreserve</strong> deckt das erwartete Wachstum einer Sch&auml;tzung mit zunehmendem Detail. Sie geh&ouml;rt dem Elementverantwortlichen und wird mit der Reife verbraucht. Die <strong>Systemmarge</strong> deckt, was das Projekt noch gar nicht kennt. Sie wird zentral gehalten und bewusst freigegeben.</p><p>Teilsystemverantwortliche still auf die Systemmarge zugreifen zu lassen ist der Standardmechanismus, mit dem ein Projekt &uuml;bergewichtig zur kritischen Entwurfspr&uuml;fung kommt. Beide Reserven m&uuml;ssen als getrennte Spalten erscheinen, sonst &uuml;berlebt die Unterscheidung den Kontakt mit einer Tabellenkalkulation nicht.</p>
+        <div class="table-wrap"><table><thead><tr><th>Meilenstein</th><th>&Uuml;blich erwartete Reserve</th></tr></thead><tbody><tr><td>Konzept</td><td>25 bis 30 %</td></tr><tr><td>Vorl&auml;ufige Entwurfspr&uuml;fung</td><td>15 bis 20 %</td></tr><tr><td>Kritische Entwurfspr&uuml;fung</td><td>etwa 10 %</td></tr><tr><td>Lieferung</td><td>3 bis 5 %</td></tr></tbody></table></div>
+      </section>
+
+      <section id="algorithm-de">
+        <p class="section-label">Rechenalgorithmus</p>
+        <h2>Ein Massenbudget aufbauen</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Die Grenze festlegen</span></div><div><strong>2</strong><span>Alle Elemente auflisten, auch Kabelbaum und Halter</span></div><div><strong>3</strong><span>Jede Sch&auml;tzung und ihre Grundlage erfassen</span></div><div><strong>4</strong><span>Reserve nach Reifegrad anwenden</span></div><div><strong>5</strong><span>Zur erwarteten Masse summieren</span></div><div><strong>6</strong><span>Die Systemmarge berechnen</span></div><div><strong>7</strong><span>Mit der Phase vergleichen</span></div></div>
+        <p>Schritt drei leistet die Arbeit. Die Grundlage zu erfassen &mdash; Analogie, Analyse, Herstellerdaten, gemessen &mdash; erlaubt Schritt vier eine ehrliche Reservezuweisung und zeigt zugleich, wo der verbleibende Analyseaufwand hingeh&ouml;rt.</p>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Die Plattform bei ihrer Vorentwurfspr&uuml;fung</h2>
+        <p>Die atmosph&auml;rische Forschungsplattform hat eine Grenze von 52,00 kg. Sieben Elemente, jedes mit Sch&auml;tzung und Grundlage.</p>
+        <div class="table-wrap"><table><thead><tr><th>Element</th><th>CBE [kg]</th><th>Grundlage</th><th>Res. [%]</th><th>Erwartet [kg]</th></tr></thead><tbody><tr><td>Zelle</td><td>14,00</td><td>Analyse</td><td>15</td><td>16,10</td></tr><tr><td>Avionik</td><td>3,20</td><td>Herstellerdaten</td><td>10</td><td>3,52</td></tr><tr><td>Energie</td><td>11,50</td><td>Analyse</td><td>15</td><td>13,23</td></tr><tr><td>Kommunikation</td><td>2,40</td><td>Herstellerdaten</td><td>10</td><td>2,64</td></tr><tr><td>Sensorik</td><td>6,00</td><td>Analogie</td><td>25</td><td>7,50</td></tr><tr><td>Dateneinheit</td><td>1,10</td><td>Gemessen</td><td>5</td><td>1,16</td></tr><tr><td>Kabelbaum und Halter</td><td>2,80</td><td>Analogie</td><td>30</td><td>3,64</td></tr><tr><td><strong>Summe</strong></td><td><strong>41,00</strong></td><td></td><td></td><td><strong>47,78</strong></td></tr></tbody></table></div>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Naive Marge.</strong> Nur gegen die aktuellen Sch&auml;tzwerte: \[\frac{52{,}00-41{,}00}{52{,}00} = \frac{11{,}00}{52{,}00} = 21{,}2\ \%.\] Diese Zahl meldete das Team.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Erwartete Masse.</strong> Mit den Reserven summiert ergibt sich 47,78 kg. Die Reserve betr&auml;gt \(47{,}78-41{,}00 = 6{,}78\) kg.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Systemmarge.</strong> \[\frac{52{,}00-47{,}78}{52{,}00} = \frac{4{,}22}{52{,}00} = 8{,}1\ \%.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Wo die Reserve sitzt.</strong> Die Sensorik tr&auml;gt 1,50 kg bei, die Kabelbaumgruppe 0,84 kg, zusammen 2,34 kg &mdash; 34,5&nbsp;% der gesamten Reserve. Beide beruhen auf Analogie.</div></div>
+        <div class="result-box">\[ \boxed{ \text{naiv } 21{,}2\ \% \;\longrightarrow\; \text{reifegradgewichtet } 8{,}1\ \% } \]</div>
+        <p><strong>Deutung.</strong> Mit 8,1&nbsp;% liegt die Plattform unter den bei einer Vorentwurfspr&uuml;fung &uuml;blichen 15 bis 20&nbsp;%, das Budget ist also ein Befund und keine Fu&szlig;note. Es sagt aber auch, was zu tun ist: Eine allgemeine Massenreduktionskampagne ist die falsche Antwort, denn ein Drittel der Reserve steckt in zwei per Analogie gesch&auml;tzten Elementen. Diese zwei zu analysieren verwandelt Reserve in Marge oder in ein bekanntes Problem und ist weit billiger, als &uuml;berall Masse zu entfernen.</p>
+      </section>
+
+      <section id="summary-de">
+        <p class="section-label">Arbeitsregeln</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regel</th><th>Aussage</th></tr></thead><tbody><tr><td>Phasen dienen dem Nachweis</td><td>Jeder Entscheidungspunkt verlangt mehr Nachweise, weil er mehr Kosten bindet.</td></tr><tr><td>Reserve gegen Marge</td><td>Die Zuschlagsreserve deckt erwartetes Wachstum und geh&ouml;rt dem Element. Die Systemmarge deckt Unbekanntes und wird zentral gehalten.</td></tr><tr><td>Reserve nach Reifegrad</td><td>Etwa 20 bis 30 % bei Analogie, 10 bis 15 % bei Analyse oder Herstellerdaten, 2 bis 5 % gemessen.</td></tr><tr><td>Marge</td><td>\(\text{Marge} = (\text{Grenze}-\text{Erwartet})/\text{Grenze}\), erwartet einschlie&szlig;lich Reserve.</td></tr><tr><td>Ein pauschaler Prozentsatz verdeckt das Problem</td><td>Eine einheitliche Reserve verbirgt, welche Elemente wirklich unsicher sind.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Häufige Fehler</p>
+        <h2>Was schiefgeht</h2>
+        <ul class="check-list"><li><strong>Marge gegen aktuelle Sch&auml;tzwerte melden.</strong> Ohne Reserve schmeichelt die Zahl dem Entwurf um etwa den Faktor zwei.</li><li><strong>Eine pauschale Reserve f&uuml;r alles.</strong> Sie verbirgt, welche Elemente wirklich unsicher sind &mdash; das Einzige, was die Spalte n&uuml;tzt.</li><li><strong>Teilsysteme auf die Systemmarge zugreifen lassen.</strong> Die Marge hat einen Eigent&uuml;mer. D&uuml;rfen alle sie ausgeben, ist sie weg, bevor es jemand merkt.</li><li><strong>Kabelbaum, Halter, Verbindungselemente und Isolationsmatten vergessen.</strong> Unscheinbar, schlecht gesch&auml;tzt und regelm&auml;&szlig;ig einige Prozent der Trockenmasse.</li><li><strong>Eine gute Marge in der falschen Phase f&uuml;r eine gute Nachricht halten.</strong> Den Lieferwert schon beim Vorentwurf zu erreichen hei&szlig;t meist optimistische Sch&auml;tzungen, nicht Vorsprung.</li><li><strong>Das Budget als Zahl statt als Verteilung lesen.</strong> Wo die Reserve sitzt, sagt, was als N&auml;chstes zu analysieren ist.</li></ul>
+      </section>
+
+      <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
+        <h2>Literatur</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Sections 2 and 3.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=project-life-cycle" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 4: Project Life Cycle</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Bearbeitet nach Einheit I des Skripts Luft- und Raumfahrtsystemtechnik (AE506) von Carlos Alberto Molina Holgu&iacute;n. Jede Zahl dieser Seite wurde eigens daf&uuml;r unabh&auml;ngig neu berechnet; kein Rechner deckt dieses Thema ab, daher ist die Neuberechnung die einzige Pr&uuml;fung. Das Budget wurde aus den Sch&auml;tz- und Reservespalten neu berechnet statt &uuml;bernommen, die Summen tragen also keine Rundung der Quelltabelle.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="systems-thinking.html?v=11"><span>Vorherige Vorlesung</span>&larr; Systemdenken</a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>&copy; <span id="year"></span> Carlos Alberto Molina Holgu&iacute;n</p>
+    <p>Universidad Aut&oacute;noma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

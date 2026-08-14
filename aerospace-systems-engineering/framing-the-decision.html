@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Framing an engineering decision: the decision statement, hard constraints versus evaluation criteria, morphological generation of alternatives, screening before scoring, and operational definitions that prevent double counting." />
+  <meta name="author" content="Carlos Alberto Molina Holgu&iacute;n" />
+  <meta name="theme-color" content="#071d33" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Framing the Decision | Aerospace Systems Engineering</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:wght@600;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=11" data-ui-key="course">Aerospace Systems Engineering</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Aerospace Systems Engineering &middot; Lecture 13</p>
+        <h1>Framing the Decision: Constraints, Alternatives, and Criteria</h1>
+        <p class="hero-copy">Everything that has to happen before a single score is written: what is being decided, which options exist, which are feasible, and what the comparison will actually measure.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Ingeniería de Sistemas Aeroespaciales &middot; Lecture 13</p>
+        <h1>Enmarcar la decisi&oacute;n: restricciones, alternativas y criterios</h1>
+        <p class="hero-copy">Todo lo que debe ocurrir antes de escribir una sola puntuaci&oacute;n: qu&eacute; se decide, qu&eacute; opciones existen, cu&aacute;les son factibles y qu&eacute; medir&aacute; realmente la comparaci&oacute;n.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Luft- und Raumfahrtsystemtechnik &middot; Vorlesung 13</p>
+        <h1>Die Entscheidung fassen: Randbedingungen, Alternativen und Kriterien</h1>
+        <p class="hero-copy">Alles, was vor der ersten Bewertung geschehen muss: was entschieden wird, welche Optionen es gibt, welche zul&auml;ssig sind und was der Vergleich wirklich misst.</p>
+      </div>
+
+    <div class="hero-meta">
+        <span data-language="en">Estimated reading: 13 min</span><span data-language="es" hidden>Lectura estimada: 13 min</span><span data-language="de" hidden>Lesedauer: ca. 13 min</span>
+        <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+        <span data-language="en">Scope: before any scoring</span><span data-language="es" hidden>Alcance: antes de cualquier puntuaci&oacute;n</span><span data-language="de" hidden>Umfang: vor jeder Bewertung</span>
+    </div>
+    <div class="button-row">
+      <a class="button secondary" href="index.html?v=11" data-ui-key="back">Back to course</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Engineering situation</a>
+        <a href="#model">Scope and limits</a>
+        <a href="#constraints">Constraints and criteria</a>
+        <a href="#generating">Generating alternatives</a>
+        <a href="#algorithm">Framing it</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Operative rules</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#references">Sources</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Situaci&oacute;n de ingenier&iacute;a</a>
+        <a href="#model-es">Alcance y l&iacute;mites</a>
+        <a href="#constraints-es">Restricciones y criterios</a>
+        <a href="#generating-es">Generar alternativas</a>
+        <a href="#algorithm-es">Enmarcarla</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Reglas operativas</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Kontext</a>
+        <a href="#model-de">Geltungsbereich</a>
+        <a href="#constraints-de">Randbedingungen und Kriterien</a>
+        <a href="#generating-de">Alternativen erzeugen</a>
+        <a href="#algorithm-de">Sie fassen</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Arbeitsregeln</a>
+        <a href="#mistakes-de">H&auml;ufige Fehler</a>
+        <a href="#references-de">Quellen</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+
+      <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul><li>write a decision statement that says what is being decided and what is out of scope;</li><li>distinguish a hard constraint from an evaluation criterion, and apply each in the right place;</li><li>generate alternatives with a morphological box instead of a brainstorm;</li><li>screen on constraints and then on dominance, before any scoring;</li><li>give every criterion an operational definition and detect double counting.</li></ul>
+      </section>
+
+      <section id="physics">
+        <p class="section-label">Engineering situation</p>
+        <h2>Three options, and two of them are the same</h2>
+        <p class="lead">A team brings three avionics architectures to the trade study. Two are variants of the same idea with a different processor, and the third is the one somebody has built before. The matrix will produce a winner, and the winner was available on day one.</p><p>The scoring is not the problem. The problem is that the set being scored was assembled by asking what people could think of, and people think of what they have seen. Everything that decides the outcome of a trade study &mdash; which options exist, which are allowed, what the comparison measures &mdash; happens before the first number is written.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 260" role="img" aria-label="The decision funnel: generate wide, screen hard, score few">
+            <defs><marker id="df-arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0d568d"></path></marker></defs>
+            <rect x="40" y="70" width="230" height="76" rx="8" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="155" y="104" text-anchor="middle" font-size="17" font-weight="700" fill="#071d33">18 combinations</text>
+            <text x="155" y="126" text-anchor="middle" font-size="12" fill="#3f5162">generated</text>
+            <rect x="300" y="70" width="180" height="76" rx="8" fill="#fbeed9" stroke="#8fa6ba"></rect>
+            <text x="390" y="104" text-anchor="middle" font-size="17" font-weight="700" fill="#071d33">5 feasible</text>
+            <rect x="560" y="70" width="130" height="76" rx="8" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="625" y="104" text-anchor="middle" font-size="17" font-weight="700" fill="#071d33">3 scored</text>
+            <line x1="272" y1="108" x2="296" y2="108" stroke="#0d568d" stroke-width="2" marker-end="url(#df-arrow)"></line>
+            <line x1="482" y1="108" x2="556" y2="108" stroke="#0d568d" stroke-width="2" marker-end="url(#df-arrow)"></line>
+            <text x="286" y="180" text-anchor="middle" font-size="12" fill="#b03a2e">hard constraints remove 13</text>
+            <text x="545" y="206" text-anchor="middle" font-size="12" fill="#b03a2e">dominance removes 2</text>
+            <text x="400" y="42" text-anchor="middle" font-size="14" font-weight="600" fill="#0d568d">Screening happens outside the scoring matrix, never inside it</text>
+            </svg>
+            <figcaption>The decision funnel. Eighteen candidates cost an afternoon to generate and most are eliminated by arithmetic, not judgement &mdash; which is what leaves the judgement for the three that deserve it.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model">
+        <p class="section-label">Scope and limits</p>
+        <h2>What framing settles</h2>
+        <p>Framing a decision produces four things before any evaluation: a <strong>decision statement</strong> saying what is being decided and what is not, a set of <strong>hard constraints</strong> that determine feasibility, a set of <strong>alternatives</strong> that survived them, and a set of <strong>criteria</strong> with operational definitions.</p><p>The order is not arbitrary. Constraints applied after scoring let an infeasible option look competitive; criteria defined after seeing the alternatives get written to favour one; alternatives generated after the criteria are known get generated to score well. Each step done out of order corrupts the one before it.</p>
+        <div class="callout warning"><strong>What framing cannot do.</strong> It cannot make a decision defensible if the alternatives are all bad. A well-framed choice among poor options is still a poor outcome, and no amount of process fixes it. The generation step is the only defence, and it is the one most often skipped because it feels like it is producing options nobody will pick.</div>
+      </section>
+
+      <section id="constraints">
+        <p class="section-label">Two kinds of statement</p>
+        <h2>A constraint is not a criterion</h2>
+        <div class="table-wrap"><table><thead><tr><th></th><th>Hard constraint</th><th>Evaluation criterion</th></tr></thead><tbody><tr><td>Question</td><td>May this alternative be considered at all?</td><td>Which of the surviving alternatives is preferable?</td></tr><tr><td>Answer</td><td>Yes or no</td><td>Better or worse, by degree</td></tr><tr><td>Applied</td><td>Before scoring, outside the matrix</td><td>Inside the matrix, on what survived</td></tr><tr><td>If you get it wrong</td><td>An infeasible option scores well and looks competitive</td><td>A real difference between options is invisible</td></tr></tbody></table></div>
+        <p>The failure mode is specific and common: an alternative violates a mass limit, someone gives it a 2 out of 10 on the mass criterion, and its excellent scores elsewhere carry it to second place. The matrix has just recommended an option that cannot be built. Screening outside the matrix is what prevents arithmetic from overruling feasibility.</p><p>The same quantity can appear in both roles, and that is legitimate. Mass can be a constraint at 4.0 kg &mdash; above it the alternative is out &mdash; and a criterion below it, where less is better. What is not legitimate is having only the criterion.</p>
+      </section>
+
+      <section id="generating">
+        <p class="section-label">A method instead of a brainstorm</p>
+        <h2>The morphological box</h2>
+        <p>List the independent decisions the architecture actually contains, then the options for each. Every combination is a candidate architecture, including the ones nobody would have proposed. The point is not that all of them are good &mdash; most are not &mdash; but that the good ones nobody thought of are now in the set.</p>
+        <div class="table-wrap"><table><thead><tr><th>Decision dimension</th><th>Options</th></tr></thead><tbody><tr><td>Where processing happens</td><td>Centralised &middot; distributed &middot; hybrid</td></tr><tr><td>How elements are connected</td><td>Point-to-point &middot; shared serial bus &middot; redundant network</td></tr><tr><td>Where science data is stored</td><td>One central store &middot; distributed at each source</td></tr></tbody></table></div>
+        <p>Three dimensions with three, three and two options give \(3\times3\times2 = 18\) combinations. That is more than anyone would list by hand, and generating them costs an afternoon because most are eliminated in the next step by arithmetic rather than judgement.</p>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">Calculation algorithm</p>
+        <h2>Framing a decision</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Write the decision statement</span></div><div><strong>2</strong><span>Name the decision owner and the deadline</span></div><div><strong>3</strong><span>List the hard constraints</span></div><div><strong>4</strong><span>Build the morphological box</span></div><div><strong>5</strong><span>Screen on constraints</span></div><div><strong>6</strong><span>Screen on dominance</span></div><div><strong>7</strong><span>Define criteria with operational definitions</span></div><div><strong>8</strong><span>Check for double counting</span></div></div>
+        <p>Step seven comes after the screening on purpose. Criteria written while looking at a shortlist tend to describe its front-runner, and the only defence is to write them from the objectives rather than from the alternatives.</p>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>From eighteen to three</h2>
+        <p><strong>Decision statement.</strong> Select the avionics architecture for the preliminary design baseline of the atmospheric platform, by the preliminary design review, owned by the systems engineer. Out of scope: the processor part number, and the ground segment.</p><p><strong>Hard constraints.</strong> Avionics mass at or below 4.0 kg; at least one flight-proven data bus in the architecture.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Generate.</strong> The morphological box gives \[3\times3\times2 = 18\] candidate architectures, against the three the team had brought.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Screen on constraints.</strong> Thirteen fail: every combination using point-to-point wiring exceeds 4.0 kg once the harness is counted, and every fully distributed variant with a redundant network has no flight-proven bus. Five remain.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Screen on dominance.</strong> Two of the five are worse than another surviving option on every criterion &mdash; heavier, less reliable and with less growth capability. They need no score. Three go forward.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Define the criteria.</strong> Nine candidates were proposed. Mass, volume and structural cost all track the same physical property, so they merge into one; reliability and fault tolerance are means and end, so they merge too. Seven criteria survive, each with an operational definition.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>What was gained.</strong> Two of the three that go to scoring are architectures nobody proposed on day one, and one of the team&rsquo;s original three was eliminated by arithmetic before anybody argued about it.</div></div>
+        <div class="result-box">\[ \boxed{ 18 \;\xrightarrow{\text{constraints}}\; 5 \;\xrightarrow{\text{dominance}}\; 3,\qquad 9\ \text{criteria} \rightarrow 7 } \]</div>
+        <p><strong>Interpretation.</strong> Fifteen of the eighteen were eliminated without a single judgement call: thirteen by a mass calculation and a heritage check, two by dominance. That is the argument for generating widely &mdash; the cost of an extra candidate is a row in a screening table, and the cost of a missing one is never knowing it existed. The three that reach the matrix of the next lecture are there because they survived, not because somebody proposed them.</p>
+      </section>
+
+      <section id="summary">
+        <p class="section-label">Operative rules</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Statement</th></tr></thead><tbody><tr><td>Write the decision statement first</td><td>What is being decided, by whom, by when, and what is out of scope.</td></tr><tr><td>Constraints screen, criteria compare</td><td>A constraint answers yes or no and is applied outside the matrix.</td></tr><tr><td>Generate before you converge</td><td>A morphological box costs an afternoon and produces alternatives nobody would have proposed.</td></tr><tr><td>Screen on constraints, then on dominance</td><td>An alternative worse on every criterion than another needs no score.</td></tr><tr><td>Every criterion needs an operational definition</td><td>&ldquo;Maintainability&rdquo; is not a criterion until it names a measurable quantity.</td></tr><tr><td>Check for double counting before weighting</td><td>Three criteria measuring one property give it triple weight silently.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes">
+        <p class="section-label">Common mistakes</p>
+        <h2>What goes wrong</h2>
+        <ul class="check-list"><li><strong>Scoring a constraint violation.</strong> A 2 out of 10 on mass lets excellent scores elsewhere carry an unbuildable option into second place.</li><li><strong>Generating alternatives by brainstorm.</strong> People propose what they have seen, so the set contains the incumbent and two variants of it.</li><li><strong>Writing criteria after seeing the shortlist.</strong> They come out describing the front-runner, and the study becomes advocacy.</li><li><strong>Three criteria measuring one property.</strong> Mass, volume and structural cost give that property triple weight without anyone deciding to.</li><li><strong>A criterion with no operational definition.</strong> &ldquo;Maintainability&rdquo; cannot be scored reproducibly until it names a measurable quantity.</li><li><strong>Skipping the dominance screen.</strong> Scoring an option that is worse on every criterion wastes effort and adds a row that can only mislead.</li></ul>
+      </section>
+
+      <section id="references" class="references">
+        <p class="section-label">Sources</p>
+        <h2>References</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 6.8.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=trade-studies" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 21: Trade Studies</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adapted from Unit V of the Aerospace Systems Engineering (AE506) course script by Carlos Alberto Molina Holgu&iacute;n. Every number on this page was recomputed independently for it; no calculator covers this topic, so recomputation is the only check there is. The funnel counts follow from the morphological box printed on this page; the screening outcomes are the illustrative result of applying the two stated hard constraints to those combinations.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="interfaces-n-squared.html?v=11"><span>Previous lecture</span>&larr; Interfaces and N-Squared</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+
+      <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Qu&eacute; deber&iacute;as poder hacer</h2>
+        <ul><li>escribir un enunciado de decisi&oacute;n que diga qu&eacute; se decide y qu&eacute; queda fuera de alcance;</li><li>distinguir una restricci&oacute;n dura de un criterio de evaluaci&oacute;n, y aplicar cada uno en su lugar;</li><li>generar alternativas con una caja morfol&oacute;gica en vez de una lluvia de ideas;</li><li>filtrar por restricciones y luego por dominancia, antes de cualquier puntuaci&oacute;n;</li><li>dar a cada criterio una definici&oacute;n operativa y detectar el doble conteo.</li></ul>
+      </section>
+
+      <section id="physics-es">
+        <p class="section-label">Situación de ingeniería</p>
+        <h2>Tres opciones, y dos son la misma</h2>
+        <p class="lead">Un equipo lleva tres arquitecturas de avi&oacute;nica al estudio de intercambio. Dos son variantes de la misma idea con distinto procesador, y la tercera es la que alguien ya construy&oacute;. La matriz producir&aacute; un ganador, y el ganador estaba disponible desde el d&iacute;a uno.</p><p>La puntuaci&oacute;n no es el problema. El problema es que el conjunto que se punt&uacute;a se arm&oacute; preguntando qu&eacute; se le ocurr&iacute;a a la gente, y a la gente se le ocurre lo que ha visto. Todo lo que decide el resultado de un estudio de intercambio &mdash; qu&eacute; opciones existen, cu&aacute;les se permiten, qu&eacute; mide la comparaci&oacute;n &mdash; ocurre antes de escribir el primer n&uacute;mero.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 260" role="img" aria-label="El embudo de decisi&oacute;n: generar amplio, filtrar duro, puntuar pocas">
+            <defs><marker id="df-arrow-es" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0d568d"></path></marker></defs>
+            <rect x="40" y="70" width="230" height="76" rx="8" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="155" y="104" text-anchor="middle" font-size="17" font-weight="700" fill="#071d33">18 combinaciones</text>
+            <text x="155" y="126" text-anchor="middle" font-size="12" fill="#3f5162">generadas</text>
+            <rect x="300" y="70" width="180" height="76" rx="8" fill="#fbeed9" stroke="#8fa6ba"></rect>
+            <text x="390" y="104" text-anchor="middle" font-size="17" font-weight="700" fill="#071d33">5 factibles</text>
+            <rect x="560" y="70" width="130" height="76" rx="8" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="625" y="104" text-anchor="middle" font-size="17" font-weight="700" fill="#071d33">3 puntuadas</text>
+            <line x1="272" y1="108" x2="296" y2="108" stroke="#0d568d" stroke-width="2" marker-end="url(#df-arrow-es)"></line>
+            <line x1="482" y1="108" x2="556" y2="108" stroke="#0d568d" stroke-width="2" marker-end="url(#df-arrow-es)"></line>
+            <text x="286" y="180" text-anchor="middle" font-size="12" fill="#b03a2e">las restricciones duras quitan 13</text>
+            <text x="545" y="206" text-anchor="middle" font-size="12" fill="#b03a2e">la dominancia quita 2</text>
+            <text x="400" y="42" text-anchor="middle" font-size="14" font-weight="600" fill="#0d568d">El filtrado ocurre fuera de la matriz de puntuaci&oacute;n, nunca dentro</text>
+            </svg>
+            <figcaption>El embudo de decisi&oacute;n. Dieciocho candidatos cuestan una tarde de generaci&oacute;n y la mayor&iacute;a se eliminan por aritm&eacute;tica, no por juicio &mdash; que es lo que deja el juicio para las tres que lo merecen.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-es">
+        <p class="section-label">Alcance y límites</p>
+        <h2>Qu&eacute; resuelve el encuadre</h2>
+        <p>Enmarcar una decisi&oacute;n produce cuatro cosas antes de cualquier evaluaci&oacute;n: un <strong>enunciado de decisi&oacute;n</strong> que dice qu&eacute; se decide y qu&eacute; no, un conjunto de <strong>restricciones duras</strong> que determinan factibilidad, un conjunto de <strong>alternativas</strong> que las sobrevivieron, y un conjunto de <strong>criterios</strong> con definiciones operativas.</p><p>El orden no es arbitrario. Restricciones aplicadas despu&eacute;s de puntuar dejan que una opci&oacute;n inviable parezca competitiva; criterios definidos tras ver las alternativas se escriben para favorecer a una; alternativas generadas conociendo los criterios se generan para puntuar bien. Cada paso fuera de orden corrompe al anterior.</p>
+        <div class="callout warning"><strong>Lo que el encuadre no puede hacer.</strong> No puede volver defendible una decisi&oacute;n si todas las alternativas son malas. Una elecci&oacute;n bien enmarcada entre opciones pobres sigue siendo un resultado pobre, y ning&uacute;n proceso lo arregla. El paso de generaci&oacute;n es la &uacute;nica defensa, y es el que m&aacute;s se salta porque parece producir opciones que nadie elegir&aacute;.</div>
+      </section>
+
+      <section id="constraints-es">
+        <p class="section-label">Dos tipos de enunciado</p>
+        <h2>Una restricci&oacute;n no es un criterio</h2>
+        <div class="table-wrap"><table><thead><tr><th></th><th>Restricci&oacute;n dura</th><th>Criterio de evaluaci&oacute;n</th></tr></thead><tbody><tr><td>Pregunta</td><td>&iquest;Puede considerarse esta alternativa siquiera?</td><td>&iquest;Cu&aacute;l de las alternativas sobrevivientes es preferible?</td></tr><tr><td>Respuesta</td><td>S&iacute; o no</td><td>Mejor o peor, en grado</td></tr><tr><td>Se aplica</td><td>Antes de puntuar, fuera de la matriz</td><td>Dentro de la matriz, sobre lo que sobrevivi&oacute;</td></tr><tr><td>Si te equivocas</td><td>Una opci&oacute;n inviable punt&uacute;a bien y parece competitiva</td><td>Una diferencia real entre opciones se vuelve invisible</td></tr></tbody></table></div>
+        <p>El modo de falla es espec&iacute;fico y com&uacute;n: una alternativa viola un l&iacute;mite de masa, alguien le da 2 de 10 en el criterio de masa, y sus excelentes puntuaciones en lo dem&aacute;s la llevan al segundo lugar. La matriz acaba de recomendar una opci&oacute;n que no puede construirse. Filtrar fuera de la matriz es lo que impide que la aritm&eacute;tica pase por encima de la factibilidad.</p><p>La misma cantidad puede aparecer en ambos papeles, y es leg&iacute;timo. La masa puede ser restricci&oacute;n en 4.0 kg &mdash; por encima la alternativa queda fuera &mdash; y criterio por debajo, donde menos es mejor. Lo que no es leg&iacute;timo es tener s&oacute;lo el criterio.</p>
+      </section>
+
+      <section id="generating-es">
+        <p class="section-label">Un m&eacute;todo en vez de una lluvia de ideas</p>
+        <h2>La caja morfol&oacute;gica</h2>
+        <p>Lista las decisiones independientes que la arquitectura realmente contiene, luego las opciones de cada una. Toda combinaci&oacute;n es una arquitectura candidata, incluidas las que nadie habr&iacute;a propuesto. El punto no es que todas sean buenas &mdash; la mayor&iacute;a no lo son &mdash; sino que las buenas que a nadie se le ocurrieron ya est&aacute;n en el conjunto.</p>
+        <div class="table-wrap"><table><thead><tr><th>Dimensi&oacute;n de decisi&oacute;n</th><th>Opciones</th></tr></thead><tbody><tr><td>D&oacute;nde ocurre el procesamiento</td><td>Centralizado &middot; distribuido &middot; h&iacute;brido</td></tr><tr><td>C&oacute;mo se conectan los elementos</td><td>Punto a punto &middot; bus serial compartido &middot; red redundante</td></tr><tr><td>D&oacute;nde se almacenan los datos</td><td>Un almac&eacute;n central &middot; distribuido en cada fuente</td></tr></tbody></table></div>
+        <p>Tres dimensiones con tres, tres y dos opciones dan \(3\times3\times2 = 18\) combinaciones. Eso es m&aacute;s de lo que alguien listar&iacute;a a mano, y generarlas cuesta una tarde porque la mayor&iacute;a se elimina en el siguiente paso por aritm&eacute;tica y no por juicio.</p>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Algoritmo de cálculo</p>
+        <h2>Enmarcar una decisi&oacute;n</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Escribir el enunciado de decisi&oacute;n</span></div><div><strong>2</strong><span>Nombrar al due&ntilde;o y la fecha l&iacute;mite</span></div><div><strong>3</strong><span>Listar las restricciones duras</span></div><div><strong>4</strong><span>Construir la caja morfol&oacute;gica</span></div><div><strong>5</strong><span>Filtrar por restricciones</span></div><div><strong>6</strong><span>Filtrar por dominancia</span></div><div><strong>7</strong><span>Definir criterios con definiciones operativas</span></div><div><strong>8</strong><span>Revisar el doble conteo</span></div></div>
+        <p>El paso siete va despu&eacute;s del filtrado a prop&oacute;sito. Los criterios escritos mirando una lista corta tienden a describir a su favorito, y la &uacute;nica defensa es escribirlos desde los objetivos y no desde las alternativas.</p>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>De dieciocho a tres</h2>
+        <p><strong>Enunciado de decisi&oacute;n.</strong> Seleccionar la arquitectura de avi&oacute;nica para la l&iacute;nea base de dise&ntilde;o preliminar de la plataforma atmosf&eacute;rica, para la revisi&oacute;n preliminar de dise&ntilde;o, a cargo del ingeniero de sistemas. Fuera de alcance: el n&uacute;mero de parte del procesador y el segmento terreno.</p><p><strong>Restricciones duras.</strong> Masa de avi&oacute;nica igual o menor a 4.0 kg; al menos un bus de datos probado en vuelo en la arquitectura.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Generar.</strong> La caja morfol&oacute;gica da \[3\times3\times2 = 18\] arquitecturas candidatas, contra las tres que el equipo hab&iacute;a tra&iacute;do.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Filtrar por restricciones.</strong> Trece fallan: toda combinaci&oacute;n con cableado punto a punto excede 4.0 kg una vez contado el arn&eacute;s, y toda variante plenamente distribuida con red redundante no tiene bus probado en vuelo. Quedan cinco.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Filtrar por dominancia.</strong> Dos de las cinco son peores que otra sobreviviente en todo criterio &mdash; m&aacute;s pesadas, menos confiables y con menos capacidad de crecimiento. No necesitan puntuaci&oacute;n. Pasan tres.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Definir los criterios.</strong> Se propusieron nueve candidatos. Masa, volumen y costo estructural siguen la misma propiedad f&iacute;sica, as&iacute; que se fusionan en uno; confiabilidad y tolerancia a fallos son medio y fin, as&iacute; que tambi&eacute;n se fusionan. Sobreviven siete criterios, cada uno con definici&oacute;n operativa.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Qu&eacute; se gan&oacute;.</strong> Dos de las tres que pasan a puntuaci&oacute;n son arquitecturas que nadie propuso el d&iacute;a uno, y una de las tres originales del equipo se elimin&oacute; por aritm&eacute;tica antes de que nadie discutiera.</div></div>
+        <div class="result-box">\[ \boxed{ 18 \;\xrightarrow{\text{restricciones}}\; 5 \;\xrightarrow{\text{dominancia}}\; 3,\qquad 9\ \text{criterios} \rightarrow 7 } \]</div>
+        <p><strong>Interpretaci&oacute;n.</strong> Quince de las dieciocho se eliminaron sin un solo juicio: trece por un c&aacute;lculo de masa y una verificaci&oacute;n de herencia, dos por dominancia. Ese es el argumento para generar ampliamente &mdash; el costo de un candidato extra es un rengl&oacute;n en una tabla de filtrado, y el costo de uno faltante es nunca saber que existi&oacute;. Las tres que llegan a la matriz de la siguiente lecture est&aacute;n ah&iacute; porque sobrevivieron, no porque alguien las propuso.</p>
+      </section>
+
+      <section id="summary-es">
+        <p class="section-label">Reglas operativas</p>
+        <h2>De un vistazo</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regla</th><th>Enunciado</th></tr></thead><tbody><tr><td>Escribe primero el enunciado de decisi&oacute;n</td><td>Qu&eacute; se decide, qui&eacute;n, para cu&aacute;ndo, y qu&eacute; queda fuera de alcance.</td></tr><tr><td>Las restricciones filtran, los criterios comparan</td><td>Una restricci&oacute;n responde s&iacute; o no y se aplica fuera de la matriz.</td></tr><tr><td>Genera antes de converger</td><td>Una caja morfol&oacute;gica cuesta una tarde y produce alternativas que nadie habr&iacute;a propuesto.</td></tr><tr><td>Filtra por restricciones, luego por dominancia</td><td>Una alternativa peor que otra en todo criterio no necesita puntuaci&oacute;n.</td></tr><tr><td>Todo criterio necesita definici&oacute;n operativa</td><td>&laquo;Mantenibilidad&raquo; no es criterio hasta que nombra una cantidad medible.</td></tr><tr><td>Revisa el doble conteo antes de ponderar</td><td>Tres criterios que miden una propiedad le dan triple peso en silencio.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-es">
+        <p class="section-label">Errores comunes</p>
+        <h2>Qu&eacute; sale mal</h2>
+        <ul class="check-list"><li><strong>Puntuar una violaci&oacute;n de restricci&oacute;n.</strong> Un 2 de 10 en masa deja que las buenas puntuaciones en lo dem&aacute;s lleven a segundo lugar a una opci&oacute;n inconstruible.</li><li><strong>Generar alternativas por lluvia de ideas.</strong> La gente propone lo que ha visto, as&iacute; que el conjunto contiene al titular y dos variantes suyas.</li><li><strong>Escribir criterios tras ver la lista corta.</strong> Salen describiendo al favorito, y el estudio se vuelve advocac&iacute;a.</li><li><strong>Tres criterios que miden una propiedad.</strong> Masa, volumen y costo estructural le dan triple peso sin que nadie lo decida.</li><li><strong>Un criterio sin definici&oacute;n operativa.</strong> &laquo;Mantenibilidad&raquo; no puede puntuarse de forma reproducible hasta que nombre una cantidad medible.</li><li><strong>Saltarse el filtro de dominancia.</strong> Puntuar una opci&oacute;n peor en todo criterio gasta esfuerzo y a&ntilde;ade un rengl&oacute;n que s&oacute;lo puede confundir.</li></ul>
+      </section>
+
+      <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
+        <h2>Referencias</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 6.8.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=trade-studies" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 21: Trade Studies</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adaptado de la Unidad V del gui&oacute;n del curso Ingenier&iacute;a en Sistemas Aeroespaciales (AE506) de Carlos Alberto Molina Holgu&iacute;n. Cada n&uacute;mero de esta p&aacute;gina se recalcul&oacute; de forma independiente para ella; ninguna calculadora cubre este tema, as&iacute; que el rec&aacute;lculo es la &uacute;nica comprobaci&oacute;n disponible. Los conteos del embudo se siguen de la caja morfol&oacute;gica impresa en esta p&aacute;gina; los resultados del filtrado son el resultado ilustrativo de aplicar las dos restricciones duras declaradas a esas combinaciones.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="interfaces-n-squared.html?v=11"><span>Lecture anterior</span>&larr; Interfaces y N-cuadrado</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+
+      <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie k&ouml;nnen sollten</h2>
+        <ul><li>eine Entscheidungsaussage schreiben, die Gegenstand und Abgrenzung nennt;</li><li>eine harte Randbedingung von einem Bewertungskriterium unterscheiden und beide richtig anwenden;</li><li>Alternativen mit einem morphologischen Kasten statt per Brainstorming erzeugen;</li><li>vor jeder Bewertung nach Randbedingungen und dann nach Dominanz sieben;</li><li>jedem Kriterium eine operative Definition geben und Doppelz&auml;hlung erkennen.</li></ul>
+      </section>
+
+      <section id="physics-de">
+        <p class="section-label">Ingenieurtechnischer Kontext</p>
+        <h2>Drei Optionen, und zwei sind dieselbe</h2>
+        <p class="lead">Ein Team bringt drei Avionikarchitekturen in die Abw&auml;gung. Zwei sind Varianten derselben Idee mit anderem Prozessor, die dritte ist die, die jemand schon gebaut hat. Die Matrix wird einen Sieger liefern, und der Sieger stand am ersten Tag fest.</p><p>Die Bewertung ist nicht das Problem. Das Problem ist, dass die bewertete Menge durch die Frage entstand, was den Leuten einf&auml;llt &mdash; und den Leuten f&auml;llt ein, was sie gesehen haben. Alles, was den Ausgang einer Abw&auml;gung entscheidet &mdash; welche Optionen existieren, welche zul&auml;ssig sind, was verglichen wird &mdash;, geschieht vor der ersten Zahl.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 260" role="img" aria-label="Der Entscheidungstrichter: breit erzeugen, hart sieben, wenige bewerten">
+            <defs><marker id="df-arrow-de" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#0d568d"></path></marker></defs>
+            <rect x="40" y="70" width="230" height="76" rx="8" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="155" y="104" text-anchor="middle" font-size="17" font-weight="700" fill="#071d33">18 Kombinationen</text>
+            <text x="155" y="126" text-anchor="middle" font-size="12" fill="#3f5162">erzeugt</text>
+            <rect x="300" y="70" width="180" height="76" rx="8" fill="#fbeed9" stroke="#8fa6ba"></rect>
+            <text x="390" y="104" text-anchor="middle" font-size="17" font-weight="700" fill="#071d33">5 zul&auml;ssig</text>
+            <rect x="560" y="70" width="130" height="76" rx="8" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="625" y="104" text-anchor="middle" font-size="17" font-weight="700" fill="#071d33">3 bewertet</text>
+            <line x1="272" y1="108" x2="296" y2="108" stroke="#0d568d" stroke-width="2" marker-end="url(#df-arrow-de)"></line>
+            <line x1="482" y1="108" x2="556" y2="108" stroke="#0d568d" stroke-width="2" marker-end="url(#df-arrow-de)"></line>
+            <text x="286" y="180" text-anchor="middle" font-size="12" fill="#b03a2e">harte Randbedingungen entfernen 13</text>
+            <text x="545" y="206" text-anchor="middle" font-size="12" fill="#b03a2e">Dominanz entfernt 2</text>
+            <text x="400" y="42" text-anchor="middle" font-size="14" font-weight="600" fill="#0d568d">Das Sieben geschieht au&szlig;erhalb der Bewertungsmatrix, nie darin</text>
+            </svg>
+            <figcaption>Der Entscheidungstrichter. Achtzehn Kandidaten kosten einen Nachmittag, und die meisten scheiden rechnerisch aus, nicht durch Urteil &mdash; was das Urteil f&uuml;r die drei &uuml;brig l&auml;sst, die es verdienen.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-de">
+        <p class="section-label">Geltungsbereich und Grenzen</p>
+        <h2>Was das Fassen kl&auml;rt</h2>
+        <p>Das Fassen einer Entscheidung liefert vier Dinge vor jeder Bewertung: eine <strong>Entscheidungsaussage</strong> zu Gegenstand und Abgrenzung, <strong>harte Randbedingungen</strong> f&uuml;r die Zul&auml;ssigkeit, eine Menge &uuml;berlebender <strong>Alternativen</strong> und <strong>Kriterien</strong> mit operativen Definitionen.</p><p>Die Reihenfolge ist nicht beliebig. Nach der Bewertung angewandte Randbedingungen lassen Unzul&auml;ssiges konkurrenzf&auml;hig wirken; nach Sicht der Alternativen definierte Kriterien beg&uuml;nstigen eine; nach Kenntnis der Kriterien erzeugte Alternativen werden auf gute Bewertung hin erzeugt. Jeder Schritt au&szlig;er der Reihe verdirbt den vorigen.</p>
+        <div class="callout warning"><strong>Was das Fassen nicht leistet.</strong> Es macht eine Entscheidung nicht vertretbar, wenn alle Alternativen schlecht sind. Eine gut gefasste Wahl unter schlechten Optionen bleibt ein schlechtes Ergebnis, und kein Prozess heilt das. Der Erzeugungsschritt ist die einzige Abwehr &mdash; und der am h&auml;ufigsten &uuml;bersprungene, weil er Optionen zu liefern scheint, die niemand w&auml;hlt.</div>
+      </section>
+
+      <section id="constraints-de">
+        <p class="section-label">Zwei Arten von Aussage</p>
+        <h2>Eine Randbedingung ist kein Kriterium</h2>
+        <div class="table-wrap"><table><thead><tr><th></th><th>Harte Randbedingung</th><th>Bewertungskriterium</th></tr></thead><tbody><tr><td>Frage</td><td>Darf diese Alternative &uuml;berhaupt betrachtet werden?</td><td>Welche der verbleibenden ist vorzuziehen?</td></tr><tr><td>Antwort</td><td>Ja oder nein</td><td>Besser oder schlechter, dem Grad nach</td></tr><tr><td>Angewandt</td><td>Vor der Bewertung, au&szlig;erhalb der Matrix</td><td>In der Matrix, auf das Verbliebene</td></tr><tr><td>Bei einem Fehler</td><td>Eine unzul&auml;ssige Option punktet gut und wirkt konkurrenzf&auml;hig</td><td>Ein realer Unterschied bleibt unsichtbar</td></tr></tbody></table></div>
+        <p>Der Fehlermodus ist spezifisch und h&auml;ufig: Eine Alternative verletzt eine Massengrenze, jemand gibt ihr 2 von 10 beim Massenkriterium, und ihre guten Werte anderswo tragen sie auf Platz zwei. Die Matrix hat gerade eine unbaubare Option empfohlen. Das Sieben au&szlig;erhalb der Matrix verhindert, dass Arithmetik die Zul&auml;ssigkeit &uuml;berstimmt.</p><p>Dieselbe Gr&ouml;&szlig;e darf in beiden Rollen auftreten. Masse kann bei 4,0 kg Randbedingung sein &mdash; dar&uuml;ber f&auml;llt die Alternative aus &mdash; und darunter Kriterium, wo weniger besser ist. Unzul&auml;ssig ist, nur das Kriterium zu haben.</p>
+      </section>
+
+      <section id="generating-de">
+        <p class="section-label">Eine Methode statt Brainstorming</p>
+        <h2>Der morphologische Kasten</h2>
+        <p>Listen Sie die unabh&auml;ngigen Entscheidungen der Architektur auf, dann die Optionen je Entscheidung. Jede Kombination ist eine Kandidatenarchitektur, auch die, die niemand vorgeschlagen h&auml;tte. Es geht nicht darum, dass alle gut sind &mdash; die meisten sind es nicht &mdash;, sondern darum, dass die guten, an die niemand dachte, nun in der Menge sind.</p>
+        <div class="table-wrap"><table><thead><tr><th>Entscheidungsdimension</th><th>Optionen</th></tr></thead><tbody><tr><td>Wo verarbeitet wird</td><td>Zentral &middot; verteilt &middot; hybrid</td></tr><tr><td>Wie Elemente verbunden sind</td><td>Punkt-zu-Punkt &middot; gemeinsamer serieller Bus &middot; redundantes Netz</td></tr><tr><td>Wo Wissenschaftsdaten liegen</td><td>Ein zentraler Speicher &middot; verteilt an jeder Quelle</td></tr></tbody></table></div>
+        <p>Drei Dimensionen mit drei, drei und zwei Optionen ergeben \(3\times3\times2 = 18\) Kombinationen. Das ist mehr, als jemand von Hand auflisten w&uuml;rde, und die Erzeugung kostet einen Nachmittag, weil die meisten im n&auml;chsten Schritt rechnerisch statt urteilend ausscheiden.</p>
+      </section>
+
+      <section id="algorithm-de">
+        <p class="section-label">Rechenalgorithmus</p>
+        <h2>Eine Entscheidung fassen</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Die Entscheidungsaussage schreiben</span></div><div><strong>2</strong><span>Verantwortliche und Frist benennen</span></div><div><strong>3</strong><span>Die harten Randbedingungen auflisten</span></div><div><strong>4</strong><span>Den morphologischen Kasten bauen</span></div><div><strong>5</strong><span>Nach Randbedingungen sieben</span></div><div><strong>6</strong><span>Nach Dominanz sieben</span></div><div><strong>7</strong><span>Kriterien mit operativen Definitionen festlegen</span></div><div><strong>8</strong><span>Auf Doppelz&auml;hlung pr&uuml;fen</span></div></div>
+        <p>Schritt sieben folgt bewusst dem Sieben. Kriterien, die man mit Blick auf eine Auswahlliste schreibt, beschreiben meist deren Favoriten; die einzige Abwehr ist, sie aus den Zielen statt aus den Alternativen zu schreiben.</p>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Von achtzehn auf drei</h2>
+        <p><strong>Entscheidungsaussage.</strong> Auswahl der Avionikarchitektur f&uuml;r die Vorentwurfsbasis der atmosph&auml;rischen Plattform, bis zur Vorentwurfspr&uuml;fung, verantwortet vom Systemingenieur. Au&szlig;erhalb: die Prozessorteilenummer und das Bodensegment.</p><p><strong>Harte Randbedingungen.</strong> Avionikmasse h&ouml;chstens 4,0 kg; mindestens ein flugerprobter Datenbus in der Architektur.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Erzeugen.</strong> Der morphologische Kasten liefert \[3\times3\times2 = 18\] Kandidatenarchitekturen gegen&uuml;ber den drei mitgebrachten.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Nach Randbedingungen sieben.</strong> Dreizehn fallen aus: Jede Kombination mit Punkt-zu-Punkt-Verkabelung &uuml;berschreitet 4,0 kg samt Kabelbaum, und jede voll verteilte Variante mit redundantem Netz hat keinen flugerprobten Bus. F&uuml;nf bleiben.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Nach Dominanz sieben.</strong> Zwei der f&uuml;nf sind in jedem Kriterium schlechter als eine andere Verbliebene &mdash; schwerer, weniger zuverl&auml;ssig, geringere Wachstumsf&auml;higkeit. Sie brauchen keine Bewertung. Drei gehen weiter.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Kriterien festlegen.</strong> Neun Kandidaten wurden vorgeschlagen. Masse, Volumen und Strukturkosten folgen derselben Eigenschaft und werden zu einem; Zuverl&auml;ssigkeit und Fehlertoleranz sind Zweck und Mittel und werden ebenfalls zusammengef&uuml;hrt. Sieben Kriterien bleiben, jedes mit operativer Definition.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Der Gewinn.</strong> Zwei der drei bewerteten Architekturen schlug am ersten Tag niemand vor, und eine der urspr&uuml;nglichen drei schied rechnerisch aus, bevor jemand dar&uuml;ber stritt.</div></div>
+        <div class="result-box">\[ \boxed{ 18 \;\xrightarrow{\text{Randbed.}}\; 5 \;\xrightarrow{\text{Dominanz}}\; 3,\qquad 9\ \text{Kriterien} \rightarrow 7 } \]</div>
+        <p><strong>Deutung.</strong> F&uuml;nfzehn der achtzehn schieden ohne ein einziges Urteil aus: dreizehn durch eine Massenrechnung und eine Erbepr&uuml;fung, zwei durch Dominanz. Das ist das Argument f&uuml;r breites Erzeugen &mdash; ein zus&auml;tzlicher Kandidat kostet eine Zeile in einer Siebtabelle, ein fehlender kostet das Wissen um seine Existenz. Die drei, die in die Matrix der n&auml;chsten Vorlesung gelangen, sind dort, weil sie &uuml;berlebten, nicht weil jemand sie vorschlug.</p>
+      </section>
+
+      <section id="summary-de">
+        <p class="section-label">Arbeitsregeln</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regel</th><th>Aussage</th></tr></thead><tbody><tr><td>Zuerst die Entscheidungsaussage schreiben</td><td>Was entschieden wird, von wem, bis wann, und was au&szlig;erhalb liegt.</td></tr><tr><td>Randbedingungen sieben, Kriterien vergleichen</td><td>Eine Randbedingung antwortet ja oder nein und wirkt au&szlig;erhalb der Matrix.</td></tr><tr><td>Erzeugen vor dem Konvergieren</td><td>Ein morphologischer Kasten kostet einen Nachmittag und liefert unvorhergesehene Alternativen.</td></tr><tr><td>Nach Randbedingungen sieben, dann nach Dominanz</td><td>Eine in jedem Kriterium schlechtere Alternative braucht keine Bewertung.</td></tr><tr><td>Jedes Kriterium braucht eine operative Definition</td><td>&bdquo;Wartbarkeit&ldquo; ist erst ein Kriterium, wenn sie eine messbare Gr&ouml;&szlig;e nennt.</td></tr><tr><td>Vor der Gewichtung auf Doppelz&auml;hlung pr&uuml;fen</td><td>Drei Kriterien f&uuml;r eine Eigenschaft geben ihr stillschweigend dreifaches Gewicht.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Häufige Fehler</p>
+        <h2>Was schiefgeht</h2>
+        <ul class="check-list"><li><strong>Eine Randbedingungsverletzung bewerten.</strong> Eine 2 von 10 bei der Masse l&auml;sst gute Werte anderswo eine unbaubare Option auf Platz zwei tragen.</li><li><strong>Alternativen per Brainstorming erzeugen.</strong> Menschen schlagen Gesehenes vor, die Menge enth&auml;lt also den Amtsinhaber und zwei Varianten davon.</li><li><strong>Kriterien nach Sicht der Auswahlliste schreiben.</strong> Sie beschreiben den Favoriten, und die Studie wird zur Bef&uuml;rwortung.</li><li><strong>Drei Kriterien f&uuml;r eine Eigenschaft.</strong> Masse, Volumen und Strukturkosten geben ihr dreifaches Gewicht, ohne dass es jemand beschloss.</li><li><strong>Ein Kriterium ohne operative Definition.</strong> &bdquo;Wartbarkeit&ldquo; ist nicht reproduzierbar bewertbar, solange sie keine messbare Gr&ouml;&szlig;e nennt.</li><li><strong>Den Dominanzfilter &uuml;berspringen.</strong> Eine in allem schlechtere Option zu bewerten kostet Aufwand und f&uuml;gt eine nur irref&uuml;hrende Zeile hinzu.</li></ul>
+      </section>
+
+      <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
+        <h2>Literatur</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 6.8.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=trade-studies" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 21: Trade Studies</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Bearbeitet nach Einheit V des Skripts Luft- und Raumfahrtsystemtechnik (AE506) von Carlos Alberto Molina Holgu&iacute;n. Jede Zahl dieser Seite wurde eigens daf&uuml;r unabh&auml;ngig neu berechnet; kein Rechner deckt dieses Thema ab, daher ist die Neuberechnung die einzige Pr&uuml;fung. Die Trichterzahlen folgen aus dem auf dieser Seite abgedruckten morphologischen Kasten; die Siebergebnisse sind das beispielhafte Resultat der beiden genannten harten Randbedingungen.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="interfaces-n-squared.html?v=11"><span>Vorherige Vorlesung</span>&larr; Schnittstellen und N-Quadrat</a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>&copy; <span id="year"></span> Carlos Alberto Molina Holgu&iacute;n</p>
+    <p>Universidad Aut&oacute;noma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

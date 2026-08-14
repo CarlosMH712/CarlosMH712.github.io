@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="The analytic hierarchy process: pairwise comparison, the priority vector, the consistency ratio, and how technology readiness levels enter a trade study as risk rather than as performance." />
+  <meta name="author" content="Carlos Alberto Molina Holgu&iacute;n" />
+  <meta name="theme-color" content="#071d33" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>AHP and Technology Readiness | Aerospace Systems Engineering</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:wght@600;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=11" data-ui-key="course">Aerospace Systems Engineering</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Aerospace Systems Engineering &middot; Lecture 15</p>
+        <h1>The Analytic Hierarchy Process and Technology Readiness</h1>
+        <p class="hero-copy">How to get criterion weights out of stakeholders who cannot state them, how to check whether their judgements contradict each other, and where technology maturity belongs in a trade study.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Ingeniería de Sistemas Aeroespaciales &middot; Lecture 15</p>
+        <h1>El proceso anal&iacute;tico jer&aacute;rquico y la madurez tecnol&oacute;gica</h1>
+        <p class="hero-copy">C&oacute;mo obtener pesos de criterio de stakeholders que no pueden enunciarlos, c&oacute;mo verificar si sus juicios se contradicen, y d&oacute;nde pertenece la madurez tecnol&oacute;gica en un estudio de intercambio.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Luft- und Raumfahrtsystemtechnik &middot; Vorlesung 15</p>
+        <h1>Der analytische Hierarchieprozess und der Technologiereifegrad</h1>
+        <p class="hero-copy">Wie man Kriteriengewichte von Interessentr&auml;gern erh&auml;lt, die sie nicht nennen k&ouml;nnen, wie man ihre Urteile auf Widerspruch pr&uuml;ft, und wohin die Technologiereife in einer Abw&auml;gung geh&ouml;rt.</p>
+      </div>
+
+    <div class="hero-meta">
+        <span data-language="en">Estimated reading: 14 min</span><span data-language="es" hidden>Lectura estimada: 14 min</span><span data-language="de" hidden>Lesedauer: ca. 14 min</span>
+        <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+        <span data-language="en">Model: one hierarchy level, Saaty scale</span><span data-language="es" hidden>Modelo: un nivel de jerarqu&iacute;a, escala de Saaty</span><span data-language="de" hidden>Modell: eine Hierarchieebene, Saaty-Skala</span>
+    </div>
+    <div class="button-row">
+      <a class="button secondary" href="index.html?v=11" data-ui-key="back">Back to course</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Engineering situation</a>
+        <a href="#model">Scope and limits</a>
+        <a href="#pairwise">Pairwise comparison</a>
+        <a href="#trl">Technology readiness</a>
+        <a href="#algorithm">Running the AHP</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Operative rules</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#references">Sources</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Situaci&oacute;n de ingenier&iacute;a</a>
+        <a href="#model-es">Alcance y l&iacute;mites</a>
+        <a href="#pairwise-es">Comparaci&oacute;n por pares</a>
+        <a href="#trl-es">Madurez tecnol&oacute;gica</a>
+        <a href="#algorithm-es">Ejecutar el AHP</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Reglas operativas</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Kontext</a>
+        <a href="#model-de">Geltungsbereich</a>
+        <a href="#pairwise-de">Paarweiser Vergleich</a>
+        <a href="#trl-de">Technologiereife</a>
+        <a href="#algorithm-de">Den AHP durchf&uuml;hren</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Arbeitsregeln</a>
+        <a href="#mistakes-de">H&auml;ufige Fehler</a>
+        <a href="#references-de">Quellen</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+
+      <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul><li>build a pairwise comparison matrix on the Saaty scale from stakeholder judgements;</li><li>derive the priority vector by column normalisation and row averaging;</li><li>compute \(\lambda_{\max}\), the consistency index and the consistency ratio;</li><li>decide whether a set of judgements is acceptably consistent, and what to do when it is not;</li><li>place a technology readiness level in a trade study as a statement about risk.</li></ul>
+      </section>
+
+      <section id="physics">
+        <p class="section-label">Engineering situation</p>
+        <h2>Nobody can say what reliability is worth</h2>
+        <p class="lead">The trade study of the previous lecture rests on a reliability weight of 0.20, and the crossover sits at 0.124. Where did 0.20 come from? Somebody proposed it in a meeting and nobody objected.</p><p>Ask a stakeholder directly what fraction of the decision reliability deserves and the answer is a shrug or an invented number. Ask instead whether reliability matters more than mass, and by how much on a five-point scale, and the answer is immediate and defensible. That difference is what the analytic hierarchy process exploits.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 300" role="img" aria-label="Priority vector from the pairwise comparison matrix">
+            <rect x="250" y="60" width="218.1" height="34" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <text x="238" y="82" text-anchor="end" font-size="13" fill="#3f5162">Reliability</text>
+            <text x="478.1" y="82" font-size="13" font-weight="700" fill="#071d33">0.519</text>
+            <rect x="250" y="116" width="84.4" height="34" rx="4" fill="#9fb8cd" stroke="#8fa6ba"></rect>
+            <text x="238" y="138" text-anchor="end" font-size="13" fill="#3f5162">Mass</text>
+            <text x="344.4" y="138" font-size="13" font-weight="700" fill="#071d33">0.201</text>
+            <rect x="250" y="172" width="84.4" height="34" rx="4" fill="#9fb8cd" stroke="#8fa6ba"></rect>
+            <text x="238" y="194" text-anchor="end" font-size="13" fill="#3f5162">Growth capability</text>
+            <text x="344.4" y="194" font-size="13" font-weight="700" fill="#071d33">0.201</text>
+            <rect x="250" y="228" width="33.1" height="34" rx="4" fill="#9fb8cd" stroke="#8fa6ba"></rect>
+            <text x="238" y="250" text-anchor="end" font-size="13" fill="#3f5162">Technology maturity</text>
+            <text x="293.1" y="250" font-size="13" font-weight="700" fill="#071d33">0.079</text>
+            <text x="460" y="34" text-anchor="middle" font-size="14" font-weight="600" fill="#071d33">Priority</text>
+            <text x="400" y="268" text-anchor="middle" font-size="12" font-style="italic" fill="#8fa6ba">derived from pairwise comparisons, never stated directly</text>
+            <rect x="60" y="222" width="680" height="30" rx="6" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="400" y="242" text-anchor="middle" font-size="13" fill="#3f5162">Consistency ratio 0.022 < 0.10: the judgements do not contradict each other</text>
+            </svg>
+            <figcaption>The priority vector. Nobody stated a number: these weights are what the pairwise judgements imply, and the consistency ratio says the judgements hold together.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model">
+        <p class="section-label">Scope and limits</p>
+        <h2>Structuring subjectivity</h2>
+        <p>The <strong>analytic hierarchy process</strong> asks stakeholders to compare criteria two at a time on a nine-point scale, collects the judgements in a matrix, and derives the weights that those judgements imply. It also does something direct weighting cannot: it measures whether the judgements are self-consistent.</p><p>The consistency check is the reason to use it. If someone says reliability beats mass, mass beats growth, and growth beats reliability, direct weighting hides the contradiction inside three numbers that sum to one. AHP reports it as a ratio above 0.10 and sends the comparisons back.</p>
+        <div class="callout warning"><strong>What a low consistency ratio does not mean.</strong> It means the judgements agree with each other, not that they are right. A stakeholder can be perfectly consistent and completely wrong about what the mission values, and the AHP will produce precise-looking weights from it. The method structures subjectivity; it does not remove it, and no weighting scheme compensates for weak alternatives or unsupported performance estimates.</div>
+      </section>
+
+      <section id="pairwise">
+        <p class="section-label">Two at a time</p>
+        <h2>The Saaty scale and the matrix</h2>
+        <div class="table-wrap"><table><thead><tr><th>Value</th><th>Meaning</th></tr></thead><tbody><tr><td>1</td><td>The two criteria are equally important</td></tr><tr><td>3</td><td>One is moderately more important than the other</td></tr><tr><td>5</td><td>One is strongly more important</td></tr><tr><td>7</td><td>One is very strongly more important</td></tr><tr><td>9</td><td>One is extremely more important</td></tr><tr><td>2, 4, 6, 8</td><td>Intermediate values, when a judgement sits between two of the above</td></tr></tbody></table></div>
+        <p>For \(n\) criteria only the \(n(n-1)/2\) judgements above the diagonal are elicited. The diagonal is 1 by definition, and the lower triangle follows from \(a_{ji} = 1/a_{ij}\) &mdash; if reliability is three times more important than mass, mass is one third as important as reliability. Four criteria therefore need six questions, not sixteen.</p>
+      </section>
+
+      <section id="trl">
+        <p class="section-label">Maturity is not quality</p>
+        <h2>Technology readiness levels</h2>
+        <div class="table-wrap"><table><thead><tr><th>TRL</th><th>What has been shown</th><th>What it says about risk</th></tr></thead><tbody><tr><td>1&ndash;3</td><td>Basic principles, concept formulated, proof of concept in the laboratory</td><td>Development outcome is genuinely uncertain; schedule cannot be committed</td></tr><tr><td>4&ndash;6</td><td>Component or breadboard validated in the laboratory, then in a relevant environment</td><td>The remaining risk is qualification, and it is bounded but not small</td></tr><tr><td>7&ndash;9</td><td>Prototype demonstrated in the operational environment, then flight-proven</td><td>Technology risk is largely retired; remaining risk is integration</td></tr></tbody></table></div>
+        <p>The temptation is to add a &ldquo;technology maturity&rdquo; criterion and give the highest TRL the highest score. That double counts, because low TRL is already a risk and risk belongs in the risk register with an owner, a mitigation and a trigger &mdash; not smuggled into a decision matrix as a low score on an invented criterion.</p><p>Use the TRL for what it says: how much of the development outcome is still unknown. A TRL 4 payload with better science performance is not worse than a TRL 8 one; it is better on performance and carries a qualification risk whose cost, schedule and probability can be stated separately and weighed as such.</p>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">Calculation algorithm</p>
+        <h2>Running the AHP</h2>
+        <div class="process-flow"><div><strong>1</strong><span>List the criteria for one level</span></div><div><strong>2</strong><span>Elicit the \(n(n-1)/2\) upper-triangle judgements</span></div><div><strong>3</strong><span>Complete the matrix by reciprocals</span></div><div><strong>4</strong><span>Normalise each column by its sum</span></div><div><strong>5</strong><span>Average each row</span></div><div><strong>6</strong><span>Compute \(\lambda_{\max}\) from column sums and weights</span></div><div><strong>7</strong><span>Compute CI and CR</span></div><div><strong>8</strong><span>Accept if \(\mathrm{CR}<0.10\)</span></div></div>
+        <p>The random index in step seven depends on matrix size: 0.58 for three criteria, 0.90 for four, 1.12 for five, 1.24 for six, 1.32 for seven. It is the average consistency index of randomly filled matrices, so \(\mathrm{CR}\) asks how much better than random the judgements are.</p>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>Where 0.20 should have come from</h2>
+        <p>Four criteria: reliability, mass, growth capability and technology maturity. The stakeholders judge reliability moderately more important than mass and than growth (3), and strongly more important than technology maturity (5); mass and growth equally important (1), and each moderately more important than technology maturity (3). Six judgements, and the rest follows.</p>
+        <div class="table-wrap"><table><thead><tr><th></th><th>Reliability</th><th>Mass</th><th>Growth capability</th><th>Technology maturity</th><th>Weight</th></tr></thead><tbody><tr><td><strong>Reliability</strong></td><td>1</td><td>3</td><td>3</td><td>5</td><td><strong>0.519</strong></td></tr><tr><td><strong>Mass</strong></td><td>1/3</td><td>1</td><td>1</td><td>3</td><td><strong>0.201</strong></td></tr><tr><td><strong>Growth capability</strong></td><td>1/3</td><td>1</td><td>1</td><td>3</td><td><strong>0.201</strong></td></tr><tr><td><strong>Technology maturity</strong></td><td>1/5</td><td>1/3</td><td>1/3</td><td>1</td><td><strong>0.079</strong></td></tr><tr><td><em>Column sum</em></td><td>1.867</td><td>5.333</td><td>5.333</td><td>12.000</td><td>1.000</td></tr></tbody></table></div>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Normalise and average.</strong> Dividing each entry by its column sum and averaging across each row gives the priority vector \[\mathbf{w} = (0.519,\; 0.201,\; 0.201,\; 0.079),\] which sums to 1 by construction.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Consistency.</strong> \[\lambda_{\max} = 1.867(0.519)+5.333(0.201)+5.333(0.201)+12.000(0.079) = 4.059.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>The ratio.</strong> \[\mathrm{CI} = \frac{4.059-4}{3} = 0.0196, \qquad \mathrm{CR} = \frac{0.0196}{0.90} = 0.022.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Accept.</strong> \(0.022 < 0.10\), so the judgements are acceptably consistent and the weights can be used.</div></div>
+        <div class="result-box">\[ \boxed{ \mathbf{w} = (0.519,\, 0.201,\, 0.201,\, 0.079), \qquad \mathrm{CR} = 0.022 < 0.10 } \]</div>
+        <p><strong>Interpretation.</strong> Nobody stated a number, and the process produced \(w_R = 0.52\) &mdash; far above both the 0.20 that was assumed and the 0.124 crossover of the previous lecture. The recommendation for architecture C is therefore stronger than the original matrix suggested. Note also what the method exposed: technology maturity received 8&nbsp;% of the decision. If the team still believes an immature technology could sink the project, that belief belongs in the risk register, not in a heavier criterion weight.</p>
+      </section>
+
+      <section id="summary">
+        <p class="section-label">Operative rules</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Statement</th></tr></thead><tbody><tr><td>AHP derives weights, it does not invent them</td><td>Stakeholders answer pairwise questions; the weights are what those answers imply.</td></tr><tr><td>Only the upper triangle is elicited</td><td>\(n(n-1)/2\) judgements, with \(a_{ji} = 1/a_{ij}\) and \(a_{ii}=1\).</td></tr><tr><td>The priority vector</td><td>Normalise each column by its sum, then average each row.</td></tr><tr><td>Consistency</td><td>\(\lambda_{\max}\) from the column sums and the weights; \(\mathrm{CI}=(\lambda_{\max}-n)/(n-1)\); \(\mathrm{CR}=\mathrm{CI}/\mathrm{RI}\).</td></tr><tr><td>Accept below 0.10</td><td>A higher ratio means the judgements contradict each other and must be revisited.</td></tr><tr><td>TRL measures risk, not performance</td><td>A TRL 9 option is not automatically preferred; it is automatically less uncertain.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes">
+        <p class="section-label">Common mistakes</p>
+        <h2>What goes wrong</h2>
+        <ul class="check-list"><li><strong>Reading a low consistency ratio as correctness.</strong> It proves the judgements agree with each other, not with the mission.</li><li><strong>Eliciting all \(n^2\) comparisons.</strong> Only the upper triangle is asked; the rest is arithmetic, and asking twice invites contradiction.</li><li><strong>Ignoring a ratio above 0.10.</strong> It means a cycle exists in the preferences, and using the weights anyway propagates it into the decision.</li><li><strong>Scoring TRL as a criterion.</strong> Low maturity is a risk with a cost and a schedule; recording it twice weights it twice.</li><li><strong>Assuming TRL 9 is best.</strong> It is least uncertain. A less mature option with better performance may still be the right choice with a funded mitigation.</li><li><strong>Using AHP on weak alternatives.</strong> Precise weights over a poor option set produce a precise wrong answer.</li></ul>
+      </section>
+
+      <section id="references" class="references">
+        <p class="section-label">Sources</p>
+        <h2>References</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Sections 6.8 and 4.4.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=analytical-hierarchy" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 8: Analytical Hierarchy Process</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adapted from Unit V of the Aerospace Systems Engineering (AE506) course script by Carlos Alberto Molina Holgu&iacute;n. Every number on this page was recomputed independently for it; no calculator covers this topic, so recomputation is the only check there is. The priority vector, lambda-max, the consistency index and the consistency ratio are computed by the page generator from the pairwise matrix shown, and the build fails if any of them stops matching the printed values.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="weighted-decision-matrix.html?v=11"><span>Previous lecture</span>&larr; The Weighted Decision Matrix</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+
+      <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Qu&eacute; deber&iacute;as poder hacer</h2>
+        <ul><li>construir una matriz de comparaci&oacute;n por pares en la escala de Saaty a partir de juicios de stakeholders;</li><li>derivar el vector de prioridades por normalizaci&oacute;n de columnas y promedio de filas;</li><li>calcular \(\lambda_{\max}\), el &iacute;ndice y la raz&oacute;n de consistencia;</li><li>decidir si un conjunto de juicios es aceptablemente consistente, y qu&eacute; hacer cuando no lo es;</li><li>ubicar un nivel de madurez tecnol&oacute;gica en un estudio de intercambio como enunciado sobre riesgo.</li></ul>
+      </section>
+
+      <section id="physics-es">
+        <p class="section-label">Situación de ingeniería</p>
+        <h2>Nadie puede decir cu&aacute;nto vale la confiabilidad</h2>
+        <p class="lead">El estudio de intercambio de la lecture anterior descansa en un peso de confiabilidad de 0.20, y el cruce est&aacute; en 0.124. &iquest;De d&oacute;nde sali&oacute; 0.20? Alguien lo propuso en una junta y nadie objet&oacute;.</p><p>Preg&uacute;ntale a un stakeholder directamente qu&eacute; fracci&oacute;n de la decisi&oacute;n merece la confiabilidad y la respuesta es un encogimiento de hombros o un n&uacute;mero inventado. Preg&uacute;ntale en cambio si la confiabilidad importa m&aacute;s que la masa, y cu&aacute;nto en una escala de cinco puntos, y la respuesta es inmediata y defendible. Esa diferencia es lo que explota el proceso anal&iacute;tico jer&aacute;rquico.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 300" role="img" aria-label="Vector de prioridades de la matriz de comparaci&oacute;n por pares">
+            <rect x="250" y="60" width="218.1" height="34" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <text x="238" y="82" text-anchor="end" font-size="13" fill="#3f5162">Confiabilidad</text>
+            <text x="478.1" y="82" font-size="13" font-weight="700" fill="#071d33">0.519</text>
+            <rect x="250" y="116" width="84.4" height="34" rx="4" fill="#9fb8cd" stroke="#8fa6ba"></rect>
+            <text x="238" y="138" text-anchor="end" font-size="13" fill="#3f5162">Masa</text>
+            <text x="344.4" y="138" font-size="13" font-weight="700" fill="#071d33">0.201</text>
+            <rect x="250" y="172" width="84.4" height="34" rx="4" fill="#9fb8cd" stroke="#8fa6ba"></rect>
+            <text x="238" y="194" text-anchor="end" font-size="13" fill="#3f5162">Capacidad de crecimiento</text>
+            <text x="344.4" y="194" font-size="13" font-weight="700" fill="#071d33">0.201</text>
+            <rect x="250" y="228" width="33.1" height="34" rx="4" fill="#9fb8cd" stroke="#8fa6ba"></rect>
+            <text x="238" y="250" text-anchor="end" font-size="13" fill="#3f5162">Madurez tecnol&oacute;gica</text>
+            <text x="293.1" y="250" font-size="13" font-weight="700" fill="#071d33">0.079</text>
+            <text x="460" y="34" text-anchor="middle" font-size="14" font-weight="600" fill="#071d33">Prioridad</text>
+            <text x="400" y="268" text-anchor="middle" font-size="12" font-style="italic" fill="#8fa6ba">derivada de comparaciones por pares, nunca declarada directamente</text>
+            <rect x="60" y="222" width="680" height="30" rx="6" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="400" y="242" text-anchor="middle" font-size="13" fill="#3f5162">Raz&oacute;n de consistencia 0.022 < 0.10: los juicios no se contradicen</text>
+            </svg>
+            <figcaption>El vector de prioridades. Nadie enunci&oacute; un n&uacute;mero: estos pesos son lo que implican los juicios por pares, y la raz&oacute;n de consistencia dice que los juicios se sostienen.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-es">
+        <p class="section-label">Alcance y límites</p>
+        <h2>Estructurar la subjetividad</h2>
+        <p>El <strong>proceso anal&iacute;tico jer&aacute;rquico</strong> pide a los stakeholders comparar criterios de dos en dos en una escala de nueve puntos, recoge los juicios en una matriz y deriva los pesos que esos juicios implican. Tambi&eacute;n hace algo que la ponderaci&oacute;n directa no puede: mide si los juicios son autoconsistentes.</p><p>La verificaci&oacute;n de consistencia es la raz&oacute;n para usarlo. Si alguien dice que confiabilidad gana a masa, masa gana a crecimiento y crecimiento gana a confiabilidad, la ponderaci&oacute;n directa esconde la contradicci&oacute;n dentro de tres n&uacute;meros que suman uno. El AHP la reporta como una raz&oacute;n por encima de 0.10 y devuelve las comparaciones.</p>
+        <div class="callout warning"><strong>Lo que una raz&oacute;n de consistencia baja no significa.</strong> Significa que los juicios concuerdan entre s&iacute;, no que sean correctos. Un stakeholder puede ser perfectamente consistente y estar completamente equivocado sobre lo que la misi&oacute;n valora, y el AHP producir&aacute; pesos de apariencia precisa a partir de eso. El m&eacute;todo estructura la subjetividad; no la elimina, y ning&uacute;n esquema de ponderaci&oacute;n compensa alternativas d&eacute;biles o estimaciones sin sustento.</div>
+      </section>
+
+      <section id="pairwise-es">
+        <p class="section-label">De dos en dos</p>
+        <h2>La escala de Saaty y la matriz</h2>
+        <div class="table-wrap"><table><thead><tr><th>Valor</th><th>Significado</th></tr></thead><tbody><tr><td>1</td><td>Los dos criterios son igual de importantes</td></tr><tr><td>3</td><td>Uno es moderadamente m&aacute;s importante</td></tr><tr><td>5</td><td>Uno es fuertemente m&aacute;s importante</td></tr><tr><td>7</td><td>Uno es muy fuertemente m&aacute;s importante</td></tr><tr><td>9</td><td>Uno es extremadamente m&aacute;s importante</td></tr><tr><td>2, 4, 6, 8</td><td>Valores intermedios, cuando un juicio queda entre dos de los anteriores</td></tr></tbody></table></div>
+        <p>Para \(n\) criterios s&oacute;lo se elicitan los \(n(n-1)/2\) juicios sobre la diagonal. La diagonal es 1 por definici&oacute;n, y el tri&aacute;ngulo inferior se sigue de \(a_{ji} = 1/a_{ij}\) &mdash; si confiabilidad es tres veces m&aacute;s importante que masa, masa es un tercio de importante que confiabilidad. Cuatro criterios necesitan entonces seis preguntas, no diecis&eacute;is.</p>
+      </section>
+
+      <section id="trl-es">
+        <p class="section-label">La madurez no es calidad</p>
+        <h2>Niveles de madurez tecnol&oacute;gica</h2>
+        <div class="table-wrap"><table><thead><tr><th>TRL</th><th>Qu&eacute; se ha demostrado</th><th>Qu&eacute; dice sobre el riesgo</th></tr></thead><tbody><tr><td>1&ndash;3</td><td>Principios b&aacute;sicos, concepto formulado, prueba de concepto en laboratorio</td><td>El resultado del desarrollo es genuinamente incierto; no puede comprometerse calendario</td></tr><tr><td>4&ndash;6</td><td>Componente o banco validado en laboratorio, luego en entorno relevante</td><td>El riesgo restante es la calificaci&oacute;n, acotado pero no peque&ntilde;o</td></tr><tr><td>7&ndash;9</td><td>Prototipo demostrado en el entorno operativo, luego probado en vuelo</td><td>El riesgo tecnol&oacute;gico est&aacute; en gran medida retirado; el restante es de integraci&oacute;n</td></tr></tbody></table></div>
+        <p>La tentaci&oacute;n es a&ntilde;adir un criterio de &laquo;madurez tecnol&oacute;gica&raquo; y dar al TRL m&aacute;s alto la puntuaci&oacute;n m&aacute;s alta. Eso cuenta doble, porque un TRL bajo ya es un riesgo y el riesgo va en el registro con due&ntilde;o, mitigaci&oacute;n y disparador &mdash; no colado en una matriz de decisi&oacute;n como puntuaci&oacute;n baja en un criterio inventado.</p><p>Usa el TRL para lo que dice: cu&aacute;nto del resultado del desarrollo sigue siendo desconocido. Una carga &uacute;til TRL 4 con mejor desempe&ntilde;o cient&iacute;fico no es peor que una TRL 8; es mejor en desempe&ntilde;o y carga un riesgo de calificaci&oacute;n cuyo costo, calendario y probabilidad pueden enunciarse por separado y ponderarse como tales.</p>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Algoritmo de cálculo</p>
+        <h2>Ejecutar el AHP</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Listar los criterios de un nivel</span></div><div><strong>2</strong><span>Elicitar los \(n(n-1)/2\) juicios del tri&aacute;ngulo superior</span></div><div><strong>3</strong><span>Completar la matriz por rec&iacute;procos</span></div><div><strong>4</strong><span>Normalizar cada columna por su suma</span></div><div><strong>5</strong><span>Promediar cada fila</span></div><div><strong>6</strong><span>Calcular \(\lambda_{\max}\) de sumas de columna y pesos</span></div><div><strong>7</strong><span>Calcular CI y CR</span></div><div><strong>8</strong><span>Aceptar si \(\mathrm{CR}<0.10\)</span></div></div>
+        <p>El &iacute;ndice aleatorio del paso siete depende del tama&ntilde;o: 0.58 para tres criterios, 0.90 para cuatro, 1.12 para cinco, 1.24 para seis, 1.32 para siete. Es el &iacute;ndice de consistencia promedio de matrices llenadas al azar, as&iacute; que \(\mathrm{CR}\) pregunta cu&aacute;nto mejores que el azar son los juicios.</p>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>De d&oacute;nde deb&iacute;a salir 0.20</h2>
+        <p>Cuatro criterios: confiabilidad, masa, capacidad de crecimiento y madurez tecnol&oacute;gica. Los stakeholders juzgan la confiabilidad moderadamente m&aacute;s importante que la masa y que el crecimiento (3), y fuertemente m&aacute;s importante que la madurez tecnol&oacute;gica (5); masa y crecimiento igual de importantes (1), y cada uno moderadamente m&aacute;s importante que la madurez tecnol&oacute;gica (3). Seis juicios, y el resto se sigue.</p>
+        <div class="table-wrap"><table><thead><tr><th></th><th>Confiabilidad</th><th>Masa</th><th>Capacidad de crecimiento</th><th>Madurez tecnol&oacute;gica</th><th>Peso</th></tr></thead><tbody><tr><td><strong>Confiabilidad</strong></td><td>1</td><td>3</td><td>3</td><td>5</td><td><strong>0.519</strong></td></tr><tr><td><strong>Masa</strong></td><td>1/3</td><td>1</td><td>1</td><td>3</td><td><strong>0.201</strong></td></tr><tr><td><strong>Capacidad de crecimiento</strong></td><td>1/3</td><td>1</td><td>1</td><td>3</td><td><strong>0.201</strong></td></tr><tr><td><strong>Madurez tecnol&oacute;gica</strong></td><td>1/5</td><td>1/3</td><td>1/3</td><td>1</td><td><strong>0.079</strong></td></tr><tr><td><em>Suma de columna</em></td><td>1.867</td><td>5.333</td><td>5.333</td><td>12.000</td><td>1.000</td></tr></tbody></table></div>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Normalizar y promediar.</strong> Dividiendo cada entrada por su suma de columna y promediando por fila se obtiene el vector de prioridades \[\mathbf{w} = (0.519,\; 0.201,\; 0.201,\; 0.079),\] que suma 1 por construcci&oacute;n.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Consistencia.</strong> \[\lambda_{\max} = 1.867(0.519)+5.333(0.201)+5.333(0.201)+12.000(0.079) = 4.059.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>La raz&oacute;n.</strong> \[\mathrm{CI} = \frac{4.059-4}{3} = 0.0196, \qquad \mathrm{CR} = \frac{0.0196}{0.90} = 0.022.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Aceptar.</strong> \(0.022 < 0.10\), as&iacute; que los juicios son aceptablemente consistentes y los pesos pueden usarse.</div></div>
+        <div class="result-box">\[ \boxed{ \mathbf{w} = (0.519,\, 0.201,\, 0.201,\, 0.079), \qquad \mathrm{CR} = 0.022 < 0.10 } \]</div>
+        <p><strong>Interpretaci&oacute;n.</strong> Nadie enunci&oacute; un n&uacute;mero, y el proceso produjo \(w_R = 0.52\) &mdash; muy por encima tanto del 0.20 que se supon&iacute;a como del cruce de 0.124 de la lecture anterior. La recomendaci&oacute;n por la arquitectura C es entonces m&aacute;s fuerte de lo que sugiri&oacute; la matriz original. Nota tambi&eacute;n lo que el m&eacute;todo expuso: la madurez tecnol&oacute;gica recibi&oacute; 8&nbsp;% de la decisi&oacute;n. Si el equipo a&uacute;n cree que una tecnolog&iacute;a inmadura podr&iacute;a hundir el proyecto, esa creencia va en el registro de riesgos, no en un peso de criterio m&aacute;s alto.</p>
+      </section>
+
+      <section id="summary-es">
+        <p class="section-label">Reglas operativas</p>
+        <h2>De un vistazo</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regla</th><th>Enunciado</th></tr></thead><tbody><tr><td>El AHP deriva pesos, no los inventa</td><td>Los stakeholders responden preguntas por pares; los pesos son lo que esas respuestas implican.</td></tr><tr><td>S&oacute;lo se elicita el tri&aacute;ngulo superior</td><td>\(n(n-1)/2\) juicios, con \(a_{ji} = 1/a_{ij}\) y \(a_{ii}=1\).</td></tr><tr><td>El vector de prioridades</td><td>Normaliza cada columna por su suma, luego promedia cada fila.</td></tr><tr><td>Consistencia</td><td>\(\lambda_{\max}\) de las sumas de columna y los pesos; \(\mathrm{CI}=(\lambda_{\max}-n)/(n-1)\); \(\mathrm{CR}=\mathrm{CI}/\mathrm{RI}\).</td></tr><tr><td>Acepta por debajo de 0.10</td><td>Una raz&oacute;n mayor significa que los juicios se contradicen y deben revisarse.</td></tr><tr><td>El TRL mide riesgo, no desempe&ntilde;o</td><td>Una opci&oacute;n TRL 9 no es autom&aacute;ticamente preferida; es autom&aacute;ticamente menos incierta.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-es">
+        <p class="section-label">Errores comunes</p>
+        <h2>Qu&eacute; sale mal</h2>
+        <ul class="check-list"><li><strong>Leer una raz&oacute;n de consistencia baja como correcci&oacute;n.</strong> Prueba que los juicios concuerdan entre s&iacute;, no con la misi&oacute;n.</li><li><strong>Elicitar las \(n^2\) comparaciones.</strong> S&oacute;lo se pregunta el tri&aacute;ngulo superior; el resto es aritm&eacute;tica, y preguntar dos veces invita a la contradicci&oacute;n.</li><li><strong>Ignorar una raz&oacute;n mayor a 0.10.</strong> Significa que hay un ciclo en las preferencias, y usar los pesos igual lo propaga a la decisi&oacute;n.</li><li><strong>Puntuar el TRL como criterio.</strong> La baja madurez es un riesgo con costo y calendario; registrarlo dos veces lo pondera dos veces.</li><li><strong>Suponer que TRL 9 es lo mejor.</strong> Es lo menos incierto. Una opci&oacute;n menos madura con mejor desempe&ntilde;o puede seguir siendo la correcta con una mitigaci&oacute;n financiada.</li><li><strong>Usar AHP sobre alternativas d&eacute;biles.</strong> Pesos precisos sobre un conjunto pobre de opciones producen una respuesta precisa y equivocada.</li></ul>
+      </section>
+
+      <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
+        <h2>Referencias</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Sections 6.8 and 4.4.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=analytical-hierarchy" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 8: Analytical Hierarchy Process</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adaptado de la Unidad V del gui&oacute;n del curso Ingenier&iacute;a en Sistemas Aeroespaciales (AE506) de Carlos Alberto Molina Holgu&iacute;n. Cada n&uacute;mero de esta p&aacute;gina se recalcul&oacute; de forma independiente para ella; ninguna calculadora cubre este tema, as&iacute; que el rec&aacute;lculo es la &uacute;nica comprobaci&oacute;n disponible. El vector de prioridades, lambda-max, el &iacute;ndice y la raz&oacute;n de consistencia los calcula el generador de la p&aacute;gina a partir de la matriz por pares mostrada, y la construcci&oacute;n falla si alguno deja de coincidir con los valores impresos.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="weighted-decision-matrix.html?v=11"><span>Lecture anterior</span>&larr; La matriz de decisi&oacute;n ponderada</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+
+      <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie k&ouml;nnen sollten</h2>
+        <ul><li>eine paarweise Vergleichsmatrix auf der Saaty-Skala aus Urteilen aufbauen;</li><li>den Priorit&auml;tsvektor durch Spaltennormierung und Zeilenmittelung ableiten;</li><li>\(\lambda_{\max}\), den Konsistenzindex und das Konsistenzverh&auml;ltnis berechnen;</li><li>entscheiden, ob Urteile hinreichend konsistent sind, und was sonst zu tun ist;</li><li>einen Technologiereifegrad in einer Abw&auml;gung als Risikoaussage einordnen.</li></ul>
+      </section>
+
+      <section id="physics-de">
+        <p class="section-label">Ingenieurtechnischer Kontext</p>
+        <h2>Niemand kann sagen, was Zuverl&auml;ssigkeit wert ist</h2>
+        <p class="lead">Die Abw&auml;gung der vorigen Vorlesung beruht auf einem Zuverl&auml;ssigkeitsgewicht von 0,20, und der Umschlagpunkt liegt bei 0,124. Woher kam 0,20? Jemand schlug es in einer Sitzung vor, und niemand widersprach.</p><p>Fragen Sie einen Interessentr&auml;ger direkt, welchen Anteil der Entscheidung die Zuverl&auml;ssigkeit verdient, und Sie erhalten ein Achselzucken oder eine erfundene Zahl. Fragen Sie stattdessen, ob Zuverl&auml;ssigkeit wichtiger ist als Masse und um wie viel auf einer F&uuml;nf-Punkte-Skala, und die Antwort kommt sofort und ist vertretbar. Diesen Unterschied nutzt der analytische Hierarchieprozess.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 300" role="img" aria-label="Priorit&auml;tsvektor aus der paarweisen Vergleichsmatrix">
+            <rect x="250" y="60" width="218.1" height="34" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <text x="238" y="82" text-anchor="end" font-size="13" fill="#3f5162">Zuverl&auml;ssigkeit</text>
+            <text x="478.1" y="82" font-size="13" font-weight="700" fill="#071d33">0,519</text>
+            <rect x="250" y="116" width="84.4" height="34" rx="4" fill="#9fb8cd" stroke="#8fa6ba"></rect>
+            <text x="238" y="138" text-anchor="end" font-size="13" fill="#3f5162">Masse</text>
+            <text x="344.4" y="138" font-size="13" font-weight="700" fill="#071d33">0,201</text>
+            <rect x="250" y="172" width="84.4" height="34" rx="4" fill="#9fb8cd" stroke="#8fa6ba"></rect>
+            <text x="238" y="194" text-anchor="end" font-size="13" fill="#3f5162">Wachstumsf&auml;higkeit</text>
+            <text x="344.4" y="194" font-size="13" font-weight="700" fill="#071d33">0,201</text>
+            <rect x="250" y="228" width="33.1" height="34" rx="4" fill="#9fb8cd" stroke="#8fa6ba"></rect>
+            <text x="238" y="250" text-anchor="end" font-size="13" fill="#3f5162">Technologiereife</text>
+            <text x="293.1" y="250" font-size="13" font-weight="700" fill="#071d33">0,079</text>
+            <text x="460" y="34" text-anchor="middle" font-size="14" font-weight="600" fill="#071d33">Priorit&auml;t</text>
+            <text x="400" y="268" text-anchor="middle" font-size="12" font-style="italic" fill="#8fa6ba">aus paarweisen Vergleichen abgeleitet, nie direkt genannt</text>
+            <rect x="60" y="222" width="680" height="30" rx="6" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="400" y="242" text-anchor="middle" font-size="13" fill="#3f5162">Konsistenzverh&auml;ltnis 0,022 < 0,10: die Urteile widersprechen sich nicht</text>
+            </svg>
+            <figcaption>Der Priorit&auml;tsvektor. Niemand nannte eine Zahl: Diese Gewichte folgen aus den paarweisen Urteilen, und das Konsistenzverh&auml;ltnis best&auml;tigt ihre Stimmigkeit.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-de">
+        <p class="section-label">Geltungsbereich und Grenzen</p>
+        <h2>Subjektivit&auml;t strukturieren</h2>
+        <p>Der <strong>analytische Hierarchieprozess</strong> l&auml;sst Interessentr&auml;ger Kriterien paarweise auf einer Neun-Punkte-Skala vergleichen, sammelt die Urteile in einer Matrix und leitet die implizierten Gewichte ab. Er leistet zudem, was direkte Gewichtung nicht kann: Er misst die Selbstkonsistenz der Urteile.</p><p>Die Konsistenzpr&uuml;fung ist der Grund f&uuml;r seinen Einsatz. Sagt jemand, Zuverl&auml;ssigkeit schl&auml;gt Masse, Masse schl&auml;gt Wachstum und Wachstum schl&auml;gt Zuverl&auml;ssigkeit, verbirgt die direkte Gewichtung den Widerspruch in drei Zahlen, die eins ergeben. AHP meldet ihn als Verh&auml;ltnis &uuml;ber 0,10 und schickt die Vergleiche zur&uuml;ck.</p>
+        <div class="callout warning"><strong>Was ein niedriges Konsistenzverh&auml;ltnis nicht bedeutet.</strong> Es bedeutet, dass die Urteile zueinander passen, nicht dass sie richtig sind. Ein Interessentr&auml;ger kann v&ouml;llig konsistent und v&ouml;llig falsch liegen, und AHP erzeugt daraus pr&auml;zise wirkende Gewichte. Die Methode strukturiert Subjektivit&auml;t; sie beseitigt sie nicht, und kein Gewichtungsschema gleicht schwache Alternativen oder unbelegte Sch&auml;tzungen aus.</div>
+      </section>
+
+      <section id="pairwise-de">
+        <p class="section-label">Zwei auf einmal</p>
+        <h2>Die Saaty-Skala und die Matrix</h2>
+        <div class="table-wrap"><table><thead><tr><th>Wert</th><th>Bedeutung</th></tr></thead><tbody><tr><td>1</td><td>Beide Kriterien sind gleich wichtig</td></tr><tr><td>3</td><td>Eines ist m&auml;&szlig;ig wichtiger</td></tr><tr><td>5</td><td>Eines ist deutlich wichtiger</td></tr><tr><td>7</td><td>Eines ist sehr viel wichtiger</td></tr><tr><td>9</td><td>Eines ist &auml;u&szlig;erst viel wichtiger</td></tr><tr><td>2, 4, 6, 8</td><td>Zwischenwerte, wenn ein Urteil zwischen zweien der obigen liegt</td></tr></tbody></table></div>
+        <p>F&uuml;r \(n\) Kriterien werden nur die \(n(n-1)/2\) Urteile oberhalb der Diagonalen erhoben. Die Diagonale ist definitionsgem&auml;&szlig; 1, und das untere Dreieck folgt aus \(a_{ji} = 1/a_{ij}\) &mdash; ist Zuverl&auml;ssigkeit dreimal wichtiger als Masse, ist Masse ein Drittel so wichtig. Vier Kriterien brauchen also sechs Fragen, nicht sechzehn.</p>
+      </section>
+
+      <section id="trl-de">
+        <p class="section-label">Reife ist keine Qualit&auml;t</p>
+        <h2>Technologiereifegrade</h2>
+        <div class="table-wrap"><table><thead><tr><th>TRL</th><th>Was gezeigt wurde</th><th>Was er &uuml;ber Risiko sagt</th></tr></thead><tbody><tr><td>1&ndash;3</td><td>Grundprinzipien, Konzept formuliert, Machbarkeitsnachweis im Labor</td><td>Der Entwicklungsausgang ist echt unsicher; kein Termin zusagbar</td></tr><tr><td>4&ndash;6</td><td>Komponente oder Aufbau im Labor validiert, dann in relevanter Umgebung</td><td>Das Restrisiko ist die Qualifikation, begrenzt, aber nicht klein</td></tr><tr><td>7&ndash;9</td><td>Prototyp in Einsatzumgebung gezeigt, dann flugerprobt</td><td>Das Technologierisiko ist weitgehend abgebaut; verbleibend ist Integrationsrisiko</td></tr></tbody></table></div>
+        <p>Die Versuchung besteht darin, ein Kriterium &bdquo;Technologiereife&ldquo; zu erg&auml;nzen und dem h&ouml;chsten TRL die h&ouml;chste Bewertung zu geben. Das z&auml;hlt doppelt, denn ein niedriger TRL ist bereits ein Risiko, und Risiko geh&ouml;rt mit Verantwortlichen, Minderung und Ausl&ouml;ser ins Register &mdash; nicht als niedrige Bewertung eines erfundenen Kriteriums in die Entscheidungsmatrix.</p><p>Nutzen Sie den TRL f&uuml;r seine Aussage: wie viel des Entwicklungsausgangs noch unbekannt ist. Eine TRL-4-Nutzlast mit besserer Wissenschaftsleistung ist nicht schlechter als eine TRL-8-Nutzlast; sie ist leistungsst&auml;rker und tr&auml;gt ein Qualifikationsrisiko, dessen Kosten, Termine und Wahrscheinlichkeit getrennt genannt und gewichtet werden k&ouml;nnen.</p>
+      </section>
+
+      <section id="algorithm-de">
+        <p class="section-label">Rechenalgorithmus</p>
+        <h2>Den AHP durchf&uuml;hren</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Die Kriterien einer Ebene auflisten</span></div><div><strong>2</strong><span>Die \(n(n-1)/2\) Urteile des oberen Dreiecks erheben</span></div><div><strong>3</strong><span>Die Matrix durch Kehrwerte vervollst&auml;ndigen</span></div><div><strong>4</strong><span>Jede Spalte durch ihre Summe teilen</span></div><div><strong>5</strong><span>Jede Zeile mitteln</span></div><div><strong>6</strong><span>\(\lambda_{\max}\) aus Spaltensummen und Gewichten</span></div><div><strong>7</strong><span>CI und CR berechnen</span></div><div><strong>8</strong><span>Annehmen bei \(\mathrm{CR}<0{,}10\)</span></div></div>
+        <p>Der Zufallsindex in Schritt sieben h&auml;ngt von der Matrixgr&ouml;&szlig;e ab: 0,58 bei drei Kriterien, 0,90 bei vier, 1,12 bei f&uuml;nf, 1,24 bei sechs, 1,32 bei sieben. Er ist der mittlere Konsistenzindex zuf&auml;llig gef&uuml;llter Matrizen; \(\mathrm{CR}\) fragt also, um wie viel besser als Zufall die Urteile sind.</p>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Woher die 0,20 h&auml;tte kommen sollen</h2>
+        <p>Vier Kriterien: Zuverl&auml;ssigkeit, Masse, Wachstumsf&auml;higkeit und Technologiereife. Die Interessentr&auml;ger halten Zuverl&auml;ssigkeit f&uuml;r m&auml;&szlig;ig wichtiger als Masse und Wachstum (3) und deutlich wichtiger als Technologiereife (5); Masse und Wachstum gleich wichtig (1), jeweils m&auml;&szlig;ig wichtiger als Technologiereife (3). Sechs Urteile, der Rest folgt.</p>
+        <div class="table-wrap"><table><thead><tr><th></th><th>Zuverl&auml;ssigkeit</th><th>Masse</th><th>Wachstumsf&auml;higkeit</th><th>Technologiereife</th><th>Gewicht</th></tr></thead><tbody><tr><td><strong>Zuverl&auml;ssigkeit</strong></td><td>1</td><td>3</td><td>3</td><td>5</td><td><strong>0,519</strong></td></tr><tr><td><strong>Masse</strong></td><td>1/3</td><td>1</td><td>1</td><td>3</td><td><strong>0,201</strong></td></tr><tr><td><strong>Wachstumsf&auml;higkeit</strong></td><td>1/3</td><td>1</td><td>1</td><td>3</td><td><strong>0,201</strong></td></tr><tr><td><strong>Technologiereife</strong></td><td>1/5</td><td>1/3</td><td>1/3</td><td>1</td><td><strong>0,079</strong></td></tr><tr><td><em>Spaltensumme</em></td><td>1,867</td><td>5,333</td><td>5,333</td><td>12,000</td><td>1,000</td></tr></tbody></table></div>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Normieren und mitteln.</strong> Teilt man jeden Eintrag durch seine Spaltensumme und mittelt zeilenweise, ergibt sich der Priorit&auml;tsvektor \[\mathbf{w} = (0{,}519,\; 0{,}201,\; 0{,}201,\; 0{,}079),\] der konstruktionsbedingt 1 ergibt.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Konsistenz.</strong> \[\lambda_{\max} = 1{,}867(0{,}519)+5{,}333(0{,}201)+5{,}333(0{,}201)+12{,}000(0{,}079) = 4{,}059.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Das Verh&auml;ltnis.</strong> \[\mathrm{CI} = \frac{4{,}059-4}{3} = 0{,}0196, \qquad \mathrm{CR} = \frac{0{,}0196}{0{,}90} = 0{,}022.\]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Annehmen.</strong> \(0{,}022 < 0{,}10\), die Urteile sind also hinreichend konsistent und die Gewichte verwendbar.</div></div>
+        <div class="result-box">\[ \boxed{ \mathbf{w} = (0{,}519,\, 0{,}201,\, 0{,}201,\, 0{,}079), \qquad \mathrm{CR} = 0{,}022 < 0{,}10 } \]</div>
+        <p><strong>Deutung.</strong> Niemand nannte eine Zahl, und der Prozess lieferte \(w_R = 0{,}52\) &mdash; weit &uuml;ber den angenommenen 0,20 und dem Umschlagpunkt 0,124 der vorigen Vorlesung. Die Empfehlung f&uuml;r Architektur C ist damit st&auml;rker als von der urspr&uuml;nglichen Matrix nahegelegt. Beachten Sie auch, was die Methode zeigte: Die Technologiereife erhielt 8&nbsp;% der Entscheidung. Glaubt das Team weiterhin, eine unreife Technologie k&ouml;nne das Projekt versenken, geh&ouml;rt dieser Glaube ins Risikoregister, nicht in ein h&ouml;heres Kriteriengewicht.</p>
+      </section>
+
+      <section id="summary-de">
+        <p class="section-label">Arbeitsregeln</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regel</th><th>Aussage</th></tr></thead><tbody><tr><td>AHP leitet Gewichte ab, es erfindet sie nicht</td><td>Interessentr&auml;ger beantworten Paarfragen; die Gewichte folgen daraus.</td></tr><tr><td>Nur das obere Dreieck wird erhoben</td><td>\(n(n-1)/2\) Urteile, mit \(a_{ji} = 1/a_{ij}\) und \(a_{ii}=1\).</td></tr><tr><td>Der Priorit&auml;tsvektor</td><td>Jede Spalte durch ihre Summe teilen, dann jede Zeile mitteln.</td></tr><tr><td>Konsistenz</td><td>\(\lambda_{\max}\) aus Spaltensummen und Gewichten; \(\mathrm{CI}=(\lambda_{\max}-n)/(n-1)\); \(\mathrm{CR}=\mathrm{CI}/\mathrm{RI}\).</td></tr><tr><td>Unter 0,10 annehmen</td><td>Ein h&ouml;herer Wert hei&szlig;t widerspr&uuml;chliche Urteile, die zu &uuml;berarbeiten sind.</td></tr><tr><td>Der TRL misst Risiko, nicht Leistung</td><td>Eine TRL-9-Option ist nicht automatisch vorzuziehen, sondern automatisch weniger unsicher.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Häufige Fehler</p>
+        <h2>Was schiefgeht</h2>
+        <ul class="check-list"><li><strong>Ein niedriges Konsistenzverh&auml;ltnis als Richtigkeit lesen.</strong> Es beweist &Uuml;bereinstimmung der Urteile untereinander, nicht mit der Mission.</li><li><strong>Alle \(n^2\) Vergleiche erheben.</strong> Nur das obere Dreieck wird gefragt; der Rest ist Arithmetik, und doppeltes Fragen l&auml;dt Widerspruch ein.</li><li><strong>Ein Verh&auml;ltnis &uuml;ber 0,10 ignorieren.</strong> Es bedeutet einen Zyklus in den Pr&auml;ferenzen; die Gewichte dennoch zu nutzen tr&auml;gt ihn in die Entscheidung.</li><li><strong>Den TRL als Kriterium bewerten.</strong> Geringe Reife ist ein Risiko mit Kosten und Terminen; zweimal erfasst wird es zweimal gewichtet.</li><li><strong>TRL 9 f&uuml;r das Beste halten.</strong> Er ist am wenigsten unsicher. Eine weniger reife Option mit besserer Leistung kann mit finanzierter Minderung dennoch richtig sein.</li><li><strong>AHP auf schwache Alternativen anwenden.</strong> Pr&auml;zise Gewichte &uuml;ber schlechten Optionen liefern eine pr&auml;zise falsche Antwort.</li></ul>
+      </section>
+
+      <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
+        <h2>Literatur</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Sections 6.8 and 4.4.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=analytical-hierarchy" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 8: Analytical Hierarchy Process</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Bearbeitet nach Einheit V des Skripts Luft- und Raumfahrtsystemtechnik (AE506) von Carlos Alberto Molina Holgu&iacute;n. Jede Zahl dieser Seite wurde eigens daf&uuml;r unabh&auml;ngig neu berechnet; kein Rechner deckt dieses Thema ab, daher ist die Neuberechnung die einzige Pr&uuml;fung. Priorit&auml;tsvektor, Lambda-max, Konsistenzindex und -verh&auml;ltnis berechnet der Seitengenerator aus der gezeigten Paarmatrix; der Bau schl&auml;gt fehl, sobald einer nicht mehr zu den gedruckten Werten passt.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="weighted-decision-matrix.html?v=11"><span>Vorherige Vorlesung</span>&larr; Die gewichtete Entscheidungsmatrix</a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>&copy; <span id="year"></span> Carlos Alberto Molina Holgu&iacute;n</p>
+    <p>Universidad Aut&oacute;noma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

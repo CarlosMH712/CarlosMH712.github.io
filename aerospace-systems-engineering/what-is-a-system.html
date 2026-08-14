@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="What a system is in aerospace systems engineering: the system of interest, the system-subsystem-component hierarchy, end and enabling products, and how the choice of system boundary changes the requirements that result." />
+  <meta name="author" content="Carlos Alberto Molina Holgu&iacute;n" />
+  <meta name="theme-color" content="#071d33" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>What a System Is | Aerospace Systems Engineering</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:wght@600;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=11" data-ui-key="course">Aerospace Systems Engineering</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Aerospace Systems Engineering &middot; Lecture 01</p>
+        <h1>What a System Is and Where Its Boundaries Lie</h1>
+        <p class="hero-copy">The system of interest, the hierarchy that is relative to it, the enabling products everyone forgets, and why moving a boundary changes the requirements rather than removing them.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Ingeniería de Sistemas Aeroespaciales &middot; Lecture 01</p>
+        <h1>Qu&eacute; es un sistema y d&oacute;nde est&aacute;n sus fronteras</h1>
+        <p class="hero-copy">El sistema de inter&eacute;s, la jerarqu&iacute;a que es relativa a &eacute;l, los productos habilitadores que todos olvidan y por qu&eacute; mover una frontera cambia los requisitos en vez de eliminarlos.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Luft- und Raumfahrtsystemtechnik &middot; Vorlesung 01</p>
+        <h1>Was ein System ist und wo seine Grenzen liegen</h1>
+        <p class="hero-copy">Das betrachtete System, die darauf bezogene Hierarchie, die stets vergessenen Hilfsprodukte und warum das Verschieben einer Grenze Anforderungen ver&auml;ndert statt beseitigt.</p>
+      </div>
+
+    <div class="hero-meta">
+        <span data-language="en">Estimated reading: 12 min</span><span data-language="es" hidden>Lectura estimada: 12 min</span><span data-language="de" hidden>Lesedauer: ca. 12 min</span>
+        <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+        <span data-language="en">Scope: definitions and boundaries</span><span data-language="es" hidden>Alcance: definiciones y fronteras</span><span data-language="de" hidden>Umfang: Definitionen und Grenzen</span>
+    </div>
+    <div class="button-row">
+      <a class="button secondary" href="index.html?v=11" data-ui-key="back">Back to course</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Engineering situation</a>
+        <a href="#model">Scope and limits</a>
+        <a href="#hierarchy">System, subsystem, component</a>
+        <a href="#products">End and enabling products</a>
+        <a href="#algorithm">Drawing the boundary</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Operative rules</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#references">Sources</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Situaci&oacute;n de ingenier&iacute;a</a>
+        <a href="#model-es">Alcance y l&iacute;mites</a>
+        <a href="#hierarchy-es">Sistema, subsistema, componente</a>
+        <a href="#products-es">Productos finales y habilitadores</a>
+        <a href="#algorithm-es">Trazar la frontera</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Reglas operativas</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Kontext</a>
+        <a href="#model-de">Geltungsbereich</a>
+        <a href="#hierarchy-de">System, Teilsystem, Komponente</a>
+        <a href="#products-de">End- und Hilfsprodukte</a>
+        <a href="#algorithm-de">Die Grenze ziehen</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Arbeitsregeln</a>
+        <a href="#mistakes-de">H&auml;ufige Fehler</a>
+        <a href="#references-de">Quellen</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+
+      <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul><li>name the system of interest for a mission and explain why every other definition depends on it;</li><li>distinguish system, subsystem, assembly and component, and show that the labels are relative;</li><li>separate end products from enabling products, and say what goes wrong when the enabling ones are omitted;</li><li>draw a system boundary, list what crosses it, and identify the external systems;</li><li>redraw the same mission with a different boundary and state which requirements change.</li></ul>
+      </section>
+
+      <section id="physics">
+        <p class="section-label">Engineering situation</p>
+        <h2>The ground station nobody costed</h2>
+        <p class="lead">A student team defines its system as &ldquo;the satellite&rdquo;. At the design review someone asks who is building the ground station, and the answer is that nobody had thought about it. The schedule absorbs it; the budget does not.</p><p>This is not carelessness. It follows from a definition made in the first week and never written down. What counts as the system determines what carries requirements, what gets verified, and what someone has to pay for. Get it wrong and the omission surfaces at the review, which is the most expensive place to find it.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 820 300" role="img" aria-label="Two candidate system boundaries drawn over the same elements">
+            <rect x="30" y="60" width="430" height="172" rx="10" fill="none" stroke="#0d568d" stroke-width="2" stroke-dasharray="7 5"></rect>
+            <text x="40" y="50" font-size="14" font-weight="600" fill="#0d568d">Boundary B: vehicle and ground segment</text>
+            <rect x="52" y="90" width="240" height="130" rx="8" fill="#eef4fa" stroke="#071d33" stroke-width="2"></rect>
+            <text x="62" y="112" font-size="14" font-weight="600" fill="#071d33">Boundary A: air vehicle only</text>
+            <rect x="70" y="128" width="100" height="34" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect><text x="120" y="150" text-anchor="middle" font-size="12" fill="#3f5162">Air vehicle</text>
+            <rect x="186" y="128" width="92" height="34" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect><text x="232" y="150" text-anchor="middle" font-size="12" fill="#3f5162">Payload</text>
+            <rect x="70" y="172" width="100" height="34" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect><text x="120" y="194" text-anchor="middle" font-size="12" fill="#3f5162">EPS / Comm</text>
+            <rect x="186" y="172" width="92" height="34" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect><text x="232" y="194" text-anchor="middle" font-size="12" fill="#3f5162">Avionics</text>
+            <rect x="316" y="128" width="126" height="78" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect><text x="379" y="163" text-anchor="middle" font-size="12" fill="#3f5162">Ground segment</text>
+            <text x="379" y="181" text-anchor="middle" font-size="12" fill="#3f5162">+ Operators</text>
+            <rect x="530" y="72" width="250" height="44" rx="5" fill="#f6f1e6" stroke="#c2ab7d"></rect><text x="655" y="99" text-anchor="middle" font-size="13" fill="#5c4a24">Airspace authority</text>
+            <line x1="462" y1="94" x2="528" y2="94" stroke="#8fa6ba" stroke-width="2"></line>
+            <rect x="530" y="128" width="250" height="44" rx="5" fill="#f6f1e6" stroke="#c2ab7d"></rect><text x="655" y="155" text-anchor="middle" font-size="13" fill="#5c4a24">Weather</text>
+            <line x1="462" y1="150" x2="528" y2="150" stroke="#8fa6ba" stroke-width="2"></line>
+            <rect x="530" y="184" width="250" height="44" rx="5" fill="#f6f1e6" stroke="#c2ab7d"></rect><text x="655" y="211" text-anchor="middle" font-size="13" fill="#5c4a24">Launch and recovery site</text>
+            <line x1="462" y1="206" x2="528" y2="206" stroke="#8fa6ba" stroke-width="2"></line>
+            <text x="655" y="268" text-anchor="middle" font-size="13" font-style="italic" fill="#5c4a24">external systems</text>
+            </svg>
+            <figcaption>The same elements, two boundaries. Boundary A owns four external systems including the ground segment; boundary B absorbs the ground segment and owns three.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model">
+        <p class="section-label">Scope and limits</p>
+        <h2>A system is a choice, not a fact</h2>
+        <p>NASA describes a system as the combination of elements &mdash; hardware, software, people, facilities, processes &mdash; that together produce a capability no element produces alone. The important word is <em>combination</em>: people and procedures are inside it, not around it. A mission can fail because a procedure was wrong while every piece of hardware performed exactly as specified.</p><p>The <strong>system of interest</strong> is the part of that combination this project is responsible for. Everything else is an external system, and the line between them is drawn by the team, not discovered.</p>
+        <div class="callout warning"><strong>What this does not settle.</strong> There is no correct boundary, only a boundary with consequences. Drawing it wider means specifying and verifying more yourself; drawing it narrower means negotiating more with someone else. It never means less work, and a boundary chosen to reduce work is the one that produces the surprise at the review.</div>
+      </section>
+
+      <section id="hierarchy">
+        <p class="section-label">Central definitions</p>
+        <h2>Four levels, all relative</h2>
+        <div class="table-wrap"><table><thead><tr><th>Level</th><th>What it is</th><th>Example</th></tr></thead><tbody><tr><td>System</td><td>The whole that delivers the capability</td><td>Atmospheric research platform</td></tr><tr><td>Subsystem</td><td>A grouping that performs a coherent set of functions</td><td>Electrical power</td></tr><tr><td>Assembly</td><td>A set of parts delivered and integrated as one</td><td>Battery module</td></tr><tr><td>Component</td><td>The lowest item the project manages</td><td>Individual cell</td></tr></tbody></table></div>
+        <p>The labels describe a position in one project&rsquo;s tree, not a property of the object. A battery module is a component to the platform team and the system of interest to the company that builds it, with its own subsystems and its own suppliers. Both teams are right, and the only way they stay consistent is that each names its system of interest out loud.</p>
+      </section>
+
+      <section id="products">
+        <p class="section-label">A distinction with a budget</p>
+        <h2>End products and enabling products</h2>
+        <div class="table-wrap"><table><thead><tr><th></th><th>End products</th><th>Enabling products</th></tr></thead><tbody><tr><td>Purpose</td><td>Deliver the mission capability</td><td>Make the end products possible</td></tr><tr><td>Examples</td><td>Air vehicle, payload, flight software</td><td>Ground station, test rigs, simulators, procedures</td></tr><tr><td>Common error</td><td>&mdash;</td><td>Left out of the product tree, so they carry no requirements and no budget</td></tr></tbody></table></div>
+        <p>Enabling products never fly, and that is exactly why they get left out. But a ground station has requirements, a test rig has interfaces, and an operations procedure has to be verified like anything else. If it does not appear in the product tree, no one owns it, no one budgets it, and it arrives as a discovery.</p>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">Calculation algorithm</p>
+        <h2>Drawing a boundary</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Name the capability</span></div><div><strong>2</strong><span>List every element that produces it</span></div><div><strong>3</strong><span>Decide what you will build or control</span></div><div><strong>4</strong><span>Draw the line</span></div><div><strong>5</strong><span>List every crossing</span></div><div><strong>6</strong><span>Name the external system on the far side</span></div></div>
+        <p>Step five is the one that pays. Every crossing you list becomes an interface with an owner on each side; every crossing you fail to list becomes an integration problem. Counting them is also the first honest estimate of how much coordination the project needs.</p>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>Two boundaries for one platform</h2>
+        <p>The atmospheric research platform must survey a region for thirty days and deliver its data to a science archive. The same eight elements can sit inside two different boundaries.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Boundary A &mdash; air vehicle only.</strong> Inside: airframe, avionics, power, comm, sensor suite, data unit. Outside: ground station, operations software, operators, airspace authority, weather, launch site. Four external systems exchange something with the vehicle, and the data-delivery requirement becomes an agreement with a ground segment the project does not control.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Boundary B &mdash; vehicle and ground segment.</strong> The ground station and operations software move inside, so the product tree gains two leaves and the total is eight. Three external systems remain. The data-delivery requirement is now internal, and the project can verify it end to end.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>What changed.</strong> Not the hardware &mdash; the same eight things get built either way. What moved is the ninety-percent data-availability requirement: under A it is a negotiated interface, under B it is a system requirement the team is accountable for.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Which to choose.</strong> B, if the mission stands or falls on data actually reaching the archive. A, only if a ground segment already exists with a contract behind it. Choosing A because it looks smaller is the error the lecture opened with.</div></div>
+        <div class="result-box">\[ \boxed{ \text{Boundary A: 4 external systems}\quad|\quad \text{Boundary B: 3 external systems, 8 product-tree leaves} } \]</div>
+      </section>
+
+      <section id="summary">
+        <p class="section-label">Operative rules</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Statement</th></tr></thead><tbody><tr><td>System of interest</td><td>Name it before anything else. Every other definition on the project is relative to it.</td></tr><tr><td>Hierarchy is relative</td><td>A battery is a component to the platform and a system to its supplier. Both are correct.</td></tr><tr><td>Enabling products count</td><td>If it must be built, tested or written for the mission to work, it belongs in the tree.</td></tr><tr><td>Boundary sets ownership</td><td>What is inside you specify and verify; what is outside you agree with someone.</td></tr><tr><td>Every crossing is an interface</td><td>Moving the boundary does not remove work. It moves it between specification and negotiation.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes">
+        <p class="section-label">Common mistakes</p>
+        <h2>What goes wrong</h2>
+        <ul class="check-list"><li><strong>Never naming the system of interest.</strong> Two engineers then use &ldquo;the system&rdquo; for different things for six months.</li><li><strong>Equating the system with the hardware.</strong> Software, people, procedures and facilities are inside it. Most mission failures involve at least one of them.</li><li><strong>Leaving enabling products out of the tree.</strong> The ground station, the test rig and the operations procedure all carry requirements and cost.</li><li><strong>Treating the hierarchy as absolute.</strong> Component and system are positions in one tree, not properties of an object.</li><li><strong>Choosing the boundary to minimise work.</strong> It only moves work from specification to negotiation, and negotiation is slower.</li><li><strong>Drawing the boundary and not listing the crossings.</strong> The line is decoration until each crossing has an owner on both sides.</li></ul>
+      </section>
+
+      <section id="references" class="references">
+        <p class="section-label">Sources</p>
+        <h2>References</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 2.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=introduction-module" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 2: Introduction</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adapted from Unit I of the Aerospace Systems Engineering (AE506) course script by Carlos Alberto Molina Holgu&iacute;n. Every number on this page was recomputed independently for it; no calculator covers this topic, so recomputation is the only check there is.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="index.html?v=11"><span>Course index</span>&larr; All 22 lectures</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+
+      <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Qu&eacute; deber&iacute;as poder hacer</h2>
+        <ul><li>nombrar el sistema de inter&eacute;s de una misi&oacute;n y explicar por qu&eacute; toda otra definici&oacute;n depende de &eacute;l;</li><li>distinguir sistema, subsistema, ensamble y componente, y mostrar que las etiquetas son relativas;</li><li>separar productos finales de habilitadores, y decir qu&eacute; falla cuando se omiten los habilitadores;</li><li>trazar una frontera del sistema, listar lo que la cruza e identificar los sistemas externos;</li><li>redibujar la misma misi&oacute;n con otra frontera y enunciar qu&eacute; requisitos cambian.</li></ul>
+      </section>
+
+      <section id="physics-es">
+        <p class="section-label">Situación de ingeniería</p>
+        <h2>La estaci&oacute;n terrena que nadie coste&oacute;</h2>
+        <p class="lead">Un equipo de estudiantes define su sistema como &laquo;el sat&eacute;lite&raquo;. En la revisi&oacute;n de dise&ntilde;o alguien pregunta qui&eacute;n construye la estaci&oacute;n terrena, y la respuesta es que nadie lo hab&iacute;a pensado. El calendario la absorbe; el presupuesto no.</p><p>No es descuido. Se sigue de una definici&oacute;n hecha la primera semana y nunca escrita. Lo que cuenta como el sistema determina qu&eacute; carga requisitos, qu&eacute; se verifica y qu&eacute; tiene que pagar alguien. Si se equivoca, la omisi&oacute;n aparece en la revisi&oacute;n, que es el lugar m&aacute;s caro para encontrarla.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 820 300" role="img" aria-label="Dos fronteras candidatas dibujadas sobre los mismos elementos">
+            <rect x="30" y="60" width="430" height="172" rx="10" fill="none" stroke="#0d568d" stroke-width="2" stroke-dasharray="7 5"></rect>
+            <text x="40" y="50" font-size="14" font-weight="600" fill="#0d568d">Frontera B: veh&iacute;culo y segmento terreno</text>
+            <rect x="52" y="90" width="240" height="130" rx="8" fill="#eef4fa" stroke="#071d33" stroke-width="2"></rect>
+            <text x="62" y="112" font-size="14" font-weight="600" fill="#071d33">Frontera A: s&oacute;lo el veh&iacute;culo a&eacute;reo</text>
+            <rect x="70" y="128" width="100" height="34" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect><text x="120" y="150" text-anchor="middle" font-size="12" fill="#3f5162">Veh&iacute;culo a&eacute;reo</text>
+            <rect x="186" y="128" width="92" height="34" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect><text x="232" y="150" text-anchor="middle" font-size="12" fill="#3f5162">Carga &uacute;til</text>
+            <rect x="70" y="172" width="100" height="34" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect><text x="120" y="194" text-anchor="middle" font-size="12" fill="#3f5162">EPS / Comm</text>
+            <rect x="186" y="172" width="92" height="34" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect><text x="232" y="194" text-anchor="middle" font-size="12" fill="#3f5162">Avionics</text>
+            <rect x="316" y="128" width="126" height="78" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect><text x="379" y="163" text-anchor="middle" font-size="12" fill="#3f5162">Segmento terreno</text>
+            <text x="379" y="181" text-anchor="middle" font-size="12" fill="#3f5162">+ Operadores</text>
+            <rect x="530" y="72" width="250" height="44" rx="5" fill="#f6f1e6" stroke="#c2ab7d"></rect><text x="655" y="99" text-anchor="middle" font-size="13" fill="#5c4a24">Autoridad a&eacute;rea</text>
+            <line x1="462" y1="94" x2="528" y2="94" stroke="#8fa6ba" stroke-width="2"></line>
+            <rect x="530" y="128" width="250" height="44" rx="5" fill="#f6f1e6" stroke="#c2ab7d"></rect><text x="655" y="155" text-anchor="middle" font-size="13" fill="#5c4a24">Clima</text>
+            <line x1="462" y1="150" x2="528" y2="150" stroke="#8fa6ba" stroke-width="2"></line>
+            <rect x="530" y="184" width="250" height="44" rx="5" fill="#f6f1e6" stroke="#c2ab7d"></rect><text x="655" y="211" text-anchor="middle" font-size="13" fill="#5c4a24">Sitio de lanzamiento y recuperaci&oacute;n</text>
+            <line x1="462" y1="206" x2="528" y2="206" stroke="#8fa6ba" stroke-width="2"></line>
+            <text x="655" y="268" text-anchor="middle" font-size="13" font-style="italic" fill="#5c4a24">sistemas externos</text>
+            </svg>
+            <figcaption>Los mismos elementos, dos fronteras. La frontera A tiene cuatro sistemas externos incluido el segmento terreno; la frontera B absorbe el segmento terreno y tiene tres.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-es">
+        <p class="section-label">Alcance y límites</p>
+        <h2>Un sistema es una elecci&oacute;n, no un hecho</h2>
+        <p>La NASA describe un sistema como la combinaci&oacute;n de elementos &mdash; hardware, software, personas, instalaciones, procesos &mdash; que juntos producen una capacidad que ninguno produce solo. La palabra importante es <em>combinaci&oacute;n</em>: las personas y los procedimientos est&aacute;n dentro, no alrededor. Una misi&oacute;n puede fallar porque un procedimiento estaba mal mientras cada pieza de hardware se comport&oacute; exactamente como se especific&oacute;.</p><p>El <strong>sistema de inter&eacute;s</strong> es la parte de esa combinaci&oacute;n de la que este proyecto es responsable. Todo lo dem&aacute;s es un sistema externo, y la l&iacute;nea entre ambos la traza el equipo, no se descubre.</p>
+        <div class="callout warning"><strong>Lo que esto no resuelve.</strong> No hay frontera correcta, s&oacute;lo una frontera con consecuencias. Trazarla m&aacute;s amplia significa especificar y verificar m&aacute;s por cuenta propia; trazarla m&aacute;s estrecha significa negociar m&aacute;s con alguien. Nunca significa menos trabajo, y una frontera elegida para reducir trabajo es la que produce la sorpresa en la revisi&oacute;n.</div>
+      </section>
+
+      <section id="hierarchy-es">
+        <p class="section-label">Definiciones centrales</p>
+        <h2>Cuatro niveles, todos relativos</h2>
+        <div class="table-wrap"><table><thead><tr><th>Nivel</th><th>Qu&eacute; es</th><th>Ejemplo</th></tr></thead><tbody><tr><td>Sistema</td><td>El todo que entrega la capacidad</td><td>Plataforma de investigaci&oacute;n atmosf&eacute;rica</td></tr><tr><td>Subsistema</td><td>Agrupaci&oacute;n que realiza un conjunto coherente de funciones</td><td>Potencia el&eacute;ctrica</td></tr><tr><td>Ensamble</td><td>Conjunto de partes entregado e integrado como uno</td><td>M&oacute;dulo de bater&iacute;a</td></tr><tr><td>Componente</td><td>El elemento m&aacute;s bajo que el proyecto gestiona</td><td>Celda individual</td></tr></tbody></table></div>
+        <p>Las etiquetas describen una posici&oacute;n en el &aacute;rbol de un proyecto, no una propiedad del objeto. Un m&oacute;dulo de bater&iacute;a es componente para el equipo de la plataforma y sistema de inter&eacute;s para la empresa que lo fabrica, con sus propios subsistemas y proveedores. Ambos equipos tienen raz&oacute;n, y lo &uacute;nico que los mantiene consistentes es que cada uno nombre su sistema de inter&eacute;s en voz alta.</p>
+      </section>
+
+      <section id="products-es">
+        <p class="section-label">Una distinci&oacute;n con presupuesto</p>
+        <h2>Productos finales y habilitadores</h2>
+        <div class="table-wrap"><table><thead><tr><th></th><th>Productos finales</th><th>Productos habilitadores</th></tr></thead><tbody><tr><td>Prop&oacute;sito</td><td>Entregar la capacidad de la misi&oacute;n</td><td>Hacer posibles los productos finales</td></tr><tr><td>Ejemplos</td><td>Veh&iacute;culo a&eacute;reo, carga &uacute;til, software de vuelo</td><td>Estaci&oacute;n terrena, bancos de prueba, simuladores, procedimientos</td></tr><tr><td>Error com&uacute;n</td><td>&mdash;</td><td>Se omiten del &aacute;rbol de productos, as&iacute; que no cargan requisitos ni presupuesto</td></tr></tbody></table></div>
+        <p>Los productos habilitadores nunca vuelan, y por eso mismo se quedan fuera. Pero una estaci&oacute;n terrena tiene requisitos, un banco de prueba tiene interfaces y un procedimiento de operaci&oacute;n hay que verificarlo como cualquier otra cosa. Si no aparece en el &aacute;rbol de productos, nadie lo posee, nadie lo presupuesta y llega como un descubrimiento.</p>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Algoritmo de cálculo</p>
+        <h2>Trazar una frontera</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Nombrar la capacidad</span></div><div><strong>2</strong><span>Listar todo elemento que la produce</span></div><div><strong>3</strong><span>Decidir qu&eacute; construyes o controlas</span></div><div><strong>4</strong><span>Trazar la l&iacute;nea</span></div><div><strong>5</strong><span>Listar cada cruce</span></div><div><strong>6</strong><span>Nombrar el sistema externo del otro lado</span></div></div>
+        <p>El paso cinco es el que rinde. Cada cruce que listas se vuelve una interfaz con un due&ntilde;o de cada lado; cada cruce que no listas se vuelve un problema de integraci&oacute;n. Contarlos es tambi&eacute;n la primera estimaci&oacute;n honesta de cu&aacute;nta coordinaci&oacute;n necesita el proyecto.</p>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>Dos fronteras para una plataforma</h2>
+        <p>La plataforma de investigaci&oacute;n atmosf&eacute;rica debe inspeccionar una regi&oacute;n durante treinta d&iacute;as y entregar sus datos a un archivo cient&iacute;fico. Los mismos ocho elementos pueden quedar dentro de dos fronteras distintas.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Frontera A &mdash; s&oacute;lo el veh&iacute;culo a&eacute;reo.</strong> Dentro: fuselaje, avi&oacute;nica, potencia, comunicaciones, sensores, unidad de datos. Fuera: estaci&oacute;n terrena, software de operaciones, operadores, autoridad a&eacute;rea, clima, sitio de lanzamiento. Cuatro sistemas externos intercambian algo con el veh&iacute;culo, y el requisito de entrega de datos se vuelve un acuerdo con un segmento terreno que el proyecto no controla.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Frontera B &mdash; veh&iacute;culo y segmento terreno.</strong> La estaci&oacute;n terrena y el software de operaciones entran, as&iacute; que el &aacute;rbol de productos gana dos hojas y el total es ocho. Quedan tres sistemas externos. El requisito de entrega de datos ahora es interno, y el proyecto puede verificarlo de extremo a extremo.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Qu&eacute; cambi&oacute;.</strong> El hardware no &mdash; las mismas ocho cosas se construyen de cualquier forma. Lo que se movi&oacute; es el requisito de 90&nbsp;% de disponibilidad de datos: bajo A es una interfaz negociada, bajo B es un requisito de sistema del que el equipo responde.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Cu&aacute;l elegir.</strong> B, si la misi&oacute;n depende de que los datos lleguen realmente al archivo. A, s&oacute;lo si ya existe un segmento terreno con un contrato detr&aacute;s. Elegir A porque se ve m&aacute;s peque&ntilde;a es el error con el que abri&oacute; esta lecture.</div></div>
+        <div class="result-box">\[ \boxed{ \text{Frontera A: 4 sistemas externos}\quad|\quad \text{Frontera B: 3 sistemas externos, 8 hojas en el árbol} } \]</div>
+      </section>
+
+      <section id="summary-es">
+        <p class="section-label">Reglas operativas</p>
+        <h2>De un vistazo</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regla</th><th>Enunciado</th></tr></thead><tbody><tr><td>Sistema de inter&eacute;s</td><td>N&oacute;mbralo antes que nada. Toda otra definici&oacute;n del proyecto es relativa a &eacute;l.</td></tr><tr><td>La jerarqu&iacute;a es relativa</td><td>Una bater&iacute;a es componente para la plataforma y sistema para su proveedor. Ambas son correctas.</td></tr><tr><td>Los habilitadores cuentan</td><td>Si hay que construirlo, probarlo o escribirlo para que la misi&oacute;n funcione, va en el &aacute;rbol.</td></tr><tr><td>La frontera fija la propiedad</td><td>Lo de adentro se especifica y verifica; lo de afuera se acuerda con alguien.</td></tr><tr><td>Todo cruce es una interfaz</td><td>Mover la frontera no elimina trabajo. Lo mueve entre especificaci&oacute;n y negociaci&oacute;n.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-es">
+        <p class="section-label">Errores comunes</p>
+        <h2>Qu&eacute; sale mal</h2>
+        <ul class="check-list"><li><strong>Nunca nombrar el sistema de inter&eacute;s.</strong> Dos ingenieros usan entonces &laquo;el sistema&raquo; para cosas distintas durante seis meses.</li><li><strong>Igualar el sistema al hardware.</strong> Software, personas, procedimientos e instalaciones est&aacute;n dentro. La mayor&iacute;a de las fallas de misi&oacute;n involucran al menos uno.</li><li><strong>Dejar los habilitadores fuera del &aacute;rbol.</strong> La estaci&oacute;n terrena, el banco de prueba y el procedimiento de operaci&oacute;n cargan requisitos y costo.</li><li><strong>Tratar la jerarqu&iacute;a como absoluta.</strong> Componente y sistema son posiciones en un &aacute;rbol, no propiedades de un objeto.</li><li><strong>Elegir la frontera para minimizar trabajo.</strong> S&oacute;lo mueve trabajo de especificaci&oacute;n a negociaci&oacute;n, y negociar es m&aacute;s lento.</li><li><strong>Trazar la frontera y no listar los cruces.</strong> La l&iacute;nea es decoraci&oacute;n hasta que cada cruce tiene due&ntilde;o de ambos lados.</li></ul>
+      </section>
+
+      <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
+        <h2>Referencias</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 2.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=introduction-module" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 2: Introduction</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adaptado de la Unidad I del gui&oacute;n del curso Ingenier&iacute;a en Sistemas Aeroespaciales (AE506) de Carlos Alberto Molina Holgu&iacute;n. Cada n&uacute;mero de esta p&aacute;gina se recalcul&oacute; de forma independiente para ella; ninguna calculadora cubre este tema, as&iacute; que el rec&aacute;lculo es la &uacute;nica comprobaci&oacute;n disponible.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="index.html?v=11"><span>Índice del curso</span>&larr; Las 22 lectures</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+
+      <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie k&ouml;nnen sollten</h2>
+        <ul><li>das betrachtete System einer Mission benennen und erkl&auml;ren, warum jede andere Definition davon abh&auml;ngt;</li><li>System, Teilsystem, Baugruppe und Komponente unterscheiden und zeigen, dass die Bezeichnungen relativ sind;</li><li>Endprodukte von Hilfsprodukten trennen und sagen, was beim Weglassen der Hilfsprodukte schiefgeht;</li><li>eine Systemgrenze ziehen, die &Uuml;berschreitungen auflisten und die externen Systeme benennen;</li><li>dieselbe Mission mit anderer Grenze zeichnen und angeben, welche Anforderungen sich &auml;ndern.</li></ul>
+      </section>
+
+      <section id="physics-de">
+        <p class="section-label">Ingenieurtechnischer Kontext</p>
+        <h2>Die Bodenstation, die niemand kalkuliert hat</h2>
+        <p class="lead">Ein Studierendenteam definiert sein System als &bdquo;den Satelliten&ldquo;. Beim Entwurfsreview fragt jemand, wer die Bodenstation baut, und die Antwort ist: Daran hatte niemand gedacht. Der Terminplan f&auml;ngt es auf, das Budget nicht.</p><p>Das ist keine Nachl&auml;ssigkeit. Es folgt aus einer Definition, die in der ersten Woche getroffen und nie festgehalten wurde. Was als System gilt, bestimmt, was Anforderungen tr&auml;gt, was verifiziert wird und wof&uuml;r jemand zahlen muss. Ist sie falsch, taucht das Fehlende beim Review auf &mdash; am teuersten Ort daf&uuml;r.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 820 300" role="img" aria-label="Zwei mögliche Systemgrenzen über denselben Elementen">
+            <rect x="30" y="60" width="430" height="172" rx="10" fill="none" stroke="#0d568d" stroke-width="2" stroke-dasharray="7 5"></rect>
+            <text x="40" y="50" font-size="14" font-weight="600" fill="#0d568d">Grenze B: Fluggerät und Bodensegment</text>
+            <rect x="52" y="90" width="240" height="130" rx="8" fill="#eef4fa" stroke="#071d33" stroke-width="2"></rect>
+            <text x="62" y="112" font-size="14" font-weight="600" fill="#071d33">Grenze A: nur das Fluggerät</text>
+            <rect x="70" y="128" width="100" height="34" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect><text x="120" y="150" text-anchor="middle" font-size="12" fill="#3f5162">Fluggerät</text>
+            <rect x="186" y="128" width="92" height="34" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect><text x="232" y="150" text-anchor="middle" font-size="12" fill="#3f5162">Nutzlast</text>
+            <rect x="70" y="172" width="100" height="34" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect><text x="120" y="194" text-anchor="middle" font-size="12" fill="#3f5162">EPS / Comm</text>
+            <rect x="186" y="172" width="92" height="34" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect><text x="232" y="194" text-anchor="middle" font-size="12" fill="#3f5162">Avionics</text>
+            <rect x="316" y="128" width="126" height="78" rx="5" fill="#ffffff" stroke="#8fa6ba"></rect><text x="379" y="163" text-anchor="middle" font-size="12" fill="#3f5162">Bodensegment</text>
+            <text x="379" y="181" text-anchor="middle" font-size="12" fill="#3f5162">+ Bediener</text>
+            <rect x="530" y="72" width="250" height="44" rx="5" fill="#f6f1e6" stroke="#c2ab7d"></rect><text x="655" y="99" text-anchor="middle" font-size="13" fill="#5c4a24">Luftfahrtbehörde</text>
+            <line x1="462" y1="94" x2="528" y2="94" stroke="#8fa6ba" stroke-width="2"></line>
+            <rect x="530" y="128" width="250" height="44" rx="5" fill="#f6f1e6" stroke="#c2ab7d"></rect><text x="655" y="155" text-anchor="middle" font-size="13" fill="#5c4a24">Wetter</text>
+            <line x1="462" y1="150" x2="528" y2="150" stroke="#8fa6ba" stroke-width="2"></line>
+            <rect x="530" y="184" width="250" height="44" rx="5" fill="#f6f1e6" stroke="#c2ab7d"></rect><text x="655" y="211" text-anchor="middle" font-size="13" fill="#5c4a24">Start- und Bergungsplatz</text>
+            <line x1="462" y1="206" x2="528" y2="206" stroke="#8fa6ba" stroke-width="2"></line>
+            <text x="655" y="268" text-anchor="middle" font-size="13" font-style="italic" fill="#5c4a24">externe Systeme</text>
+            </svg>
+            <figcaption>Dieselben Elemente, zwei Grenzen. Grenze A hat vier externe Systeme einschlie&szlig;lich des Bodensegments; Grenze B nimmt das Bodensegment auf und hat drei.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-de">
+        <p class="section-label">Geltungsbereich und Grenzen</p>
+        <h2>Ein System ist eine Wahl, keine Tatsache</h2>
+        <p>Die NASA beschreibt ein System als die Kombination von Elementen &mdash; Hardware, Software, Menschen, Anlagen, Prozesse &mdash;, die zusammen eine F&auml;higkeit erzeugen, die kein Element allein erzeugt. Das wichtige Wort ist <em>Kombination</em>: Menschen und Verfahren geh&ouml;ren hinein, nicht daneben. Eine Mission kann scheitern, weil ein Verfahren falsch war, w&auml;hrend jedes Hardwareteil genau wie spezifiziert arbeitete.</p><p>Das <strong>betrachtete System</strong> ist der Teil dieser Kombination, f&uuml;r den dieses Projekt verantwortlich ist. Alles &Uuml;brige ist ein externes System, und die Linie dazwischen zieht das Team; sie wird nicht entdeckt.</p>
+        <div class="callout warning"><strong>Was damit nicht entschieden ist.</strong> Es gibt keine richtige Grenze, nur eine Grenze mit Folgen. Weiter gezogen hei&szlig;t mehr selbst spezifizieren und verifizieren; enger gezogen hei&szlig;t mehr mit anderen verhandeln. Weniger Arbeit hei&szlig;t es nie, und eine zur Arbeitsersparnis gew&auml;hlte Grenze ist die, die beim Review die &Uuml;berraschung liefert.</div>
+      </section>
+
+      <section id="hierarchy-de">
+        <p class="section-label">Zentrale Definitionen</p>
+        <h2>Vier Ebenen, alle relativ</h2>
+        <div class="table-wrap"><table><thead><tr><th>Ebene</th><th>Was es ist</th><th>Beispiel</th></tr></thead><tbody><tr><td>System</td><td>Das Ganze, das die F&auml;higkeit liefert</td><td>Atmosph&auml;rische Forschungsplattform</td></tr><tr><td>Teilsystem</td><td>Gruppierung mit zusammenh&auml;ngenden Funktionen</td><td>Elektrische Energieversorgung</td></tr><tr><td>Baugruppe</td><td>Teile, die als eine Einheit geliefert werden</td><td>Batteriemodul</td></tr><tr><td>Komponente</td><td>Das unterste vom Projekt verwaltete Element</td><td>Einzelne Zelle</td></tr></tbody></table></div>
+        <p>Die Bezeichnungen beschreiben eine Position im Baum eines Projekts, keine Eigenschaft des Objekts. Ein Batteriemodul ist Komponente f&uuml;r das Plattformteam und betrachtetes System f&uuml;r die herstellende Firma, mit eigenen Teilsystemen und Lieferanten. Beide haben recht, und konsistent bleiben sie nur, wenn jedes sein betrachtetes System ausdr&uuml;cklich benennt.</p>
+      </section>
+
+      <section id="products-de">
+        <p class="section-label">Eine Unterscheidung mit Budget</p>
+        <h2>End- und Hilfsprodukte</h2>
+        <div class="table-wrap"><table><thead><tr><th></th><th>Endprodukte</th><th>Hilfsprodukte</th></tr></thead><tbody><tr><td>Zweck</td><td>Die Missionsf&auml;higkeit liefern</td><td>Die Endprodukte erm&ouml;glichen</td></tr><tr><td>Beispiele</td><td>Fluggerät, Nutzlast, Flugsoftware</td><td>Bodenstation, Pr&uuml;fst&auml;nde, Simulatoren, Verfahren</td></tr><tr><td>H&auml;ufiger Fehler</td><td>&mdash;</td><td>Fehlen im Produktbaum und tragen daher weder Anforderungen noch Budget</td></tr></tbody></table></div>
+        <p>Hilfsprodukte fliegen nie, und genau deshalb fallen sie heraus. Doch eine Bodenstation hat Anforderungen, ein Pr&uuml;fstand hat Schnittstellen, und ein Betriebsverfahren muss wie alles andere verifiziert werden. Steht es nicht im Produktbaum, geh&ouml;rt es niemandem, wird nicht budgetiert und trifft als Entdeckung ein.</p>
+      </section>
+
+      <section id="algorithm-de">
+        <p class="section-label">Rechenalgorithmus</p>
+        <h2>Eine Grenze ziehen</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Die F&auml;higkeit benennen</span></div><div><strong>2</strong><span>Alle erzeugenden Elemente auflisten</span></div><div><strong>3</strong><span>Entscheiden, was Sie bauen oder steuern</span></div><div><strong>4</strong><span>Die Linie ziehen</span></div><div><strong>5</strong><span>Jede &Uuml;berschreitung auflisten</span></div><div><strong>6</strong><span>Das externe System benennen</span></div></div>
+        <p>Schritt f&uuml;nf zahlt sich aus. Jede aufgelistete &Uuml;berschreitung wird zu einer Schnittstelle mit Verantwortlichen auf beiden Seiten; jede nicht aufgelistete wird zum Integrationsproblem. Sie zu z&auml;hlen ist zugleich die erste ehrliche Sch&auml;tzung des Koordinationsaufwands.</p>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Zwei Grenzen f&uuml;r eine Plattform</h2>
+        <p>Die atmosph&auml;rische Forschungsplattform soll eine Region drei&szlig;ig Tage lang vermessen und ihre Daten an ein wissenschaftliches Archiv liefern. Dieselben acht Elemente k&ouml;nnen in zwei verschiedenen Grenzen liegen.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Grenze A &mdash; nur das Fluggerät.</strong> Innen: Zelle, Avionik, Energie, Kommunikation, Sensorik, Dateneinheit. Au&szlig;en: Bodenstation, Betriebssoftware, Bediener, Luftfahrtbeh&ouml;rde, Wetter, Startplatz. Vier externe Systeme tauschen etwas mit dem Fluggerät aus, und die Anforderung zur Datenlieferung wird zur Vereinbarung mit einem Bodensegment, das das Projekt nicht steuert.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Grenze B &mdash; Fluggerät und Bodensegment.</strong> Bodenstation und Betriebssoftware wandern hinein, der Produktbaum gewinnt zwei Bl&auml;tter, insgesamt acht. Drei externe Systeme bleiben. Die Anforderung zur Datenlieferung ist nun intern und durchg&auml;ngig verifizierbar.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Was sich &auml;nderte.</strong> Nicht die Hardware &mdash; dieselben acht Dinge werden so oder so gebaut. Verschoben hat sich die Anforderung von 90&nbsp;% Datenverf&uuml;gbarkeit: unter A eine verhandelte Schnittstelle, unter B eine Systemanforderung in der Verantwortung des Teams.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Welche w&auml;hlen.</strong> B, wenn die Mission davon abh&auml;ngt, dass die Daten das Archiv wirklich erreichen. A nur, wenn ein Bodensegment mit Vertrag bereits existiert. A zu w&auml;hlen, weil es kleiner aussieht, ist der Fehler vom Anfang dieser Vorlesung.</div></div>
+        <div class="result-box">\[ \boxed{ \text{Grenze A: 4 externe Systeme}\quad|\quad \text{Grenze B: 3 externe Systeme, 8 Blätter im Produktbaum} } \]</div>
+      </section>
+
+      <section id="summary-de">
+        <p class="section-label">Arbeitsregeln</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regel</th><th>Aussage</th></tr></thead><tbody><tr><td>Betrachtetes System</td><td>Zuerst benennen. Jede andere Definition im Projekt ist darauf bezogen.</td></tr><tr><td>Hierarchie ist relativ</td><td>Eine Batterie ist Komponente f&uuml;r die Plattform und System f&uuml;r ihren Lieferanten. Beides stimmt.</td></tr><tr><td>Hilfsprodukte z&auml;hlen</td><td>Was gebaut, gepr&uuml;ft oder geschrieben werden muss, geh&ouml;rt in den Baum.</td></tr><tr><td>Die Grenze regelt die Zust&auml;ndigkeit</td><td>Innen wird spezifiziert und verifiziert; au&szlig;en wird vereinbart.</td></tr><tr><td>Jede &Uuml;berschreitung ist eine Schnittstelle</td><td>Das Verschieben der Grenze beseitigt keine Arbeit. Es verlagert sie.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Häufige Fehler</p>
+        <h2>Was schiefgeht</h2>
+        <ul class="check-list"><li><strong>Das betrachtete System nie benennen.</strong> Zwei Ingenieure meinen dann sechs Monate lang Verschiedenes mit &bdquo;dem System&ldquo;.</li><li><strong>Das System mit der Hardware gleichsetzen.</strong> Software, Menschen, Verfahren und Anlagen geh&ouml;ren hinein. Die meisten Missionsausf&auml;lle betreffen mindestens eines davon.</li><li><strong>Hilfsprodukte aus dem Baum lassen.</strong> Bodenstation, Pr&uuml;fstand und Betriebsverfahren tragen Anforderungen und Kosten.</li><li><strong>Die Hierarchie als absolut behandeln.</strong> Komponente und System sind Positionen in einem Baum, keine Objekteigenschaften.</li><li><strong>Die Grenze zur Arbeitsminimierung w&auml;hlen.</strong> Sie verlagert Arbeit nur von der Spezifikation zur Verhandlung, und Verhandeln ist langsamer.</li><li><strong>Die Grenze ziehen, ohne die &Uuml;berschreitungen aufzulisten.</strong> Die Linie ist Dekoration, bis jede &Uuml;berschreitung beidseitig Verantwortliche hat.</li></ul>
+      </section>
+
+      <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
+        <h2>Literatur</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 2.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=introduction-module" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 2: Introduction</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Bearbeitet nach Einheit I des Skripts Luft- und Raumfahrtsystemtechnik (AE506) von Carlos Alberto Molina Holgu&iacute;n. Jede Zahl dieser Seite wurde eigens daf&uuml;r unabh&auml;ngig neu berechnet; kein Rechner deckt dieses Thema ab, daher ist die Neuberechnung die einzige Pr&uuml;fung.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="index.html?v=11"><span>Kursübersicht</span>&larr; Alle 22 Vorlesungen</a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>&copy; <span id="year"></span> Carlos Alberto Molina Holgu&iacute;n</p>
+    <p>Universidad Aut&oacute;noma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

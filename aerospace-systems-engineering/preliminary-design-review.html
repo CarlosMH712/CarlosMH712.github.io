@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="The preliminary design review in depth: what it must demonstrate, the data package, judging margins against phase expectations, and writing review actions that close on evidence." />
+  <meta name="author" content="Carlos Alberto Molina Holgu&iacute;n" />
+  <meta name="theme-color" content="#071d33" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>The Preliminary Design Review | Aerospace Systems Engineering</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:wght@600;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=11" data-ui-key="course">Aerospace Systems Engineering</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Aerospace Systems Engineering &middot; Lecture 17</p>
+        <h1>The Preliminary Design Review in Depth</h1>
+        <p class="hero-copy">What a board is actually deciding, how to tell an action from a blocker, and why the healthiest-looking status item can be the one that stops the project.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Ingeniería de Sistemas Aeroespaciales &middot; Lecture 17</p>
+        <h1>La revisi&oacute;n preliminar de dise&ntilde;o a fondo</h1>
+        <p class="hero-copy">Qu&eacute; est&aacute; decidiendo realmente un comit&eacute;, c&oacute;mo distinguir una acci&oacute;n de un bloqueo, y por qu&eacute; el elemento de estatus que mejor se ve puede ser el que detiene el proyecto.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Luft- und Raumfahrtsystemtechnik &middot; Vorlesung 17</p>
+        <h1>Die vorl&auml;ufige Entwurfspr&uuml;fung im Detail</h1>
+        <p class="hero-copy">Was ein Gremium wirklich entscheidet, wie man Ma&szlig;nahme von Hindernis unterscheidet, und warum der gesundest wirkende Statusposten das Projekt stoppen kann.</p>
+      </div>
+
+    <div class="hero-meta">
+        <span data-language="en">Estimated reading: 13 min</span><span data-language="es" hidden>Lectura estimada: 13 min</span><span data-language="de" hidden>Lesedauer: ca. 13 min</span>
+        <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+        <span data-language="en">Scope: one review, one decision</span><span data-language="es" hidden>Alcance: una revisi&oacute;n, una decisi&oacute;n</span><span data-language="de" hidden>Umfang: ein Review, eine Entscheidung</span>
+    </div>
+    <div class="button-row">
+      <a class="button secondary" href="index.html?v=11" data-ui-key="back">Back to course</a>
+      <a class="button primary" href="risk-matrix.html?v=11"><span data-ui-key="next">Next lecture</span> &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Engineering situation</a>
+        <a href="#model">Scope and limits</a>
+        <a href="#package">What it must demonstrate</a>
+        <a href="#actions">Findings and actions</a>
+        <a href="#algorithm">Reaching a recommendation</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Operative rules</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#references">Sources</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Situaci&oacute;n de ingenier&iacute;a</a>
+        <a href="#model-es">Alcance y l&iacute;mites</a>
+        <a href="#package-es">Qu&eacute; debe demostrar</a>
+        <a href="#actions-es">Hallazgos y acciones</a>
+        <a href="#algorithm-es">Llegar a una recomendaci&oacute;n</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Reglas operativas</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Kontext</a>
+        <a href="#model-de">Geltungsbereich</a>
+        <a href="#package-de">Was nachzuweisen ist</a>
+        <a href="#actions-de">Befunde und Ma&szlig;nahmen</a>
+        <a href="#algorithm-de">Zu einer Empfehlung kommen</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Arbeitsregeln</a>
+        <a href="#mistakes-de">H&auml;ufige Fehler</a>
+        <a href="#references-de">Quellen</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+
+      <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul><li>state the single question a preliminary design review decides;</li><li>list what the data package must demonstrate and which product shows each thing;</li><li>judge a technical margin against the expectation for the phase rather than against zero;</li><li>distinguish a status item that is an action from one that is a blocker;</li><li>write a review action that names the discrepancy, the closure evidence, an owner and a date.</li></ul>
+      </section>
+
+      <section id="physics">
+        <p class="section-label">Engineering situation</p>
+        <h2>Everything is green except one number</h2>
+        <p class="lead">The status chart at the review is almost entirely encouraging. Requirements are 95&nbsp;% complete, the architecture is selected, mass margin is 18&nbsp;%, two high risks have funded mitigation plans. One line reads: power margin 3&nbsp;%.</p><p>Nobody flags it, because 3&nbsp;% is a positive number and every other line is better. But 3&nbsp;% is what a project is expected to have <em>at delivery</em>, and this one is two phases away from that. The board is looking at a power budget that has already spent everything it had, with the detailed design still to come.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 360" role="img" aria-label="Mass and power margin against the band expected at a preliminary design review">
+            <rect x="120" y="120.0" width="560" height="40.0" fill="#e8f1e9" stroke="none"></rect>
+            <text x="128" y="138.0" font-size="12" fill="#5c7a63">expected at PDR</text>
+            <rect x="120" y="40" width="560" height="240" fill="none" stroke="#c9d4de"></rect>
+            <line x1="120" y1="280.0" x2="680" y2="280.0" stroke="#eef2f5"></line>
+            <text x="112" y="284.0" text-anchor="end" font-size="12" fill="#8fa6ba">0</text>
+            <line x1="120" y1="240.0" x2="680" y2="240.0" stroke="#eef2f5"></line>
+            <text x="112" y="244.0" text-anchor="end" font-size="12" fill="#8fa6ba">5</text>
+            <line x1="120" y1="200.0" x2="680" y2="200.0" stroke="#eef2f5"></line>
+            <text x="112" y="204.0" text-anchor="end" font-size="12" fill="#8fa6ba">10</text>
+            <line x1="120" y1="160.0" x2="680" y2="160.0" stroke="#eef2f5"></line>
+            <text x="112" y="164.0" text-anchor="end" font-size="12" fill="#8fa6ba">15</text>
+            <line x1="120" y1="120.0" x2="680" y2="120.0" stroke="#eef2f5"></line>
+            <text x="112" y="124.0" text-anchor="end" font-size="12" fill="#8fa6ba">20</text>
+            <line x1="120" y1="80.0" x2="680" y2="80.0" stroke="#eef2f5"></line>
+            <text x="112" y="84.0" text-anchor="end" font-size="12" fill="#8fa6ba">25</text>
+            <line x1="120" y1="40.0" x2="680" y2="40.0" stroke="#eef2f5"></line>
+            <text x="112" y="44.0" text-anchor="end" font-size="12" fill="#8fa6ba">30</text>
+            <rect x="250" y="136.0" width="120" height="144.0" fill="#0d568d"></rect>
+            <text x="310" y="126.0" text-anchor="middle" font-size="14" font-weight="700" fill="#0d568d">mass 18 %</text>
+            <rect x="490" y="256.0" width="120" height="24.0" fill="#b03a2e"></rect>
+            <text x="550" y="246.0" text-anchor="middle" font-size="14" font-weight="700" fill="#b03a2e">power 3 %</text>
+            <line x1="120" y1="248.0" x2="680" y2="248.0" stroke="#c2924d" stroke-width="2" stroke-dasharray="6 4"></line>
+            <text x="530" y="242.0" font-size="12" fill="#c2924d">delivery expectation</text>
+            <text x="14" y="28" font-size="14" font-weight="600" fill="#071d33">Margin [%]</text>
+            <text x="400" y="330" text-anchor="middle" font-size="13" font-style="italic" fill="#b03a2e">The power budget is at its delivery value two phases early</text>
+            </svg>
+            <figcaption>Two margins, one problem. Mass sits inside the band a preliminary design review expects; power sits at the value normally reached at delivery, two phases early.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model">
+        <p class="section-label">Scope and limits</p>
+        <h2>The one question</h2>
+        <p>A preliminary design review decides one thing: <em>is the preliminary design credible, internally consistent, and mature enough to justify proceeding toward detailed design?</em> Everything in the data package exists to answer that, and evidence that does not bear on it &mdash; component detail, schedule recovery plans, a polished narrative &mdash; is not helping.</p><p>The word doing the work is <strong>enough</strong>. The board is not asking whether the design is finished or whether every question has been answered; it is asking whether the questions that remain are small enough, bounded enough and owned well enough that the next level of commitment is responsible.</p>
+        <div class="callout warning"><strong>What passing a PDR does not mean.</strong> It does not mean the design will work, that the requirements are the right ones, or that the estimates are correct. It means the evidence available today supports proceeding. Treating the approval as a verdict on the design is how a project stops looking for problems immediately after the review that was supposed to surface them.</div>
+      </section>
+
+      <section id="package">
+        <p class="section-label">Five things and their evidence</p>
+        <h2>What the data package must show</h2>
+        <div class="table-wrap"><table><thead><tr><th>A PDR must demonstrate</th><th>Evidence that shows it</th></tr></thead><tbody><tr><td>The requirements are complete, consistent and traceable</td><td>Requirements baseline with the RTM audits clean</td></tr><tr><td>The architecture can meet them</td><td>Functional allocation, budgets with margin, interface definitions</td></tr><tr><td>The architecture was chosen, not assumed</td><td>Trade study record with sensitivity and the rejected alternatives</td></tr><tr><td>The remaining uncertainty is bounded and owned</td><td>Risk register with owners, triggers and residual positions</td></tr><tr><td>The design can eventually be verified</td><td>Preliminary verification approach naming a method per requirement</td></tr></tbody></table></div>
+        <p>Notice that every row is a product built in an earlier lecture of this course: the requirements baseline and its audits, the functional allocation and the budgets, the trade record with its sensitivity, the risk register with residual positions, and the verification approach. A PDR package is not new work; it is the accumulated output of Units II to VI arranged to answer one question.</p>
+      </section>
+
+      <section id="actions">
+        <p class="section-label">What a finding becomes</p>
+        <h2>Requests for action</h2>
+        <div class="table-wrap"><table><thead><tr><th>A useful action states</th><th>A useless one says</th></tr></thead><tbody><tr><td>The technical discrepancy, in one sentence</td><td>&ldquo;Review the power budget&rdquo;</td></tr><tr><td>What evidence will close it</td><td>&ldquo;Address the concern&rdquo;</td></tr><tr><td>A named owner with the authority to act</td><td>&ldquo;The team&rdquo;</td></tr><tr><td>A date tied to a project milestone</td><td>&ldquo;As soon as possible&rdquo;</td></tr></tbody></table></div>
+        <p>The right-hand column is not a caricature. Actions written like that are the normal output of a review that ran out of time, and they are unclosable: nobody can demonstrate that a concern has been addressed. The closure rule follows directly &mdash; an action closes on evidence that the discrepancy is resolved, never on the fact that a document was updated.</p>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">Calculation algorithm</p>
+        <h2>Reaching a recommendation</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Take each status item in turn</span></div><div><strong>2</strong><span>Compare it to the expectation for this phase</span></div><div><strong>3</strong><span>Classify: acceptable, action, or blocker</span></div><div><strong>4</strong><span>For each action, write evidence, owner and date</span></div><div><strong>5</strong><span>Ask whether any blocker remains</span></div><div><strong>6</strong><span>Recommend proceed, proceed with actions, or do not proceed</span></div></div>
+        <p>Step two is where most boards go wrong, and it is a comparison rather than a judgement. A margin is not good or bad in itself; it is good or bad for the phase the project is in, and the expectations of Lecture 03 are what turn a number into a finding.</p>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>Seven status items and one recommendation</h2>
+        <p>The platform arrives at its preliminary design review with the status below. The phase expectations come from Lecture 03: 15 to 20&nbsp;% margin at PDR, 3 to 5&nbsp;% at delivery.</p>
+        <div class="table-wrap"><table><thead><tr><th>Status item</th><th>Expectation at PDR</th><th>Judgement</th></tr></thead><tbody><tr><td>Requirements 95 % complete</td><td>Baselined, with TBRs owned and dated</td><td>Acceptable; the open 5 % must be listed with owners</td></tr><tr><td>Architecture selected</td><td>Selected with a documented trade</td><td>Acceptable if the trade record and sensitivity are in the package</td></tr><tr><td>Mass margin 18 %</td><td>15 to 20 %</td><td>Acceptable, at the middle of the band</td></tr><tr><td>Power margin 3 %</td><td>15 to 20 %</td><td><strong>Disqualifying.</strong> This is the delivery value, reached two phases early</td></tr><tr><td>One external interface undefined</td><td>All external interfaces defined or under an agreed schedule</td><td>Action, not a blocker, if the counterpart and a date are named</td></tr><tr><td>Two high risks with funded mitigation</td><td>High risks permitted if owned, funded and triggered</td><td>Acceptable, and healthier than a register with no high risks at this phase</td></tr><tr><td>Verification incomplete for four safety-critical requirements</td><td>A method named for every requirement, safety-critical ones first</td><td>Action with a hard date; a safety-critical requirement with no method may not be verifiable</td></tr></tbody></table></div>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Mass.</strong> 18&nbsp;% sits inside the 15 to 20&nbsp;% band. Acceptable, and worth saying so explicitly so the board does not spend time on it.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Power.</strong> 3&nbsp;% against a floor of 15&nbsp;% is a shortfall of \[15 - 3 = 12\] percentage points, and it happens to be exactly the value expected at delivery. The budget has nothing left to absorb the growth that detailed design always produces.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>The other five.</strong> Requirements at 95&nbsp;%, a selected architecture, one undefined interface and two funded high risks are all normal at this phase. The incomplete verification for four safety-critical requirements is an action with a hard date, because a safety-critical requirement whose method cannot be named may turn out to be unverifiable.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>The recommendation.</strong> Proceed with actions is not available here. One item is a blocker: the power margin is not a number to improve during detailed design, it is evidence that the architecture as baselined does not have room for detailed design. The recommendation is <em>do not proceed</em>, with a re-review once the power architecture is reopened.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Why the two high risks are not the problem.</strong> They are owned, funded and triggered, which is what a PDR expects. A register with no high risks at this phase would be the more worrying package, because it usually means the risks have not been found rather than that they do not exist.</div></div>
+        <div class="result-box">\[ \boxed{ \text{mass } 18\,\% \in [15,20] \;\checkmark \qquad \text{power } 3\,\% \;\Rightarrow\; 12\ \text{points short} \;\Rightarrow\; \text{do not proceed} } \]</div>
+        <p><strong>Interpretation.</strong> Six of seven items were acceptable or actionable, and the project still should not proceed. That is the shape of most honest review recommendations: not a general judgement of quality, but one specific item measured against one specific expectation. It is also why a status chart of colours is worse than useless &mdash; 3&nbsp;% and 18&nbsp;% would both have been green.</p>
+      </section>
+
+      <section id="summary">
+        <p class="section-label">Operative rules</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Statement</th></tr></thead><tbody><tr><td>PDR asks one question</td><td>Is the preliminary design credible, consistent and mature enough to proceed to detailed design?</td></tr><tr><td>Judge margins against the phase</td><td>18 % mass at PDR is healthy; 3 % power at PDR is the delivery value two phases early.</td></tr><tr><td>Open risks are expected</td><td>A register with no high risks at PDR usually means they have not been found yet.</td></tr><tr><td>Distinguish an action from a blocker</td><td>An undefined interface with a named counterpart and a date is an action; a collapsed margin is not.</td></tr><tr><td>Every action names evidence, an owner and a date</td><td>Without all three it will be closed by editing a document.</td></tr><tr><td>Maturity is not the absence of uncertainty</td><td>It is uncertainty that is visible, bounded, owned and scheduled.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes">
+        <p class="section-label">Common mistakes</p>
+        <h2>What goes wrong</h2>
+        <ul class="check-list"><li><strong>Judging a margin against zero.</strong> 3&nbsp;% is positive and it is a failure at PDR, because the comparison is with the phase expectation.</li><li><strong>Reading a colour instead of a number.</strong> A green status chart hides the twelve-point gap that decides the recommendation.</li><li><strong>Treating open high risks as a defect.</strong> A register with none at PDR usually means they have not been found.</li><li><strong>Bringing detailed design to a preliminary review.</strong> Component drawings do not help a board judge whether an architecture is credible, and the effort was spent before the architecture was confirmed.</li><li><strong>Arriving with only concept-level block diagrams.</strong> The opposite failure, and it commits the architecture without evidence.</li><li><strong>Actions with no closure evidence, owner or date.</strong> They are closed by editing a document, and the discrepancy survives into the next phase.</li></ul>
+      </section>
+
+      <section id="references" class="references">
+        <p class="section-label">Sources</p>
+        <h2>References</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 3 and Appendix G of NPR 7123.1D.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=technical-reviews" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 24: Technical Reviews</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adapted from Unit VI of the Aerospace Systems Engineering (AE506) course script by Carlos Alberto Molina Holgu&iacute;n. Every number on this page was recomputed independently for it; no calculator covers this topic, so recomputation is the only check there is. The margin comparison uses the phase expectations tabulated in Lecture 03, and the twelve-point shortfall is computed against the lower bound of the band rather than its midpoint.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="phases-and-reviews.html?v=11"><span>Previous lecture</span>&larr; Phases and Reviews</a>
+        <a class="next-link" href="risk-matrix.html?v=11"><span>Next lecture</span>The Risk Matrix &rarr;</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+
+      <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Qu&eacute; deber&iacute;as poder hacer</h2>
+        <ul><li>enunciar la &uacute;nica pregunta que decide una revisi&oacute;n preliminar de dise&ntilde;o;</li><li>listar qu&eacute; debe demostrar el paquete de datos y qu&eacute; producto muestra cada cosa;</li><li>juzgar un margen t&eacute;cnico contra la expectativa de la fase y no contra cero;</li><li>distinguir un elemento de estatus que es acci&oacute;n de uno que es bloqueo;</li><li>redactar una acci&oacute;n de revisi&oacute;n que nombre la discrepancia, la evidencia de cierre, un due&ntilde;o y una fecha.</li></ul>
+      </section>
+
+      <section id="physics-es">
+        <p class="section-label">Situación de ingeniería</p>
+        <h2>Todo est&aacute; en verde salvo un n&uacute;mero</h2>
+        <p class="lead">La gr&aacute;fica de estatus en la revisi&oacute;n es casi enteramente alentadora. Los requisitos est&aacute;n 95&nbsp;% completos, la arquitectura est&aacute; seleccionada, el margen de masa es 18&nbsp;%, dos riesgos altos tienen planes de mitigaci&oacute;n financiados. Una l&iacute;nea dice: margen de potencia 3&nbsp;%.</p><p>Nadie lo se&ntilde;ala, porque 3&nbsp;% es un n&uacute;mero positivo y toda otra l&iacute;nea est&aacute; mejor. Pero 3&nbsp;% es lo que se espera que un proyecto tenga <em>en la entrega</em>, y este est&aacute; a dos fases de ah&iacute;. El comit&eacute; est&aacute; mirando un presupuesto de potencia que ya gast&oacute; todo lo que ten&iacute;a, con el dise&ntilde;o detallado a&uacute;n por venir.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 360" role="img" aria-label="Margen de masa y potencia contra la banda esperada en una revisi&oacute;n preliminar de dise&ntilde;o">
+            <rect x="120" y="120.0" width="560" height="40.0" fill="#e8f1e9" stroke="none"></rect>
+            <text x="128" y="138.0" font-size="12" fill="#5c7a63">esperado en PDR</text>
+            <rect x="120" y="40" width="560" height="240" fill="none" stroke="#c9d4de"></rect>
+            <line x1="120" y1="280.0" x2="680" y2="280.0" stroke="#eef2f5"></line>
+            <text x="112" y="284.0" text-anchor="end" font-size="12" fill="#8fa6ba">0</text>
+            <line x1="120" y1="240.0" x2="680" y2="240.0" stroke="#eef2f5"></line>
+            <text x="112" y="244.0" text-anchor="end" font-size="12" fill="#8fa6ba">5</text>
+            <line x1="120" y1="200.0" x2="680" y2="200.0" stroke="#eef2f5"></line>
+            <text x="112" y="204.0" text-anchor="end" font-size="12" fill="#8fa6ba">10</text>
+            <line x1="120" y1="160.0" x2="680" y2="160.0" stroke="#eef2f5"></line>
+            <text x="112" y="164.0" text-anchor="end" font-size="12" fill="#8fa6ba">15</text>
+            <line x1="120" y1="120.0" x2="680" y2="120.0" stroke="#eef2f5"></line>
+            <text x="112" y="124.0" text-anchor="end" font-size="12" fill="#8fa6ba">20</text>
+            <line x1="120" y1="80.0" x2="680" y2="80.0" stroke="#eef2f5"></line>
+            <text x="112" y="84.0" text-anchor="end" font-size="12" fill="#8fa6ba">25</text>
+            <line x1="120" y1="40.0" x2="680" y2="40.0" stroke="#eef2f5"></line>
+            <text x="112" y="44.0" text-anchor="end" font-size="12" fill="#8fa6ba">30</text>
+            <rect x="250" y="136.0" width="120" height="144.0" fill="#0d568d"></rect>
+            <text x="310" y="126.0" text-anchor="middle" font-size="14" font-weight="700" fill="#0d568d">masa 18 %</text>
+            <rect x="490" y="256.0" width="120" height="24.0" fill="#b03a2e"></rect>
+            <text x="550" y="246.0" text-anchor="middle" font-size="14" font-weight="700" fill="#b03a2e">potencia 3 %</text>
+            <line x1="120" y1="248.0" x2="680" y2="248.0" stroke="#c2924d" stroke-width="2" stroke-dasharray="6 4"></line>
+            <text x="530" y="242.0" font-size="12" fill="#c2924d">expectativa de entrega</text>
+            <text x="14" y="28" font-size="14" font-weight="600" fill="#071d33">Margen [%]</text>
+            <text x="400" y="330" text-anchor="middle" font-size="13" font-style="italic" fill="#b03a2e">El presupuesto de potencia est&aacute; en su valor de entrega dos fases antes</text>
+            </svg>
+            <figcaption>Dos m&aacute;rgenes, un problema. La masa est&aacute; dentro de la banda que espera una revisi&oacute;n preliminar; la potencia est&aacute; en el valor que normalmente se alcanza en la entrega, dos fases antes.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-es">
+        <p class="section-label">Alcance y límites</p>
+        <h2>La &uacute;nica pregunta</h2>
+        <p>Una revisi&oacute;n preliminar de dise&ntilde;o decide una cosa: <em>&iquest;es el dise&ntilde;o preliminar cre&iacute;ble, internamente consistente y bastante maduro para justificar avanzar hacia el dise&ntilde;o detallado?</em> Todo en el paquete de datos existe para responder eso, y la evidencia que no incide &mdash; detalle de componente, planes de recuperaci&oacute;n de calendario, una narrativa pulida &mdash; no ayuda.</p><p>La palabra que hace el trabajo es <strong>bastante</strong>. El comit&eacute; no pregunta si el dise&ntilde;o est&aacute; terminado ni si toda pregunta se respondi&oacute;; pregunta si las preguntas que quedan son lo bastante peque&ntilde;as, acotadas y con due&ntilde;o para que el siguiente nivel de compromiso sea responsable.</p>
+        <div class="callout warning"><strong>Lo que pasar una PDR no significa.</strong> No significa que el dise&ntilde;o funcionar&aacute;, que los requisitos sean los adecuados, ni que las estimaciones sean correctas. Significa que la evidencia disponible hoy sostiene avanzar. Tomar la aprobaci&oacute;n como veredicto sobre el dise&ntilde;o es c&oacute;mo un proyecto deja de buscar problemas justo despu&eacute;s de la revisi&oacute;n que deb&iacute;a sacarlos a la luz.</div>
+      </section>
+
+      <section id="package-es">
+        <p class="section-label">Cinco cosas y su evidencia</p>
+        <h2>Qu&eacute; debe mostrar el paquete de datos</h2>
+        <div class="table-wrap"><table><thead><tr><th>Una PDR debe demostrar</th><th>Evidencia que lo muestra</th></tr></thead><tbody><tr><td>Los requisitos est&aacute;n completos, consistentes y son trazables</td><td>L&iacute;nea base de requisitos con las auditor&iacute;as de la RTM limpias</td></tr><tr><td>La arquitectura puede cumplirlos</td><td>Asignaci&oacute;n funcional, presupuestos con margen, definiciones de interfaz</td></tr><tr><td>La arquitectura se eligi&oacute;, no se supuso</td><td>Registro de estudio de intercambio con sensibilidad y las alternativas rechazadas</td></tr><tr><td>La incertidumbre restante est&aacute; acotada y tiene due&ntilde;o</td><td>Registro de riesgos con due&ntilde;os, disparadores y posiciones residuales</td></tr><tr><td>El dise&ntilde;o podr&aacute; verificarse</td><td>Enfoque preliminar de verificaci&oacute;n que nombra un m&eacute;todo por requisito</td></tr></tbody></table></div>
+        <p>Fíjate en que cada fila es un producto construido en una lecture anterior de este curso: la l&iacute;nea base de requisitos y sus auditor&iacute;as, la asignaci&oacute;n funcional y los presupuestos, el registro del intercambio con su sensibilidad, el registro de riesgos con posiciones residuales, y el enfoque de verificaci&oacute;n. Un paquete de PDR no es trabajo nuevo; es la salida acumulada de las Unidades II a VI ordenada para responder una pregunta.</p>
+      </section>
+
+      <section id="actions-es">
+        <p class="section-label">En qu&eacute; se convierte un hallazgo</p>
+        <h2>Solicitudes de acci&oacute;n</h2>
+        <div class="table-wrap"><table><thead><tr><th>Una acci&oacute;n &uacute;til enuncia</th><th>Una in&uacute;til dice</th></tr></thead><tbody><tr><td>La discrepancia t&eacute;cnica, en una frase</td><td>&laquo;Revisar el presupuesto de potencia&raquo;</td></tr><tr><td>Qu&eacute; evidencia la cerrar&aacute;</td><td>&laquo;Atender la preocupaci&oacute;n&raquo;</td></tr><tr><td>Un due&ntilde;o nombrado con autoridad para actuar</td><td>&laquo;El equipo&raquo;</td></tr><tr><td>Una fecha ligada a un hito del proyecto</td><td>&laquo;Lo antes posible&raquo;</td></tr></tbody></table></div>
+        <p>La columna derecha no es una caricatura. Acciones escritas as&iacute; son la salida normal de una revisi&oacute;n que se qued&oacute; sin tiempo, y son incerrables: nadie puede demostrar que una preocupaci&oacute;n fue atendida. La regla de cierre se sigue directamente &mdash; una acci&oacute;n cierra con evidencia de que la discrepancia se resolvi&oacute;, nunca con el hecho de que se actualiz&oacute; un documento.</p>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Algoritmo de cálculo</p>
+        <h2>Llegar a una recomendaci&oacute;n</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Tomar cada elemento de estatus por turno</span></div><div><strong>2</strong><span>Compararlo con la expectativa de esta fase</span></div><div><strong>3</strong><span>Clasificar: aceptable, acci&oacute;n o bloqueo</span></div><div><strong>4</strong><span>Por cada acci&oacute;n, escribir evidencia, due&ntilde;o y fecha</span></div><div><strong>5</strong><span>Preguntar si queda alg&uacute;n bloqueo</span></div><div><strong>6</strong><span>Recomendar proceder, proceder con acciones, o no proceder</span></div></div>
+        <p>El paso dos es donde la mayor&iacute;a de los comit&eacute;s se equivoca, y es una comparaci&oacute;n m&aacute;s que un juicio. Un margen no es bueno o malo en s&iacute;; es bueno o malo para la fase en que est&aacute; el proyecto, y las expectativas de la lecture 03 son lo que convierte un n&uacute;mero en un hallazgo.</p>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>Siete elementos de estatus y una recomendaci&oacute;n</h2>
+        <p>La plataforma llega a su revisi&oacute;n preliminar de dise&ntilde;o con el estatus de abajo. Las expectativas de fase vienen de la lecture 03: 15 a 20&nbsp;% de margen en PDR, 3 a 5&nbsp;% en la entrega.</p>
+        <div class="table-wrap"><table><thead><tr><th>Elemento de estatus</th><th>Expectativa en PDR</th><th>Juicio</th></tr></thead><tbody><tr><td>Requisitos 95 % completos</td><td>En l&iacute;nea base, con TBR con due&ntilde;o y fecha</td><td>Aceptable; el 5 % abierto debe listarse con due&ntilde;os</td></tr><tr><td>Arquitectura seleccionada</td><td>Seleccionada con un intercambio documentado</td><td>Aceptable si el registro del intercambio y la sensibilidad est&aacute;n en el paquete</td></tr><tr><td>Margen de masa 18 %</td><td>15 a 20 %</td><td>Aceptable, a mitad de la banda</td></tr><tr><td>Margen de potencia 3 %</td><td>15 a 20 %</td><td><strong>Descalificante.</strong> Es el valor de entrega, alcanzado dos fases antes</td></tr><tr><td>Una interfaz externa sin definir</td><td>Todas las interfaces externas definidas o bajo calendario acordado</td><td>Acci&oacute;n, no bloqueo, si se nombran la contraparte y una fecha</td></tr><tr><td>Dos riesgos altos con mitigaci&oacute;n financiada</td><td>Riesgos altos permitidos si tienen due&ntilde;o, financiamiento y disparador</td><td>Aceptable, y m&aacute;s sano que un registro sin riesgos altos en esta fase</td></tr><tr><td>Verificaci&oacute;n incompleta para cuatro requisitos cr&iacute;ticos de seguridad</td><td>Un m&eacute;todo nombrado para cada requisito, primero los cr&iacute;ticos de seguridad</td><td>Acci&oacute;n con fecha firme; un requisito cr&iacute;tico sin m&eacute;todo podr&iacute;a no ser verificable</td></tr></tbody></table></div>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Masa.</strong> 18&nbsp;% queda dentro de la banda de 15 a 20&nbsp;%. Aceptable, y vale la pena decirlo expl&iacute;citamente para que el comit&eacute; no gaste tiempo ah&iacute;.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Potencia.</strong> 3&nbsp;% contra un piso de 15&nbsp;% es un d&eacute;ficit de \[15 - 3 = 12\] puntos porcentuales, y resulta ser exactamente el valor esperado en la entrega. Al presupuesto no le queda nada para absorber el crecimiento que el dise&ntilde;o detallado siempre produce.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Los otros cinco.</strong> Requisitos al 95&nbsp;%, una arquitectura seleccionada, una interfaz sin definir y dos riesgos altos financiados son todos normales en esta fase. La verificaci&oacute;n incompleta para cuatro requisitos cr&iacute;ticos de seguridad es una acci&oacute;n con fecha firme, porque un requisito cr&iacute;tico cuyo m&eacute;todo no puede nombrarse podr&iacute;a resultar inverificable.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>La recomendaci&oacute;n.</strong> Proceder con acciones no est&aacute; disponible aqu&iacute;. Un elemento es bloqueo: el margen de potencia no es un n&uacute;mero a mejorar durante el dise&ntilde;o detallado, es evidencia de que la arquitectura en l&iacute;nea base no tiene espacio para el dise&ntilde;o detallado. La recomendaci&oacute;n es <em>no proceder</em>, con una revisi&oacute;n nueva una vez reabierta la arquitectura de potencia.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Por qu&eacute; los dos riesgos altos no son el problema.</strong> Tienen due&ntilde;o, financiamiento y disparador, que es lo que una PDR espera. Un registro sin riesgos altos en esta fase ser&iacute;a el paquete m&aacute;s preocupante, porque normalmente significa que no se han encontrado y no que no existan.</div></div>
+        <div class="result-box">\[ \boxed{ \text{masa } 18\,\% \in [15,20] \;\checkmark \qquad \text{potencia } 3\,\% \;\Rightarrow\; 12\ \text{puntos corto} \;\Rightarrow\; \text{no proceder} } \]</div>
+        <p><strong>Interpretaci&oacute;n.</strong> Seis de siete elementos eran aceptables o accionables, y el proyecto aun as&iacute; no deber&iacute;a proceder. Esa es la forma de la mayor&iacute;a de las recomendaciones honestas de revisi&oacute;n: no un juicio general de calidad, sino un elemento espec&iacute;fico medido contra una expectativa espec&iacute;fica. Es tambi&eacute;n por qu&eacute; una gr&aacute;fica de estatus por colores es peor que in&uacute;til &mdash; 3&nbsp;% y 18&nbsp;% habr&iacute;an estado ambos en verde.</p>
+      </section>
+
+      <section id="summary-es">
+        <p class="section-label">Reglas operativas</p>
+        <h2>De un vistazo</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regla</th><th>Enunciado</th></tr></thead><tbody><tr><td>La PDR hace una pregunta</td><td>&iquest;Es el dise&ntilde;o preliminar cre&iacute;ble, consistente y bastante maduro para pasar al dise&ntilde;o detallado?</td></tr><tr><td>Juzga los m&aacute;rgenes contra la fase</td><td>18 % de masa en PDR es sano; 3 % de potencia en PDR es el valor de entrega dos fases antes.</td></tr><tr><td>Los riesgos abiertos son esperables</td><td>Un registro sin riesgos altos en PDR normalmente significa que a&uacute;n no se han encontrado.</td></tr><tr><td>Distingue una acci&oacute;n de un bloqueo</td><td>Una interfaz sin definir con contraparte y fecha es una acci&oacute;n; un margen colapsado no.</td></tr><tr><td>Toda acci&oacute;n nombra evidencia, due&ntilde;o y fecha</td><td>Sin las tres se cerrar&aacute; editando un documento.</td></tr><tr><td>La madurez no es ausencia de incertidumbre</td><td>Es incertidumbre visible, acotada, con due&ntilde;o y calendarizada.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-es">
+        <p class="section-label">Errores comunes</p>
+        <h2>Qu&eacute; sale mal</h2>
+        <ul class="check-list"><li><strong>Juzgar un margen contra cero.</strong> 3&nbsp;% es positivo y es una falla en PDR, porque la comparaci&oacute;n es con la expectativa de fase.</li><li><strong>Leer un color en vez de un n&uacute;mero.</strong> Una gr&aacute;fica de estatus en verde esconde la brecha de doce puntos que decide la recomendaci&oacute;n.</li><li><strong>Tomar los riesgos altos abiertos por defecto.</strong> Un registro sin ninguno en PDR normalmente significa que no se han encontrado.</li><li><strong>Llevar dise&ntilde;o detallado a una revisi&oacute;n preliminar.</strong> Los planos de componente no ayudan a juzgar si una arquitectura es cre&iacute;ble, y el esfuerzo se gast&oacute; antes de confirmarla.</li><li><strong>Llegar s&oacute;lo con diagramas de bloques de nivel concepto.</strong> La falla opuesta, y compromete la arquitectura sin evidencia.</li><li><strong>Acciones sin evidencia de cierre, due&ntilde;o ni fecha.</strong> Se cierran editando un documento, y la discrepancia sobrevive a la siguiente fase.</li></ul>
+      </section>
+
+      <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
+        <h2>Referencias</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 3 and Appendix G of NPR 7123.1D.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=technical-reviews" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 24: Technical Reviews</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adaptado de la Unidad VI del gui&oacute;n del curso Ingenier&iacute;a en Sistemas Aeroespaciales (AE506) de Carlos Alberto Molina Holgu&iacute;n. Cada n&uacute;mero de esta p&aacute;gina se recalcul&oacute; de forma independiente para ella; ninguna calculadora cubre este tema, as&iacute; que el rec&aacute;lculo es la &uacute;nica comprobaci&oacute;n disponible. La comparaci&oacute;n de m&aacute;rgenes usa las expectativas de fase tabuladas en la lecture 03, y el d&eacute;ficit de doce puntos se calcula contra el l&iacute;mite inferior de la banda y no contra su punto medio.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="phases-and-reviews.html?v=11"><span>Lecture anterior</span>&larr; Fases y revisiones</a>
+        <a class="next-link" href="risk-matrix.html?v=11"><span>Siguiente lecture</span>La matriz de riesgos &rarr;</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+
+      <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie k&ouml;nnen sollten</h2>
+        <ul><li>die eine Frage nennen, die eine Vorentwurfspr&uuml;fung entscheidet;</li><li>auflisten, was das Datenpaket nachweisen muss und welches Produkt was zeigt;</li><li>eine technische Reserve gegen die Phasenerwartung statt gegen null beurteilen;</li><li>einen Statusposten als Ma&szlig;nahme oder Hindernis einordnen;</li><li>eine Ma&szlig;nahme formulieren, die Abweichung, Abschlussnachweis, Verantwortliche und Termin nennt.</li></ul>
+      </section>
+
+      <section id="physics-de">
+        <p class="section-label">Ingenieurtechnischer Kontext</p>
+        <h2>Alles gr&uuml;n bis auf eine Zahl</h2>
+        <p class="lead">Die Statustafel beim Review ist fast durchweg ermutigend. Anforderungen zu 95&nbsp;% vollst&auml;ndig, Architektur gew&auml;hlt, Massenreserve 18&nbsp;%, zwei hohe Risiken mit finanzierten Minderungspl&auml;nen. Eine Zeile lautet: Energiereserve 3&nbsp;%.</p><p>Niemand hebt sie hervor, denn 3&nbsp;% ist eine positive Zahl und jede andere Zeile ist besser. Doch 3&nbsp;% erwartet man <em>bei der Lieferung</em>, und dieses Projekt ist zwei Phasen davon entfernt. Das Gremium betrachtet ein Energiebudget, das bereits alles ausgegeben hat &mdash; und der Detailentwurf steht noch aus.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 360" role="img" aria-label="Massen- und Energiereserve gegen das bei einer Vorentwurfspr&uuml;fung erwartete Band">
+            <rect x="120" y="120.0" width="560" height="40.0" fill="#e8f1e9" stroke="none"></rect>
+            <text x="128" y="138.0" font-size="12" fill="#5c7a63">bei PDR erwartet</text>
+            <rect x="120" y="40" width="560" height="240" fill="none" stroke="#c9d4de"></rect>
+            <line x1="120" y1="280.0" x2="680" y2="280.0" stroke="#eef2f5"></line>
+            <text x="112" y="284.0" text-anchor="end" font-size="12" fill="#8fa6ba">0</text>
+            <line x1="120" y1="240.0" x2="680" y2="240.0" stroke="#eef2f5"></line>
+            <text x="112" y="244.0" text-anchor="end" font-size="12" fill="#8fa6ba">5</text>
+            <line x1="120" y1="200.0" x2="680" y2="200.0" stroke="#eef2f5"></line>
+            <text x="112" y="204.0" text-anchor="end" font-size="12" fill="#8fa6ba">10</text>
+            <line x1="120" y1="160.0" x2="680" y2="160.0" stroke="#eef2f5"></line>
+            <text x="112" y="164.0" text-anchor="end" font-size="12" fill="#8fa6ba">15</text>
+            <line x1="120" y1="120.0" x2="680" y2="120.0" stroke="#eef2f5"></line>
+            <text x="112" y="124.0" text-anchor="end" font-size="12" fill="#8fa6ba">20</text>
+            <line x1="120" y1="80.0" x2="680" y2="80.0" stroke="#eef2f5"></line>
+            <text x="112" y="84.0" text-anchor="end" font-size="12" fill="#8fa6ba">25</text>
+            <line x1="120" y1="40.0" x2="680" y2="40.0" stroke="#eef2f5"></line>
+            <text x="112" y="44.0" text-anchor="end" font-size="12" fill="#8fa6ba">30</text>
+            <rect x="250" y="136.0" width="120" height="144.0" fill="#0d568d"></rect>
+            <text x="310" y="126.0" text-anchor="middle" font-size="14" font-weight="700" fill="#0d568d">Masse 18 %</text>
+            <rect x="490" y="256.0" width="120" height="24.0" fill="#b03a2e"></rect>
+            <text x="550" y="246.0" text-anchor="middle" font-size="14" font-weight="700" fill="#b03a2e">Energie 3 %</text>
+            <line x1="120" y1="248.0" x2="680" y2="248.0" stroke="#c2924d" stroke-width="2" stroke-dasharray="6 4"></line>
+            <text x="530" y="242.0" font-size="12" fill="#c2924d">Liefererwartung</text>
+            <text x="14" y="28" font-size="14" font-weight="600" fill="#071d33">Reserve [%]</text>
+            <text x="400" y="330" text-anchor="middle" font-size="13" font-style="italic" fill="#b03a2e">Das Energiebudget liegt zwei Phasen zu fr&uuml;h auf seinem Lieferwert</text>
+            </svg>
+            <figcaption>Zwei Reserven, ein Problem. Die Masse liegt im Band, das eine Vorentwurfspr&uuml;fung erwartet; die Energie liegt auf dem &uuml;blichen Lieferwert, zwei Phasen zu fr&uuml;h.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-de">
+        <p class="section-label">Geltungsbereich und Grenzen</p>
+        <h2>Die eine Frage</h2>
+        <p>Eine Vorentwurfspr&uuml;fung entscheidet eines: <em>Ist der Vorentwurf glaubw&uuml;rdig, in sich stimmig und reif genug, um den Detailentwurf zu rechtfertigen?</em> Alles im Datenpaket dient dieser Antwort, und Nachweise ohne Bezug dazu &mdash; Komponentendetails, Terminaufholpl&auml;ne, eine polierte Erz&auml;hlung &mdash; helfen nicht.</p><p>Das entscheidende Wort ist <strong>genug</strong>. Das Gremium fragt nicht, ob der Entwurf fertig ist oder jede Frage beantwortet wurde; es fragt, ob die offenen Fragen klein, begrenzt und zugewiesen genug sind, damit die n&auml;chste Bindungsstufe verantwortbar ist.</p>
+        <div class="callout warning"><strong>Was ein bestandenes PDR nicht bedeutet.</strong> Nicht, dass der Entwurf funktionieren wird, dass die Anforderungen die richtigen sind oder die Sch&auml;tzungen stimmen. Es bedeutet, dass die heutigen Nachweise das Weitergehen tragen. Die Genehmigung als Urteil &uuml;ber den Entwurf zu nehmen ist der Weg, unmittelbar nach dem Review aufzuh&ouml;ren, Probleme zu suchen.</div>
+      </section>
+
+      <section id="package-de">
+        <p class="section-label">F&uuml;nf Dinge und ihre Nachweise</p>
+        <h2>Was das Datenpaket zeigen muss</h2>
+        <div class="table-wrap"><table><thead><tr><th>Ein PDR muss nachweisen</th><th>Nachweis daf&uuml;r</th></tr></thead><tbody><tr><td>Die Anforderungen sind vollst&auml;ndig, stimmig und r&uuml;ckverfolgbar</td><td>Anforderungsbasis mit sauberen RTM-Pr&uuml;fungen</td></tr><tr><td>Die Architektur kann sie erf&uuml;llen</td><td>Funktionszuordnung, Budgets mit Reserve, Schnittstellendefinitionen</td></tr><tr><td>Die Architektur wurde gew&auml;hlt, nicht angenommen</td><td>Abw&auml;gungsprotokoll mit Sensitivit&auml;t und den verworfenen Alternativen</td></tr><tr><td>Die verbleibende Unsicherheit ist begrenzt und zugewiesen</td><td>Risikoregister mit Verantwortlichen, Ausl&ouml;sern und Restpositionen</td></tr><tr><td>Der Entwurf ist sp&auml;ter verifizierbar</td><td>Vorl&auml;ufiger Verifikationsansatz mit einer Methode je Anforderung</td></tr></tbody></table></div>
+        <p>Beachten Sie, dass jede Zeile ein Produkt fr&uuml;herer Vorlesungen dieses Kurses ist: die Anforderungsbasis mit ihren Pr&uuml;fungen, die Funktionszuordnung und die Budgets, das Abw&auml;gungsprotokoll mit Sensitivit&auml;t, das Risikoregister mit Restpositionen und der Verifikationsansatz. Ein PDR-Paket ist keine neue Arbeit; es ist das gesammelte Ergebnis der Einheiten II bis VI, geordnet f&uuml;r eine Frage.</p>
+      </section>
+
+      <section id="actions-de">
+        <p class="section-label">Was aus einem Befund wird</p>
+        <h2>Ma&szlig;nahmenanforderungen</h2>
+        <div class="table-wrap"><table><thead><tr><th>Eine n&uuml;tzliche Ma&szlig;nahme nennt</th><th>Eine nutzlose sagt</th></tr></thead><tbody><tr><td>Die technische Abweichung in einem Satz</td><td>&bdquo;Das Energiebudget pr&uuml;fen&ldquo;</td></tr><tr><td>Welcher Nachweis sie schlie&szlig;t</td><td>&bdquo;Das Anliegen behandeln&ldquo;</td></tr><tr><td>Eine benannte, handlungsbefugte Person</td><td>&bdquo;Das Team&ldquo;</td></tr><tr><td>Ein an einen Meilenstein gebundenes Datum</td><td>&bdquo;So bald wie m&ouml;glich&ldquo;</td></tr></tbody></table></div>
+        <p>Die rechte Spalte ist keine Karikatur. So formulierte Ma&szlig;nahmen sind das normale Ergebnis eines Reviews mit Zeitmangel, und sie sind nicht abschlie&szlig;bar: Niemand kann zeigen, dass ein Anliegen behandelt wurde. Die Abschlussregel folgt unmittelbar &mdash; eine Ma&szlig;nahme schlie&szlig;t mit dem Nachweis der behobenen Abweichung, nie mit einer Dokumentaktualisierung.</p>
+      </section>
+
+      <section id="algorithm-de">
+        <p class="section-label">Rechenalgorithmus</p>
+        <h2>Zu einer Empfehlung kommen</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Jeden Statusposten der Reihe nach nehmen</span></div><div><strong>2</strong><span>Ihn mit der Phasenerwartung vergleichen</span></div><div><strong>3</strong><span>Einordnen: akzeptabel, Ma&szlig;nahme oder Hindernis</span></div><div><strong>4</strong><span>Je Ma&szlig;nahme Nachweis, Verantwortliche und Termin schreiben</span></div><div><strong>5</strong><span>Fragen, ob ein Hindernis bleibt</span></div><div><strong>6</strong><span>Fortfahren, mit Ma&szlig;nahmen fortfahren oder nicht fortfahren empfehlen</span></div></div>
+        <p>Bei Schritt zwei irren die meisten Gremien, und er ist ein Vergleich, kein Urteil. Eine Reserve ist an sich weder gut noch schlecht; sie ist es f&uuml;r die jeweilige Phase, und die Erwartungen aus Vorlesung 03 machen aus einer Zahl einen Befund.</p>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Sieben Statusposten und eine Empfehlung</h2>
+        <p>Die Plattform kommt mit dem untenstehenden Status zur Vorentwurfspr&uuml;fung. Die Phasenerwartungen stammen aus Vorlesung 03: 15 bis 20&nbsp;% Reserve beim PDR, 3 bis 5&nbsp;% bei Lieferung.</p>
+        <div class="table-wrap"><table><thead><tr><th>Statusposten</th><th>Erwartung beim PDR</th><th>Beurteilung</th></tr></thead><tbody><tr><td>Anforderungen zu 95 % vollst&auml;ndig</td><td>Festgeschrieben, offene Punkte mit Verantwortlichen und Termin</td><td>Akzeptabel; die offenen 5 % sind mit Verantwortlichen zu listen</td></tr><tr><td>Architektur gew&auml;hlt</td><td>Gew&auml;hlt mit dokumentierter Abw&auml;gung</td><td>Akzeptabel, wenn Protokoll und Sensitivit&auml;t im Paket sind</td></tr><tr><td>Massenreserve 18 %</td><td>15 bis 20 %</td><td>Akzeptabel, in der Bandmitte</td></tr><tr><td>Energiereserve 3 %</td><td>15 bis 20 %</td><td><strong>Ausschlusskriterium.</strong> Das ist der Lieferwert, zwei Phasen zu fr&uuml;h</td></tr><tr><td>Eine externe Schnittstelle undefiniert</td><td>Alle externen Schnittstellen definiert oder terminiert</td><td>Ma&szlig;nahme, kein Hindernis, wenn Gegenpart und Termin benannt sind</td></tr><tr><td>Zwei hohe Risiken mit finanzierter Minderung</td><td>Hohe Risiken zul&auml;ssig bei Verantwortlichen, Mitteln und Ausl&ouml;ser</td><td>Akzeptabel und gesunder als ein Register ohne hohe Risiken in dieser Phase</td></tr><tr><td>Verifikation f&uuml;r vier sicherheitskritische Anforderungen unvollst&auml;ndig</td><td>Je Anforderung eine benannte Methode, sicherheitskritische zuerst</td><td>Ma&szlig;nahme mit festem Termin; eine sicherheitskritische Anforderung ohne Methode ist eventuell nicht verifizierbar</td></tr></tbody></table></div>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Masse.</strong> 18&nbsp;% liegt im Band von 15 bis 20&nbsp;%. Akzeptabel, und das ausdr&uuml;cklich zu sagen spart dem Gremium Zeit.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Energie.</strong> 3&nbsp;% gegen eine Untergrenze von 15&nbsp;% ist ein Defizit von \[15 - 3 = 12\] Prozentpunkten &mdash; und zuf&auml;llig genau der Lieferwert. Dem Budget bleibt nichts, um das Wachstum des Detailentwurfs aufzufangen.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Die anderen f&uuml;nf.</strong> Anforderungen zu 95&nbsp;%, gew&auml;hlte Architektur, eine undefinierte Schnittstelle und zwei finanzierte hohe Risiken sind in dieser Phase normal. Die unvollst&auml;ndige Verifikation von vier sicherheitskritischen Anforderungen ist eine Ma&szlig;nahme mit festem Termin, denn eine sicherheitskritische Anforderung ohne benennbare Methode kann sich als nicht verifizierbar erweisen.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Die Empfehlung.</strong> Mit Ma&szlig;nahmen fortfahren ist hier nicht m&ouml;glich. Ein Posten ist ein Hindernis: Die Energiereserve ist keine im Detailentwurf zu verbessernde Zahl, sondern der Nachweis, dass die festgeschriebene Architektur keinen Raum f&uuml;r den Detailentwurf hat. Die Empfehlung lautet <em>nicht fortfahren</em>, mit erneutem Review nach Wiederer&ouml;ffnung der Energiearchitektur.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Warum die zwei hohen Risiken nicht das Problem sind.</strong> Sie haben Verantwortliche, Mittel und Ausl&ouml;ser &mdash; genau das erwartet ein PDR. Ein Register ohne hohe Risiken in dieser Phase w&auml;re das bedenklichere Paket, denn meist bedeutet es, dass sie nicht gefunden wurden.</div></div>
+        <div class="result-box">\[ \boxed{ \text{Masse } 18\,\% \in [15,20] \;\checkmark \qquad \text{Energie } 3\,\% \;\Rightarrow\; 12\ \text{Punkte zu wenig} \;\Rightarrow\; \text{nicht fortfahren} } \]</div>
+        <p><strong>Deutung.</strong> Sechs von sieben Posten waren akzeptabel oder bearbeitbar, und das Projekt sollte dennoch nicht fortfahren. So sehen die meisten ehrlichen Reviewempfehlungen aus: kein allgemeines Qualit&auml;tsurteil, sondern ein bestimmter Posten gegen eine bestimmte Erwartung. Und deshalb ist eine farbige Statustafel schlimmer als nutzlos &mdash; 3&nbsp;% und 18&nbsp;% w&auml;ren beide gr&uuml;n gewesen.</p>
+      </section>
+
+      <section id="summary-de">
+        <p class="section-label">Arbeitsregeln</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regel</th><th>Aussage</th></tr></thead><tbody><tr><td>Das PDR stellt eine Frage</td><td>Ist der Vorentwurf glaubw&uuml;rdig, stimmig und reif genug f&uuml;r den Detailentwurf?</td></tr><tr><td>Reserven gegen die Phase beurteilen</td><td>18 % Masse beim PDR ist gesund; 3 % Energie ist der Lieferwert zwei Phasen zu fr&uuml;h.</td></tr><tr><td>Offene Risiken sind zu erwarten</td><td>Ein Register ohne hohe Risiken beim PDR hei&szlig;t meist, sie wurden noch nicht gefunden.</td></tr><tr><td>Ma&szlig;nahme von Hindernis unterscheiden</td><td>Eine undefinierte Schnittstelle mit Gegenpart und Termin ist eine Ma&szlig;nahme; eine verbrauchte Reserve nicht.</td></tr><tr><td>Jede Ma&szlig;nahme nennt Nachweis, Verantwortliche und Termin</td><td>Ohne alle drei wird sie durch Dokumentbearbeitung geschlossen.</td></tr><tr><td>Reife ist nicht das Fehlen von Unsicherheit</td><td>Sie ist sichtbare, begrenzte, zugewiesene und terminierte Unsicherheit.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Häufige Fehler</p>
+        <h2>Was schiefgeht</h2>
+        <ul class="check-list"><li><strong>Eine Reserve gegen null beurteilen.</strong> 3&nbsp;% ist positiv und beim PDR ein Fehlschlag, denn verglichen wird mit der Phasenerwartung.</li><li><strong>Eine Farbe statt einer Zahl lesen.</strong> Eine gr&uuml;ne Statustafel verbirgt die Zw&ouml;lf-Punkte-L&uuml;cke, die die Empfehlung entscheidet.</li><li><strong>Offene hohe Risiken als Mangel sehen.</strong> Ein Register ohne solche beim PDR hei&szlig;t meist, sie wurden nicht gefunden.</li><li><strong>Detailentwurf zu einem Vorentwurfsreview bringen.</strong> Komponentenzeichnungen helfen nicht bei der Glaubw&uuml;rdigkeit einer Architektur, und der Aufwand fiel vor ihrer Best&auml;tigung an.</li><li><strong>Nur mit Blockdiagrammen auf Konzeptniveau erscheinen.</strong> Der umgekehrte Fehler, der die Architektur ohne Nachweis festlegt.</li><li><strong>Ma&szlig;nahmen ohne Abschlussnachweis, Verantwortliche oder Termin.</strong> Sie werden per Dokumentbearbeitung geschlossen, und die Abweichung &uuml;berlebt in die n&auml;chste Phase.</li></ul>
+      </section>
+
+      <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
+        <h2>Literatur</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 3 and Appendix G of NPR 7123.1D.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=technical-reviews" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 24: Technical Reviews</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Bearbeitet nach Einheit VI des Skripts Luft- und Raumfahrtsystemtechnik (AE506) von Carlos Alberto Molina Holgu&iacute;n. Jede Zahl dieser Seite wurde eigens daf&uuml;r unabh&auml;ngig neu berechnet; kein Rechner deckt dieses Thema ab, daher ist die Neuberechnung die einzige Pr&uuml;fung. Der Reservevergleich nutzt die in Vorlesung 03 tabellierten Phasenerwartungen, und das Defizit von zw&ouml;lf Punkten wird gegen die Banduntergrenze statt gegen die Bandmitte berechnet.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="phases-and-reviews.html?v=11"><span>Vorherige Vorlesung</span>&larr; Phasen und Reviews</a>
+        <a class="next-link" href="risk-matrix.html?v=11"><span>Nächste Vorlesung</span>Die Risikomatrix &rarr;</a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>&copy; <span id="year"></span> Carlos Alberto Molina Holgu&iacute;n</p>
+    <p>Universidad Aut&oacute;noma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

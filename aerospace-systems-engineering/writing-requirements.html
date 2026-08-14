@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Writing aerospace requirements: the five-part sentence pattern, shall versus will versus should, why the operating condition decides verifiability, and the quality characteristics a requirement must survive." />
+  <meta name="author" content="Carlos Alberto Molina Holgu&iacute;n" />
+  <meta name="theme-color" content="#071d33" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Writing Requirements | Aerospace Systems Engineering</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:wght@600;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=11" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=11"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=11" data-ui-key="course">Aerospace Systems Engineering</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Aerospace Systems Engineering &middot; Lecture 07</p>
+        <h1>Writing Requirements: Anatomy and Quality</h1>
+        <p class="hero-copy">The sentence pattern that makes a requirement verifiable, the one part everybody drops, and the six checks a requirement has to survive before it enters a baseline.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Ingeniería de Sistemas Aeroespaciales &middot; Lecture 07</p>
+        <h1>Redactar requisitos: anatom&iacute;a y calidad</h1>
+        <p class="hero-copy">El patr&oacute;n de redacci&oacute;n que hace verificable a un requisito, la parte que todos omiten, y las seis verificaciones que debe sobrevivir antes de entrar a una l&iacute;nea base.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Luft- und Raumfahrtsystemtechnik &middot; Vorlesung 07</p>
+        <h1>Anforderungen schreiben: Aufbau und Qualit&auml;t</h1>
+        <p class="hero-copy">Das Satzmuster, das eine Anforderung pr&uuml;fbar macht, der stets weggelassene Teil und die sechs Pr&uuml;fungen vor Aufnahme in eine Basis.</p>
+      </div>
+
+    <div class="hero-meta">
+        <span data-language="en">Estimated reading: 13 min</span><span data-language="es" hidden>Lectura estimada: 13 min</span><span data-language="de" hidden>Lesedauer: ca. 13 min</span>
+        <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+        <span data-language="en">Scope: one requirement at a time</span><span data-language="es" hidden>Alcance: un requisito a la vez</span><span data-language="de" hidden>Umfang: eine Anforderung nach der anderen</span>
+    </div>
+    <div class="button-row">
+      <a class="button secondary" href="index.html?v=11" data-ui-key="back">Back to course</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Engineering situation</a>
+        <a href="#model">Scope and limits</a>
+        <a href="#modals">shall, will, should</a>
+        <a href="#quality">The six checks</a>
+        <a href="#algorithm">Writing one</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Operative rules</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#references">Sources</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Situaci&oacute;n de ingenier&iacute;a</a>
+        <a href="#model-es">Alcance y l&iacute;mites</a>
+        <a href="#modals-es">shall, will, should</a>
+        <a href="#quality-es">Las seis verificaciones</a>
+        <a href="#algorithm-es">Redactar uno</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Reglas operativas</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Kontext</a>
+        <a href="#model-de">Geltungsbereich</a>
+        <a href="#modals-de">shall, will, should</a>
+        <a href="#quality-de">Die sechs Pr&uuml;fungen</a>
+        <a href="#algorithm-de">Eine schreiben</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Arbeitsregeln</a>
+        <a href="#mistakes-de">H&auml;ufige Fehler</a>
+        <a href="#references-de">Quellen</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+
+      <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul><li>write a requirement in the five-part pattern, with its operating condition;</li><li>use <em>shall</em>, <em>will</em> and <em>should</em> correctly, and say why only one of them belongs in a requirement;</li><li>show by calculation how a missing condition changes what the requirement actually demands;</li><li>apply the six quality checks and repair a requirement that fails one;</li><li>name the verification method and pass criterion at the moment the requirement is written.</li></ul>
+      </section>
+
+      <section id="physics">
+        <p class="section-label">Engineering situation</p>
+        <h2>A requirement that was met and still failed</h2>
+        <p class="lead">The requirement said the battery shall provide 620 Wh. The supplier delivered a 620 Wh battery, the inspection passed, and the requirement was closed.</p><p>On the first cold night the platform shed load at hour seven. Nobody had lied and nothing was defective: 620 Wh is the capacity at room temperature, and the mission flies at \(-35\,^{\circ}\)C. The sentence was missing four words, and those four words were the difference between a requirement and a wish.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 820 250" role="img" aria-label="The five parts of a requirement sentence">
+            <rect x="15" y="70" width="110" height="64" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="70" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">Subject</text>
+            <text x="70" y="96" text-anchor="middle" font-size="12" fill="#071d33">The EPS</text>
+            <text x="70" y="120" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">who is obliged</text>
+            <rect x="133" y="70" width="140" height="64" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="203" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">Modal</text>
+            <text x="203" y="96" text-anchor="middle" font-size="12" fill="#071d33">shall supply</text>
+            <text x="203" y="120" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">the obligation</text>
+            <rect x="281" y="70" width="250" height="64" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="406" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">Action</text>
+            <text x="406" y="96" text-anchor="middle" font-size="12" fill="#071d33">at least 620 Wh of usable energy</text>
+            <text x="406" y="120" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">what it must do</text>
+            <rect x="539" y="70" width="170" height="64" rx="6" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="624" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">Value</text>
+            <text x="624" y="96" text-anchor="middle" font-size="12" fill="#071d33">during each nighttime period</text>
+            <text x="624" y="120" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">how much</text>
+            <rect x="717" y="70" width="130" height="64" rx="6" fill="#f6dede" stroke="#8fa6ba"></rect>
+            <text x="782" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">Condition</text>
+            <text x="782" y="96" text-anchor="middle" font-size="12" fill="#071d33">at -35 C, at end of life</text>
+            <text x="782" y="120" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">when it must hold</text>
+            <rect x="608" y="160" width="197" height="52" rx="6" fill="#fdf3f2" stroke="#e0b4ae"></rect>
+            <text x="706" y="182" text-anchor="middle" font-size="12" font-weight="600" fill="#b03a2e">Drop this and the</text>
+            <text x="706" y="200" text-anchor="middle" font-size="12" font-weight="600" fill="#b03a2e">requirement is unverifiable</text>
+            <line x1="706" y1="136" x2="706" y2="158" stroke="#b03a2e" stroke-width="2"></line>
+            </svg>
+            <figcaption>Five parts. Four of them are usually present; the condition is the one that gets dropped, and it is the one that decides whether the requirement can be verified at all.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model">
+        <p class="section-label">Scope and limits</p>
+        <h2>What a requirement is for</h2>
+        <p>A requirement is a binding, verifiable obligation on a named part of the system. It exists so that two things can happen without a conversation: a supplier can design against it, and a reviewer can later decide whether it was met. Everything in the sentence pattern serves one of those two purposes.</p><p>That is also the test for whether something belongs in a requirements document at all. If it cannot be verified, it cannot be met or missed, and it is guidance rather than a requirement &mdash; useful, but it belongs somewhere else.</p>
+        <div class="callout warning"><strong>What good writing does not buy you.</strong> A perfectly written requirement can still be the wrong requirement. The pattern makes intent unambiguous and checkable; it says nothing about whether the intent serves the mission. That question belongs to validation, and the fact that a document is well formed is one of the more effective ways to stop people asking it.</div>
+      </section>
+
+      <section id="modals">
+        <p class="section-label">Three words, one obligation</p>
+        <h2>shall, will, should</h2>
+        <div class="table-wrap"><table><thead><tr><th>Word</th><th>Means</th><th>Use it for</th></tr></thead><tbody><tr><td>shall</td><td>A binding obligation on the system. It will be verified and it can fail.</td><td>Every requirement, without exception</td></tr><tr><td>will</td><td>A statement of fact or intent about something outside the system&rsquo;s control.</td><td>Context: what the environment or another party does</td></tr><tr><td>should</td><td>A goal or preference. It is not verified and cannot fail.</td><td>Guidance only, and never in a requirements document</td></tr></tbody></table></div>
+        <p>The distinction is not stylistic. A verification engineer builds the test campaign from every sentence containing <em>shall</em>, so a <em>should</em> in a requirements document either gets tested as though it were binding, wasting effort, or gets ignored along with something that mattered.</p>
+      </section>
+
+      <section id="quality">
+        <p class="section-label">Six checks</p>
+        <h2>What a requirement must survive</h2>
+        <div class="table-wrap"><table><thead><tr><th>Characteristic</th><th>Question it answers</th><th>Failure it prevents</th></tr></thead><tbody><tr><td>Necessary</td><td>Does something break if we delete it?</td><td>Requirements added because they seemed reasonable</td></tr><tr><td>Unambiguous</td><td>Can two engineers read it two ways?</td><td>Two subsystems built to two readings of one sentence</td></tr><tr><td>Verifiable</td><td>Can I name the method and the pass criterion today?</td><td>Discovering at test readiness that nothing can be measured</td></tr><tr><td>Feasible</td><td>Can it be met within the constraints?</td><td>A baseline containing a promise nobody can keep</td></tr><tr><td>Implementation-free</td><td>Does it name a solution?</td><td>Closing a trade study inside a requirements document</td></tr><tr><td>Singular</td><td>Does it contain the word <em>and</em> joining two obligations?</td><td>A requirement that can only be half-verified</td></tr></tbody></table></div>
+        <p>Two of these are worth running on every sentence because they catch the most damage. <em>Verifiable</em> forces the verification method to be named now rather than at test readiness. <em>Singular</em> catches the requirement joined by <em>and</em>, which cannot be partially closed, partially waived or partially allocated.</p>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">Calculation algorithm</p>
+        <h2>Writing one requirement</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Name the subject</span></div><div><strong>2</strong><span>Write <em>shall</em></span></div><div><strong>3</strong><span>State one action</span></div><div><strong>4</strong><span>Attach the value and units</span></div><div><strong>5</strong><span>Attach the operating condition</span></div><div><strong>6</strong><span>Name the verification method</span></div><div><strong>7</strong><span>Record the rationale</span></div></div>
+        <p>Steps six and seven are not paperwork. If the verification method cannot be named, the requirement is not verifiable and the moment to discover that is now. And the rationale is what survives the people who wrote it: without it, a future team facing a change cannot tell whether the number was a physical limit or somebody&rsquo;s round figure.</p>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>What the missing condition cost</h2>
+        <p>The original sentence: <em>the battery shall provide 620 Wh</em>. The cell datasheet quotes 620 Wh at \(+20\,^{\circ}\)C, and the chemistry retains 75&nbsp;% of rated capacity at \(-35\,^{\circ}\)C, the predicted minimum.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>What was actually delivered.</strong> At the mission&rsquo;s minimum temperature the usable energy is \[620 \times 0.75 = 465\ \text{Wh},\] a shortfall of \(620-465 = 155\) Wh, or 25&nbsp;% of what the requirement appeared to demand.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Why nothing caught it.</strong> The verification method was inspection of the datasheet, and the datasheet said 620 Wh. Both the requirement and its verification were internally consistent and both were about the wrong temperature.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>What the requirement should have demanded.</strong> To get 620 Wh usable at \(-35\,^{\circ}\)C the nameplate capacity must be \[\frac{620}{0.75} = 826.7\ \text{Wh}.\] The condition does not merely clarify the requirement, it changes the answer by a third.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>The repaired sentence.</strong> <em>The electrical power subsystem shall supply at least 620 Wh of usable energy during each nighttime period at a cell temperature of \(-35\,^{\circ}\)C at end of life.</em> Verification: test, thermal-vacuum capacity measurement at \(-35\,^{\circ}\)C. Rationale: nighttime load of 62 W over a 10 h night.</div></div>
+        <div class="result-box">\[ \boxed{ 465\ \text{Wh delivered} \;\text{vs}\; 620\ \text{Wh required} \;\Longrightarrow\; \text{nameplate } 826.7\ \text{Wh} } \]</div>
+        <p><strong>Interpretation.</strong> The failure was not in the battery, the supplier or the inspection. It was in a sentence that omitted the one part of the pattern that decides what the number means. That is why the condition is not a refinement to be added later: it is what makes the value a requirement rather than a quotation from a catalogue.</p>
+      </section>
+
+      <section id="summary">
+        <p class="section-label">Operative rules</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Statement</th></tr></thead><tbody><tr><td>The sentence pattern</td><td>[Subject] shall [action] [value] [condition]. All five parts, every time.</td></tr><tr><td>shall, will, should</td><td>Only <em>shall</em> creates an obligation. <em>Will</em> states context; <em>should</em> does not belong in the document.</td></tr><tr><td>The condition is not optional</td><td>A performance number without its operating condition is a different number in flight.</td></tr><tr><td>One requirement, one thought</td><td>If it needs <em>and</em>, split it. Half-verified is not verified.</td></tr><tr><td>Name the verification method as you write</td><td>If you cannot say how it will be checked, it is not yet a requirement.</td></tr><tr><td>Record the rationale</td><td>Without it, no future team can tell whether a change is safe.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes">
+        <p class="section-label">Common mistakes</p>
+        <h2>What goes wrong</h2>
+        <ul class="check-list"><li><strong>Adding <em>shall</em> to a vague sentence.</strong> The modal creates an obligation, not a measurable one. &ldquo;The system shall be reliable&rdquo; is still not a requirement.</li><li><strong>Dropping the operating condition.</strong> A performance figure without its condition is a different figure in flight, usually by tens of percent.</li><li><strong>Two obligations joined by <em>and</em>.</strong> It cannot be partially verified, partially waived or allocated to two owners.</li><li><strong>Requiring the best available performance.</strong> &ldquo;As light as possible&rdquo; has no pass criterion, so it can never be closed and it authorises unlimited effort.</li><li><strong>Naming the solution.</strong> &ldquo;Shall use a lithium-ion battery&rdquo; closes the trade study inside a document whose job is to describe the need.</li><li><strong>Writing the requirement and deferring the verification method.</strong> If nobody can name the method today, the requirement is not verifiable today, and that is a finding rather than a scheduling detail.</li></ul>
+      </section>
+
+      <section id="references" class="references">
+        <p class="section-label">Sources</p>
+        <h2>References</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 4.2 and Appendix C.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=requirements---writing" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 10: Requirements &mdash; Writing</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adapted from Unit III of the Aerospace Systems Engineering (AE506) course script by Carlos Alberto Molina Holgu&iacute;n. Every number on this page was recomputed independently for it; no calculator covers this topic, so recomputation is the only check there is. The capacity figures were computed from the stated retention fraction; the 75 % retention is an illustrative value for the example and is not taken from a specific cell datasheet.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="conops-and-measures.html?v=11"><span>Previous lecture</span>&larr; ConOps and Measures</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+
+      <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Qu&eacute; deber&iacute;as poder hacer</h2>
+        <ul><li>redactar un requisito en el patr&oacute;n de cinco partes, con su condici&oacute;n de operaci&oacute;n;</li><li>usar <em>shall</em>, <em>will</em> y <em>should</em> correctamente, y decir por qu&eacute; s&oacute;lo uno va en un requisito;</li><li>mostrar con un c&aacute;lculo c&oacute;mo una condici&oacute;n faltante cambia lo que el requisito realmente exige;</li><li>aplicar las seis verificaciones de calidad y reparar un requisito que falle alguna;</li><li>nombrar el m&eacute;todo de verificaci&oacute;n y el criterio de aceptaci&oacute;n al momento de escribir el requisito.</li></ul>
+      </section>
+
+      <section id="physics-es">
+        <p class="section-label">Situación de ingeniería</p>
+        <h2>Un requisito que se cumpli&oacute; y aun as&iacute; fall&oacute;</h2>
+        <p class="lead">El requisito dec&iacute;a que la bater&iacute;a deber&aacute; proveer 620 Wh. El proveedor entreg&oacute; una bater&iacute;a de 620 Wh, la inspecci&oacute;n pas&oacute;, y el requisito se cerr&oacute;.</p><p>En la primera noche fr&iacute;a la plataforma desconect&oacute; cargas a la hora siete. Nadie minti&oacute; y nada estaba defectuoso: 620 Wh es la capacidad a temperatura ambiente, y la misi&oacute;n vuela a \(-35\,^{\circ}\)C. A la frase le faltaban cuatro palabras, y esas cuatro palabras eran la diferencia entre un requisito y un deseo.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 820 250" role="img" aria-label="Las cinco partes de un enunciado de requisito">
+            <rect x="15" y="70" width="110" height="64" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="70" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">Sujeto</text>
+            <text x="70" y="96" text-anchor="middle" font-size="12" fill="#071d33">El EPS</text>
+            <text x="70" y="120" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">qui&eacute;n se obliga</text>
+            <rect x="133" y="70" width="140" height="64" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="203" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">Modal</text>
+            <text x="203" y="96" text-anchor="middle" font-size="12" fill="#071d33">deber&aacute; suministrar</text>
+            <text x="203" y="120" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">la obligaci&oacute;n</text>
+            <rect x="281" y="70" width="250" height="64" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="406" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">Acci&oacute;n</text>
+            <text x="406" y="96" text-anchor="middle" font-size="12" fill="#071d33">al menos 620 Wh de energ&iacute;a utilizable</text>
+            <text x="406" y="120" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">qu&eacute; debe hacer</text>
+            <rect x="539" y="70" width="170" height="64" rx="6" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="624" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">Valor</text>
+            <text x="624" y="96" text-anchor="middle" font-size="12" fill="#071d33">durante cada periodo nocturno</text>
+            <text x="624" y="120" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">cu&aacute;nto</text>
+            <rect x="717" y="70" width="130" height="64" rx="6" fill="#f6dede" stroke="#8fa6ba"></rect>
+            <text x="782" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">Condici&oacute;n</text>
+            <text x="782" y="96" text-anchor="middle" font-size="12" fill="#071d33">a -35 C, al final de vida</text>
+            <text x="782" y="120" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">cu&aacute;ndo debe cumplirse</text>
+            <rect x="608" y="160" width="197" height="52" rx="6" fill="#fdf3f2" stroke="#e0b4ae"></rect>
+            <text x="706" y="182" text-anchor="middle" font-size="12" font-weight="600" fill="#b03a2e">Quita esto y el</text>
+            <text x="706" y="200" text-anchor="middle" font-size="12" font-weight="600" fill="#b03a2e">requisito no es verificable</text>
+            <line x1="706" y1="136" x2="706" y2="158" stroke="#b03a2e" stroke-width="2"></line>
+            </svg>
+            <figcaption>Cinco partes. Cuatro suelen estar presentes; la condici&oacute;n es la que se omite, y es la que decide si el requisito puede verificarse siquiera.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-es">
+        <p class="section-label">Alcance y límites</p>
+        <h2>Para qu&eacute; sirve un requisito</h2>
+        <p>Un requisito es una obligaci&oacute;n vinculante y verificable sobre una parte nombrada del sistema. Existe para que dos cosas puedan ocurrir sin una conversaci&oacute;n: que un proveedor pueda dise&ntilde;ar contra &eacute;l, y que un revisor pueda decidir despu&eacute;s si se cumpli&oacute;. Todo en el patr&oacute;n de redacci&oacute;n sirve a uno de esos dos prop&oacute;sitos.</p><p>Esa es tambi&eacute;n la prueba de si algo pertenece a un documento de requisitos. Si no puede verificarse, no puede cumplirse ni incumplirse, y es orientaci&oacute;n y no requisito &mdash; &uacute;til, pero va en otro lado.</p>
+        <div class="callout warning"><strong>Lo que una buena redacci&oacute;n no compra.</strong> Un requisito perfectamente escrito puede seguir siendo el requisito equivocado. El patr&oacute;n hace la intenci&oacute;n inequ&iacute;voca y comprobable; no dice nada sobre si esa intenci&oacute;n sirve a la misi&oacute;n. Esa pregunta pertenece a la validaci&oacute;n, y que un documento est&eacute; bien formado es una de las maneras m&aacute;s eficaces de que nadie la haga.</div>
+      </section>
+
+      <section id="modals-es">
+        <p class="section-label">Tres palabras, una obligaci&oacute;n</p>
+        <h2>shall, will, should</h2>
+        <div class="table-wrap"><table><thead><tr><th>Palabra</th><th>Significa</th><th>&Uacute;salo para</th></tr></thead><tbody><tr><td>shall (deber&aacute;)</td><td>Obligaci&oacute;n vinculante del sistema. Se verificar&aacute; y puede fallar.</td><td>Todo requisito, sin excepci&oacute;n</td></tr><tr><td>will (ser&aacute;)</td><td>Enunciado de hecho o intenci&oacute;n sobre algo fuera del control del sistema.</td><td>Contexto: lo que hace el entorno u otra parte</td></tr><tr><td>should (deber&iacute;a)</td><td>Una meta o preferencia. No se verifica y no puede fallar.</td><td>S&oacute;lo orientaci&oacute;n, y nunca en un documento de requisitos</td></tr></tbody></table></div>
+        <p>La distinci&oacute;n no es de estilo. Un ingeniero de verificaci&oacute;n arma la campa&ntilde;a de prueba con cada frase que contenga <em>shall</em>, as&iacute; que un <em>should</em> en un documento de requisitos o se prueba como si obligara, gastando esfuerzo, o se ignora junto con algo que s&iacute; importaba.</p>
+      </section>
+
+      <section id="quality-es">
+        <p class="section-label">Seis verificaciones</p>
+        <h2>Qu&eacute; debe sobrevivir un requisito</h2>
+        <div class="table-wrap"><table><thead><tr><th>Caracter&iacute;stica</th><th>Pregunta que responde</th><th>Falla que evita</th></tr></thead><tbody><tr><td>Necesario</td><td>&iquest;Se rompe algo si lo borramos?</td><td>Requisitos a&ntilde;adidos porque parec&iacute;an razonables</td></tr><tr><td>Inequ&iacute;voco</td><td>&iquest;Pueden dos ingenieros leerlo de dos formas?</td><td>Dos subsistemas construidos con dos lecturas de una frase</td></tr><tr><td>Verificable</td><td>&iquest;Puedo nombrar hoy el m&eacute;todo y el criterio de aceptaci&oacute;n?</td><td>Descubrir en la preparaci&oacute;n de prueba que nada puede medirse</td></tr><tr><td>Factible</td><td>&iquest;Puede cumplirse dentro de las restricciones?</td><td>Una l&iacute;nea base con una promesa que nadie puede cumplir</td></tr><tr><td>Libre de implementaci&oacute;n</td><td>&iquest;Nombra una soluci&oacute;n?</td><td>Cerrar un estudio de intercambio dentro de un documento de requisitos</td></tr><tr><td>Singular</td><td>&iquest;Contiene la palabra <em>y</em> uniendo dos obligaciones?</td><td>Un requisito que s&oacute;lo puede verificarse a medias</td></tr></tbody></table></div>
+        <p>Dos de estas valen la pena en cada frase porque atrapan el mayor da&ntilde;o. <em>Verificable</em> obliga a nombrar el m&eacute;todo de verificaci&oacute;n ahora y no en la preparaci&oacute;n de prueba. <em>Singular</em> atrapa el requisito unido por <em>y</em>, que no puede cerrarse, dispensarse ni asignarse a medias.</p>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Algoritmo de cálculo</p>
+        <h2>Redactar un requisito</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Nombrar el sujeto</span></div><div><strong>2</strong><span>Escribir <em>shall</em></span></div><div><strong>3</strong><span>Enunciar una acci&oacute;n</span></div><div><strong>4</strong><span>Adjuntar valor y unidades</span></div><div><strong>5</strong><span>Adjuntar la condici&oacute;n de operaci&oacute;n</span></div><div><strong>6</strong><span>Nombrar el m&eacute;todo de verificaci&oacute;n</span></div><div><strong>7</strong><span>Registrar la justificaci&oacute;n</span></div></div>
+        <p>Los pasos seis y siete no son papeleo. Si no puede nombrarse el m&eacute;todo de verificaci&oacute;n, el requisito no es verificable y el momento de descubrirlo es ahora. Y la justificaci&oacute;n es lo que sobrevive a quienes lo escribieron: sin ella, un equipo futuro ante un cambio no puede saber si el n&uacute;mero era un l&iacute;mite f&iacute;sico o la cifra redonda de alguien.</p>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>Cu&aacute;nto cost&oacute; la condici&oacute;n faltante</h2>
+        <p>La frase original: <em>la bater&iacute;a deber&aacute; proveer 620 Wh</em>. La hoja de datos de la celda indica 620 Wh a \(+20\,^{\circ}\)C, y la qu&iacute;mica retiene 75&nbsp;% de la capacidad nominal a \(-35\,^{\circ}\)C, el m&iacute;nimo previsto.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Lo que realmente se entreg&oacute;.</strong> A la temperatura m&iacute;nima de la misi&oacute;n la energ&iacute;a utilizable es \[620 \times 0.75 = 465\ \text{Wh},\] un d&eacute;ficit de \(620-465 = 155\) Wh, o 25&nbsp;% de lo que el requisito aparentaba exigir.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Por qu&eacute; nada lo atrap&oacute;.</strong> El m&eacute;todo de verificaci&oacute;n era inspecci&oacute;n de la hoja de datos, y la hoja dec&iacute;a 620 Wh. Tanto el requisito como su verificaci&oacute;n eran internamente consistentes y ambos trataban de la temperatura equivocada.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Lo que el requisito deb&iacute;a exigir.</strong> Para obtener 620 Wh utilizables a \(-35\,^{\circ}\)C la capacidad nominal debe ser \[\frac{620}{0.75} = 826.7\ \text{Wh}.\] La condici&oacute;n no s&oacute;lo aclara el requisito, cambia la respuesta en un tercio.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>La frase reparada.</strong> <em>El subsistema de potencia el&eacute;ctrica deber&aacute; suministrar al menos 620 Wh de energ&iacute;a utilizable durante cada periodo nocturno a una temperatura de celda de \(-35\,^{\circ}\)C al final de vida.</em> Verificaci&oacute;n: prueba, medici&oacute;n de capacidad en vac&iacute;o t&eacute;rmico a \(-35\,^{\circ}\)C. Justificaci&oacute;n: carga nocturna de 62 W durante una noche de 10 h.</div></div>
+        <div class="result-box">\[ \boxed{ 465\ \text{Wh entregados} \;\text{vs}\; 620\ \text{Wh requeridos} \;\Longrightarrow\; \text{nominal } 826.7\ \text{Wh} } \]</div>
+        <p><strong>Interpretaci&oacute;n.</strong> La falla no estuvo en la bater&iacute;a, el proveedor ni la inspecci&oacute;n. Estuvo en una frase que omiti&oacute; la parte del patr&oacute;n que decide qu&eacute; significa el n&uacute;mero. Por eso la condici&oacute;n no es un refinamiento para a&ntilde;adir despu&eacute;s: es lo que hace del valor un requisito y no una cita de cat&aacute;logo.</p>
+      </section>
+
+      <section id="summary-es">
+        <p class="section-label">Reglas operativas</p>
+        <h2>De un vistazo</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regla</th><th>Enunciado</th></tr></thead><tbody><tr><td>El patr&oacute;n de redacci&oacute;n</td><td>[Sujeto] deber&aacute; [acci&oacute;n] [valor] [condici&oacute;n]. Las cinco partes, siempre.</td></tr><tr><td>shall, will, should</td><td>S&oacute;lo <em>shall</em> crea obligaci&oacute;n. <em>Will</em> enuncia contexto; <em>should</em> no va en el documento.</td></tr><tr><td>La condici&oacute;n no es opcional</td><td>Un n&uacute;mero de desempe&ntilde;o sin su condici&oacute;n de operaci&oacute;n es otro n&uacute;mero en vuelo.</td></tr><tr><td>Un requisito, una idea</td><td>Si necesita <em>y</em>, div&iacute;delo. Medio verificado no es verificado.</td></tr><tr><td>Nombra el m&eacute;todo de verificaci&oacute;n al escribir</td><td>Si no puedes decir c&oacute;mo se comprobar&aacute;, a&uacute;n no es un requisito.</td></tr><tr><td>Registra la justificaci&oacute;n</td><td>Sin ella, ning&uacute;n equipo futuro puede saber si un cambio es seguro.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-es">
+        <p class="section-label">Errores comunes</p>
+        <h2>Qu&eacute; sale mal</h2>
+        <ul class="check-list"><li><strong>A&ntilde;adir <em>shall</em> a una frase vaga.</strong> El modal crea una obligaci&oacute;n, no una medible. &laquo;El sistema deber&aacute; ser confiable&raquo; sigue sin ser un requisito.</li><li><strong>Omitir la condici&oacute;n de operaci&oacute;n.</strong> Una cifra de desempe&ntilde;o sin su condici&oacute;n es otra cifra en vuelo, normalmente por decenas de por ciento.</li><li><strong>Dos obligaciones unidas por <em>y</em>.</strong> No puede verificarse a medias, dispensarse a medias ni asignarse a dos due&ntilde;os.</li><li><strong>Exigir el mejor desempe&ntilde;o disponible.</strong> &laquo;Lo m&aacute;s ligero posible&raquo; no tiene criterio de aceptaci&oacute;n, as&iacute; que nunca puede cerrarse y autoriza esfuerzo ilimitado.</li><li><strong>Nombrar la soluci&oacute;n.</strong> &laquo;Deber&aacute; usar bater&iacute;a de ion-litio&raquo; cierra el estudio de intercambio dentro de un documento cuyo trabajo es describir la necesidad.</li><li><strong>Escribir el requisito y diferir el m&eacute;todo de verificaci&oacute;n.</strong> Si nadie puede nombrar el m&eacute;todo hoy, el requisito no es verificable hoy, y eso es un hallazgo, no un detalle de calendario.</li></ul>
+      </section>
+
+      <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
+        <h2>Referencias</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 4.2 and Appendix C.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=requirements---writing" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 10: Requirements &mdash; Writing</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adaptado de la Unidad III del gui&oacute;n del curso Ingenier&iacute;a en Sistemas Aeroespaciales (AE506) de Carlos Alberto Molina Holgu&iacute;n. Cada n&uacute;mero de esta p&aacute;gina se recalcul&oacute; de forma independiente para ella; ninguna calculadora cubre este tema, as&iacute; que el rec&aacute;lculo es la &uacute;nica comprobaci&oacute;n disponible. Las cifras de capacidad se calcularon a partir de la fracci&oacute;n de retenci&oacute;n indicada; el 75 % de retenci&oacute;n es un valor ilustrativo para el ejemplo y no proviene de la hoja de datos de una celda espec&iacute;fica.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="conops-and-measures.html?v=11"><span>Lecture anterior</span>&larr; ConOps y medidas</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+
+      <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie k&ouml;nnen sollten</h2>
+        <ul><li>eine Anforderung im f&uuml;nfteiligen Muster mit Betriebsbedingung schreiben;</li><li><em>shall</em>, <em>will</em> und <em>should</em> richtig verwenden und begr&uuml;nden, warum nur eines hineingeh&ouml;rt;</li><li>rechnerisch zeigen, wie eine fehlende Bedingung die tats&auml;chliche Forderung ver&auml;ndert;</li><li>die sechs Qualit&auml;tspr&uuml;fungen anwenden und eine durchgefallene Anforderung korrigieren;</li><li>Verifikationsmethode und Bestehenskriterium beim Schreiben benennen.</li></ul>
+      </section>
+
+      <section id="physics-de">
+        <p class="section-label">Ingenieurtechnischer Kontext</p>
+        <h2>Eine erf&uuml;llte und dennoch gescheiterte Anforderung</h2>
+        <p class="lead">Die Anforderung lautete, die Batterie muss 620 Wh liefern. Der Lieferant lieferte eine 620-Wh-Batterie, die Pr&uuml;fung bestand, die Anforderung wurde geschlossen.</p><p>In der ersten kalten Nacht schaltete die Plattform in der siebten Stunde Lasten ab. Niemand log, nichts war defekt: 620 Wh ist die Kapazit&auml;t bei Raumtemperatur, und die Mission fliegt bei \(-35\,^{\circ}\)C. Dem Satz fehlten vier Worte, und diese vier Worte waren der Unterschied zwischen einer Anforderung und einem Wunsch.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 820 250" role="img" aria-label="Die f&uuml;nf Teile eines Anforderungssatzes">
+            <rect x="15" y="70" width="110" height="64" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="70" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">Subjekt</text>
+            <text x="70" y="96" text-anchor="middle" font-size="12" fill="#071d33">Das EPS</text>
+            <text x="70" y="120" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">wer verpflichtet ist</text>
+            <rect x="133" y="70" width="140" height="64" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="203" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">Modalverb</text>
+            <text x="203" y="96" text-anchor="middle" font-size="12" fill="#071d33">muss liefern</text>
+            <text x="203" y="120" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">die Verpflichtung</text>
+            <rect x="281" y="70" width="250" height="64" rx="6" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <text x="406" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">Handlung</text>
+            <text x="406" y="96" text-anchor="middle" font-size="12" fill="#071d33">mindestens 620 Wh nutzbare Energie</text>
+            <text x="406" y="120" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">was es leisten muss</text>
+            <rect x="539" y="70" width="170" height="64" rx="6" fill="#e8f1e9" stroke="#8fa6ba"></rect>
+            <text x="624" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">Wert</text>
+            <text x="624" y="96" text-anchor="middle" font-size="12" fill="#071d33">w&auml;hrend jeder Nachtphase</text>
+            <text x="624" y="120" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">wie viel</text>
+            <rect x="717" y="70" width="130" height="64" rx="6" fill="#f6dede" stroke="#8fa6ba"></rect>
+            <text x="782" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#0d568d">Bedingung</text>
+            <text x="782" y="96" text-anchor="middle" font-size="12" fill="#071d33">bei -35 C, am Lebensende</text>
+            <text x="782" y="120" text-anchor="middle" font-size="11" font-style="italic" fill="#8fa6ba">wann es gelten muss</text>
+            <rect x="608" y="160" width="197" height="52" rx="6" fill="#fdf3f2" stroke="#e0b4ae"></rect>
+            <text x="706" y="182" text-anchor="middle" font-size="12" font-weight="600" fill="#b03a2e">F&auml;llt dies weg, ist</text>
+            <text x="706" y="200" text-anchor="middle" font-size="12" font-weight="600" fill="#b03a2e">die Anforderung nicht pr&uuml;fbar</text>
+            <line x1="706" y1="136" x2="706" y2="158" stroke="#b03a2e" stroke-width="2"></line>
+            </svg>
+            <figcaption>F&uuml;nf Teile. Vier sind meist vorhanden; die Bedingung f&auml;llt weg &mdash; und sie entscheidet, ob die Anforderung &uuml;berhaupt pr&uuml;fbar ist.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-de">
+        <p class="section-label">Geltungsbereich und Grenzen</p>
+        <h2>Wozu eine Anforderung dient</h2>
+        <p>Eine Anforderung ist eine bindende, verifizierbare Verpflichtung f&uuml;r einen benannten Systemteil. Sie erm&ouml;glicht zweierlei ohne Gespr&auml;ch: Ein Lieferant kann danach entwerfen, und ein Pr&uuml;fer kann sp&auml;ter entscheiden, ob sie erf&uuml;llt wurde. Alles im Satzmuster dient einem dieser beiden Zwecke.</p><p>Das ist zugleich die Pr&uuml;fung, ob etwas &uuml;berhaupt in ein Anforderungsdokument geh&ouml;rt. Ist es nicht verifizierbar, kann es weder erf&uuml;llt noch verfehlt werden und ist Orientierung statt Anforderung &mdash; n&uuml;tzlich, aber anderswo.</p>
+        <div class="callout warning"><strong>Was gute Formulierung nicht leistet.</strong> Eine perfekt geschriebene Anforderung kann die falsche sein. Das Muster macht die Absicht eindeutig und pr&uuml;fbar; ob die Absicht der Mission dient, sagt es nicht. Diese Frage geh&ouml;rt zur Validierung, und ein wohlgeformtes Dokument ist eine der wirksamsten Arten, sie niemanden stellen zu lassen.</div>
+      </section>
+
+      <section id="modals-de">
+        <p class="section-label">Drei W&ouml;rter, eine Verpflichtung</p>
+        <h2>shall, will, should</h2>
+        <div class="table-wrap"><table><thead><tr><th>Wort</th><th>Bedeutet</th><th>Verwendung f&uuml;r</th></tr></thead><tbody><tr><td>shall (muss)</td><td>Bindende Verpflichtung des Systems. Wird verifiziert und kann scheitern.</td><td>Jede Anforderung, ausnahmslos</td></tr><tr><td>will (wird)</td><td>Tatsachen- oder Absichtsaussage &uuml;ber etwas au&szlig;erhalb der Systemkontrolle.</td><td>Kontext: was Umgebung oder Dritte tun</td></tr><tr><td>should (sollte)</td><td>Ein Ziel oder eine Pr&auml;ferenz. Wird nicht verifiziert und kann nicht scheitern.</td><td>Nur Hinweis, nie in einem Anforderungsdokument</td></tr></tbody></table></div>
+        <p>Die Unterscheidung ist nicht stilistisch. Ein Verifikationsingenieur baut die Testkampagne aus jedem Satz mit <em>shall</em>. Ein <em>should</em> im Anforderungsdokument wird also entweder wie bindend gepr&uuml;ft &mdash; vergeudeter Aufwand &mdash; oder zusammen mit etwas Wichtigem ignoriert.</p>
+      </section>
+
+      <section id="quality-de">
+        <p class="section-label">Sechs Pr&uuml;fungen</p>
+        <h2>Was eine Anforderung bestehen muss</h2>
+        <div class="table-wrap"><table><thead><tr><th>Merkmal</th><th>Beantwortete Frage</th><th>Verhinderter Fehler</th></tr></thead><tbody><tr><td>Notwendig</td><td>Geht etwas kaputt, wenn wir sie streichen?</td><td>Anforderungen, die nur vern&uuml;nftig schienen</td></tr><tr><td>Eindeutig</td><td>K&ouml;nnen zwei Ingenieure sie zweifach lesen?</td><td>Zwei Teilsysteme nach zwei Lesarten eines Satzes</td></tr><tr><td>Verifizierbar</td><td>Kann ich heute Methode und Bestehenskriterium nennen?</td><td>Bei der Testbereitschaft entdecken, dass nichts messbar ist</td></tr><tr><td>Machbar</td><td>Ist sie unter den Randbedingungen erf&uuml;llbar?</td><td>Eine Basis mit einem unhaltbaren Versprechen</td></tr><tr><td>Umsetzungsfrei</td><td>Nennt sie eine L&ouml;sung?</td><td>Eine Abw&auml;gung im Anforderungsdokument schlie&szlig;en</td></tr><tr><td>Einzeln</td><td>Enth&auml;lt sie ein <em>und</em>, das zwei Pflichten verbindet?</td><td>Eine Anforderung, die sich nur halb verifizieren l&auml;sst</td></tr></tbody></table></div>
+        <p>Zwei davon lohnen sich bei jedem Satz, weil sie den gr&ouml;&szlig;ten Schaden abfangen. <em>Verifizierbar</em> erzwingt die Nennung der Methode jetzt statt bei der Testbereitschaft. <em>Einzeln</em> f&auml;ngt die durch <em>und</em> verbundene Anforderung ab, die sich weder teilweise schlie&szlig;en noch teilweise erlassen noch teilweise zuordnen l&auml;sst.</p>
+      </section>
+
+      <section id="algorithm-de">
+        <p class="section-label">Rechenalgorithmus</p>
+        <h2>Eine Anforderung schreiben</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Das Subjekt benennen</span></div><div><strong>2</strong><span><em>shall</em> schreiben</span></div><div><strong>3</strong><span>Eine Handlung nennen</span></div><div><strong>4</strong><span>Wert und Einheiten anf&uuml;gen</span></div><div><strong>5</strong><span>Die Betriebsbedingung anf&uuml;gen</span></div><div><strong>6</strong><span>Die Verifikationsmethode nennen</span></div><div><strong>7</strong><span>Die Begr&uuml;ndung erfassen</span></div></div>
+        <p>Die Schritte sechs und sieben sind kein Papierkram. L&auml;sst sich die Verifikationsmethode nicht nennen, ist die Anforderung nicht verifizierbar &mdash; und jetzt ist der Moment, das zu merken. Und die Begr&uuml;ndung &uuml;berlebt ihre Verfasser: Ohne sie kann ein k&uuml;nftiges Team bei einer &Auml;nderung nicht unterscheiden, ob die Zahl eine physikalische Grenze oder jemandes runder Wert war.</p>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Was die fehlende Bedingung kostete</h2>
+        <p>Der urspr&uuml;ngliche Satz: <em>die Batterie muss 620 Wh liefern</em>. Das Datenblatt nennt 620 Wh bei \(+20\,^{\circ}\)C, und die Chemie beh&auml;lt bei \(-35\,^{\circ}\)C, dem vorhergesagten Minimum, 75&nbsp;% der Nennkapazit&auml;t.</p>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Was tats&auml;chlich geliefert wurde.</strong> Bei der Minimaltemperatur der Mission betr&auml;gt die nutzbare Energie \[620 \times 0{,}75 = 465\ \text{Wh},\] ein Defizit von \(620-465 = 155\) Wh oder 25&nbsp;% des scheinbar Geforderten.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Warum es nichts abfing.</strong> Die Verifikationsmethode war die Datenblattpr&uuml;fung, und das Datenblatt nannte 620 Wh. Anforderung und Verifikation waren in sich stimmig &mdash; und beide betrafen die falsche Temperatur.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Was die Anforderung h&auml;tte fordern m&uuml;ssen.</strong> F&uuml;r 620 Wh nutzbar bei \(-35\,^{\circ}\)C muss die Nennkapazit&auml;t \[\frac{620}{0{,}75} = 826{,}7\ \text{Wh}\] betragen. Die Bedingung pr&auml;zisiert die Anforderung nicht nur, sie &auml;ndert die Antwort um ein Drittel.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Der korrigierte Satz.</strong> <em>Das elektrische Energiesystem muss w&auml;hrend jeder Nachtphase mindestens 620 Wh nutzbare Energie bei einer Zelltemperatur von \(-35\,^{\circ}\)C am Lebensende liefern.</em> Verifikation: Test, Kapazit&auml;tsmessung im Thermal-Vakuum bei \(-35\,^{\circ}\)C. Begr&uuml;ndung: Nachtlast von 62 W &uuml;ber eine 10-h-Nacht.</div></div>
+        <div class="result-box">\[ \boxed{ 465\ \text{Wh geliefert} \;\text{vs}\; 620\ \text{Wh gefordert} \;\Longrightarrow\; \text{Nennwert } 826{,}7\ \text{Wh} } \]</div>
+        <p><strong>Deutung.</strong> Der Fehler lag nicht bei Batterie, Lieferant oder Pr&uuml;fung. Er lag in einem Satz, dem der Teil des Musters fehlte, der die Bedeutung der Zahl festlegt. Deshalb ist die Bedingung keine sp&auml;ter zu erg&auml;nzende Verfeinerung: Sie macht aus dem Wert eine Anforderung statt eines Katalogzitats.</p>
+      </section>
+
+      <section id="summary-de">
+        <p class="section-label">Arbeitsregeln</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regel</th><th>Aussage</th></tr></thead><tbody><tr><td>Das Satzmuster</td><td>[Subjekt] muss [Handlung] [Wert] [Bedingung]. Alle f&uuml;nf Teile, jedes Mal.</td></tr><tr><td>shall, will, should</td><td>Nur <em>shall</em> schafft eine Pflicht. <em>Will</em> nennt Kontext; <em>should</em> geh&ouml;rt nicht ins Dokument.</td></tr><tr><td>Die Bedingung ist nicht optional</td><td>Eine Leistungszahl ohne Betriebsbedingung ist im Flug eine andere Zahl.</td></tr><tr><td>Eine Anforderung, ein Gedanke</td><td>Braucht sie ein <em>und</em>, teilen Sie sie. Halb verifiziert ist nicht verifiziert.</td></tr><tr><td>Die Verifikationsmethode beim Schreiben nennen</td><td>K&ouml;nnen Sie nicht sagen, wie gepr&uuml;ft wird, ist es noch keine Anforderung.</td></tr><tr><td>Die Begr&uuml;ndung erfassen</td><td>Ohne sie kann kein k&uuml;nftiges Team beurteilen, ob eine &Auml;nderung sicher ist.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Häufige Fehler</p>
+        <h2>Was schiefgeht</h2>
+        <ul class="check-list"><li><strong><em>shall</em> an einen vagen Satz h&auml;ngen.</strong> Das Modalverb schafft eine Pflicht, keine messbare. &bdquo;Das System muss zuverl&auml;ssig sein&ldquo; ist weiterhin keine Anforderung.</li><li><strong>Die Betriebsbedingung weglassen.</strong> Eine Leistungszahl ohne Bedingung ist im Flug eine andere Zahl, meist um zweistellige Prozents&auml;tze.</li><li><strong>Zwei durch <em>und</em> verbundene Pflichten.</strong> Sie l&auml;sst sich weder teilweise verifizieren noch teilweise erlassen noch zwei Verantwortlichen zuordnen.</li><li><strong>Die bestm&ouml;gliche Leistung fordern.</strong> &bdquo;So leicht wie m&ouml;glich&ldquo; hat kein Bestehenskriterium, kann nie geschlossen werden und erlaubt unbegrenzten Aufwand.</li><li><strong>Die L&ouml;sung nennen.</strong> &bdquo;Muss eine Lithium-Ionen-Batterie verwenden&ldquo; schlie&szlig;t die Abw&auml;gung in einem Dokument, das den Bedarf beschreiben soll.</li><li><strong>Die Anforderung schreiben und die Methode vertagen.</strong> Kann heute niemand die Methode nennen, ist die Anforderung heute nicht verifizierbar &mdash; ein Befund, kein Terminierungsdetail.</li></ul>
+      </section>
+
+      <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
+        <h2>Literatur</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 4.2 and Appendix C.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=requirements---writing" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 10: Requirements &mdash; Writing</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Bearbeitet nach Einheit III des Skripts Luft- und Raumfahrtsystemtechnik (AE506) von Carlos Alberto Molina Holgu&iacute;n. Jede Zahl dieser Seite wurde eigens daf&uuml;r unabh&auml;ngig neu berechnet; kein Rechner deckt dieses Thema ab, daher ist die Neuberechnung die einzige Pr&uuml;fung. Die Kapazit&auml;tswerte wurden aus dem angegebenen Erhaltungsanteil berechnet; die 75 % sind ein Beispielwert und stammen nicht aus einem konkreten Zellendatenblatt.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="conops-and-measures.html?v=11"><span>Vorherige Vorlesung</span>&larr; Betriebskonzept und Kenngr&ouml;&szlig;en</a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>&copy; <span id="year"></span> Carlos Alberto Molina Holgu&iacute;n</p>
+    <p>Universidad Aut&oacute;noma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>
