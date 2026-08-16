@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Engineering ethics as a systems engineering process: who carries the burden of proof, why an incomplete chart decided a launch, the normalisation of deviance, and how to write a dissent that can be acted on." />
+  <meta name="author" content="Carlos Alberto Molina Holgu&iacute;n" />
+  <meta name="theme-color" content="#071d33" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Ethics and Professional Responsibility | Aerospace Systems Engineering</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:wght@600;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=12" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=12"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=12" data-ui-key="course">Aerospace Systems Engineering</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Aerospace Systems Engineering &middot; Lecture 24</p>
+        <h1>Ethics and Professional Responsibility</h1>
+        <p class="hero-copy">The last decision in every project is made by a person under pressure with incomplete data. What that person owes, and how the engineering they were taught either helps them or does not.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Ingeniería de Sistemas Aeroespaciales &middot; Lecture 24</p>
+        <h1>&Eacute;tica y responsabilidad profesional</h1>
+        <p class="hero-copy">La &uacute;ltima decisi&oacute;n de todo proyecto la toma una persona bajo presi&oacute;n con datos incompletos. Qu&eacute; debe esa persona, y c&oacute;mo la ingenier&iacute;a que le ense&ntilde;aron la ayuda o no.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Luft- und Raumfahrtsystemtechnik &middot; Vorlesung 24</p>
+        <h1>Ethik und berufliche Verantwortung</h1>
+        <p class="hero-copy">Die letzte Entscheidung jedes Projekts trifft ein Mensch unter Druck mit unvollst&auml;ndigen Daten. Was diese Person schuldet &mdash; und ob die gelernte Ingenieurarbeit ihr dabei hilft.</p>
+      </div>
+
+    <div class="hero-meta">
+        <span data-language="en">Estimated reading: 18 min</span><span data-language="es" hidden>Lectura estimada: 18 min</span><span data-language="de" hidden>Lesedauer: ca. 18 min</span>
+        <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+        <span data-language="en">Scope: the decision, not the code</span><span data-language="es" hidden>Alcance: la decisi&oacute;n, no el c&oacute;digo</span><span data-language="de" hidden>Umfang: die Entscheidung, nicht der Kodex</span>
+    </div>
+    <div class="button-row">
+      <a class="button secondary" href="configuration-and-mbse.html?v=12">&larr; <span data-ui-key="previous">Previous lecture</span></a>
+      <a class="button secondary" href="index.html?v=12" data-ui-key="back">Back to course</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Engineering situation</a>
+        <a href="#model">Scope and limits</a>
+        <a href="#burden">Who proves what</a>
+        <a href="#deviance">When anomalies become normal</a>
+        <a href="#dissent">How to disagree usefully</a>
+        <a href="#algorithm">When it is you</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Operative rules</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#references">Sources</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Situaci&oacute;n de ingenier&iacute;a</a>
+        <a href="#model-es">Alcance y l&iacute;mites</a>
+        <a href="#burden-es">Qui&eacute;n prueba qu&eacute;</a>
+        <a href="#deviance-es">Cuando la anomal&iacute;a se vuelve normal</a>
+        <a href="#dissent-es">C&oacute;mo disentir de forma &uacute;til</a>
+        <a href="#algorithm-es">Cuando te toca a ti</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Reglas operativas</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Kontext</a>
+        <a href="#model-de">Geltungsbereich</a>
+        <a href="#burden-de">Wer beweist was</a>
+        <a href="#deviance-de">Wenn Anomalien normal werden</a>
+        <a href="#dissent-de">Wie man n&uuml;tzlich widerspricht</a>
+        <a href="#algorithm-de">Wenn Sie es sind</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Arbeitsregeln</a>
+        <a href="#mistakes-de">H&auml;ufige Fehler</a>
+        <a href="#references-de">Quellen</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+
+      <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul><li>state where the burden of proof sits in a safety decision, and recognise when it has been reversed;</li><li>explain why presenting only the anomalous cases can invert the conclusion a data set supports;</li><li>define the normalisation of deviance and give the test that detects it;</li><li>write a dissent that names the condition, the missing evidence, the decision requested and the addressee;</li><li>connect a professional obligation to the specific engineering artefact that discharges it.</li></ul>
+      </section>
+
+      <section id="physics">
+        <p class="section-label">Engineering situation</p>
+        <h2>Seven flights on the chart, seventeen not</h2>
+        <p class="lead">On the evening of 27&nbsp;January 1986, engineers at the solid rocket motor contractor recommended against launching the next morning. Their concern was specific: the joint seals had shown erosion and blow-by on cold flights, and the temperature forecast was far colder than anything flown.</p><p>The charts they brought showed the flights that had suffered thermal distress. Twenty-four flights had flown; seven appeared. The seventeen that had flown without incident &mdash; the warm ones &mdash; were not on the page, and without them the relationship between temperature and damage could be argued either way. It was. The recommendation was questioned, the contractor&rsquo;s management caucused, and the position was reversed. <em>Challenger</em> was destroyed seventy-three seconds after launch and its seven crew were killed.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 300" role="img" aria-label="Joint temperature: the range of flight experience against the predicted value">
+            <rect x="382.3" y="137" width="327.7" height="26" rx="4" fill="#e8f1e9" stroke="#3f7a4f"></rect>
+            <rect x="169.7" y="137" width="212.6" height="26" rx="4" fill="#f7e9e6" stroke="#b03a2e" stroke-dasharray="6 4"></rect>
+            <line x1="90" y1="184" x2="710" y2="184" stroke="#8fa6ba" stroke-width="2"></line>
+            <line x1="178.6" y1="184" x2="178.6" y2="190" stroke="#8fa6ba" stroke-width="1"></line>
+            <text x="178.6" y="204" text-anchor="middle" font-size="11" fill="#8fa6ba">30 &deg;F</text>
+            <line x1="267.1" y1="184" x2="267.1" y2="190" stroke="#8fa6ba" stroke-width="1"></line>
+            <text x="267.1" y="204" text-anchor="middle" font-size="11" fill="#8fa6ba">40 &deg;F</text>
+            <line x1="355.7" y1="184" x2="355.7" y2="190" stroke="#8fa6ba" stroke-width="1"></line>
+            <text x="355.7" y="204" text-anchor="middle" font-size="11" fill="#8fa6ba">50 &deg;F</text>
+            <line x1="444.3" y1="184" x2="444.3" y2="190" stroke="#8fa6ba" stroke-width="1"></line>
+            <text x="444.3" y="204" text-anchor="middle" font-size="11" fill="#8fa6ba">60 &deg;F</text>
+            <line x1="532.9" y1="184" x2="532.9" y2="190" stroke="#8fa6ba" stroke-width="1"></line>
+            <text x="532.9" y="204" text-anchor="middle" font-size="11" fill="#8fa6ba">70 &deg;F</text>
+            <line x1="621.4" y1="184" x2="621.4" y2="190" stroke="#8fa6ba" stroke-width="1"></line>
+            <text x="621.4" y="204" text-anchor="middle" font-size="11" fill="#8fa6ba">80 &deg;F</text>
+            <line x1="382.3" y1="130" x2="382.3" y2="184" stroke="#3f7a4f" stroke-width="2"></line>
+            <text x="382.3" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#3f7a4f">53 &deg;F</text>
+            <text x="382.3" y="116" text-anchor="middle" font-size="11" fill="#3f7a4f">coldest previous launch</text>
+            <line x1="169.7" y1="130" x2="169.7" y2="184" stroke="#b03a2e" stroke-width="2"></line>
+            <text x="169.7" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#b03a2e">29 &deg;F</text>
+            <text x="169.7" y="116" text-anchor="middle" font-size="11" fill="#b03a2e">predicted that morning</text>
+            <text x="276.0" y="174" text-anchor="middle" font-size="12" font-style="italic" fill="#b03a2e">no flight experience anywhere in here</text>
+            <text x="90" y="30" font-size="13" font-weight="600" fill="#071d33">Joint temperature</text>
+            <rect x="60" y="238" width="680" height="34" rx="8" fill="#f6f1e6" stroke="#c2ab7d"></rect>
+            <text x="400" y="260" text-anchor="middle" font-size="13" fill="#5c4a24">24 &deg;F of extrapolation, and the argument was about who had to prove what</text>
+            </svg>
+            <figcaption>The temperature at which the joint would have to work that morning lay 24&nbsp;&deg;F below anything the vehicle had ever flown. Nothing in the flight record covered the shaded region, which is exactly why the question of who had to prove what decided the outcome.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model">
+        <p class="section-label">Scope and limits</p>
+        <h2>Ethics as an engineering process</h2>
+        <p>This lecture does not ask you to be a good person. It assumes you are one, which is the normal case, and observes that it was not sufficient in either accident this course studies. The engineers who objected on that January evening were competent, careful and right, and their objection failed anyway.</p><p>So the subject here is narrower and more useful: <strong>professional responsibility is discharged through specific engineering artefacts</strong>. The duty to give an honest technical opinion is discharged by a chart that shows the whole data set. The duty not to let a known hazard pass is discharged by a risk register entry with an owner and a trigger. The duty to dissent is discharged by a written statement naming a decision and an addressee. Each of these is something you already know how to build from the previous twenty-three lectures.</p>
+        <div class="callout warning"><strong>Codes of ethics are necessary and not sufficient.</strong> Every professional code says an engineer shall hold paramount the safety of the public, and nobody in either accident disputed that. The failures were not about the principle; they were about who had to prove what, and about a chart with seventeen data points missing. Principles are settled in a meeting only if somebody has done the work that lets them be applied.</div>
+      </section>
+
+      <section id="burden">
+        <p class="section-label">The direction of the question</p>
+        <h2>Prove it is safe, or prove it will fail</h2>
+        <div class="table-wrap"><table><thead><tr><th></th><th>The question asked</th><th>What happens when the data is incomplete</th></tr></thead><tbody><tr><td><strong>Proof of safety</strong></td><td>Can you show me the evidence that it is safe to proceed?</td><td>The answer is no, and the work stops until evidence exists</td></tr><tr><td><strong>Proof of danger</strong></td><td>Can you prove to me that it will fail?</td><td>The answer is also no, and the work proceeds</td></tr><tr><td>The difference</td><td>The same evidence, the same engineers, the same meeting</td><td>Only the direction of the question changed, and it decided the outcome</td></tr></tbody></table></div>
+        <p>Read the table again and notice that the evidence is identical in both rows. Nothing about the joint, the temperature or the data changed between them. What changed is which party had to produce a proof, and when the data is incomplete &mdash; which is the normal condition of every real decision &mdash; that choice determines the answer completely.</p><p>The rule for aerospace is not a matter of taste. A flight is permitted when there is affirmative evidence that it is safe within the qualified envelope, and the absence of a proof of failure is not such evidence. An engineer who is asked to prove that something will fail should say, in those words, that the question is the wrong way round, and should say it before answering it.</p>
+      </section>
+
+      <section id="deviance">
+        <p class="section-label">The second accident</p>
+        <h2>The normalisation of deviance</h2>
+        <p>Foam had been shedding from the external tank and striking the orbiter for years before <em>Columbia</em> broke up on re-entry on 1&nbsp;February 2003, killing its seven crew. Every previous strike had been survived. Because it kept happening and nothing had gone wrong, it stopped being treated as a deviation from the design and became an accepted characteristic of flight &mdash; an in-family event, in the language of the programme.</p><p>That is the normalisation of deviance: an out-of-specification condition recurs, no consequence follows, and the absence of consequence is read as evidence of margin. The reasoning is not stupid. It is inductive, and it is the same reasoning that makes flight heritage valuable. What makes it dangerous is that it is indistinguishable, from the inside, from having been lucky.</p><p>The test that separates them is available and cheap: <strong>ask whether anyone can state, quantitatively, why the condition is survivable</strong>. Heritage says we have done this fifty times. Margin says the impact energy is bounded at this value and the panel is qualified to that one. Only the second is evidence, and if nobody can produce it, what the project has is a streak rather than a margin.</p>
+      </section>
+
+      <section id="dissent">
+        <p class="section-label">Making an objection actionable</p>
+        <h2>The duty to dissent, and how</h2>
+        <div class="table-wrap"><table><thead><tr><th>A dissent that can be acted on states</th><th>A dissent that cannot says</th></tr></thead><tbody><tr><td>The specific technical condition, with the quantity and the limit</td><td>&ldquo;I have a bad feeling about this&rdquo;</td></tr><tr><td>What evidence exists and what is missing</td><td>&ldquo;We have never tested that&rdquo;, with no statement of what it would take</td></tr><tr><td>What decision the speaker is asking for</td><td>A concern raised without a request attached</td></tr><tr><td>Who is being asked, and by when</td><td>A concern raised to whoever happened to be in the room</td></tr><tr><td>A written record, sent the same day</td><td>A verbal objection nobody minuted</td></tr></tbody></table></div>
+        <p>A dissent is a technical product and it succeeds or fails on the same qualities as any other: it must be specific, it must name what is missing, and it must ask for a decision from somebody who can make it. &ldquo;I am not comfortable&rdquo; transfers a feeling. &ldquo;The joint has no test data below 53&nbsp;&deg;F, the predicted temperature is 29&nbsp;&deg;F, and I am asking the programme manager to delay until we have data or a qualified analysis&rdquo; transfers a decision.</p><p>Write it down the same day, and send it to the person who owns the decision rather than to the room. This is not defensive paperwork. An objection that exists only in a meeting cannot be escalated, cannot be tracked, and cannot be answered, and the honest reason most dissents fail is that they were never converted into something the organisation was capable of processing.</p>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">Calculation algorithm</p>
+        <h2>When the concern is yours</h2>
+        <div class="process-flow"><div><strong>1</strong><span>State the condition as a quantity against a limit</span></div><div><strong>2</strong><span>Assemble the whole data set, not the interesting part</span></div><div><strong>3</strong><span>Say plainly what evidence is missing</span></div><div><strong>4</strong><span>Check which way the burden of proof is pointing</span></div><div><strong>5</strong><span>Name the decision you are asking for</span></div><div><strong>6</strong><span>Name the person who owns that decision</span></div><div><strong>7</strong><span>Put it in writing the same day</span></div><div><strong>8</strong><span>If the answer is no, ask for it in writing too</span></div></div>
+        <p>Step eight is not about protecting yourself, although it does. A refusal that has to be written down is a refusal somebody has to think about, and the request for it is often the moment the decision is reconsidered.</p>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>The chart that was not brought</h2>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Count the record.</strong> Twenty-four flights had flown. Seven had shown thermal distress in the joints and were on the charts; seventeen had not and were not. The board therefore saw \[ \frac{7}{24} = 29\,\% \] of the flight history, selected by outcome.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>See what the selection does.</strong> Among only the damaged flights, the coldest was not obviously the worst, so temperature looked like a weak predictor. Add the seventeen undamaged flights, which were the warm ones, and the pattern is no longer arguable. The data that would have decided the meeting was in the programme&rsquo;s own records and was not on the page.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Measure the extrapolation.</strong> The coldest joint temperature ever flown was about 53&nbsp;&deg;F; the value predicted for that morning was about 29&nbsp;&deg;F. The launch would take place \[ 53 - 29 = 24\ ^\circ\text{F} \;\approx\; 13.3\ ^\circ\text{C} \] below any flight experience. In the vocabulary of Lecture 15, the technology readiness for that condition was not demonstrated; in the vocabulary of Lecture 21, no verification covered the environment.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Find the reversal.</strong> The engineers were asked to prove that the seals <em>would</em> fail. They could not, because nobody can prove a failure that has not happened yet. Under the correct question &mdash; show the evidence that this is safe at 29&nbsp;&deg;F &mdash; the answer was equally unavailable, and it would have stopped the launch. Same evidence, same people, opposite outcome.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Locate the missing artefacts.</strong> Three products from this course would each have carried the objection on their own: a complete plot of all twenty-four flights, a risk register entry with the temperature as its trigger, and a verification matrix row showing no method covering the cold environment. None of the three is heroic, and any one of them would have been harder to overrule than a recommendation.</div></div>
+        <div class="result-box">\[ \boxed{ \frac{7}{24} = 29\,\%\ \text{of the record shown},\qquad 53 - 29 = 24\ ^\circ\text{F}\ \text{beyond experience} } \]</div>
+        <p><strong>Interpretation.</strong> This is the last worked example of the course, and it uses no method that has not already appeared in it. Counting a data set completely, stating a limit, checking whether experience covers a condition, asking who must prove what: those are the ordinary tools of the preceding twenty-three lectures. What the two accidents show is that these tools are not merely good practice. They are the form that professional responsibility takes in this profession, and an engineer who keeps them is doing the ethical work whether or not anyone in the room calls it that.</p>
+      </section>
+
+      <section id="summary">
+        <p class="section-label">Operative rules</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Statement</th></tr></thead><tbody><tr><td>Safety is proved, never assumed</td><td>The burden is on proceeding, not on stopping. &ldquo;Prove it will fail&rdquo; is the wrong question and it has a known outcome.</td></tr><tr><td>Show the whole record</td><td>A chart that plots only the incidents hides the correlation that would have decided the question.</td></tr><tr><td>An anomaly that recurs is not thereby normal</td><td>Repetition without consequence is evidence of luck as readily as of margin.</td></tr><tr><td>Dissent in writing, with a request</td><td>State the condition, the missing evidence, the decision you are asking for, and to whom.</td></tr><tr><td>Competence is an ethical obligation</td><td>Most engineering harm comes from ordinary work done without care, not from anyone choosing to do wrong.</td></tr><tr><td>The organisation is part of the design</td><td>A reporting line that filters bad news is a failure path, and it belongs in the risk register.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes">
+        <p class="section-label">Common mistakes</p>
+        <h2>What goes wrong</h2>
+        <ul class="check-list"><li><strong>Answering &ldquo;prove it will fail&rdquo;.</strong> Engaging with the reversed question concedes it. Say that the burden runs the other way, and say it first.</li><li><strong>Plotting only the anomalies.</strong> Selecting a data set by outcome can invert the conclusion it supports, and the omission is invisible on the page.</li><li><strong>Reading a streak as a margin.</strong> If nobody can state quantitatively why a recurring condition is survivable, the project has been lucky rather than safe.</li><li><strong>Dissenting verbally.</strong> An objection that exists only in a meeting cannot be escalated, tracked or answered.</li><li><strong>Waiting to be certain.</strong> Certainty arrives after the decision. The obligation is to report the uncertainty accurately and on time, not to resolve it first.</li><li><strong>Treating the organisation as outside the design.</strong> A review chain that filters bad news is a failure path with no owner, and it belongs in the risk register like any other.</li></ul>
+      </section>
+
+      <section id="references" class="references">
+        <p class="section-label">Sources</p>
+        <h2>References</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Sections 1.3 and 7.1 on the systems engineer's professional conduct.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=ethics" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 27: Ethics</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+          <li>Presidential Commission on the Space Shuttle Challenger Accident. <em>Report to the President</em>, Volume&nbsp;I, including Appendix&nbsp;F, &ldquo;Personal Observations on the Reliability of the Shuttle&rdquo; by R.&nbsp;P. Feynman. Washington, DC, June 1986.</li>
+          <li>Columbia Accident Investigation Board. <em>Report</em>, Volume&nbsp;I, especially Chapters&nbsp;6 to 8 on organisational causes. Washington, DC: NASA and the U.S. Government Printing Office, August 2003.</li>
+          <li>Vaughan, D. <em>The Challenger Launch Decision: Risky Technology, Culture, and Deviance at NASA</em>. Chicago: University of Chicago Press, 1996.</li>
+          <li>Walden, D.&nbsp;D., G.&nbsp;J. Roedler, K. Forsberg, R.&nbsp;D. Hamelin, and T.&nbsp;M. Shortell (eds.). <em>INCOSE Systems Engineering Handbook: A Guide for System Life Cycle Processes and Activities</em>, 4th edition. San Diego, CA: International Council on Systems Engineering; published by John Wiley &amp; Sons, 2015.</li>
+        </ol>
+        <p class="source-note">Adapted from Unit VI of the Aerospace Systems Engineering (AE506) course script by Carlos Alberto Molina Holgu&iacute;n. This lecture covers the ethics component of Unit VI of the AE506 programa anal&iacute;tico, which the course script does not otherwise reach; the two accident narratives follow the findings of the Rogers Commission and the Columbia Accident Investigation Board. The flight counts and the temperature difference are computed on this page from the figures those reports establish.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="configuration-and-mbse.html?v=12"><span>Previous lecture</span>&larr; Configuration Management and MBSE</a>
+        <a class="next-link" href="index.html?v=12"><span>Course index</span>All 24 lectures &rarr;</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+
+      <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Qu&eacute; deber&iacute;as poder hacer</h2>
+        <ul><li>enunciar d&oacute;nde recae la carga de la prueba en una decisi&oacute;n de seguridad, y reconocer cu&aacute;ndo se ha invertido;</li><li>explicar por qu&eacute; presentar s&oacute;lo los casos an&oacute;malos puede invertir la conclusi&oacute;n que un conjunto de datos sostiene;</li><li>definir la normalizaci&oacute;n de la desviaci&oacute;n y dar la prueba que la detecta;</li><li>escribir un disenso que nombre la condici&oacute;n, la evidencia faltante, la decisi&oacute;n pedida y el destinatario;</li><li>conectar una obligaci&oacute;n profesional con el artefacto de ingenier&iacute;a espec&iacute;fico que la cumple.</li></ul>
+      </section>
+
+      <section id="physics-es">
+        <p class="section-label">Situación de ingeniería</p>
+        <h2>Siete vuelos en la gr&aacute;fica, diecisiete no</h2>
+        <p class="lead">La tarde del 27 de enero de 1986, ingenieros del contratista del motor de combustible s&oacute;lido recomendaron no lanzar a la ma&ntilde;ana siguiente. Su preocupaci&oacute;n era espec&iacute;fica: los sellos de las juntas hab&iacute;an mostrado erosi&oacute;n y fuga en vuelos fr&iacute;os, y el pron&oacute;stico era mucho m&aacute;s fr&iacute;o que todo lo volado.</p><p>Las gr&aacute;ficas que llevaron mostraban los vuelos que hab&iacute;an sufrido da&ntilde;o t&eacute;rmico. Hab&iacute;an volado veinticuatro; aparec&iacute;an siete. Los diecisiete que volaron sin incidente &mdash; los c&aacute;lidos &mdash; no estaban en la p&aacute;gina, y sin ellos la relaci&oacute;n entre temperatura y da&ntilde;o pod&iacute;a argumentarse en cualquier direcci&oacute;n. Se hizo. Se cuestion&oacute; la recomendaci&oacute;n, la direcci&oacute;n del contratista se reuni&oacute; aparte, y la posici&oacute;n se revirti&oacute;. El <em>Challenger</em> fue destruido setenta y tres segundos despu&eacute;s del despegue y sus siete tripulantes murieron.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 300" role="img" aria-label="Temperatura de la junta: el rango de experiencia de vuelo contra el valor pronosticado">
+            <rect x="382.3" y="137" width="327.7" height="26" rx="4" fill="#e8f1e9" stroke="#3f7a4f"></rect>
+            <rect x="169.7" y="137" width="212.6" height="26" rx="4" fill="#f7e9e6" stroke="#b03a2e" stroke-dasharray="6 4"></rect>
+            <line x1="90" y1="184" x2="710" y2="184" stroke="#8fa6ba" stroke-width="2"></line>
+            <line x1="178.6" y1="184" x2="178.6" y2="190" stroke="#8fa6ba" stroke-width="1"></line>
+            <text x="178.6" y="204" text-anchor="middle" font-size="11" fill="#8fa6ba">30 &deg;F</text>
+            <line x1="267.1" y1="184" x2="267.1" y2="190" stroke="#8fa6ba" stroke-width="1"></line>
+            <text x="267.1" y="204" text-anchor="middle" font-size="11" fill="#8fa6ba">40 &deg;F</text>
+            <line x1="355.7" y1="184" x2="355.7" y2="190" stroke="#8fa6ba" stroke-width="1"></line>
+            <text x="355.7" y="204" text-anchor="middle" font-size="11" fill="#8fa6ba">50 &deg;F</text>
+            <line x1="444.3" y1="184" x2="444.3" y2="190" stroke="#8fa6ba" stroke-width="1"></line>
+            <text x="444.3" y="204" text-anchor="middle" font-size="11" fill="#8fa6ba">60 &deg;F</text>
+            <line x1="532.9" y1="184" x2="532.9" y2="190" stroke="#8fa6ba" stroke-width="1"></line>
+            <text x="532.9" y="204" text-anchor="middle" font-size="11" fill="#8fa6ba">70 &deg;F</text>
+            <line x1="621.4" y1="184" x2="621.4" y2="190" stroke="#8fa6ba" stroke-width="1"></line>
+            <text x="621.4" y="204" text-anchor="middle" font-size="11" fill="#8fa6ba">80 &deg;F</text>
+            <line x1="382.3" y1="130" x2="382.3" y2="184" stroke="#3f7a4f" stroke-width="2"></line>
+            <text x="382.3" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#3f7a4f">53 &deg;F</text>
+            <text x="382.3" y="116" text-anchor="middle" font-size="11" fill="#3f7a4f">lanzamiento previo m&aacute;s fr&iacute;o</text>
+            <line x1="169.7" y1="130" x2="169.7" y2="184" stroke="#b03a2e" stroke-width="2"></line>
+            <text x="169.7" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#b03a2e">29 &deg;F</text>
+            <text x="169.7" y="116" text-anchor="middle" font-size="11" fill="#b03a2e">pronosticada esa ma&ntilde;ana</text>
+            <text x="276.0" y="174" text-anchor="middle" font-size="12" font-style="italic" fill="#b03a2e">ninguna experiencia de vuelo en todo este tramo</text>
+            <text x="90" y="30" font-size="13" font-weight="600" fill="#071d33">Temperatura de la junta</text>
+            <rect x="60" y="238" width="680" height="34" rx="8" fill="#f6f1e6" stroke="#c2ab7d"></rect>
+            <text x="400" y="260" text-anchor="middle" font-size="13" fill="#5c4a24">24 &deg;F de extrapolaci&oacute;n, y la discusi&oacute;n fue sobre qui&eacute;n ten&iacute;a que probar qu&eacute;</text>
+            </svg>
+            <figcaption>La temperatura a la que la junta tendr&iacute;a que trabajar esa ma&ntilde;ana quedaba 24&nbsp;&deg;F por debajo de todo lo que el veh&iacute;culo hab&iacute;a volado. Nada en el registro de vuelo cubr&iacute;a la zona sombreada, y por eso mismo la pregunta de qui&eacute;n ten&iacute;a que probar qu&eacute; decidi&oacute; el resultado.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-es">
+        <p class="section-label">Alcance y límites</p>
+        <h2>La &eacute;tica como proceso de ingenier&iacute;a</h2>
+        <p>Esta lecture no te pide ser buena persona. Supone que lo eres, que es el caso normal, y observa que no bast&oacute; en ninguno de los dos accidentes que este curso estudia. Los ingenieros que objetaron aquella tarde de enero eran competentes, cuidadosos y ten&iacute;an raz&oacute;n, y su objeci&oacute;n fall&oacute; de todos modos.</p><p>As&iacute; que el tema aqu&iacute; es m&aacute;s estrecho y m&aacute;s &uacute;til: <strong>la responsabilidad profesional se cumple a trav&eacute;s de artefactos de ingenier&iacute;a espec&iacute;ficos</strong>. El deber de dar una opini&oacute;n t&eacute;cnica honesta se cumple con una gr&aacute;fica que muestre el conjunto entero de datos. El deber de no dejar pasar un peligro conocido se cumple con un rengl&oacute;n de registro de riesgos con due&ntilde;o y disparador. El deber de disentir se cumple con un escrito que nombre una decisi&oacute;n y un destinatario. Todo eso ya sabes construirlo desde las veintitr&eacute;s lectures anteriores.</p>
+        <div class="callout warning"><strong>Los c&oacute;digos de &eacute;tica son necesarios y no suficientes.</strong> Todo c&oacute;digo profesional dice que el ingeniero antepondr&aacute; la seguridad del p&uacute;blico, y nadie en ninguno de los dos accidentes lo disput&oacute;. Las fallas no fueron sobre el principio; fueron sobre qui&eacute;n ten&iacute;a que probar qu&eacute;, y sobre una gr&aacute;fica a la que le faltaban diecisiete puntos. Los principios se resuelven en una junta s&oacute;lo si alguien hizo el trabajo que permite aplicarlos.</div>
+      </section>
+
+      <section id="burden-es">
+        <p class="section-label">La direcci&oacute;n de la pregunta</p>
+        <h2>Probar que es seguro, o probar que fallar&aacute;</h2>
+        <div class="table-wrap"><table><thead><tr><th></th><th>La pregunta que se hace</th><th>Qu&eacute; ocurre cuando los datos son incompletos</th></tr></thead><tbody><tr><td><strong>Prueba de seguridad</strong></td><td>&iquest;Puedes mostrarme la evidencia de que es seguro proceder?</td><td>La respuesta es no, y el trabajo se detiene hasta que haya evidencia</td></tr><tr><td><strong>Prueba de peligro</strong></td><td>&iquest;Puedes probarme que va a fallar?</td><td>La respuesta tambi&eacute;n es no, y el trabajo contin&uacute;a</td></tr><tr><td>La diferencia</td><td>La misma evidencia, los mismos ingenieros, la misma junta</td><td>S&oacute;lo cambi&oacute; la direcci&oacute;n de la pregunta, y decidi&oacute; el resultado</td></tr></tbody></table></div>
+        <p>Lee la tabla otra vez y nota que la evidencia es id&eacute;ntica en ambos renglones. Nada de la junta, la temperatura o los datos cambi&oacute; entre ellos. Lo que cambi&oacute; es qu&eacute; parte ten&iacute;a que producir una prueba, y cuando los datos son incompletos &mdash; la condici&oacute;n normal de toda decisi&oacute;n real &mdash; esa elecci&oacute;n determina la respuesta por completo.</p><p>La regla en aeroespacial no es cuesti&oacute;n de gusto. Un vuelo se permite cuando hay evidencia afirmativa de que es seguro dentro de la envolvente calificada, y la ausencia de una prueba de falla no es esa evidencia. A un ingeniero al que le pidan probar que algo fallar&aacute; le toca decir, con esas palabras, que la pregunta est&aacute; al rev&eacute;s, y decirlo antes de responderla.</p>
+      </section>
+
+      <section id="deviance-es">
+        <p class="section-label">El segundo accidente</p>
+        <h2>La normalizaci&oacute;n de la desviaci&oacute;n</h2>
+        <p>La espuma se desprend&iacute;a del tanque externo y golpeaba al orbitador desde a&ntilde;os antes de que el <em>Columbia</em> se desintegrara en el reingreso el 1 de febrero de 2003, matando a sus siete tripulantes. Todo golpe anterior se hab&iacute;a sobrevivido. Como segu&iacute;a ocurriendo y nada hab&iacute;a salido mal, dej&oacute; de tratarse como una desviaci&oacute;n del dise&ntilde;o y se volvi&oacute; una caracter&iacute;stica aceptada del vuelo &mdash; un evento &laquo;en familia&raquo;, en el lenguaje del programa.</p><p>Eso es la normalizaci&oacute;n de la desviaci&oacute;n: una condici&oacute;n fuera de especificaci&oacute;n se repite, no hay consecuencia, y la ausencia de consecuencia se lee como evidencia de margen. El razonamiento no es tonto. Es inductivo, y es el mismo razonamiento que hace valiosa la herencia de vuelo. Lo que lo vuelve peligroso es que, desde dentro, no se distingue de haber tenido suerte.</p><p>La prueba que los separa est&aacute; disponible y es barata: <strong>preguntar si alguien puede enunciar, cuantitativamente, por qu&eacute; la condici&oacute;n es sobrevivible</strong>. La herencia dice que lo hemos hecho cincuenta veces. El margen dice que la energ&iacute;a de impacto est&aacute; acotada en este valor y el panel est&aacute; calificado a aquel otro. S&oacute;lo el segundo es evidencia, y si nadie puede producirlo, lo que el proyecto tiene es una racha y no un margen.</p>
+      </section>
+
+      <section id="dissent-es">
+        <p class="section-label">Volver accionable una objeci&oacute;n</p>
+        <h2>El deber de disentir, y c&oacute;mo</h2>
+        <div class="table-wrap"><table><thead><tr><th>Un disenso sobre el que se puede actuar enuncia</th><th>Uno sobre el que no, dice</th></tr></thead><tbody><tr><td>La condici&oacute;n t&eacute;cnica espec&iacute;fica, con la cantidad y el l&iacute;mite</td><td>&laquo;Tengo un mal presentimiento&raquo;</td></tr><tr><td>Qu&eacute; evidencia existe y qu&eacute; falta</td><td>&laquo;Nunca lo hemos probado&raquo;, sin decir qu&eacute; har&iacute;a falta</td></tr><tr><td>Qu&eacute; decisi&oacute;n se est&aacute; pidiendo</td><td>Una preocupaci&oacute;n planteada sin una petici&oacute;n</td></tr><tr><td>A qui&eacute;n se le pide, y para cu&aacute;ndo</td><td>Una preocupaci&oacute;n planteada a quien estuviera en la sala</td></tr><tr><td>Un registro escrito, enviado el mismo d&iacute;a</td><td>Una objeci&oacute;n verbal que nadie asent&oacute;</td></tr></tbody></table></div>
+        <p>Un disenso es un producto t&eacute;cnico y triunfa o fracasa por las mismas cualidades que cualquier otro: debe ser espec&iacute;fico, debe nombrar qu&eacute; falta, y debe pedir una decisi&oacute;n a alguien que pueda tomarla. &laquo;No me siento c&oacute;modo&raquo; transfiere un sentimiento. &laquo;La junta no tiene datos de prueba bajo 53&nbsp;&deg;F, la temperatura pronosticada es 29&nbsp;&deg;F, y le pido al gerente del programa retrasar hasta tener datos o un an&aacute;lisis calificado&raquo; transfiere una decisi&oacute;n.</p><p>Escr&iacute;belo el mismo d&iacute;a, y env&iacute;alo a quien es due&ntilde;o de la decisi&oacute;n y no a la sala. Esto no es papeleo defensivo. Una objeci&oacute;n que s&oacute;lo existe en una junta no puede escalarse, ni seguirse, ni responderse, y la raz&oacute;n honesta por la que la mayor&iacute;a de los disensos fracasan es que nunca se convirtieron en algo que la organizaci&oacute;n pudiera procesar.</p>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Algoritmo de cálculo</p>
+        <h2>Cuando la preocupaci&oacute;n es tuya</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Enunciar la condici&oacute;n como cantidad contra un l&iacute;mite</span></div><div><strong>2</strong><span>Reunir el conjunto entero de datos, no la parte interesante</span></div><div><strong>3</strong><span>Decir con claridad qu&eacute; evidencia falta</span></div><div><strong>4</strong><span>Revisar hacia d&oacute;nde apunta la carga de la prueba</span></div><div><strong>5</strong><span>Nombrar la decisi&oacute;n que pides</span></div><div><strong>6</strong><span>Nombrar a la persona due&ntilde;a de esa decisi&oacute;n</span></div><div><strong>7</strong><span>Ponerlo por escrito el mismo d&iacute;a</span></div><div><strong>8</strong><span>Si la respuesta es no, pedirla tambi&eacute;n por escrito</span></div></div>
+        <p>El paso ocho no se trata de protegerte, aunque lo haga. Una negativa que hay que escribir es una negativa que alguien tiene que pensar, y pedirla suele ser el momento en que la decisi&oacute;n se reconsidera.</p>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>La gr&aacute;fica que no se llev&oacute;</h2>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Contar el registro.</strong> Hab&iacute;an volado veinticuatro vuelos. Siete hab&iacute;an mostrado da&ntilde;o t&eacute;rmico en las juntas y estaban en las gr&aacute;ficas; diecisiete no lo hab&iacute;an mostrado y no estaban. El comit&eacute; vio entonces \[ \frac{7}{24} = 29\,\% \] de la historia de vuelo, seleccionada por resultado.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Ver qu&eacute; hace la selecci&oacute;n.</strong> Entre s&oacute;lo los vuelos da&ntilde;ados, el m&aacute;s fr&iacute;o no era obviamente el peor, as&iacute; que la temperatura parec&iacute;a un predictor d&eacute;bil. A&ntilde;ade los diecisiete sin da&ntilde;o, que eran los c&aacute;lidos, y el patr&oacute;n deja de ser discutible. Los datos que habr&iacute;an decidido la junta estaban en los registros del propio programa y no en la p&aacute;gina.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Medir la extrapolaci&oacute;n.</strong> La temperatura de junta m&aacute;s fr&iacute;a jam&aacute;s volada fue de unos 53&nbsp;&deg;F; la pronosticada esa ma&ntilde;ana, unos 29&nbsp;&deg;F. El lanzamiento ocurrir&iacute;a \[ 53 - 29 = 24\ ^\circ\text{F} \;\approx\; 13.3\ ^\circ\text{C} \] por debajo de toda experiencia de vuelo. En el vocabulario de la lecture 15, la madurez tecnol&oacute;gica para esa condici&oacute;n no estaba demostrada; en el de la lecture 21, ninguna verificaci&oacute;n cubr&iacute;a el entorno.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Encontrar la inversi&oacute;n.</strong> A los ingenieros se les pidi&oacute; probar que los sellos <em>fallar&iacute;an</em>. No pudieron, porque nadie puede probar una falla que a&uacute;n no ocurre. Bajo la pregunta correcta &mdash; mu&eacute;strame la evidencia de que esto es seguro a 29&nbsp;&deg;F &mdash; la respuesta era igual de inexistente, y habr&iacute;a detenido el lanzamiento. La misma evidencia, la misma gente, el resultado opuesto.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Ubicar los artefactos faltantes.</strong> Tres productos de este curso habr&iacute;an cargado la objeci&oacute;n por s&iacute; solos: una gr&aacute;fica completa de los veinticuatro vuelos, un rengl&oacute;n de registro de riesgos con la temperatura como disparador, y un rengl&oacute;n de matriz de verificaci&oacute;n mostrando que ning&uacute;n m&eacute;todo cubr&iacute;a el entorno fr&iacute;o. Ninguno de los tres es heroico, y cualquiera habr&iacute;a sido m&aacute;s dif&iacute;cil de revertir que una recomendaci&oacute;n.</div></div>
+        <div class="result-box">\[ \boxed{ \frac{7}{24} = 29\,\%\ \text{del registro mostrado},\qquad 53 - 29 = 24\ ^\circ\text{F}\ \text{fuera de la experiencia} } \]</div>
+        <p><strong>Interpretaci&oacute;n.</strong> Este es el &uacute;ltimo ejemplo resuelto del curso, y no usa ning&uacute;n m&eacute;todo que no haya aparecido ya en &eacute;l. Contar un conjunto de datos completo, enunciar un l&iacute;mite, revisar si la experiencia cubre una condici&oacute;n, preguntar qui&eacute;n debe probar qu&eacute;: esas son las herramientas ordinarias de las veintitr&eacute;s lectures anteriores. Lo que los dos accidentes muestran es que esas herramientas no son s&oacute;lo buenas pr&aacute;cticas. Son la forma que toma la responsabilidad profesional en esta profesi&oacute;n, y un ingeniero que las sostiene est&aacute; haciendo el trabajo &eacute;tico lo llame as&iacute; o no alguien en la sala.</p>
+      </section>
+
+      <section id="summary-es">
+        <p class="section-label">Reglas operativas</p>
+        <h2>De un vistazo</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regla</th><th>Enunciado</th></tr></thead><tbody><tr><td>La seguridad se prueba, no se supone</td><td>La carga recae en proceder, no en detenerse. &laquo;Prueba que fallar&aacute;&raquo; es la pregunta equivocada y tiene un resultado conocido.</td></tr><tr><td>Muestra el registro completo</td><td>Una gr&aacute;fica que s&oacute;lo traza los incidentes esconde la correlaci&oacute;n que habr&iacute;a decidido la pregunta.</td></tr><tr><td>Una anomal&iacute;a que se repite no es por eso normal</td><td>La repetici&oacute;n sin consecuencia es evidencia de suerte tanto como de margen.</td></tr><tr><td>Disiente por escrito, con una petici&oacute;n</td><td>Enuncia la condici&oacute;n, la evidencia faltante, la decisi&oacute;n que pides, y a qui&eacute;n.</td></tr><tr><td>La competencia es una obligaci&oacute;n &eacute;tica</td><td>La mayor parte del da&ntilde;o en ingenier&iacute;a viene de trabajo ordinario hecho sin cuidado, no de que alguien elija obrar mal.</td></tr><tr><td>La organizaci&oacute;n es parte del dise&ntilde;o</td><td>Una l&iacute;nea de reporte que filtra malas noticias es una ruta de falla, y pertenece al registro de riesgos.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-es">
+        <p class="section-label">Errores comunes</p>
+        <h2>Qu&eacute; sale mal</h2>
+        <ul class="check-list"><li><strong>Responder a &laquo;prueba que fallar&aacute;&raquo;.</strong> Entrar a la pregunta invertida es concederla. Di que la carga corre al rev&eacute;s, y dilo primero.</li><li><strong>Graficar s&oacute;lo las anomal&iacute;as.</strong> Seleccionar un conjunto de datos por resultado puede invertir la conclusi&oacute;n que sostiene, y la omisi&oacute;n es invisible en la p&aacute;gina.</li><li><strong>Leer una racha como margen.</strong> Si nadie puede enunciar cuantitativamente por qu&eacute; una condici&oacute;n repetida es sobrevivible, el proyecto ha tenido suerte, no seguridad.</li><li><strong>Disentir de palabra.</strong> Una objeci&oacute;n que s&oacute;lo existe en una junta no puede escalarse, seguirse ni responderse.</li><li><strong>Esperar a estar seguro.</strong> La certeza llega despu&eacute;s de la decisi&oacute;n. La obligaci&oacute;n es reportar la incertidumbre con exactitud y a tiempo, no resolverla antes.</li><li><strong>Tratar a la organizaci&oacute;n como ajena al dise&ntilde;o.</strong> Una cadena de revisi&oacute;n que filtra malas noticias es una ruta de falla sin due&ntilde;o, y pertenece al registro de riesgos como cualquier otra.</li></ul>
+      </section>
+
+      <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
+        <h2>Referencias</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Sections 1.3 and 7.1 on the systems engineer's professional conduct.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=ethics" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 27: Ethics</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+          <li>Presidential Commission on the Space Shuttle Challenger Accident. <em>Report to the President</em>, Volume&nbsp;I, including Appendix&nbsp;F, &ldquo;Personal Observations on the Reliability of the Shuttle&rdquo; by R.&nbsp;P. Feynman. Washington, DC, June 1986.</li>
+          <li>Columbia Accident Investigation Board. <em>Report</em>, Volume&nbsp;I, especially Chapters&nbsp;6 to 8 on organisational causes. Washington, DC: NASA and the U.S. Government Printing Office, August 2003.</li>
+          <li>Vaughan, D. <em>The Challenger Launch Decision: Risky Technology, Culture, and Deviance at NASA</em>. Chicago: University of Chicago Press, 1996.</li>
+          <li>Walden, D.&nbsp;D., G.&nbsp;J. Roedler, K. Forsberg, R.&nbsp;D. Hamelin, and T.&nbsp;M. Shortell (eds.). <em>INCOSE Systems Engineering Handbook: A Guide for System Life Cycle Processes and Activities</em>, 4th edition. San Diego, CA: International Council on Systems Engineering; published by John Wiley &amp; Sons, 2015.</li>
+        </ol>
+        <p class="source-note">Adaptado de la Unidad VI del gui&oacute;n del curso Ingenier&iacute;a en Sistemas Aeroespaciales (AE506) de Carlos Alberto Molina Holgu&iacute;n. Esta lecture cubre el componente de &eacute;tica de la Unidad VI del programa anal&iacute;tico de AE506, que el gui&oacute;n del curso no alcanza de otro modo; las dos narraciones de accidentes siguen los hallazgos de la Comisi&oacute;n Rogers y del Columbia Accident Investigation Board. Los conteos de vuelos y la diferencia de temperatura se calculan en esta p&aacute;gina a partir de las cifras que esos informes establecen.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="configuration-and-mbse.html?v=12"><span>Lecture anterior</span>&larr; Gesti&oacute;n de configuraci&oacute;n y MBSE</a>
+        <a class="next-link" href="index.html?v=12"><span>Índice del curso</span>Las 24 lectures &rarr;</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+
+      <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie k&ouml;nnen sollten</h2>
+        <ul><li>sagen, wo die Beweislast bei einer Sicherheitsentscheidung liegt, und ihre Umkehr erkennen;</li><li>erkl&auml;ren, warum das Zeigen nur der auff&auml;lligen F&auml;lle die gest&uuml;tzte Schlussfolgerung umkehren kann;</li><li>die Normalisierung der Abweichung definieren und den Test dagegen nennen;</li><li>einen Einspruch schreiben, der Bedingung, fehlende Evidenz, erbetene Entscheidung und Adressat nennt;</li><li>eine Berufspflicht mit dem konkreten Artefakt verbinden, das sie erf&uuml;llt.</li></ul>
+      </section>
+
+      <section id="physics-de">
+        <p class="section-label">Ingenieurtechnischer Kontext</p>
+        <h2>Sieben Fl&uuml;ge im Diagramm, siebzehn nicht</h2>
+        <p class="lead">Am Abend des 27.&nbsp;Januar 1986 rieten Ingenieure des Feststoffmotor-Auftragnehmers vom Start am n&auml;chsten Morgen ab. Ihre Sorge war konkret: Die Dichtungen der Verbindungen hatten bei kalten Fl&uuml;gen Erosion und Durchblasen gezeigt, und die Vorhersage lag weit unter allem Geflogenen.</p><p>Die mitgebrachten Diagramme zeigten die Fl&uuml;ge mit thermischen Sch&auml;den. Vierundzwanzig Fl&uuml;ge hatte es gegeben; sieben erschienen. Die siebzehn ohne Vorfall &mdash; die warmen &mdash; standen nicht auf dem Blatt, und ohne sie lie&szlig; sich der Zusammenhang von Temperatur und Schaden in beide Richtungen behaupten. Genau das geschah. Die Empfehlung wurde in Frage gestellt, die Leitung des Auftragnehmers beriet sich getrennt, und die Position wurde umgekehrt. <em>Challenger</em> wurde dreiundsiebzig Sekunden nach dem Start zerst&ouml;rt, und die sieben Besatzungsmitglieder kamen ums Leben.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 300" role="img" aria-label="Dichtungstemperatur: der Bereich der Flugerfahrung gegen den erwarteten Wert">
+            <rect x="382.3" y="137" width="327.7" height="26" rx="4" fill="#e8f1e9" stroke="#3f7a4f"></rect>
+            <rect x="169.7" y="137" width="212.6" height="26" rx="4" fill="#f7e9e6" stroke="#b03a2e" stroke-dasharray="6 4"></rect>
+            <line x1="90" y1="184" x2="710" y2="184" stroke="#8fa6ba" stroke-width="2"></line>
+            <line x1="178.6" y1="184" x2="178.6" y2="190" stroke="#8fa6ba" stroke-width="1"></line>
+            <text x="178.6" y="204" text-anchor="middle" font-size="11" fill="#8fa6ba">30 &deg;F</text>
+            <line x1="267.1" y1="184" x2="267.1" y2="190" stroke="#8fa6ba" stroke-width="1"></line>
+            <text x="267.1" y="204" text-anchor="middle" font-size="11" fill="#8fa6ba">40 &deg;F</text>
+            <line x1="355.7" y1="184" x2="355.7" y2="190" stroke="#8fa6ba" stroke-width="1"></line>
+            <text x="355.7" y="204" text-anchor="middle" font-size="11" fill="#8fa6ba">50 &deg;F</text>
+            <line x1="444.3" y1="184" x2="444.3" y2="190" stroke="#8fa6ba" stroke-width="1"></line>
+            <text x="444.3" y="204" text-anchor="middle" font-size="11" fill="#8fa6ba">60 &deg;F</text>
+            <line x1="532.9" y1="184" x2="532.9" y2="190" stroke="#8fa6ba" stroke-width="1"></line>
+            <text x="532.9" y="204" text-anchor="middle" font-size="11" fill="#8fa6ba">70 &deg;F</text>
+            <line x1="621.4" y1="184" x2="621.4" y2="190" stroke="#8fa6ba" stroke-width="1"></line>
+            <text x="621.4" y="204" text-anchor="middle" font-size="11" fill="#8fa6ba">80 &deg;F</text>
+            <line x1="382.3" y1="130" x2="382.3" y2="184" stroke="#3f7a4f" stroke-width="2"></line>
+            <text x="382.3" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#3f7a4f">53 &deg;F</text>
+            <text x="382.3" y="116" text-anchor="middle" font-size="11" fill="#3f7a4f">k&auml;ltester fr&uuml;herer Start</text>
+            <line x1="169.7" y1="130" x2="169.7" y2="184" stroke="#b03a2e" stroke-width="2"></line>
+            <text x="169.7" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#b03a2e">29 &deg;F</text>
+            <text x="169.7" y="116" text-anchor="middle" font-size="11" fill="#b03a2e">an jenem Morgen erwartet</text>
+            <text x="276.0" y="174" text-anchor="middle" font-size="12" font-style="italic" fill="#b03a2e">in diesem ganzen Bereich keinerlei Flugerfahrung</text>
+            <text x="90" y="30" font-size="13" font-weight="600" fill="#071d33">Dichtungstemperatur</text>
+            <rect x="60" y="238" width="680" height="34" rx="8" fill="#f6f1e6" stroke="#c2ab7d"></rect>
+            <text x="400" y="260" text-anchor="middle" font-size="13" fill="#5c4a24">24 &deg;F Extrapolation &mdash; und gestritten wurde, wer was beweisen muss</text>
+            </svg>
+            <figcaption>Die Temperatur, bei der die Dichtung an jenem Morgen h&auml;tte arbeiten m&uuml;ssen, lag 24&nbsp;&deg;F unter allem, was das Fahrzeug je geflogen war. Nichts im Flugprotokoll deckte den schattierten Bereich ab &mdash; genau deshalb entschied die Frage, wer was beweisen musste.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-de">
+        <p class="section-label">Geltungsbereich und Grenzen</p>
+        <h2>Ethik als Ingenieurprozess</h2>
+        <p>Diese Vorlesung verlangt nicht, ein guter Mensch zu sein. Sie setzt es voraus &mdash; der Normalfall &mdash; und stellt fest, dass es in keinem der beiden hier behandelten Ungl&uuml;cke gen&uuml;gte. Die Ingenieure, die an jenem Januarabend widersprachen, waren kompetent, sorgf&auml;ltig und im Recht, und ihr Widerspruch scheiterte dennoch.</p><p>Das Thema ist daher enger und n&uuml;tzlicher: <strong>Berufliche Verantwortung wird durch konkrete Ingenieurartefakte eingel&ouml;st</strong>. Die Pflicht zur ehrlichen fachlichen Aussage l&ouml;st ein Diagramm ein, das den ganzen Datensatz zeigt. Die Pflicht, eine bekannte Gefahr nicht durchgehen zu lassen, l&ouml;st ein Registereintrag mit Verantwortlichem und Ausl&ouml;ser ein. Die Pflicht zum Widerspruch l&ouml;st ein Schriftst&uuml;ck ein, das Entscheidung und Adressat nennt. All das k&ouml;nnen Sie nach dreiundzwanzig Vorlesungen bereits bauen.</p>
+        <div class="callout warning"><strong>Ethikkodizes sind notwendig und nicht hinreichend.</strong> Jeder Kodex stellt die Sicherheit der &Ouml;ffentlichkeit obenan, und niemand bestritt das in einem der beiden Ungl&uuml;cke. Die Fehler betrafen nicht das Prinzip, sondern die Beweislast und ein Diagramm, dem siebzehn Punkte fehlten. Prinzipien entscheiden eine Sitzung nur, wenn jemand die Arbeit geleistet hat, die ihre Anwendung erlaubt.</div>
+      </section>
+
+      <section id="burden-de">
+        <p class="section-label">Die Richtung der Frage</p>
+        <h2>Beweisen, dass es sicher ist &mdash; oder dass es versagt</h2>
+        <div class="table-wrap"><table><thead><tr><th></th><th>Die gestellte Frage</th><th>Was geschieht, wenn die Daten unvollst&auml;ndig sind</th></tr></thead><tbody><tr><td><strong>Sicherheitsnachweis</strong></td><td>K&ouml;nnen Sie die Evidenz zeigen, dass es sicher ist?</td><td>Die Antwort ist nein, und die Arbeit ruht, bis Evidenz vorliegt</td></tr><tr><td><strong>Gefahrennachweis</strong></td><td>K&ouml;nnen Sie beweisen, dass es versagen wird?</td><td>Die Antwort ist ebenfalls nein, und die Arbeit l&auml;uft weiter</td></tr><tr><td>Der Unterschied</td><td>Dieselbe Evidenz, dieselben Ingenieure, dieselbe Sitzung</td><td>Nur die Richtung der Frage &auml;nderte sich, und sie entschied das Ergebnis</td></tr></tbody></table></div>
+        <p>Lesen Sie die Tabelle erneut: Die Evidenz ist in beiden Zeilen dieselbe. An Dichtung, Temperatur oder Daten &auml;nderte sich nichts. Ge&auml;ndert hat sich, wer einen Beweis liefern musste &mdash; und bei unvollst&auml;ndigen Daten, dem Normalzustand jeder echten Entscheidung, bestimmt diese Wahl die Antwort vollst&auml;ndig.</p><p>Die Regel in der Luft- und Raumfahrt ist keine Geschmacksfrage. Ein Flug ist zul&auml;ssig, wenn positive Evidenz f&uuml;r Sicherheit innerhalb der qualifizierten H&uuml;lle vorliegt; das Fehlen eines Versagensbeweises ist keine solche Evidenz. Wer aufgefordert wird, ein Versagen zu beweisen, sollte mit diesen Worten sagen, dass die Frage verkehrt herum steht &mdash; und das sagen, bevor er sie beantwortet.</p>
+      </section>
+
+      <section id="deviance-de">
+        <p class="section-label">Das zweite Ungl&uuml;ck</p>
+        <h2>Die Normalisierung der Abweichung</h2>
+        <p>Schaum l&ouml;ste sich seit Jahren vom Au&szlig;entank und traf den Orbiter, bevor <em>Columbia</em> am 1.&nbsp;Februar 2003 beim Wiedereintritt zerbrach und ihre sieben Besatzungsmitglieder starben. Jeder fr&uuml;here Treffer war &uuml;berstanden worden. Weil es immer wieder geschah und nichts passierte, galt es nicht mehr als Abweichung vom Entwurf, sondern als akzeptierte Flugeigenschaft &mdash; ein &bdquo;in-family&ldquo;-Ereignis in der Sprache des Programms.</p><p>Das ist die Normalisierung der Abweichung: Ein spezifikationswidriger Zustand wiederholt sich, es folgt keine Konsequenz, und das Ausbleiben der Konsequenz gilt als Beleg f&uuml;r Reserve. Der Schluss ist nicht dumm. Er ist induktiv und derselbe, der Flugerbe wertvoll macht. Gef&auml;hrlich ist er, weil er von innen nicht von Gl&uuml;ck zu unterscheiden ist.</p><p>Der trennende Test ist verf&uuml;gbar und billig: <strong>fragen, ob jemand quantitativ sagen kann, warum der Zustand &uuml;berstehbar ist</strong>. Erbe sagt: Wir haben das f&uuml;nfzigmal getan. Reserve sagt: Die Aufprallenergie ist auf diesen Wert begrenzt, und das Paneel ist auf jenen qualifiziert. Nur das Zweite ist Evidenz; kann es niemand liefern, hat das Projekt eine Gl&uuml;cksstr&auml;hne und keine Reserve.</p>
+      </section>
+
+      <section id="dissent-de">
+        <p class="section-label">Einen Einwand handhabbar machen</p>
+        <h2>Die Pflicht zum Widerspruch &mdash; und wie</h2>
+        <div class="table-wrap"><table><thead><tr><th>Ein handhabbarer Einspruch nennt</th><th>Ein nicht handhabbarer sagt</th></tr></thead><tbody><tr><td>Die konkrete technische Bedingung mit Gr&ouml;&szlig;e und Grenzwert</td><td>&bdquo;Ich habe ein ungutes Gef&uuml;hl&ldquo;</td></tr><tr><td>Welche Evidenz vorliegt und welche fehlt</td><td>&bdquo;Das haben wir nie getestet&ldquo;, ohne zu sagen, was n&ouml;tig w&auml;re</td></tr><tr><td>Welche Entscheidung erbeten wird</td><td>Eine Sorge ohne beigef&uuml;gte Bitte</td></tr><tr><td>An wen und bis wann</td><td>Eine Sorge an alle, die zuf&auml;llig anwesend waren</td></tr><tr><td>Eine schriftliche Aufzeichnung, am selben Tag versandt</td><td>Ein m&uuml;ndlicher Einwand ohne Protokoll</td></tr></tbody></table></div>
+        <p>Ein Einspruch ist ein technisches Produkt und gelingt aus denselben Gr&uuml;nden wie jedes andere: Er muss konkret sein, das Fehlende benennen und eine Entscheidung von jemandem erbitten, der sie treffen kann. &bdquo;Mir ist unwohl&ldquo; &uuml;bertr&auml;gt ein Gef&uuml;hl. &bdquo;Die Verbindung hat keine Testdaten unter 53&nbsp;&deg;F, die erwartete Temperatur betr&auml;gt 29&nbsp;&deg;F, und ich bitte den Programmleiter um Verschiebung, bis Daten oder eine qualifizierte Analyse vorliegen&ldquo; &uuml;bertr&auml;gt eine Entscheidung.</p><p>Schreiben Sie es am selben Tag auf und senden Sie es an die entscheidungsbefugte Person, nicht an den Raum. Das ist kein Absicherungspapier. Ein nur in einer Sitzung existierender Einwand l&auml;sst sich nicht eskalieren, nicht verfolgen und nicht beantworten &mdash; und der ehrliche Grund f&uuml;r das Scheitern der meisten Einspr&uuml;che ist, dass sie nie in etwas &uuml;berf&uuml;hrt wurden, das die Organisation verarbeiten konnte.</p>
+      </section>
+
+      <section id="algorithm-de">
+        <p class="section-label">Rechenalgorithmus</p>
+        <h2>Wenn die Sorge Ihre ist</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Die Bedingung als Gr&ouml;&szlig;e gegen einen Grenzwert nennen</span></div><div><strong>2</strong><span>Den ganzen Datensatz zusammenstellen, nicht den interessanten Teil</span></div><div><strong>3</strong><span>Klar sagen, welche Evidenz fehlt</span></div><div><strong>4</strong><span>Pr&uuml;fen, wohin die Beweislast zeigt</span></div><div><strong>5</strong><span>Die erbetene Entscheidung nennen</span></div><div><strong>6</strong><span>Die daf&uuml;r zust&auml;ndige Person nennen</span></div><div><strong>7</strong><span>Es am selben Tag schriftlich festhalten</span></div><div><strong>8</strong><span>Bei einem Nein auch dieses schriftlich erbitten</span></div></div>
+        <p>Schritt acht dient nicht dem Selbstschutz, auch wenn er das leistet. Eine Ablehnung, die geschrieben werden muss, ist eine Ablehnung, &uuml;ber die jemand nachdenken muss &mdash; und die Bitte darum ist oft der Moment, in dem neu entschieden wird.</p>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Das Diagramm, das nicht mitkam</h2>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Das Protokoll z&auml;hlen.</strong> Vierundzwanzig Fl&uuml;ge hatte es gegeben. Sieben zeigten thermische Sch&auml;den an den Verbindungen und standen in den Diagrammen; siebzehn nicht und fehlten. Das Gremium sah also \[ \frac{7}{24} = 29\,\% \] der Fluggeschichte, nach Ergebnis ausgew&auml;hlt.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Die Wirkung der Auswahl sehen.</strong> Unter allein den besch&auml;digten Fl&uuml;gen war der k&auml;lteste nicht offensichtlich der schlimmste, die Temperatur wirkte als schwacher Pr&auml;diktor. F&uuml;gt man die siebzehn unbesch&auml;digten &mdash; die warmen &mdash; hinzu, ist das Muster nicht mehr bestreitbar. Die entscheidenden Daten lagen in den eigenen Aufzeichnungen des Programms und nicht auf dem Blatt.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Die Extrapolation messen.</strong> Die k&auml;lteste je geflogene Verbindungstemperatur lag bei etwa 53&nbsp;&deg;F, der f&uuml;r jenen Morgen erwartete Wert bei etwa 29&nbsp;&deg;F. Der Start f&auml;nde \[ 53 - 29 = 24\ ^\circ\text{F} \;\approx\; 13{,}3\ ^\circ\text{C} \] unterhalb jeder Flugerfahrung statt. In der Sprache von Vorlesung 15 war die Technologiereife f&uuml;r diesen Zustand nicht nachgewiesen; in der von Vorlesung 21 deckte keine Verifikation die Umgebung ab.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Die Umkehr finden.</strong> Die Ingenieure sollten beweisen, dass die Dichtungen versagen <em>w&uuml;rden</em>. Sie konnten es nicht, denn ein noch nicht eingetretenes Versagen ist nicht beweisbar. Unter der richtigen Frage &mdash; zeigen Sie die Evidenz, dass es bei 29&nbsp;&deg;F sicher ist &mdash; fehlte die Antwort ebenso, und sie h&auml;tte den Start verhindert. Dieselbe Evidenz, dieselben Menschen, das entgegengesetzte Ergebnis.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Die fehlenden Artefakte verorten.</strong> Drei Produkte dieses Kurses h&auml;tten den Einwand je f&uuml;r sich getragen: eine vollst&auml;ndige Auftragung aller vierundzwanzig Fl&uuml;ge, ein Risikoregistereintrag mit der Temperatur als Ausl&ouml;ser und eine Verifikationsmatrixzeile, die zeigt, dass keine Methode die kalte Umgebung abdeckt. Keines davon ist heldenhaft, und jedes einzelne w&auml;re schwerer zu &uuml;berstimmen gewesen als eine Empfehlung.</div></div>
+        <div class="result-box">\[ \boxed{ \frac{7}{24} = 29\,\%\ \text{des Protokolls gezeigt},\qquad 53 - 29 = 24\ ^\circ\text{F}\ \text{jenseits der Erfahrung} } \]</div>
+        <p><strong>Deutung.</strong> Dies ist das letzte Rechenbeispiel des Kurses, und es nutzt keine Methode, die nicht schon vorkam. Einen Datensatz vollst&auml;ndig z&auml;hlen, einen Grenzwert nennen, pr&uuml;fen, ob Erfahrung eine Bedingung abdeckt, fragen, wer was beweisen muss: die gew&ouml;hnlichen Werkzeuge der vorangegangenen dreiundzwanzig Vorlesungen. Die beiden Ungl&uuml;cke zeigen, dass diese Werkzeuge nicht blo&szlig; gute Praxis sind. Sie sind die Gestalt, die berufliche Verantwortung in diesem Beruf annimmt &mdash; und wer sie einh&auml;lt, leistet die ethische Arbeit, ob es im Raum jemand so nennt oder nicht.</p>
+      </section>
+
+      <section id="summary-de">
+        <p class="section-label">Arbeitsregeln</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regel</th><th>Aussage</th></tr></thead><tbody><tr><td>Sicherheit wird bewiesen, nie unterstellt</td><td>Die Beweislast liegt beim Weitermachen, nicht beim Anhalten. &bdquo;Beweisen Sie das Versagen&ldquo; ist die falsche Frage mit bekanntem Ausgang.</td></tr><tr><td>Das ganze Protokoll zeigen</td><td>Ein Diagramm nur mit den Vorf&auml;llen verbirgt die Korrelation, die die Frage entschieden h&auml;tte.</td></tr><tr><td>Eine wiederkehrende Anomalie ist deshalb nicht normal</td><td>Wiederholung ohne Folgen belegt Gl&uuml;ck ebenso gut wie Reserve.</td></tr><tr><td>Schriftlich widersprechen, mit einer Bitte</td><td>Bedingung, fehlende Evidenz, erbetene Entscheidung und Adressat nennen.</td></tr><tr><td>Kompetenz ist eine ethische Pflicht</td><td>Der meiste Schaden entsteht aus gew&ouml;hnlicher, unsorgf&auml;ltiger Arbeit, nicht aus b&ouml;ser Absicht.</td></tr><tr><td>Die Organisation geh&ouml;rt zum Entwurf</td><td>Ein Berichtsweg, der schlechte Nachrichten filtert, ist ein Fehlerpfad und geh&ouml;rt ins Risikoregister.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Häufige Fehler</p>
+        <h2>Was schiefgeht</h2>
+        <ul class="check-list"><li><strong>Auf &bdquo;beweisen Sie das Versagen&ldquo; antworten.</strong> Sich auf die umgekehrte Frage einzulassen r&auml;umt sie ein. Sagen Sie zuerst, dass die Beweislast andersherum liegt.</li><li><strong>Nur die Anomalien auftragen.</strong> Eine nach Ergebnis ausgew&auml;hlte Datenmenge kann die gest&uuml;tzte Schlussfolgerung umkehren, und die Auslassung ist auf dem Blatt unsichtbar.</li><li><strong>Eine Gl&uuml;cksstr&auml;hne als Reserve lesen.</strong> Kann niemand quantitativ sagen, warum ein wiederkehrender Zustand &uuml;berstehbar ist, hatte das Projekt Gl&uuml;ck, nicht Sicherheit.</li><li><strong>M&uuml;ndlich widersprechen.</strong> Ein nur in der Sitzung existierender Einwand l&auml;sst sich nicht eskalieren, verfolgen oder beantworten.</li><li><strong>Auf Gewissheit warten.</strong> Gewissheit kommt nach der Entscheidung. Die Pflicht ist, die Unsicherheit genau und rechtzeitig zu berichten, nicht sie vorher aufzul&ouml;sen.</li><li><strong>Die Organisation als entwurfsfremd behandeln.</strong> Eine Berichtskette, die schlechte Nachrichten filtert, ist ein Fehlerpfad ohne Verantwortlichen und geh&ouml;rt wie jeder andere ins Risikoregister.</li></ul>
+      </section>
+
+      <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
+        <h2>Literatur</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Sections 1.3 and 7.1 on the systems engineer's professional conduct.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=ethics" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 27: Ethics</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+          <li>Presidential Commission on the Space Shuttle Challenger Accident. <em>Report to the President</em>, Volume&nbsp;I, including Appendix&nbsp;F, &ldquo;Personal Observations on the Reliability of the Shuttle&rdquo; by R.&nbsp;P. Feynman. Washington, DC, June 1986.</li>
+          <li>Columbia Accident Investigation Board. <em>Report</em>, Volume&nbsp;I, especially Chapters&nbsp;6 to 8 on organisational causes. Washington, DC: NASA and the U.S. Government Printing Office, August 2003.</li>
+          <li>Vaughan, D. <em>The Challenger Launch Decision: Risky Technology, Culture, and Deviance at NASA</em>. Chicago: University of Chicago Press, 1996.</li>
+          <li>Walden, D.&nbsp;D., G.&nbsp;J. Roedler, K. Forsberg, R.&nbsp;D. Hamelin, and T.&nbsp;M. Shortell (eds.). <em>INCOSE Systems Engineering Handbook: A Guide for System Life Cycle Processes and Activities</em>, 4th edition. San Diego, CA: International Council on Systems Engineering; published by John Wiley &amp; Sons, 2015.</li>
+        </ol>
+        <p class="source-note">Bearbeitet nach Einheit VI des Skripts Luft- und Raumfahrtsystemtechnik (AE506) von Carlos Alberto Molina Holgu&iacute;n. Diese Vorlesung deckt den Ethikteil von Einheit VI des AE506-Programms ab, den das Kursskript sonst nicht erreicht; die beiden Ungl&uuml;cksdarstellungen folgen den Befunden der Rogers-Kommission und des Columbia Accident Investigation Board. Flugzahlen und Temperaturdifferenz werden auf dieser Seite aus den dort belegten Werten berechnet.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="configuration-and-mbse.html?v=12"><span>Vorherige Vorlesung</span>&larr; Konfigurationsmanagement und MBSE</a>
+        <a class="next-link" href="index.html?v=12"><span>Kursübersicht</span>Alle 24 Vorlesungen &rarr;</a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>&copy; <span id="year"></span> Carlos Alberto Molina Holgu&iacute;n</p>
+    <p>Universidad Aut&oacute;noma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

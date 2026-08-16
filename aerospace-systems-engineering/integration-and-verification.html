@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Integration and the four verification methods: test, analysis, inspection and demonstration, what each costs, the correlated model that analysis quietly requires, and why n items imply n-1 integration acceptances." />
+  <meta name="author" content="Carlos Alberto Molina Holgu&iacute;n" />
+  <meta name="theme-color" content="#071d33" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Integration and Verification | Aerospace Systems Engineering</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:wght@600;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=12" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=12"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=12" data-ui-key="course">Aerospace Systems Engineering</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Aerospace Systems Engineering &middot; Lecture 21</p>
+        <h1>Integration and the Four Verification Methods</h1>
+        <p class="hero-copy">Assembling a system is a sequence of accepted joins, and proving it works is one of exactly four things. Choosing the cheapest of the four is how projects buy work they never planned.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Ingeniería de Sistemas Aeroespaciales &middot; Lecture 21</p>
+        <h1>Integraci&oacute;n y los cuatro m&eacute;todos de verificaci&oacute;n</h1>
+        <p class="hero-copy">Ensamblar un sistema es una secuencia de uniones aceptadas, y probar que funciona es exactamente una de cuatro cosas. Elegir la m&aacute;s barata de las cuatro es como los proyectos compran trabajo que nunca planearon.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Luft- und Raumfahrtsystemtechnik &middot; Vorlesung 21</p>
+        <h1>Integration und die vier Verifikationsmethoden</h1>
+        <p class="hero-copy">Ein System zu montieren ist eine Folge abgenommener F&uuml;gungen, und der Nachweis ist genau eine von vier Sachen. Die billigste zu w&auml;hlen ist der Weg, ungeplante Arbeit einzukaufen.</p>
+      </div>
+
+    <div class="hero-meta">
+        <span data-language="en">Estimated reading: 16 min</span><span data-language="es" hidden>Lectura estimada: 16 min</span><span data-language="de" hidden>Lesedauer: ca. 16 min</span>
+        <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+        <span data-language="en">Scope: the right branch</span><span data-language="es" hidden>Alcance: la rama derecha</span><span data-language="de" hidden>Umfang: der rechte Ast</span>
+    </div>
+    <div class="button-row">
+      <a class="button secondary" href="vee-model-and-se-engine.html?v=12">&larr; <span data-ui-key="previous">Previous lecture</span></a>
+      <a class="button secondary" href="index.html?v=12" data-ui-key="back">Back to course</a>
+      <a class="button primary" href="verification-matrix.html?v=12"><span data-ui-key="next">Next lecture</span> &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Engineering situation</a>
+        <a href="#model">Scope and limits</a>
+        <a href="#methods">The four methods</a>
+        <a href="#integration">Integration as accepted joins</a>
+        <a href="#algorithm">Assigning a method</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Operative rules</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#references">Sources</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Situaci&oacute;n de ingenier&iacute;a</a>
+        <a href="#model-es">Alcance y l&iacute;mites</a>
+        <a href="#methods-es">Los cuatro m&eacute;todos</a>
+        <a href="#integration-es">Integraci&oacute;n como uniones aceptadas</a>
+        <a href="#algorithm-es">Asignar un m&eacute;todo</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Reglas operativas</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Kontext</a>
+        <a href="#model-de">Geltungsbereich</a>
+        <a href="#methods-de">Die vier Methoden</a>
+        <a href="#integration-de">Integration als abgenommene F&uuml;gungen</a>
+        <a href="#algorithm-de">Eine Methode zuordnen</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Arbeitsregeln</a>
+        <a href="#mistakes-de">H&auml;ufige Fehler</a>
+        <a href="#references-de">Quellen</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+
+      <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul><li>name the four verification methods and say what evidence each one produces;</li><li>choose a method from the wording of a requirement rather than from the budget;</li><li>explain what a requirement verified by analysis obliges the project to test;</li><li>plan an integration sequence as \(n-1\) accepted joins with entry conditions;</li><li>state the difference between verification and validation in one sentence each.</li></ul>
+      </section>
+
+      <section id="physics">
+        <p class="section-label">Engineering situation</p>
+        <h2>Ten tests became twelve</h2>
+        <p class="lead">The verification plan says ten tests. The schedule has ten test slots, the budget has ten test costs, and the facility bookings are for ten campaigns. Eight other requirements are verified by analysis, which appeared on the plan as engineering hours and no facility at all.</p><p>Then the thermal analyst asks the obvious question: against what data is this model correlated? There is no answer, because nobody planned a correlation test. Two of them are now needed, they need hardware and a chamber, and they were bought by a decision made when somebody wrote &ldquo;analysis&rdquo; in a cell of a matrix because test looked expensive.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 300" role="img" aria-label="Test events: declared against actual">
+            <text x="270" y="96" text-anchor="end" font-size="13" fill="#3f5162">Declared in the verification matrix</text>
+            <rect x="290" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="328" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="366" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="404" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="442" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="480" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="518" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="556" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="594" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="632" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <text x="682" y="97" font-size="14" font-weight="700" fill="#071d33">10</text>
+            <text x="270" y="186" text-anchor="end" font-size="13" fill="#3f5162">Actually performed</text>
+            <rect x="290" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="328" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="366" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="404" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="442" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="480" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="518" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="556" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="594" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="632" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="670" y="160" width="34" height="40" rx="4" fill="#c2ab7d" stroke="#5c4a24" stroke-dasharray="4 3"></rect>
+            <rect x="708" y="160" width="34" height="40" rx="4" fill="#c2ab7d" stroke="#5c4a24" stroke-dasharray="4 3"></rect>
+            <text x="758" y="187" font-size="14" font-weight="700" fill="#071d33">12</text>
+            <text x="400" y="248" text-anchor="middle" font-size="12" font-style="italic" fill="#5c4a24">the two model-correlation tests nobody wrote a requirement for</text>
+            <line x1="290" y1="228" x2="746" y2="228" stroke="#8fa6ba" stroke-width="1"></line>
+            </svg>
+            <figcaption>The verification matrix declared ten tests. Twelve were performed, because the eight requirements verified by analysis needed two correlated models, and a model is correlated by testing something.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model">
+        <p class="section-label">Scope and limits</p>
+        <h2>Two questions, kept apart</h2>
+        <p><strong>Verification</strong> asks: does the system meet the requirements that were written for it? It compares an article against a document, and it has a yes or a no.</p><p><strong>Validation</strong> asks: were those the right requirements? It compares the system against the need that started the project, and it can fail on a system that passed every verification.</p><p>Both live on the right branch of the Vee, and both are decided on the left. Verification is decided when the requirement is written, because that is when the method is chosen; validation is decided when the stakeholder expectations are written, because that is what it will be measured against.</p>
+        <div class="callout warning"><strong>A system can pass everything and still be wrong.</strong> Verification against a complete and traceable requirement set proves only that the project built what it wrote down. If the ConOps was wrong, every requirement derived from it is wrong in the same direction, and the matrix will be entirely green.</div>
+      </section>
+
+      <section id="methods">
+        <p class="section-label">Four, and only four</p>
+        <h2>What each method buys</h2>
+        <div class="table-wrap"><table><thead><tr><th>Method</th><th>What it produces</th><th>When it is the right choice</th><th>What it costs</th></tr></thead><tbody><tr><td><strong>Test</strong></td><td>Measured data from the article itself under controlled, instrumented conditions</td><td>The requirement is quantitative and the environment can be reproduced</td><td>A facility, a fixture, instrumentation, and flight-article time</td></tr><tr><td><strong>Analysis</strong></td><td>A computed result from a model, with its assumptions stated</td><td>The condition cannot be reproduced on the ground, or the article would be destroyed</td><td>A model that must itself be correlated against test data</td></tr><tr><td><strong>Inspection</strong></td><td>An observed fact: a dimension, a marking, a material certificate</td><td>The requirement is about what the article <em>is</em>, not what it does</td><td>Little, which is why it is over-used</td></tr><tr><td><strong>Demonstration</strong></td><td>An observed operation: the function was exercised and it worked</td><td>The requirement is about usability or an operational sequence, with no number in it</td><td>Operator time, and a procedure that has to be written first</td></tr></tbody></table></div>
+        <p>The method follows from the verb in the requirement, not from what the project can afford. <em>Shall not exceed 4.0 kg</em> is a measurement, so it is test or inspection. <em>Shall survive the launch thermal environment</em> cannot be reproduced without destroying schedule and article, so it is analysis. <em>Shall be recoverable by two operators within thirty minutes</em> has no instrument in it, so it is demonstration.</p><p>Analysis is the one that gets chosen for the wrong reason. It looks like the cheap option because its cost appears as engineering hours, but a model that has never been compared with measured data cannot support a verification claim. The correlation test is part of the price, and it should appear on the plan the day the method is assigned.</p>
+      </section>
+
+      <section id="integration">
+        <p class="section-label">Assembly is a sequence of decisions</p>
+        <h2>Seven joins, seven acceptances</h2>
+        <p>Integration is not assembly. Assembly is putting two things together; integration is putting two <em>accepted</em> things together and accepting the result. Eight end items joined pairwise give \(n-1 = 7\) joins, and each one carries an entry condition, a procedure, an interface verification and an acceptance of the assembled article.</p><p>The entry condition is the rule that does the work: <strong>nothing is integrated until both sides have passed their own acceptance</strong>. Break it once, under schedule pressure, and a failure in the assembled article can no longer be attributed &mdash; it might be either side or the join itself, and the only way to find out is to take it apart, which is the expensive thing the rule existed to avoid.</p>
+        <div class="callout success">The distinction is not a local convention. When INCOSE revised its handbook to the fourth edition, the integration process was rewritten with a broader scope for exactly this reason, and the change note says it plainly: integration is more than the assembly of system elements. It also tied the process explicitly to the interface definitions of the architecture, which is the same claim made by the interface matrix of Lecture 12 &mdash; you can only integrate along interfaces somebody has defined.</div>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">Calculation algorithm</p>
+        <h2>Assigning a method to a requirement</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Read the requirement's verb and its quantity</span></div><div><strong>2</strong><span>Ask whether the condition can be reproduced on the ground</span></div><div><strong>3</strong><span>Choose test, analysis, inspection or demonstration</span></div><div><strong>4</strong><span>If analysis, name the correlation test it needs</span></div><div><strong>5</strong><span>Name the facility, the article and the acceptance criterion</span></div><div><strong>6</strong><span>Put all of it on the plan, including the hidden work</span></div><div><strong>7</strong><span>Repeat for the integration acceptances, which have no requirement row</span></div></div>
+        <p>Step seven is the one that surprises people. The seven integration acceptances are real verification events with real cost, and no requirement row will ever produce them, because they verify the assembly rather than the article. A plan built only from the requirement list is short by exactly those seven.</p>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>Twenty-four requirements, and the work they bought</h2>
+        <p>The platform has twenty-four system-level requirements with a method assigned to each.</p>
+        <div class="table-wrap"><table><thead><tr><th>Method</th><th>Requirements</th><th>Share</th><th>Hidden work it creates</th></tr></thead><tbody><tr><td>Test</td><td>10</td><td>42 %</td><td>None &mdash; the cost is visible in the plan</td></tr><tr><td><strong>Analysis</strong></td><td><strong>8</strong></td><td><strong>33 %</strong></td><td><strong>Two model-correlation tests, which are themselves test events</strong></td></tr><tr><td>Inspection</td><td>4</td><td>17 %</td><td>A drawing or certificate that has to exist and be controlled</td></tr><tr><td>Demonstration</td><td>2</td><td>8 %</td><td>A written procedure, and someone qualified to run it</td></tr><tr><td><em>Total</em></td><td><em>24</em></td><td><em>100 %</em></td><td><em>and 7 integration acceptances that no row names</em></td></tr></tbody></table></div>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Check the assignment.</strong> The four methods account for all twenty-four rows: \(10+8+4+2 = 24\). No row is unassigned, which is the first audit of any verification matrix.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Follow the analyses.</strong> The eight analysis rows draw on two models, one thermal and one structural. Each model needs correlation against measured data before it can support a verification claim, so two correlation tests are required.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Recount the tests.</strong> \[ 10 + 2 = 12 \] test events will actually be performed against ten declared, an underestimate of \[ (12-10)/10 = 20\,\%. \] Two chamber bookings and two test articles were bought without appearing anywhere on the plan.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Add the integration acceptances.</strong> The eight end items give \(8-1 = 7\) joins, each with its own acceptance. These verify the assembly and appear in no requirement row, so the true count of verification events is 24 requirement closures plus 7 integration acceptances.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Read the share.</strong> Test carries 42 % of the requirements and, after correlation, most of the facility cost. Inspection carries 17 % at almost no cost, which is exactly why an over-used inspection column is the second thing to audit.</div></div>
+        <div class="result-box">\[ \boxed{ 10+8+4+2 = 24,\qquad 10 \rightarrow 12\ \text{tests } (+20\,\%),\qquad +\,7\ \text{integration acceptances} } \]</div>
+        <p><strong>Interpretation.</strong> The matrix was complete &mdash; every requirement had a method, and an audit would have passed it. What it was not is honest about cost, and the two omissions run in the same direction: the analyses hid two tests, and the requirement list hid seven integration acceptances. Nine verification events, roughly a quarter of the campaign, existed in the work and not in the plan. That is what the next lecture&rsquo;s matrix is built to prevent.</p>
+      </section>
+
+      <section id="summary">
+        <p class="section-label">Operative rules</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Statement</th></tr></thead><tbody><tr><td>Four methods, no fifth</td><td>Test, analysis, inspection, demonstration. Anything else is one of these four with a different name.</td></tr><tr><td>Analysis is not the cheap option</td><td>It buys a model, and a model that has not been correlated against test data is an opinion with units.</td></tr><tr><td>Integrate to a plan, not to a deadline</td><td>\(n\) items give \(n-1\) joins, each with an entry condition, a procedure and an acceptance.</td></tr><tr><td>Never integrate an unverified item</td><td>A join that starts before both sides have passed their acceptance turns one known problem into two unknown ones.</td></tr><tr><td>Test what you fly, fly what you test</td><td>Every difference between the test article and the flight article is a gap that somebody must argue away in writing.</td></tr><tr><td>Verification is not validation</td><td>One asks whether the system meets its requirements; the other asks whether those were the right requirements.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes">
+        <p class="section-label">Common mistakes</p>
+        <h2>What goes wrong</h2>
+        <ul class="check-list"><li><strong>Choosing analysis because test is expensive.</strong> The correlation test arrives later, unbudgeted, and by then the schedule has no room for it.</li><li><strong>Using inspection for behaviour.</strong> Looking at an article tells you what it is, never what it does under load.</li><li><strong>Integrating an unaccepted item.</strong> A failure in the assembly can then belong to either side or to the join, and only disassembly settles it.</li><li><strong>Planning integration as one activity.</strong> Eight items mean seven joins, seven procedures and seven acceptances.</li><li><strong>Testing an article that differs from the flight article.</strong> Every difference has to be argued away in writing, and the argument is weaker than the test it replaced.</li><li><strong>Reporting verification as validation.</strong> A fully green matrix says the project built what it wrote down, and says nothing about whether that was worth building.</li></ul>
+      </section>
+
+      <section id="references" class="references">
+        <p class="section-label">Sources</p>
+        <h2>References</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Sections 5.3 and 5.4.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=verification-module" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 23: Verification</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+          <li>Walden, D.&nbsp;D., G.&nbsp;J. Roedler, K. Forsberg, R.&nbsp;D. Hamelin, and T.&nbsp;M. Shortell (eds.). <em>INCOSE Systems Engineering Handbook: A Guide for System Life Cycle Processes and Activities</em>, 4th edition. San Diego, CA: International Council on Systems Engineering; published by John Wiley &amp; Sons, 2015.</li>
+        </ol>
+        <p class="source-note">Adapted from Unit VII of the Aerospace Systems Engineering (AE506) course script by Carlos Alberto Molina Holgu&iacute;n. Every number on this page was recomputed independently for it; no calculator covers this topic, so recomputation is the only check there is. The mix of twenty-four requirements is illustrative; the shares, the corrected test count and the integration count are computed from it in the generator, and the two correlation tests follow from the rule that an analysis claim requires a correlated model.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="vee-model-and-se-engine.html?v=12"><span>Previous lecture</span>&larr; The Vee and the SE Engine</a>
+        <a class="next-link" href="verification-matrix.html?v=12"><span>Next lecture</span>The Verification Matrix &rarr;</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+
+      <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Qu&eacute; deber&iacute;as poder hacer</h2>
+        <ul><li>nombrar los cuatro m&eacute;todos de verificaci&oacute;n y decir qu&eacute; evidencia produce cada uno;</li><li>elegir un m&eacute;todo a partir de la redacci&oacute;n del requisito y no del presupuesto;</li><li>explicar qu&eacute; obliga a probar un requisito verificado por an&aacute;lisis;</li><li>planear una secuencia de integraci&oacute;n como \(n-1\) uniones aceptadas con condiciones de entrada;</li><li>enunciar la diferencia entre verificaci&oacute;n y validaci&oacute;n en una frase cada una.</li></ul>
+      </section>
+
+      <section id="physics-es">
+        <p class="section-label">Situación de ingeniería</p>
+        <h2>Diez pruebas se volvieron doce</h2>
+        <p class="lead">El plan de verificaci&oacute;n dice diez pruebas. El calendario tiene diez espacios de prueba, el presupuesto tiene diez costos de prueba, y las reservas de instalaciones son para diez campa&ntilde;as. Otros ocho requisitos se verifican por an&aacute;lisis, que apareci&oacute; en el plan como horas de ingenier&iacute;a y ninguna instalaci&oacute;n.</p><p>Entonces el analista t&eacute;rmico hace la pregunta obvia: &iquest;contra qu&eacute; datos est&aacute; correlacionado este modelo? No hay respuesta, porque nadie plane&oacute; una prueba de correlaci&oacute;n. Ahora hacen falta dos, necesitan hardware y una c&aacute;mara, y se compraron con una decisi&oacute;n tomada cuando alguien escribi&oacute; &laquo;an&aacute;lisis&raquo; en una celda de una matriz porque probar parec&iacute;a caro.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 300" role="img" aria-label="Eventos de prueba: declarados contra reales">
+            <text x="270" y="96" text-anchor="end" font-size="13" fill="#3f5162">Declarado en la matriz de verificaci&oacute;n</text>
+            <rect x="290" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="328" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="366" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="404" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="442" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="480" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="518" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="556" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="594" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="632" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <text x="682" y="97" font-size="14" font-weight="700" fill="#071d33">10</text>
+            <text x="270" y="186" text-anchor="end" font-size="13" fill="#3f5162">Realmente ejecutado</text>
+            <rect x="290" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="328" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="366" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="404" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="442" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="480" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="518" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="556" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="594" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="632" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="670" y="160" width="34" height="40" rx="4" fill="#c2ab7d" stroke="#5c4a24" stroke-dasharray="4 3"></rect>
+            <rect x="708" y="160" width="34" height="40" rx="4" fill="#c2ab7d" stroke="#5c4a24" stroke-dasharray="4 3"></rect>
+            <text x="758" y="187" font-size="14" font-weight="700" fill="#071d33">12</text>
+            <text x="400" y="248" text-anchor="middle" font-size="12" font-style="italic" fill="#5c4a24">las dos pruebas de correlaci&oacute;n de modelo para las que nadie escribi&oacute; un requisito</text>
+            <line x1="290" y1="228" x2="746" y2="228" stroke="#8fa6ba" stroke-width="1"></line>
+            </svg>
+            <figcaption>La matriz de verificaci&oacute;n declar&oacute; diez pruebas. Se ejecutaron doce, porque los ocho requisitos verificados por an&aacute;lisis necesitaban dos modelos correlacionados, y un modelo se correlaciona probando algo.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-es">
+        <p class="section-label">Alcance y límites</p>
+        <h2>Dos preguntas, mantenidas aparte</h2>
+        <p><strong>La verificaci&oacute;n</strong> pregunta: &iquest;el sistema cumple los requisitos que se le escribieron? Compara un art&iacute;culo contra un documento, y tiene un s&iacute; o un no.</p><p><strong>La validaci&oacute;n</strong> pregunta: &iquest;eran esos los requisitos correctos? Compara el sistema contra la necesidad que inici&oacute; el proyecto, y puede fallar en un sistema que pas&oacute; toda verificaci&oacute;n.</p><p>Ambas viven en la rama derecha de la V, y ambas se deciden en la izquierda. La verificaci&oacute;n se decide al escribir el requisito, porque ah&iacute; se elige el m&eacute;todo; la validaci&oacute;n se decide al escribir las expectativas de los interesados, porque contra eso se medir&aacute;.</p>
+        <div class="callout warning"><strong>Un sistema puede pasar todo y aun as&iacute; estar mal.</strong> Verificar contra un conjunto de requisitos completo y trazable prueba s&oacute;lo que el proyecto construy&oacute; lo que escribi&oacute;. Si el ConOps estaba mal, todo requisito derivado de &eacute;l est&aacute; mal en la misma direcci&oacute;n, y la matriz estar&aacute; enteramente verde.</div>
+      </section>
+
+      <section id="methods-es">
+        <p class="section-label">Cuatro, y s&oacute;lo cuatro</p>
+        <h2>Qu&eacute; compra cada m&eacute;todo</h2>
+        <div class="table-wrap"><table><thead><tr><th>M&eacute;todo</th><th>Qu&eacute; produce</th><th>Cu&aacute;ndo es la elecci&oacute;n correcta</th><th>Qu&eacute; cuesta</th></tr></thead><tbody><tr><td><strong>Prueba</strong></td><td>Datos medidos del art&iacute;culo mismo en condiciones controladas e instrumentadas</td><td>El requisito es cuantitativo y el entorno puede reproducirse</td><td>Una instalaci&oacute;n, un dispositivo, instrumentaci&oacute;n y tiempo del art&iacute;culo de vuelo</td></tr><tr><td><strong>An&aacute;lisis</strong></td><td>Un resultado calculado de un modelo, con sus supuestos declarados</td><td>La condici&oacute;n no puede reproducirse en tierra, o el art&iacute;culo se destruir&iacute;a</td><td>Un modelo que debe a su vez correlacionarse contra datos de prueba</td></tr><tr><td><strong>Inspecci&oacute;n</strong></td><td>Un hecho observado: una dimensi&oacute;n, una marca, un certificado de material</td><td>El requisito trata de lo que el art&iacute;culo <em>es</em>, no de lo que hace</td><td>Poco, y por eso se abusa de ella</td></tr><tr><td><strong>Demostraci&oacute;n</strong></td><td>Una operaci&oacute;n observada: la funci&oacute;n se ejercit&oacute; y funcion&oacute;</td><td>El requisito trata de usabilidad o de una secuencia operativa, sin n&uacute;mero</td><td>Tiempo de operador, y un procedimiento que hay que escribir antes</td></tr></tbody></table></div>
+        <p>El m&eacute;todo se sigue del verbo del requisito, no de lo que el proyecto puede pagar. <em>No exceder&aacute; 4.0 kg</em> es una medici&oacute;n, as&iacute; que es prueba o inspecci&oacute;n. <em>Sobrevivir&aacute; el entorno t&eacute;rmico de lanzamiento</em> no puede reproducirse sin destruir calendario y art&iacute;culo, as&iacute; que es an&aacute;lisis. <em>Ser&aacute; recuperable por dos operadores en treinta minutos</em> no tiene instrumento, as&iacute; que es demostraci&oacute;n.</p><p>El an&aacute;lisis es el que se elige por la raz&oacute;n equivocada. Parece la opci&oacute;n barata porque su costo aparece como horas de ingenier&iacute;a, pero un modelo que nunca se compar&oacute; con datos medidos no puede sostener una afirmaci&oacute;n de verificaci&oacute;n. La prueba de correlaci&oacute;n es parte del precio, y deber&iacute;a aparecer en el plan el d&iacute;a en que se asigna el m&eacute;todo.</p>
+      </section>
+
+      <section id="integration-es">
+        <p class="section-label">El ensamble es una secuencia de decisiones</p>
+        <h2>Siete uniones, siete aceptaciones</h2>
+        <p>Integrar no es ensamblar. Ensamblar es juntar dos cosas; integrar es juntar dos cosas <em>aceptadas</em> y aceptar el resultado. Ocho elementos finales unidos por pares dan \(n-1 = 7\) uniones, y cada una carga una condici&oacute;n de entrada, un procedimiento, una verificaci&oacute;n de interfaz y una aceptaci&oacute;n del art&iacute;culo ensamblado.</p><p>La condici&oacute;n de entrada es la regla que hace el trabajo: <strong>nada se integra hasta que ambos lados pasen su propia aceptaci&oacute;n</strong>. R&oacute;mpela una vez, bajo presi&oacute;n de calendario, y un fallo en el art&iacute;culo ensamblado ya no puede atribuirse &mdash; puede ser cualquiera de los dos lados o la uni&oacute;n misma, y la &uacute;nica forma de saberlo es desarmarlo, que es lo caro que la regla exist&iacute;a para evitar.</p>
+        <div class="callout success">La distinci&oacute;n no es una convenci&oacute;n local. Cuando INCOSE revis&oacute; su manual a la cuarta edici&oacute;n, el proceso de integraci&oacute;n se reescribi&oacute; con un alcance m&aacute;s amplio justo por esto, y la nota de cambio lo dice sin rodeos: integrar es m&aacute;s que ensamblar elementos del sistema. Tambi&eacute;n at&oacute; el proceso de forma expl&iacute;cita a las definiciones de interfaz de la arquitectura, que es la misma afirmaci&oacute;n de la matriz de interfaces de la lecture 12 &mdash; s&oacute;lo se puede integrar por interfaces que alguien defini&oacute;.</div>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Algoritmo de cálculo</p>
+        <h2>Asignar un m&eacute;todo a un requisito</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Leer el verbo del requisito y su cantidad</span></div><div><strong>2</strong><span>Preguntar si la condici&oacute;n puede reproducirse en tierra</span></div><div><strong>3</strong><span>Elegir prueba, an&aacute;lisis, inspecci&oacute;n o demostraci&oacute;n</span></div><div><strong>4</strong><span>Si es an&aacute;lisis, nombrar la prueba de correlaci&oacute;n que necesita</span></div><div><strong>5</strong><span>Nombrar la instalaci&oacute;n, el art&iacute;culo y el criterio de aceptaci&oacute;n</span></div><div><strong>6</strong><span>Ponerlo todo en el plan, incluido el trabajo oculto</span></div><div><strong>7</strong><span>Repetir para las aceptaciones de integraci&oacute;n, que no tienen rengl&oacute;n de requisito</span></div></div>
+        <p>El paso siete es el que sorprende. Las siete aceptaciones de integraci&oacute;n son eventos de verificaci&oacute;n reales con costo real, y ning&uacute;n rengl&oacute;n de requisito los producir&aacute; nunca, porque verifican el ensamble y no el art&iacute;culo. Un plan construido s&oacute;lo desde la lista de requisitos queda corto exactamente en esos siete.</p>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>Veinticuatro requisitos, y el trabajo que compraron</h2>
+        <p>La plataforma tiene veinticuatro requisitos de nivel de sistema con un m&eacute;todo asignado a cada uno.</p>
+        <div class="table-wrap"><table><thead><tr><th>M&eacute;todo</th><th>Requisitos</th><th>Proporci&oacute;n</th><th>Trabajo oculto que crea</th></tr></thead><tbody><tr><td>Prueba</td><td>10</td><td>42 %</td><td>Ninguno &mdash; el costo es visible en el plan</td></tr><tr><td><strong>An&aacute;lisis</strong></td><td><strong>8</strong></td><td><strong>33 %</strong></td><td><strong>Dos pruebas de correlaci&oacute;n de modelo, que son a su vez eventos de prueba</strong></td></tr><tr><td>Inspecci&oacute;n</td><td>4</td><td>17 %</td><td>Un plano o certificado que debe existir y estar controlado</td></tr><tr><td>Demostraci&oacute;n</td><td>2</td><td>8 %</td><td>Un procedimiento escrito, y alguien calificado para ejecutarlo</td></tr><tr><td><em>Total</em></td><td><em>24</em></td><td><em>100 %</em></td><td><em>y 7 aceptaciones de integraci&oacute;n que ning&uacute;n rengl&oacute;n nombra</em></td></tr></tbody></table></div>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Revisar la asignaci&oacute;n.</strong> Los cuatro m&eacute;todos cubren los veinticuatro renglones: \(10+8+4+2 = 24\). Ning&uacute;n rengl&oacute;n queda sin asignar, que es la primera auditor&iacute;a de cualquier matriz de verificaci&oacute;n.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Seguir los an&aacute;lisis.</strong> Los ocho renglones de an&aacute;lisis se apoyan en dos modelos, uno t&eacute;rmico y uno estructural. Cada modelo necesita correlaci&oacute;n contra datos medidos antes de sostener una afirmaci&oacute;n de verificaci&oacute;n, as&iacute; que se requieren dos pruebas de correlaci&oacute;n.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Recontar las pruebas.</strong> \[ 10 + 2 = 12 \] eventos de prueba se ejecutar&aacute;n realmente contra diez declarados, una subestimaci&oacute;n de \[ (12-10)/10 = 20\,\%. \] Dos reservas de c&aacute;mara y dos art&iacute;culos de prueba se compraron sin aparecer en el plan.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>A&ntilde;adir las aceptaciones de integraci&oacute;n.</strong> Los ocho elementos finales dan \(8-1 = 7\) uniones, cada una con su aceptaci&oacute;n. Verifican el ensamble y no aparecen en rengl&oacute;n de requisito alguno, as&iacute; que el conteo real de eventos de verificaci&oacute;n es 24 cierres de requisito m&aacute;s 7 aceptaciones de integraci&oacute;n.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Leer la proporci&oacute;n.</strong> La prueba carga 42 % de los requisitos y, tras la correlaci&oacute;n, la mayor parte del costo de instalaciones. La inspecci&oacute;n carga 17 % a casi ning&uacute;n costo, que es justo por qu&eacute; una columna de inspecci&oacute;n sobrecargada es lo segundo que se audita.</div></div>
+        <div class="result-box">\[ \boxed{ 10+8+4+2 = 24,\qquad 10 \rightarrow 12\ \text{pruebas } (+20\,\%),\qquad +\,7\ \text{aceptaciones} } \]</div>
+        <p><strong>Interpretaci&oacute;n.</strong> La matriz estaba completa &mdash; todo requisito ten&iacute;a m&eacute;todo, y una auditor&iacute;a la habr&iacute;a aprobado. Lo que no era es honesta sobre el costo, y las dos omisiones van en la misma direcci&oacute;n: los an&aacute;lisis escondieron dos pruebas, y la lista de requisitos escondi&oacute; siete aceptaciones de integraci&oacute;n. Nueve eventos de verificaci&oacute;n, cerca de un cuarto de la campa&ntilde;a, exist&iacute;an en el trabajo y no en el plan. Eso es lo que la matriz de la siguiente lecture se construye para impedir.</p>
+      </section>
+
+      <section id="summary-es">
+        <p class="section-label">Reglas operativas</p>
+        <h2>De un vistazo</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regla</th><th>Enunciado</th></tr></thead><tbody><tr><td>Cuatro m&eacute;todos, no hay quinto</td><td>Prueba, an&aacute;lisis, inspecci&oacute;n, demostraci&oacute;n. Cualquier otra cosa es uno de estos cuatro con otro nombre.</td></tr><tr><td>El an&aacute;lisis no es la opci&oacute;n barata</td><td>Compra un modelo, y un modelo no correlacionado contra datos de prueba es una opini&oacute;n con unidades.</td></tr><tr><td>Integra a un plan, no a una fecha</td><td>\(n\) elementos dan \(n-1\) uniones, cada una con condici&oacute;n de entrada, procedimiento y aceptaci&oacute;n.</td></tr><tr><td>Nunca integres un elemento no verificado</td><td>Una uni&oacute;n que empieza antes de que ambos lados pasen su aceptaci&oacute;n convierte un problema conocido en dos desconocidos.</td></tr><tr><td>Prueba lo que vuelas, vuela lo que pruebas</td><td>Toda diferencia entre el art&iacute;culo de prueba y el de vuelo es una brecha que alguien debe justificar por escrito.</td></tr><tr><td>Verificaci&oacute;n no es validaci&oacute;n</td><td>Una pregunta si el sistema cumple sus requisitos; la otra, si esos eran los requisitos correctos.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-es">
+        <p class="section-label">Errores comunes</p>
+        <h2>Qu&eacute; sale mal</h2>
+        <ul class="check-list"><li><strong>Elegir an&aacute;lisis porque probar es caro.</strong> La prueba de correlaci&oacute;n llega despu&eacute;s, sin presupuesto, y para entonces el calendario no tiene espacio.</li><li><strong>Usar inspecci&oacute;n para comportamiento.</strong> Mirar un art&iacute;culo te dice qu&eacute; es, nunca qu&eacute; hace bajo carga.</li><li><strong>Integrar un elemento no aceptado.</strong> Un fallo en el ensamble puede pertenecer entonces a cualquier lado o a la uni&oacute;n, y s&oacute;lo desarmar lo resuelve.</li><li><strong>Planear la integraci&oacute;n como una actividad.</strong> Ocho elementos significan siete uniones, siete procedimientos y siete aceptaciones.</li><li><strong>Probar un art&iacute;culo distinto al de vuelo.</strong> Toda diferencia hay que justificarla por escrito, y el argumento es m&aacute;s d&eacute;bil que la prueba que sustituy&oacute;.</li><li><strong>Reportar verificaci&oacute;n como validaci&oacute;n.</strong> Una matriz enteramente verde dice que el proyecto construy&oacute; lo que escribi&oacute;, y no dice nada de si val&iacute;a la pena construirlo.</li></ul>
+      </section>
+
+      <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
+        <h2>Referencias</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Sections 5.3 and 5.4.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=verification-module" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 23: Verification</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+          <li>Walden, D.&nbsp;D., G.&nbsp;J. Roedler, K. Forsberg, R.&nbsp;D. Hamelin, and T.&nbsp;M. Shortell (eds.). <em>INCOSE Systems Engineering Handbook: A Guide for System Life Cycle Processes and Activities</em>, 4th edition. San Diego, CA: International Council on Systems Engineering; published by John Wiley &amp; Sons, 2015.</li>
+        </ol>
+        <p class="source-note">Adaptado de la Unidad VII del gui&oacute;n del curso Ingenier&iacute;a en Sistemas Aeroespaciales (AE506) de Carlos Alberto Molina Holgu&iacute;n. Cada n&uacute;mero de esta p&aacute;gina se recalcul&oacute; de forma independiente para ella; ninguna calculadora cubre este tema, as&iacute; que el rec&aacute;lculo es la &uacute;nica comprobaci&oacute;n disponible. La mezcla de veinticuatro requisitos es ilustrativa; las proporciones, el conteo corregido de pruebas y el de integraciones se calculan de ella en el generador, y las dos pruebas de correlaci&oacute;n se siguen de la regla de que una afirmaci&oacute;n por an&aacute;lisis exige un modelo correlacionado.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="vee-model-and-se-engine.html?v=12"><span>Lecture anterior</span>&larr; La V y el motor de procesos</a>
+        <a class="next-link" href="verification-matrix.html?v=12"><span>Siguiente lecture</span>La matriz de verificaci&oacute;n &rarr;</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+
+      <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie k&ouml;nnen sollten</h2>
+        <ul><li>die vier Verifikationsmethoden nennen und sagen, welche Evidenz jede liefert;</li><li>die Methode aus dem Wortlaut der Anforderung w&auml;hlen, nicht aus dem Budget;</li><li>erkl&auml;ren, wozu eine analytisch verifizierte Anforderung das Projekt verpflichtet;</li><li>eine Integrationsfolge als \(n-1\) abgenommene F&uuml;gungen mit Eintrittsbedingungen planen;</li><li>den Unterschied zwischen Verifikation und Validierung in je einem Satz nennen.</li></ul>
+      </section>
+
+      <section id="physics-de">
+        <p class="section-label">Ingenieurtechnischer Kontext</p>
+        <h2>Aus zehn Tests wurden zw&ouml;lf</h2>
+        <p class="lead">Der Verifikationsplan nennt zehn Tests. Der Terminplan hat zehn Testfenster, das Budget zehn Testkosten, die Anlagenbuchungen gelten zehn Kampagnen. Acht weitere Anforderungen werden analytisch verifiziert &mdash; im Plan erschienen sie als Ingenieurstunden und gar keine Anlage.</p><p>Dann stellt der Thermalanalytiker die naheliegende Frage: Gegen welche Daten ist dieses Modell korreliert? Es gibt keine Antwort, denn niemand plante einen Korrelationstest. Zwei sind nun n&ouml;tig, sie brauchen Hardware und eine Kammer, und gekauft wurden sie in dem Moment, als jemand &bdquo;Analyse&ldquo; in eine Zelle schrieb, weil Testen teuer aussah.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 300" role="img" aria-label="Testereignisse: erkl&auml;rt gegen tats&auml;chlich">
+            <text x="270" y="96" text-anchor="end" font-size="13" fill="#3f5162">In der Verifikationsmatrix erkl&auml;rt</text>
+            <rect x="290" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="328" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="366" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="404" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="442" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="480" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="518" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="556" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="594" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="632" y="70" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <text x="682" y="97" font-size="14" font-weight="700" fill="#071d33">10</text>
+            <text x="270" y="186" text-anchor="end" font-size="13" fill="#3f5162">Tats&auml;chlich durchgef&uuml;hrt</text>
+            <rect x="290" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="328" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="366" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="404" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="442" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="480" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="518" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="556" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="594" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="632" y="160" width="34" height="40" rx="4" fill="#0d568d" stroke="#8fa6ba"></rect>
+            <rect x="670" y="160" width="34" height="40" rx="4" fill="#c2ab7d" stroke="#5c4a24" stroke-dasharray="4 3"></rect>
+            <rect x="708" y="160" width="34" height="40" rx="4" fill="#c2ab7d" stroke="#5c4a24" stroke-dasharray="4 3"></rect>
+            <text x="758" y="187" font-size="14" font-weight="700" fill="#071d33">12</text>
+            <text x="400" y="248" text-anchor="middle" font-size="12" font-style="italic" fill="#5c4a24">die zwei Modellkorrelationstests, f&uuml;r die niemand eine Anforderung schrieb</text>
+            <line x1="290" y1="228" x2="746" y2="228" stroke="#8fa6ba" stroke-width="1"></line>
+            </svg>
+            <figcaption>Die Verifikationsmatrix nannte zehn Tests. Zw&ouml;lf wurden durchgef&uuml;hrt, denn die acht analytisch verifizierten Anforderungen brauchten zwei korrelierte Modelle &mdash; und ein Modell korreliert man, indem man etwas testet.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-de">
+        <p class="section-label">Geltungsbereich und Grenzen</p>
+        <h2>Zwei Fragen, getrennt gehalten</h2>
+        <p><strong>Verifikation</strong> fragt: Erf&uuml;llt das System die f&uuml;r es geschriebenen Anforderungen? Sie vergleicht einen Artikel mit einem Dokument und hat ein Ja oder Nein.</p><p><strong>Validierung</strong> fragt: Waren das die richtigen Anforderungen? Sie vergleicht das System mit dem ausl&ouml;senden Bedarf und kann bei einem System scheitern, das jede Verifikation bestand.</p><p>Beide leben auf dem rechten Ast des V und werden links entschieden. Verifikation beim Schreiben der Anforderung, denn dann f&auml;llt die Methodenwahl; Validierung beim Schreiben der Erwartungen, denn daran wird gemessen.</p>
+        <div class="callout warning"><strong>Ein System kann alles bestehen und dennoch falsch sein.</strong> Verifikation gegen eine vollst&auml;ndige, r&uuml;ckverfolgbare Anforderungsmenge beweist nur, dass gebaut wurde, was aufgeschrieben war. War das Betriebskonzept falsch, ist jede abgeleitete Anforderung gleich falsch &mdash; und die Matrix durchgehend gr&uuml;n.</div>
+      </section>
+
+      <section id="methods-de">
+        <p class="section-label">Vier, und nur vier</p>
+        <h2>Was jede Methode einkauft</h2>
+        <div class="table-wrap"><table><thead><tr><th>Methode</th><th>Was sie liefert</th><th>Wann sie richtig ist</th><th>Was sie kostet</th></tr></thead><tbody><tr><td><strong>Test</strong></td><td>Messdaten vom Artikel selbst unter kontrollierten, instrumentierten Bedingungen</td><td>Die Anforderung ist quantitativ und die Umgebung reproduzierbar</td><td>Anlage, Vorrichtung, Messtechnik und Zeit am Flugartikel</td></tr><tr><td><strong>Analyse</strong></td><td>Ein berechnetes Ergebnis aus einem Modell mit genannten Annahmen</td><td>Die Bedingung ist am Boden nicht herstellbar, oder der Artikel w&uuml;rde zerst&ouml;rt</td><td>Ein Modell, das selbst gegen Testdaten korreliert werden muss</td></tr><tr><td><strong>Inspektion</strong></td><td>Eine beobachtete Tatsache: Ma&szlig;, Kennzeichnung, Materialzeugnis</td><td>Die Anforderung betrifft, was der Artikel <em>ist</em>, nicht was er tut</td><td>Wenig &mdash; darum wird sie &uuml;berstrapaziert</td></tr><tr><td><strong>Vorf&uuml;hrung</strong></td><td>Ein beobachteter Betrieb: die Funktion wurde ausge&uuml;bt und lief</td><td>Die Anforderung betrifft Bedienbarkeit oder einen Ablauf, ohne Zahl</td><td>Bedienerzeit und eine vorher zu schreibende Prozedur</td></tr></tbody></table></div>
+        <p>Die Methode folgt aus dem Verb der Anforderung, nicht aus dem Budget. <em>Darf 4,0 kg nicht &uuml;berschreiten</em> ist eine Messung, also Test oder Inspektion. <em>Muss die thermische Startumgebung &uuml;berstehen</em> ist ohne Zerst&ouml;rung von Termin und Artikel nicht herstellbar, also Analyse. <em>Muss von zwei Bedienern in drei&szlig;ig Minuten bergbar sein</em> hat kein Messger&auml;t, also Vorf&uuml;hrung.</p><p>Die Analyse wird aus dem falschen Grund gew&auml;hlt. Sie wirkt billig, weil ihre Kosten als Ingenieurstunden erscheinen; doch ein nie mit Messdaten verglichenes Modell tr&auml;gt keine Verifikationsaussage. Der Korrelationstest geh&ouml;rt zum Preis und sollte am Tag der Methodenzuordnung im Plan stehen.</p>
+      </section>
+
+      <section id="integration-de">
+        <p class="section-label">Montage ist eine Folge von Entscheidungen</p>
+        <h2>Sieben F&uuml;gungen, sieben Abnahmen</h2>
+        <p>Integration ist keine Montage. Montage f&uuml;gt zwei Dinge zusammen; Integration f&uuml;gt zwei <em>abgenommene</em> Dinge zusammen und nimmt das Ergebnis ab. Acht Endprodukte paarweise gef&uuml;gt ergeben \(n-1 = 7\) F&uuml;gungen, jede mit Eintrittsbedingung, Prozedur, Schnittstellenverifikation und Abnahme des gef&uuml;gten Artikels.</p><p>Die Eintrittsbedingung leistet die Arbeit: <strong>Nichts wird integriert, bevor beide Seiten ihre eigene Abnahme bestanden haben</strong>. Bricht man sie einmal unter Termindruck, ist ein Fehler im gef&uuml;gten Artikel nicht mehr zuzuordnen &mdash; es kann jede Seite oder die F&uuml;gung sein, und Klarheit bringt nur das Zerlegen, also genau das Teure, das die Regel verhindern sollte.</p>
+        <div class="callout success">Die Unterscheidung ist keine hausgemachte Konvention. Als INCOSE sein Handbuch zur vierten Auflage &uuml;berarbeitete, wurde der Integrationsprozess genau deshalb weiter gefasst, und die &Auml;nderungsnotiz sagt es klar: Integration ist mehr als der Zusammenbau von Systemelementen. Sie band den Prozess zudem ausdr&uuml;cklich an die Schnittstellendefinitionen der Architektur &mdash; dieselbe Aussage wie die Schnittstellenmatrix aus Vorlesung 12: Integrieren l&auml;sst sich nur entlang von Schnittstellen, die jemand definiert hat.</div>
+      </section>
+
+      <section id="algorithm-de">
+        <p class="section-label">Rechenalgorithmus</p>
+        <h2>Einer Anforderung eine Methode zuordnen</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Verb und Gr&ouml;&szlig;e der Anforderung lesen</span></div><div><strong>2</strong><span>Fragen, ob die Bedingung am Boden herstellbar ist</span></div><div><strong>3</strong><span>Test, Analyse, Inspektion oder Vorf&uuml;hrung w&auml;hlen</span></div><div><strong>4</strong><span>Bei Analyse den n&ouml;tigen Korrelationstest benennen</span></div><div><strong>5</strong><span>Anlage, Artikel und Abnahmekriterium benennen</span></div><div><strong>6</strong><span>Alles in den Plan aufnehmen, auch die verborgene Arbeit</span></div><div><strong>7</strong><span>F&uuml;r die Integrationsabnahmen wiederholen, die keine Anforderungszeile haben</span></div></div>
+        <p>Schritt sieben &uuml;berrascht. Die sieben Integrationsabnahmen sind echte Verifikationsereignisse mit echten Kosten, und keine Anforderungszeile erzeugt sie, denn sie pr&uuml;fen die F&uuml;gung, nicht den Artikel. Ein nur aus der Anforderungsliste gebauter Plan ist genau um diese sieben zu kurz.</p>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Vierundzwanzig Anforderungen und die eingekaufte Arbeit</h2>
+        <p>Die Plattform hat vierundzwanzig Anforderungen auf Systemebene mit je zugeordneter Methode.</p>
+        <div class="table-wrap"><table><thead><tr><th>Methode</th><th>Anforderungen</th><th>Anteil</th><th>Verborgene Folgearbeit</th></tr></thead><tbody><tr><td>Test</td><td>10</td><td>42 %</td><td>Keine &mdash; die Kosten stehen im Plan</td></tr><tr><td><strong>Analyse</strong></td><td><strong>8</strong></td><td><strong>33 %</strong></td><td><strong>Zwei Modellkorrelationstests, selbst Testereignisse</strong></td></tr><tr><td>Inspektion</td><td>4</td><td>17 %</td><td>Eine Zeichnung oder ein Zeugnis, das existieren und gelenkt sein muss</td></tr><tr><td>Vorf&uuml;hrung</td><td>2</td><td>8 %</td><td>Eine geschriebene Prozedur und jemand, der sie ausf&uuml;hren darf</td></tr><tr><td><em>Summe</em></td><td><em>24</em></td><td><em>100 %</em></td><td><em>und 7 Integrationsabnahmen, die keine Zeile nennt</em></td></tr></tbody></table></div>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Die Zuordnung pr&uuml;fen.</strong> Die vier Methoden decken alle vierundzwanzig Zeilen: \(10+8+4+2 = 24\). Keine Zeile bleibt offen &mdash; die erste Pr&uuml;fung jeder Verifikationsmatrix.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Den Analysen folgen.</strong> Die acht Analysezeilen st&uuml;tzen sich auf zwei Modelle, ein thermisches und ein strukturelles. Jedes braucht Korrelation gegen Messdaten, also zwei Korrelationstests.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Die Tests neu z&auml;hlen.</strong> \[ 10 + 2 = 12 \] Testereignisse werden tats&auml;chlich durchgef&uuml;hrt gegen&uuml;ber zehn erkl&auml;rten, eine Untersch&auml;tzung von \[ (12-10)/10 = 20\,\%. \] Zwei Kammerbuchungen und zwei Testartikel wurden gekauft, ohne im Plan zu erscheinen.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Die Integrationsabnahmen erg&auml;nzen.</strong> Die acht Endprodukte ergeben \(8-1 = 7\) F&uuml;gungen mit je eigener Abnahme. Sie pr&uuml;fen die Montage und stehen in keiner Anforderungszeile; die wahre Zahl ist also 24 Anforderungsabschl&uuml;sse plus 7 Integrationsabnahmen.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Den Anteil lesen.</strong> Test tr&auml;gt 42 % der Anforderungen und nach der Korrelation den Gro&szlig;teil der Anlagenkosten. Inspektion tr&auml;gt 17 % zu fast keinen Kosten &mdash; genau darum ist eine &uuml;berf&uuml;llte Inspektionsspalte das Zweite, was gepr&uuml;ft wird.</div></div>
+        <div class="result-box">\[ \boxed{ 10+8+4+2 = 24,\qquad 10 \rightarrow 12\ \text{Tests } (+20\,\%),\qquad +\,7\ \text{Integrationsabnahmen} } \]</div>
+        <p><strong>Deutung.</strong> Die Matrix war vollst&auml;ndig &mdash; jede Anforderung hatte eine Methode, eine Pr&uuml;fung h&auml;tte sie best&auml;tigt. Ehrlich &uuml;ber die Kosten war sie nicht, und beide Auslassungen gehen in dieselbe Richtung: Die Analysen verbargen zwei Tests, die Anforderungsliste sieben Integrationsabnahmen. Neun Verifikationsereignisse, rund ein Viertel der Kampagne, existierten in der Arbeit und nicht im Plan. Genau das soll die Matrix der n&auml;chsten Vorlesung verhindern.</p>
+      </section>
+
+      <section id="summary-de">
+        <p class="section-label">Arbeitsregeln</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regel</th><th>Aussage</th></tr></thead><tbody><tr><td>Vier Methoden, keine f&uuml;nfte</td><td>Test, Analyse, Inspektion, Vorf&uuml;hrung. Alles andere ist eine dieser vier unter anderem Namen.</td></tr><tr><td>Analyse ist nicht die billige Wahl</td><td>Sie kauft ein Modell, und ein nicht korreliertes Modell ist eine Meinung mit Einheiten.</td></tr><tr><td>Nach Plan integrieren, nicht nach Termin</td><td>\(n\) Elemente ergeben \(n-1\) F&uuml;gungen mit je Eintrittsbedingung, Prozedur und Abnahme.</td></tr><tr><td>Nie ein unverifiziertes Element f&uuml;gen</td><td>Eine F&uuml;gung vor bestandener Abnahme beider Seiten macht aus einem bekannten Problem zwei unbekannte.</td></tr><tr><td>Teste, was du fliegst; fliege, was du testest</td><td>Jeder Unterschied zwischen Test- und Flugartikel ist eine L&uuml;cke, die jemand schriftlich ausr&auml;umen muss.</td></tr><tr><td>Verifikation ist keine Validierung</td><td>Die eine fragt, ob das System seine Anforderungen erf&uuml;llt; die andere, ob es die richtigen waren.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Häufige Fehler</p>
+        <h2>Was schiefgeht</h2>
+        <ul class="check-list"><li><strong>Analyse w&auml;hlen, weil Test teuer ist.</strong> Der Korrelationstest kommt sp&auml;ter, ohne Budget, und dann fehlt die Zeit.</li><li><strong>Inspektion f&uuml;r Verhalten nutzen.</strong> Ansehen sagt, was ein Artikel ist, nie was er unter Last tut.</li><li><strong>Ein nicht abgenommenes Element f&uuml;gen.</strong> Ein Fehler kann dann jeder Seite oder der F&uuml;gung geh&ouml;ren; nur Zerlegen kl&auml;rt es.</li><li><strong>Integration als eine T&auml;tigkeit planen.</strong> Acht Elemente bedeuten sieben F&uuml;gungen, sieben Prozeduren, sieben Abnahmen.</li><li><strong>Einen vom Flugartikel abweichenden Artikel testen.</strong> Jede Abweichung ist schriftlich auszur&auml;umen, und das Argument ist schw&auml;cher als der ersetzte Test.</li><li><strong>Verifikation als Validierung berichten.</strong> Eine gr&uuml;ne Matrix sagt, dass gebaut wurde, was aufgeschrieben war &mdash; nicht, ob es das wert war.</li></ul>
+      </section>
+
+      <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
+        <h2>Literatur</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Sections 5.3 and 5.4.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=verification-module" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 23: Verification</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+          <li>Walden, D.&nbsp;D., G.&nbsp;J. Roedler, K. Forsberg, R.&nbsp;D. Hamelin, and T.&nbsp;M. Shortell (eds.). <em>INCOSE Systems Engineering Handbook: A Guide for System Life Cycle Processes and Activities</em>, 4th edition. San Diego, CA: International Council on Systems Engineering; published by John Wiley &amp; Sons, 2015.</li>
+        </ol>
+        <p class="source-note">Bearbeitet nach Einheit VII des Skripts Luft- und Raumfahrtsystemtechnik (AE506) von Carlos Alberto Molina Holgu&iacute;n. Jede Zahl dieser Seite wurde eigens daf&uuml;r unabh&auml;ngig neu berechnet; kein Rechner deckt dieses Thema ab, daher ist die Neuberechnung die einzige Pr&uuml;fung. Die Mischung von vierundzwanzig Anforderungen ist beispielhaft; Anteile, korrigierte Testzahl und Integrationszahl werden daraus im Generator berechnet, und die zwei Korrelationstests folgen aus der Regel, dass eine Analyseaussage ein korreliertes Modell verlangt.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="vee-model-and-se-engine.html?v=12"><span>Vorherige Vorlesung</span>&larr; Das V-Modell und die SE-Maschine</a>
+        <a class="next-link" href="verification-matrix.html?v=12"><span>Nächste Vorlesung</span>Die Verifikationsmatrix &rarr;</a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>&copy; <span id="year"></span> Carlos Alberto Molina Holgu&iacute;n</p>
+    <p>Universidad Aut&oacute;noma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

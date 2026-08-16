@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="The verification cross-reference matrix: what each column holds, why status has exactly three values, reporting closure by count and by remaining events, and how validation differs from verification." />
+  <meta name="author" content="Carlos Alberto Molina Holgu&iacute;n" />
+  <meta name="theme-color" content="#071d33" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>The Verification Matrix and Validation | Aerospace Systems Engineering</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:wght@600;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=12" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=12"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=12" data-ui-key="course">Aerospace Systems Engineering</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Aerospace Systems Engineering &middot; Lecture 22</p>
+        <h1>The Verification Matrix, and What Validation Asks Instead</h1>
+        <p class="hero-copy">The document that decides whether a project can say it is finished, the one column that makes it countable, and the question it was never designed to answer.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Ingeniería de Sistemas Aeroespaciales &middot; Lecture 22</p>
+        <h1>La matriz de verificaci&oacute;n, y qu&eacute; pregunta la validaci&oacute;n en su lugar</h1>
+        <p class="hero-copy">El documento que decide si un proyecto puede decir que termin&oacute;, la columna que lo vuelve contable, y la pregunta que nunca fue dise&ntilde;ado para responder.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Luft- und Raumfahrtsystemtechnik &middot; Vorlesung 22</p>
+        <h1>Die Verifikationsmatrix &mdash; und was die Validierung stattdessen fragt</h1>
+        <p class="hero-copy">Das Dokument, das entscheidet, ob ein Projekt fertig hei&szlig;en darf, die eine Spalte, die es z&auml;hlbar macht, und die Frage, f&uuml;r die es nie gedacht war.</p>
+      </div>
+
+    <div class="hero-meta">
+        <span data-language="en">Estimated reading: 14 min</span><span data-language="es" hidden>Lectura estimada: 14 min</span><span data-language="de" hidden>Lesedauer: ca. 14 min</span>
+        <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+        <span data-language="en">Scope: one matrix, one baseline</span><span data-language="es" hidden>Alcance: una matriz, una l&iacute;nea base</span><span data-language="de" hidden>Umfang: eine Matrix, eine Basis</span>
+    </div>
+    <div class="button-row">
+      <a class="button secondary" href="integration-and-verification.html?v=12">&larr; <span data-ui-key="previous">Previous lecture</span></a>
+      <a class="button secondary" href="index.html?v=12" data-ui-key="back">Back to course</a>
+      <a class="button primary" href="configuration-and-mbse.html?v=12"><span data-ui-key="next">Next lecture</span> &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Engineering situation</a>
+        <a href="#model">Scope and limits</a>
+        <a href="#columns">The columns</a>
+        <a href="#validation">What validation asks</a>
+        <a href="#algorithm">Reporting status</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Operative rules</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#references">Sources</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Situaci&oacute;n de ingenier&iacute;a</a>
+        <a href="#model-es">Alcance y l&iacute;mites</a>
+        <a href="#columns-es">Las columnas</a>
+        <a href="#validation-es">Qu&eacute; pregunta la validaci&oacute;n</a>
+        <a href="#algorithm-es">Reportar el estatus</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Reglas operativas</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Kontext</a>
+        <a href="#model-de">Geltungsbereich</a>
+        <a href="#columns-de">Die Spalten</a>
+        <a href="#validation-de">Was die Validierung fragt</a>
+        <a href="#algorithm-de">Status berichten</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Arbeitsregeln</a>
+        <a href="#mistakes-de">H&auml;ufige Fehler</a>
+        <a href="#references-de">Quellen</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+
+      <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul><li>list the columns of a verification cross-reference matrix and say what each prevents;</li><li>explain why the status column may hold exactly three values;</li><li>compute closure by requirement count and by remaining verification events, and say which predicts the schedule;</li><li>state what &ldquo;closed&rdquo; requires as evidence;</li><li>distinguish validation from verification and name the artefact each is measured against.</li></ul>
+      </section>
+
+      <section id="physics">
+        <p class="section-label">Engineering situation</p>
+        <h2>Sixty-two per cent of nothing in particular</h2>
+        <p class="lead">The monthly report says verification is 62.5 % complete. Fifteen of twenty-four requirements are closed, the arithmetic is right, and the number goes on a chart that trends comfortably upward.</p><p>The nine that remain are the ones closed by test, because tests need hardware and hardware arrives last. Five of twelve test events have been performed. Measured by the work left rather than by rows on a page, the campaign is 41.7 % done, and the two numbers disagree by nearly twenty-one points on the same day, about the same project.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 280" role="img" aria-label="Closure by requirement count against closure by test events">
+            <text x="286" y="86" text-anchor="end" font-size="13" fill="#3f5162">Requirements closed</text>
+            <rect x="300" y="56" width="400" height="44" rx="5" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <rect x="300" y="56" width="250.0" height="44" rx="5" fill="#0d568d"></rect>
+            <text x="562.0" y="85" font-size="14" font-weight="700" fill="#071d33">62.5 %</text>
+            <text x="286" y="164" text-anchor="end" font-size="13" fill="#3f5162">Test events performed</text>
+            <rect x="300" y="134" width="400" height="44" rx="5" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <rect x="300" y="134" width="166.7" height="44" rx="5" fill="#b03a2e"></rect>
+            <text x="478.7" y="163" font-size="14" font-weight="700" fill="#071d33">41.7 %</text>
+            <text x="400" y="30" text-anchor="middle" font-size="13" font-weight="600" fill="#071d33">The same campaign, measured two ways</text>
+            <rect x="60" y="212" width="680" height="34" rx="8" fill="#f7e9e6" stroke="#b03a2e"></rect>
+            <text x="400" y="234" text-anchor="middle" font-size="13" fill="#5c4a24">20.8 points apart, and only one of them is on the status chart</text>
+            </svg>
+            <figcaption>Two honest measurements of one campaign. Counting requirements says the project is nearly two thirds done; counting the test events that will actually close them says it is not yet half.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model">
+        <p class="section-label">Scope and limits</p>
+        <h2>A matrix, not a report</h2>
+        <p>The verification cross-reference matrix has one row per requirement and never more or fewer. It is generated from the requirement baseline rather than maintained beside it, because a matrix typed by hand drifts from the baseline within weeks and then quietly verifies a set of requirements the project no longer has.</p><p>Its purpose is narrow and worth stating plainly: it is the evidence that the project may declare the system verified. Every other use &mdash; progress reporting, planning, cost estimation &mdash; is a by-product of a document whose real job is to be complete on the day someone asks for proof.</p>
+        <div class="callout warning"><strong>The matrix cannot tell you the requirements were right.</strong> It is closed against the baseline, and if the baseline is wrong every row can be green while the system fails to do the job. That is the gap validation exists to cover, and it is the reason validation is planned from the ConOps rather than from this document.</div>
+      </section>
+
+      <section id="columns">
+        <p class="section-label">What each column prevents</p>
+        <h2>Six columns and their failure modes</h2>
+        <div class="table-wrap"><table><thead><tr><th>Column</th><th>What it holds</th><th>What its absence costs</th></tr></thead><tbody><tr><td>Requirement identifier</td><td>The unique tag carried from the RTM</td><td>Two rows silently verify the same thing and a third is never verified at all</td></tr><tr><td>Method</td><td>Test, analysis, inspection or demonstration</td><td>The cost of closing the row is unknown until somebody has to close it</td></tr><tr><td>Level and article</td><td>Component, subsystem or system; and which article it is shown on</td><td>A requirement is closed on an engineering unit and nobody notices it was never shown on flight hardware</td></tr><tr><td>Procedure and acceptance criterion</td><td>The document that will be run and the number that decides pass or fail</td><td>The team argues about what counts as passing while the article sits in the chamber</td></tr><tr><td>Evidence reference</td><td>The report, data file or certificate that closed it</td><td>The status says closed and no one can produce the proof at the review</td></tr><tr><td>Status</td><td>Not started, in work, closed &mdash; and nothing else</td><td>&ldquo;Mostly closed&rdquo; and &ldquo;closed pending&rdquo; appear, and the matrix stops being countable</td></tr></tbody></table></div>
+        <p>The status column deserves its own rule. It holds exactly three values &mdash; not started, in work, closed &mdash; and the moment a fourth appears, the matrix stops being countable. &ldquo;Closed pending report&rdquo; is in work. &ldquo;Closed with deviation&rdquo; is a different thing entirely and belongs in a waiver, signed by whoever has the authority to accept the deviation, referenced from the evidence column.</p><p>This is not pedantry about vocabulary. Every softened status is a row that will be counted as done by somebody preparing a chart and as not done by somebody preparing for a review, and the difference between those two readings is discovered at the review.</p>
+      </section>
+
+      <section id="validation">
+        <p class="section-label">The other question</p>
+        <h2>Verification and validation, side by side</h2>
+        <div class="table-wrap"><table><thead><tr><th></th><th>Verification</th><th>Validation</th></tr></thead><tbody><tr><td>Question</td><td>Did we build the system right?</td><td>Did we build the right system?</td></tr><tr><td>Compared against</td><td>The requirement baseline</td><td>The stakeholder expectations and the ConOps</td></tr><tr><td>Typical evidence</td><td>Test reports, analyses, inspection records</td><td>An operational demonstration in the intended environment, judged by the user</td></tr><tr><td>Can fail when</td><td>A number misses its acceptance criterion</td><td>Every number passed and the system still does not serve the need</td></tr></tbody></table></div>
+        <p>Validation is planned from the stakeholder expectations and the ConOps, the documents of Lectures 05 and 06, and it is usually a small number of events: an operational demonstration in the intended environment, judged by the people who asked for the system. The platform has three, and none of them can close before the vehicle operates in something resembling its real mission.</p><p>The awkward property of validation is that it can fail on a system that passed everything. That is not a defect of the method; it is the method working. A validation failure says the requirements were the wrong requirements, and the only place that error could have been prevented was the left branch, years earlier, when somebody wrote down what the users said they needed.</p>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">Calculation algorithm</p>
+        <h2>Reporting verification status</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Regenerate the matrix from the current requirement baseline</span></div><div><strong>2</strong><span>Confirm every requirement has exactly one row</span></div><div><strong>3</strong><span>Confirm every status is one of the three values</span></div><div><strong>4</strong><span>Confirm every closed row references its evidence</span></div><div><strong>5</strong><span>Count closure by requirement</span></div><div><strong>6</strong><span>Count closure by remaining verification events</span></div><div><strong>7</strong><span>Report both numbers, in that order</span></div><div><strong>8</strong><span>Report validation separately, against the ConOps</span></div></div>
+        <p>Reporting both numbers is the whole discipline. One of them is what the project has finished; the other is what the project has left, and only the second one has any bearing on when it will be done.</p>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>One matrix, two honest numbers</h2>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Count the statuses.</strong> Of twenty-four requirements, fifteen are closed, six are in work and three have not started: \(15+6+3 = 24\). Every row has one of the three values, so the column is countable.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Closure by count.</strong> \[ \frac{15}{24} = 62.5\,\% \] This is the number that appears on the monthly chart, and it is correct.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Closure by remaining work.</strong> The nine open rows are the test-verified ones. Of the twelve test events established in the previous lecture &mdash; ten declared plus two model correlations &mdash; five have been performed: \[ \frac{5}{12} = 41.7\,\% \]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Compare them.</strong> The two measurements of the same campaign differ by \[ 62.5 - 41.7 = 20.8 \] percentage points. Neither is wrong. The first counts rows, which close early because inspection and analysis rows close early; the second counts facility campaigns, which close late because they need flight hardware.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Report the validation separately.</strong> Three validation events are planned against the ConOps, and none can close yet, because none of them is a measurement &mdash; each is an operational demonstration that requires an integrated vehicle. Reporting them inside the 62.5 % would imply progress on a question the project has not begun to answer.</div></div>
+        <div class="result-box">\[ \boxed{ \frac{15}{24} = 62.5\,\%\quad\text{by count},\qquad \frac{5}{12} = 41.7\,\%\quad\text{by test events},\qquad \Delta = 20.8\ \text{points} } \]</div>
+        <p><strong>Interpretation.</strong> The lesson is not that one number lies. Both were computed correctly from the same matrix, and a project that reports only the larger one has not falsified anything &mdash; it has simply chosen the measurement that closes early. The discipline is to report both every month, because the gap between them is the shape of the work that is left, and it widens quietly until the day the hardware is late.</p>
+      </section>
+
+      <section id="summary">
+        <p class="section-label">Operative rules</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Statement</th></tr></thead><tbody><tr><td>One row per requirement, always</td><td>The matrix is generated from the requirement baseline, never typed alongside it.</td></tr><tr><td>Three statuses, no fourth</td><td>Not started, in work, closed. Anything softer makes the column uncountable.</td></tr><tr><td>Closed means evidence exists</td><td>A row closes on a referenced report, not on an opinion that the work was done.</td></tr><tr><td>Report closure two ways</td><td>By requirement count and by remaining verification events. The second is the one that predicts the schedule.</td></tr><tr><td>Name the article</td><td>A requirement closed on an engineering unit is not closed on the vehicle that flies.</td></tr><tr><td>Validation is not the last row</td><td>It is a separate activity against the ConOps, and it can fail on a fully verified system.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes">
+        <p class="section-label">Common mistakes</p>
+        <h2>What goes wrong</h2>
+        <ul class="check-list"><li><strong>A fourth status value.</strong> &ldquo;Closed pending report&rdquo; is in work, and inventing it makes the column uncountable.</li><li><strong>Maintaining the matrix by hand.</strong> It drifts from the requirement baseline and starts verifying requirements the project no longer has.</li><li><strong>Closing a row without evidence.</strong> The status says done and nobody can produce the report at the review.</li><li><strong>Not naming the article.</strong> A requirement closed on an engineering unit has not been closed on the vehicle that flies.</li><li><strong>Reporting closure only by count.</strong> The rows that close early are the cheap ones, so the chart is optimistic by construction.</li><li><strong>Folding validation into the matrix.</strong> It is measured against the ConOps, not the baseline, and putting it in the same percentage hides that it has not started.</li></ul>
+      </section>
+
+      <section id="references" class="references">
+        <p class="section-label">Sources</p>
+        <h2>References</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Sections 5.3 to 5.5 and Appendix E.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=verification-module" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 23: Verification</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adapted from Unit VII of the Aerospace Systems Engineering (AE506) course script by Carlos Alberto Molina Holgu&iacute;n. Every number on this page was recomputed independently for it; no calculator covers this topic, so recomputation is the only check there is. The status counts are illustrative and continue the twenty-four requirements and twelve test events of the previous lecture; both closure percentages and their difference are computed in the generator from those counts.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="integration-and-verification.html?v=12"><span>Previous lecture</span>&larr; Integration and Verification</a>
+        <a class="next-link" href="configuration-and-mbse.html?v=12"><span>Next lecture</span>Configuration Management and MBSE &rarr;</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+
+      <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Qu&eacute; deber&iacute;as poder hacer</h2>
+        <ul><li>listar las columnas de una matriz de verificaci&oacute;n y decir qu&eacute; previene cada una;</li><li>explicar por qu&eacute; la columna de estatus puede tener exactamente tres valores;</li><li>calcular el cierre por conteo de requisitos y por eventos restantes, y decir cu&aacute;l predice el calendario;</li><li>enunciar qu&eacute; evidencia exige el estado &laquo;cerrado&raquo;;</li><li>distinguir validaci&oacute;n de verificaci&oacute;n y nombrar el artefacto contra el que se mide cada una.</li></ul>
+      </section>
+
+      <section id="physics-es">
+        <p class="section-label">Situación de ingeniería</p>
+        <h2>Sesenta y dos por ciento de nada en particular</h2>
+        <p class="lead">El reporte mensual dice que la verificaci&oacute;n va 62.5 % completa. Quince de veinticuatro requisitos est&aacute;n cerrados, la aritm&eacute;tica es correcta, y el n&uacute;mero va a una gr&aacute;fica que sube c&oacute;modamente.</p><p>Los nueve que quedan son los que cierran por prueba, porque las pruebas necesitan hardware y el hardware llega al final. Cinco de doce eventos de prueba se han ejecutado. Medida por el trabajo restante y no por renglones en una p&aacute;gina, la campa&ntilde;a va 41.7 %, y los dos n&uacute;meros difieren en casi veintiun puntos el mismo d&iacute;a, sobre el mismo proyecto.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 280" role="img" aria-label="Cierre por conteo de requisitos contra cierre por eventos de prueba">
+            <text x="286" y="86" text-anchor="end" font-size="13" fill="#3f5162">Requisitos cerrados</text>
+            <rect x="300" y="56" width="400" height="44" rx="5" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <rect x="300" y="56" width="250.0" height="44" rx="5" fill="#0d568d"></rect>
+            <text x="562.0" y="85" font-size="14" font-weight="700" fill="#071d33">62.5 %</text>
+            <text x="286" y="164" text-anchor="end" font-size="13" fill="#3f5162">Eventos de prueba ejecutados</text>
+            <rect x="300" y="134" width="400" height="44" rx="5" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <rect x="300" y="134" width="166.7" height="44" rx="5" fill="#b03a2e"></rect>
+            <text x="478.7" y="163" font-size="14" font-weight="700" fill="#071d33">41.7 %</text>
+            <text x="400" y="30" text-anchor="middle" font-size="13" font-weight="600" fill="#071d33">La misma campa&ntilde;a, medida de dos maneras</text>
+            <rect x="60" y="212" width="680" height="34" rx="8" fill="#f7e9e6" stroke="#b03a2e"></rect>
+            <text x="400" y="234" text-anchor="middle" font-size="13" fill="#5c4a24">20.8 puntos de diferencia, y s&oacute;lo uno est&aacute; en el tablero</text>
+            </svg>
+            <figcaption>Dos medidas honestas de una misma campa&ntilde;a. Contar requisitos dice que el proyecto va casi a dos tercios; contar los eventos de prueba que de verdad los cerrar&aacute;n dice que no llega a la mitad.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-es">
+        <p class="section-label">Alcance y límites</p>
+        <h2>Una matriz, no un reporte</h2>
+        <p>La matriz de verificaci&oacute;n tiene un rengl&oacute;n por requisito y nunca m&aacute;s ni menos. Se genera de la l&iacute;nea base de requisitos en vez de mantenerse a su lado, porque una matriz tecleada a mano se despega de la l&iacute;nea base en semanas y luego verifica en silencio un conjunto de requisitos que el proyecto ya no tiene.</p><p>Su prop&oacute;sito es estrecho y vale enunciarlo llanamente: es la evidencia de que el proyecto puede declarar verificado el sistema. Todo otro uso &mdash; reportar avance, planear, estimar costo &mdash; es subproducto de un documento cuyo trabajo real es estar completo el d&iacute;a en que alguien pida la prueba.</p>
+        <div class="callout warning"><strong>La matriz no puede decirte que los requisitos eran correctos.</strong> Cierra contra la l&iacute;nea base, y si la l&iacute;nea base est&aacute; mal todo rengl&oacute;n puede estar verde mientras el sistema no hace el trabajo. Esa es la brecha que la validaci&oacute;n existe para cubrir, y por eso la validaci&oacute;n se planea desde el ConOps y no desde este documento.</div>
+      </section>
+
+      <section id="columns-es">
+        <p class="section-label">Qu&eacute; previene cada columna</p>
+        <h2>Seis columnas y sus modos de falla</h2>
+        <div class="table-wrap"><table><thead><tr><th>Columna</th><th>Qu&eacute; contiene</th><th>Qu&eacute; cuesta su ausencia</th></tr></thead><tbody><tr><td>Identificador del requisito</td><td>La etiqueta &uacute;nica tra&iacute;da de la RTM</td><td>Dos renglones verifican en silencio lo mismo y un tercero nunca se verifica</td></tr><tr><td>M&eacute;todo</td><td>Prueba, an&aacute;lisis, inspecci&oacute;n o demostraci&oacute;n</td><td>El costo de cerrar el rengl&oacute;n se desconoce hasta que alguien tiene que cerrarlo</td></tr><tr><td>Nivel y art&iacute;culo</td><td>Componente, subsistema o sistema; y en qu&eacute; art&iacute;culo se demuestra</td><td>Un requisito se cierra en una unidad de ingenier&iacute;a y nadie nota que nunca se demostr&oacute; en hardware de vuelo</td></tr><tr><td>Procedimiento y criterio de aceptaci&oacute;n</td><td>El documento que se ejecutar&aacute; y el n&uacute;mero que decide aprobado o no</td><td>El equipo discute qu&eacute; cuenta como aprobado mientras el art&iacute;culo est&aacute; en la c&aacute;mara</td></tr><tr><td>Referencia de evidencia</td><td>El reporte, archivo de datos o certificado que lo cerr&oacute;</td><td>El estatus dice cerrado y nadie puede mostrar la prueba en la revisi&oacute;n</td></tr><tr><td>Estatus</td><td>No iniciado, en proceso, cerrado &mdash; y nada m&aacute;s</td><td>Aparecen &laquo;casi cerrado&raquo; y &laquo;cerrado pendiente de&raquo;, y la matriz deja de ser contable</td></tr></tbody></table></div>
+        <p>La columna de estatus merece su propia regla. Tiene exactamente tres valores &mdash; no iniciado, en proceso, cerrado &mdash; y en cuanto aparece un cuarto, la matriz deja de ser contable. &laquo;Cerrado pendiente de reporte&raquo; es en proceso. &laquo;Cerrado con desviaci&oacute;n&raquo; es otra cosa por completo y pertenece a una dispensa, firmada por quien tenga autoridad para aceptar la desviaci&oacute;n, referenciada desde la columna de evidencia.</p><p>Esto no es pedanter&iacute;a de vocabulario. Todo estatus suavizado es un rengl&oacute;n que alguien contar&aacute; como hecho al preparar una gr&aacute;fica y otro contar&aacute; como no hecho al preparar una revisi&oacute;n, y la diferencia entre esas dos lecturas se descubre en la revisi&oacute;n.</p>
+      </section>
+
+      <section id="validation-es">
+        <p class="section-label">La otra pregunta</p>
+        <h2>Verificaci&oacute;n y validaci&oacute;n, lado a lado</h2>
+        <div class="table-wrap"><table><thead><tr><th></th><th>Verificaci&oacute;n</th><th>Validaci&oacute;n</th></tr></thead><tbody><tr><td>Pregunta</td><td>&iquest;Construimos bien el sistema?</td><td>&iquest;Construimos el sistema correcto?</td></tr><tr><td>Se compara contra</td><td>La l&iacute;nea base de requisitos</td><td>Las expectativas de los interesados y el ConOps</td></tr><tr><td>Evidencia t&iacute;pica</td><td>Reportes de prueba, an&aacute;lisis, registros de inspecci&oacute;n</td><td>Una demostraci&oacute;n operativa en el entorno previsto, juzgada por el usuario</td></tr><tr><td>Puede fallar cuando</td><td>Un n&uacute;mero no alcanza su criterio de aceptaci&oacute;n</td><td>Todos los n&uacute;meros pasaron y el sistema aun as&iacute; no sirve a la necesidad</td></tr></tbody></table></div>
+        <p>La validaci&oacute;n se planea desde las expectativas de los interesados y el ConOps, los documentos de las lectures 05 y 06, y suele ser un n&uacute;mero peque&ntilde;o de eventos: una demostraci&oacute;n operativa en el entorno previsto, juzgada por quienes pidieron el sistema. La plataforma tiene tres, y ninguno puede cerrar antes de que el veh&iacute;culo opere en algo parecido a su misi&oacute;n real.</p><p>La propiedad inc&oacute;moda de la validaci&oacute;n es que puede fallar en un sistema que pas&oacute; todo. Eso no es defecto del m&eacute;todo; es el m&eacute;todo funcionando. Una falla de validaci&oacute;n dice que los requisitos eran los equivocados, y el &uacute;nico lugar donde ese error pudo prevenirse fue la rama izquierda, a&ntilde;os antes, cuando alguien escribi&oacute; lo que los usuarios dijeron necesitar.</p>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Algoritmo de cálculo</p>
+        <h2>Reportar el estatus de verificaci&oacute;n</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Regenerar la matriz desde la l&iacute;nea base vigente</span></div><div><strong>2</strong><span>Confirmar que todo requisito tiene exactamente un rengl&oacute;n</span></div><div><strong>3</strong><span>Confirmar que todo estatus es uno de los tres valores</span></div><div><strong>4</strong><span>Confirmar que todo rengl&oacute;n cerrado referencia su evidencia</span></div><div><strong>5</strong><span>Contar el cierre por requisito</span></div><div><strong>6</strong><span>Contar el cierre por eventos de verificaci&oacute;n restantes</span></div><div><strong>7</strong><span>Reportar ambos n&uacute;meros, en ese orden</span></div><div><strong>8</strong><span>Reportar la validaci&oacute;n aparte, contra el ConOps</span></div></div>
+        <p>Reportar ambos n&uacute;meros es la disciplina entera. Uno es lo que el proyecto ha terminado; el otro es lo que le queda, y s&oacute;lo el segundo tiene algo que ver con cu&aacute;ndo estar&aacute; listo.</p>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>Una matriz, dos n&uacute;meros honestos</h2>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Contar los estatus.</strong> De veinticuatro requisitos, quince est&aacute;n cerrados, seis en proceso y tres no iniciados: \(15+6+3 = 24\). Todo rengl&oacute;n tiene uno de los tres valores, as&iacute; que la columna es contable.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Cierre por conteo.</strong> \[ \frac{15}{24} = 62.5\,\% \] Este es el n&uacute;mero que aparece en la gr&aacute;fica mensual, y es correcto.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Cierre por trabajo restante.</strong> Los nueve renglones abiertos son los verificados por prueba. De los doce eventos de prueba establecidos en la lecture anterior &mdash; diez declarados m&aacute;s dos correlaciones de modelo &mdash; cinco se han ejecutado: \[ \frac{5}{12} = 41.7\,\% \]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Compararlos.</strong> Las dos medidas de la misma campa&ntilde;a difieren en \[ 62.5 - 41.7 = 20.8 \] puntos porcentuales. Ninguna est&aacute; mal. La primera cuenta renglones, que cierran temprano porque los de inspecci&oacute;n y an&aacute;lisis cierran temprano; la segunda cuenta campa&ntilde;as de instalaci&oacute;n, que cierran tarde porque necesitan hardware de vuelo.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Reportar la validaci&oacute;n aparte.</strong> Tres eventos de validaci&oacute;n est&aacute;n planeados contra el ConOps, y ninguno puede cerrar todav&iacute;a, porque ninguno es una medici&oacute;n &mdash; cada uno es una demostraci&oacute;n operativa que exige un veh&iacute;culo integrado. Reportarlos dentro del 62.5 % implicar&iacute;a avance en una pregunta que el proyecto no ha empezado a responder.</div></div>
+        <div class="result-box">\[ \boxed{ \frac{15}{24} = 62.5\,\%\quad\text{por conteo},\qquad \frac{5}{12} = 41.7\,\%\quad\text{por pruebas},\qquad \Delta = 20.8\ \text{puntos} } \]</div>
+        <p><strong>Interpretaci&oacute;n.</strong> La lecci&oacute;n no es que un n&uacute;mero mienta. Ambos se calcularon correctamente de la misma matriz, y un proyecto que reporta s&oacute;lo el mayor no ha falsificado nada &mdash; simplemente eligi&oacute; la medida que cierra temprano. La disciplina es reportar los dos cada mes, porque la brecha entre ellos es la forma del trabajo que queda, y se ensancha en silencio hasta el d&iacute;a en que el hardware se retrasa.</p>
+      </section>
+
+      <section id="summary-es">
+        <p class="section-label">Reglas operativas</p>
+        <h2>De un vistazo</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regla</th><th>Enunciado</th></tr></thead><tbody><tr><td>Un rengl&oacute;n por requisito, siempre</td><td>La matriz se genera de la l&iacute;nea base de requisitos, nunca se teclea junto a ella.</td></tr><tr><td>Tres estatus, no hay cuarto</td><td>No iniciado, en proceso, cerrado. Cualquier cosa m&aacute;s suave vuelve incontable la columna.</td></tr><tr><td>Cerrado significa que hay evidencia</td><td>Un rengl&oacute;n cierra con un reporte referenciado, no con la opini&oacute;n de que se hizo el trabajo.</td></tr><tr><td>Reporta el cierre de dos maneras</td><td>Por conteo de requisitos y por eventos de verificaci&oacute;n restantes. El segundo es el que predice el calendario.</td></tr><tr><td>Nombra el art&iacute;culo</td><td>Un requisito cerrado en una unidad de ingenier&iacute;a no est&aacute; cerrado en el veh&iacute;culo que vuela.</td></tr><tr><td>La validaci&oacute;n no es el &uacute;ltimo rengl&oacute;n</td><td>Es una actividad aparte contra el ConOps, y puede fallar en un sistema plenamente verificado.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-es">
+        <p class="section-label">Errores comunes</p>
+        <h2>Qu&eacute; sale mal</h2>
+        <ul class="check-list"><li><strong>Un cuarto valor de estatus.</strong> &laquo;Cerrado pendiente de reporte&raquo; es en proceso, e inventarlo vuelve incontable la columna.</li><li><strong>Mantener la matriz a mano.</strong> Se despega de la l&iacute;nea base y empieza a verificar requisitos que el proyecto ya no tiene.</li><li><strong>Cerrar un rengl&oacute;n sin evidencia.</strong> El estatus dice hecho y nadie puede mostrar el reporte en la revisi&oacute;n.</li><li><strong>No nombrar el art&iacute;culo.</strong> Un requisito cerrado en una unidad de ingenier&iacute;a no se cerr&oacute; en el veh&iacute;culo que vuela.</li><li><strong>Reportar el cierre s&oacute;lo por conteo.</strong> Los renglones que cierran temprano son los baratos, as&iacute; que la gr&aacute;fica es optimista por construcci&oacute;n.</li><li><strong>Meter la validaci&oacute;n en la matriz.</strong> Se mide contra el ConOps, no contra la l&iacute;nea base, y ponerla en el mismo porcentaje esconde que no ha empezado.</li></ul>
+      </section>
+
+      <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
+        <h2>Referencias</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Sections 5.3 to 5.5 and Appendix E.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=verification-module" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 23: Verification</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adaptado de la Unidad VII del gui&oacute;n del curso Ingenier&iacute;a en Sistemas Aeroespaciales (AE506) de Carlos Alberto Molina Holgu&iacute;n. Cada n&uacute;mero de esta p&aacute;gina se recalcul&oacute; de forma independiente para ella; ninguna calculadora cubre este tema, as&iacute; que el rec&aacute;lculo es la &uacute;nica comprobaci&oacute;n disponible. Los conteos de estatus son ilustrativos y contin&uacute;an los veinticuatro requisitos y doce eventos de prueba de la lecture anterior; ambos porcentajes de cierre y su diferencia se calculan en el generador a partir de ellos.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="integration-and-verification.html?v=12"><span>Lecture anterior</span>&larr; Integraci&oacute;n y verificaci&oacute;n</a>
+        <a class="next-link" href="configuration-and-mbse.html?v=12"><span>Siguiente lecture</span>Gesti&oacute;n de configuraci&oacute;n y MBSE &rarr;</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+
+      <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie k&ouml;nnen sollten</h2>
+        <ul><li>die Spalten einer Verifikationsmatrix nennen und sagen, was jede verhindert;</li><li>erkl&auml;ren, warum die Statusspalte genau drei Werte haben darf;</li><li>den Abschluss nach Anforderungszahl und nach verbleibenden Ereignissen berechnen und sagen, welcher den Termin vorhersagt;</li><li>sagen, welche Evidenz &bdquo;geschlossen&ldquo; verlangt;</li><li>Validierung von Verifikation unterscheiden und das jeweilige Bezugsartefakt nennen.</li></ul>
+      </section>
+
+      <section id="physics-de">
+        <p class="section-label">Ingenieurtechnischer Kontext</p>
+        <h2>Zweiundsechzig Prozent von nichts Bestimmtem</h2>
+        <p class="lead">Der Monatsbericht meldet 62,5 % Verifikationsfortschritt. F&uuml;nfzehn von vierundzwanzig Anforderungen sind geschlossen, die Rechnung stimmt, und die Zahl landet auf einer angenehm steigenden Kurve.</p><p>Die verbleibenden neun sind die per Test zu schlie&szlig;enden, denn Tests brauchen Hardware, und Hardware kommt zuletzt. F&uuml;nf von zw&ouml;lf Testereignissen sind durchgef&uuml;hrt. An der Restarbeit statt an Zeilen gemessen liegt die Kampagne bei 41,7 % &mdash; beide Zahlen am selben Tag, &uuml;ber dasselbe Projekt, fast einundzwanzig Punkte auseinander.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 280" role="img" aria-label="Abschluss nach Anforderungszahl gegen Abschluss nach Testereignissen">
+            <text x="286" y="86" text-anchor="end" font-size="13" fill="#3f5162">Anforderungen abgeschlossen</text>
+            <rect x="300" y="56" width="400" height="44" rx="5" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <rect x="300" y="56" width="250.0" height="44" rx="5" fill="#0d568d"></rect>
+            <text x="562.0" y="85" font-size="14" font-weight="700" fill="#071d33">62,5 %</text>
+            <text x="286" y="164" text-anchor="end" font-size="13" fill="#3f5162">Testereignisse durchgef&uuml;hrt</text>
+            <rect x="300" y="134" width="400" height="44" rx="5" fill="#eef4fa" stroke="#8fa6ba"></rect>
+            <rect x="300" y="134" width="166.7" height="44" rx="5" fill="#b03a2e"></rect>
+            <text x="478.7" y="163" font-size="14" font-weight="700" fill="#071d33">41,7 %</text>
+            <text x="400" y="30" text-anchor="middle" font-size="13" font-weight="600" fill="#071d33">Dieselbe Kampagne, zweifach gemessen</text>
+            <rect x="60" y="212" width="680" height="34" rx="8" fill="#f7e9e6" stroke="#b03a2e"></rect>
+            <text x="400" y="234" text-anchor="middle" font-size="13" fill="#5c4a24">20,8 Punkte Unterschied, und nur eine steht im Statusbild</text>
+            </svg>
+            <figcaption>Zwei ehrliche Messungen einer Kampagne. Nach Anforderungen gez&auml;hlt ist das Projekt fast zu zwei Dritteln fertig; nach den Testereignissen, die sie schlie&szlig;en, noch nicht zur H&auml;lfte.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-de">
+        <p class="section-label">Geltungsbereich und Grenzen</p>
+        <h2>Eine Matrix, kein Bericht</h2>
+        <p>Die Verifikationsmatrix hat genau eine Zeile je Anforderung. Sie wird aus der Anforderungsbasis erzeugt und nicht daneben gepflegt, denn eine von Hand getippte Matrix l&ouml;st sich binnen Wochen von der Basis und verifiziert dann still eine Anforderungsmenge, die es nicht mehr gibt.</p><p>Ihr Zweck ist eng und sei klar benannt: Sie ist die Evidenz daf&uuml;r, dass das System als verifiziert erkl&auml;rt werden darf. Jede andere Nutzung &mdash; Fortschritt, Planung, Kosten &mdash; ist Nebenprodukt eines Dokuments, dessen eigentliche Aufgabe es ist, an dem Tag vollst&auml;ndig zu sein, an dem jemand den Nachweis verlangt.</p>
+        <div class="callout warning"><strong>Die Matrix sagt nicht, ob die Anforderungen richtig waren.</strong> Sie schlie&szlig;t gegen die Basis; ist die Basis falsch, kann jede Zeile gr&uuml;n sein, w&auml;hrend das System versagt. Diese L&uuml;cke deckt die Validierung, und darum wird sie aus dem Betriebskonzept geplant, nicht aus diesem Dokument.</div>
+      </section>
+
+      <section id="columns-de">
+        <p class="section-label">Was jede Spalte verhindert</p>
+        <h2>Sechs Spalten und ihre Fehlermodi</h2>
+        <div class="table-wrap"><table><thead><tr><th>Spalte</th><th>Was sie enth&auml;lt</th><th>Was ihr Fehlen kostet</th></tr></thead><tbody><tr><td>Anforderungskennung</td><td>Die eindeutige Kennung aus der RTM</td><td>Zwei Zeilen pr&uuml;fen still dasselbe, eine dritte gar nichts</td></tr><tr><td>Methode</td><td>Test, Analyse, Inspektion oder Vorf&uuml;hrung</td><td>Die Kosten des Abschlusses sind unbekannt, bis jemand abschlie&szlig;en muss</td></tr><tr><td>Ebene und Artikel</td><td>Komponente, Teilsystem oder System; und an welchem Artikel</td><td>Eine Anforderung wird an einer Technikeinheit geschlossen, und niemand merkt, dass Flughardware nie gepr&uuml;ft wurde</td></tr><tr><td>Prozedur und Abnahmekriterium</td><td>Das auszuf&uuml;hrende Dokument und die Zahl, die entscheidet</td><td>Das Team streitet &uuml;ber das Bestehenskriterium, w&auml;hrend der Artikel in der Kammer steht</td></tr><tr><td>Evidenzverweis</td><td>Bericht, Datei oder Zeugnis, das sie geschlossen hat</td><td>Der Status sagt geschlossen, und im Review kann niemand den Nachweis vorlegen</td></tr><tr><td>Status</td><td>Nicht begonnen, in Arbeit, geschlossen &mdash; sonst nichts</td><td>&bdquo;Fast geschlossen&ldquo; taucht auf, und die Matrix ist nicht mehr z&auml;hlbar</td></tr></tbody></table></div>
+        <p>Die Statusspalte verdient eine eigene Regel. Sie hat genau drei Werte &mdash; nicht begonnen, in Arbeit, geschlossen &mdash; und sobald ein vierter auftaucht, ist die Matrix nicht mehr z&auml;hlbar. &bdquo;Geschlossen, Bericht ausstehend&ldquo; ist in Arbeit. &bdquo;Geschlossen mit Abweichung&ldquo; ist etwas ganz anderes und geh&ouml;rt in eine Ausnahmegenehmigung, unterschrieben von der zust&auml;ndigen Stelle und aus der Evidenzspalte verwiesen.</p><p>Das ist keine Wortklauberei. Jeder aufgeweichte Status wird von der Person, die ein Diagramm baut, als erledigt gez&auml;hlt und von der Person, die ein Review vorbereitet, als offen &mdash; und der Unterschied zeigt sich im Review.</p>
+      </section>
+
+      <section id="validation-de">
+        <p class="section-label">Die andere Frage</p>
+        <h2>Verifikation und Validierung nebeneinander</h2>
+        <div class="table-wrap"><table><thead><tr><th></th><th>Verifikation</th><th>Validierung</th></tr></thead><tbody><tr><td>Frage</td><td>Haben wir das System richtig gebaut?</td><td>Haben wir das richtige System gebaut?</td></tr><tr><td>Verglichen mit</td><td>Der Anforderungsbasis</td><td>Den Erwartungen und dem Betriebskonzept</td></tr><tr><td>Typische Evidenz</td><td>Testberichte, Analysen, Inspektionsnachweise</td><td>Eine Betriebsvorf&uuml;hrung in der vorgesehenen Umgebung, vom Nutzer beurteilt</td></tr><tr><td>Scheitert, wenn</td><td>Eine Zahl ihr Abnahmekriterium verfehlt</td><td>Alle Zahlen bestanden und das System dem Bedarf dennoch nicht dient</td></tr></tbody></table></div>
+        <p>Die Validierung wird aus Erwartungen und Betriebskonzept geplant &mdash; den Dokumenten der Vorlesungen 05 und 06 &mdash; und umfasst meist wenige Ereignisse: eine Betriebsvorf&uuml;hrung in der vorgesehenen Umgebung, beurteilt von denen, die das System bestellt haben. Die Plattform hat drei, und keines kann schlie&szlig;en, bevor das Fahrzeug in etwas Missions&auml;hnlichem arbeitet.</p><p>Das Unbequeme an der Validierung ist, dass sie bei einem System scheitern kann, das alles bestand. Das ist kein Mangel der Methode, sondern die Methode bei der Arbeit. Ein Validierungsfehler sagt, die Anforderungen waren die falschen &mdash; und verhindern lie&szlig; sich das nur links, Jahre zuvor, als jemand aufschrieb, was die Nutzer zu brauchen sagten.</p>
+      </section>
+
+      <section id="algorithm-de">
+        <p class="section-label">Rechenalgorithmus</p>
+        <h2>Verifikationsstatus berichten</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Die Matrix aus der aktuellen Anforderungsbasis neu erzeugen</span></div><div><strong>2</strong><span>Pr&uuml;fen, dass jede Anforderung genau eine Zeile hat</span></div><div><strong>3</strong><span>Pr&uuml;fen, dass jeder Status einer der drei Werte ist</span></div><div><strong>4</strong><span>Pr&uuml;fen, dass jede geschlossene Zeile ihre Evidenz nennt</span></div><div><strong>5</strong><span>Abschluss je Anforderung z&auml;hlen</span></div><div><strong>6</strong><span>Abschluss nach verbleibenden Ereignissen z&auml;hlen</span></div><div><strong>7</strong><span>Beide Zahlen berichten, in dieser Reihenfolge</span></div><div><strong>8</strong><span>Validierung getrennt berichten, gegen das Betriebskonzept</span></div></div>
+        <p>Beide Zahlen zu berichten ist die ganze Disziplin. Die eine sagt, was fertig ist; die andere, was bleibt &mdash; und nur die zweite hat mit dem Termin zu tun.</p>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Eine Matrix, zwei ehrliche Zahlen</h2>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Die Status z&auml;hlen.</strong> Von vierundzwanzig Anforderungen sind f&uuml;nfzehn geschlossen, sechs in Arbeit, drei nicht begonnen: \(15+6+3 = 24\). Jede Zeile tr&auml;gt einen der drei Werte, die Spalte ist z&auml;hlbar.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Abschluss nach Anzahl.</strong> \[ \frac{15}{24} = 62{,}5\,\% \] Diese Zahl steht im Monatsdiagramm, und sie stimmt.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Abschluss nach Restarbeit.</strong> Die neun offenen Zeilen sind die per Test verifizierten. Von den zw&ouml;lf Testereignissen der vorigen Vorlesung &mdash; zehn erkl&auml;rte plus zwei Modellkorrelationen &mdash; sind f&uuml;nf durchgef&uuml;hrt: \[ \frac{5}{12} = 41{,}7\,\% \]</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Vergleichen.</strong> Die zwei Messungen derselben Kampagne unterscheiden sich um \[ 62{,}5 - 41{,}7 = 20{,}8 \] Prozentpunkte. Keine ist falsch. Die erste z&auml;hlt Zeilen, die fr&uuml;h schlie&szlig;en, weil Inspektions- und Analysezeilen fr&uuml;h schlie&szlig;en; die zweite z&auml;hlt Anlagenkampagnen, die sp&auml;t schlie&szlig;en, weil sie Flughardware brauchen.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Die Validierung getrennt berichten.</strong> Drei Validierungsereignisse sind gegen das Betriebskonzept geplant, und keines kann schlie&szlig;en, denn keines ist eine Messung &mdash; jedes ist eine Betriebsvorf&uuml;hrung mit integriertem Fahrzeug. Sie in die 62,5 % zu rechnen unterstellte Fortschritt bei einer Frage, die das Projekt noch nicht angegangen ist.</div></div>
+        <div class="result-box">\[ \boxed{ \frac{15}{24} = 62{,}5\,\%\quad\text{nach Anzahl},\qquad \frac{5}{12} = 41{,}7\,\%\quad\text{nach Tests},\qquad \Delta = 20{,}8\ \text{Punkte} } \]</div>
+        <p><strong>Deutung.</strong> Die Lehre ist nicht, dass eine Zahl l&uuml;gt. Beide wurden korrekt aus derselben Matrix berechnet, und wer nur die gr&ouml;&szlig;ere berichtet, f&auml;lscht nichts &mdash; er w&auml;hlt die fr&uuml;h schlie&szlig;ende Messung. Die Disziplin besteht darin, beide monatlich zu berichten, denn die L&uuml;cke zwischen ihnen ist die Gestalt der Restarbeit und wird still gr&ouml;&szlig;er, bis die Hardware sp&auml;t ist.</p>
+      </section>
+
+      <section id="summary-de">
+        <p class="section-label">Arbeitsregeln</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regel</th><th>Aussage</th></tr></thead><tbody><tr><td>Immer eine Zeile je Anforderung</td><td>Die Matrix wird aus der Anforderungsbasis erzeugt, nie daneben getippt.</td></tr><tr><td>Drei Status, kein vierter</td><td>Nicht begonnen, in Arbeit, geschlossen. Alles Weichere macht die Spalte unz&auml;hlbar.</td></tr><tr><td>Geschlossen hei&szlig;t Evidenz vorhanden</td><td>Eine Zeile schlie&szlig;t mit einem verwiesenen Bericht, nicht mit einer Meinung.</td></tr><tr><td>Abschluss zweifach berichten</td><td>Nach Anforderungszahl und nach verbleibenden Ereignissen. Die zweite sagt den Termin voraus.</td></tr><tr><td>Den Artikel nennen</td><td>Eine an einer Technikeinheit geschlossene Anforderung ist am Flugger&auml;t nicht geschlossen.</td></tr><tr><td>Validierung ist nicht die letzte Zeile</td><td>Sie ist eine eigene T&auml;tigkeit gegen das Betriebskonzept und kann bei voll verifiziertem System scheitern.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Häufige Fehler</p>
+        <h2>Was schiefgeht</h2>
+        <ul class="check-list"><li><strong>Ein vierter Statuswert.</strong> &bdquo;Geschlossen, Bericht ausstehend&ldquo; ist in Arbeit; ihn zu erfinden macht die Spalte unz&auml;hlbar.</li><li><strong>Die Matrix von Hand pflegen.</strong> Sie l&ouml;st sich von der Basis und verifiziert Anforderungen, die es nicht mehr gibt.</li><li><strong>Eine Zeile ohne Evidenz schlie&szlig;en.</strong> Der Status sagt fertig, und im Review kann niemand den Bericht zeigen.</li><li><strong>Den Artikel nicht nennen.</strong> Eine an der Technikeinheit geschlossene Anforderung ist am Flugger&auml;t nicht geschlossen.</li><li><strong>Abschluss nur nach Anzahl berichten.</strong> Fr&uuml;h schlie&szlig;ende Zeilen sind die billigen; das Diagramm ist konstruktionsbedingt optimistisch.</li><li><strong>Validierung in die Matrix falten.</strong> Sie misst gegen das Betriebskonzept, nicht gegen die Basis, und im selben Prozentsatz verschwindet, dass sie nicht begonnen hat.</li></ul>
+      </section>
+
+      <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
+        <h2>Literatur</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Sections 5.3 to 5.5 and Appendix E.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=verification-module" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 23: Verification</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Bearbeitet nach Einheit VII des Skripts Luft- und Raumfahrtsystemtechnik (AE506) von Carlos Alberto Molina Holgu&iacute;n. Jede Zahl dieser Seite wurde eigens daf&uuml;r unabh&auml;ngig neu berechnet; kein Rechner deckt dieses Thema ab, daher ist die Neuberechnung die einzige Pr&uuml;fung. Die Statuszahlen sind beispielhaft und setzen die vierundzwanzig Anforderungen und zw&ouml;lf Testereignisse der vorigen Vorlesung fort; beide Abschlussanteile und ihre Differenz werden daraus im Generator berechnet.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="integration-and-verification.html?v=12"><span>Vorherige Vorlesung</span>&larr; Integration und Verifikation</a>
+        <a class="next-link" href="configuration-and-mbse.html?v=12"><span>Nächste Vorlesung</span>Konfigurationsmanagement und MBSE &rarr;</a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>&copy; <span id="year"></span> Carlos Alberto Molina Holgu&iacute;n</p>
+    <p>Universidad Aut&oacute;noma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

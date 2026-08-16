@@ -78,9 +78,20 @@ document.addEventListener("DOMContentLoaded", () => {
     document.documentElement.lang = selected;
     safeStoreLanguage(selected);
 
-    if (window.MathJax && window.MathJax.typesetPromise) {
-      window.MathJax.typesetClear();
-      window.MathJax.typesetPromise();
+    // Chain onto MathJax's own startup promise instead of racing it. Calling
+    // typesetClear() while the initial typeset is still in flight discards that
+    // work and leaves expressions as raw TeX -- intermittent, and worse on long
+    // pages, because the first setLanguage() runs at DOMContentLoaded while
+    // MathJax is still typesetting the document for the first time.
+    if (window.MathJax && window.MathJax.startup && window.MathJax.startup.promise) {
+      window.MathJax.startup.promise = window.MathJax.startup.promise
+        .then(() => {
+          window.MathJax.typesetClear();
+          return window.MathJax.typesetPromise();
+        })
+        .catch((error) => {
+          console.error("MathJax typeset failed", error);
+        });
     }
   }
 

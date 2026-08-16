@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Configuration management, technical performance measure tracking and model-based systems engineering: the four baselines, change impact analysis, reading a TPM trend rather than its value, and what a model actually buys." />
+  <meta name="author" content="Carlos Alberto Molina Holgu&iacute;n" />
+  <meta name="theme-color" content="#071d33" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Configuration Management and MBSE | Aerospace Systems Engineering</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:wght@600;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=12" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=12"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=12" data-ui-key="course">Aerospace Systems Engineering</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Aerospace Systems Engineering &middot; Lecture 23</p>
+        <h1>Holding the Design Still: Configuration, Measures, and Models</h1>
+        <p class="hero-copy">Three of the eight technical management processes, and the ones a student meets first: what a baseline is, how a measure is tracked, and what changes when the authoritative source stops being a document.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Ingeniería de Sistemas Aeroespaciales &middot; Lecture 23</p>
+        <h1>Mantener quieto el dise&ntilde;o: configuraci&oacute;n, medidas y modelos</h1>
+        <p class="hero-copy">Tres de los ocho procesos de gesti&oacute;n t&eacute;cnica, y los que un estudiante encuentra primero: qu&eacute; es una l&iacute;nea base, c&oacute;mo se sigue una medida, y qu&eacute; cambia cuando la fuente autorizada deja de ser un documento.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Luft- und Raumfahrtsystemtechnik &middot; Vorlesung 23</p>
+        <h1>Den Entwurf stillhalten: Konfiguration, Kenngr&ouml;&szlig;en und Modelle</h1>
+        <p class="hero-copy">Drei der acht technischen Managementprozesse, und die ersten, denen man begegnet: was eine Basis ist, wie eine Kenngr&ouml;&szlig;e verfolgt wird, und was sich &auml;ndert, wenn die ma&szlig;gebliche Quelle kein Dokument mehr ist.</p>
+      </div>
+
+    <div class="hero-meta">
+        <span data-language="en">Estimated reading: 16 min</span><span data-language="es" hidden>Lectura estimada: 16 min</span><span data-language="de" hidden>Lesedauer: ca. 16 min</span>
+        <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+        <span data-language="en">Scope: the band across the Vee</span><span data-language="es" hidden>Alcance: la banda que cruza la V</span><span data-language="de" hidden>Umfang: das Band quer &uuml;ber das V</span>
+    </div>
+    <div class="button-row">
+      <a class="button secondary" href="verification-matrix.html?v=12">&larr; <span data-ui-key="previous">Previous lecture</span></a>
+      <a class="button secondary" href="index.html?v=12" data-ui-key="back">Back to course</a>
+      <a class="button primary" href="ethics-and-responsibility.html?v=12"><span data-ui-key="next">Next lecture</span> &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Engineering situation</a>
+        <a href="#model">Scope and limits</a>
+        <a href="#baselines">Baselines and change</a>
+        <a href="#tpm">Tracking a measure</a>
+        <a href="#mbse">From documents to models</a>
+        <a href="#algorithm">Processing a change</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Operative rules</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#references">Sources</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Situaci&oacute;n de ingenier&iacute;a</a>
+        <a href="#model-es">Alcance y l&iacute;mites</a>
+        <a href="#baselines-es">L&iacute;neas base y cambio</a>
+        <a href="#tpm-es">Seguir una medida</a>
+        <a href="#mbse-es">De documentos a modelos</a>
+        <a href="#algorithm-es">Procesar un cambio</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Reglas operativas</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Kontext</a>
+        <a href="#model-de">Geltungsbereich</a>
+        <a href="#baselines-de">Basen und &Auml;nderung</a>
+        <a href="#tpm-de">Eine Kenngr&ouml;&szlig;e verfolgen</a>
+        <a href="#mbse-de">Von Dokumenten zu Modellen</a>
+        <a href="#algorithm-de">Eine &Auml;nderung bearbeiten</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Arbeitsregeln</a>
+        <a href="#mistakes-de">H&auml;ufige Fehler</a>
+        <a href="#references-de">Quellen</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+
+      <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul><li>name the four baselines and the review at which each is set;</li><li>state the four functions of configuration management and the question each answers;</li><li>perform a change impact analysis and report what fraction of the baseline it touches;</li><li>read a technical performance measure by its trend rather than its current value;</li><li>say what model-based systems engineering changes, and what it leaves exactly as it was.</li></ul>
+      </section>
+
+      <section id="physics">
+        <p class="section-label">Engineering situation</p>
+        <h2>A one-line change and sixty documents</h2>
+        <p class="lead">Somebody proposes raising the data-bus rate. It is one number in one interface control document, the hardware supports it, and the meeting takes four minutes.</p><p>The change board asks the only question that matters: what else does this touch? Nobody knows. The project controls sixty artefacts &mdash; requirements, interface documents, budgets, procedures, models &mdash; and the honest answer is that finding out means opening all sixty, because a document baseline has no way to be asked. Twelve of them turn out to be affected. The other forty-eight were read to discover that they were not.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 320" role="img" aria-label="Technical performance measure: mass margin against its delivery floor">
+            <line x1="110" y1="40" x2="110" y2="240" stroke="#8fa6ba" stroke-width="2"></line>
+            <line x1="110" y1="240" x2="670" y2="240" stroke="#8fa6ba" stroke-width="2"></line>
+            <text x="102" y="202.3" text-anchor="end" font-size="11" fill="#8fa6ba">5 %</text>
+            <text x="102" y="160.7" text-anchor="end" font-size="11" fill="#8fa6ba">10 %</text>
+            <text x="102" y="119.0" text-anchor="end" font-size="11" fill="#8fa6ba">15 %</text>
+            <text x="102" y="77.3" text-anchor="end" font-size="11" fill="#8fa6ba">20 %</text>
+            <line x1="110" y1="198.3" x2="670" y2="198.3" stroke="#b03a2e" stroke-width="2" stroke-dasharray="7 5"></line>
+            <text x="678" y="202.3" font-size="12" fill="#b03a2e">Delivery floor 5 %</text>
+            <polyline points="110.0,73.3 250.0,106.7 390.0,140.0 530.0,173.3" fill="none" stroke="#0d568d" stroke-width="3"></polyline>
+            <line x1="530.0" y1="173.3" x2="635.0" y2="198.3" stroke="#0d568d" stroke-width="2" stroke-dasharray="5 5"></line>
+            <circle cx="635.0" cy="198.3" r="6" fill="#b03a2e"></circle>
+            <circle cx="110.0" cy="73.3" r="5" fill="#0d568d"></circle>
+            <text x="110.0" y="61.3" text-anchor="middle" font-size="12" font-weight="700" fill="#071d33">20 %</text>
+            <text x="110.0" y="260" text-anchor="middle" font-size="12" fill="#3f5162">SRR</text>
+            <circle cx="250.0" cy="106.7" r="5" fill="#0d568d"></circle>
+            <text x="250.0" y="94.7" text-anchor="middle" font-size="12" font-weight="700" fill="#071d33">16 %</text>
+            <text x="250.0" y="260" text-anchor="middle" font-size="12" fill="#3f5162">PDR</text>
+            <circle cx="390.0" cy="140.0" r="5" fill="#0d568d"></circle>
+            <text x="390.0" y="128.0" text-anchor="middle" font-size="12" font-weight="700" fill="#071d33">12 %</text>
+            <text x="390.0" y="260" text-anchor="middle" font-size="12" fill="#3f5162">CDR</text>
+            <circle cx="530.0" cy="173.3" r="5" fill="#0d568d"></circle>
+            <text x="530.0" y="161.3" text-anchor="middle" font-size="12" font-weight="700" fill="#071d33">8 %</text>
+            <text x="530.0" y="260" text-anchor="middle" font-size="12" fill="#3f5162">today</text>
+            <text x="110" y="26" text-anchor="start" font-size="13" font-weight="600" fill="#071d33">Mass margin</text>
+            <text x="400" y="298" text-anchor="middle" font-size="12" font-style="italic" fill="#b03a2e">the value is legal; the trend is not</text>
+            </svg>
+            <figcaption>Four measurements of one technical performance measure. Every point is above the floor, and the straight line through them reaches the floor three quarters of the way to the next milestone.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model">
+        <p class="section-label">Scope and limits</p>
+        <h2>What these three processes have in common</h2>
+        <p>Configuration management, technical assessment and technical data management are three of the eight processes that the Vee could not draw. They share a property: none of them designs anything. Their entire job is to make sure that the thing being designed, verified and delivered is <em>the same thing</em> at every point.</p><p>Without them the left branch and the right branch of the Vee slowly come to describe different systems &mdash; the requirement refers to a design that was superseded, the test procedure exercises an interface that changed, the mass budget adds up numbers from three different months. Nothing dramatic happens; the project simply stops being about one system.</p>
+        <div class="callout warning"><strong>Configuration management is not version control.</strong> A repository records what changed and when; configuration management records what was <em>agreed</em>, by whom, on what analysis, and against which baseline. A project with immaculate version history and no change board has an accurate record of an uncontrolled design.</div>
+      </section>
+
+      <section id="baselines">
+        <p class="section-label">Four snapshots</p>
+        <h2>What is frozen, and when</h2>
+        <div class="table-wrap"><table><thead><tr><th>Baseline</th><th>Set at</th><th>What it fixes</th></tr></thead><tbody><tr><td>Functional</td><td>System requirements review</td><td>What the system must do, and the requirements that say so</td></tr><tr><td>Allocated</td><td>Preliminary design review</td><td>How the requirements are distributed to subsystems, with their interfaces</td></tr><tr><td>Product</td><td>Critical design review</td><td>The design that will be built: drawings, part numbers, software versions</td></tr><tr><td>As-built</td><td>Acceptance</td><td>What was actually delivered, including every approved deviation</td></tr></tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th>Function</th><th>The question it answers</th></tr></thead><tbody><tr><td>Identification</td><td>What items are under control, and what is each one called?</td></tr><tr><td>Change control</td><td>Who may approve a change, and what analysis must precede it?</td></tr><tr><td>Status accounting</td><td>What is the current approved configuration, and how did it get here?</td></tr><tr><td>Audits</td><td>Does the article match the documents, and do the documents match each other?</td></tr></tbody></table></div>
+        <p>The word <em>frozen</em> is misleading and worth correcting. A baseline is not unchangeable; it is changeable only through a defined procedure by a defined authority. The point is not to prevent change &mdash; every project changes &mdash; but to make sure that when it happens, somebody has asked what else moves.</p>
+      </section>
+
+      <section id="tpm">
+        <p class="section-label">A number over time</p>
+        <h2>Technical performance measures</h2>
+        <p>A technical performance measure is a quantity the project agrees to watch on every reporting cycle, with a planned profile and a limit. Mass, power, data volume, pointing error, cost per unit: the same quantities that carried margins in Lecture 03, now plotted rather than checked.</p><p>Plotting is the whole idea. A single value answers whether the project is legal today; a series answers whether it will be legal at delivery, and those are different questions with different answers more often than not. A measure that has fallen four points at each of the last three milestones is going to keep falling, and the honest report is the slope, not the point.</p><p>The rule that follows is uncomfortable in a status meeting: <strong>a measure inside its limit whose trend leaves the limit before delivery is a finding today</strong>, and treating it as acceptable because the current value is acceptable is how the power margin of Lecture 17 reached three per cent without anyone raising it.</p>
+      </section>
+
+      <section id="mbse">
+        <p class="section-label">Changing where the truth lives</p>
+        <h2>What MBSE actually changes</h2>
+        <p>Model-based systems engineering moves the authoritative source of truth from a set of documents to a single model, and generates the documents from it as views. The requirement, the function it satisfies, the component it is allocated to, the interface it crosses and the test that closes it are one connected structure rather than five files that happen to agree.</p><p>The benefit is not that the model is prettier. It is that the model can be <em>asked</em>. &ldquo;What depends on the data-bus rate?&rdquo; is a query with an answer, where a document baseline offers only a reading assignment. That is the entire commercial case, and it is enough.</p><p>What MBSE does not change: the model is a baseline and must be configuration-controlled exactly as the documents were; the generated documents are still delivered and still read; and a model containing wrong requirements produces beautifully consistent wrong views. It relocates the truth, it does not verify it.</p>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">Calculation algorithm</p>
+        <h2>Processing a change request</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Identify the baseline the change affects</span></div><div><strong>2</strong><span>Query or search for every dependent artefact</span></div><div><strong>3</strong><span>Count them, and report the fraction of the baseline touched</span></div><div><strong>4</strong><span>Assess the effect on every technical performance measure</span></div><div><strong>5</strong><span>Assess the effect on the verification matrix</span></div><div><strong>6</strong><span>Take it to the authority that owns that baseline</span></div><div><strong>7</strong><span>Record the decision, the analysis and the date</span></div><div><strong>8</strong><span>Update every affected artefact before the next report</span></div></div>
+        <p>Step two is where document baselines and models genuinely differ, and it is the only step where they differ. Everything else &mdash; the authority, the record, the update &mdash; is identical whether the truth lives in files or in a model.</p>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>One change, one trend</h2>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Scope the change.</strong> Raising the data-bus rate touches twelve of the sixty controlled artefacts: four requirements, three interface documents, two budgets and three test procedures. That is \[ \frac{12}{60} = 20\,\% \] of the baseline, moved by one number.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Count the cost of finding out.</strong> A document baseline cannot be queried, so all sixty are opened to identify the twelve. A model answers the same question directly, and the ratio \[ \frac{60}{12} = 5 \] is the factor by which the search shrinks. Note what it is not: the change is the same size either way, and the twelve artefacts still have to be updated by hand.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Check the measures.</strong> The change adds mass. Mass margin has been reported at four milestones: 20, 16, 12 and 8 %. Every value has been above the 5 % delivery floor, and every status chart has been green.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Read the trend instead.</strong> The decrement is \(-4\) points at every step, so the straight line reaches the floor at \[ \frac{8 - 5}{4} = 0.75 \] of the way to the next milestone. The measure is legal today and will not be legal at the next reporting cycle, and that is a finding now, before the change is approved rather than after.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Decide.</strong> The change board has the analysis it needs: 20 % of the baseline touched, twelve artefacts to update, and a technical performance measure already trending through its floor. None of that says the change is wrong. All of it says what the change costs, which is the only thing a change board is entitled to decide on.</div></div>
+        <div class="result-box">\[ \boxed{ \frac{12}{60} = 20\,\%\ \text{of the baseline},\qquad \frac{60}{12} = 5\times\ \text{search},\qquad \frac{8-5}{4} = 0.75\ \text{milestones to the floor} } \]</div>
+        <p><strong>Interpretation.</strong> Three numbers came out of one four-minute proposal, and the project had none of them before the analysis. The 20 % is the size of the change, which nobody had estimated. The factor of five is the price of not having a model, paid in reading. The 0.75 is the one that should stop the meeting: a measure that has been green at four consecutive milestones is about to stop being green, and it was predictable at every one of them.</p>
+      </section>
+
+      <section id="summary">
+        <p class="section-label">Operative rules</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Statement</th></tr></thead><tbody><tr><td>A baseline is a decision, not a folder</td><td>It records what the project agreed to at a review, and changing it requires the same authority that set it.</td></tr><tr><td>No change without impact analysis</td><td>The question is never whether the change is good, but what else it touches.</td></tr><tr><td>Track the trend, not the value</td><td>A measure inside its limit with a slope that leaves the limit before delivery is already a finding.</td></tr><tr><td>A model is a baseline too</td><td>MBSE moves the authoritative source from documents to a model; it does not remove the need to control it.</td></tr><tr><td>Documents do not disappear</td><td>They become views generated from the model, and a view that is edited by hand has broken the whole arrangement.</td></tr><tr><td>The benefit is the query</td><td>The value of a model is that it can be asked what a change affects, and answer without anyone reading sixty documents.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes">
+        <p class="section-label">Common mistakes</p>
+        <h2>What goes wrong</h2>
+        <ul class="check-list"><li><strong>Approving a change without an impact analysis.</strong> The board decides whether the change is good, which is not the question it is there to answer.</li><li><strong>Mistaking version control for configuration management.</strong> A perfect history of an unapproved design is still an unapproved design.</li><li><strong>Reporting a technical performance measure as a single value.</strong> The value says whether the project is legal today; only the trend says whether it will be legal at delivery.</li><li><strong>Editing a generated document by hand.</strong> The model is no longer the source of truth, and nothing in the tooling will tell you.</li><li><strong>Believing MBSE removes the need for control.</strong> The model is a baseline; an uncontrolled model is an uncontrolled design with better diagrams.</li><li><strong>Leaving the as-built baseline unwritten.</strong> Every approved deviation lives there, and without it nobody can say what was actually delivered.</li></ul>
+      </section>
+
+      <section id="references" class="references">
+        <p class="section-label">Sources</p>
+        <h2>References</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Sections 6.5 to 6.7 and 6.9.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=management" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 26: Management</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adapted from Unit VIII of the Aerospace Systems Engineering (AE506) course script by Carlos Alberto Molina Holgu&iacute;n. Every number on this page was recomputed independently for it; no calculator covers this topic, so recomputation is the only check there is. The sixty controlled artefacts and the twelve affected are illustrative; the share, the search factor and the milestone at which the trend crosses the floor are computed from them in the generator, and the margin series is linear by construction so that the extrapolation can be checked by hand.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="verification-matrix.html?v=12"><span>Previous lecture</span>&larr; The Verification Matrix</a>
+        <a class="next-link" href="ethics-and-responsibility.html?v=12"><span>Next lecture</span>Ethics and Professional Responsibility &rarr;</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+
+      <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Qu&eacute; deber&iacute;as poder hacer</h2>
+        <ul><li>nombrar las cuatro l&iacute;neas base y la revisi&oacute;n en que se fija cada una;</li><li>enunciar las cuatro funciones de la gesti&oacute;n de configuraci&oacute;n y la pregunta que responde cada una;</li><li>hacer un an&aacute;lisis de impacto de cambio y reportar qu&eacute; fracci&oacute;n de la l&iacute;nea base toca;</li><li>leer una medida de desempe&ntilde;o t&eacute;cnico por su tendencia y no por su valor actual;</li><li>decir qu&eacute; cambia el MBSE, y qu&eacute; deja exactamente igual.</li></ul>
+      </section>
+
+      <section id="physics-es">
+        <p class="section-label">Situación de ingeniería</p>
+        <h2>Un cambio de una l&iacute;nea y sesenta documentos</h2>
+        <p class="lead">Alguien propone subir la tasa del bus de datos. Es un n&uacute;mero en un documento de control de interfaz, el hardware lo soporta, y la junta dura cuatro minutos.</p><p>El comit&eacute; de cambios hace la &uacute;nica pregunta que importa: &iquest;qu&eacute; m&aacute;s toca esto? Nadie sabe. El proyecto controla sesenta artefactos &mdash; requisitos, documentos de interfaz, presupuestos, procedimientos, modelos &mdash; y la respuesta honesta es que averiguarlo significa abrir los sesenta, porque a una l&iacute;nea base de documentos no se le puede preguntar. Doce resultan afectados. Los otros cuarenta y ocho se leyeron para descubrir que no lo estaban.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 320" role="img" aria-label="Medida de desempe&ntilde;o t&eacute;cnico: margen de masa contra su piso de entrega">
+            <line x1="110" y1="40" x2="110" y2="240" stroke="#8fa6ba" stroke-width="2"></line>
+            <line x1="110" y1="240" x2="670" y2="240" stroke="#8fa6ba" stroke-width="2"></line>
+            <text x="102" y="202.3" text-anchor="end" font-size="11" fill="#8fa6ba">5 %</text>
+            <text x="102" y="160.7" text-anchor="end" font-size="11" fill="#8fa6ba">10 %</text>
+            <text x="102" y="119.0" text-anchor="end" font-size="11" fill="#8fa6ba">15 %</text>
+            <text x="102" y="77.3" text-anchor="end" font-size="11" fill="#8fa6ba">20 %</text>
+            <line x1="110" y1="198.3" x2="670" y2="198.3" stroke="#b03a2e" stroke-width="2" stroke-dasharray="7 5"></line>
+            <text x="678" y="202.3" font-size="12" fill="#b03a2e">Piso de entrega 5 %</text>
+            <polyline points="110.0,73.3 250.0,106.7 390.0,140.0 530.0,173.3" fill="none" stroke="#0d568d" stroke-width="3"></polyline>
+            <line x1="530.0" y1="173.3" x2="635.0" y2="198.3" stroke="#0d568d" stroke-width="2" stroke-dasharray="5 5"></line>
+            <circle cx="635.0" cy="198.3" r="6" fill="#b03a2e"></circle>
+            <circle cx="110.0" cy="73.3" r="5" fill="#0d568d"></circle>
+            <text x="110.0" y="61.3" text-anchor="middle" font-size="12" font-weight="700" fill="#071d33">20 %</text>
+            <text x="110.0" y="260" text-anchor="middle" font-size="12" fill="#3f5162">SRR</text>
+            <circle cx="250.0" cy="106.7" r="5" fill="#0d568d"></circle>
+            <text x="250.0" y="94.7" text-anchor="middle" font-size="12" font-weight="700" fill="#071d33">16 %</text>
+            <text x="250.0" y="260" text-anchor="middle" font-size="12" fill="#3f5162">PDR</text>
+            <circle cx="390.0" cy="140.0" r="5" fill="#0d568d"></circle>
+            <text x="390.0" y="128.0" text-anchor="middle" font-size="12" font-weight="700" fill="#071d33">12 %</text>
+            <text x="390.0" y="260" text-anchor="middle" font-size="12" fill="#3f5162">CDR</text>
+            <circle cx="530.0" cy="173.3" r="5" fill="#0d568d"></circle>
+            <text x="530.0" y="161.3" text-anchor="middle" font-size="12" font-weight="700" fill="#071d33">8 %</text>
+            <text x="530.0" y="260" text-anchor="middle" font-size="12" fill="#3f5162">hoy</text>
+            <text x="110" y="26" text-anchor="start" font-size="13" font-weight="600" fill="#071d33">Margen de masa</text>
+            <text x="400" y="298" text-anchor="middle" font-size="12" font-style="italic" fill="#b03a2e">el valor es legal; la tendencia no</text>
+            </svg>
+            <figcaption>Cuatro mediciones de una misma medida de desempe&ntilde;o t&eacute;cnico. Todo punto est&aacute; sobre el piso, y la recta que los atraviesa llega al piso a tres cuartos del camino al siguiente hito.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-es">
+        <p class="section-label">Alcance y límites</p>
+        <h2>Qu&eacute; tienen en com&uacute;n estos tres procesos</h2>
+        <p>La gesti&oacute;n de configuraci&oacute;n, la evaluaci&oacute;n t&eacute;cnica y la gesti&oacute;n de datos t&eacute;cnicos son tres de los ocho procesos que la V no pod&iacute;a dibujar. Comparten una propiedad: ninguno dise&ntilde;a nada. Su trabajo entero es asegurar que lo que se dise&ntilde;a, verifica y entrega sea <em>la misma cosa</em> en cada punto.</p><p>Sin ellos, la rama izquierda y la derecha de la V describen poco a poco sistemas distintos &mdash; el requisito se refiere a un dise&ntilde;o superado, el procedimiento de prueba ejercita una interfaz que cambi&oacute;, el presupuesto de masa suma n&uacute;meros de tres meses distintos. Nada dram&aacute;tico ocurre; el proyecto simplemente deja de tratar de un solo sistema.</p>
+        <div class="callout warning"><strong>La gesti&oacute;n de configuraci&oacute;n no es control de versiones.</strong> Un repositorio registra qu&eacute; cambi&oacute; y cu&aacute;ndo; la gesti&oacute;n de configuraci&oacute;n registra qu&eacute; se <em>acord&oacute;</em>, qui&eacute;n lo acord&oacute;, con qu&eacute; an&aacute;lisis y contra cu&aacute;l l&iacute;nea base. Un proyecto con historial impecable y sin comit&eacute; de cambios tiene un registro exacto de un dise&ntilde;o sin control.</div>
+      </section>
+
+      <section id="baselines-es">
+        <p class="section-label">Cuatro instant&aacute;neas</p>
+        <h2>Qu&eacute; se congela, y cu&aacute;ndo</h2>
+        <div class="table-wrap"><table><thead><tr><th>L&iacute;nea base</th><th>Se fija en</th><th>Qu&eacute; congela</th></tr></thead><tbody><tr><td>Funcional</td><td>Revisi&oacute;n de requisitos del sistema</td><td>Qu&eacute; debe hacer el sistema, y los requisitos que lo dicen</td></tr><tr><td>Asignada</td><td>Revisi&oacute;n preliminar de dise&ntilde;o</td><td>C&oacute;mo se reparten los requisitos a subsistemas, con sus interfaces</td></tr><tr><td>De producto</td><td>Revisi&oacute;n cr&iacute;tica de dise&ntilde;o</td><td>El dise&ntilde;o que se construir&aacute;: planos, n&uacute;meros de parte, versiones de software</td></tr><tr><td>Como construido</td><td>Aceptaci&oacute;n</td><td>Lo que realmente se entreg&oacute;, incluida toda desviaci&oacute;n aprobada</td></tr></tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th>Funci&oacute;n</th><th>La pregunta que responde</th></tr></thead><tbody><tr><td>Identificaci&oacute;n</td><td>&iquest;Qu&eacute; elementos est&aacute;n bajo control, y c&oacute;mo se llama cada uno?</td></tr><tr><td>Control de cambios</td><td>&iquest;Qui&eacute;n puede aprobar un cambio, y qu&eacute; an&aacute;lisis debe precederlo?</td></tr><tr><td>Registro de estatus</td><td>&iquest;Cu&aacute;l es la configuraci&oacute;n aprobada vigente, y c&oacute;mo lleg&oacute; aqu&iacute;?</td></tr><tr><td>Auditor&iacute;as</td><td>&iquest;El art&iacute;culo coincide con los documentos, y los documentos entre s&iacute;?</td></tr></tbody></table></div>
+        <p>La palabra <em>congelado</em> enga&ntilde;a y vale corregirla. Una l&iacute;nea base no es inmutable; es mutable s&oacute;lo por un procedimiento definido y una autoridad definida. El punto no es impedir el cambio &mdash; todo proyecto cambia &mdash; sino asegurar que cuando ocurra, alguien haya preguntado qu&eacute; m&aacute;s se mueve.</p>
+      </section>
+
+      <section id="tpm-es">
+        <p class="section-label">Un n&uacute;mero en el tiempo</p>
+        <h2>Medidas de desempe&ntilde;o t&eacute;cnico</h2>
+        <p>Una medida de desempe&ntilde;o t&eacute;cnico es una cantidad que el proyecto acuerda vigilar en cada ciclo de reporte, con un perfil planeado y un l&iacute;mite. Masa, potencia, volumen de datos, error de apuntamiento, costo unitario: las mismas cantidades que cargaban m&aacute;rgenes en la lecture 03, ahora graficadas y no s&oacute;lo revisadas.</p><p>Graficar es la idea entera. Un valor &uacute;nico responde si el proyecto es legal hoy; una serie responde si lo ser&aacute; en la entrega, y esas son preguntas distintas con respuestas distintas m&aacute;s veces que no. Una medida que ha ca&iacute;do cuatro puntos en cada uno de los tres &uacute;ltimos hitos va a seguir cayendo, y el reporte honesto es la pendiente, no el punto.</p><p>La regla que se sigue es inc&oacute;moda en una junta de estatus: <strong>una medida dentro de su l&iacute;mite cuya tendencia lo abandona antes de la entrega es un hallazgo hoy</strong>, y tratarla como aceptable porque el valor actual es aceptable es como el margen de potencia de la lecture 17 lleg&oacute; a tres por ciento sin que nadie lo levantara.</p>
+      </section>
+
+      <section id="mbse-es">
+        <p class="section-label">Cambiar d&oacute;nde vive la verdad</p>
+        <h2>Qu&eacute; cambia realmente el MBSE</h2>
+        <p>La ingenier&iacute;a de sistemas basada en modelos mueve la fuente autorizada de verdad de un conjunto de documentos a un modelo &uacute;nico, y genera los documentos de &eacute;l como vistas. El requisito, la funci&oacute;n que satisface, el componente al que se asigna, la interfaz que cruza y la prueba que lo cierra son una estructura conectada y no cinco archivos que casualmente coinciden.</p><p>El beneficio no es que el modelo sea m&aacute;s bonito. Es que al modelo se le puede <em>preguntar</em>. &laquo;&iquest;Qu&eacute; depende de la tasa del bus de datos?&raquo; es una consulta con respuesta, donde una l&iacute;nea base de documentos ofrece s&oacute;lo una tarea de lectura. Ese es el argumento comercial entero, y basta.</p><p>Lo que el MBSE no cambia: el modelo es una l&iacute;nea base y debe controlarse en configuraci&oacute;n igual que los documentos; los documentos generados se siguen entregando y leyendo; y un modelo con requisitos equivocados produce vistas equivocadas bellamente consistentes. Reubica la verdad, no la verifica.</p>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Algoritmo de cálculo</p>
+        <h2>Procesar una solicitud de cambio</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Identificar la l&iacute;nea base que el cambio afecta</span></div><div><strong>2</strong><span>Consultar o buscar todo artefacto dependiente</span></div><div><strong>3</strong><span>Contarlos, y reportar la fracci&oacute;n de la l&iacute;nea base tocada</span></div><div><strong>4</strong><span>Evaluar el efecto en toda medida de desempe&ntilde;o t&eacute;cnico</span></div><div><strong>5</strong><span>Evaluar el efecto en la matriz de verificaci&oacute;n</span></div><div><strong>6</strong><span>Llevarlo a la autoridad due&ntilde;a de esa l&iacute;nea base</span></div><div><strong>7</strong><span>Registrar la decisi&oacute;n, el an&aacute;lisis y la fecha</span></div><div><strong>8</strong><span>Actualizar todo artefacto afectado antes del siguiente reporte</span></div></div>
+        <p>El paso dos es donde las l&iacute;neas base de documentos y los modelos difieren de verdad, y es el &uacute;nico paso donde difieren. Todo lo dem&aacute;s &mdash; la autoridad, el registro, la actualizaci&oacute;n &mdash; es id&eacute;ntico viva la verdad en archivos o en un modelo.</p>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>Un cambio, una tendencia</h2>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Acotar el cambio.</strong> Subir la tasa del bus de datos toca doce de los sesenta artefactos controlados: cuatro requisitos, tres documentos de interfaz, dos presupuestos y tres procedimientos de prueba. Eso es \[ \frac{12}{60} = 20\,\% \] de la l&iacute;nea base, movido por un n&uacute;mero.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Contar el costo de averiguarlo.</strong> Una l&iacute;nea base de documentos no se puede consultar, as&iacute; que se abren los sesenta para identificar los doce. Un modelo responde lo mismo directamente, y la raz&oacute;n \[ \frac{60}{12} = 5 \] es el factor en que se encoge la b&uacute;squeda. Nota lo que no es: el cambio tiene el mismo tama&ntilde;o de cualquier modo, y los doce artefactos siguen actualiz&aacute;ndose a mano.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Revisar las medidas.</strong> El cambio a&ntilde;ade masa. El margen de masa se ha reportado en cuatro hitos: 20, 16, 12 y 8 %. Todo valor ha estado sobre el piso de entrega de 5 %, y todo tablero ha estado verde.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Leer la tendencia en su lugar.</strong> El decremento es de \(-4\) puntos en cada paso, as&iacute; que la recta llega al piso a \[ \frac{8 - 5}{4} = 0.75 \] del camino al siguiente hito. La medida es legal hoy y no lo ser&aacute; en el siguiente ciclo de reporte, y eso es un hallazgo ahora, antes de aprobar el cambio y no despu&eacute;s.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Decidir.</strong> El comit&eacute; de cambios tiene el an&aacute;lisis que necesita: 20 % de la l&iacute;nea base tocado, doce artefactos que actualizar, y una medida de desempe&ntilde;o t&eacute;cnico que ya tiende a cruzar su piso. Nada de eso dice que el cambio sea malo. Todo eso dice qu&eacute; cuesta el cambio, que es lo &uacute;nico sobre lo que un comit&eacute; de cambios tiene derecho a decidir.</div></div>
+        <div class="result-box">\[ \boxed{ \frac{12}{60} = 20\,\%\ \text{de la base},\qquad \frac{60}{12} = 5\times\ \text{b\acute{u}squeda},\qquad \frac{8-5}{4} = 0.75\ \text{hitos al piso} } \]</div>
+        <p><strong>Interpretaci&oacute;n.</strong> Tres n&uacute;meros salieron de una propuesta de cuatro minutos, y el proyecto no ten&iacute;a ninguno antes del an&aacute;lisis. El 20 % es el tama&ntilde;o del cambio, que nadie hab&iacute;a estimado. El factor de cinco es el precio de no tener un modelo, pagado en lectura. El 0.75 es el que deber&iacute;a detener la junta: una medida que ha estado verde en cuatro hitos seguidos est&aacute; por dejar de estarlo, y era predecible en cada uno de ellos.</p>
+      </section>
+
+      <section id="summary-es">
+        <p class="section-label">Reglas operativas</p>
+        <h2>De un vistazo</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regla</th><th>Enunciado</th></tr></thead><tbody><tr><td>Una l&iacute;nea base es una decisi&oacute;n, no una carpeta</td><td>Registra lo que el proyecto acord&oacute; en una revisi&oacute;n, y cambiarla exige la misma autoridad que la fij&oacute;.</td></tr><tr><td>Ning&uacute;n cambio sin an&aacute;lisis de impacto</td><td>La pregunta nunca es si el cambio es bueno, sino qu&eacute; m&aacute;s toca.</td></tr><tr><td>Sigue la tendencia, no el valor</td><td>Una medida dentro de su l&iacute;mite con una pendiente que lo abandona antes de la entrega ya es un hallazgo.</td></tr><tr><td>Un modelo tambi&eacute;n es l&iacute;nea base</td><td>El MBSE mueve la fuente autorizada de documentos a un modelo; no elimina la necesidad de controlarla.</td></tr><tr><td>Los documentos no desaparecen</td><td>Se vuelven vistas generadas del modelo, y una vista editada a mano rompi&oacute; el arreglo entero.</td></tr><tr><td>El beneficio es la consulta</td><td>El valor de un modelo es que puede pregunt&aacute;rsele qu&eacute; afecta un cambio, y responde sin que nadie lea sesenta documentos.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-es">
+        <p class="section-label">Errores comunes</p>
+        <h2>Qu&eacute; sale mal</h2>
+        <ul class="check-list"><li><strong>Aprobar un cambio sin an&aacute;lisis de impacto.</strong> El comit&eacute; decide si el cambio es bueno, que no es la pregunta que le toca responder.</li><li><strong>Confundir control de versiones con gesti&oacute;n de configuraci&oacute;n.</strong> Un historial perfecto de un dise&ntilde;o no aprobado sigue siendo un dise&ntilde;o no aprobado.</li><li><strong>Reportar una medida de desempe&ntilde;o como un valor &uacute;nico.</strong> El valor dice si el proyecto es legal hoy; s&oacute;lo la tendencia dice si lo ser&aacute; en la entrega.</li><li><strong>Editar a mano un documento generado.</strong> El modelo deja de ser la fuente de verdad, y nada en la herramienta te lo dir&aacute;.</li><li><strong>Creer que el MBSE elimina la necesidad de control.</strong> El modelo es una l&iacute;nea base; un modelo sin control es un dise&ntilde;o sin control con mejores diagramas.</li><li><strong>Dejar sin escribir la l&iacute;nea base como construido.</strong> Ah&iacute; vive toda desviaci&oacute;n aprobada, y sin ella nadie puede decir qu&eacute; se entreg&oacute; realmente.</li></ul>
+      </section>
+
+      <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
+        <h2>Referencias</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Sections 6.5 to 6.7 and 6.9.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=management" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 26: Management</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adaptado de la Unidad VIII del gui&oacute;n del curso Ingenier&iacute;a en Sistemas Aeroespaciales (AE506) de Carlos Alberto Molina Holgu&iacute;n. Cada n&uacute;mero de esta p&aacute;gina se recalcul&oacute; de forma independiente para ella; ninguna calculadora cubre este tema, as&iacute; que el rec&aacute;lculo es la &uacute;nica comprobaci&oacute;n disponible. Los sesenta artefactos controlados y los doce afectados son ilustrativos; la proporci&oacute;n, el factor de b&uacute;squeda y el hito en que la tendencia cruza el piso se calculan de ellos en el generador, y la serie de m&aacute;rgenes es lineal por construcci&oacute;n para que la extrapolaci&oacute;n pueda comprobarse a mano.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="verification-matrix.html?v=12"><span>Lecture anterior</span>&larr; La matriz de verificaci&oacute;n</a>
+        <a class="next-link" href="ethics-and-responsibility.html?v=12"><span>Siguiente lecture</span>&Eacute;tica y responsabilidad profesional &rarr;</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+
+      <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie k&ouml;nnen sollten</h2>
+        <ul><li>die vier Basen und das jeweilige Review benennen;</li><li>die vier Funktionen des Konfigurationsmanagements und ihre Leitfragen nennen;</li><li>eine &Auml;nderungswirkungsanalyse durchf&uuml;hren und den betroffenen Anteil berichten;</li><li>eine technische Leistungsgr&ouml;&szlig;e am Trend statt am aktuellen Wert lesen;</li><li>sagen, was MBSE &auml;ndert und was es genau so l&auml;sst, wie es war.</li></ul>
+      </section>
+
+      <section id="physics-de">
+        <p class="section-label">Ingenieurtechnischer Kontext</p>
+        <h2>Eine einzeilige &Auml;nderung und sechzig Dokumente</h2>
+        <p class="lead">Jemand schl&auml;gt vor, die Datenbusrate zu erh&ouml;hen. Es ist eine Zahl in einem Schnittstellendokument, die Hardware tr&auml;gt es, und die Sitzung dauert vier Minuten.</p><p>Das &Auml;nderungsgremium stellt die einzig wichtige Frage: Was ber&uuml;hrt das sonst? Niemand wei&szlig; es. Das Projekt lenkt sechzig Artefakte &mdash; Anforderungen, Schnittstellendokumente, Budgets, Prozeduren, Modelle &mdash; und die ehrliche Antwort lautet, dass man alle sechzig &ouml;ffnen muss, denn eine Dokumentenbasis l&auml;sst sich nicht befragen. Zw&ouml;lf sind betroffen. Die anderen achtundvierzig wurden gelesen, um festzustellen, dass sie es nicht sind.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 800 320" role="img" aria-label="Technische Leistungsgr&ouml;&szlig;e: Massenreserve gegen ihre Lieferuntergrenze">
+            <line x1="110" y1="40" x2="110" y2="240" stroke="#8fa6ba" stroke-width="2"></line>
+            <line x1="110" y1="240" x2="670" y2="240" stroke="#8fa6ba" stroke-width="2"></line>
+            <text x="102" y="202.3" text-anchor="end" font-size="11" fill="#8fa6ba">5 %</text>
+            <text x="102" y="160.7" text-anchor="end" font-size="11" fill="#8fa6ba">10 %</text>
+            <text x="102" y="119.0" text-anchor="end" font-size="11" fill="#8fa6ba">15 %</text>
+            <text x="102" y="77.3" text-anchor="end" font-size="11" fill="#8fa6ba">20 %</text>
+            <line x1="110" y1="198.3" x2="670" y2="198.3" stroke="#b03a2e" stroke-width="2" stroke-dasharray="7 5"></line>
+            <text x="678" y="202.3" font-size="12" fill="#b03a2e">Lieferuntergrenze 5 %</text>
+            <polyline points="110.0,73.3 250.0,106.7 390.0,140.0 530.0,173.3" fill="none" stroke="#0d568d" stroke-width="3"></polyline>
+            <line x1="530.0" y1="173.3" x2="635.0" y2="198.3" stroke="#0d568d" stroke-width="2" stroke-dasharray="5 5"></line>
+            <circle cx="635.0" cy="198.3" r="6" fill="#b03a2e"></circle>
+            <circle cx="110.0" cy="73.3" r="5" fill="#0d568d"></circle>
+            <text x="110.0" y="61.3" text-anchor="middle" font-size="12" font-weight="700" fill="#071d33">20 %</text>
+            <text x="110.0" y="260" text-anchor="middle" font-size="12" fill="#3f5162">SRR</text>
+            <circle cx="250.0" cy="106.7" r="5" fill="#0d568d"></circle>
+            <text x="250.0" y="94.7" text-anchor="middle" font-size="12" font-weight="700" fill="#071d33">16 %</text>
+            <text x="250.0" y="260" text-anchor="middle" font-size="12" fill="#3f5162">PDR</text>
+            <circle cx="390.0" cy="140.0" r="5" fill="#0d568d"></circle>
+            <text x="390.0" y="128.0" text-anchor="middle" font-size="12" font-weight="700" fill="#071d33">12 %</text>
+            <text x="390.0" y="260" text-anchor="middle" font-size="12" fill="#3f5162">CDR</text>
+            <circle cx="530.0" cy="173.3" r="5" fill="#0d568d"></circle>
+            <text x="530.0" y="161.3" text-anchor="middle" font-size="12" font-weight="700" fill="#071d33">8 %</text>
+            <text x="530.0" y="260" text-anchor="middle" font-size="12" fill="#3f5162">heute</text>
+            <text x="110" y="26" text-anchor="start" font-size="13" font-weight="600" fill="#071d33">Massenreserve</text>
+            <text x="400" y="298" text-anchor="middle" font-size="12" font-style="italic" fill="#b03a2e">der Wert ist zul&auml;ssig, der Trend nicht</text>
+            </svg>
+            <figcaption>Vier Messungen einer technischen Leistungsgr&ouml;&szlig;e. Jeder Punkt liegt &uuml;ber der Untergrenze, und die Gerade durch sie erreicht die Grenze nach drei Vierteln des Wegs zum n&auml;chsten Meilenstein.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-de">
+        <p class="section-label">Geltungsbereich und Grenzen</p>
+        <h2>Was diese drei Prozesse gemeinsam haben</h2>
+        <p>Konfigurationsmanagement, technische Bewertung und technisches Datenmanagement sind drei der acht Prozesse, die das V nicht zeichnen konnte. Sie teilen eine Eigenschaft: Keiner entwirft etwas. Ihre ganze Aufgabe ist sicherzustellen, dass das Entworfene, Verifizierte und Gelieferte an jeder Stelle <em>dasselbe</em> ist.</p><p>Ohne sie beschreiben linker und rechter Ast allm&auml;hlich verschiedene Systeme &mdash; die Anforderung meint einen &uuml;berholten Entwurf, die Testprozedur pr&uuml;ft eine ge&auml;nderte Schnittstelle, das Massenbudget addiert Zahlen aus drei Monaten. Nichts Dramatisches geschieht; das Projekt handelt nur nicht mehr von einem System.</p>
+        <div class="callout warning"><strong>Konfigurationsmanagement ist keine Versionsverwaltung.</strong> Ein Repository h&auml;lt fest, was wann ge&auml;ndert wurde; Konfigurationsmanagement h&auml;lt fest, was <em>vereinbart</em> wurde, von wem, auf welche Analyse hin und gegen welche Basis. Ein Projekt mit makelloser Historie und ohne &Auml;nderungsgremium hat eine exakte Aufzeichnung eines ungelenkten Entwurfs.</div>
+      </section>
+
+      <section id="baselines-de">
+        <p class="section-label">Vier Momentaufnahmen</p>
+        <h2>Was wann eingefroren wird</h2>
+        <div class="table-wrap"><table><thead><tr><th>Basis</th><th>Festgelegt bei</th><th>Was sie festschreibt</th></tr></thead><tbody><tr><td>Funktionale</td><td>Systemanforderungsreview</td><td>Was das System leisten muss und die Anforderungen dazu</td></tr><tr><td>Zugeteilte</td><td>Vorentwurfspr&uuml;fung</td><td>Wie die Anforderungen auf Teilsysteme verteilt sind, samt Schnittstellen</td></tr><tr><td>Produkt</td><td>Kritische Entwurfspr&uuml;fung</td><td>Der zu bauende Entwurf: Zeichnungen, Teilenummern, Softwarest&auml;nde</td></tr><tr><td>Wie gebaut</td><td>Abnahme</td><td>Was tats&auml;chlich geliefert wurde, samt jeder genehmigten Abweichung</td></tr></tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th>Funktion</th><th>Die Frage, die sie beantwortet</th></tr></thead><tbody><tr><td>Identifizierung</td><td>Welche Elemente sind gelenkt, und wie hei&szlig;t jedes?</td></tr><tr><td>&Auml;nderungslenkung</td><td>Wer darf eine &Auml;nderung genehmigen, und welche Analyse geht voraus?</td></tr><tr><td>Statusbuchf&uuml;hrung</td><td>Was ist die aktuelle genehmigte Konfiguration, und wie kam sie zustande?</td></tr><tr><td>Audits</td><td>Stimmt der Artikel mit den Dokumenten &uuml;berein, und die Dokumente untereinander?</td></tr></tbody></table></div>
+        <p>Das Wort <em>eingefroren</em> f&uuml;hrt in die Irre. Eine Basis ist nicht unver&auml;nderlich, sondern nur &uuml;ber ein definiertes Verfahren durch eine definierte Stelle ver&auml;nderbar. Es geht nicht darum, &Auml;nderungen zu verhindern &mdash; jedes Projekt &auml;ndert sich &mdash;, sondern darum, dass jemand fragt, was sich mitbewegt.</p>
+      </section>
+
+      <section id="tpm-de">
+        <p class="section-label">Eine Zahl im Zeitverlauf</p>
+        <h2>Technische Leistungsgr&ouml;&szlig;en</h2>
+        <p>Eine technische Leistungsgr&ouml;&szlig;e ist eine Gr&ouml;&szlig;e, die das Projekt in jedem Berichtszyklus verfolgt, mit geplantem Verlauf und Grenzwert. Masse, Leistung, Datenvolumen, Zielgenauigkeit, St&uuml;ckkosten: dieselben Gr&ouml;&szlig;en, die in Vorlesung 03 Reserven trugen &mdash; nun aufgetragen statt nur gepr&uuml;ft.</p><p>Das Auftragen ist der ganze Gedanke. Ein Einzelwert sagt, ob das Projekt heute zul&auml;ssig ist; eine Reihe sagt, ob es bei der Lieferung zul&auml;ssig sein wird &mdash; zwei Fragen mit meist verschiedenen Antworten. Eine Gr&ouml;&szlig;e, die an den letzten drei Meilensteinen je vier Punkte verlor, wird weiter verlieren, und der ehrliche Bericht ist die Steigung, nicht der Punkt.</p><p>Die Folgeregel ist in einer Statussitzung unbequem: <strong>Eine Gr&ouml;&szlig;e im Limit, deren Trend das Limit vor der Lieferung verl&auml;sst, ist heute ein Befund</strong> &mdash; und sie wegen des aktuellen Werts hinzunehmen ist der Weg, auf dem die Leistungsreserve aus Vorlesung 17 unbemerkt drei Prozent erreichte.</p>
+      </section>
+
+      <section id="mbse-de">
+        <p class="section-label">Den Ort der Wahrheit verlegen</p>
+        <h2>Was MBSE wirklich &auml;ndert</h2>
+        <p>Modellbasierte Systemtechnik verlagert die ma&szlig;gebliche Quelle von Dokumenten in ein einziges Modell und erzeugt die Dokumente daraus als Sichten. Anforderung, erf&uuml;llte Funktion, zugeordnete Komponente, gekreuzte Schnittstelle und schlie&szlig;ender Test sind eine zusammenh&auml;ngende Struktur statt f&uuml;nf zuf&auml;llig &uuml;bereinstimmender Dateien.</p><p>Der Nutzen ist nicht die Sch&ouml;nheit des Modells, sondern dass man es <em>fragen</em> kann. &bdquo;Was h&auml;ngt von der Datenbusrate ab?&ldquo; ist eine Abfrage mit Antwort, w&auml;hrend eine Dokumentenbasis nur eine Leseaufgabe bietet. Das ist die ganze wirtschaftliche Begr&uuml;ndung, und sie gen&uuml;gt.</p><p>Was MBSE nicht &auml;ndert: Das Modell ist eine Basis und muss genauso gelenkt werden wie zuvor die Dokumente; die erzeugten Dokumente werden weiterhin geliefert und gelesen; und ein Modell mit falschen Anforderungen erzeugt wunderbar konsistente falsche Sichten. Es verlagert die Wahrheit, es pr&uuml;ft sie nicht.</p>
+      </section>
+
+      <section id="algorithm-de">
+        <p class="section-label">Rechenalgorithmus</p>
+        <h2>Einen &Auml;nderungsantrag bearbeiten</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Die betroffene Basis bestimmen</span></div><div><strong>2</strong><span>Jedes abh&auml;ngige Artefakt abfragen oder suchen</span></div><div><strong>3</strong><span>Sie z&auml;hlen und den betroffenen Anteil berichten</span></div><div><strong>4</strong><span>Die Wirkung auf jede Leistungsgr&ouml;&szlig;e bewerten</span></div><div><strong>5</strong><span>Die Wirkung auf die Verifikationsmatrix bewerten</span></div><div><strong>6</strong><span>Zur zust&auml;ndigen Stelle dieser Basis bringen</span></div><div><strong>7</strong><span>Entscheidung, Analyse und Datum festhalten</span></div><div><strong>8</strong><span>Alle betroffenen Artefakte vor dem n&auml;chsten Bericht aktualisieren</span></div></div>
+        <p>Schritt zwei ist der einzige, in dem sich Dokumentenbasis und Modell wirklich unterscheiden. Alles &Uuml;brige &mdash; Befugnis, Aufzeichnung, Aktualisierung &mdash; ist gleich, ob die Wahrheit in Dateien oder im Modell wohnt.</p>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>Eine &Auml;nderung, ein Trend</h2>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Die &Auml;nderung eingrenzen.</strong> Die h&ouml;here Datenbusrate ber&uuml;hrt zw&ouml;lf der sechzig gelenkten Artefakte: vier Anforderungen, drei Schnittstellendokumente, zwei Budgets und drei Testprozeduren. Das sind \[ \frac{12}{60} = 20\,\% \] der Basis, bewegt von einer Zahl.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Die Suchkosten z&auml;hlen.</strong> Eine Dokumentenbasis l&auml;sst sich nicht abfragen, also werden alle sechzig ge&ouml;ffnet, um die zw&ouml;lf zu finden. Ein Modell beantwortet dieselbe Frage direkt, und das Verh&auml;ltnis \[ \frac{60}{12} = 5 \] ist der Faktor, um den die Suche schrumpft. Beachten Sie, was es nicht ist: Die &Auml;nderung bleibt gleich gro&szlig;, und die zw&ouml;lf Artefakte sind weiterhin von Hand zu pflegen.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Die Kenngr&ouml;&szlig;en pr&uuml;fen.</strong> Die &Auml;nderung bringt Masse. Die Massenreserve wurde an vier Meilensteinen berichtet: 20, 16, 12 und 8 %. Jeder Wert lag &uuml;ber der Lieferuntergrenze von 5 %, und jedes Statusbild war gr&uuml;n.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Stattdessen den Trend lesen.</strong> Die Abnahme betr&auml;gt je \(-4\) Punkte, also erreicht die Gerade die Grenze nach \[ \frac{8 - 5}{4} = 0{,}75 \] des Wegs zum n&auml;chsten Meilenstein. Die Gr&ouml;&szlig;e ist heute zul&auml;ssig und im n&auml;chsten Berichtszyklus nicht mehr &mdash; ein Befund jetzt, vor der Genehmigung statt danach.</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Entscheiden.</strong> Das Gremium hat seine Analyse: 20 % der Basis betroffen, zw&ouml;lf Artefakte zu aktualisieren und eine Leistungsgr&ouml;&szlig;e, die bereits durch ihre Grenze l&auml;uft. Nichts davon sagt, die &Auml;nderung sei falsch. Alles davon sagt, was sie kostet &mdash; das Einzige, wor&uuml;ber ein &Auml;nderungsgremium zu befinden hat.</div></div>
+        <div class="result-box">\[ \boxed{ \frac{12}{60} = 20\,\%\ \text{der Basis},\qquad \frac{60}{12} = 5\times\ \text{Suche},\qquad \frac{8-5}{4} = 0{,}75\ \text{Meilensteine bis zur Grenze} } \]</div>
+        <p><strong>Deutung.</strong> Aus einem viermin&uuml;tigen Vorschlag kamen drei Zahlen, die das Projekt vor der Analyse nicht hatte. Die 20 % sind die Gr&ouml;&szlig;e der &Auml;nderung, die niemand gesch&auml;tzt hatte. Der Faktor f&uuml;nf ist der Preis des fehlenden Modells, in Lesearbeit bezahlt. Die 0,75 sollte die Sitzung anhalten: Eine an vier Meilensteinen gr&uuml;ne Gr&ouml;&szlig;e h&ouml;rt gleich auf, gr&uuml;n zu sein &mdash; und das war an jedem einzelnen vorhersehbar.</p>
+      </section>
+
+      <section id="summary-de">
+        <p class="section-label">Arbeitsregeln</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regel</th><th>Aussage</th></tr></thead><tbody><tr><td>Eine Basis ist eine Entscheidung, kein Ordner</td><td>Sie h&auml;lt fest, was im Review vereinbart wurde; sie zu &auml;ndern verlangt dieselbe Befugnis.</td></tr><tr><td>Keine &Auml;nderung ohne Wirkungsanalyse</td><td>Die Frage ist nie, ob die &Auml;nderung gut ist, sondern was sie sonst ber&uuml;hrt.</td></tr><tr><td>Den Trend verfolgen, nicht den Wert</td><td>Eine Gr&ouml;&szlig;e im Limit mit einer Steigung, die es vor der Lieferung verl&auml;sst, ist bereits ein Befund.</td></tr><tr><td>Auch ein Modell ist eine Basis</td><td>MBSE verlagert die ma&szlig;gebliche Quelle von Dokumenten ins Modell; die Lenkungspflicht bleibt.</td></tr><tr><td>Dokumente verschwinden nicht</td><td>Sie werden aus dem Modell erzeugte Sichten; eine von Hand bearbeitete Sicht zerst&ouml;rt das Ganze.</td></tr><tr><td>Der Nutzen ist die Abfrage</td><td>Der Wert eines Modells liegt darin, dass man es fragen kann, was eine &Auml;nderung ber&uuml;hrt &mdash; ohne sechzig Dokumente zu lesen.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Häufige Fehler</p>
+        <h2>Was schiefgeht</h2>
+        <ul class="check-list"><li><strong>Eine &Auml;nderung ohne Wirkungsanalyse genehmigen.</strong> Das Gremium entscheidet, ob sie gut ist &mdash; nicht seine Frage.</li><li><strong>Versionsverwaltung mit Konfigurationsmanagement verwechseln.</strong> Eine perfekte Historie eines ungenehmigten Entwurfs bleibt ein ungenehmigter Entwurf.</li><li><strong>Eine Leistungsgr&ouml;&szlig;e als Einzelwert berichten.</strong> Der Wert sagt, ob es heute zul&auml;ssig ist; nur der Trend sagt es f&uuml;r die Lieferung.</li><li><strong>Ein erzeugtes Dokument von Hand bearbeiten.</strong> Das Modell ist nicht mehr die Quelle, und kein Werkzeug sagt es Ihnen.</li><li><strong>Glauben, MBSE erspare die Lenkung.</strong> Das Modell ist eine Basis; ein ungelenktes Modell ist ein ungelenkter Entwurf mit sch&ouml;neren Diagrammen.</li><li><strong>Die Wie-gebaut-Basis nicht schreiben.</strong> Dort steht jede genehmigte Abweichung; ohne sie kann niemand sagen, was geliefert wurde.</li></ul>
+      </section>
+
+      <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
+        <h2>Literatur</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Sections 6.5 to 6.7 and 6.9.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=management" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 26: Management</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Bearbeitet nach Einheit VIII des Skripts Luft- und Raumfahrtsystemtechnik (AE506) von Carlos Alberto Molina Holgu&iacute;n. Jede Zahl dieser Seite wurde eigens daf&uuml;r unabh&auml;ngig neu berechnet; kein Rechner deckt dieses Thema ab, daher ist die Neuberechnung die einzige Pr&uuml;fung. Die sechzig gelenkten Artefakte und die zw&ouml;lf betroffenen sind beispielhaft; Anteil, Suchfaktor und der Meilenstein des Grenz&uuml;bertritts werden daraus im Generator berechnet, und die Reservenreihe ist konstruktionsgem&auml;&szlig; linear, damit die Extrapolation von Hand pr&uuml;fbar bleibt.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="verification-matrix.html?v=12"><span>Vorherige Vorlesung</span>&larr; Die Verifikationsmatrix</a>
+        <a class="next-link" href="ethics-and-responsibility.html?v=12"><span>Nächste Vorlesung</span>Ethik und berufliche Verantwortung &rarr;</a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>&copy; <span id="year"></span> Carlos Alberto Molina Holgu&iacute;n</p>
+    <p>Universidad Aut&oacute;noma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

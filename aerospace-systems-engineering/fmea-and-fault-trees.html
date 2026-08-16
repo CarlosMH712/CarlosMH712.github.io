@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="FMEA and fault tree analysis: building the worksheet, what severity, occurrence and detection mean, why the risk priority number ranks rather than measures, and computing a top event through AND and OR gates." />
+  <meta name="author" content="Carlos Alberto Molina Holgu&iacute;n" />
+  <meta name="theme-color" content="#071d33" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>FMEA and Fault Trees | Aerospace Systems Engineering</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:wght@600;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=12" />
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=12"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=12" data-ui-key="course">Aerospace Systems Engineering</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="lecture-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Aerospace Systems Engineering &middot; Lecture 19</p>
+        <h1>FMEA and Fault Trees: Working From Both Ends</h1>
+        <p class="hero-copy">One method starts at a broken part and follows it up to the mission; the other starts at a lost mission and works down to the parts. Neither finds what the other finds.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Ingeniería de Sistemas Aeroespaciales &middot; Lecture 19</p>
+        <h1>FMEA y &aacute;rboles de fallos: trabajar desde los dos extremos</h1>
+        <p class="hero-copy">Un m&eacute;todo parte de una pieza rota y la sigue hasta la misi&oacute;n; el otro parte de una misi&oacute;n perdida y baja hasta las piezas. Ninguno encuentra lo que encuentra el otro.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Luft- und Raumfahrtsystemtechnik &middot; Vorlesung 19</p>
+        <h1>FMEA und Fehlerb&auml;ume: von beiden Enden her arbeiten</h1>
+        <p class="hero-copy">Eine Methode beginnt beim defekten Teil und folgt ihm bis zur Mission; die andere beginnt bei der verlorenen Mission und geht hinab zu den Teilen. Keine findet, was die andere findet.</p>
+      </div>
+
+    <div class="hero-meta">
+        <span data-language="en">Estimated reading: 17 min</span><span data-language="es" hidden>Lectura estimada: 17 min</span><span data-language="de" hidden>Lesedauer: ca. 17 min</span>
+        <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+        <span data-language="en">Scope: one worksheet, one tree</span><span data-language="es" hidden>Alcance: una hoja, un &aacute;rbol</span><span data-language="de" hidden>Umfang: ein Arbeitsblatt, ein Baum</span>
+    </div>
+    <div class="button-row">
+      <a class="button secondary" href="risk-matrix.html?v=12">&larr; <span data-ui-key="previous">Previous lecture</span></a>
+      <a class="button secondary" href="index.html?v=12" data-ui-key="back">Back to course</a>
+      <a class="button primary" href="vee-model-and-se-engine.html?v=12"><span data-ui-key="next">Next lecture</span> &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container lecture-shell">
+    <aside class="toc">
+      <h2 data-ui-key="contents">On this page</h2>
+      <div class="toc-links" data-language="en">
+        <a href="#objectives">Objectives</a>
+        <a href="#physics">Engineering situation</a>
+        <a href="#model">Scope and limits</a>
+        <a href="#worksheet">The FMEA worksheet</a>
+        <a href="#tree">Fault trees and gates</a>
+        <a href="#algorithm">Running both</a>
+        <a href="#example">Worked example</a>
+        <a href="#summary">Operative rules</a>
+        <a href="#mistakes">Common mistakes</a>
+        <a href="#references">Sources</a>
+      </div>
+      <div class="toc-links" data-language="es" hidden>
+        <a href="#objectives-es">Objetivos</a>
+        <a href="#physics-es">Situaci&oacute;n de ingenier&iacute;a</a>
+        <a href="#model-es">Alcance y l&iacute;mites</a>
+        <a href="#worksheet-es">La hoja de FMEA</a>
+        <a href="#tree-es">&Aacute;rboles y compuertas</a>
+        <a href="#algorithm-es">Ejecutar ambos</a>
+        <a href="#example-es">Ejemplo resuelto</a>
+        <a href="#summary-es">Reglas operativas</a>
+        <a href="#mistakes-es">Errores comunes</a>
+        <a href="#references-es">Fuentes</a>
+      </div>
+      <div class="toc-links" data-language="de" hidden>
+        <a href="#objectives-de">Lernziele</a>
+        <a href="#physics-de">Kontext</a>
+        <a href="#model-de">Geltungsbereich</a>
+        <a href="#worksheet-de">Das FMEA-Arbeitsblatt</a>
+        <a href="#tree-de">Fehlerb&auml;ume und Gatter</a>
+        <a href="#algorithm-de">Beide durchf&uuml;hren</a>
+        <a href="#example-de">Rechenbeispiel</a>
+        <a href="#summary-de">Arbeitsregeln</a>
+        <a href="#mistakes-de">H&auml;ufige Fehler</a>
+        <a href="#references-de">Quellen</a>
+      </div>
+    </aside>
+
+    <article class="lecture" data-language="en">
+
+      <section id="objectives">
+        <p class="section-label">Learning objectives</p>
+        <h2>What you should be able to do</h2>
+        <ul><li>fill an FMEA worksheet row: item, failure mode, effect, and the three ratings;</li><li>explain what severity, occurrence and detection each measure, and why they are ordinal;</li><li>compute a risk priority number and say precisely what it may and may not be used for;</li><li>build a fault tree from a top event down to basic events through AND and OR gates;</li><li>compute a top-event probability and identify the branch that dominates it.</li></ul>
+      </section>
+
+      <section id="physics">
+        <p class="section-label">Engineering situation</p>
+        <h2>The worst row is not at the top</h2>
+        <p class="lead">A team sorts its FMEA worksheet by risk priority number and works down the list. The top row is a battery cell that fails open, at 240. Four rows down, at 144, sits a mode-transition fault: if the software fails to command safe mode when a fault is present, the vehicle keeps flying in a degraded state and nobody on the ground finds out.</p><p>That second row carries the highest severity on the sheet and the worst detection rating on the sheet. It is the row that can end the mission, and the sorting put it second, because 240 is larger than 144.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 820 380" role="img" aria-label="Fault tree for one day of lost science return">
+            <rect x="250" y="16" width="320" height="52" rx="6" fill="#f7e9e6" stroke="#b03a2e" stroke-width="2"></rect>
+            <text x="410" y="31.0" text-anchor="middle" font-size="12" fill="#3f5162">Science data returned</text>
+            <text x="410" y="46.0" text-anchor="middle" font-size="12" fill="#3f5162">below the daily floor</text>
+            <text x="410" y="59" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">P = 0.0347</text>
+            <line x1="410" y1="68" x2="410" y2="86" stroke="#8fa6ba" stroke-width="2"></line>
+            <rect x="374" y="86" width="72" height="30" rx="15" fill="#fdf3d8" stroke="#071d33" stroke-width="2"></rect>
+            <text x="410" y="106" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">OR</text>
+            <line x1="410" y1="116" x2="410" y2="134" stroke="#8fa6ba" stroke-width="2"></line>
+            <line x1="190" y1="134" x2="660" y2="134" stroke="#8fa6ba" stroke-width="2"></line>
+            <line x1="190" y1="134" x2="190" y2="154" stroke="#8fa6ba" stroke-width="2"></line>
+            <line x1="660" y1="134" x2="660" y2="190" stroke="#8fa6ba" stroke-width="2"></line>
+            <rect x="154" y="154" width="72" height="30" rx="15" fill="#e8f1e9" stroke="#071d33" stroke-width="2"></rect>
+            <text x="190" y="174" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">AND</text>
+            <line x1="190" y1="184" x2="190" y2="202" stroke="#8fa6ba" stroke-width="2"></line>
+            <line x1="70" y1="202" x2="310" y2="202" stroke="#8fa6ba" stroke-width="2"></line>
+            <line x1="70" y1="202" x2="70" y2="240" stroke="#8fa6ba" stroke-width="2"></line>
+            <line x1="310" y1="202" x2="310" y2="240" stroke="#8fa6ba" stroke-width="2"></line>
+            <rect x="10" y="240" width="120" height="76" rx="6" fill="#eef4fa" stroke="#8fa6ba" stroke-width="2"></rect>
+            <text x="70" y="274.0" text-anchor="middle" font-size="12" fill="#3f5162">Downlink window shortened</text>
+            <text x="70" y="307" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">0.050</text>
+            <rect x="250" y="240" width="120" height="76" rx="6" fill="#eef4fa" stroke="#8fa6ba" stroke-width="2"></rect>
+            <text x="310" y="267.0" text-anchor="middle" font-size="12" fill="#3f5162">Buffer above 70 % at pass</text>
+            <text x="310" y="282.0" text-anchor="middle" font-size="12" fill="#3f5162">start</text>
+            <text x="310" y="307" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">0.30</text>
+            <rect x="600" y="190" width="120" height="76" rx="6" fill="#eef4fa" stroke="#8fa6ba" stroke-width="2"></rect>
+            <text x="660" y="217.0" text-anchor="middle" font-size="12" fill="#3f5162">Payload duty cycle</text>
+            <text x="660" y="232.0" text-anchor="middle" font-size="12" fill="#3f5162">exceeded</text>
+            <text x="660" y="257" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">0.020</text>
+            <text x="190" y="348" text-anchor="middle" font-size="11" font-style="italic" fill="#5c4a24">both must happen</text>
+            <text x="660" y="292" text-anchor="middle" font-size="11" font-style="italic" fill="#5c4a24">either branch is enough</text>
+            </svg>
+            <figcaption>One day of lost science return, taken apart. The AND gate needs both of its events, so it is the smaller number; the single event on the right is larger on its own and carries most of the top-event probability.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model">
+        <p class="section-label">Scope and limits</p>
+        <h2>Two directions, one system</h2>
+        <p><strong>FMEA is inductive and bottom-up.</strong> It starts at an item, lists the ways that item can fail, and follows each one upward: what does this do locally, to the subsystem, to the mission? It is exhaustive by construction, which is its strength, and it examines one failure at a time, which is its limit.</p><p><strong>Fault tree analysis is deductive and top-down.</strong> It starts at an outcome nobody wants and asks what combinations could produce it, decomposing through logic gates until it reaches events that need no further explanation. It handles combinations naturally, and it only ever examines the top events somebody thought to write down.</p><p>Each one is blind exactly where the other sees. Running both on the same system and comparing them is not duplication: the disagreements are the finding.</p>
+        <div class="callout warning"><strong>What neither one gives you.</strong> An FMEA cannot see two failures that only matter together, because it walks one mode at a time. A fault tree cannot see an outcome nobody named, because the top event is an input to the method rather than a result of it. Both produce numbers, and neither number is a prediction of what the vehicle will do.</div>
+      </section>
+
+      <section id="worksheet">
+        <p class="section-label">Three ratings, one product</p>
+        <h2>What the worksheet asks for</h2>
+        <div class="table-wrap"><table><thead><tr><th>Rating</th><th>Severity &mdash; how bad if it happens</th><th>Occurrence &mdash; how often</th><th>Detection &mdash; will we catch it</th></tr></thead><tbody><tr><td>1&ndash;3</td><td>A degraded product; the mission continues</td><td>Remote for this design and this environment</td><td>Almost certain to be caught by an existing test or telemetry channel</td></tr><tr><td>4&ndash;7</td><td>A lost objective or a lost mode; the vehicle survives</td><td>Occasional; it has happened on comparable hardware</td><td>Likely to be caught, but only by a test that must be planned</td></tr><tr><td>8&ndash;10</td><td>Loss of the vehicle, or of a person</td><td>Frequent; the mechanism is known and unmitigated</td><td>Unlikely to be caught before flight, or not observable at all</td></tr></tbody></table></div>
+        <p>The risk priority number is the product \(\mathrm{RPN} = S \times O \times D\), and everything that goes wrong with it follows from what those three numbers are. They are <em>ranks</em>. A severity of 8 is not twice a severity of 4; it is a different bin. Multiplying ranks produces a number with no units and no interpretation beyond the ordering it induces.</p><p>So \(8\times5\times6\) and \(6\times8\times5\) both give 240, and they describe completely different situations: one is a bad outcome we can see coming, the other is a mild outcome we cannot. The RPN cannot tell them apart, which is why the standard practice is to sort by RPN and then read every row with a severity of 8 or above regardless of where it landed.</p>
+      </section>
+
+      <section id="tree">
+        <p class="section-label">From an outcome down to the parts</p>
+        <h2>Gates and what they cost</h2>
+        <div class="table-wrap"><table><thead><tr><th>Gate</th><th>Reads</th><th>Arithmetic for independent events</th><th>When it appears</th></tr></thead><tbody><tr><td>AND</td><td>every input must occur</td><td>\(P = \prod P_i\)</td><td>Redundancy: the function is lost only if all the legs are lost</td></tr><tr><td>OR</td><td>any one input is enough</td><td>\(P = 1-\prod (1-P_i)\)</td><td>A chain in series: any link takes the function down</td></tr></tbody></table></div>
+        <p>An AND gate is the arithmetic of redundancy and it is where the large reductions come from: two legs at \(10^{-2}\) each give \(10^{-4}\) together. That factor is also the most fragile number in the whole analysis, because it assumes the legs fail independently. If both legs share a connector, a power bus, a bay that gets hot, or the engineer who wrote both of them, the multiplication is fiction and the true figure is close to the single-leg number.</p><p>An OR gate is the arithmetic of a chain. The exact form is \(P = 1 - \prod(1 - P_i)\); when the \(P_i\) are small, simply adding them is within a fraction of a percent and is the usual working practice. Adding always overstates, which is the safe direction.</p>
+      </section>
+
+      <section id="algorithm">
+        <p class="section-label">Calculation algorithm</p>
+        <h2>Running both analyses</h2>
+        <div class="process-flow"><div><strong>1</strong><span>List the items from the product breakdown</span></div><div><strong>2</strong><span>For each, list every failure mode</span></div><div><strong>3</strong><span>Trace each mode to its local, subsystem and mission effect</span></div><div><strong>4</strong><span>Rate severity, occurrence, detection</span></div><div><strong>5</strong><span>Compute RPN and sort</span></div><div><strong>6</strong><span>Read every severity-8 row regardless of rank</span></div><div><strong>7</strong><span>Name a top event and build its tree</span></div><div><strong>8</strong><span>Evaluate the gates upward</span></div><div><strong>9</strong><span>Compare the tree's basic events against the worksheet</span></div></div>
+        <p>Step nine is the one that pays for the other eight. A basic event with no matching worksheet row means the FMEA missed an item; a high-severity row that appears nowhere in any tree means nobody has asked what outcome it leads to. Both are cheap to find here and expensive to find later.</p>
+      </section>
+
+      <section id="example">
+        <p class="section-label">Worked example</p>
+        <h2>Five rows and one tree</h2>
+        <p>The atmospheric platform brings five failure modes to its preliminary FMEA. The two rows in bold are the ones the rest of the example is about.</p>
+        <div class="table-wrap"><table><thead><tr><th>Failure mode</th><th>Effect on the mission</th><th>S</th><th>O</th><th>D</th><th>RPN</th></tr></thead><tbody><tr><td><strong>Battery cell fails open</strong></td><td>String voltage drops; the load must be shed and the night survival margin is gone</td><td><strong>8</strong></td><td>5</td><td><strong>6</strong></td><td><strong>240</strong></td></tr><tr><td><strong>Safe mode is not commanded when a fault is present</strong></td><td>The vehicle keeps operating in a degraded state and the ground never learns of it</td><td><strong>9</strong></td><td>2</td><td><strong>8</strong></td><td><strong>144</strong></td></tr><tr><td>Survival heater loop stuck off</td><td>Battery falls below its survival temperature during the eclipse</td><td>7</td><td>3</td><td>5</td><td>105</td></tr><tr><td>Transmitter output power droops</td><td>The pass returns part of the buffer; the rest waits a day</td><td>6</td><td>4</td><td>4</td><td>96</td></tr><tr><td>Sensor bias drifts out of calibration</td><td>The science product is unusable until it is reprocessed on the ground</td><td>4</td><td>6</td><td>3</td><td>72</td></tr></tbody></table></div>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Sort by RPN.</strong> The order is 240, 144, 105, 96, 72. The battery cell leads, and a team working strictly down the list reaches the safe-mode row second.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Apply the severity rule.</strong> The safe-mode row scores 9 for severity: the vehicle keeps operating with an unhandled fault. It also scores 8 for detection, the worst on the sheet, because mode-transition logic was desk-checked and never run on hardware. High severity and no way to see it coming is the combination that gets worked first, whatever the product says.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Recognise the row.</strong> This is risk R-04 from the register of the previous lecture, arriving from the other direction. There it was a likelihood and a consequence on a five-by-five grid; here it is a mechanism, an effect and a detection gap. The mitigation is the same hardware-in-the-loop campaign, and the FMEA is what says why it is the right mitigation: it attacks the detection rating, which is the part of this row that a test can actually change.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Build the tree.</strong> Top event: science data returned falls below the daily floor. Two ways in. The left branch is an AND gate &mdash; a shortened downlink window at \(5\times10^{-2}\) matters only if the buffer was already above 70 % at the start of the pass, at \(3\times10^{-1}\). The right branch is a single event, the payload duty cycle exceeded during the day, at \(2\times10^{-2}\).</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Evaluate upward.</strong> The AND gate gives \[ (5\times10^{-2})(3\times10^{-1}) = 1.5\times10^{-2}, \] and the OR gate above it gives \[ P = 1-(1-1.5\times10^{-2})(1-2.0\times10^{-2}) = 3.47\times10^{-2}. \]</div></div>
+        <div class="solution-step"><span class="solution-step-number">6</span><div><strong>Find what dominates.</strong> The single right-hand event contributes \(2.0\times10^{-2}\) of the \(3.5\times10^{-2}\) branch total, which is 57 %. The branch with two events and a redundancy-looking gate is the smaller of the two. Adding the branches instead of combining them properly gives \(3.5\times10^{-2}\) against the exact \(3.47\times10^{-2}\), an overstatement of 0.86 %.</div></div>
+        <div class="result-box">\[ \boxed{ \mathrm{RPN}_{\text{safe}} = 9\times2\times8 = 144 \;<\; 240,\qquad P_{\text{top}} = 3.47\times10^{-2},\qquad \text{dominant branch } 57\,\% } \]</div>
+        <p><strong>Interpretation.</strong> Both halves of this example say the same thing in different arithmetic: the number that sorts the list is not the number that matters. On the worksheet, the row with the highest product is not the row that can lose the vehicle. In the tree, the branch that looks the most engineered &mdash; two events, a gate, a redundancy story &mdash; contributes less than the single plain event beside it. In both cases the answer came from reading what the numbers were built from, not from the numbers themselves.</p>
+      </section>
+
+      <section id="summary">
+        <p class="section-label">Operative rules</p>
+        <h2>At a glance</h2>
+        <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Statement</th></tr></thead><tbody><tr><td>FMEA goes up, fault trees go down</td><td>One starts at a failure mode and asks what it causes; the other starts at an outcome and asks what could produce it.</td></tr><tr><td>Use both, and expect a gap</td><td>A mode the FMEA never listed shows up as a missing branch; a top event with no FMEA row shows up as an unexamined outcome.</td></tr><tr><td>RPN ranks, it does not measure</td><td>It multiplies three ordinal scales. Use it to sort a worksheet, never as a probability or a cost.</td></tr><tr><td>Severity has a veto</td><td>A severity of 8 or above is worked regardless of where its RPN lands in the ranking.</td></tr><tr><td>Detection is about evidence</td><td>A low detection rating says the design has no way to reveal the fault, and that is a design finding, not a paperwork one.</td></tr><tr><td>Independence is an assumption</td><td>Multiplying at an AND gate assumes the legs fail independently. A shared connector, a shared bay or a shared engineer breaks it.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes">
+        <p class="section-label">Common mistakes</p>
+        <h2>What goes wrong</h2>
+        <ul class="check-list"><li><strong>Ranking by RPN alone.</strong> It buries a severity-9 row under a larger product and the team works the wrong item first.</li><li><strong>Treating the RPN as a quantity.</strong> It is a product of three ordinal scales: there is no such thing as twice the risk, and a threshold like &ldquo;work everything above 100&rdquo; has no basis.</li><li><strong>Multiplying at an AND gate without checking independence.</strong> Shared connectors, shared power, a shared bay or a shared author turn \(10^{-4}\) back into \(10^{-2}\).</li><li><strong>Writing effects as component states.</strong> &ldquo;Battery degraded&rdquo; is not an effect; &ldquo;night survival margin lost&rdquo; is, because it names what the mission loses.</li><li><strong>Stopping the tree at a subsystem.</strong> A basic event has to be something you can put a number on, which usually means a part, a test result or a documented rate.</li><li><strong>Never comparing the two.</strong> The disagreements between worksheet and tree are the whole reason for running both, and they are the first thing dropped when the schedule tightens.</li></ul>
+      </section>
+
+      <section id="references" class="references">
+        <p class="section-label">Sources</p>
+        <h2>References</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 6.4 and Appendix N.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=risk-management" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 16: Risk Management</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adapted from Unit VI of the Aerospace Systems Engineering (AE506) course script by Carlos Alberto Molina Holgu&iacute;n. Every number on this page was recomputed independently for it; no calculator covers this topic, so recomputation is the only check there is. The five worksheet ratings are illustrative and chosen to exercise the severity rule; every RPN and every gate on this page is computed from them in the generator, and the top-event probability is evaluated exactly rather than by the rare-event sum, which is quoted alongside for comparison.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="risk-matrix.html?v=12"><span>Previous lecture</span>&larr; The Risk Matrix</a>
+        <a class="next-link" href="vee-model-and-se-engine.html?v=12"><span>Next lecture</span>The Vee and the SE Engine &rarr;</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="es" hidden>
+
+      <section id="objectives-es">
+        <p class="section-label">Objetivos de aprendizaje</p>
+        <h2>Qu&eacute; deber&iacute;as poder hacer</h2>
+        <ul><li>llenar un rengl&oacute;n de hoja FMEA: elemento, modo de falla, efecto y las tres calificaciones;</li><li>explicar qu&eacute; mide cada una de severidad, ocurrencia y detecci&oacute;n, y por qu&eacute; son ordinales;</li><li>calcular un n&uacute;mero de prioridad de riesgo y decir con precisi&oacute;n para qu&eacute; sirve y para qu&eacute; no;</li><li>construir un &aacute;rbol de fallos desde un evento superior hasta eventos b&aacute;sicos con compuertas Y y O;</li><li>calcular la probabilidad del evento superior e identificar la rama que la domina.</li></ul>
+      </section>
+
+      <section id="physics-es">
+        <p class="section-label">Situación de ingeniería</p>
+        <h2>El peor rengl&oacute;n no est&aacute; arriba</h2>
+        <p class="lead">Un equipo ordena su hoja de FMEA por n&uacute;mero de prioridad de riesgo y baja por la lista. El primer rengl&oacute;n es una celda de bater&iacute;a que se abre, en 240. Cuatro renglones abajo, en 144, est&aacute; un fallo de transici&oacute;n de modo: si el software no comanda modo seguro ante un fallo, el veh&iacute;culo sigue volando degradado y nadie en tierra se entera.</p><p>Ese segundo rengl&oacute;n carga la severidad m&aacute;s alta de la hoja y la peor detecci&oacute;n de la hoja. Es el rengl&oacute;n que puede terminar la misi&oacute;n, y el ordenamiento lo puso segundo, porque 240 es mayor que 144.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 820 380" role="img" aria-label="&Aacute;rbol de fallos de un d&iacute;a de retorno cient&iacute;fico perdido">
+            <rect x="250" y="16" width="320" height="52" rx="6" fill="#f7e9e6" stroke="#b03a2e" stroke-width="2"></rect>
+            <text x="410" y="24.0" text-anchor="middle" font-size="12" fill="#3f5162">Datos cient&iacute;ficos</text>
+            <text x="410" y="39.0" text-anchor="middle" font-size="12" fill="#3f5162">por debajo del</text>
+            <text x="410" y="54.0" text-anchor="middle" font-size="12" fill="#3f5162">m&iacute;nimo diario</text>
+            <text x="410" y="59" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">P = 0.0347</text>
+            <line x1="410" y1="68" x2="410" y2="86" stroke="#8fa6ba" stroke-width="2"></line>
+            <rect x="374" y="86" width="72" height="30" rx="15" fill="#fdf3d8" stroke="#071d33" stroke-width="2"></rect>
+            <text x="410" y="106" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">O</text>
+            <line x1="410" y1="116" x2="410" y2="134" stroke="#8fa6ba" stroke-width="2"></line>
+            <line x1="190" y1="134" x2="660" y2="134" stroke="#8fa6ba" stroke-width="2"></line>
+            <line x1="190" y1="134" x2="190" y2="154" stroke="#8fa6ba" stroke-width="2"></line>
+            <line x1="660" y1="134" x2="660" y2="190" stroke="#8fa6ba" stroke-width="2"></line>
+            <rect x="154" y="154" width="72" height="30" rx="15" fill="#e8f1e9" stroke="#071d33" stroke-width="2"></rect>
+            <text x="190" y="174" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">Y</text>
+            <line x1="190" y1="184" x2="190" y2="202" stroke="#8fa6ba" stroke-width="2"></line>
+            <line x1="70" y1="202" x2="310" y2="202" stroke="#8fa6ba" stroke-width="2"></line>
+            <line x1="70" y1="202" x2="70" y2="240" stroke="#8fa6ba" stroke-width="2"></line>
+            <line x1="310" y1="202" x2="310" y2="240" stroke="#8fa6ba" stroke-width="2"></line>
+            <rect x="10" y="240" width="120" height="76" rx="6" fill="#eef4fa" stroke="#8fa6ba" stroke-width="2"></rect>
+            <text x="70" y="274.0" text-anchor="middle" font-size="12" fill="#3f5162">Ventana de bajada acortada</text>
+            <text x="70" y="307" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">0.050</text>
+            <rect x="250" y="240" width="120" height="76" rx="6" fill="#eef4fa" stroke="#8fa6ba" stroke-width="2"></rect>
+            <text x="310" y="267.0" text-anchor="middle" font-size="12" fill="#3f5162">B&uacute;fer arriba del 70</text>
+            <text x="310" y="282.0" text-anchor="middle" font-size="12" fill="#3f5162">% al iniciar el pase</text>
+            <text x="310" y="307" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">0.30</text>
+            <rect x="600" y="190" width="120" height="76" rx="6" fill="#eef4fa" stroke="#8fa6ba" stroke-width="2"></rect>
+            <text x="660" y="217.0" text-anchor="middle" font-size="12" fill="#3f5162">Ciclo de trabajo de carga</text>
+            <text x="660" y="232.0" text-anchor="middle" font-size="12" fill="#3f5162">&uacute;til excedido</text>
+            <text x="660" y="257" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">0.020</text>
+            <text x="190" y="348" text-anchor="middle" font-size="11" font-style="italic" fill="#5c4a24">ambos deben ocurrir</text>
+            <text x="660" y="292" text-anchor="middle" font-size="11" font-style="italic" fill="#5c4a24">cualquier rama basta</text>
+            </svg>
+            <figcaption>Un d&iacute;a de retorno cient&iacute;fico perdido, desarmado. La compuerta Y necesita sus dos eventos, as&iacute; que es el n&uacute;mero menor; el evento &uacute;nico de la derecha es mayor por s&iacute; solo y carga la mayor parte de la probabilidad del evento superior.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-es">
+        <p class="section-label">Alcance y límites</p>
+        <h2>Dos direcciones, un sistema</h2>
+        <p><strong>La FMEA es inductiva y de abajo hacia arriba.</strong> Parte de un elemento, lista las formas en que puede fallar, y sigue cada una hacia arriba: &iquest;qu&eacute; hace esto localmente, al subsistema, a la misi&oacute;n? Es exhaustiva por construcci&oacute;n, que es su fuerza, y examina una falla a la vez, que es su l&iacute;mite.</p><p><strong>El an&aacute;lisis por &aacute;rbol de fallos es deductivo y de arriba hacia abajo.</strong> Parte de un resultado que nadie quiere y pregunta qu&eacute; combinaciones podr&iacute;an producirlo, descomponiendo por compuertas l&oacute;gicas hasta llegar a eventos que no requieren m&aacute;s explicaci&oacute;n. Maneja combinaciones con naturalidad, y s&oacute;lo examina los eventos superiores que alguien pens&oacute; en escribir.</p><p>Cada uno es ciego justo donde el otro ve. Correr ambos sobre el mismo sistema y compararlos no es duplicar: los desacuerdos son el hallazgo.</p>
+        <div class="callout warning"><strong>Lo que ninguno te da.</strong> Una FMEA no puede ver dos fallas que s&oacute;lo importan juntas, porque recorre un modo a la vez. Un &aacute;rbol de fallos no puede ver un resultado que nadie nombr&oacute;, porque el evento superior es entrada del m&eacute;todo y no resultado suyo. Ambos producen n&uacute;meros, y ninguno de esos n&uacute;meros predice lo que har&aacute; el veh&iacute;culo.</div>
+      </section>
+
+      <section id="worksheet-es">
+        <p class="section-label">Tres calificaciones, un producto</p>
+        <h2>Qu&eacute; pide la hoja</h2>
+        <div class="table-wrap"><table><thead><tr><th>Calificaci&oacute;n</th><th>Severidad &mdash; qu&eacute; tan grave si ocurre</th><th>Ocurrencia &mdash; con qu&eacute; frecuencia</th><th>Detecci&oacute;n &mdash; lo atraparemos</th></tr></thead><tbody><tr><td>1&ndash;3</td><td>Producto degradado; la misi&oacute;n contin&uacute;a</td><td>Remota para este dise&ntilde;o y este entorno</td><td>Casi seguro que lo atrapa una prueba o un canal de telemetr&iacute;a existente</td></tr><tr><td>4&ndash;7</td><td>Objetivo o modo perdido; el veh&iacute;culo sobrevive</td><td>Ocasional; ha ocurrido en hardware comparable</td><td>Probable atraparlo, pero s&oacute;lo con una prueba que hay que planear</td></tr><tr><td>8&ndash;10</td><td>P&eacute;rdida del veh&iacute;culo, o de una persona</td><td>Frecuente; el mecanismo se conoce y no est&aacute; mitigado</td><td>Improbable atraparlo antes del vuelo, o no observable en absoluto</td></tr></tbody></table></div>
+        <p>El n&uacute;mero de prioridad de riesgo es el producto \(\mathrm{RPN} = S \times O \times D\), y todo lo que sale mal con &eacute;l se sigue de qu&eacute; son esos tres n&uacute;meros. Son <em>rangos</em>. Una severidad de 8 no es el doble de una de 4; es otra casilla. Multiplicar rangos produce un n&uacute;mero sin unidades y sin m&aacute;s interpretaci&oacute;n que el orden que induce.</p><p>As&iacute; que \(8\times5\times6\) y \(6\times8\times5\) dan ambos 240, y describen situaciones completamente distintas: una es un mal resultado que vemos venir, la otra un resultado leve que no. El RPN no las distingue, y por eso la pr&aacute;ctica est&aacute;ndar es ordenar por RPN y luego leer todo rengl&oacute;n con severidad de 8 o m&aacute;s sin importar d&oacute;nde qued&oacute;.</p>
+      </section>
+
+      <section id="tree-es">
+        <p class="section-label">De un resultado hacia las piezas</p>
+        <h2>Compuertas y lo que cuestan</h2>
+        <div class="table-wrap"><table><thead><tr><th>Compuerta</th><th>Se lee</th><th>Aritm&eacute;tica para eventos independientes</th><th>Cu&aacute;ndo aparece</th></tr></thead><tbody><tr><td>Y</td><td>todas las entradas deben ocurrir</td><td>\(P = \prod P_i\)</td><td>Redundancia: la funci&oacute;n se pierde s&oacute;lo si se pierden todas las ramas</td></tr><tr><td>O</td><td>basta cualquier entrada</td><td>\(P = 1-\prod (1-P_i)\)</td><td>Una cadena en serie: cualquier eslab&oacute;n tira la funci&oacute;n</td></tr></tbody></table></div>
+        <p>Una compuerta Y es la aritm&eacute;tica de la redundancia y de ah&iacute; salen las grandes reducciones: dos ramas en \(10^{-2}\) cada una dan \(10^{-4}\) juntas. Ese factor es tambi&eacute;n el n&uacute;mero m&aacute;s fr&aacute;gil de todo el an&aacute;lisis, porque supone que las ramas fallan de forma independiente. Si ambas comparten un conector, un bus de potencia, una bah&iacute;a que se calienta, o el ingeniero que escribi&oacute; las dos, la multiplicaci&oacute;n es ficci&oacute;n y la cifra real se acerca a la de una sola rama.</p><p>Una compuerta O es la aritm&eacute;tica de una cadena. La forma exacta es \(P = 1 - \prod(1 - P_i)\); cuando las \(P_i\) son peque&ntilde;as, sumarlas cae dentro de una fracci&oacute;n de porcentaje y es la pr&aacute;ctica usual. Sumar siempre sobrestima, que es la direcci&oacute;n segura.</p>
+      </section>
+
+      <section id="algorithm-es">
+        <p class="section-label">Algoritmo de cálculo</p>
+        <h2>Ejecutar ambos an&aacute;lisis</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Listar los elementos del &aacute;rbol de productos</span></div><div><strong>2</strong><span>Para cada uno, listar todo modo de falla</span></div><div><strong>3</strong><span>Trazar cada modo a su efecto local, de subsistema y de misi&oacute;n</span></div><div><strong>4</strong><span>Calificar severidad, ocurrencia, detecci&oacute;n</span></div><div><strong>5</strong><span>Calcular el RPN y ordenar</span></div><div><strong>6</strong><span>Leer todo rengl&oacute;n de severidad 8 sin importar el rango</span></div><div><strong>7</strong><span>Nombrar un evento superior y construir su &aacute;rbol</span></div><div><strong>8</strong><span>Evaluar las compuertas hacia arriba</span></div><div><strong>9</strong><span>Comparar los eventos b&aacute;sicos del &aacute;rbol contra la hoja</span></div></div>
+        <p>El paso nueve es el que paga los otros ocho. Un evento b&aacute;sico sin rengl&oacute;n correspondiente significa que la FMEA se salt&oacute; un elemento; un rengl&oacute;n de alta severidad que no aparece en ning&uacute;n &aacute;rbol significa que nadie ha preguntado a qu&eacute; resultado lleva. Ambos son baratos de encontrar aqu&iacute; y caros despu&eacute;s.</p>
+      </section>
+
+      <section id="example-es">
+        <p class="section-label">Ejemplo resuelto</p>
+        <h2>Cinco renglones y un &aacute;rbol</h2>
+        <p>La plataforma atmosf&eacute;rica lleva cinco modos de falla a su FMEA preliminar. Los dos renglones en negritas son de los que trata el resto del ejemplo.</p>
+        <div class="table-wrap"><table><thead><tr><th>Modo de falla</th><th>Efecto en la misi&oacute;n</th><th>S</th><th>O</th><th>D</th><th>RPN</th></tr></thead><tbody><tr><td><strong>Celda de bater&iacute;a se abre</strong></td><td>La tensi&oacute;n de la cadena cae; hay que desconectar carga y se pierde el margen de supervivencia nocturna</td><td><strong>8</strong></td><td>5</td><td><strong>6</strong></td><td><strong>240</strong></td></tr><tr><td><strong>No se comanda el modo seguro ante un fallo</strong></td><td>El veh&iacute;culo sigue operando degradado y tierra nunca se entera</td><td><strong>9</strong></td><td>2</td><td><strong>8</strong></td><td><strong>144</strong></td></tr><tr><td>Lazo de calefactor de supervivencia atascado apagado</td><td>La bater&iacute;a cae bajo su temperatura de supervivencia durante el eclipse</td><td>7</td><td>3</td><td>5</td><td>105</td></tr><tr><td>La potencia del transmisor decae</td><td>El pase devuelve parte del b&uacute;fer; el resto espera un d&iacute;a</td><td>6</td><td>4</td><td>4</td><td>96</td></tr><tr><td>La desviaci&oacute;n del sensor sale de calibraci&oacute;n</td><td>El producto cient&iacute;fico es inservible hasta reprocesarlo en tierra</td><td>4</td><td>6</td><td>3</td><td>72</td></tr></tbody></table></div>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Ordenar por RPN.</strong> El orden es 240, 144, 105, 96, 72. La celda de bater&iacute;a encabeza, y un equipo que baje estrictamente por la lista llega al rengl&oacute;n de modo seguro en segundo lugar.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Aplicar la regla de severidad.</strong> El rengl&oacute;n de modo seguro califica 9 en severidad: el veh&iacute;culo sigue operando con un fallo sin atender. Tambi&eacute;n califica 8 en detecci&oacute;n, la peor de la hoja, porque la l&oacute;gica de transici&oacute;n se revis&oacute; en escritorio y nunca se ejecut&oacute; en hardware. Alta severidad y ninguna forma de verlo venir es la combinaci&oacute;n que se trabaja primero, diga lo que diga el producto.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Reconocer el rengl&oacute;n.</strong> Este es el riesgo R-04 del registro de la lecture anterior, llegando desde la otra direcci&oacute;n. All&aacute; era una probabilidad y una consecuencia en una malla de cinco por cinco; aqu&iacute; es un mecanismo, un efecto y una brecha de detecci&oacute;n. La mitigaci&oacute;n es la misma campa&ntilde;a con hardware en el lazo, y la FMEA es lo que dice por qu&eacute; es la mitigaci&oacute;n correcta: ataca la calificaci&oacute;n de detecci&oacute;n, que es la parte de este rengl&oacute;n que una prueba s&iacute; puede cambiar.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Construir el &aacute;rbol.</strong> Evento superior: los datos cient&iacute;ficos devueltos caen bajo el m&iacute;nimo diario. Dos caminos. La rama izquierda es una compuerta Y &mdash; una ventana de bajada acortada en \(5\times10^{-2}\) importa s&oacute;lo si el b&uacute;fer ya estaba arriba del 70 % al iniciar el pase, en \(3\times10^{-1}\). La rama derecha es un solo evento, el ciclo de trabajo de la carga &uacute;til excedido durante el d&iacute;a, en \(2\times10^{-2}\).</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Evaluar hacia arriba.</strong> La compuerta Y da \[ (5\times10^{-2})(3\times10^{-1}) = 1.5\times10^{-2}, \] y la compuerta O encima da \[ P = 1-(1-1.5\times10^{-2})(1-2.0\times10^{-2}) = 3.47\times10^{-2}. \]</div></div>
+        <div class="solution-step"><span class="solution-step-number">6</span><div><strong>Encontrar qu&eacute; domina.</strong> El evento &uacute;nico de la derecha aporta \(2.0\times10^{-2}\) del total de ramas \(3.5\times10^{-2}\), que es 57 %. La rama con dos eventos y una compuerta con aspecto de redundancia es la menor de las dos. Sumar las ramas en vez de combinarlas correctamente da \(3.5\times10^{-2}\) contra el exacto \(3.47\times10^{-2}\), una sobrestimaci&oacute;n de 0.86 %.</div></div>
+        <div class="result-box">\[ \boxed{ \mathrm{RPN}_{\text{seguro}} = 9\times2\times8 = 144 \;<\; 240,\qquad P_{\text{sup}} = 3.47\times10^{-2},\qquad \text{rama dominante } 57\,\% } \]</div>
+        <p><strong>Interpretaci&oacute;n.</strong> Las dos mitades de este ejemplo dicen lo mismo con aritm&eacute;tica distinta: el n&uacute;mero que ordena la lista no es el n&uacute;mero que importa. En la hoja, el rengl&oacute;n con el producto mayor no es el que puede perder el veh&iacute;culo. En el &aacute;rbol, la rama que parece m&aacute;s ingenierada &mdash; dos eventos, una compuerta, una historia de redundancia &mdash; aporta menos que el evento &uacute;nico y llano de al lado. En ambos casos la respuesta sali&oacute; de leer con qu&eacute; se construyeron los n&uacute;meros, no de los n&uacute;meros.</p>
+      </section>
+
+      <section id="summary-es">
+        <p class="section-label">Reglas operativas</p>
+        <h2>De un vistazo</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regla</th><th>Enunciado</th></tr></thead><tbody><tr><td>La FMEA sube, el &aacute;rbol baja</td><td>Una parte de un modo de falla y pregunta qu&eacute; causa; el otro parte de un resultado y pregunta qu&eacute; lo producir&iacute;a.</td></tr><tr><td>Usa ambas, y espera una brecha</td><td>Un modo que la FMEA nunca list&oacute; aparece como rama faltante; un evento superior sin rengl&oacute;n de FMEA aparece como resultado sin examinar.</td></tr><tr><td>El RPN ordena, no mide</td><td>Multiplica tres escalas ordinales. &Uacute;salo para ordenar una hoja, nunca como probabilidad ni costo.</td></tr><tr><td>La severidad tiene veto</td><td>Una severidad de 8 o m&aacute;s se trabaja sin importar d&oacute;nde caiga su RPN.</td></tr><tr><td>La detecci&oacute;n es sobre evidencia</td><td>Una detecci&oacute;n mala dice que el dise&ntilde;o no tiene c&oacute;mo revelar el fallo, y eso es un hallazgo de dise&ntilde;o, no de papeleo.</td></tr><tr><td>La independencia es un supuesto</td><td>Multiplicar en una compuerta Y supone que las ramas fallan de forma independiente. Un conector, una bah&iacute;a o un ingeniero compartidos lo rompen.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-es">
+        <p class="section-label">Errores comunes</p>
+        <h2>Qu&eacute; sale mal</h2>
+        <ul class="check-list"><li><strong>Ordenar s&oacute;lo por RPN.</strong> Entierra un rengl&oacute;n de severidad 9 bajo un producto mayor y el equipo trabaja primero el elemento equivocado.</li><li><strong>Tratar el RPN como cantidad.</strong> Es producto de tres escalas ordinales: no existe el doble de riesgo, y un umbral como &laquo;trabajar todo lo mayor a 100&raquo; no tiene fundamento.</li><li><strong>Multiplicar en una compuerta Y sin revisar independencia.</strong> Conectores, potencia, bah&iacute;a o autor compartidos vuelven \(10^{-4}\) otra vez \(10^{-2}\).</li><li><strong>Escribir efectos como estados de componente.</strong> &laquo;Bater&iacute;a degradada&raquo; no es un efecto; &laquo;margen de supervivencia nocturna perdido&raquo; s&iacute;, porque nombra qu&eacute; pierde la misi&oacute;n.</li><li><strong>Detener el &aacute;rbol en un subsistema.</strong> Un evento b&aacute;sico debe ser algo a lo que se le pueda poner un n&uacute;mero, y eso suele ser una pieza, un resultado de prueba o una tasa documentada.</li><li><strong>No comparar nunca los dos.</strong> Los desacuerdos entre hoja y &aacute;rbol son la raz&oacute;n entera de correr ambos, y son lo primero que se elimina cuando el calendario aprieta.</li></ul>
+      </section>
+
+      <section id="references-es" class="references">
+        <p class="section-label">Fuentes</p>
+        <h2>Referencias</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 6.4 and Appendix N.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=risk-management" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 16: Risk Management</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Adaptado de la Unidad VI del gui&oacute;n del curso Ingenier&iacute;a en Sistemas Aeroespaciales (AE506) de Carlos Alberto Molina Holgu&iacute;n. Cada n&uacute;mero de esta p&aacute;gina se recalcul&oacute; de forma independiente para ella; ninguna calculadora cubre este tema, as&iacute; que el rec&aacute;lculo es la &uacute;nica comprobaci&oacute;n disponible. Las cinco calificaciones de la hoja son ilustrativas y se eligieron para ejercitar la regla de severidad; todo RPN y toda compuerta de esta p&aacute;gina se calculan de ellas en el generador, y la probabilidad del evento superior se eval&uacute;a de forma exacta y no por la suma de eventos raros, que se cita al lado para comparar.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="risk-matrix.html?v=12"><span>Lecture anterior</span>&larr; La matriz de riesgos</a>
+        <a class="next-link" href="vee-model-and-se-engine.html?v=12"><span>Siguiente lecture</span>La V y el motor de procesos &rarr;</a>
+      </nav>
+
+    </article>
+
+    <article class="lecture" data-language="de" hidden>
+
+      <section id="objectives-de">
+        <p class="section-label">Lernziele</p>
+        <h2>Was Sie k&ouml;nnen sollten</h2>
+        <ul><li>eine FMEA-Zeile ausf&uuml;llen: Element, Fehlermodus, Wirkung und die drei Bewertungen;</li><li>erkl&auml;ren, was Schwere, H&auml;ufigkeit und Entdeckung je messen und warum sie ordinal sind;</li><li>eine Risikopriorit&auml;tszahl berechnen und genau sagen, wof&uuml;r sie taugt und wof&uuml;r nicht;</li><li>einen Fehlerbaum vom Spitzenereignis &uuml;ber UND- und ODER-Gatter zu Basisereignissen bauen;</li><li>die Spitzenwahrscheinlichkeit berechnen und den dominierenden Zweig benennen.</li></ul>
+      </section>
+
+      <section id="physics-de">
+        <p class="section-label">Ingenieurtechnischer Kontext</p>
+        <h2>Die schlimmste Zeile steht nicht oben</h2>
+        <p class="lead">Ein Team sortiert sein FMEA-Blatt nach der Risikopriorit&auml;tszahl und arbeitet die Liste ab. Oben steht eine offen ausfallende Batteriezelle mit 240. Vier Zeilen tiefer, bei 144, sitzt ein Modus&uuml;bergangsfehler: L&ouml;st die Software bei einem Fehler den sicheren Modus nicht aus, fliegt das Fahrzeug degradiert weiter, und am Boden merkt es niemand.</p><p>Diese zweite Zeile tr&auml;gt die h&ouml;chste Schwere und die schlechteste Entdeckungsnote des Blattes. Sie ist die Zeile, die die Mission beenden kann &mdash; und die Sortierung setzte sie auf Platz zwei, weil 240 gr&ouml;&szlig;er ist als 144.</p>
+        <figure class="diagram">
+            <svg viewBox="0 0 820 380" role="img" aria-label="Fehlerbaum f&uuml;r einen Tag verlorener Wissenschaftsdaten">
+            <rect x="250" y="16" width="320" height="52" rx="6" fill="#f7e9e6" stroke="#b03a2e" stroke-width="2"></rect>
+            <text x="410" y="31.0" text-anchor="middle" font-size="12" fill="#3f5162">Wissenschaftsdaten unter</text>
+            <text x="410" y="46.0" text-anchor="middle" font-size="12" fill="#3f5162">der Tagesuntergrenze</text>
+            <text x="410" y="59" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">P = 0,0347</text>
+            <line x1="410" y1="68" x2="410" y2="86" stroke="#8fa6ba" stroke-width="2"></line>
+            <rect x="374" y="86" width="72" height="30" rx="15" fill="#fdf3d8" stroke="#071d33" stroke-width="2"></rect>
+            <text x="410" y="106" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">ODER</text>
+            <line x1="410" y1="116" x2="410" y2="134" stroke="#8fa6ba" stroke-width="2"></line>
+            <line x1="190" y1="134" x2="660" y2="134" stroke="#8fa6ba" stroke-width="2"></line>
+            <line x1="190" y1="134" x2="190" y2="154" stroke="#8fa6ba" stroke-width="2"></line>
+            <line x1="660" y1="134" x2="660" y2="190" stroke="#8fa6ba" stroke-width="2"></line>
+            <rect x="154" y="154" width="72" height="30" rx="15" fill="#e8f1e9" stroke="#071d33" stroke-width="2"></rect>
+            <text x="190" y="174" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">UND</text>
+            <line x1="190" y1="184" x2="190" y2="202" stroke="#8fa6ba" stroke-width="2"></line>
+            <line x1="70" y1="202" x2="310" y2="202" stroke="#8fa6ba" stroke-width="2"></line>
+            <line x1="70" y1="202" x2="70" y2="240" stroke="#8fa6ba" stroke-width="2"></line>
+            <line x1="310" y1="202" x2="310" y2="240" stroke="#8fa6ba" stroke-width="2"></line>
+            <rect x="10" y="240" width="120" height="76" rx="6" fill="#eef4fa" stroke="#8fa6ba" stroke-width="2"></rect>
+            <text x="70" y="267.0" text-anchor="middle" font-size="12" fill="#3f5162">Downlink-Fenster</text>
+            <text x="70" y="282.0" text-anchor="middle" font-size="12" fill="#3f5162">verk&uuml;rzt</text>
+            <text x="70" y="307" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">0,050</text>
+            <rect x="250" y="240" width="120" height="76" rx="6" fill="#eef4fa" stroke="#8fa6ba" stroke-width="2"></rect>
+            <text x="310" y="267.0" text-anchor="middle" font-size="12" fill="#3f5162">Puffer &uuml;ber 70 % bei</text>
+            <text x="310" y="282.0" text-anchor="middle" font-size="12" fill="#3f5162">Pass-Beginn</text>
+            <text x="310" y="307" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">0,30</text>
+            <rect x="600" y="190" width="120" height="76" rx="6" fill="#eef4fa" stroke="#8fa6ba" stroke-width="2"></rect>
+            <text x="660" y="217.0" text-anchor="middle" font-size="12" fill="#3f5162">Nutzlast-Einschaltdauer</text>
+            <text x="660" y="232.0" text-anchor="middle" font-size="12" fill="#3f5162">&uuml;berschritten</text>
+            <text x="660" y="257" text-anchor="middle" font-size="13" font-weight="700" fill="#071d33">0,020</text>
+            <text x="190" y="348" text-anchor="middle" font-size="11" font-style="italic" fill="#5c4a24">beide m&uuml;ssen eintreten</text>
+            <text x="660" y="292" text-anchor="middle" font-size="11" font-style="italic" fill="#5c4a24">eine Verzweigung gen&uuml;gt</text>
+            </svg>
+            <figcaption>Ein Tag verlorener Wissenschaftsdaten, zerlegt. Das UND-Gatter braucht beide Ereignisse und ist daher die kleinere Zahl; das einzelne Ereignis rechts ist f&uuml;r sich gr&ouml;&szlig;er und tr&auml;gt den Gro&szlig;teil der Spitzenwahrscheinlichkeit.</figcaption>
+          </figure>
+      </section>
+
+      <section id="model-de">
+        <p class="section-label">Geltungsbereich und Grenzen</p>
+        <h2>Zwei Richtungen, ein System</h2>
+        <p><strong>Die FMEA ist induktiv und aufw&auml;rts gerichtet.</strong> Sie beginnt bei einem Element, listet dessen Fehlermodi und verfolgt jeden nach oben: Was bewirkt das lokal, im Teilsystem, in der Mission? Sie ist konstruktionsbedingt ersch&ouml;pfend &mdash; ihre St&auml;rke &mdash; und betrachtet einen Fehler zur Zeit &mdash; ihre Grenze.</p><p><strong>Die Fehlerbaumanalyse ist deduktiv und abw&auml;rts gerichtet.</strong> Sie beginnt bei einem unerw&uuml;nschten Ergebnis und fragt, welche Kombinationen es erzeugen k&ouml;nnten, und zerlegt &uuml;ber Logikgatter bis zu Basisereignissen. Kombinationen behandelt sie nat&uuml;rlich &mdash; und sie pr&uuml;ft nur Spitzenereignisse, die jemand aufgeschrieben hat.</p><p>Jede ist genau dort blind, wo die andere sieht. Beide auf dasselbe System anzuwenden und zu vergleichen ist keine Doppelarbeit: Die Widerspr&uuml;che sind der Befund.</p>
+        <div class="callout warning"><strong>Was beide nicht liefern.</strong> Eine FMEA sieht zwei Fehler nicht, die nur gemeinsam z&auml;hlen, weil sie Modus f&uuml;r Modus vorgeht. Ein Fehlerbaum sieht kein Ergebnis, das niemand benannt hat, weil das Spitzenereignis Eingabe und nicht Ergebnis der Methode ist. Beide liefern Zahlen, und keine davon sagt vorher, was das Fahrzeug tun wird.</div>
+      </section>
+
+      <section id="worksheet-de">
+        <p class="section-label">Drei Bewertungen, ein Produkt</p>
+        <h2>Was das Arbeitsblatt verlangt</h2>
+        <div class="table-wrap"><table><thead><tr><th>Bewertung</th><th>Schwere &mdash; wie schlimm</th><th>H&auml;ufigkeit &mdash; wie oft</th><th>Entdeckung &mdash; merken wir es</th></tr></thead><tbody><tr><td>1&ndash;3</td><td>Degradiertes Produkt; die Mission l&auml;uft weiter</td><td>F&uuml;r diesen Entwurf und diese Umgebung entfernt</td><td>Wird durch vorhandene Tests oder Telemetrie fast sicher entdeckt</td></tr><tr><td>4&ndash;7</td><td>Verlorenes Ziel oder verlorener Modus; das Fahrzeug &uuml;berlebt</td><td>Gelegentlich; auf vergleichbarer Hardware vorgekommen</td><td>Wahrscheinlich entdeckbar, aber nur durch einen geplanten Test</td></tr><tr><td>8&ndash;10</td><td>Verlust des Fahrzeugs oder eines Menschen</td><td>H&auml;ufig; der Mechanismus ist bekannt und unbehandelt</td><td>Vor dem Flug kaum entdeckbar oder gar nicht beobachtbar</td></tr></tbody></table></div>
+        <p>Die Risikopriorit&auml;tszahl ist das Produkt \(\mathrm{RPN} = S \times O \times D\), und alle Probleme damit folgen daraus, was diese drei Zahlen sind. Es sind <em>R&auml;nge</em>. Eine Schwere von 8 ist nicht doppelt so gro&szlig; wie 4; sie ist eine andere Klasse. R&auml;nge zu multiplizieren ergibt eine Zahl ohne Einheit und ohne Bedeutung au&szlig;er der erzeugten Reihenfolge.</p><p>So ergeben \(8\times5\times6\) und \(6\times8\times5\) beide 240 und beschreiben v&ouml;llig Verschiedenes: einmal ein schlimmes, absehbares Ergebnis, einmal ein mildes, unsichtbares. Die RPN unterscheidet sie nicht &mdash; daher die Praxis, nach RPN zu sortieren und dann jede Zeile ab Schwere 8 unabh&auml;ngig von ihrem Rang zu lesen.</p>
+      </section>
+
+      <section id="tree-de">
+        <p class="section-label">Vom Ergebnis hinab zu den Teilen</p>
+        <h2>Gatter und ihr Preis</h2>
+        <div class="table-wrap"><table><thead><tr><th>Gatter</th><th>Liest sich</th><th>Arithmetik f&uuml;r unabh&auml;ngige Ereignisse</th><th>Wann es auftritt</th></tr></thead><tbody><tr><td>UND</td><td>alle Eing&auml;nge m&uuml;ssen eintreten</td><td>\(P = \prod P_i\)</td><td>Redundanz: die Funktion f&auml;llt nur bei Ausfall aller Zweige aus</td></tr><tr><td>ODER</td><td>ein Eingang gen&uuml;gt</td><td>\(P = 1-\prod (1-P_i)\)</td><td>Eine Reihenschaltung: jedes Glied f&auml;llt die Funktion</td></tr></tbody></table></div>
+        <p>Ein UND-Gatter ist die Arithmetik der Redundanz, und daher stammen die gro&szlig;en Reduktionen: zwei Zweige zu je \(10^{-2}\) ergeben zusammen \(10^{-4}\). Dieser Faktor ist zugleich die fragilste Zahl der Analyse, denn er setzt unabh&auml;ngige Ausf&auml;lle voraus. Teilen beide Zweige einen Stecker, einen Leistungsbus, einen hei&szlig;en Schacht oder den Ingenieur, der beide schrieb, ist die Multiplikation Fiktion und der wahre Wert liegt nahe am Einzelzweig.</p><p>Ein ODER-Gatter ist die Arithmetik einer Kette. Exakt gilt \(P = 1 - \prod(1 - P_i)\); bei kleinen \(P_i\) liegt einfaches Addieren im Bereich von Bruchteilen eines Prozents und ist die &uuml;bliche Praxis. Addieren &uuml;bersch&auml;tzt stets &mdash; die sichere Richtung.</p>
+      </section>
+
+      <section id="algorithm-de">
+        <p class="section-label">Rechenalgorithmus</p>
+        <h2>Beide Analysen durchf&uuml;hren</h2>
+        <div class="process-flow"><div><strong>1</strong><span>Die Elemente aus dem Produktbaum auflisten</span></div><div><strong>2</strong><span>Je Element alle Fehlermodi auflisten</span></div><div><strong>3</strong><span>Jeden Modus zu lokaler, Teilsystem- und Missionswirkung verfolgen</span></div><div><strong>4</strong><span>Schwere, H&auml;ufigkeit, Entdeckung bewerten</span></div><div><strong>5</strong><span>RPN berechnen und sortieren</span></div><div><strong>6</strong><span>Jede Zeile ab Schwere 8 unabh&auml;ngig vom Rang lesen</span></div><div><strong>7</strong><span>Ein Spitzenereignis benennen und seinen Baum bauen</span></div><div><strong>8</strong><span>Die Gatter aufw&auml;rts auswerten</span></div><div><strong>9</strong><span>Die Basisereignisse des Baums gegen das Arbeitsblatt pr&uuml;fen</span></div></div>
+        <p>Schritt neun bezahlt die anderen acht. Ein Basisereignis ohne passende Arbeitsblattzeile hei&szlig;t, die FMEA hat ein Element &uuml;bersehen; eine Zeile hoher Schwere, die in keinem Baum vorkommt, hei&szlig;t, niemand hat nach ihrem Ergebnis gefragt. Beides ist hier billig und sp&auml;ter teuer zu finden.</p>
+      </section>
+
+      <section id="example-de">
+        <p class="section-label">Rechenbeispiel</p>
+        <h2>F&uuml;nf Zeilen und ein Baum</h2>
+        <p>Die atmosph&auml;rische Plattform bringt f&uuml;nf Fehlermodi in ihre vorl&auml;ufige FMEA. Die beiden fetten Zeilen sind Gegenstand des restlichen Beispiels.</p>
+        <div class="table-wrap"><table><thead><tr><th>Fehlermodus</th><th>Auswirkung auf die Mission</th><th>S</th><th>O</th><th>D</th><th>RPN</th></tr></thead><tbody><tr><td><strong>Batteriezelle f&auml;llt offen aus</strong></td><td>Strangspannung f&auml;llt; Lasten m&uuml;ssen abgeworfen werden, die Nacht&uuml;berlebensreserve ist weg</td><td><strong>8</strong></td><td>5</td><td><strong>6</strong></td><td><strong>240</strong></td></tr><tr><td><strong>Sicherer Modus wird bei Fehler nicht ausgel&ouml;st</strong></td><td>Das Fahrzeug arbeitet degradiert weiter, und der Boden erf&auml;hrt nichts davon</td><td><strong>9</strong></td><td>2</td><td><strong>8</strong></td><td><strong>144</strong></td></tr><tr><td>&Uuml;berlebensheizkreis bleibt aus</td><td>Die Batterie f&auml;llt w&auml;hrend der Finsternis unter ihre &Uuml;berlebenstemperatur</td><td>7</td><td>3</td><td>5</td><td>105</td></tr><tr><td>Sendeleistung sinkt ab</td><td>Der Pass liefert einen Teil des Puffers; der Rest wartet einen Tag</td><td>6</td><td>4</td><td>4</td><td>96</td></tr><tr><td>Sensor-Offset driftet aus der Kalibrierung</td><td>Das Wissenschaftsprodukt ist unbrauchbar, bis es am Boden neu verarbeitet wird</td><td>4</td><td>6</td><td>3</td><td>72</td></tr></tbody></table></div>
+        <div class="solution-step"><span class="solution-step-number">1</span><div><strong>Nach RPN sortieren.</strong> Die Reihenfolge lautet 240, 144, 105, 96, 72. Die Batteriezelle f&uuml;hrt, und ein Team, das die Liste streng abarbeitet, erreicht die Sicherheitsmodus-Zeile als zweite.</div></div>
+        <div class="solution-step"><span class="solution-step-number">2</span><div><strong>Die Schwereregel anwenden.</strong> Die Sicherheitsmodus-Zeile hat Schwere 9: Das Fahrzeug arbeitet mit unbehandeltem Fehler weiter. Sie hat auch Entdeckung 8, die schlechteste des Blattes, weil die &Uuml;bergangslogik am Schreibtisch gepr&uuml;ft und nie auf Hardware ausgef&uuml;hrt wurde. Hohe Schwere ohne Vorwarnm&ouml;glichkeit wird zuerst bearbeitet, was das Produkt auch sagt.</div></div>
+        <div class="solution-step"><span class="solution-step-number">3</span><div><strong>Die Zeile wiedererkennen.</strong> Das ist Risiko R-04 aus dem Register der vorigen Vorlesung, von der anderen Seite betrachtet. Dort war es H&auml;ufigkeit und Konsequenz auf einem F&uuml;nf-mal-f&uuml;nf-Raster; hier ist es Mechanismus, Wirkung und Entdeckungsl&uuml;cke. Die Minderung ist dieselbe Hardware-in-the-Loop-Kampagne, und die FMEA sagt, warum sie die richtige ist: Sie greift die Entdeckungsnote an, den Teil dieser Zeile, den ein Test tats&auml;chlich &auml;ndern kann.</div></div>
+        <div class="solution-step"><span class="solution-step-number">4</span><div><strong>Den Baum bauen.</strong> Spitzenereignis: Die zur&uuml;ckgef&uuml;hrten Wissenschaftsdaten fallen unter die Tagesuntergrenze. Zwei Wege. Der linke Zweig ist ein UND-Gatter &mdash; ein verk&uuml;rztes Downlink-Fenster mit \(5\times10^{-2}\) z&auml;hlt nur, wenn der Puffer zu Pass-Beginn bereits &uuml;ber 70 % lag, mit \(3\times10^{-1}\). Der rechte Zweig ist ein Einzelereignis, die &uuml;berschrittene Nutzlast-Einschaltdauer, mit \(2\times10^{-2}\).</div></div>
+        <div class="solution-step"><span class="solution-step-number">5</span><div><strong>Aufw&auml;rts auswerten.</strong> Das UND-Gatter ergibt \[ (5\times10^{-2})(3\times10^{-1}) = 1{,}5\times10^{-2}, \] und das ODER-Gatter dar&uuml;ber \[ P = 1-(1-1{,}5\times10^{-2})(1-2{,}0\times10^{-2}) = 3{,}47\times10^{-2}. \]</div></div>
+        <div class="solution-step"><span class="solution-step-number">6</span><div><strong>Den dominierenden Beitrag finden.</strong> Das rechte Einzelereignis liefert \(2{,}0\times10^{-2}\) der Zweigsumme \(3{,}5\times10^{-2}\), also 57 %. Der Zweig mit zwei Ereignissen und einem redundanz&auml;hnlichen Gatter ist der kleinere. Das blo&szlig;e Addieren ergibt \(3{,}5\times10^{-2}\) gegen&uuml;ber exakt \(3{,}47\times10^{-2}\), eine &Uuml;bersch&auml;tzung um 0,86 %.</div></div>
+        <div class="result-box">\[ \boxed{ \mathrm{RPN}_{\text{sicher}} = 9\times2\times8 = 144 \;<\; 240,\qquad P_{\text{oben}} = 3{,}47\times10^{-2},\qquad \text{dominanter Zweig } 57\,\% } \]</div>
+        <p><strong>Deutung.</strong> Beide H&auml;lften dieses Beispiels sagen dasselbe in unterschiedlicher Arithmetik: Die Zahl, die sortiert, ist nicht die Zahl, die z&auml;hlt. Im Arbeitsblatt ist die Zeile mit dem gr&ouml;&szlig;ten Produkt nicht die, die das Fahrzeug kosten kann. Im Baum tr&auml;gt der technisch aufwendigste Zweig &mdash; zwei Ereignisse, ein Gatter, eine Redundanzgeschichte &mdash; weniger bei als das schlichte Einzelereignis daneben. Beide Male kam die Antwort daher, zu lesen, woraus die Zahlen gebaut sind, nicht aus den Zahlen selbst.</p>
+      </section>
+
+      <section id="summary-de">
+        <p class="section-label">Arbeitsregeln</p>
+        <h2>Auf einen Blick</h2>
+        <div class="table-wrap"><table><thead><tr><th>Regel</th><th>Aussage</th></tr></thead><tbody><tr><td>FMEA geht aufw&auml;rts, Fehlerb&auml;ume abw&auml;rts</td><td>Die eine beginnt beim Fehlermodus und fragt nach der Wirkung; der andere beginnt beim Ergebnis und fragt nach der Ursache.</td></tr><tr><td>Beide nutzen und eine L&uuml;cke erwarten</td><td>Ein von der FMEA nie gelisteter Modus zeigt sich als fehlender Zweig; ein Spitzenereignis ohne FMEA-Zeile als ungepr&uuml;ftes Ergebnis.</td></tr><tr><td>RPN ordnet, misst nicht</td><td>Er multipliziert drei Ordinalskalen. Zum Sortieren geeignet, nie als Wahrscheinlichkeit oder Kosten.</td></tr><tr><td>Schwere hat ein Vetorecht</td><td>Eine Schwere ab 8 wird bearbeitet, unabh&auml;ngig von der RPN-Rangfolge.</td></tr><tr><td>Entdeckung betrifft Evidenz</td><td>Eine schlechte Entdeckungsnote sagt, dass der Entwurf den Fehler nicht offenbaren kann &mdash; ein Entwurfs-, kein Papierbefund.</td></tr><tr><td>Unabh&auml;ngigkeit ist eine Annahme</td><td>Das Multiplizieren am UND-Gatter setzt unabh&auml;ngige Ausf&auml;lle voraus. Ein gemeinsamer Stecker, Schacht oder Ingenieur bricht sie.</td></tr></tbody></table></div>
+      </section>
+
+      <section id="mistakes-de">
+        <p class="section-label">Häufige Fehler</p>
+        <h2>Was schiefgeht</h2>
+        <ul class="check-list"><li><strong>Nur nach RPN ordnen.</strong> Es begr&auml;bt eine Zeile der Schwere 9 unter einem gr&ouml;&szlig;eren Produkt, und das Team bearbeitet zuerst das Falsche.</li><li><strong>Die RPN als Gr&ouml;&szlig;e behandeln.</strong> Sie ist ein Produkt dreier Ordinalskalen: Doppeltes Risiko gibt es nicht, und eine Schwelle wie &bdquo;alles &uuml;ber 100 bearbeiten&ldquo; hat keine Grundlage.</li><li><strong>Am UND-Gatter ohne Unabh&auml;ngigkeitspr&uuml;fung multiplizieren.</strong> Gemeinsame Stecker, Energie, Schacht oder Autor machen aus \(10^{-4}\) wieder \(10^{-2}\).</li><li><strong>Wirkungen als Bauteilzust&auml;nde schreiben.</strong> &bdquo;Batterie degradiert&ldquo; ist keine Wirkung; &bdquo;Nacht&uuml;berlebensreserve verloren&ldquo; schon, denn es benennt den Missionsverlust.</li><li><strong>Den Baum beim Teilsystem beenden.</strong> Ein Basisereignis muss bezifferbar sein, also meist ein Teil, ein Testergebnis oder eine dokumentierte Rate.</li><li><strong>Die beiden nie vergleichen.</strong> Die Widerspr&uuml;che zwischen Blatt und Baum sind der ganze Grund f&uuml;r beide Verfahren &mdash; und das Erste, was bei Termindruck entf&auml;llt.</li></ul>
+      </section>
+
+      <section id="references-de" class="references">
+        <p class="section-label">Quellen</p>
+        <h2>Literatur</h2>
+        <ol>
+          <li>National Aeronautics and Space Administration. <a href="https://ntrs.nasa.gov/citations/20205003605" target="_blank" rel="noopener noreferrer"><em>NASA Systems Engineering Handbook</em>, NASA/SP-2016-6105 Rev2</a>. Washington, DC: NASA, 2016, Section 6.4 and Appendix N.</li>
+          <li>National Aeronautics and Space Administration. <em>NASA Systems Engineering Processes and Requirements</em>, NPR 7123.1D. Washington, DC: NASA, 2023.</li>
+          <li>Goldberg, B.&nbsp;E., K. Everhart, R. Stevens, N. Babbitt, P. Clemens, and L. Stout. <a href="https://ntrs.nasa.gov/citations/19950012517" target="_blank" rel="noopener noreferrer"><em>System Engineering &ldquo;Toolbox&rdquo; for Design-Oriented Engineers</em>, NASA RP-1358</a>. Marshall Space Flight Center, AL: NASA, 1994.</li>
+          <li>Guerra, L.&nbsp;A., et&nbsp;al. <a href="https://spacese.spacegrant.org/index.php?page=risk-management" target="_blank" rel="noopener noreferrer"><em>Space Systems Engineering</em>, Module 16: Risk Management</a>. National Space Grant Foundation and NASA Exploration Systems Mission Directorate.</li>
+          <li>Universidad Aut&oacute;noma de Chihuahua, Facultad de Ingenier&iacute;a. <em>Programa anal&iacute;tico de la unidad de aprendizaje: Ingenier&iacute;a en Sistemas Aeroespaciales (AE506)</em>. Chihuahua, Mexico, February 2024.</li>
+        </ol>
+        <p class="source-note">Bearbeitet nach Einheit VI des Skripts Luft- und Raumfahrtsystemtechnik (AE506) von Carlos Alberto Molina Holgu&iacute;n. Jede Zahl dieser Seite wurde eigens daf&uuml;r unabh&auml;ngig neu berechnet; kein Rechner deckt dieses Thema ab, daher ist die Neuberechnung die einzige Pr&uuml;fung. Die f&uuml;nf Bewertungen sind beispielhaft und so gew&auml;hlt, dass sie die Schwereregel ausl&ouml;sen; jede RPN und jedes Gatter dieser Seite wird daraus im Generator berechnet, und die Spitzenwahrscheinlichkeit wird exakt statt &uuml;ber die N&auml;herung f&uuml;r seltene Ereignisse ausgewertet, die zum Vergleich daneben steht.</p>
+      </section>
+
+      <nav class="next-nav">
+        <a class="next-link" href="risk-matrix.html?v=12"><span>Vorherige Vorlesung</span>&larr; Die Risikomatrix</a>
+        <a class="next-link" href="vee-model-and-se-engine.html?v=12"><span>Nächste Vorlesung</span>Das V-Modell und die SE-Maschine &rarr;</a>
+      </nav>
+
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="container footer-wrap">
+    <p>&copy; <span id="year"></span> Carlos Alberto Molina Holgu&iacute;n</p>
+    <p>Universidad Aut&oacute;noma de Chihuahua</p>
+  </div>
+</footer>
+</body>
+</html>

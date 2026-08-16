@@ -59,7 +59,7 @@ Exits non-zero on failure. Structure only — it does not check physics.
   from a book, a table, or an earlier version of the page.
 - **`?v=N` is global.** Raising it means raising it in every page of every course
   plus the root, in one commit, or returning visitors keep a cached stylesheet
-  against new markup. Currently `v=11`.
+  against new markup. Currently `v=12`.
 - **Lecture files are named for the topic, never the number.** A lecture was once
   inserted between 04 and 05 and became "4.5"; no file had to be renamed.
 - **Push when work is done.** Two commits' worth of lectures once existed only on
@@ -76,7 +76,7 @@ Exits non-zero on failure. Structure only — it does not check physics.
 | 04 | Flight Dynamics and Control | — | script ready, not converted |
 | 05 | Fluid Mechanics (MC611) | — | **next up**; script ready |
 | 06 | Numerical Methods | — | not started |
-| 07 | Aerospace Systems Engineering (AE506) | `aerospace-systems-engineering/` | 18 of 22 lectures |
+| 07 | Aerospace Systems Engineering (AE506) | `aerospace-systems-engineering/` | 24 lectures, complete |
 
 Cards 01–06 already existed in `#teaching` on the root page; card 07 was added
 with the course. Aerodynamics II, Fluid Mechanics and Aerospace Systems
@@ -95,6 +95,17 @@ uses the substitute slot vocabulary of `LECTURE-TEMPLATE.md` §3: `physics` read
 *Engineering situation*, `model` reads *Scope and limits*, `summary` reads
 *Operative rules*. The ids are unchanged. A course picks one vocabulary and every
 one of its lectures uses it.
+
+Two of its 24 lectures have no chapter behind them in the script. Lecture 20,
+the Vee and the SE engine, exists because the script mentions the Vee once and
+only to deny its symmetry, while students meet it everywhere else. Lecture 24,
+ethics and professional responsibility, covers Unit VI of the `AE506.pdf`
+*programa analítico* — *"Ética en la ingeniería"* — which the script does not
+reach at all: a grep for `ethic`, `moral` and `responsabilidad profesional`
+across the eight units returns nothing. Competency B3 and the manufacturing side
+of E2 are still thin, and `AE506.pdf` also lists `E2.D4 Análisis Estructural`
+under this subject, which does not belong to it and is a question for whoever
+owns the plan of study rather than something to fix in content.
 
 ## Calculators
 
