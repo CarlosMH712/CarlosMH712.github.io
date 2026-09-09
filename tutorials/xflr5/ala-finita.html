@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="From the airfoil section to the finite wing in XFLR5: downwash, induced angle, lifting-line theory, vortex-lattice methods, induced drag and the span efficiency factor." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>From the Section to the Finite Wing | XFLR5 Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">XFLR5 · Tutorial 2</p><h1>From the Section to the Finite Wing</h1><p class="hero-copy">Why a wing lifts less than the airfoil it is built from, where induced drag comes from, and how to measure both in XFLR5 with a vortex-lattice analysis.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">XFLR5 · Tutorial 2</p><h1>Del perfil al ala finita</h1><p class="hero-copy">Por qué un ala sustenta menos que el perfil con que está construida, de dónde sale el arrastre inducido, y cómo medir ambas cosas en XFLR5 con un análisis de malla de vórtices.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">XFLR5 · Tutorial 2</p><h1>Vom Profil zur endlichen Tragfläche</h1><p class="hero-copy">Warum eine Tragfläche weniger Auftrieb erzeugt als ihr Profil, woher der induzierte Widerstand kommt und wie man beides in XFLR5 mit einem Wirbelgitterverfahren misst.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 45 min</span><span data-language="es" hidden>Lectura estimada: 45 min</span><span data-language="de" hidden>Lesedauer: ca. 45 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on XFLR5 v6.62</span><span data-language="es" hidden>Verificado en XFLR5 v6.62</span><span data-language="de" hidden>Geprüft mit XFLR5 v6.62</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="perfil-y-polares.html?v=13">← <span>Tutorial 1</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#physics">The physics</a><a href="#model">Methods</a><a href="#geometry">Step 1 · The wing</a><a href="#analysis">Step 2 · Analysis</a><a href="#algorithm">Step 3 · Running</a><a href="#polars">Step 4 · Polars</a><a href="#slope">Lift slope</a><a href="#induced">Induced drag</a><a href="#spanwise">Spanwise loading</a><a href="#example">Suggested exercise</a><a href="#summary">Key values</a><a href="#mistakes">Common mistakes</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#physics-es">La física</a><a href="#model-es">Los métodos</a><a href="#geometry-es">Paso 1 · El ala</a><a href="#analysis-es">Paso 2 · El análisis</a><a href="#algorithm-es">Paso 3 · Ejecución</a><a href="#polars-es">Paso 4 · Polares</a><a href="#slope-es">La pendiente</a><a href="#induced-es">Arrastre inducido</a><a href="#spanwise-es">Distribución</a><a href="#example-es">Ejercicio sugerido</a><a href="#summary-es">Valores clave</a><a href="#mistakes-es">Errores frecuentes</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#physics-de">Die Physik</a><a href="#model-de">Verfahren</a><a href="#geometry-de">Schritt 1 · Fläche</a><a href="#analysis-de">Schritt 2 · Analyse</a><a href="#algorithm-de">Schritt 3 · Lauf</a><a href="#polars-de">Schritt 4 · Polaren</a><a href="#slope-de">Auftriebsanstieg</a><a href="#induced-de">Ind. Widerstand</a><a href="#spanwise-de">Verteilung</a><a href="#example-de">Übungsvorschlag</a><a href="#summary-de">Kernwerte</a><a href="#mistakes-de">Häufige Fehler</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+      <p>Explain why a finite wing lifts less than its own section, choose between the four methods XFLR5 offers, define a wing, diagnose the viscous-interpolation failure, and measure the three-dimensional lift slope and the span efficiency factor.</p>
+    </section>
+    <section id="physics">
+      <p class="section-label">The physics</p>
+      <h2>Why a wing is not its own airfoil</h2>
+      <p>At the tip, the pressure difference drives a spanwise flow that rolls into two tip vortices. These induce a downwash, so each section sees a stream tilted by \(\alpha_i\) and works at \(\alpha_{\mathrm{ef}} = \alpha - \alpha_i\). Two consequences follow: the wing lifts less than its section, and the section force, being perpendicular to the local stream, tilts backwards and produces induced drag — a resistance that exists even without viscosity.</p>
+    </section>
+    <section id="model">
+      <p class="section-label">Scope and limits</p>
+      <h2>Four methods and the assumption that bounds each</h2>
+      <p>LLT is non-linear and uses the section polar, so it captures stall — but it is valid only for a straight wing with no sweep or dihedral. VLM1 and VLM2 are linear and inviscid and therefore never stall; VLM2 admits sweep, dihedral and several surfaces. 3D Panels model thickness at much higher cost. This guide uses VLM2 without the viscous coupling, so every drag figure shown is induced drag.</p>
+    </section>
+    <section id="geometry">
+      <p class="section-label">Step 1</p>
+      <h2>Defining the wing</h2>
+      <p>The planform is a table of spanwise stations, each with chord, offset, dihedral, twist and airfoil. Two sections of chord 0.200 m separated by 0.800 m give \(b = 1.600\) m, \(S = 0.320\) m² and \(AR = 8.00\). The right-hand panel recomputes the geometry live and is the check to run before analysing anything.</p>
+    </section>
+    <section id="analysis">
+      <p class="section-label">Step 2</p>
+      <h2>Defining the analysis</h2>
+      <p>The dialogue reports the Reynolds number at root and tip from the local chord, which is how the three-dimensional run is tied to the two-dimensional polar of Tutorial 1: \(V_\infty = 37.5\) m/s gives \(Re = 500\,000\) at both. The Analysis tab selects the method and decides whether the profile drag is added by interpolating the section polar.</p>
+    </section>
+    <section id="algorithm">
+      <p class="section-label">Step 3</p>
+      <h2>Running it, and reading the failure</h2>
+      <p>With the viscous option on, this wing returns a log full of <code>could not be interpolated</code> and no polar at all. The three-dimensional solution converged; what failed was the lookup of profile drag in the section polar at the local \(c_l\) and Reynolds number. Fix it in the two-dimensional analysis — widen the polar, add Reynolds numbers — or run inviscid and say so.</p>
+    </section>
+    <section id="polars">
+      <p class="section-label">Step 4</p>
+      <h2>The four wing polars</h2>
+      <p>The same four graphs as in Tutorial 1, now for the whole wing. The coefficients take capital letters — \(C_L\), \(C_D\), \(C_m\) — because they are referred to the reference area of the wing and not to the chord of a section. The distinction is the source of half the errors in this topic.</p>
+    </section>
+    <section id="slope">
+      <p class="section-label">Central result</p>
+      <h2>The slope falls, the zero-lift angle does not</h2>
+      <p>A least-squares fit over the linear range gives \(a = 0.0802\) per degree \(= 4.598\ \mathrm{rad}^{-1}\), against \(a_0 = 2\pi = 6.283\ \mathrm{rad}^{-1}\) for the section: a fall of 26.8 %. The zero-lift angle, however, is \(-2.02^\circ\) against the \(-2.1^\circ\) measured in Tutorial 1 — unchanged, because without twist every section keeps the same mean camber line. Finite span rotates the curve; it does not shift it.</p>
+    </section>
+    <section id="induced">
+      <p class="section-label">Central result</p>
+      <h2>Induced drag and the span efficiency factor</h2>
+      <p>Plotting \(C_{D_i}\) against \(C_L^2\) gives a straight line through the origin of slope \(k = 0.0400\), from which \(e = 1/(\pi\,AR\,k) = 0.995\) — the value XFLR5 also reports as <code>Efficiency</code>. At \(\alpha = 6^\circ\) the induced drag alone is one and a half times the profile drag measured in Tutorial 1, and it grows with the square of \(C_L\). This is the argument for high aspect ratio.</p>
+    </section>
+    <section id="spanwise">
+      <p class="section-label">Reading the wing</p>
+      <h2>Spanwise loading and downwash</h2>
+      <p>With <code>Lift</code> and <code>Downwash</code> ticked, the three-dimensional view shows what the polars summarise in a number: the load falls to zero at the tip even though the chord is constant, and the downwash grows towards the tip because the loading is rectangular rather than elliptic. The data box condenses the run, including the neutral-point position.</p>
+    </section>
+    <section id="example">
+      <p class="section-label">Suggested practice</p>
+      <h2>Four wings, same area, different aspect ratio</h2>
+      <p>Build three more wings with the same airfoil and the same area \(S = 0.320\) m² at \(AR = 4\), 12 and 20, and check that \(1/a\) against \(1/AR\) is a straight line, as lifting-line theory predicts. Suggested practice, not an assignment.</p>
+    </section>
+    <section id="summary">
+      <p class="section-label">Key values</p>
+      <h2>Three relations and five numbers</h2>
+      <p>\(\alpha_{\mathrm{ef}} = \alpha - \alpha_i\); \(a = a_0/(1 + a_0/\pi e AR)\); \(C_{D_i} = C_L^2/(\pi e AR)\). For the rectangular \(AR = 8\) wing: \(a = 0.0802\) per degree, \(\alpha_{L=0} = -2.02^\circ\), \(e = 0.995\), and at \(\alpha = 6^\circ\), \(C_L = 0.644\) with \(C_{D_i} = 0.0166\).</p>
+    </section>
+    <section id="mistakes">
+      <p class="section-label">Common mistakes</p>
+      <h2>Errors of interpretation that invalidate a run</h2>
+      <p>Seven errors of interpretation: expecting the wing to inherit the section's \(c_{l,\max}\); writing \(c_l\) for \(C_L\); calling induced drag a viscous loss; reporting an inviscid \(C_L/C_D\) as the wing's efficiency; reading <code>could not be interpolated</code> as a three-dimensional failure; using lifting-line theory on a swept wing; and comparing wings of different reference area by their \(C_L\).</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<ol>
+  <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 5: teoría de la línea sustentadora de Prandtl, arrastre inducido y factor de eficiencia de envergadura.</li>
+  <li>Prandtl, L. <em>Applications of Modern Hydrodynamics to Aeronautics</em>, NACA Report 116. Washington, DC: NACA, 1921. El trabajo original de la línea sustentadora.</li>
+  <li>Katz, J. y Plotkin, A. <em>Low-Speed Aerodynamics</em>, 2.ª ed. Cambridge University Press, 2001, capítulo 12: formulación de los métodos de malla de vórtices y de paneles.</li>
+  <li>Deperrois, A. <em>Guidelines for XFLR5</em> y <em>Part IV: Wing analysis</em>. Documentación oficial del programa, donde se detallan las hipótesis de LLT, VLM1, VLM2 y paneles tridimensionales.</li>
+</ol>
+<p class="source-note">Capturas de pantalla tomadas de XFLR5 v6.62 sobre macOS. Los valores numéricos proceden de la corrida documentada en las figuras 7 y 9, exportada a texto y ajustada por mínimos cuadrados; los valores de contraste se recalcularon a partir de la teoría de la línea sustentadora. El proyecto de XFLR5 que reproduce la corrida acompaña a esta guía.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="perfil-y-polares.html?v=13"><span>Previous tutorial</span>← Analysis of an Airfoil Section</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>XFLR5 · Tutorial series</a>
+    </nav>
+  </article>
+
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+<p class="lead">El Tutorial 1 terminó con una pregunta: si el perfil da \(c_{l,\max}=1{,}35\), ¿el ala construida con él dará \(C_{L,\max}=1{,}35\)? La respuesta es que no, y esta guía explica por qué y cuánto. Al terminarla debe ser posible:</p>
+<ul>
+  <li>Explicar el mecanismo por el cual un ala de envergadura finita sustenta menos que su propio perfil al mismo ángulo geométrico.</li>
+  <li>Elegir con criterio entre los cuatro métodos que ofrece XFLR5 —línea sustentadora, VLM1, VLM2 y paneles tridimensionales— y enunciar la hipótesis que invalida a cada uno.</li>
+  <li>Definir un ala en el módulo <em>Wing and Plane Design</em> y comprobar su geometría antes de analizarla.</li>
+  <li>Ejecutar un análisis y diagnosticar el fallo más común: que el acoplamiento viscoso no encuentre la polar bidimensional.</li>
+  <li>Medir sobre las polares la pendiente de sustentación tridimensional y contrastarla con la predicción de la teoría de la línea sustentadora.</li>
+  <li>Verificar que el arrastre inducido crece con el cuadrado de la sustentación y extraer de ahí el factor de eficiencia de envergadura.</li>
+</ul>
+    </section>
+    <section id="physics-es">
+      <p class="section-label">La física</p>
+      <h2>Por qué un ala no es su propio perfil</h2>
+<p>Un perfil es una sección de un ala de envergadura infinita. Esa hipótesis no es un detalle de modelado: es lo que permite tratar el problema en dos dimensiones, porque impide que el fluido se mueva a lo largo de la envergadura.</p>
+<p>En un ala real la sobrepresión del intradós y la succión del extradós coexisten en la punta, y el fluido responde a esa diferencia rodeándola. Aparece entonces una componente de velocidad transversal que no existía en el problema plano: el flujo se desvía hacia la punta por debajo y hacia la raíz por encima. Al reunirse en el borde de salida, las dos corrientes con distinta dirección forman una superficie de discontinuidad que se enrolla en dos <strong>vórtices de punta</strong>.</p>
+<div class="callout">
+  <p>La consecuencia es el <strong>descenso inducido</strong>, o <em>downwash</em>: los vórtices arrastran hacia abajo el aire que atraviesa el ala. Cada sección deja de ver la corriente libre y pasa a ver una corriente inclinada un ángulo \(\alpha_i\) hacia abajo. El ángulo con que trabaja realmente la sección es</p>
+</div>
+<div class="equation-card">\[ \alpha_{\mathrm{ef}} = \alpha - \alpha_i \]</div>
+<p>De ahí salen las dos consecuencias que ocupan el resto de la guía. La primera: como cada sección trabaja a un ángulo menor que el geométrico, <strong>el ala sustenta menos que su perfil</strong> al mismo \(\alpha\), y su curva \(C_L\)–\(\alpha\) tiene menor pendiente. La segunda es menos evidente y más costosa.</p>
+<figure class="diagram">
+  <svg viewBox="0 0 520 330" role="img" aria-label="Diagrama del ángulo inducido: la corriente local se inclina hacia abajo y la fuerza de la sección se inclina hacia atrás, apareciendo el arrastre inducido">
+  <text class="svg-title" x="20" y="18">El ángulo inducido y su consecuencia</text>
+
+  <text class="svg-note-sm" x="20" y="44">En la sección</text>
+  <line class="svg-grid" x1="20" y1="120" x2="215" y2="120" stroke-dasharray="4 3"/>
+  <path class="svg-line" d="M 30 120 L 150 120" stroke="var(--blue)" stroke-width="2.2"/>
+  <path d="M 150 115 L 163 120 L 150 125 Z" fill="var(--blue)"/>
+  <text class="svg-note-sm" x="66" y="112">V<tspan dy="3" font-size="8">∞</tspan></text>
+  <path class="svg-line" d="M 163 120 L 163 158" stroke="var(--accent)" stroke-width="2.2"/>
+  <path d="M 158 158 L 163 170 L 168 158 Z" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="170" y="150">w</text>
+  <path class="svg-line" d="M 30 120 L 152 158" stroke="var(--ink)" stroke-width="2.2"/>
+  <path d="M 152 152 L 165 162 L 149 163 Z" fill="var(--ink)"/>
+  <text class="svg-note-sm" x="60" y="152">V<tspan dy="3" font-size="8">ef</tspan></text>
+  <path class="svg-leader" d="M 78 120 A 48 48 0 0 1 78 135" stroke="var(--accent-dark)"/>
+  <text class="svg-note-sm" x="84" y="136" fill="var(--accent-dark)">α<tspan dy="3" font-size="8">i</tspan></text>
+  <text class="svg-note-sm" x="20" y="196">La corriente que la sección ve está</text>
+  <text class="svg-note-sm" x="20" y="211">inclinada un ángulo α<tspan dy="3" font-size="8">i</tspan><tspan dy="-3"> hacia abajo.</tspan></text>
+
+  <text class="svg-note-sm" x="300" y="44">Sobre la fuerza</text>
+  <line class="svg-grid" x1="285" y1="230" x2="500" y2="230" stroke-dasharray="4 3"/>
+  <path class="svg-line" d="M 300 230 L 380 230" stroke="var(--blue)" stroke-width="1.6"/>
+  <path d="M 380 226 L 390 230 L 380 234 Z" fill="var(--blue)"/>
+  <text class="svg-note-sm" x="332" y="245">V<tspan dy="3" font-size="8">∞</tspan></text>
+  <path class="svg-line" d="M 300 230 L 380 251" stroke="var(--ink)" stroke-width="1.6" stroke-dasharray="4 3"/>
+  <text class="svg-note-sm" x="330" y="270">V<tspan dy="3" font-size="8">ef</tspan></text>
+
+  <path class="svg-line" d="M 340 230 L 340 96" stroke="var(--blue)" stroke-width="2.4"/>
+  <path d="M 335 100 L 340 86 L 345 100 Z" fill="var(--blue)"/>
+  <text class="svg-note-sm" x="310" y="92">L</text>
+  <path class="svg-line" d="M 340 230 L 375 100" stroke="var(--accent)" stroke-width="2.4"/>
+  <path d="M 371 104 L 378 88 L 380 104 Z" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="384" y="94">L<tspan dy="3" font-size="8">ef</tspan><tspan dy="-3"> ⊥ V</tspan><tspan dy="3" font-size="8">ef</tspan></text>
+  <path class="svg-line" d="M 340 96 L 372 96" stroke="var(--accent-dark)" stroke-width="2.4"/>
+  <path d="M 368 91 L 380 96 L 368 101 Z" fill="var(--accent-dark)"/>
+  <text class="svg-note-sm" x="342" y="82" fill="var(--accent-dark)">D<tspan dy="3" font-size="8">i</tspan></text>
+  <path class="svg-leader" d="M 340 150 A 80 80 0 0 0 358 152" stroke="var(--accent-dark)"/>
+  <text class="svg-note-sm" x="346" y="168" fill="var(--accent-dark)">α<tspan dy="3" font-size="8">i</tspan></text>
+  <text class="svg-note-sm" x="272" y="296">La fuerza es perpendicular a V<tspan dy="3" font-size="8">ef</tspan><tspan dy="-3">, no a V</tspan><tspan dy="3" font-size="8">∞</tspan><tspan dy="-3">;</tspan></text>
+  <text class="svg-note-sm" x="272" y="311">su proyección hacia atrás es el inducido.</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">De dónde sale el arrastre inducido.</b> A la izquierda, la composición de velocidades en una sección: la corriente libre más el descenso inducido dan una corriente local inclinada un ángulo \(\alpha_i\). A la derecha, la consecuencia: la fuerza aerodinámica es perpendicular a esa corriente local, de modo que aparece inclinada \(\alpha_i\) hacia atrás y su proyección sobre la dirección del vuelo es una resistencia. Figura esquemática; los ángulos están exagerados.</figcaption>
+</figure>
+<p>La fuerza que genera cada sección es perpendicular a la corriente <em>que esa sección ve</em>, no a la corriente libre. Al estar esa corriente inclinada \(\alpha_i\) hacia abajo, la fuerza aparece inclinada \(\alpha_i\) hacia atrás, y su proyección sobre la dirección del movimiento es una resistencia que no existía en dos dimensiones: el <strong>arrastre inducido</strong>.</p>
+<div class="callout">
+  <p><strong>No es una pérdida por fricción.</strong> El arrastre inducido aparece en un fluido sin viscosidad y es el precio termodinámico de dejar atrás una estela con energía cinética de rotación. Es el único arrastre que un método no viscoso puede calcular, y en un ala de gran sustentación suele superar al arrastre de perfil.</p>
+</div>
+    </section>
+    <section id="model-es">
+      <p class="section-label">Alcance y límites</p>
+      <h2>Cuatro métodos y la hipótesis que limita a cada uno</h2>
+<p>La pestaña <code>Analysis</code> del diálogo de análisis ofrece cuatro métodos. No son cuatro niveles de precisión de lo mismo: son cuatro modelos con hipótesis distintas, y la elección determina qué alas se pueden estudiar.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Método</th><th>Qué resuelve</th><th>Hipótesis que lo limita</th></tr></thead>
+    <tbody>
+      <tr><td><strong>LLT</strong><br>línea sustentadora</td><td>La formulación no lineal de Prandtl. Emplea la polar bidimensional del perfil en cada sección, de modo que <strong>captura la pérdida</strong></td><td>Coloca toda la vorticidad ligada en una recta perpendicular a la corriente. Sólo vale para un <strong>ala recta, sin flecha ni diedro</strong>, y para una sola superficie</td></tr>
+      <tr><td><strong>VLM1</strong><br>vórtices en herradura</td><td>Malla de herraduras sobre la superficie de curvatura media. Solución lineal y no viscosa</td><td>No admite derrape. Al ser lineal, <strong>no hay pérdida</strong>: la curva sigue recta indefinidamente</td></tr>
+      <tr><td><strong>VLM2</strong><br>vórtices en anillo</td><td>Malla de anillos de vorticidad. Admite flecha, diedro, torsión y varias superficies</td><td>Sigue siendo lineal y no viscosa, y desprecia el espesor: modela la <strong>superficie de curvatura media</strong>, no el perfil</td></tr>
+      <tr><td><strong>3D Panels</strong></td><td>Paneles sobre la superficie real del ala, con espesor</td><td>Mucho más costoso y sensible al mallado. Sólo se justifica cuando el <strong>espesor</strong> influye de forma apreciable</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Los cuatro métodos y la hipótesis que los limita.</b> La columna de la derecha es la que decide: en cuanto la geometría viola la hipótesis, el método deja de ser aplicable por mucho que el programa permita seleccionarlo.</caption>
+  </table>
+</div>
+<div class="callout">
+  <p><strong>Criterio práctico.</strong> Para un ala recta y sin diedro, la línea sustentadora es la opción natural: es la única no lineal, usa la polar bidimensional del perfil y por tanto captura la pérdida. En cuanto aparece flecha, diedro o una segunda superficie, deja de ser aplicable y hay que pasar a VLM. Los paneles tridimensionales sólo se justifican cuando el espesor importa.</p>
+</div>
+<p>Esta guía emplea <strong>VLM2</strong> por una razón concreta: es el método que el alumno usará en cualquier ala que no sea recta, y su formulación no viscosa aísla limpiamente el fenómeno tridimensional. El arrastre de perfil no aparece en los resultados, y eso es deliberado: <strong>todo el arrastre que se ve en esta guía es inducido</strong>.</p>
+    </section>
+    <section id="geometry-es">
+      <p class="section-label">Paso 1</p>
+      <h2>Definir el ala</h2>
+<p>Se entra con <code>Module ▸ Wing and Plane Design</code> (<code>⌘6</code>) y se crea el objeto con <code>Plane ▸ Define a New Plane</code>. El editor del avión permite desactivar el estabilizador y la deriva; para esta guía interesa <strong>el ala sola</strong>, sin ninguna otra superficie que contamine los coeficientes.</p>
+<p>El botón <code>Define</code> del bloque <em>Main Wing</em> abre el editor del ala, donde la planta se describe como una tabla de secciones. Cada fila es una estación en envergadura con su cuerda, su desplazamiento longitudinal, su diedro, su torsión y su perfil.</p>
+<figure class="diagram">
+  <img src="imagenes/t2-01_wing_edition.png" alt="Editor del ala en XFLR5 con la tabla de secciones y la vista tridimensional" loading="lazy">
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">El editor del ala.</b> La planta se describe como una tabla de secciones: cuerda, desplazamiento, diedro, torsión y perfil en cada estación. El panel derecho recalcula la geometría en vivo y es el control de calidad: envergadura 1,600 m, superficie 0,320 m², <strong>alargamiento 8,00</strong>, estrechamiento 1,00 y flecha 0,00° confirman que el ala es rectangular.</figcaption>
+</figure>
+<div class="callout">
+  <p><strong>Comprobación de geometría antes de analizar.</strong> El panel derecho recalcula en vivo envergadura, superficie, cuerda media y alargamiento. Con dos secciones de cuerda \(0{,}200\) m separadas \(0{,}800\) m se obtiene \(b=1{,}600\) m, \(S=0{,}320\) m² y \(AR = b^2/S = 8{,}00\). Que el estrechamiento salga \(1{,}00\) y la flecha \(0{,}00^\circ\) confirma que el ala es rectangular. Si alguno de esos números no coincide con lo previsto, el error está en la tabla y no en el análisis.</p>
+</div>
+<h3>El mallado</h3>
+<p>Las columnas <code>X-panels</code> y <code>Y-panels</code> definen la discretización: 13 paneles en cuerda con distribución coseno y 19 en envergadura con distribución seno, que dan 494 paneles en total. Ambas distribuciones concentran paneles donde el gradiente es fuerte —bordes de ataque y de salida en cuerda, punta en envergadura—. Un mallado insuficiente en la punta subestima el arrastre inducido, que es precisamente lo que se quiere medir.</p>
+    </section>
+    <section id="analysis-es">
+      <p class="section-label">Paso 2</p>
+      <h2>Definir el análisis</h2>
+<p>Con el ala guardada, <code>Analysis ▸ Define an Analysis</code> abre un diálogo de seis pestañas. Dos importan aquí.</p>
+<h3>Pestaña <em>Polar Type</em>: la velocidad fija el Reynolds</h3>
+<figure class="diagram medium">
+  <img src="imagenes/t2-02_analysis_def.png" alt="Diálogo de definición del análisis mostrando Tip Re y Root Re iguales a 500000" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">Pestaña <em>Polar Type</em>.</b> El diálogo informa del Reynolds en la raíz y en la punta calculado con la cuerda local. Con \(V_\infty = 37{,}5\) m/s y cuerda de 0,200 m ambos valen 500 000, exactamente el Reynolds al que se calculó la polar bidimensional del Tutorial 1.</figcaption>
+</figure>
+<p>El tipo de polar tiene el mismo significado que en el análisis bidimensional. Lo nuevo es que el diálogo informa en vivo del <strong>Reynolds en la raíz y en la punta</strong>, calculado con la cuerda local. En un ala rectangular ambos coinciden, y eso permite elegir la velocidad que reproduce exactamente las condiciones del Tutorial 1:</p>
+<div class="equation-card">\[ V_\infty = \frac{Re\,\nu}{c} = \frac{5\times10^{5}\cdot 1{,}5\times10^{-5}}{0{,}200} = 37{,}5\ \mathrm{m/s} \]</div>
+<div class="callout">
+  <p>En un ala con estrechamiento la cuerda de punta es menor y su Reynolds también: el diálogo lo muestra, y es la forma de comprobar que ninguna sección queda fuera del intervalo cubierto por las polares del perfil.</p>
+</div>
+<h3>Pestaña <em>Analysis</em>: el método y el acoplamiento viscoso</h3>
+<figure class="diagram medium">
+  <img src="imagenes/t2-03_metodo.png" alt="Pestaña Analysis con VLM2 seleccionado y la opción Viscous desmarcada" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">Pestaña <em>Analysis</em>: método y acoplamiento viscoso.</b> Los cuatro métodos y las tres opciones. Aquí se ha elegido <code>Ring vortex (VLM2)</code> y se ha desmarcado <code>Viscous</code>; el nombre del análisis recoge esa decisión con el sufijo <code>-Inviscid</code>, que conviene conservar para no confundir después las polares.</figcaption>
+</figure>
+<p>Aquí se elige el método y se decide si el cálculo será viscoso. Con <code>Viscous</code> marcado, XFLR5 resuelve el problema no viscoso y después <strong>añade el arrastre de perfil interpolando la polar bidimensional</strong> del perfil de cada sección, en el Reynolds y el \(c_l\) locales. Desmarcarlo deja el resultado puramente no viscoso, y el nombre del análisis pasa a llevar el sufijo <code>-Inviscid</code>.</p>
+    </section>
+    <section id="algorithm-es">
+      <p class="section-label">Paso 3</p>
+      <h2>Ejecutar, y saber leer el fallo</h2>
+<p>El panel <em>Plane analysis</em> pide el intervalo de ángulos. Para esta guía, de \(0^\circ\) a \(15^\circ\) con \(\Delta\alpha = 0{,}5^\circ\), con <code>Store OpPoint</code> marcado por la misma razón que en el análisis bidimensional: sin él no se conservan las distribuciones en envergadura.</p>
+<figure class="diagram narrow">
+  <img src="imagenes/t2-04_panel.png" alt="Panel lateral con el intervalo de ángulos del análisis del ala" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">Panel <em>Plane analysis</em>.</b> Define el intervalo del barrido. <code>Init LLT</code> sólo interviene si el método elegido es la línea sustentadora; <code>Store OpPoint</code> conserva las distribuciones en envergadura de cada ángulo, sin las cuales la vista tridimensional queda vacía.</figcaption>
+</figure>
+<h3>El fallo que hay que saber leer</h3>
+<p>Con <code>Viscous</code> marcado, esta misma ala devuelve un registro lleno de mensajes y ninguna polar:</p>
+<figure class="diagram">
+  <img src="imagenes/t2-05_vlm_log.png" alt="Registro del análisis con errores de interpolación de la polar del perfil" loading="lazy">
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">El fallo del acoplamiento viscoso.</b> Con <code>Viscous</code> marcado, el cálculo no viscoso converge pero la interpolación del arrastre de perfil falla en todas las estaciones: <code>Re = 500000 is outside the flight envelope of polars</code> en la zona exterior y <code>Cl = 1.41 could not be interpolated</code> en la interior. XFLR5 descarta entonces el punto completo y la polar del ala queda vacía. El mensaje señala un problema en la polar <em>bidimensional</em>, no en el método tridimensional.</figcaption>
+</figure>
+<div class="callout">
+  <p><strong>Qué significa.</strong> <code>Re = 500000 is outside the flight envelope of polars</code> y <code>Cl = 1.41 could not be interpolated</code> no son fallos del método tridimensional: son fallos de la <em>interpolación</em>. El cálculo no viscoso convergió, pero al ir a buscar el arrastre de perfil de cada sección no encontró en la polar bidimensional un punto que correspondiera al \(c_l\) y al Reynolds locales. Cuando eso ocurre en todas las estaciones, XFLR5 descarta el punto entero y la polar queda vacía.</p>
+</div>
+<p>La causa es siempre la misma: <strong>la polar del perfil no cubre lo que el ala pide</strong>. Se resuelve de tres maneras, en este orden:</p>
+<ol class="process-flow">
+  <li>Ampliar el intervalo de ángulos de la polar bidimensional hasta pasar de \(c_{l,\max}\).</li>
+  <li>Calcular polares del perfil a varios números de Reynolds que envuelvan los de la raíz y la punta, para que la interpolación tenga de dónde tomar valores.</li>
+  <li>Si sólo interesa el comportamiento tridimensional, desmarcar <code>Viscous</code>. Es lo que se hace en esta guía, y obliga a recordar que <strong>el arrastre que se obtiene es únicamente el inducido</strong>.</li>
+</ol>
+    </section>
+    <section id="polars-es">
+      <p class="section-label">Paso 4</p>
+      <h2>Las cuatro polares del ala</h2>
+<p>Con <code>View ▸ Polar View</code> y <code>Graphs ▸ Four Graphs</code> aparecen las cuatro representaciones del ala. Son las mismas magnitudes del Tutorial 1 con una diferencia de fondo: ahora son coeficientes <strong>del ala completa</strong>, y se escriben con mayúscula —\(C_L\), \(C_D\), \(C_m\)— para distinguirlos de los seccionales.</p>
+<figure class="diagram">
+  <img src="imagenes/t2-06_polares_3d.png" alt="Las cuatro polares del ala en la vista Polar View" loading="lazy">
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">Las cuatro polares del ala.</b> Corrida VLM2 no viscosa del ala rectangular de alargamiento 8 a \(V_\infty = 37{,}5\) m/s, con 31 puntos de operación de \(0^\circ\) a \(15^\circ\). Obsérvese que los coeficientes llevan mayúscula —\(C_L\), \(C_D\), \(C_m\)— porque son del ala completa y no de una sección.</figcaption>
+</figure>
+<div class="callout">
+  <p><strong>La convención de mayúsculas no es tipográfica.</strong> \(c_l\) es el coeficiente de una sección, adimensionalizado con su cuerda; \(C_L\) es el del ala, adimensionalizado con la superficie de referencia. Confundirlos es el origen de la mitad de los errores de este tema.</p>
+</div>
+    </section>
+    <section id="slope-es">
+      <p class="section-label">Resultado central</p>
+      <h2>La pendiente cae, el ángulo de sustentación nula no</h2>
+<p class="lead">Éste es el resultado central de la guía, y se mide directamente sobre la curva \(C_L\)–\(\alpha\).</p>
+<p>Un ajuste por mínimos cuadrados sobre el tramo lineal —de \(0^\circ\) a \(8^\circ\), donde la curva es recta— de la corrida documentada en la figura 7 da:</p>
+<div class="result-box">
+  <p>\(a = 0{,}0802\) por grado \(= 4{,}598\ \mathrm{rad}^{-1}\), con \(C_L(0^\circ) = 0{,}1620\) y, por tanto, \(\alpha_{L=0} = -2{,}02^\circ\).</p>
+</div>
+<h3>La pendiente cae</h3>
+<p>La teoría de perfil delgado da, para el perfil aislado, \(a_0 = 2\pi = 6{,}283\ \mathrm{rad}^{-1}\). El ala construida con ese mismo perfil rinde \(4{,}598\), un <strong>26,8 % menos</strong>. La teoría de la línea sustentadora predice esa caída con</p>
+<div class="equation-card">\[ a = \frac{a_0}{1 + \dfrac{a_0}{\pi\,e\,AR}} \]</div>
+<p>que para \(AR = 8\) y carga elíptica (\(e = 1\)) da \(5{,}027\ \mathrm{rad}^{-1}\), es decir \(0{,}0877\) por grado. El valor medido queda un \(8{,}6\ \%\) por debajo, y las dos razones de esa diferencia son instructivas: el ala es <strong>rectangular</strong> y su carga no es elíptica, y el mallado en la punta es finito. Ambas se pueden poner a prueba, y el ejercicio de esta guía lo hace.</p>
+<h3>El ángulo de sustentación nula no cambia</h3>
+<div class="callout">
+  <p>El Tutorial 1 midió \(\alpha_{L=0} \approx -2{,}1^\circ\) para el perfil NACA 2412 aislado. El ala construida con ese perfil da \(-2{,}02^\circ\). <strong>Prácticamente el mismo valor</strong>, y no es casualidad: sin torsión geométrica ni aerodinámica, todas las secciones tienen la misma línea de curvatura media y el mismo ángulo de sustentación nula, de modo que el ala lo hereda intacto. El descenso inducido inclina la corriente, pero no cambia la geometría del perfil.</p>
+</div>
+<p>La conclusión práctica es que <strong>la envergadura finita gira la curva, no la desplaza</strong>: mismo corte con el eje, menor pendiente. Comparado al mismo ángulo geométrico \(\alpha = 6^\circ\), el perfil del Tutorial 1 daba \(c_l = 0{,}896\) y esta ala da \(C_L = 0{,}644\): un \(28\ \%\) menos.</p>
+    </section>
+    <section id="induced-es">
+      <p class="section-label">Resultado central</p>
+      <h2>El arrastre inducido y el factor de eficiencia</h2>
+<p>La teoría de la línea sustentadora predice que el arrastre inducido crece con el cuadrado de la sustentación:</p>
+<div class="equation-card">\[ C_{D_i} = \frac{C_L^{2}}{\pi\,e\,AR} \]</div>
+<p>donde \(e\) es el <strong>factor de eficiencia de envergadura</strong>, que vale la unidad para una distribución elíptica de sustentación y menos para cualquier otra. La relación se comprueba sobre los datos exportados de la corrida:</p>
+<figure class="diagram">
+  <svg viewBox="0 0 520 380" role="img" aria-label="Arrastre inducido frente al cuadrado del coeficiente de sustentación: los puntos calculados caen sobre una recta que pasa por el origen">
+  <text class="svg-title" x="70" y="18">C_Di  vs  C_L²</text>
+  <g class="svg-grid">
+    <line x1="70" y1="228" x2="490" y2="228"/><line x1="70" y1="156" x2="490" y2="156"/><line x1="70" y1="84" x2="490" y2="84"/>
+    <line x1="186.7" y1="30" x2="186.7" y2="300"/><line x1="303.3" y1="30" x2="303.3" y2="300"/><line x1="420" y1="30" x2="420" y2="300"/>
+  </g>
+  <g class="svg-axis"><line x1="70" y1="30" x2="70" y2="300"/><line x1="70" y1="300" x2="490" y2="300"/></g>
+  <g class="svg-tick" text-anchor="end">
+    <text x="62" y="304">0</text><text x="62" y="232">0,02</text><text x="62" y="160">0,04</text><text x="62" y="88">0,06</text>
+  </g>
+  <g class="svg-tick" text-anchor="middle">
+    <text x="70" y="318">0</text><text x="186.7" y="318">0,5</text><text x="303.3" y="318">1,0</text><text x="420" y="318">1,5</text>
+  </g>
+  <text class="svg-tick" x="280" y="338" text-anchor="middle">C_L²</text>
+  <text class="svg-tick" x="24" y="165" text-anchor="middle" transform="rotate(-90 24 165)">C_Di</text>
+
+  <path class="svg-line" d="M 70 300 L 490 41" stroke="var(--accent)" stroke-width="1.8" stroke-dasharray="6 4"/>
+  <g fill="var(--blue)">
+    <circle cx="76" cy="296" r="4.5"/><circle cx="94" cy="285" r="4.5"/><circle cx="125" cy="266" r="4.5"/>
+    <circle cx="167" cy="240" r="4.5"/><circle cx="220" cy="207" r="4.5"/><circle cx="284" cy="168" r="4.5"/>
+    <circle cx="488" cy="44" r="4.5"/>
+  </g>
+  <text class="svg-note-sm" x="300" y="120">ajuste:  C_Di = 0,0400 · C_L²</text>
+  <text class="svg-note-sm" x="300" y="136">→  e = 1/(π·AR·k) = 0,995</text>
+  <text class="svg-note-sm" x="96" y="286">α = 0°</text>
+  <text class="svg-note-sm" x="430" y="60" text-anchor="end">α = 15°</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 8.</b> <b class="fig-title">El arrastre inducido crece con el cuadrado de la sustentación.</b> Puntos calculados de la corrida de la figura 7, exportados a texto. La recta es el ajuste por mínimos cuadrados forzado por el origen, de pendiente \(k = 0{,}0400\). Que los puntos caigan sobre ella en todo el intervalo confirma la predicción \(C_{D_i} = C_L^2/(\pi e AR)\) de la teoría de la línea sustentadora, y de la pendiente se despeja \(e = 0{,}995\).</figcaption>
+</figure>
+<p>El ajuste da una recta que pasa por el origen con pendiente \(k = 0{,}0400\), de donde</p>
+<div class="result-box">
+  <p>\(e = \dfrac{1}{\pi\,AR\,k} = \dfrac{1}{\pi \cdot 8 \cdot 0{,}0400} = 0{,}995\)</p>
+</div>
+<p>XFLR5 reporta ese mismo factor directamente en el recuadro de datos de la vista tridimensional, bajo el rótulo <code>Efficiency</code>: a \(\alpha = 6^\circ\) muestra \(0{,}992\).</p>
+<div class="callout">
+  <p><strong>El orden de magnitud importa.</strong> A \(\alpha = 6^\circ\) esta ala tiene \(C_{D_i} = 0{,}0166\). El arrastre de perfil del NACA 2412 medido en el Tutorial 1 en condiciones equivalentes era \(c_d = 0{,}0104\). El arrastre inducido es, por sí solo, <strong>una vez y media el arrastre de perfil</strong> — y crece con el cuadrado de \(C_L\), mientras que el de perfil apenas se mueve. En despegue y en viraje sostenido, el inducido domina.</p>
+</div>
+<p>De la expresión anterior se sigue el argumento de diseño más citado de la aerodinámica subsónica: para reducir el arrastre inducido a igualdad de sustentación hay que <strong>aumentar el alargamiento</strong>. Un planeador tiene \(AR\) de 20 a 30 por esa razón, y un caza lo tiene de 3 porque prioriza otra cosa.</p>
+    </section>
+    <section id="spanwise-es">
+      <p class="section-label">Leer el ala</p>
+      <h2>Distribución en envergadura y descenso inducido</h2>
+<p>La vista tridimensional con las casillas <code>Lift</code> y <code>Downwash</code> marcadas dibuja sobre el ala lo que las polares resumen en un número.</p>
+<figure class="diagram">
+  <img src="imagenes/t2-07_3d_lift.png" alt="Vista tridimensional del ala con la distribución de sustentación y el descenso inducido" loading="lazy">
+  <figcaption><b class="fig-num">Figura 9.</b> <b class="fig-title">Distribución de sustentación y descenso inducido.</b> Vista tridimensional en \(\alpha = 6^\circ\) con las casillas <code>Lift</code> y <code>Downwash</code> marcadas. En verde, la sustentación por unidad de envergadura, que cae hacia la punta y se anula en ella; en rojo, el descenso inducido. El recuadro inferior condensa la corrida: \(C_L = 0{,}644\), \(C_D = 0{,}017\), \(C_L/C_D = 38{,}7\), \(C_m = -0{,}209\) y <code>Efficiency = 0,992</code>, que es el factor de eficiencia de envergadura calculado por el propio programa.</figcaption>
+</figure>
+<p>Hay tres cosas que leer en esa figura:</p>
+<ol>
+  <li><strong>La carga no es uniforme.</strong> Aunque la cuerda es constante, la sustentación por unidad de envergadura cae hacia la punta y se anula en ella: en el extremo, extradós e intradós se comunican y no puede haber diferencia de presión. Una planta rectangular produce una distribución más plana que la elíptica, y ésa es exactamente la razón de que su \(e\) sea inferior a la unidad.</li>
+  <li><strong>El descenso inducido no es uniforme.</strong> En una carga elíptica sería constante a lo largo de la envergadura —el resultado clásico de Prandtl—; en una rectangular crece hacia la punta, y con él la penalización local.</li>
+  <li><strong>El recuadro de datos condensa la corrida.</strong> A \(\alpha = 6^\circ\): \(C_L = 0{,}644\), \(C_D = 0{,}017\), \(C_L/C_D = 38{,}7\), \(C_m = -0{,}209\) y \(\mathrm{Efficiency} = 0{,}992\). También aparece \(XNP\), la posición del punto neutro, que es el dato con el que arranca el estudio de estabilidad longitudinal.</li>
+</ol>
+<div class="callout">
+  <p><strong>Por qué el \(C_L/C_D\) parece enorme.</strong> El valor \(38{,}7\) corresponde a un cálculo no viscoso: en el denominador sólo hay arrastre inducido. Añadir el arrastre de perfil lo bajaría a un valor realista. Es la contrapartida de haber desmarcado <code>Viscous</code>, y conviene declararlo siempre que se reporte una eficiencia obtenida así.</p>
+</div>
+    </section>
+    <section id="example-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>Cuatro alas, misma superficie, distinto alargamiento</h2>
+<p class="lead">El ejercicio pone a prueba la única afirmación cuantitativa de la guía: que la caída de pendiente la gobierna el alargamiento. Es una práctica sugerida, no una entrega.</p>
+<div class="example">
+  <p><strong>Enunciado.</strong> Partiendo del ala de esta guía, generar tres alas más con el <em>mismo perfil y la misma superficie</em> \(S = 0{,}320\) m² y alargamientos \(AR = 4\), \(12\) y \(20\). Analizar las cuatro con VLM2 no viscoso a \(V_\infty = 37{,}5\) m/s y \(\alpha\) de \(0^\circ\) a \(10^\circ\).</p>
+  <p><strong>Cómo cambiar el alargamiento a superficie constante.</strong> Con planta rectangular, \(AR = b^2/S\) y \(S = b\,c\), de modo que \(b = \sqrt{AR\cdot S}\) y \(c = S/b\). Para \(AR = 12\): \(b = 1{,}960\) m y \(c = 0{,}163\) m.</p>
+</div>
+<h3>Registro de resultados</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>\(AR\)</th><th>\(b\) (m)</th><th>\(c\) (m)</th><th>\(a\) (grado\(^{-1}\))</th><th>\(\alpha_{L=0}\)</th><th>\(e\)</th><th>\(C_{D_i}\) a \(C_L = 0{,}6\)</th></tr></thead>
+    <tbody>
+      <tr><td>4</td><td>1,131</td><td>0,283</td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>8</td><td>1,600</td><td>0,200</td><td>0,0802</td><td>−2,02°</td><td>0,995</td><td>0,0143</td></tr>
+      <tr><td>12</td><td>1,960</td><td>0,163</td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>20</td><td>2,530</td><td>0,126</td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Plantilla de registro del ejercicio.</b> Cuatro alas con el mismo perfil y la misma superficie. La última columna es la que se contrasta con la predicción de la línea sustentadora.</caption>
+  </table>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>Represéntese \(1/a\) frente a \(1/AR\). La teoría de la línea sustentadora predice una recta. ¿Lo es? ¿Qué significan su ordenada en el origen y su pendiente?</li>
+  <li>¿Se mantiene \(\alpha_{L=0}\) en todos los alargamientos? Razónese a partir de la geometría de las secciones.</li>
+  <li>Obténgase \(e\) de cada ala por el ajuste \(C_{D_i}\) frente a \(C_L^2\). ¿Mejora o empeora al aumentar el alargamiento, y por qué?</li>
+  <li>Al pasar de \(AR = 4\) a \(AR = 20\) el Reynolds de la sección cambia, porque la cuerda cambia. ¿Afecta eso a un cálculo no viscoso? ¿Y afectaría a uno viscoso?</li>
+  <li>Repítase el ala original con la mitad de paneles en envergadura. ¿Cuánto cambia \(C_{D_i}\)? Es la comprobación de que el mallado ya era suficiente.</li>
+</ol>
+<details class="details">
+  <summary>Comprobación: qué debe observarse si el procedimiento fue correcto</summary>
+  <div class="details-content">
+    <ul>
+      <li>La representación de \(1/a\) frente a \(1/AR\) sale recta. Su ordenada en el origen es \(1/a_0\), el inverso de la pendiente bidimensional; su pendiente vale \(1/(\pi e)\). Es la forma más limpia de extraer \(a_0\) de una familia de alas.</li>
+      <li>\(\alpha_{L=0}\) permanece en torno a \(-2^\circ\) en las cuatro. Sin torsión, el alargamiento no lo toca.</li>
+      <li>El factor \(e\) de una planta rectangular se aleja de la unidad conforme crece el alargamiento: la carga rectangular se parece cada vez menos a la elíptica. Es el argumento a favor del estrechamiento.</li>
+      <li>Duplicar el mallado en envergadura cambia \(C_{D_i}\) en menos de un uno por ciento si la malla original era suficiente. Si cambia mucho más, la malla original no lo era.</li>
+    </ul>
+  </div>
+</details>
+    </section>
+    <section id="summary-es">
+      <p class="section-label">Valores clave</p>
+      <h2>Tres relaciones y cinco números</h2>
+<p>Tres relaciones y cinco números bastan para verificar cualquier análisis de ala finita antes de extraer conclusiones de él.</p>
+<div class="equation-grid">
+  <div class="equation-card">\[ \alpha_{\mathrm{ef}} = \alpha - \alpha_i \]</div>
+  <div class="equation-card">\[ a = \frac{a_0}{1 + \dfrac{a_0}{\pi e AR}} \]</div>
+</div>
+<div class="equation-card">\[ C_{D_i} = \frac{C_L^{2}}{\pi\,e\,AR} \]</div>
+<div class="result-box">
+  <p><strong>Ala rectangular \(AR = 8\), NACA 2412, \(V_\infty = 37{,}5\) m/s, VLM2 no viscoso:</strong> \(a = 0{,}0802\) por grado \(= 4{,}598\ \mathrm{rad}^{-1}\); \(\alpha_{L=0} = -2{,}02^\circ\); \(e = 0{,}995\); a \(\alpha = 6^\circ\), \(C_L = 0{,}644\) y \(C_{D_i} = 0{,}0166\).</p>
+</div>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Magnitud</th><th>Perfil (2D)</th><th>Ala \(AR = 8\)</th><th>Qué ocurre</th></tr></thead>
+    <tbody>
+      <tr><td>Pendiente de sustentación</td><td>\(6{,}283\ \mathrm{rad}^{-1}\)</td><td>\(4{,}598\ \mathrm{rad}^{-1}\)</td><td><strong>Cae un 26,8 %</strong>: cada sección trabaja a \(\alpha-\alpha_i\)</td></tr>
+      <tr><td>Ángulo de sustentación nula</td><td>\(-2{,}1^\circ\)</td><td>\(-2{,}02^\circ\)</td><td><strong>No cambia</strong>: sin torsión, lo fija la línea de curvatura media</td></tr>
+      <tr><td>Sustentación a \(\alpha = 6^\circ\)</td><td>\(c_l = 0{,}896\)</td><td>\(C_L = 0{,}644\)</td><td>Un 28 % menos, consecuencia de la pendiente</td></tr>
+      <tr><td>Arrastre a \(\alpha = 6^\circ\)</td><td>\(c_d = 0{,}0104\) (perfil)</td><td>\(C_{D_i} = 0{,}0166\) (inducido)</td><td>Aparece un arrastre <strong>nuevo</strong>, mayor que el de perfil</td></tr>
+      <tr><td>Momento en \(c/4\)</td><td>\(c_m = -0{,}048\)</td><td>\(C_m = -0{,}209\)</td><td>Referido al origen del avión, no al \(c/4\): no son comparables sin trasladar</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">Del perfil al ala: qué cambia y qué no.</b> Comparación al mismo ángulo geométrico entre el NACA 2412 aislado del Tutorial 1 y el ala de alargamiento 8 construida con él.</caption>
+  </table>
+</div>
+    </section>
+    <section id="mistakes-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Errores de interpretación que invalidan una corrida</h2>
+<p>Como en el Tutorial 1, éstos no son errores de manejo sino de interpretación, y cada uno invalida las conclusiones.</p>
+<ul class="check-list">
+  <li><strong>«El ala dará el \(c_{l,\max}\) del perfil.»</strong> Resulta verosímil porque el perfil es el mismo en todas las secciones. Pero cada sección trabaja a \(\alpha_{\mathrm{ef}} = \alpha - \alpha_i\), y el ala alcanza su máximo bastante más tarde y más abajo. Un ala nunca hereda el \(c_{l,\max}\) de su perfil.</li>
+  <li><strong>Escribir \(c_l\) donde corresponde \(C_L\).</strong> Resulta verosímil porque ambos son «coeficiente de sustentación». El primero es seccional y el segundo del ala; sólo coinciden en envergadura infinita, que es el caso que no se está calculando.</li>
+  <li><strong>«El arrastre inducido es una pérdida viscosa.»</strong> Resulta verosímil porque es arrastre. Pero aparece en un cálculo sin viscosidad: es el precio de dejar una estela con energía cinética de rotación, y por eso un método no viscoso puede calcularlo y un análisis bidimensional nunca lo ve.</li>
+  <li><strong>Reportar \(C_L/C_D\) de un análisis no viscoso como eficiencia del ala.</strong> Resulta verosímil porque el programa lo imprime. En el denominador sólo hay arrastre inducido: el valor está muy por encima del real y debe declararse como tal, o completarse con el arrastre de perfil.</li>
+  <li><strong>Interpretar «could not be interpolated» como un fallo del método tridimensional.</strong> Resulta verosímil porque aborta el análisis. Es un fallo de la interpolación viscosa: la polar bidimensional del perfil no cubre el \(c_l\) o el Reynolds que el ala pide. Se arregla en el análisis bidimensional, no en el tridimensional.</li>
+  <li><strong>Usar la línea sustentadora en un ala con flecha o diedro.</strong> Resulta verosímil porque el programa deja seleccionarla. La hipótesis de Prandtl coloca la vorticidad en una recta perpendicular a la corriente; con flecha o diedro esa hipótesis no se cumple y el resultado carece de sentido. Hay que pasar a VLM.</li>
+  <li><strong>Comparar dos alas de distinta superficie por su \(C_L\).</strong> Resulta verosímil porque \(C_L\) es adimensional. Pero está adimensionalizado con la superficie de referencia de cada una: para comparar hay que fijar \(S\), como hace el ejercicio de esta guía.</li>
+</ul>
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+<ol>
+  <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 5: teoría de la línea sustentadora de Prandtl, arrastre inducido y factor de eficiencia de envergadura.</li>
+  <li>Prandtl, L. <em>Applications of Modern Hydrodynamics to Aeronautics</em>, NACA Report 116. Washington, DC: NACA, 1921. El trabajo original de la línea sustentadora.</li>
+  <li>Katz, J. y Plotkin, A. <em>Low-Speed Aerodynamics</em>, 2.ª ed. Cambridge University Press, 2001, capítulo 12: formulación de los métodos de malla de vórtices y de paneles.</li>
+  <li>Deperrois, A. <em>Guidelines for XFLR5</em> y <em>Part IV: Wing analysis</em>. Documentación oficial del programa, donde se detallan las hipótesis de LLT, VLM1, VLM2 y paneles tridimensionales.</li>
+</ol>
+<p class="source-note">Capturas de pantalla tomadas de XFLR5 v6.62 sobre macOS. Los valores numéricos proceden de la corrida documentada en las figuras 7 y 9, exportada a texto y ajustada por mínimos cuadrados; los valores de contraste se recalcularon a partir de la teoría de la línea sustentadora. El proyecto de XFLR5 que reproduce la corrida acompaña a esta guía.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="perfil-y-polares.html?v=13"><span>Tutorial anterior</span>← Análisis de un perfil alar</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>XFLR5 · Serie de tutoriales</a>
+    </nav>
+  </article>
+
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+      <p>Erklären, warum eine endliche Tragfläche weniger Auftrieb erzeugt als ihr Profil, zwischen den vier Verfahren von XFLR5 wählen, eine Fläche definieren, den Fehler der viskosen Interpolation deuten und den räumlichen Auftriebsanstieg sowie den Spannweitenwirkungsgrad messen.</p>
+    </section>
+    <section id="physics-de">
+      <p class="section-label">Die Physik</p>
+      <h2>Warum eine Tragfläche nicht ihr Profil ist</h2>
+      <p>An der Spitze treibt der Druckunterschied eine Querströmung an, die sich zu zwei Randwirbeln aufrollt. Diese erzeugen einen Abwind, sodass jeder Schnitt eine um \(\alpha_i\) geneigte Strömung sieht und bei \(\alpha_{\mathrm{ef}} = \alpha - \alpha_i\) arbeitet. Daraus folgt zweierlei: die Fläche erzeugt weniger Auftrieb als ihr Profil, und die Schnittkraft neigt sich nach hinten und erzeugt induzierten Widerstand, der auch ohne Zähigkeit besteht.</p>
+    </section>
+    <section id="model-de">
+      <p class="section-label">Geltungsbereich</p>
+      <h2>Vier Verfahren und ihre Annahmen</h2>
+      <p>Die Traglinientheorie ist nichtlinear und nutzt die Profilpolare, erfasst also den Abriss — gilt aber nur für gerade Flächen ohne Pfeilung und V-Stellung. VLM1 und VLM2 sind linear und reibungsfrei und kennen daher keinen Abriss; VLM2 erlaubt Pfeilung, V-Stellung und mehrere Flächen. 3D-Panels bilden die Dicke ab, zu deutlich höherem Aufwand. Diese Anleitung nutzt VLM2 ohne viskose Kopplung: jeder gezeigte Widerstand ist induzierter Widerstand.</p>
+    </section>
+    <section id="geometry-de">
+      <p class="section-label">Schritt 1</p>
+      <h2>Die Tragfläche definieren</h2>
+      <p>Der Grundriss ist eine Tabelle von Spannweitenstationen mit Tiefe, Versatz, V-Winkel, Schränkung und Profil. Zwei Schnitte mit 0,200 m Tiefe im Abstand von 0,800 m ergeben \(b = 1,600\) m, \(S = 0,320\) m² und \(AR = 8,00\). Das rechte Feld rechnet die Geometrie laufend nach und ist die Kontrolle vor jeder Analyse.</p>
+    </section>
+    <section id="analysis-de">
+      <p class="section-label">Schritt 2</p>
+      <h2>Die Analyse definieren</h2>
+      <p>Der Dialog zeigt die Reynolds-Zahl an Wurzel und Spitze aus der örtlichen Tiefe — so wird der räumliche Lauf an die zweidimensionale Polare aus Tutorial 1 gebunden: \(V_\infty = 37,5\) m/s ergibt an beiden \(Re = 500\,000\). Im Reiter *Analysis* werden das Verfahren und die viskose Kopplung gewählt.</p>
+    </section>
+    <section id="algorithm-de">
+      <p class="section-label">Schritt 3</p>
+      <h2>Ausführen und Fehler deuten</h2>
+      <p>Mit eingeschalteter Viskosität liefert diese Fläche ein Protokoll voller <code>could not be interpolated</code> und gar keine Polare. Die räumliche Lösung konvergierte; gescheitert ist das Nachschlagen des Profilwiderstands in der Profilpolare beim örtlichen \(c_l\) und der örtlichen Reynolds-Zahl. Zu beheben ist das in der zweidimensionalen Analyse — oder man rechnet reibungsfrei und sagt es dazu.</p>
+    </section>
+    <section id="polars-de">
+      <p class="section-label">Schritt 4</p>
+      <h2>Die vier Polaren</h2>
+      <p>Dieselben vier Diagramme wie in Tutorial 1, nun für die ganze Fläche. Die Beiwerte werden groß geschrieben — \(C_L\), \(C_D\), \(C_m\) — weil sie auf die Bezugsfläche und nicht auf die Profiltiefe bezogen sind. Diese Unterscheidung verursacht die Hälfte der Fehler in diesem Thema.</p>
+    </section>
+    <section id="slope-de">
+      <p class="section-label">Kernergebnis</p>
+      <h2>Der Anstieg fällt, der Nullauftriebswinkel nicht</h2>
+      <p>Eine Ausgleichsrechnung im linearen Bereich ergibt \(a = 0{,}0802\) je Grad \(= 4{,}598\ \mathrm{rad}^{-1}\) gegenüber \(a_0 = 2\pi = 6{,}283\ \mathrm{rad}^{-1}\) für das Profil: ein Rückgang um 26,8 %. Der Nullauftriebswinkel bleibt dagegen bei \(-2{,}02^\circ\) gegenüber \(-2{,}1^\circ\) aus Tutorial 1 — unverändert, denn ohne Schränkung behält jeder Schnitt dieselbe Skelettlinie. Die endliche Spannweite dreht die Kurve, sie verschiebt sie nicht.</p>
+    </section>
+    <section id="induced-de">
+      <p class="section-label">Kernergebnis</p>
+      <h2>Induzierter Widerstand und Spannweitenwirkungsgrad</h2>
+      <p>Trägt man \(C_{D_i}\) über \(C_L^2\) auf, ergibt sich eine Ursprungsgerade der Steigung \(k = 0{,}0400\), woraus \(e = 1/(\pi\,AR\,k) = 0{,}995\) folgt — derselbe Wert, den XFLR5 als <code>Efficiency</code> ausgibt. Bei \(\alpha = 6^\circ\) ist allein der induzierte Widerstand das Anderthalbfache des in Tutorial 1 gemessenen Profilwiderstands, und er wächst quadratisch mit \(C_L\). Das ist das Argument für große Streckung.</p>
+    </section>
+    <section id="spanwise-de">
+      <p class="section-label">Die Fläche lesen</p>
+      <h2>Auftriebsverteilung und Abwind</h2>
+      <p>Mit gesetzten Häkchen <code>Lift</code> und <code>Downwash</code> zeigt die räumliche Ansicht, was die Polaren zu einer Zahl verdichten: die Belastung geht an der Spitze auf null, obwohl die Tiefe konstant ist, und der Abwind wächst zur Spitze hin, weil die Verteilung rechteckig und nicht elliptisch ist. Das Datenfeld fasst den Lauf zusammen, samt Neutralpunktlage.</p>
+    </section>
+    <section id="example-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Vier Flächen, gleiche Fläche, andere Streckung</h2>
+      <p>Drei weitere Flächen mit demselben Profil und derselben Fläche \(S = 0{,}320\) m² bei \(AR = 4\), 12 und 20 aufbauen und prüfen, ob \(1/a\) über \(1/AR\) eine Gerade ergibt, wie es die Traglinientheorie vorhersagt. Übungsvorschlag, keine Abgabe.</p>
+    </section>
+    <section id="summary-de">
+      <p class="section-label">Kernwerte</p>
+      <h2>Drei Beziehungen und fünf Zahlen</h2>
+      <p>\(\alpha_{\mathrm{ef}} = \alpha - \alpha_i\); \(a = a_0/(1 + a_0/\pi e AR)\); \(C_{D_i} = C_L^2/(\pi e AR)\). Für die rechteckige Fläche mit \(AR = 8\): \(a = 0{,}0802\) je Grad, \(\alpha_{L=0} = -2{,}02^\circ\), \(e = 0{,}995\), und bei \(\alpha = 6^\circ\) ist \(C_L = 0{,}644\) bei \(C_{D_i} = 0{,}0166\).</p>
+    </section>
+    <section id="mistakes-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Auslegungsfehler, die einen Lauf entwerten</h2>
+      <p>Sieben Auslegungsfehler: erwarten, dass die Fläche das \(c_{l,\max}\) des Profils erbt; \(c_l\) statt \(C_L\) schreiben; induzierten Widerstand für einen Reibungsverlust halten; ein reibungsfreies \(C_L/C_D\) als Gleitzahl angeben; <code>could not be interpolated</code> als räumlichen Fehler deuten; die Traglinientheorie auf gepfeilte Flächen anwenden; und Flächen verschiedener Bezugsfläche über \(C_L\) vergleichen.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<ol>
+  <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 5: teoría de la línea sustentadora de Prandtl, arrastre inducido y factor de eficiencia de envergadura.</li>
+  <li>Prandtl, L. <em>Applications of Modern Hydrodynamics to Aeronautics</em>, NACA Report 116. Washington, DC: NACA, 1921. El trabajo original de la línea sustentadora.</li>
+  <li>Katz, J. y Plotkin, A. <em>Low-Speed Aerodynamics</em>, 2.ª ed. Cambridge University Press, 2001, capítulo 12: formulación de los métodos de malla de vórtices y de paneles.</li>
+  <li>Deperrois, A. <em>Guidelines for XFLR5</em> y <em>Part IV: Wing analysis</em>. Documentación oficial del programa, donde se detallan las hipótesis de LLT, VLM1, VLM2 y paneles tridimensionales.</li>
+</ol>
+<p class="source-note">Capturas de pantalla tomadas de XFLR5 v6.62 sobre macOS. Los valores numéricos proceden de la corrida documentada en las figuras 7 y 9, exportada a texto y ajustada por mínimos cuadrados; los valores de contraste se recalcularon a partir de la teoría de la línea sustentadora. El proyecto de XFLR5 que reproduce la corrida acompaña a esta guía.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="perfil-y-polares.html?v=13"><span>Vorheriges Tutorial</span>← Analyse eines Tragflügelprofils</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>XFLR5 · Tutorial-Reihe</a>
+    </nav>
+  </article>
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>
