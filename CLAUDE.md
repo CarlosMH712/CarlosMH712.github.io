@@ -21,10 +21,16 @@ repository root, at <https://carlosmh712.github.io/>.
 ```text
 index.html script.js styles.css   portal; data-i18n + translations object
 tools/                            landing page per calculator, trilingual
+tutorials/                        software tutorials; hub + one folder per program
+tutorials/<program>/              index.html + tutorial pages + lecture.css/js
 <course-slug>/                    index.html + lecture pages + lecture.css/js
 standards/                        the documents above and the verifier
 docs/                             validation records
 ```
+
+**The verifier only walks top-level directories.** `tutorials/xflr5/` is nested,
+so `verify_lectures.py` with no argument does not reach it. Verify it by path:
+`python3 standards/verify_lectures.py tutorials/xflr5/perfil-y-polares.html`.
 
 ## Preview
 
@@ -59,7 +65,7 @@ Exits non-zero on failure. Structure only — it does not check physics.
   from a book, a table, or an earlier version of the page.
 - **`?v=N` is global.** Raising it means raising it in every page of every course
   plus the root, in one commit, or returning visitors keep a cached stylesheet
-  against new markup. Currently `v=12`.
+  against new markup. Currently `v=13`.
 - **Lecture files are named for the topic, never the number.** A lecture was once
   inserted between 04 and 05 and became "4.5"; no file had to be renamed.
 - **Push when work is done.** Two commits' worth of lectures once existed only on
@@ -106,6 +112,19 @@ across the eight units returns nothing. Competency B3 and the manufacturing side
 of E2 are still thin, and `AE506.pdf` also lists `E2.D4 Análisis Estructural`
 under this subject, which does not belong to it and is a question for whoever
 owns the plan of study rather than something to fix in content.
+
+## Software tutorials
+
+`tutorials/` holds guides to the programs used in the courses, one folder per
+program, and follows the same trilingual rules as a course. The first series is
+`tutorials/xflr5/`; OpenFOAM and Gmsh are the planned next two.
+
+The XFLR5 tutorial ships with **Spanish complete and English and German carrying
+a per-section summary plus a visible "translation in preparation" notice**. That
+is a deliberate, temporary state agreed with the author: the structure is
+trilingual and passes the verifier, but the full EN and DE prose is still owed.
+Do not treat the summaries as finished translations, and do not add another page
+to the series in that state without asking.
 
 ## Calculators
 

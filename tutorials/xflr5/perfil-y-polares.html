@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Two-dimensional airfoil analysis in XFLR5: loading the geometry, defining a viscous analysis, running an angle-of-attack sweep, and interpreting the polars and the pressure distribution." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Analysis of an Airfoil Section | XFLR5 Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">XFLR5 · Tutorial 1</p><h1>Analysis of an Airfoil Section</h1><p class="hero-copy">The complete two-dimensional procedure — loading the geometry, defining a viscous analysis and running an angle-of-attack sweep — followed by the reading of the polars and of the pressure distribution the program returns.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">XFLR5 · Tutorial 1</p><h1>Análisis de un perfil alar</h1><p class="hero-copy">El procedimiento bidimensional completo —cargar la geometría, definir un análisis viscoso y ejecutar un barrido de ángulo de ataque— y, a continuación, la lectura de las polares y de la distribución de presión que el programa devuelve.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">XFLR5 · Tutorial 1</p><h1>Analyse eines Tragflügelprofils</h1><p class="hero-copy">Das vollständige zweidimensionale Vorgehen — Geometrie laden, viskose Analyse definieren und Anstellwinkel-Durchlauf ausführen — und anschließend das Lesen der Polaren und der Druckverteilung, die das Programm liefert.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 45 min</span><span data-language="es" hidden>Lectura estimada: 45 min</span><span data-language="de" hidden>Lesedauer: ca. 45 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on XFLR5 v6.62</span><span data-language="es" hidden>Verificado en XFLR5 v6.62</span><span data-language="de" hidden>Geprüft mit XFLR5 v6.62</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="index.html?v=13">← <span data-ui-key="back">Back to the series</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#physics">The method</a><a href="#model">Scope and limits</a><a href="#interface">Interface</a><a href="#geometry">Step 1 · Airfoil</a><a href="#analysis">Step 2 · Analysis</a><a href="#algorithm">Step 3 · The sweep</a><a href="#polars">Step 4 · Polars</a><a href="#pressure">Step 5 · Pressure</a><a href="#example">Suggested exercise</a><a href="#summary">Key values</a><a href="#mistakes">Common mistakes</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#physics-es">El método</a><a href="#model-es">Alcance y límites</a><a href="#interface-es">La interfaz</a><a href="#geometry-es">Paso 1 · El perfil</a><a href="#analysis-es">Paso 2 · El análisis</a><a href="#algorithm-es">Paso 3 · El barrido</a><a href="#polars-es">Paso 4 · Las polares</a><a href="#pressure-es">Paso 5 · La presión</a><a href="#example-es">Ejercicio sugerido</a><a href="#summary-es">Valores clave</a><a href="#mistakes-es">Errores frecuentes</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#physics-de">Die Methode</a><a href="#model-de">Geltungsbereich</a><a href="#interface-de">Oberfläche</a><a href="#geometry-de">Schritt 1 · Profil</a><a href="#analysis-de">Schritt 2 · Analyse</a><a href="#algorithm-de">Schritt 3 · Durchlauf</a><a href="#polars-de">Schritt 4 · Polaren</a><a href="#pressure-de">Schritt 5 · Druck</a><a href="#example-de">Übungsvorschlag</a><a href="#summary-de">Kernwerte</a><a href="#mistakes-de">Häufige Fehler</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+      <p>Load an airfoil by either route, define a viscous analysis, run an angle-of-attack sweep, read the four polars and the pressure distribution, and know the interval in which the results carry physical meaning.</p>
+    </section>
+    <section id="physics">
+      <p class="section-label">The method</p>
+      <h2>Two models solved in a coupled way</h2>
+      <p>In two dimensions XFLR5 is a graphical front end to XFoil: a linear-vorticity panel method for the outer potential flow, coupled through the displacement thickness to a two-equation integral boundary layer, with transition predicted by the \(e^{N}\) criterion. There is no volume mesh, no discretised Navier–Stokes and no turbulence model.</p>
+    </section>
+    <section id="model">
+      <p class="section-label">Scope and limits</p>
+      <h2>Where the results carry physical meaning</h2>
+      <p>The single criterion that bounds the method is how far the boundary layer remains thin and attached. Trustworthy for attached flow at \(10^{5} &lt; Re &lt; 10^{7}\); unreliable below \(Re = 5\times 10^{4}\) and beyond \(C_{l,\max}\); outside its scope for shock waves and for finite wings.</p>
+    </section>
+    <section id="interface">
+      <p class="section-label">Orientation</p>
+      <h2>The map of the interface</h2>
+      <p>XFLR5 opens on an empty window because no module is selected yet. Modules live under the <code>Module</code> menu, not under <code>File</code>: <code>⌘1</code> for Direct Foil Design and <code>⌘5</code> for XFoil Direct Analysis. The airfoil list is shared by the whole project, which is stored in a single <code>.xfl</code> file.</p>
+    </section>
+    <section id="geometry">
+      <p class="section-label">Step 1</p>
+      <h2>Loading and preparing the airfoil</h2>
+      <p>Two routes: generate a NACA section from its analytical definition, or load a <code>.dat</code> file in Selig or Lednicer format. Either way, normalise the chord, refine the panelling to 150–200 panels and close the trailing-edge gap before analysing. Note that these commands sit under <code>Foil</code> in Direct Foil Design but under <code>Design</code> in XFoil Direct Analysis.</p>
+    </section>
+    <section id="analysis">
+      <p class="section-label">Step 2</p>
+      <h2>Defining the analysis</h2>
+      <p>Every field of the analysis dialogue fixes a physical hypothesis: the analysis type sets which quantity stays constant along the sweep, the Reynolds number is built on the <em>chord</em> and never on the span, and \(N_{\mathrm{crit}}\) describes the turbulence level of the stream rather than the airfoil. Note that the program defaults to \(\nu = 1{.}5\times 10^{-5}\ \mathrm{m^2/s}\).</p>
+    </section>
+    <section id="algorithm">
+      <p class="section-label">Step 3</p>
+      <h2>Running the angle-of-attack sweep</h2>
+      <p>Sweep from \(-6^\circ\) to \(16^\circ\) in steps of \(0{,}5^\circ\), with <code>Store Opp</code> always ticked: it is the option that keeps every operating point with its local data. When a point fails to converge, reduce the step, tick <code>Init BL</code>, refine the panelling, or accept that the failure marks the limit of the method.</p>
+    </section>
+    <section id="polars">
+      <p class="section-label">Step 4</p>
+      <h2>Reading the polars</h2>
+      <p>Four graphs, four questions, four contrast values: the lift slope against the thin-airfoil \(2\pi\), the minimum drag coefficient against its expected order of magnitude, the maximum efficiency obtained by tangency from the origin, and the quarter-chord moment against the wind-tunnel value. The drag polar \(C_d\)–\(C_l\) is not among the default variables.</p>
+    </section>
+    <section id="pressure">
+      <p class="section-label">Step 5</p>
+      <h2>The pressure coefficient distribution</h2>
+      <p>With \(C_p = 1 - (V/V_\infty)^2\), the distribution is a map of local velocity. Five features carry the physics: the stagnation point at \(C_p = +1\), the suction peak, the transition location, the adverse gradient that decides separation, and the Kutta condition closing both branches at the trailing edge.</p>
+    </section>
+    <section id="example">
+      <p class="section-label">Suggested practice</p>
+      <h2>Symmetric airfoil against cambered airfoil</h2>
+      <p>Analyse the NACA 0012 and the NACA 2412 under identical conditions —Type 1, \(Re = 5\times 10^{5}\), \(M = 0\), \(N_{\mathrm{crit}} = 9\)— and explain the differences from the geometry of each. Suggested practice, not an assignment.</p>
+    </section>
+    <section id="summary">
+      <p class="section-label">Key values</p>
+      <h2>The five figures that verify a run</h2>
+      <p>Contrast values for the NACA 2412 at \(Re = 5\times 10^{5}\): \(a_0 \approx 0{.}11\) per degree, \(\alpha_{L=0} \approx -2{.}1^\circ\), \(C_{m,c/4} \approx -0{.}05\), \(C_{d,\min} \approx 0{.}007\). The documented run returns \(C_L = 0{.}896\) and \(L/D = 86{.}2\) at \(\alpha = 6^\circ\).</p>
+    </section>
+    <section id="mistakes">
+      <p class="section-label">Common mistakes</p>
+      <h2>Errors of interpretation that invalidate a run</h2>
+      <p>Seven errors of interpretation, each stated with the claim, the reason it sounds plausible and the correction. The most expensive: building the Reynolds number on the span, comparing airfoils at different \(Re\), plotting beyond \(C_{l,\max}\), running without <code>Store Opp</code>, and taking the minimum-drag point for the point of maximum efficiency.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<ol>
+  <li>Drela, M. «XFOIL: An Analysis and Design System for Low Reynolds Number Airfoils», en <em>Low Reynolds Number Aerodynamics</em>. Berlín: Springer, 1989. Artículo original en que se describe el método implementado.</li>
+  <li>Deperrois, A. <em>Guidelines for XFLR5</em> y <em>Analysis of foils and wings operating at low Reynolds numbers</em>. Documentación oficial del programa.</li>
+  <li>Abbott, I. H. y von Doenhoff, A. E. <em>Theory of Wing Sections</em>. Nueva York: Dover, 1959. Definición de las series NACA y polares medidas en túnel.</li>
+  <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 4.</li>
+  <li><a href="http://airfoiltools.com" target="_blank" rel="noopener noreferrer">Airfoil Tools</a> y la <a href="https://m-selig.ae.illinois.edu/ads/coord_database.html" target="_blank" rel="noopener noreferrer">UIUC Airfoil Coordinates Database</a>, fuentes de archivos de coordenadas.</li>
+</ol>
+<p class="source-note">Capturas de pantalla tomadas de XFLR5 v6.62 sobre macOS. Todos los valores numéricos proceden de la corrida documentada en las figuras 9 y 12, ejecutada expresamente para esta guía; los valores de contraste se recalcularon a partir de la teoría de perfil delgado.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>XFLR5 · Tutorial series</a>
+    </nav>
+  </article>
+
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+<p class="lead">Esta guía recorre el análisis bidimensional de un perfil alar en XFLR5, desde la carga de la geometría hasta la interpretación de los resultados. Al terminarla debe ser posible:</p>
+<ul>
+  <li>Cargar la geometría de un perfil por cualquiera de las dos vías del programa y prepararla para el cálculo.</li>
+  <li>Definir un análisis viscoso declarando de forma consciente el tipo, el número de Reynolds, el número de Mach y el factor \(N_{\mathrm{crit}}\).</li>
+  <li>Ejecutar un barrido de ángulo de ataque y diagnosticar los puntos que no convergen.</li>
+  <li>Extraer de las polares la pendiente de sustentación, el ángulo de sustentación nula, el coeficiente de momento y la eficiencia máxima, y contrastarlos con la teoría de perfil delgado.</li>
+  <li>Leer una distribución de coeficiente de presión y localizar en ella el estancamiento, el pico de succión, la transición y el gradiente adverso.</li>
+  <li>Reconocer el intervalo en que los resultados admiten interpretación física y truncar la curva donde corresponde.</li>
+</ul>
+    </section>
+    <section id="physics-es">
+      <p class="section-label">El método</p>
+      <h2>Dos modelos resueltos de forma acoplada</h2>
+<p>En su parte bidimensional, XFLR5 no implementa un método propio: es una interfaz gráfica sobre <strong>XFoil</strong>, el código que Mark Drela desarrolló en el MIT en 1986 y que sigue siendo la referencia para el análisis de perfiles a números de Reynolds bajos y moderados. Conocer el modelo que opera por debajo determina qué resultados admiten interpretación física y cuáles no.</p>
+<p>XFoil divide el campo de flujo en dos regiones y aplica en cada una el modelo que le corresponde:</p>
+<ul>
+  <li><strong>Región exterior, flujo potencial.</strong> Un método de paneles con distribución lineal de vorticidad sobre el contorno del perfil y una estela que parte del borde de salida. La circulación queda determinada al imponer la condición de Kutta, que exige velocidad finita en el borde de salida.</li>
+  <li><strong>Región viscosa, capa límite integral.</strong> Dos ecuaciones diferenciales ordinarias —la ecuación integral de von Kármán y una ecuación de energía cinética— que transportan el espesor de cantidad de movimiento y el factor de forma a lo largo de ambas superficies y de la estela.</li>
+  <li><strong>Transición laminar–turbulenta, criterio \(e^{N}\).</strong> En lugar de resolver la estabilidad del flujo, se integra la tasa de amplificación de las perturbaciones y se declara turbulenta la capa límite cuando la amplificación acumulada alcanza un umbral prefijado, \(N_{\mathrm{crit}}\).</li>
+</ul>
+<p>Las dos regiones no se resuelven por separado. XFoil las acopla mediante el <strong>espesor de desplazamiento</strong> —la capa límite modifica el contorno efectivo que percibe el flujo exterior— y resuelve el sistema completo con un método de Newton. De ese acoplamiento provienen tanto la precisión del método como sus límites: mientras la capa límite permanezca delgada y adherida, la corrección es pequeña y la solución converge con rapidez; en cuanto la separación deja de ser un fenómeno local, la hipótesis que sostiene el planteamiento deja de cumplirse.</p>
+<div class="callout">
+  <p>Conviene enunciar también lo que el método <em>no</em> contiene: no hay malla de volumen, no se discretizan las ecuaciones de Navier–Stokes y no interviene ningún modelo de turbulencia. XFLR5 no es un código de dinámica de fluidos computacional y no debe describirse como tal en un informe.</p>
+</div>
+    </section>
+    <section id="model-es">
+      <p class="section-label">Alcance y límites</p>
+      <h2>Dónde los resultados admiten interpretación física</h2>
+<p>El criterio que delimita el alcance del método es siempre el mismo: hasta qué punto la capa límite sigue siendo delgada y adherida.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Resultados fiables</th><th>Zona de precaución</th><th>Fuera del alcance del método</th></tr></thead>
+    <tbody>
+      <tr><td>Flujo adherido en \(10^{5} &lt; Re &lt; 10^{7}\)</td><td>\(Re &lt; 5\times 10^{4}\): burbujas de separación extensas y convergencia frágil</td><td>Cualquier ángulo posterior a la pérdida</td></tr>
+      <tr><td>Burbujas laminares de separación de extensión reducida</td><td>\(M &gt; 0{.}5\): sólo se aplica una corrección de compresibilidad</td><td>Ondas de choque; regímenes transónico y supersónico</td></tr>
+      <tr><td>Comparación de perfiles en condiciones idénticas</td><td>Separación incipiente en el borde de salida, cerca de \(C_{l,\max}\)</td><td>Alas finitas: flecha, torsión y efectos de punta</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Dominio de validez del análisis bidimensional.</b> El criterio que separa las tres columnas es siempre el mismo: hasta qué punto la capa límite sigue siendo delgada y adherida.</caption>
+  </table>
+</div>
+<div class="callout">
+  <p><strong>Límite de validez que conviene fijar desde el principio.</strong> XFoil continúa produciendo valores de \(C_l\) y \(C_d\) más allá del ángulo de pérdida, y la curva resultante conserva un aspecto verosímil. Esos valores carecen de significado físico: un método integral de capa límite no puede representar un flujo masivamente separado, porque su hipótesis de partida es precisamente que la separación no lo es. Cuando el objeto de estudio sea el comportamiento posterior a la pérdida, el método adecuado es otro. En cualquier informe, los resultados deben presentarse hasta \(C_{l,\max}\), indicando de forma explícita el criterio con el que se truncó la curva.</p>
+</div>
+    </section>
+    <section id="interface-es">
+      <p class="section-label">Orientación</p>
+      <h2>El mapa de la interfaz</h2>
+<p>XFLR5 se abre en una ventana vacía, sin herramientas visibles. No se trata de un fallo: el programa está organizado en módulos independientes y todavía no se ha seleccionado ninguno. La selección se realiza desde el menú <code>Module</code> o desde los botones de la barra superior.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Módulo</th><th>Función</th><th>Uso en esta guía</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Direct Foil Design</strong></td><td>Cargar, generar y editar la geometría del perfil</td><td>Paso 1</td></tr>
+      <tr><td><strong>XFoil Inverse Design</strong></td><td>Problema inverso: obtener la geometría a partir de una distribución de velocidad objetivo</td><td>No se emplea</td></tr>
+      <tr><td><strong>XFoil Direct Analysis</strong></td><td>Análisis bidimensional: puntos de operación y polares</td><td>Pasos 2 a 5</td></tr>
+      <tr><td><strong>Wing and Plane Design</strong></td><td>Ala finita y aeronave completa: línea sustentadora, malla de vórtices y paneles tridimensionales</td><td>Tutorial 2</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Los módulos de XFLR5.</b> Cada uno dispone de su propia barra de menús: los comandos disponibles cambian al cambiar de módulo.</caption>
+  </table>
+</div>
+<figure class="diagram medium">
+  <img src="imagenes/01_menu_module.png" alt="Menú Module de XFLR5 con los cuatro módulos disponibles" loading="lazy">
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">El menú <code>Module</code>.</b> Los cuatro módulos del programa con sus atajos de teclado. <code>⌘1</code> da acceso al diseño de perfiles y <code>⌘5</code> al análisis; son los dos que se emplean en esta guía. <code>Execute script</code>, al final del menú, permite automatizar corridas por lotes y queda fuera del alcance del tutorial.</figcaption>
+</figure>
+<div class="callout">
+  <p><strong>Cómo se comunican los módulos.</strong> La lista de perfiles es común a todo el proyecto. Un perfil cargado en <em>Direct Foil Design</em> queda disponible de inmediato en <em>XFoil Direct Analysis</em>, y más adelante en el diseñador de alas. El conjunto —geometrías, análisis definidos, polares y puntos de operación— se almacena en un único archivo de proyecto, de extensión <code>.xfl</code>, que conviene guardar desde el principio de la sesión.</p>
+</div>
+    </section>
+    <section id="geometry-es">
+      <p class="section-label">Paso 1</p>
+      <h2>Cargar y preparar el perfil</h2>
+<p>Se accede desde <code>Module ▸ Direct Foil Design</code> (<code>⌘1</code>). Existen dos vías para incorporar un perfil, y ambas resultan necesarias a lo largo del curso.</p>
+
+<h3>Vía A: generar un perfil de la familia NACA</h3>
+<p>Menú <code>Foil ▸ Naca Foils</code>. Se introduce la designación de cuatro o cinco dígitos —0012, 2412, 23012— y el número de paneles con que se discretizará el contorno.</p>
+<p>El segundo campo toma el valor 100 por omisión; conviene elevarlo a 150. XFLR5 no dispone de una tabla de puntos «oficial» para cada perfil NACA: genera las coordenadas a partir de las expresiones analíticas de la familia y después las distribuye sobre la cuerda. El número de paneles es, por tanto, una decisión numérica que afecta al resultado, y no un ajuste de presentación.</p>
+<figure class="diagram narrow">
+  <img src="imagenes/03_dialogo_naca.png" alt="Diálogo Naca Foils con el perfil 2412 y 150 paneles" loading="lazy">
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">Diálogo <code>Naca Foils</code>.</b> Dos campos: el número de cuatro o cinco dígitos y el número de paneles con que se discretizará el contorno. Atajo <code>⌥N</code>.</figcaption>
+</figure>
+
+<h3>Vía B: cargar un archivo de coordenadas</h3>
+<p>El archivo <code>.dat</code> se obtiene de <em>Airfoil Tools</em> o de la base de datos de la Universidad de Illinois, y se abre con <code>File ▸ Open…</code>. XFLR5 admite los dos formatos de coordenadas de uso general:</p>
+<ul>
+  <li><strong>Selig:</strong> un único bloque de puntos que recorre el contorno completo, del borde de salida por el extradós hasta el borde de ataque y de regreso por el intradós.</li>
+  <li><strong>Lednicer:</strong> dos bloques separados, uno por superficie, ambos recorridos del borde de ataque al de salida.</li>
+</ul>
+<p>Conviene inspeccionar la geometría en pantalla antes de continuar. Un perfil invertido, con la cuerda fuera del intervalo \([0,1]\) o con el borde de salida cruzado se identifica de inmediato a la vista, y en cambio resulta prácticamente indetectable una vez que sólo se dispone de la polar.</p>
+
+<h3>Preparación de la geometría: tres comandos que suelen omitirse</h3>
+<p>Con el perfil seleccionado, en el menú <code>Foil</code>:</p>
+<ul>
+  <li><strong>Normalize the Foil:</strong> sitúa la cuerda exactamente entre \((0,0)\) y \((1,0)\). En caso contrario, el número de Reynolds y todos los coeficientes quedan referidos a una cuerda distinta de la unidad, y dejan de ser comparables.</li>
+  <li><strong>Refine Globally:</strong> ejecuta la rutina <code>PANE</code> de XFoil, que redistribuye los paneles concentrándolos donde la curvatura lo exige, borde de ataque y borde de salida. Se recomiendan entre 150 y 200 paneles.</li>
+  <li><strong>Set T.E. Gap:</strong> numerosos archivos de fabricante describen el borde de salida con espesor finito. La convergencia del cálculo mejora con una separación nula o muy reducida.</li>
+</ul>
+<figure class="diagram medium">
+  <img src="imagenes/02_menu_foil.png" alt="Menú Foil abierto mostrando los comandos de geometría" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">Bloque de geometría del menú <code>Foil</code>.</b> La ubicación de estos comandos depende del módulo activo, circunstancia que explica las discrepancias entre las guías disponibles: en <em>Direct Foil Design</em> figuran bajo <code>Foil</code>, mientras que en <em>XFoil Direct Analysis</em> los mismos comandos aparecen bajo <code>Design</code>. No se trata de una diferencia entre versiones del programa.</figcaption>
+</figure>
+<div class="callout">
+  <p><strong>Síntoma que permite reconocer el problema.</strong> Un contorno definido por 40 o 60 puntos mal distribuidos produce una distribución de \(C_p\) con oscilaciones en dientes de sierra cerca del borde de ataque, y una polar con discontinuidades. La preparación de la geometría debe realizarse <em>antes</em> del análisis, no como reacción a una corrida fallida.</p>
+</div>
+<figure class="diagram">
+  <img src="imagenes/04_perfil_cargado.png" alt="Perfil NACA 2412 cargado en el módulo Direct Foil Design" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">El perfil cargado en <em>Direct Foil Design</em>.</b> La tabla inferior permite verificar la geometría antes de analizarla: espesor 12.00 % situado al 29.63 % de la cuerda, curvatura 2.00 % al 41.04 %, y número de puntos del contorno. En la designación NACA de cuatro dígitos los dos primeros codifican la curvatura máxima y su posición, y los dos últimos el espesor máximo; si la tabla no los reproduce, la geometría cargada no es la esperada.</figcaption>
+</figure>
+    </section>
+    <section id="analysis-es">
+      <p class="section-label">Paso 2</p>
+      <h2>Definir el análisis</h2>
+<p>Se cambia a <code>Module ▸ XFoil Direct Analysis</code> (<code>⌘5</code>) y se abre <code>Analysis ▸ Define an Analysis…</code>. El diálogo, titulado <code>Analysis parameters for &lt;perfil&gt;</code>, concentra el contenido esencial de esta guía: cada campo fija una hipótesis física sobre el ensayo que se pretende reproducir.</p>
+<figure class="diagram medium">
+  <img src="imagenes/05_menu_analysis.png" alt="Menú Analysis abierto en el módulo de análisis" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">El menú <code>Analysis</code>.</b> <code>Batch Analysis</code> encadena varios perfiles o varios números de Reynolds en una sola ejecución, y <code>View Log File</code> conserva el registro de la última corrida.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/06_dialogo_analisis.png" alt="Diálogo de parámetros del análisis con Type 1, Re 500000, Mach 0 y NCrit 9" loading="lazy">
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">Definición del análisis.</b> Tres aspectos no evidentes. El nombre del análisis se genera automáticamente a partir de los parámetros —<code>T1_Re0.500_M0.00_N9.0</code>— y es lo que permite distinguir polares posteriormente. El bloque <strong>Plane Data</strong> (cuerda, envergadura y masa) sólo se habilita en los tipos 2 y 3, donde el peso interviene para despejar la velocidad. Y la viscosidad cinemática por omisión es \(1{.}5\times 10^{-5}\ \mathrm{m^2/s}\), no el \(1{.}46\times 10^{-5}\) de la atmósfera estándar a 15 °C: si el número de Reynolds se calcula a mano con un valor y el programa emplea otro, las condiciones declaradas y las efectivas no coinciden.</figcaption>
+</figure>
+
+<h3>El tipo de análisis</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Tipo</th><th>Magnitud constante</th><th>Situación que representa</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Type 1</strong></td><td>La velocidad, y con ella \(Re\)</td><td><strong>El caso habitual.</strong> Ensayo en túnel de viento, comparación de perfiles y ejercicios de curso</td></tr>
+      <tr><td><strong>Type 2</strong></td><td>La sustentación: \(Re\sqrt{C_l}\) constante</td><td>Vuelo nivelado: al aumentar el ángulo de ataque, la velocidad disminuye</td></tr>
+      <tr><td><strong>Type 3</strong></td><td>Las revoluciones</td><td>Secciones de pala de hélice</td></tr>
+      <tr><td><strong>Type 4</strong></td><td>El ángulo de ataque; barre \(Re\)</td><td>Estudio del efecto de escala sobre un mismo ángulo</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">Los cuatro tipos de análisis.</b> La elección del tipo determina qué magnitud se mantiene constante a lo largo del barrido y, por tanto, qué ensayo físico se está reproduciendo.</caption>
+  </table>
+</div>
+
+<h3>El número de Reynolds</h3>
+<p>Es el parámetro que traduce el problema real al análisis. Con aire en atmósfera estándar a 15 °C y a nivel del mar, \(\nu = 1{.}46\times 10^{-5}\ \mathrm{m^2/s}\):</p>
+<div class="equation-card">
+  \[ Re = \frac{\rho V_\infty c}{\mu} = \frac{V_\infty c}{\nu} \]
+</div>
+<div class="callout">
+  <p><strong>La longitud característica es la cuerda.</strong> Al tratarse de un análisis bidimensional, la envergadura no interviene: el modelo representa una sección de extensión infinita. Sustituir la cuerda por la envergadura es el error más frecuente en los informes de curso, y desplaza el número de Reynolds en un orden de magnitud completo.</p>
+</div>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Caso</th><th>\(V\) (m/s)</th><th>\(c\) (m)</th><th>\(Re\)</th></tr></thead>
+    <tbody>
+      <tr><td>Ala de aeronave no tripulada pequeña</td><td>12</td><td>0.15</td><td>\(1{.}2\times 10^{5}\)</td></tr>
+      <tr><td>Modelo en túnel de viento de laboratorio</td><td>20</td><td>0.10</td><td>\(1{.}4\times 10^{5}\)</td></tr>
+      <tr><td>Aeronave no tripulada de clase táctica</td><td>30</td><td>0.50</td><td>\(1{.}0\times 10^{6}\)</td></tr>
+      <tr><td>Avioneta ligera en crucero</td><td>60</td><td>1.50</td><td>\(6{.}2\times 10^{6}\)</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">Órdenes de magnitud del número de Reynolds.</b> Valores calculados con \(\nu = 1{.}46\times 10^{-5}\ \mathrm{m^2/s}\). Sirven de referencia para situar un caso; el número de Reynolds de cada trabajo debe calcularse con sus propios datos.</caption>
+  </table>
+</div>
+
+<h3>El número de Mach</h3>
+<p>Se deja en cero para todo régimen por debajo de \(M = 0{.}3\): el efecto de la compresibilidad es despreciable y la convergencia mejora. Por encima de ese valor XFoil aplica la corrección de Kármán–Tsien, válida hasta \(M \approx 0{.}6\) mientras el flujo se mantenga subcrítico. En cuanto aparece una onda de choque en el extradós, el resultado deja de tener significado físico.</p>
+
+<h3>El factor \(N_{\mathrm{crit}}\)</h3>
+<p>Es el factor de amplificación del criterio \(e^{N}\): el número de órdenes de crecimiento que debe acumular una perturbación antes de que la capa límite se declare turbulenta. En la práctica, es el parámetro que describe el nivel de turbulencia de la corriente y el acabado de la superficie.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>\(N_{\mathrm{crit}}\)</th><th>Entorno que representa</th></tr></thead>
+    <tbody>
+      <tr><td>4 – 8</td><td>Túnel de elevada turbulencia residual; superficie con rugosidad apreciable</td></tr>
+      <tr><td><strong>9</strong></td><td><strong>Valor de referencia:</strong> túnel de viento convencional. Debe emplearse salvo que exista una razón documentada para no hacerlo</td></tr>
+      <tr><td>10 – 12</td><td>Túnel de baja turbulencia; motovelero con superficie pulida</td></tr>
+      <tr><td>12 – 14</td><td>Velero de competición en atmósfera muy estable</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 5.</b> <b class="fig-title">Valores de \(N_{\mathrm{crit}}\) y entorno que representan.</b> El parámetro no describe el perfil, sino las condiciones del ensayo con el que se pretende comparar.</caption>
+  </table>
+</div>
+<div class="callout">
+  <p><strong>Condición necesaria para toda comparación.</strong> Dos perfiles evaluados con distinto \(N_{\mathrm{crit}}\), distinto número de Reynolds o distinto número de paneles no están siendo comparados entre sí. Los tres parámetros deben fijarse antes del análisis y declararse en el informe.</p>
+</div>
+
+<h3>Transición forzada</h3>
+<p>Ambos campos <code>TripLocation</code> toman el valor 1.00 por omisión, que corresponde a transición libre: la posición la determina el criterio \(e^{N}\). Fijarlos en 0.05 impone que la capa límite se vuelva turbulenta al 5 % de la cuerda, que es el efecto de una cinta de turbulencia adherida al modelo. Es el ajuste que permite reproducir numéricamente un ensayo realizado con <em>trip strip</em>.</p>
+    </section>
+    <section id="algorithm-es">
+      <p class="section-label">Paso 3</p>
+      <h2>Ejecución del barrido de ángulo de ataque</h2>
+<p>Definido el análisis, el panel lateral derecho solicita el intervalo de ángulos de ataque. Para un primer recorrido resulta adecuado el intervalo de \(-6^\circ\) a \(16^\circ\) con incremento \(\Delta\alpha = 0{.}5^\circ\).</p>
+<ul>
+  <li><strong>Sequence:</strong> recorre el intervalo completo en lugar de calcular un único punto de operación.</li>
+  <li><strong>Init BL:</strong> reinicializa la capa límite en cada ángulo. Sin marcar, cada punto parte de la solución del anterior, lo que resulta más rápido y más estable en la zona lineal. Conviene activarla cuando la polar empieza a presentar discontinuidades.</li>
+  <li><strong>Store Opp:</strong> debe marcarse siempre. Es la opción que conserva cada punto de operación con toda su información local —distribución de \(C_p\), posiciones de transición, espesores de capa límite—. Sin ella el programa retiene únicamente los coeficientes integrados, y la vista <code>OpPoint view</code> queda vacía.</li>
+</ul>
+<figure class="diagram narrow">
+  <img src="imagenes/07_panel_analisis.png" alt="Panel lateral con el intervalo de ángulos y las casillas de opciones" loading="lazy">
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">Panel <em>Direct foil analysis</em>.</b> Define el intervalo del barrido y las opciones de ejecución. La casilla que conserva los puntos de operación se denomina <strong>Store Opp</strong>.</figcaption>
+</figure>
+<p>Se ejecuta con <code>Analyze</code>. La ventana de registro informa del avance ángulo por ángulo; los puntos que no alcanzan la convergencia se anuncian de forma explícita y quedan como discontinuidades en la curva.</p>
+<figure class="diagram medium">
+  <img src="imagenes/08_log_analisis.png" alt="Ventana de registro de XFoil durante el barrido" loading="lazy">
+  <figcaption><b class="fig-num">Figura 8.</b> <b class="fig-title">Registro de la ejecución.</b> Cada ángulo informa del número de iteraciones empleadas en converger. La línea final, <code>…some points are unconverged</code>, advierte de los puntos que quedarán como discontinuidades en la polar.</figcaption>
+</figure>
+
+<h3>Procedimiento ante un punto que no converge</h3>
+<ol class="process-flow">
+  <li>Reducir el incremento \(\Delta\alpha\) a \(0{.}25^\circ\) en el tramo problemático.</li>
+  <li>Activar <strong>Init BL</strong> y repetir la ejecución.</li>
+  <li>Elevar el panelado a 200 paneles y volver a normalizar la geometría.</li>
+  <li>Ejecutar el barrido en dos tramos desde \(\alpha = 0^\circ\) hacia ambos extremos, en lugar de recorrer todo el intervalo de una sola vez.</li>
+  <li>Si el fallo se produce por encima de \(C_{l,\max}\), no se trata de un problema numérico sino del límite de validez del método. El barrido debe detenerse ahí.</li>
+</ol>
+    </section>
+    <section id="polars-es">
+      <p class="section-label">Paso 4</p>
+      <h2>Lectura de las polares</h2>
+<p>La representación se obtiene con <code>View ▸ Polar view</code> y <code>Graphs ▸ Four Graphs</code>. Si las curvas aparecen recortadas, <code>Graphs ▸ Reset All Graph Scales</code> reajusta las escalas.</p>
+<figure class="diagram">
+  <img src="imagenes/09_polares.png" alt="Las cuatro polares del NACA 2412 en la vista Polar view" loading="lazy">
+  <figcaption><b class="fig-num">Figura 9.</b> <b class="fig-title">Vista <code>Polar view</code> con cuatro gráficas.</b> Corrida del NACA 2412 a \(Re = 5\times 10^{5}\). Las variables representadas por omisión son \(C_d\)–\(\alpha\), \(C_l\)–\(\alpha\), \(C_m\)–\(\alpha\) y \(C_l\)–\(x_{tr}\): la polar de arrastre \(C_d\)–\(C_l\) no figura entre ellas y debe añadirse desde el menú contextual de la gráfica. El panel izquierdo lista un punto de operación por cada ángulo del barrido.</figcaption>
+</figure>
+<p>Cada representación responde a una pregunta distinta y admite un valor de contraste frente al cual verificar el resultado. Las dos figuras siguientes aíslan las dos lecturas fundamentales: la curva de sustentación y la polar de arrastre.</p>
+<figure class="diagram">
+  <svg viewBox="0 0 520 412" role="img" aria-label="Curva de coeficiente de sustentación contra ángulo de ataque con el ángulo de sustentación nula, la pendiente lineal y el máximo señalados">
+      <text class="svg-title" x="70" y="18">C_l  vs  α</text>
+      <g class="svg-grid">
+      <line x1="70" y1="260" x2="490" y2="260"/><line x1="70" y1="160" x2="490" y2="160"/>
+      <line x1="70" y1="110" x2="490" y2="110"/><line x1="70" y1="60"  x2="490" y2="60"/>
+      </g>
+      <line class="svg-grid" x1="70" y1="210" x2="490" y2="210" stroke-dasharray="4 3"/>
+      <g class="svg-axis"><line x1="70" y1="30" x2="70" y2="290"/><line x1="70" y1="290" x2="490" y2="290"/></g>
+      <g class="svg-tick" text-anchor="end">
+      <text x="62" y="264">−0.5</text><text x="62" y="214">0</text>
+      <text x="62" y="164">0.5</text><text x="62" y="114">1.0</text><text x="62" y="64">1.5</text>
+      </g>
+      <g class="svg-tick" text-anchor="middle">
+      <text x="70" y="306">−8</text><text x="130" y="306">−4</text><text x="190" y="306">0</text>
+      <text x="250" y="306">4</text><text x="310" y="306">8</text><text x="370" y="306">12</text>
+      <text x="430" y="306">16</text><text x="490" y="306">20</text>
+      </g>
+      <text class="svg-tick" x="280" y="326" text-anchor="middle">ángulo de ataque α  (grados)</text>
+      <text class="svg-tick" x="22" y="160" text-anchor="middle" transform="rotate(-90 22 160)">C_l</text>
+      <path class="svg-line svg-leader" d="M 310 104 L 430 20"/>
+      <path class="svg-line" d="M 100 251 L 310 104 Q 340 89 370 78 Q 385 74 400 77 Q 418 84 430 95" stroke="var(--blue)" stroke-width="2.4"/>
+      <g>
+      <circle cx="158.5" cy="210" r="8.5" fill="var(--accent)"/>
+      <text x="158.5" y="213.6" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="700">1</text>
+      <circle cx="235" cy="156" r="8.5" fill="var(--accent)"/>
+      <text x="235" y="159.6" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="700">2</text>
+      <circle cx="385" cy="75" r="8.5" fill="var(--accent)"/>
+      <text x="385" y="78.6" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="700">3</text>
+      </g>
+      <g>
+      <circle cx="80" cy="348" r="8.5" fill="var(--accent)"/>
+      <text x="80" y="351.6" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="700">1</text>
+      <text class="svg-note-sm" x="96" y="352">α<tspan dy="2.5" font-size="9">L=0</tspan><tspan dy="-2.5"> ≈ −2.1°  —  ángulo de sustentación nula</tspan></text>
+      <circle cx="80" cy="370" r="8.5" fill="var(--accent)"/>
+      <text x="80" y="373.6" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="700">2</text>
+      <text class="svg-note-sm" x="96" y="374">dC_l/dα ≈ 0.11 grado⁻¹  —  pendiente de la zona lineal</text>
+      <circle cx="80" cy="392" r="8.5" fill="var(--accent)"/>
+      <text x="80" y="395.6" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="700">3</text>
+      <text class="svg-note-sm" x="96" y="396">C_l,máx  —  ángulo de pérdida</text>
+      </g>
+      <line class="svg-leader" x1="300" y1="392" x2="330" y2="392"/>
+      <text class="svg-note-sm" x="338" y="396">prolongación de la recta</text>
+      </svg>
+  <figcaption><b class="fig-num">Figura 10.</b> <b class="fig-title">Curva característica de sustentación.</b> Perfil con curvatura positiva a \(Re = 5\times 10^{5}\). La curva se aparta de la prolongación de su tramo recto a partir de \(\alpha \approx 8^\circ\): ahí comienza la separación en el borde de salida, mucho antes de alcanzar el máximo. Figura esquemática; los valores proceden de la corrida de la figura 9.</figcaption>
+</figure>
+<figure class="diagram">
+  <svg viewBox="0 0 520 412" role="img" aria-label="Polar de arrastre con el arrastre mínimo, la tangente desde el origen que da la eficiencia máxima y el codo de la curva señalados">
+      <text class="svg-title" x="80" y="18">C_d  vs  C_l</text>
+      <g class="svg-grid">
+      <line x1="80" y1="260" x2="490" y2="260"/><line x1="80" y1="160" x2="490" y2="160"/>
+      <line x1="80" y1="110" x2="490" y2="110"/><line x1="80" y1="60"  x2="490" y2="60"/>
+      </g>
+      <line class="svg-grid" x1="80" y1="210" x2="490" y2="210" stroke-dasharray="4 3"/>
+      <g class="svg-axis"><line x1="80" y1="30" x2="80" y2="290"/><line x1="80" y1="290" x2="490" y2="290"/></g>
+      <g class="svg-tick" text-anchor="end">
+      <text x="72" y="264">−0.5</text><text x="72" y="214">0</text>
+      <text x="72" y="164">0.5</text><text x="72" y="114">1.0</text><text x="72" y="64">1.5</text>
+      </g>
+      <g class="svg-tick" text-anchor="middle">
+      <text x="80" y="306">0</text><text x="148" y="306">0.005</text><text x="217" y="306">0.010</text>
+      <text x="285" y="306">0.015</text><text x="353" y="306">0.020</text><text x="422" y="306">0.025</text>
+      <text x="490" y="306">0.030</text>
+      </g>
+      <text class="svg-tick" x="285" y="326" text-anchor="middle">C_d</text>
+      <text class="svg-tick" x="30" y="160" text-anchor="middle" transform="rotate(-90 30 160)">C_l</text>
+      <path class="svg-leader" d="M 80 210 L 300 65" stroke="var(--accent-dark)" stroke-dasharray="5 3"/>
+      <path class="svg-line" d="M 224 250 L 206 230 L 192 210 L 184 190 L 181 170 L 187 150 L 203 130 L 233 110 L 299 90 L 388 78 L 442 75" stroke="var(--blue)" stroke-width="2.4"/>
+      <g>
+      <circle cx="181" cy="170" r="8.5" fill="var(--accent)"/>
+      <text x="181" y="173.6" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="700">1</text>
+      <circle cx="217" cy="120" r="8.5" fill="var(--accent)"/>
+      <text x="217" y="123.6" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="700">2</text>
+      <circle cx="299" cy="90" r="8.5" fill="var(--accent)"/>
+      <text x="299" y="93.6" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="700">3</text>
+      </g>
+      <g>
+      <circle cx="80" cy="348" r="8.5" fill="var(--accent)"/>
+      <text x="80" y="351.6" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="700">1</text>
+      <text class="svg-note-sm" x="96" y="352">C_d,mín ≈ 0.0074  —  arrastre mínimo, en C_l ≈ 0.4</text>
+      <circle cx="80" cy="370" r="8.5" fill="var(--accent)"/>
+      <text x="80" y="373.6" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="700">2</text>
+      <text class="svg-note-sm" x="96" y="374">(C_l/C_d)máx  —  punto de tangencia de la recta desde el origen</text>
+      <circle cx="80" cy="392" r="8.5" fill="var(--accent)"/>
+      <text x="80" y="395.6" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="700">3</text>
+      <text class="svg-note-sm" x="96" y="396">codo de la polar  —  el arrastre se dispara hacia la pérdida</text>
+      </g>
+      </svg>
+  <figcaption><b class="fig-num">Figura 11.</b> <b class="fig-title">Polar de arrastre y construcción de la eficiencia máxima.</b> La pendiente de cualquier recta trazada desde el origen hasta un punto de la polar vale \(C_l/C_d\); la recta de mayor pendiente que aún toca la curva es su tangente desde el origen, y el punto de tangencia ② es por tanto el de eficiencia aerodinámica máxima. Obsérvese que <strong>no coincide</strong> con el punto de arrastre mínimo ①, que se sitúa a menor sustentación: minimizar el arrastre y maximizar la eficiencia son objetivos distintos. El codo ③ marca el tramo en que el arrastre crece mucho más deprisa que la sustentación al aproximarse a la pérdida. En la corrida de la figura 9 la eficiencia máxima resulta \(L/D = 86{.}2\) en \(\alpha = 6^\circ\).</figcaption>
+</figure>
+
+<h3>Las cuatro lecturas que importan</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Representación</th><th>Magnitudes que se extraen</th><th>Valor de contraste</th></tr></thead>
+    <tbody>
+      <tr><td><strong>\(C_l\) vs \(\alpha\)</strong></td><td>Pendiente \(a_0\), ángulo de sustentación nula \(\alpha_{L=0}\), \(C_{l,\max}\) y el ángulo en que se alcanza</td><td>Teoría de perfil delgado: \(a_0 = 2\pi\ \mathrm{rad}^{-1} = 0{.}110\ \mathrm{grado}^{-1}\). El cálculo viscoso devuelve entre 0.10 y 0.11; un valor de 0.13 indica que el perfil no está normalizado</td></tr>
+      <tr><td><strong>\(C_d\) vs \(C_l\)</strong></td><td>\(C_{d,\min}\) y la sustentación a la que se produce, amplitud de la zona de bajo arrastre, y el punto de eficiencia máxima obtenido por tangencia desde el origen</td><td>Perfil limpio a \(Re = 5\times 10^{5}\): \(C_{d,\min}\) entre 0.006 y 0.009. Un valor del orden de 0.02 señala un error en la geometría o en el panelado</td></tr>
+      <tr><td><strong>\(C_l/C_d\) vs \(\alpha\)</strong></td><td>Eficiencia aerodinámica de la sección. Su máximo determina el mejor ángulo de planeo; en una aeronave de hélice coincide además con la condición de máximo alcance, mientras que en una de reacción esa condición corresponde al máximo de \(C_l^{1/2}/C_d\)</td><td>Un perfil de calidad a \(Re \approx 10^{6}\) alcanza valores de 100 a 150; a \(Re = 10^{5}\), aproximadamente la mitad</td></tr>
+      <tr><td><strong>\(C_m\) vs \(\alpha\)</strong></td><td>Momento respecto del cuarto de cuerda. Que permanezca constante en la zona lineal constituye la comprobación numérica de que ese punto es el centro aerodinámico</td><td>Perfil simétrico: \(C_m \approx 0\). NACA 2412: \(C_{m,c/4} \approx -0{.}05\)</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 6.</b> <b class="fig-title">Qué se extrae de cada representación.</b> La tercera columna es la que convierte una corrida en un resultado: si el valor obtenido se aparta del de contraste, el error está en el planteamiento y no en el perfil.</caption>
+  </table>
+</div>
+<div class="callout">
+  <p><strong>Variables que no se representan por omisión.</strong> El menú contextual de cualquier gráfica abre el selector de variables. Conviene añadir dos. La primera es \(C_l^{3/2}/C_d\), cuyo máximo corresponde a la mínima velocidad de descenso, criterio de diseño propio de los veleros y distinto del de máximo alcance. La segunda es \(x_{tr}\) en extradós e intradós, que permite seguir cómo la transición se desplaza hacia el borde de ataque a medida que aumenta el ángulo de ataque.</p>
+</div>
+
+<h3>Efecto del número de Reynolds</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Magnitud</th><th>Al disminuir \(Re\)</th><th>Razón</th></tr></thead>
+    <tbody>
+      <tr><td>\(C_d\)</td><td>Aumenta de forma apreciable</td><td>La capa límite es proporcionalmente más gruesa y aparecen burbujas laminares de separación</td></tr>
+      <tr><td>\(C_{l,\max}\)</td><td>Disminuye</td><td>La separación se adelanta a ángulos menores</td></tr>
+      <tr><td>\(a_0\)</td><td>Apenas varía</td><td>La pendiente queda fijada por la solución potencial, no por la viscosidad</td></tr>
+      <tr><td>\(\alpha_{L=0}\)</td><td>Apenas varía</td><td>Depende de la línea de curvatura media, que es un dato geométrico</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 7.</b> <b class="fig-title">Sensibilidad de los resultados al número de Reynolds.</b> Las dos magnitudes que apenas se mueven son precisamente las que predice la teoría potencial; las dos que sí lo hacen son las que dependen de la capa límite.</caption>
+  </table>
+</div>
+    </section>
+    <section id="pressure-es">
+      <p class="section-label">Paso 5</p>
+      <h2>La distribución del coeficiente de presión</h2>
+<p class="lead">Las polares informan de cuánto sustenta y cuánto arrastra un perfil; la distribución de presión informa de por qué. Es la representación que permite localizar el origen físico de cada cifra de la tabla anterior.</p>
+
+<h3>Qué representa el coeficiente de presión</h3>
+<p>El coeficiente de presión adimensionaliza la presión local con la presión dinámica de la corriente libre. En flujo incompresible, la ecuación de Bernoulli permite escribirlo únicamente en función de la velocidad local:</p>
+<div class="equation-grid">
+  <div class="equation-card">\[ C_p = \frac{p - p_\infty}{q_\infty}, \qquad q_\infty = \tfrac{1}{2}\rho V_\infty^{2} \]</div>
+  <div class="equation-card">\[ C_p = 1 - \left(\frac{V}{V_\infty}\right)^{2} \]</div>
+</div>
+<p>Esa segunda forma es la que conviene tener presente al leer la gráfica, porque convierte la curva en un mapa de velocidades. Donde \(C_p = 1\) el fluido está en reposo; donde \(C_p = 0\) circula a la velocidad de la corriente libre; y donde \(C_p\) es negativo circula más deprisa que ella. Los valores negativos son, por tanto, zonas de succión, y son las que sostienen el perfil.</p>
+<div class="callout">
+  <p><strong>Por qué el eje aparece invertido.</strong> XFLR5 representa \(C_p\) con el eje vertical invertido, de modo que los valores negativos quedan arriba. Con ese convenio la rama del extradós se dibuja por encima de la del intradós, igual que las superficies que representan, y el área encerrada entre ambas resulta proporcional a la fuerza normal, \(c_n = \int_0^1 (C_{p,\text{int}} - C_{p,\text{ext}})\, \mathrm{d}(x/c)\), que a ángulos pequeños coincide prácticamente con \(c_l\).</p>
+</div>
+<figure class="diagram">
+  <img src="imagenes/10_cp.png" alt="Distribución de Cp del NACA 2412 a seis grados en la vista OpPoint" loading="lazy">
+  <figcaption><b class="fig-num">Figura 12.</b> <b class="fig-title">Vista <code>OpPoint view</code> en \(\alpha = 6^\circ\).</b> El recuadro de la derecha reúne los resultados del punto de operación seleccionado: \(C_L = 0{.}896\), \(C_d = 0{.}0104\), \(C_m = -0{.}048\), \(L/D = 86{.}2\) y transición del extradós en \(x/c = 0{.}274\). El valor de \(C_m\) puede contrastarse con el \(-0{.}047\) medido en túnel por Abbott y von Doenhoff.</figcaption>
+</figure>
+
+<h3>Anatomía de la distribución</h3>
+<figure class="diagram">
+  <svg viewBox="0 0 560 486" role="img" aria-label="Distribución del coeficiente de presión sobre un perfil NACA 2412 a seis grados, con cinco puntos numerados: estancamiento, pico de succión, transición, gradiente adverso y condición de Kutta">
+      <text class="svg-title" x="70" y="18">C_p  vs  x/c   ·   NACA 2412, α = 6°, Re = 5×10⁵</text>
+      <g class="svg-grid">
+      <line x1="70" y1="78"  x2="530" y2="78"/><line x1="70" y1="139" x2="530" y2="139"/>
+      <line x1="70" y1="212" x2="530" y2="212"/><line x1="70" y1="273" x2="530" y2="273"/>
+      </g>
+      <g class="svg-axis"><line x1="70" y1="30" x2="70" y2="285"/><line x1="70" y1="212" x2="530" y2="212"/></g>
+      <g class="svg-tick" text-anchor="end">
+      <text x="62" y="82">−3</text><text x="62" y="143">−2</text>
+      <text x="62" y="216">−1</text><text x="62" y="277">0</text>
+      </g>
+      <text class="svg-tick" x="30" y="150" text-anchor="middle" transform="rotate(-90 30 150)">C_p   (eje invertido)</text>
+      <path d="M 70 273 L 79 79 L 93 106 L 116 127 L 162 148 L 231 164 L 300 176 L 369 187 L 438 197 L 507 207 L 530 215 L 507 212 L 438 209 L 369 207 L 300 207 L 231 209 L 162 213 L 116 221 L 93 230 L 79 246 Z" fill="var(--blue)" fill-opacity=".07" stroke="none"/>
+      <path class="svg-line" d="M 70 273 L 79 79 L 93 106 L 116 127 L 162 148 L 231 164 L 300 176 L 369 187 L 438 197 L 507 207 L 530 215" stroke="var(--blue)" stroke-width="2.3"/>
+      <path class="svg-line" d="M 70 273 L 79 246 L 93 230 L 116 221 L 162 213 L 231 209 L 300 207 L 369 207 L 438 209 L 507 212 L 530 215" stroke="var(--accent)" stroke-width="2.3"/>
+      <path d="M 250 132 C 300 140 370 160 430 182" class="svg-line" stroke="var(--muted)" stroke-dasharray="4 3"/>
+      <path d="M 424 176 L 434 184 L 422 188 Z" fill="var(--muted)"/>
+      <g>
+      <circle cx="70" cy="273" r="8" fill="var(--accent)"/><text x="70" y="276.6" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">1</text>
+      <circle cx="79" cy="79" r="8" fill="var(--accent)"/><text x="79" y="82.6" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">2</text>
+      <circle cx="185" cy="153" r="8" fill="var(--accent)"/><text x="185" y="156.6" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">3</text>
+      <circle cx="340" cy="152" r="8" fill="var(--accent)"/><text x="340" y="155.6" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">4</text>
+      <circle cx="530" cy="215" r="8" fill="var(--accent)"/><text x="530" y="218.6" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">5</text>
+      </g>
+      <path d="M 70 340 Q 70 331 93 321.5 L 116 314.4 L 162 306.7 L 208 303.8 L 254 304.1 L 300 306.7 L 346 310.8 L 392 316.1 L 438 322.8 L 484 330.5 L 530 339.4 L 530 340.6 L 484 343.9 L 438 347 L 392 350.1 L 346 352.8 L 300 355.4 L 254 357.5 L 208 359 L 162 359.5 L 116 357.5 L 93 354.2 Q 70 349 70 340 Z"
+      fill="var(--sky)" stroke="var(--ink)" stroke-width="1.4" stroke-linejoin="round"/>
+      <line class="svg-leader" x1="185" y1="161" x2="185" y2="306"/>
+      <g class="svg-tick" text-anchor="middle">
+      <text x="70" y="382">0</text><text x="185" y="382">0.25</text><text x="300" y="382">0.50</text>
+      <text x="415" y="382">0.75</text><text x="530" y="382">1.00</text>
+      </g>
+      <text class="svg-tick" x="300" y="400" text-anchor="middle">x/c</text>
+      <g>
+      <circle cx="78" cy="424" r="8" fill="var(--accent)"/><text x="78" y="427.6" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">1</text>
+      <text class="svg-note-sm" x="94" y="428">Punto de estancamiento, C_p = +1</text>
+      <circle cx="78" cy="448" r="8" fill="var(--accent)"/><text x="78" y="451.6" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">2</text>
+      <text class="svg-note-sm" x="94" y="452">Pico de succión del extradós</text>
+      <circle cx="78" cy="472" r="8" fill="var(--accent)"/><text x="78" y="475.6" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">3</text>
+      <text class="svg-note-sm" x="94" y="476">Transición laminar–turbulenta, x_tr</text>
+      <circle cx="318" cy="424" r="8" fill="var(--accent)"/><text x="318" y="427.6" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">4</text>
+      <text class="svg-note-sm" x="334" y="428">Gradiente adverso de presión</text>
+      <circle cx="318" cy="448" r="8" fill="var(--accent)"/><text x="318" y="451.6" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">5</text>
+      <text class="svg-note-sm" x="334" y="452">Borde de salida: condición de Kutta</text>
+      </g>
+      </svg>
+  <figcaption><b class="fig-num">Figura 13.</b> <b class="fig-title">Anatomía de una distribución de presión.</b> Extradós en azul, intradós en naranja, y la geometría del NACA 2412 alineada en \(x/c\) bajo el eje. El área sombreada entre ambas ramas es la carga normal. Figura esquemática construida sobre la corrida de la figura 12.</figcaption>
+</figure>
+<ol>
+  <li><strong>El punto de estancamiento.</strong> Es el único punto del contorno donde el fluido se detiene, y por definición vale \(C_p = +1\). A ángulo de ataque positivo no se sitúa en el borde de ataque geométrico, sino desplazado hacia el intradós: la corriente incide por debajo y debe rodear el morro para alcanzar el extradós. Ese rodeo es el que genera el pico de succión.</li>
+  <li><strong>El pico de succión.</strong> Al bordear el radio del borde de ataque, el flujo se acelera muy por encima de \(V_\infty\) y la presión cae bruscamente. La profundidad del pico crece con el ángulo de ataque, y con ella la severidad de la recuperación que viene detrás. Cuando el pico se vuelve muy agudo, la capa límite no logra remontar esa recuperación y se desprende cerca del morro: es la pérdida de borde de ataque, brusca y sin aviso previo.</li>
+  <li><strong>La transición.</strong> Aguas abajo del pico, la capa límite laminar acumula amplificación hasta superar \(N_{\mathrm{crit}}\) y volverse turbulenta. XFLR5 marca esa posición sobre la curva y la reporta como \(x_{tr}\). Al aumentar el ángulo de ataque la transición se desplaza hacia el borde de ataque, y con ella aumenta la fracción de superficie bañada por capa límite turbulenta.</li>
+  <li><strong>El gradiente adverso.</strong> Desde el pico de succión hasta el borde de salida la presión aumenta en la dirección del flujo. La capa límite avanza entonces contra un gradiente que la frena, y es en ese tramo donde se decide si el flujo permanece adherido. La pendiente de esa recuperación es el parámetro de diseño que gobierna el comportamiento en pérdida de un perfil.</li>
+  <li><strong>El borde de salida.</strong> Las dos ramas se encuentran en un mismo valor de \(C_p\). No es una coincidencia del trazado: es la condición de Kutta, la exigencia física de que el flujo abandone el perfil de forma suave, y es la que selecciona una única circulación entre las infinitas soluciones que admite el problema potencial.</li>
+</ol>
+<div class="callout">
+  <p><strong>Un rasgo que conviene reconocer.</strong> Una burbuja laminar de separación se manifiesta como una meseta prácticamente horizontal en la distribución, seguida de una recuperación abrupta. Se produce cuando la capa límite laminar se desprende ante el gradiente adverso, transiciona ya desprendida y vuelve a adherirse turbulenta más atrás. Es habitual por debajo de \(Re \approx 3\times 10^{5}\) y constituye la causa principal del fuerte aumento del arrastre a números de Reynolds bajos.</p>
+</div>
+    </section>
+    <section id="example-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>Perfil simétrico frente a perfil curvado</h2>
+<p class="lead">El ejercicio que sigue no es una entrega: es la forma más rápida de comprobar que el procedimiento se ha entendido. Consiste en analizar dos perfiles en condiciones idénticas y contrastar las diferencias con lo que predice la teoría de perfil delgado. Toda la corrida se completa en unos veinte minutos.</p>
+<div class="example">
+  <p><strong>Enunciado.</strong> Analizar el NACA 0012 y el NACA 2412 bajo las mismas condiciones y explicar sus diferencias a partir de la geometría de cada uno.</p>
+  <p><strong>Condiciones.</strong> Type 1; \(Re = 5\times 10^{5}\); \(M = 0\); \(N_{\mathrm{crit}} = 9\); \(\alpha\) de \(-6^\circ\) a \(16^\circ\) con \(\Delta\alpha = 0{.}5^\circ\); 150 paneles.</p>
+</div>
+
+<h3>Registro de resultados</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Perfil</th><th>\(\alpha_{L=0}\)</th><th>\(a_0\) (grado\(^{-1}\))</th><th>\(C_{l,\max}\)</th><th>\(\alpha_{\text{pérdida}}\)</th><th>\(C_{d,\min}\)</th><th>\((C_l/C_d)_{\max}\)</th><th>\(C_{m,c/4}\)</th></tr></thead>
+    <tbody>
+      <tr><td>NACA 0012</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>NACA 2412</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 8.</b> <b class="fig-title">Plantilla de registro.</b> Siete magnitudes bastan para caracterizar por completo el comportamiento bidimensional de una sección en unas condiciones dadas.</caption>
+  </table>
+</div>
+
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>¿Qué valor toma \(\alpha_{L=0}\) en el NACA 2412? Contrástese con la estimación que proporciona la teoría de perfil delgado a partir de la línea de curvatura media, y razónese el signo.</li>
+  <li>¿Coincide la pendiente \(a_0\) en ambos perfiles? La teoría de perfil delgado predice que debería. ¿Lo hace en el cálculo viscoso, y a qué se debe la discrepancia?</li>
+  <li>¿Cuál de los dos alcanza mayor \((C_l/C_d)_{\max}\), y en qué ángulo? ¿Coincide ese ángulo con el de \(C_{d,\min}\)? Justifíquese por qué no tiene por qué coincidir.</li>
+  <li>Repítase el NACA 2412 a \(Re = 1\times 10^{5}\) y a \(Re = 3\times 10^{6}\). De las cuatro magnitudes \(a_0\), \(\alpha_{L=0}\), \(C_{d,\min}\) y \(C_{l,\max}\), ¿cuál varía más y cuál apenas se altera? Explíquese a partir del comportamiento de la capa límite.</li>
+  <li>Ábranse las distribuciones de \(C_p\) del NACA 2412 en \(\alpha = 4^\circ\) y en \(\alpha = 12^\circ\). ¿Dónde se sitúa la transición en cada caso, y qué ha ocurrido con el pico de succión?</li>
+</ol>
+
+<details class="details">
+  <summary>Comprobación: qué debe observarse si el procedimiento fue correcto</summary>
+  <div class="details-content">
+    <ul>
+      <li>El NACA 0012 pasa por el origen: \(\alpha_{L=0} = 0\) y \(C_{m,c/4} \approx 0\) en toda la zona lineal. Es la comprobación de que la geometría está bien cargada y normalizada.</li>
+      <li>El NACA 2412 cruza \(C_l = 0\) en torno a \(-2^\circ\) y presenta un \(C_{m,c/4}\) negativo del orden de \(-0{.}05\): momento de picada, el que el estabilizador horizontal debe compensar.</li>
+      <li>Ambas pendientes resultan prácticamente iguales, entre 0.10 y 0.11 por grado, por debajo del valor potencial \(2\pi\). La diferencia la introduce el espesor de desplazamiento de la capa límite, que la teoría no viscosa no contempla.</li>
+      <li>Los \(C_{d,\min}\) de ambas polares son similares; lo que cambia es la sustentación a la que se producen. En el NACA 0012 ocurre en \(C_l = 0\); en el NACA 2412, desplazado hacia sustentación positiva. En esa diferencia reside el argumento completo a favor de la curvatura.</li>
+    </ul>
+  </div>
+</details>
+<div class="callout">
+  <p><strong>Si la corrida se emplea después en un informe</strong>, basta con acompañarla de una línea que declare las condiciones —tipo de análisis, \(Re\), \(M\), \(N_{\mathrm{crit}}\), número de paneles y versión del programa— y del criterio con que se truncó la curva. Sin esa línea los resultados no son reproducibles, y unos resultados no reproducibles no admiten discusión.</p>
+</div>
+    </section>
+    <section id="summary-es">
+      <p class="section-label">Valores clave</p>
+      <h2>Las cinco magnitudes que verifican una corrida</h2>
+<p>Cinco magnitudes bastan para verificar que una corrida es creíble antes de extraer conclusiones de ella. Las tres primeras proceden de la teoría potencial y deben reproducirse casi exactamente; las dos últimas dependen de la capa límite y sólo admiten una comprobación de orden de magnitud.</p>
+<div class="equation-grid">
+  <div class="equation-card">\[ a_0 = 2\pi\ \mathrm{rad}^{-1} = 0{.}110\ \mathrm{grado}^{-1} \]</div>
+  <div class="equation-card">\[ c_n = \int_0^1 \left(C_{p,\text{int}} - C_{p,\text{ext}}\right) \mathrm{d}(x/c) \]</div>
+</div>
+<div class="result-box">
+  <p><strong>Valores de contraste, NACA 2412 a \(Re = 5\times 10^{5}\), \(N_{\mathrm{crit}} = 9\):</strong> \(a_0 \approx 0{.}11\) por grado; \(\alpha_{L=0} \approx -2{.}1^\circ\); \(C_{m,c/4} \approx -0{.}05\); \(C_{d,\min} \approx 0{.}007\); \((C_l/C_d)_{\max}\) del orden de \(10^{2}\). La corrida documentada en esta guía devuelve \(C_L = 0{.}896\), \(C_d = 0{.}0104\), \(C_m = -0{.}048\) y \(L/D = 86{.}2\) en \(\alpha = 6^\circ\), con transición del extradós en \(x/c = 0{.}274\).</p>
+</div>
+<p>El \(C_{m,c/4}\) obtenido puede contrastarse con el valor de \(-0{.}047\) medido en túnel de viento por Abbott y von Doenhoff, lo que confirma que esa magnitud depende de la geometría y apenas del número de Reynolds.</p>
+    </section>
+    <section id="mistakes-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Errores de interpretación que invalidan una corrida</h2>
+<p>Los siguientes no son errores de manejo del programa —el programa los admite sin protestar— sino de interpretación, y cada uno invalida las conclusiones que se extraigan de la corrida.</p>
+<ul class="check-list">
+  <li><strong>«El número de Reynolds se calcula con la envergadura del modelo.»</strong> Resulta verosímil porque la envergadura es la dimensión que primero se mide en un modelo. Pero el análisis es bidimensional y la longitud característica es la cuerda: confundirlas desplaza \(Re\) en un orden de magnitud completo y, con él, todo el arrastre calculado.</li>
+  <li><strong>«El perfil A es mejor que el B», tras compararlos a distintos \(Re\).</strong> Resulta verosímil porque ambas corridas son correctas por separado. Lo que se compara entonces son dos números de Reynolds, no dos perfiles: toda comparación exige fijar previamente \(Re\), \(M\), \(N_{\mathrm{crit}}\) y el número de paneles.</li>
+  <li><strong>«La curva se representa hasta \(\alpha = 25^\circ\) para mostrar la pérdida completa.»</strong> Resulta verosímil porque el programa devuelve valores en ese intervalo. Por encima de \(C_{l,\max}\) el método integral de capa límite ya no representa el fenómeno físico, y la curva debe truncarse ahí.</li>
+  <li><strong>Ejecutar el barrido con <code>Store Opp</code> sin marcar.</strong> Resulta verosímil porque la corrida termina con normalidad y las polares aparecen completas. Esa casilla es la que ordena conservar cada punto de operación con su información local: sin ella el programa retiene únicamente los coeficientes integrados, la vista <code>OpPoint view</code> queda vacía y no hay forma de explicar de dónde salió ningún valor. La única salida es repetir el barrido.</li>
+  <li><strong>Analizar el archivo <code>.dat</code> descargado tal como viene.</strong> Resulta verosímil porque el perfil se dibuja correctamente en pantalla. Conviene normalizar y refinar a 150–200 paneles: un panelado insuficiente se manifiesta como oscilaciones en \(C_p\) cerca del borde de ataque y como discontinuidades en la polar.</li>
+  <li><strong>Identificar el punto de arrastre mínimo con el de máxima eficiencia.</strong> Resulta verosímil porque ambos se sitúan en la zona baja de la polar. Son puntos distintos: \(C_{d,\min}\) minimiza el arrastre, mientras que la eficiencia máxima maximiza \(C_l/C_d\) y se obtiene por tangencia desde el origen, siempre a mayor sustentación.</li>
+  <li><strong>Reportar \(C_d = 0{.}010392\).</strong> Resulta verosímil porque es lo que el programa muestra en pantalla. La precisión del método no alcanza la quinta cifra significativa: tres cifras bastan, acompañadas de una línea que declare las condiciones de cálculo.</li>
+</ul>
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+<ol>
+  <li>Drela, M. «XFOIL: An Analysis and Design System for Low Reynolds Number Airfoils», en <em>Low Reynolds Number Aerodynamics</em>. Berlín: Springer, 1989. Artículo original en que se describe el método implementado.</li>
+  <li>Deperrois, A. <em>Guidelines for XFLR5</em> y <em>Analysis of foils and wings operating at low Reynolds numbers</em>. Documentación oficial del programa.</li>
+  <li>Abbott, I. H. y von Doenhoff, A. E. <em>Theory of Wing Sections</em>. Nueva York: Dover, 1959. Definición de las series NACA y polares medidas en túnel.</li>
+  <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 4.</li>
+  <li><a href="http://airfoiltools.com" target="_blank" rel="noopener noreferrer">Airfoil Tools</a> y la <a href="https://m-selig.ae.illinois.edu/ads/coord_database.html" target="_blank" rel="noopener noreferrer">UIUC Airfoil Coordinates Database</a>, fuentes de archivos de coordenadas.</li>
+</ol>
+<p class="source-note">Capturas de pantalla tomadas de XFLR5 v6.62 sobre macOS. Todos los valores numéricos proceden de la corrida documentada en las figuras 9 y 12, ejecutada expresamente para esta guía; los valores de contraste se recalcularon a partir de la teoría de perfil delgado.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>XFLR5 · Serie de tutoriales</a>
+    </nav>
+  </article>
+
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+      <p>Ein Profil auf einem der beiden Wege laden, eine viskose Analyse definieren, einen Anstellwinkel-Durchlauf ausführen, die vier Polaren und die Druckverteilung lesen und den Gültigkeitsbereich der Ergebnisse kennen.</p>
+    </section>
+    <section id="physics-de">
+      <p class="section-label">Die Methode</p>
+      <h2>Zwei gekoppelt gelöste Modelle</h2>
+      <p>Zweidimensional ist XFLR5 eine grafische Oberfläche für XFoil: ein Panelverfahren mit linearer Wirbelbelegung für die äußere Potentialströmung, über die Verdrängungsdicke gekoppelt mit einer integralen Grenzschicht aus zwei Gleichungen, wobei der Umschlag mit dem \(e^{N}\)-Kriterium bestimmt wird. Es gibt kein Volumennetz, keine diskretisierten Navier–Stokes-Gleichungen und kein Turbulenzmodell.</p>
+    </section>
+    <section id="model-de">
+      <p class="section-label">Geltungsbereich</p>
+      <h2>Wo die Ergebnisse physikalisch bedeutsam sind</h2>
+      <p>Das einzige Kriterium für den Geltungsbereich ist, wie lange die Grenzschicht dünn und anliegend bleibt. Verlässlich bei anliegender Strömung im Bereich \(10^{5} &lt; Re &lt; 10^{7}\); unsicher unterhalb \(Re = 5\times 10^{4}\) und jenseits von \(C_{l,\max}\); außerhalb des Gültigkeitsbereichs bei Verdichtungsstößen und endlichen Tragflächen.</p>
+    </section>
+    <section id="interface-de">
+      <p class="section-label">Orientierung</p>
+      <h2>Aufbau der Benutzeroberfläche</h2>
+      <p>XFLR5 startet mit einem leeren Fenster, weil noch kein Modul gewählt ist. Die Module stehen im Menü <code>Module</code>, nicht unter <code>File</code>: <code>⌘1</code> für Direct Foil Design und <code>⌘5</code> für XFoil Direct Analysis. Die Profilliste gilt für das gesamte Projekt, das in einer einzigen <code>.xfl</code>-Datei gespeichert wird.</p>
+    </section>
+    <section id="geometry-de">
+      <p class="section-label">Schritt 1</p>
+      <h2>Profil laden und vorbereiten</h2>
+      <p>Zwei Wege: ein NACA-Profil aus seiner analytischen Definition erzeugen oder eine <code>.dat</code>-Datei im Selig- oder Lednicer-Format laden. In beiden Fällen vor der Rechnung die Sehne normieren, die Panelierung auf 150–200 Panele verfeinern und den Hinterkantenspalt schließen. Diese Befehle stehen in Direct Foil Design unter <code>Foil</code>, in XFoil Direct Analysis dagegen unter <code>Design</code>.</p>
+    </section>
+    <section id="analysis-de">
+      <p class="section-label">Schritt 2</p>
+      <h2>Die Analyse definieren</h2>
+      <p>Jedes Feld des Analysedialogs legt eine physikalische Annahme fest: der Analysetyp bestimmt, welche Größe über den Durchlauf konstant bleibt, die Reynolds-Zahl wird mit der <em>Sehne</em> und nie mit der Spannweite gebildet, und \(N_{\mathrm{crit}}\) beschreibt den Turbulenzgrad der Anströmung, nicht das Profil. Der Standardwert des Programms ist \(\nu = 1{,}5\times 10^{-5}\ \mathrm{m^2/s}\).</p>
+    </section>
+    <section id="algorithm-de">
+      <p class="section-label">Schritt 3</p>
+      <h2>Den Anstellwinkel-Durchlauf ausführen</h2>
+      <p>Durchlauf von \(-6^\circ\) bis \(16^\circ\) in Schritten von \(0{,}5^\circ\), stets mit gesetztem <code>Store Opp</code>: diese Option bewahrt jeden Betriebspunkt samt seinen lokalen Daten. Konvergiert ein Punkt nicht, Schrittweite verkleinern, <code>Init BL</code> aktivieren, die Panelierung verfeinern — oder anerkennen, dass der Fehlschlag die Grenze der Methode markiert.</p>
+    </section>
+    <section id="polars-de">
+      <p class="section-label">Schritt 4</p>
+      <h2>Die Polaren lesen</h2>
+      <p>Vier Diagramme, vier Fragen, vier Vergleichswerte: der Auftriebsanstieg gegenüber dem \(2\pi\) der Profiltheorie, der minimale Widerstandsbeiwert gegenüber seiner erwarteten Größenordnung, der maximale Gleitwert über die Tangente vom Ursprung, und das Moment um den Viertelpunkt gegenüber dem Windkanalwert. Die Widerstandspolare \(C_d\)–\(C_l\) gehört nicht zu den voreingestellten Variablen.</p>
+    </section>
+    <section id="pressure-de">
+      <p class="section-label">Schritt 5</p>
+      <h2>Die Druckbeiwertverteilung</h2>
+      <p>Mit \(C_p = 1 - (V/V_\infty)^2\) ist die Verteilung eine Karte der örtlichen Geschwindigkeit. Fünf Merkmale tragen die Physik: der Staupunkt bei \(C_p = +1\), die Saugspitze, die Umschlaglage, der positive Druckgradient, der über die Ablösung entscheidet, und die Kutta-Bedingung, die beide Äste an der Hinterkante zusammenführt.</p>
+    </section>
+    <section id="example-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Symmetrisches gegen gewölbtes Profil</h2>
+      <p>Das NACA 0012 und das NACA 2412 unter gleichen Bedingungen rechnen —Type 1, \(Re = 5\times 10^{5}\), \(M = 0\), \(N_{\mathrm{crit}} = 9\)— und die Unterschiede aus der Geometrie erklären. Übungsvorschlag, keine Abgabe.</p>
+    </section>
+    <section id="summary-de">
+      <p class="section-label">Kernwerte</p>
+      <h2>Die fünf Größen zur Prüfung eines Laufs</h2>
+      <p>Vergleichswerte für das NACA 2412 bei \(Re = 5\times 10^{5}\): \(a_0 \approx 0{,}11\) je Grad, \(\alpha_{L=0} \approx -2{,}1^\circ\), \(C_{m,c/4} \approx -0{,}05\), \(C_{d,\min} \approx 0{,}007\). Der dokumentierte Lauf liefert \(C_L = 0{,}896\) und \(L/D = 86{,}2\) bei \(\alpha = 6^\circ\).</p>
+    </section>
+    <section id="mistakes-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Auslegungsfehler, die einen Lauf entwerten</h2>
+      <p>Sieben Auslegungsfehler, jeweils mit Behauptung, Grund der Plausibilität und Richtigstellung. Die folgenreichsten: die Reynolds-Zahl mit der Spannweite bilden, Profile bei verschiedenen \(Re\) vergleichen, über \(C_{l,\max}\) hinaus auftragen, ohne <code>Store Opp</code> rechnen und den Punkt kleinsten Widerstands für den Punkt größter Gleitzahl halten.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<ol>
+  <li>Drela, M. «XFOIL: An Analysis and Design System for Low Reynolds Number Airfoils», en <em>Low Reynolds Number Aerodynamics</em>. Berlín: Springer, 1989. Artículo original en que se describe el método implementado.</li>
+  <li>Deperrois, A. <em>Guidelines for XFLR5</em> y <em>Analysis of foils and wings operating at low Reynolds numbers</em>. Documentación oficial del programa.</li>
+  <li>Abbott, I. H. y von Doenhoff, A. E. <em>Theory of Wing Sections</em>. Nueva York: Dover, 1959. Definición de las series NACA y polares medidas en túnel.</li>
+  <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 4.</li>
+  <li><a href="http://airfoiltools.com" target="_blank" rel="noopener noreferrer">Airfoil Tools</a> y la <a href="https://m-selig.ae.illinois.edu/ads/coord_database.html" target="_blank" rel="noopener noreferrer">UIUC Airfoil Coordinates Database</a>, fuentes de archivos de coordenadas.</li>
+</ol>
+<p class="source-note">Capturas de pantalla tomadas de XFLR5 v6.62 sobre macOS. Todos los valores numéricos proceden de la corrida documentada en las figuras 9 y 12, ejecutada expresamente para esta guía; los valores de contraste se recalcularon a partir de la teoría de perfil delgado.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>XFLR5 · Tutorial-Reihe</a>
+    </nav>
+  </article>
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>

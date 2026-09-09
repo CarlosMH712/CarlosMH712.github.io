@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Tutorials on the software used in aerospace engineering courses: XFLR5, OpenFOAM and others." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Software Tutorials | Carlos Molina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../index.html">Carlos Molina</a>
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=13" data-ui-key="course">Tutorials</a>
+      <a href="../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="course-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Teaching · Software</p>
+        <h1>Software Tutorials</h1>
+        <p class="hero-copy">Guides to the programs used across the aerospace engineering courses. Each series covers not only how to operate the software, but how to interpret what it returns and where its results stop carrying physical meaning.</p>
+      </div>
+
+      <div data-language="es" hidden>
+        <p class="eyebrow">Docencia · Software</p>
+        <h1>Tutoriales de software</h1>
+        <p class="hero-copy">Guías de los programas que se emplean en las asignaturas de ingeniería aeroespacial. Cada serie cubre no sólo el manejo del programa, sino la interpretación de lo que devuelve y el punto en que sus resultados dejan de tener significado físico.</p>
+      </div>
+
+      <div data-language="de" hidden>
+        <p class="eyebrow">Lehre · Software</p>
+        <h1>Software-Tutorials</h1>
+        <p class="hero-copy">Anleitungen zu den Programmen, die in den Lehrveranstaltungen der Luft- und Raumfahrttechnik eingesetzt werden. Jede Reihe behandelt nicht nur die Bedienung, sondern auch die Deutung der Ergebnisse und die Grenze ihrer physikalischen Aussagekraft.</p>
+      </div>
+  </div>
+</section>
+
+<main>
+  <section class="section">
+    <div class="container">
+      <div class="course-grid" data-language="en">
+        <article class="course-card available">
+          <span class="course-card-number">01</span>
+          <h3>XFLR5</h3>
+          <p>Airfoil and wing analysis with a panel method coupled to an integral boundary layer. One tutorial available, two planned.</p>
+          <span class="status">Available</span>
+          <a href="xflr5/index.html">Open series →</a>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">02</span>
+          <h3>OpenFOAM</h3>
+          <p>Finite-volume CFD: mesh generation, case setup, turbulence models and post-processing.</p>
+          <span class="status">Planned</span>
+
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">03</span>
+          <h3>Gmsh</h3>
+          <p>Mesh generation for external aerodynamics: C-grids, boundary-layer refinement and quality metrics.</p>
+          <span class="status">Planned</span>
+
+        </article>
+      </div>
+
+      <div class="course-grid" data-language="es" hidden>
+        <article class="course-card available">
+          <span class="course-card-number">01</span>
+          <h3>XFLR5</h3>
+          <p>Análisis de perfiles y alas con un método de paneles acoplado a una capa límite integral. Un tutorial disponible, dos previstos.</p>
+          <span class="status">Disponible</span>
+          <a href="xflr5/index.html">Abrir serie →</a>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">02</span>
+          <h3>OpenFOAM</h3>
+          <p>CFD por volúmenes finitos: generación de malla, preparación del caso, modelos de turbulencia y post-proceso.</p>
+          <span class="status">Previsto</span>
+
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">03</span>
+          <h3>Gmsh</h3>
+          <p>Generación de mallas para aerodinámica externa: mallas en C, refinamiento de capa límite y métricas de calidad.</p>
+          <span class="status">Previsto</span>
+
+        </article>
+      </div>
+
+      <div class="course-grid" data-language="de" hidden>
+        <article class="course-card available">
+          <span class="course-card-number">01</span>
+          <h3>XFLR5</h3>
+          <p>Profil- und Flügelanalyse mit einem Panelverfahren gekoppelt an eine integrale Grenzschicht. Ein Tutorial verfügbar, zwei geplant.</p>
+          <span class="status">Verfügbar</span>
+          <a href="xflr5/index.html">Reihe öffnen →</a>
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">02</span>
+          <h3>OpenFOAM</h3>
+          <p>Finite-Volumen-CFD: Netzerzeugung, Fallaufbau, Turbulenzmodelle und Nachbearbeitung.</p>
+          <span class="status">Geplant</span>
+
+        </article>
+
+        <article class="course-card">
+          <span class="course-card-number">03</span>
+          <h3>Gmsh</h3>
+          <p>Netzerzeugung für Außenaerodynamik: C-Netze, Grenzschichtverfeinerung und Qualitätsmaße.</p>
+          <span class="status">Geplant</span>
+
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>

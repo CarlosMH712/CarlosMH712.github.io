@@ -203,7 +203,7 @@ Never mix them on one page, and never put two languages in one element.
 
 ## 11. Asset versioning
 
-Every `<link>` and `<script>` carries `?v=N`, currently `v=11`, and `N` is global
+Every `<link>` and `<script>` carries `?v=N`, currently `v=13`, and `N` is global
 to the site. Raise it in **every** page of **every** course plus the root in one
 commit, or returning visitors get a cached stylesheet against new markup. Raise
 it when a stylesheet or a script changes — not for a content edit.
