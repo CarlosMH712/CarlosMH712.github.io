@@ -32,7 +32,7 @@
     <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
     <span data-language="en">Verified on XFLR5 v6.62</span><span data-language="es" hidden>Verificado en XFLR5 v6.62</span><span data-language="de" hidden>Geprüft mit XFLR5 v6.62</span>
   </div>
-  <div class="button-row"><a class="button secondary" href="perfil-y-polares.html?v=13">← <span>Tutorial 1</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a></div>
+  <div class="button-row"><a class="button secondary" href="perfil-y-polares.html?v=13">← <span>Tutorial 1.1</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a></div>
 </div></section>
 
 <main><div class="container lecture-shell">
@@ -142,7 +142,7 @@
   <li>Explicar por qué una comparación entre perfiles sólo significa algo si todas las condiciones se fijan de antemano.</li>
   <li>Modificar la geometría de un perfil de forma controlada: escalar curvatura y espesor, interpolar entre dos perfiles y añadir un flap.</li>
   <li>Ejecutar decenas de polares en una sola corrida con el análisis por lotes, y saber qué opciones la aceleran.</li>
-  <li>Despejar el resultado: qué oculta realmente el filtro de polares y qué no.</li>
+  <li>Ordenar el resultado: qué oculta realmente el filtro de polares y qué no.</li>
   <li>Leer una comparación en las dos direcciones que importan: entre perfiles a Reynolds fijo, y entre Reynolds para un mismo perfil.</li>
 </ul>
     </section>
@@ -150,11 +150,12 @@
       <p class="section-label">La necesidad</p>
       <h2>Por qué comparar perfiles exige una rejilla, no una corrida</h2>
 <p>El Tutorial 1.1 terminó con una advertencia: dos perfiles evaluados con distinto \(Re\), distinto \(N_{\mathrm{crit}}\) o distinto panelado no están siendo comparados. Esa condición es necesaria, pero no basta.</p>
-<p>El motivo es que <strong>un perfil no se juzga en un punto</strong>. El número de Reynolds de una aeronave cambia con la velocidad y con la altura: entre la aproximación y el crucero puede variar en un factor de tres o cuatro, y el perfil que gana en un extremo puede perder en el otro. Un perfil de flujo laminar con una cubeta de arrastre estrecha es magnífico dentro de su cubeta y mediocre fuera de ella; uno más convencional no gana en ningún punto y no pierde en ninguno.</p>
+<p>El motivo es que <strong>un perfil no se juzga en un punto</strong>. El número de Reynolds de una aeronave cambia con la velocidad y con la altura: entre la aproximación y el crucero puede variar en un factor de tres o cuatro, y el perfil que gana en un extremo puede perder en el otro. Un perfil de flujo laminar con una cubeta de arrastre estrecha es excelente dentro de su cubeta y apenas correcto fuera de ella; uno más convencional no gana en ningún punto, pero tampoco pierde en ninguno.</p>
 <div class="callout">
   <p>De ahí que la unidad de comparación no sea una corrida sino una <strong>rejilla</strong>: todos los perfiles candidatos, en todos los números de Reynolds de la misión, con el resto de condiciones idénticas. Hacerlo a mano son decenas de corridas y otras tantas oportunidades de cambiar un parámetro sin darse cuenta.</p>
 </div>
 <p>El análisis por lotes existe exactamente para eso: se declaran los perfiles y los Reynolds una vez, y el programa recorre todas las combinaciones con los mismos ajustes. La ventaja no es la velocidad, aunque también: es que <strong>elimina la posibilidad de que dos casos difieran en algo que no se pretendía cambiar</strong>.</p>
+<p>La familia que compara esta guía la forman tres perfiles NACA de cuatro dígitos con <strong>el mismo espesor y distinta curvatura</strong>: 0012, 2412 y 4412. Aislar una sola variable es lo que permitirá después atribuir las diferencias a algo concreto.</p>
 <figure class="diagram">
   <svg viewBox="0 0 520 235" role="img" aria-label="Líneas de curvatura media de los perfiles NACA 0012, 2412 y 4412, con el mismo espesor y curvatura creciente">
   <text class="svg-title" x="70" y="20">Líneas de curvatura media · mismo espesor, distinta curvatura</text>
@@ -177,7 +178,7 @@
   <text class="svg-tick" x="250" y="213" text-anchor="middle">x/c</text>
   <text class="svg-note-sm" x="70" y="230">Escala vertical exagerada cuatro veces. Los tres tienen espesor del 12 %.</text>
 </svg>
-  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">La familia que se va a comparar.</b> Los tres perfiles del ejemplo comparten espesor —12 % de la cuerda— y difieren únicamente en la curvatura máxima: nula, 2 % y 4 %, siempre situada al 40 % de la cuerda. Son, respectivamente, el primer y el segundo dígito de la designación. Aislar una sola variable es lo que permitirá después atribuir las diferencias a algo concreto. La escala vertical está exagerada cuatro veces; a escala real las tres líneas serían casi indistinguibles.</figcaption>
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">La familia que se va a comparar.</b> Los tres perfiles del ejemplo comparten espesor —12 % de la cuerda— y difieren únicamente en la curvatura máxima: nula, 2 % y 4 %; en los dos que la tienen, situada al 40 % de la cuerda. Son, respectivamente, el primer y el segundo dígito de la designación. Aislar una sola variable es lo que permitirá después atribuir las diferencias a algo concreto. La escala vertical está exagerada cuatro veces; a escala real las tres líneas serían casi indistinguibles.</figcaption>
 </figure>
     </section>
     <section id="model-es">
@@ -189,11 +190,11 @@
     <thead><tr><th>Lo que hace</th><th>Lo que no hace</th></tr></thead>
     <tbody>
       <tr><td>Recorre <strong>todas las combinaciones</strong> de la lista de perfiles con la tabla de números de Reynolds</td><td>No varía el panelado: cada perfil se analiza con el que tenga, y si difieren, la comparación no es limpia</td></tr>
-      <tr><td>Aplica a todas los <strong>mismos</strong> tipo de polar, \(N_{\mathrm{crit}}\), transición forzada y rango de ángulos</td><td>No comprueba que esas condiciones tengan sentido para el problema; sólo que sean iguales</td></tr>
+      <tr><td>Aplica a todas <strong>el mismo</strong> tipo de polar, el mismo \(N_{\mathrm{crit}}\), la misma transición forzada y el mismo rango de ángulos</td><td>No comprueba que esas condiciones tengan sentido para el problema; sólo que sean iguales</td></tr>
       <tr><td>Reparte el trabajo entre varios <strong>hilos</strong> y guarda cada polar con su nombre automático</td><td>No interpola entre casos: lo que no se pidió, no existe</td></tr>
       <tr><td>Conserva los puntos de operación si se le indica, para poder inspeccionar el \(C_p\) después</td><td>No elige perfil ni ordena por mérito: eso queda del lado de quien lee</td></tr>
     </tbody>
-    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Alcance del análisis por lotes.</b> La columna de la derecha es la que evita disgustos: el lote garantiza que todos los casos comparten condiciones, no que las condiciones sean las adecuadas.</caption>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Alcance del análisis por lotes.</b> La columna de la derecha es la que evita errores: el lote garantiza que todos los casos comparten condiciones, no que las condiciones sean las adecuadas.</caption>
   </table>
 </div>
 <div class="callout warning">
@@ -209,9 +210,8 @@
   <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">El menú <code>Design</code> y la familia cargada.</b> Todas las operaciones sobre la geometría del perfil, con sus atajos: <code>F9</code> para escalar curvatura y espesor, <code>F10</code> para el flap y <code>F11</code> para interpolar. A la izquierda, los cuatro perfiles del proyecto; los tres NACA limpios son los que se compararán.</figcaption>
 </figure>
 <div class="callout">
-  <p><strong>El mismo comando, otro menú.</strong> Como ya se advirtió en el Tutorial 2.1, estos comandos de geometría aparecen bajo <code>Foil</code> cuando se está en <em>Direct Foil Design</em> y bajo <code>Design</code> cuando se está en <em>XFoil Direct Analysis</em>. Son los mismos; sólo cambia el menú que los aloja según el módulo activo.</p>
+  <p><strong>El mismo comando, otro menú.</strong> Estos comandos de geometría aparecen bajo <code>Foil</code> cuando el módulo activo es <em>Direct Foil Design</em>, y bajo <code>Design</code> cuando es <em>XFoil Direct Analysis</em>. Son los mismos; sólo cambia el menú que los aloja. Es la causa de que las guías que circulan por internet se contradigan en este punto.</p>
 </div>
-<p>La familia que compara esta guía son tres perfiles NACA de cuatro dígitos con <strong>el mismo espesor y distinta curvatura</strong>: 0012, 2412 y 4412. Aislar una sola variable es lo que permite atribuir las diferencias a algo.</p>
     </section>
     <section id="scale-es">
       <p class="section-label">Paso 1</p>
@@ -249,9 +249,9 @@
 <p>Menú <code>Design ▸ Set Flap</code> (<code>F10</code>). Permite deflectar un flap de borde de salida, de borde de ataque, o los dos.</p>
 <figure class="diagram medium">
   <img src="imagenes/t12-03_flap.png" alt="Diálogo de flap con deflexión de diez grados y charnela al setenta por ciento" loading="lazy">
-  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">Diálogo del flap.</b> Flap de borde de ataque, de borde de salida o ambos. El convenio de signos está escrito en el propio diálogo: <em>+ is down</em>. La charnela se sitúa en porcentaje de cuerda a lo largo y en porcentaje de espesor en vertical. <code>Apply</code> deflecta sin cerrar, de modo que se puede tantear.</figcaption>
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">Diálogo del flap.</b> Flap de borde de ataque, de borde de salida o ambos. El convenio de signos está escrito en el propio diálogo: <em>+ is down</em>. La charnela se sitúa en porcentaje de cuerda a lo largo y en porcentaje de espesor en vertical. <code>Apply</code> deflecta sin cerrar el diálogo, de modo que se puede probar antes de aceptar.</figcaption>
 </figure>
-<p>Tres campos por flap: el <strong>ángulo</strong>, con el convenio explícito en el propio diálogo de que <em>positivo es hacia abajo</em>; y la posición de la charnela, dada en porcentaje de cuerda a lo largo y en porcentaje de espesor en vertical. El botón <code>Apply</code> aplica la deflexión sin cerrar el diálogo, de modo que se puede tantear la geometría antes de aceptarla.</p>
+<p>Tres campos por flap: el <strong>ángulo</strong>, con el convenio explícito en el propio diálogo de que <em>positivo es hacia abajo</em>; y la posición de la charnela, dada en porcentaje de cuerda a lo largo y en porcentaje de espesor en vertical. El botón <code>Apply</code> aplica la deflexión sin cerrar el diálogo, de modo que se puede probar la geometría antes de aceptarla.</p>
 <figure class="diagram">
   <img src="imagenes/t12-04_flap_perfil.png" alt="Perfil NACA 2412 con el flap de borde de salida deflectado diez grados" loading="lazy">
   <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">El perfil con el flap deflectado.</b> Aplicada la deflexión, el recuadro inferior incorpora <code>Flap Angle</code>, <code>XHinge</code> e <code>YHinge</code> junto al resto de la geometría. A partir de ese momento es un perfil distinto, con su propia polar y su propio ángulo de sustentación nula.</figcaption>
@@ -270,7 +270,7 @@
   <img src="imagenes/t12-06_batch.png" alt="Diálogo de análisis por lotes configurado con tres perfiles y varios números de Reynolds" loading="lazy">
   <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">El diálogo de análisis por lotes.</b> Arriba a la izquierda, la lista de perfiles con selección múltiple: están marcados los tres NACA limpios y queda fuera el cuarto. Debajo, la tabla de números de Reynolds —que admite más filas de las que muestra—, el tipo de polar, la transición forzada y el rango de ángulos. A la derecha, las opciones que deciden el tiempo de corrida y el número de hilos.</figcaption>
 </figure>
-<p>Se lee por zonas. Arriba a la izquierda, la <strong>lista de perfiles</strong>, con selección múltiple: en la figura están marcados los tres NACA de la familia y queda fuera un cuarto perfil que no interesa comparar. Debajo, la <strong>tabla de números de Reynolds</strong>, con su Mach y su \(N_{\mathrm{crit}}\) por fila —la tabla admite más filas de las que muestra a primera vista, y conviene desplazarla antes de dar por hecho cuántas hay—. Después, el tipo de polar, la transición forzada y el rango de ángulos, con el mismo significado que en el Tutorial 1.1.</p>
+<p>Se lee por zonas. Arriba a la izquierda, la <strong>lista de perfiles</strong>, con selección múltiple: en la figura están marcados los tres NACA de la familia y queda fuera un cuarto perfil que no interesa comparar. Debajo, la <strong>tabla de números de Reynolds</strong>, con su Mach y su \(N_{\mathrm{crit}}\) por fila —la tabla admite más filas de las que muestra a primera vista, y conviene desplazarla antes de suponer cuántas hay—. Después, el tipo de polar, la transición forzada y el rango de ángulos, con el mismo significado que en el Tutorial 1.1.</p>
 <h3>Las opciones de la derecha, que son las que deciden el tiempo</h3>
 <div class="table-wrap">
   <table>
@@ -278,14 +278,14 @@
     <tbody>
       <tr><td><code>Initialize BLs between polars</code></td><td>Reinicia la capa límite al empezar cada polar en vez de arrastrar la anterior</td><td>Marcada. Evita que un caso mal convergido contamine el siguiente</td></tr>
       <tr><td><code>Store operating points</code></td><td>Conserva cada punto de operación con su distribución de \(C_p\)</td><td>Marcada si se piensa inspeccionar algún caso; ocupa memoria, pero sin ella la vista <code>OpPoint</code> queda vacía, como ya advertía el Tutorial 1.1</td></tr>
-      <tr><td><code>Update polar view</code></td><td>Redibuja las gráficas después de cada polar terminada</td><td><strong>Desmarcada.</strong> En un lote grande, redibujar domina el tiempo total; el resultado es idéntico y la corrida, mucho más rápida</td></tr>
-      <tr><td><code>Max. Threads</code></td><td>Cuántos núcleos emplea en paralelo</td><td>Al máximo que ofrezca la máquina. Es lo que convierte una tarde en un minuto</td></tr>
+      <tr><td><code>Update polar view</code></td><td>Redibuja las gráficas después de cada polar terminada</td><td><strong>Desmarcada</strong> en lotes grandes. Redibujar tras cada polar cuesta tiempo y no cambia el resultado</td></tr>
+      <tr><td><code>Max. Threads</code></td><td>Cuántos núcleos emplea en paralelo</td><td>Al máximo que ofrezca la máquina: el reparto entre núcleos es lo que hace viable un lote grande</td></tr>
     </tbody>
-    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Las opciones que deciden el tiempo de corrida.</b> Las tres primeras están en el panel derecho del diálogo. La última es la que más sorprende.</caption>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Las opciones que deciden el tiempo de corrida.</b> Las cuatro están en el panel derecho del diálogo. La tercera es la que más sorprende.</caption>
   </table>
 </div>
 <div class="callout">
-  <p><strong>El número de corridas se multiplica.</strong> Lo que se lanza es el producto de la lista de perfiles por la tabla de Reynolds: tres perfiles y doce Reynolds son treinta y seis polares, y cada una con su barrido completo de ángulos. Conviene contar antes de pulsar, porque el diálogo no avisa.</p>
+  <p><strong>El número de corridas se multiplica.</strong> Lo que se lanza es el producto de la lista de perfiles por la tabla de Reynolds: tres perfiles y doce Reynolds son treinta y seis polares, y cada una con su barrido completo de ángulos. Conviene contar antes de hacer clic en <code>Analyze</code>, porque el diálogo no avisa.</p>
 </div>
     </section>
     <section id="running-es">
@@ -300,43 +300,43 @@
 <p>Y entonces aparece el problema que nadie anuncia:</p>
 <figure class="diagram">
   <img src="imagenes/t12-08_polares_lote.png" alt="Las treinta y seis polares del lote superpuestas en la vista de polares" loading="lazy">
-  <figcaption><b class="fig-num">Figura 9.</b> <b class="fig-title">El resultado inmediato: ilegible.</b> Así queda la vista de polares al terminar el lote. La leyenda de la derecha lista las treinta y seis, pero las curvas se solapan hasta hacerse indistinguibles. Un lote sin un método para despejarlo después no sirve de nada, y ése es el contenido de la sección siguiente.</figcaption>
+  <figcaption><b class="fig-num">Figura 9.</b> <b class="fig-title">El resultado inmediato: ilegible.</b> Así queda la vista de polares al terminar el lote. La leyenda de la derecha lista las treinta y seis, pero las curvas se solapan hasta hacerse indistinguibles. Un lote que no se sabe leer después no sirve de nada, y de eso trata la sección siguiente.</figcaption>
 </figure>
 <div class="callout warning">
-  <p><strong>Treinta y seis curvas superpuestas no se leen.</strong> No es un defecto de la figura: es el estado en que queda la vista de polares al terminar un lote. La leyenda de la derecha lista las polares una a una, pero las curvas se solapan hasta hacerse indistinguibles. Un lote sin un método para despejarlo después no sirve de nada.</p>
+  <p><strong>Treinta y seis curvas superpuestas no se leen.</strong> No es un defecto de la figura: es el estado en que queda la vista de polares al terminar un lote. La leyenda de la derecha lista las polares una a una, pero las curvas se solapan hasta hacerse indistinguibles. Un lote que no se sabe leer después no sirve de nada.</p>
 </div>
     </section>
     <section id="reading-es">
       <p class="section-label">Paso 6</p>
-      <h2>Despejar la maraña y leer la rejilla</h2>
+      <h2>Ocultar lo que sobra y leer la rejilla</h2>
 <p>La reacción natural es buscar un filtro. Existe uno, en <code>Polars ▸ Polar Filter</code>, y conviene saber qué hace realmente antes de contar con él:</p>
 <figure class="diagram narrow">
   <img src="imagenes/t12-09_filtro.png" alt="Diálogo de filtro de polares mostrando las casillas por tipo" loading="lazy">
-  <figcaption><b class="fig-num">Figura 10.</b> <b class="fig-title">El filtro de polares, y lo que no hace.</b> Filtra por <strong>tipo</strong> de polar, no por curva: Type 1, 2, 3 y 4, más un Type 7 de estabilidad en gris porque el proyecto todavía no tiene ninguna. Con un lote entero de Type 1, este diálogo no oculta nada. Para despejar la gráfica hay que ir al explorador.</figcaption>
+  <figcaption><b class="fig-num">Figura 10.</b> <b class="fig-title">El filtro de polares, y lo que no hace.</b> Filtra por <strong>tipo</strong> de polar, no por curva: Type 1, 2, 3 y 4, más un Type 7 de estabilidad que aparece atenuado. Con un lote entero de Type 1, este diálogo no oculta nada. Para ocultar curvas hay que ir al explorador.</figcaption>
 </figure>
 <div class="callout warning">
-  <p><strong>El filtro es por tipo de polar, no por curva.</strong> Sólo permite mostrar u ocultar familias enteras —Type 1, Type 2, Type 3, Type 4 y, en gris porque todavía no hay ninguna, Type 7 de estabilidad—. Si todas las polares del lote son Type 1, como aquí, el filtro no despeja absolutamente nada.</p>
+  <p><strong>El filtro es por tipo de polar, no por curva.</strong> Sólo permite mostrar u ocultar familias enteras: Type 1, Type 2, Type 3, Type 4 y un Type 7 de estabilidad que aparece atenuado. Si todas las polares del lote son Type 1, como aquí, el filtro no oculta absolutamente nada.</p>
 </div>
-<h3>Lo que sí despeja</h3>
+<h3>Lo que sí oculta curvas</h3>
 <ul>
   <li>Las <strong>casillas del explorador</strong>: cada polar tiene la suya y se ocultan una a una.</li>
-  <li><code>Polars ▸ Hide All Polars</code> para apagarlas todas de golpe, y encender después sólo las que interesen. Es el camino rápido.</li>
+  <li><code>Polars ▸ Hide All Polars</code> para ocultarlas todas a la vez y volver a mostrar sólo las que interesen. Es el camino rápido.</li>
   <li>Seleccionar un perfil y usar <code>Show Only Associated Polars</code>: deja visibles las de ese perfil y apaga el resto.</li>
 </ul>
 <h3>Las dos direcciones de lectura</h3>
-<p>Una rejilla de perfiles por Reynolds se lee en dos sentidos, y responden a preguntas distintas:</p>
+<p>Una rejilla de perfiles por Reynolds se lee en dos sentidos, que responden a preguntas distintas:</p>
 <div class="table-wrap">
   <table>
     <thead><tr><th>Dirección</th><th>Qué se compara</th><th>Qué revela</th></tr></thead>
     <tbody>
       <tr><td><strong>A Reynolds fijo</strong>, entre perfiles</td><td>Varias curvas del mismo \(Re\), un perfil cada una</td><td>El efecto de la geometría: cuánta sustentación aporta la curvatura, cuánto arrastre cuesta el espesor, dónde queda \(\alpha_{L=0}\) en cada caso</td></tr>
-      <tr><td><strong>A perfil fijo</strong>, entre Reynolds</td><td>Varias curvas del mismo perfil, un \(Re\) cada una</td><td>El efecto de escala: cuánto se degrada el perfil al bajar de Reynolds y si el orden de mérito entre candidatos aguanta en todo el dominio de vuelo</td></tr>
+      <tr><td><strong>A perfil fijo</strong>, entre Reynolds</td><td>Varias curvas del mismo perfil, un \(Re\) cada una</td><td>El efecto de escala: cuánto se degrada el perfil al bajar de Reynolds y si el orden de mérito entre candidatos se sostiene en todo el dominio de vuelo</td></tr>
     </tbody>
     <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">Las dos direcciones de lectura de la rejilla.</b> La misma tabla de resultados responde dos preguntas distintas según se recorra por filas o por columnas. Hacen falta las dos.</caption>
   </table>
 </div>
 <div class="callout">
-  <p>Conviene hacer las dos y en ese orden. La comparación a Reynolds fijo dice qué perfil conviene; el barrido en Reynolds dice si esa conclusión aguanta en todo el dominio de vuelo o sólo en el punto que se eligió para compararlos.</p>
+  <p>Conviene hacer las dos y en ese orden. La comparación a Reynolds fijo dice qué perfil conviene; el barrido en Reynolds dice si esa conclusión se sostiene en todo el dominio de vuelo o sólo en el punto que se eligió para compararlos.</p>
 </div>
     </section>
     <section id="example-es">
@@ -359,10 +359,10 @@
   <summary>Comprobación: qué debe observarse si el procedimiento fue correcto</summary>
   <div class="details-content">
     <ul>
-      <li>Los tres Reynolds salen del orden de \(2\times10^{5}\) a \(7\times10^{5}\): un factor de tres y medio, suficiente para que el orden de mérito cambie entre extremos.</li>
+      <li>Los tres Reynolds salen \(2.0\times10^{5}\), \(4.3\times10^{5}\) y \(6.7\times10^{5}\): un factor de \(3.3\) entre los extremos, suficiente para que el orden de mérito pueda cambiar de uno a otro.</li>
       <li>El de mayor \((c_l/c_d)_{\max}\) y el de mayor \(c_{l,\max}\) rara vez coinciden: la curvatura que ayuda al máximo penaliza el arrastre en crucero. Ésa es la decisión de diseño, y no tiene respuesta única.</li>
-      <li>Al bajar el Reynolds, los perfiles más curvados degradan menos que los simétricos, porque su punto de operación queda más lejos del arrastre mínimo y las burbujas laminares les afectan menos.</li>
-      <li>El flap a \(10^\circ\) sube \(c_{l,\max}\) de forma apreciable y sube el arrastre mucho más en proporción: es un dispositivo para aterrizar, no para volar.</li>
+      <li>Los cuatro se degradan al bajar el Reynolds, pero no todos en la misma medida. Cuál resiste mejor y por qué —dónde queda su punto de operación y cómo le afecta la burbuja laminar— es la parte del ejercicio que exige pensar, y no tiene una respuesta que se pueda dar de antemano.</li>
+      <li>El flap a \(10^\circ\) debe subir \(c_{l,\max}\) de forma apreciable, y el arrastre bastante más en proporción. Es lo esperable en un dispositivo pensado para aterrizar, no para crucero.</li>
     </ul>
   </div>
 </details>
@@ -372,7 +372,7 @@
       <h2>Cuatro afirmaciones y una relación</h2>
 <p>Lo que hay que retener de esta guía cabe en cuatro afirmaciones.</p>
 <div class="result-box">
-  <p><strong>Una.</strong> Comparar exige fijar de antemano \(Re\), \(M\), \(N_{\mathrm{crit}}\), el rango de ángulos y el panelado, y variar <em>una</em> cosa. <strong>Dos.</strong> Un perfil se juzga en un dominio de Reynolds, no en un punto. <strong>Tres.</strong> Un perfil escalado, interpolado o con flap deflectado es un perfil <em>nuevo</em>, con su propia polar. <strong>Cuatro.</strong> El filtro de polares filtra por tipo; para despejar curvas se usa el explorador.</p>
+  <p><strong>Una.</strong> Comparar exige fijar de antemano \(Re\), \(M\), \(N_{\mathrm{crit}}\), el rango de ángulos y el panelado, y variar <em>una</em> cosa. <strong>Dos.</strong> Un perfil se juzga en un dominio de Reynolds, no en un punto. <strong>Tres.</strong> Un perfil escalado, interpolado o con flap deflectado es un perfil <em>nuevo</em>, con su propia polar. <strong>Cuatro.</strong> El filtro de polares filtra por tipo; para ocultar curvas se usa el explorador.</p>
 </div>
 <p>Y una relación que conviene tener presente al dimensionar la corrida: el número de polares es el producto de perfiles por números de Reynolds, y el de puntos de operación, ese producto por el número de ángulos del barrido.</p>
 <div class="equation-card">\[ N_{\text{polares}} = N_{\text{perfiles}} \times N_{Re}, \qquad N_{\text{puntos}} = N_{\text{polares}} \times \frac{\alpha_{\max}-\alpha_{\min}}{\Delta\alpha} \]</div>
@@ -383,11 +383,11 @@
       <h2>Errores de interpretación que invalidan una comparación</h2>
 <p>Como en el resto de la serie, éstos no son errores de manejo sino de interpretación.</p>
 <ul class="check-list">
-  <li><strong>«El filtro de polares oculta las curvas que sobran.»</strong> Resulta verosímil porque se llama filtro y aparece justo cuando hace falta. Pero sólo filtra por <em>tipo</em>: con un lote entero de Type 1 no oculta nada. Para despejar se usan las casillas del explorador o <code>Hide All Polars</code>.</li>
+  <li><strong>«El filtro de polares oculta las curvas que sobran.»</strong> Resulta verosímil porque se llama filtro y aparece justo cuando hace falta. Pero sólo filtra por <em>tipo</em>: con un lote entero de Type 1 no oculta nada. Para ocultar curvas se usan las casillas del explorador o <code>Hide All Polars</code>.</li>
   <li><strong>Escalar un perfil y analizarlo sin volver a prepararlo.</strong> Resulta verosímil porque el perfil se dibuja bien. El escalado reconstruye el contorno: hay que normalizar y refinar otra vez, o los miembros de la familia dejan de ser comparables entre sí.</li>
   <li><strong>Tratar la deflexión de un flap como una condición del análisis.</strong> Resulta verosímil porque físicamente es una condición. En XFoil es geometría: cada deflexión es un perfil distinto con su polar, y no hay interpolación entre ellas.</li>
   <li><strong>Dar por hecho el número de filas de la tabla de Reynolds.</strong> Resulta verosímil porque se ven cuatro. La tabla se desplaza, y lo que se lanza puede ser el triple de lo previsto: en esta guía fueron 36 polares donde se esperaban 12.</li>
-  <li><strong>Dejar marcado <code>Update polar view</code> en un lote grande.</strong> Resulta verosímil porque apetece ver el avance. Redibujar la gráfica tras cada polar domina el tiempo total; desmarcada, la corrida va mucho más rápida y el resultado es idéntico.</li>
+  <li><strong>Dejar marcado <code>Update polar view</code> en un lote grande.</strong> Resulta verosímil porque uno quiere ver el avance. Redibujar la gráfica después de cada polar cuesta tiempo y no aporta nada al resultado, que es idéntico con la casilla desmarcada. En un lote de decenas de polares la diferencia se nota.</li>
   <li><strong>Elegir el perfil por un solo número de Reynolds.</strong> Resulta verosímil porque es el de crucero. El orden de mérito cambia con la escala, y el perfil ha de servir también en aproximación.</li>
   <li><strong>Interpolar entre perfiles de familias muy distintas.</strong> Resulta verosímil porque el programa lo permite. La interpolación es geométrica: puede generar contornos con curvaturas que ninguno de los dos originales tenía.</li>
 </ul>
