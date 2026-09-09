@@ -79,12 +79,12 @@
     <section id="analysis">
       <p class="section-label">Step 2</p>
       <h2>Defining the analysis</h2>
-      <p>Every field of the analysis dialogue fixes a physical hypothesis: the analysis type sets which quantity stays constant along the sweep, the Reynolds number is built on the <em>chord</em> and never on the span, and \(N_{\mathrm{crit}}\) describes the turbulence level of the stream rather than the airfoil. Note that the program defaults to \(\nu = 1{.}5\times 10^{-5}\ \mathrm{m^2/s}\).</p>
+      <p>Every field of the analysis dialogue fixes a physical hypothesis: the analysis type sets which quantity stays constant along the sweep, the Reynolds number is built on the <em>chord</em> and never on the span, and \(N_{\mathrm{crit}}\) describes the turbulence level of the stream rather than the airfoil. Note that the program defaults to \(\nu = 1.5\times 10^{-5}\ \mathrm{m^2/s}\).</p>
     </section>
     <section id="algorithm">
       <p class="section-label">Step 3</p>
       <h2>Running the angle-of-attack sweep</h2>
-      <p>Sweep from \(-6^\circ\) to \(16^\circ\) in steps of \(0{,}5^\circ\), with <code>Store Opp</code> always ticked: it is the option that keeps every operating point with its local data. When a point fails to converge, reduce the step, tick <code>Init BL</code>, refine the panelling, or accept that the failure marks the limit of the method.</p>
+      <p>Sweep from \(-6^\circ\) to \(16^\circ\) in steps of \(0.5^\circ\), with <code>Store Opp</code> always ticked: it is the option that keeps every operating point with its local data. When a point fails to converge, reduce the step, tick <code>Init BL</code>, refine the panelling, or accept that the failure marks the limit of the method.</p>
     </section>
     <section id="polars">
       <p class="section-label">Step 4</p>
@@ -104,7 +104,7 @@
     <section id="summary">
       <p class="section-label">Key values</p>
       <h2>The five figures that verify a run</h2>
-      <p>Contrast values for the NACA 2412 at \(Re = 5\times 10^{5}\): \(a_0 \approx 0{.}11\) per degree, \(\alpha_{L=0} \approx -2{.}1^\circ\), \(C_{m,c/4} \approx -0{.}05\), \(C_{d,\min} \approx 0{.}007\). The documented run returns \(C_L = 0{.}896\) and \(L/D = 86{.}2\) at \(\alpha = 6^\circ\).</p>
+      <p>Contrast values for the NACA 2412 at \(Re = 5\times 10^{5}\): \(a_0 \approx 0.11\) per degree, \(\alpha_{L=0} \approx -2.1^\circ\), \(C_{m,c/4} \approx -0.05\), \(C_{d,\min} \approx 0.007\). The documented run returns \(C_L = 0.896\) and \(L/D = 86.2\) at \(\alpha = 6^\circ\).</p>
     </section>
     <section id="mistakes">
       <p class="section-label">Common mistakes</p>
@@ -166,7 +166,7 @@
     <thead><tr><th>Resultados fiables</th><th>Zona de precaución</th><th>Fuera del alcance del método</th></tr></thead>
     <tbody>
       <tr><td>Flujo adherido en \(10^{5} &lt; Re &lt; 10^{7}\)</td><td>\(Re &lt; 5\times 10^{4}\): burbujas de separación extensas y convergencia frágil</td><td>Cualquier ángulo posterior a la pérdida</td></tr>
-      <tr><td>Burbujas laminares de separación de extensión reducida</td><td>\(M &gt; 0{.}5\): sólo se aplica una corrección de compresibilidad</td><td>Ondas de choque; regímenes transónico y supersónico</td></tr>
+      <tr><td>Burbujas laminares de separación de extensión reducida</td><td>\(M &gt; 0.5\): sólo se aplica una corrección de compresibilidad</td><td>Ondas de choque; regímenes transónico y supersónico</td></tr>
       <tr><td>Comparación de perfiles en condiciones idénticas</td><td>Separación incipiente en el borde de salida, cerca de \(C_{l,\max}\)</td><td>Alas finitas: flecha, torsión y efectos de punta</td></tr>
     </tbody>
     <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Dominio de validez del análisis bidimensional.</b> El criterio que separa las tres columnas es siempre el mismo: hasta qué punto la capa límite sigue siendo delgada y adherida.</caption>
@@ -250,7 +250,7 @@
 </figure>
 <figure class="diagram">
   <img src="imagenes/06_dialogo_analisis.png" alt="Diálogo de parámetros del análisis con Type 1, Re 500000, Mach 0 y NCrit 9" loading="lazy">
-  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">Definición del análisis.</b> Tres aspectos no evidentes. El nombre del análisis se genera automáticamente a partir de los parámetros —<code>T1_Re0.500_M0.00_N9.0</code>— y es lo que permite distinguir polares posteriormente. El bloque <strong>Plane Data</strong> (cuerda, envergadura y masa) sólo se habilita en los tipos 2 y 3, donde el peso interviene para despejar la velocidad. Y la viscosidad cinemática por omisión es \(1{.}5\times 10^{-5}\ \mathrm{m^2/s}\), no el \(1{.}46\times 10^{-5}\) de la atmósfera estándar a 15 °C: si el número de Reynolds se calcula a mano con un valor y el programa emplea otro, las condiciones declaradas y las efectivas no coinciden.</figcaption>
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">Definición del análisis.</b> Tres aspectos no evidentes. El nombre del análisis se genera automáticamente a partir de los parámetros —<code>T1_Re0.500_M0.00_N9.0</code>— y es lo que permite distinguir polares posteriormente. El bloque <strong>Plane Data</strong> (cuerda, envergadura y masa) sólo se habilita en los tipos 2 y 3, donde el peso interviene para despejar la velocidad. Y la viscosidad cinemática por omisión es \(1.5\times 10^{-5}\ \mathrm{m^2/s}\), no el \(1.46\times 10^{-5}\) de la atmósfera estándar a 15 °C: si el número de Reynolds se calcula a mano con un valor y el programa emplea otro, las condiciones declaradas y las efectivas no coinciden.</figcaption>
 </figure>
 
 <h3>El tipo de análisis</h3>
@@ -268,7 +268,7 @@
 </div>
 
 <h3>El número de Reynolds</h3>
-<p>Es el parámetro que traduce el problema real al análisis. Con aire en atmósfera estándar a 15 °C y a nivel del mar, \(\nu = 1{.}46\times 10^{-5}\ \mathrm{m^2/s}\):</p>
+<p>Es el parámetro que traduce el problema real al análisis. Con aire en atmósfera estándar a 15 °C y a nivel del mar, \(\nu = 1.46\times 10^{-5}\ \mathrm{m^2/s}\):</p>
 <div class="equation-card">
   \[ Re = \frac{\rho V_\infty c}{\mu} = \frac{V_\infty c}{\nu} \]
 </div>
@@ -279,17 +279,17 @@
   <table>
     <thead><tr><th>Caso</th><th>\(V\) (m/s)</th><th>\(c\) (m)</th><th>\(Re\)</th></tr></thead>
     <tbody>
-      <tr><td>Ala de aeronave no tripulada pequeña</td><td>12</td><td>0.15</td><td>\(1{.}2\times 10^{5}\)</td></tr>
-      <tr><td>Modelo en túnel de viento de laboratorio</td><td>20</td><td>0.10</td><td>\(1{.}4\times 10^{5}\)</td></tr>
-      <tr><td>Aeronave no tripulada de clase táctica</td><td>30</td><td>0.50</td><td>\(1{.}0\times 10^{6}\)</td></tr>
-      <tr><td>Avioneta ligera en crucero</td><td>60</td><td>1.50</td><td>\(6{.}2\times 10^{6}\)</td></tr>
+      <tr><td>Ala de aeronave no tripulada pequeña</td><td>12</td><td>0.15</td><td>\(1.2\times 10^{5}\)</td></tr>
+      <tr><td>Modelo en túnel de viento de laboratorio</td><td>20</td><td>0.10</td><td>\(1.4\times 10^{5}\)</td></tr>
+      <tr><td>Aeronave no tripulada de clase táctica</td><td>30</td><td>0.50</td><td>\(1.0\times 10^{6}\)</td></tr>
+      <tr><td>Avioneta ligera en crucero</td><td>60</td><td>1.50</td><td>\(6.2\times 10^{6}\)</td></tr>
     </tbody>
-    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">Órdenes de magnitud del número de Reynolds.</b> Valores calculados con \(\nu = 1{.}46\times 10^{-5}\ \mathrm{m^2/s}\). Sirven de referencia para situar un caso; el número de Reynolds de cada trabajo debe calcularse con sus propios datos.</caption>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">Órdenes de magnitud del número de Reynolds.</b> Valores calculados con \(\nu = 1.46\times 10^{-5}\ \mathrm{m^2/s}\). Sirven de referencia para situar un caso; el número de Reynolds de cada trabajo debe calcularse con sus propios datos.</caption>
   </table>
 </div>
 
 <h3>El número de Mach</h3>
-<p>Se deja en cero para todo régimen por debajo de \(M = 0{.}3\): el efecto de la compresibilidad es despreciable y la convergencia mejora. Por encima de ese valor XFoil aplica la corrección de Kármán–Tsien, válida hasta \(M \approx 0{.}6\) mientras el flujo se mantenga subcrítico. En cuanto aparece una onda de choque en el extradós, el resultado deja de tener significado físico.</p>
+<p>Se deja en cero para todo régimen por debajo de \(M = 0.3\): el efecto de la compresibilidad es despreciable y la convergencia mejora. Por encima de ese valor XFoil aplica la corrección de Kármán–Tsien, válida hasta \(M \approx 0.6\) mientras el flujo se mantenga subcrítico. En cuanto aparece una onda de choque en el extradós, el resultado deja de tener significado físico.</p>
 
 <h3>El factor \(N_{\mathrm{crit}}\)</h3>
 <p>Es el factor de amplificación del criterio \(e^{N}\): el número de órdenes de crecimiento que debe acumular una perturbación antes de que la capa límite se declare turbulenta. En la práctica, es el parámetro que describe el nivel de turbulencia de la corriente y el acabado de la superficie.</p>
@@ -315,7 +315,7 @@
     <section id="algorithm-es">
       <p class="section-label">Paso 3</p>
       <h2>Ejecución del barrido de ángulo de ataque</h2>
-<p>Definido el análisis, el panel lateral derecho solicita el intervalo de ángulos de ataque. Para un primer recorrido resulta adecuado el intervalo de \(-6^\circ\) a \(16^\circ\) con incremento \(\Delta\alpha = 0{.}5^\circ\).</p>
+<p>Definido el análisis, el panel lateral derecho solicita el intervalo de ángulos de ataque. Para un primer recorrido resulta adecuado el intervalo de \(-6^\circ\) a \(16^\circ\) con incremento \(\Delta\alpha = 0.5^\circ\).</p>
 <ul>
   <li><strong>Sequence:</strong> recorre el intervalo completo en lugar de calcular un único punto de operación.</li>
   <li><strong>Init BL:</strong> reinicializa la capa límite en cada ángulo. Sin marcar, cada punto parte de la solución del anterior, lo que resulta más rápido y más estable en la zona lineal. Conviene activarla cuando la polar empieza a presentar discontinuidades.</li>
@@ -332,13 +332,13 @@
 </figure>
 
 <h3>Procedimiento ante un punto que no converge</h3>
-<ol class="process-flow">
-  <li>Reducir el incremento \(\Delta\alpha\) a \(0{.}25^\circ\) en el tramo problemático.</li>
-  <li>Activar <strong>Init BL</strong> y repetir la ejecución.</li>
-  <li>Elevar el panelado a 200 paneles y volver a normalizar la geometría.</li>
-  <li>Ejecutar el barrido en dos tramos desde \(\alpha = 0^\circ\) hacia ambos extremos, en lugar de recorrer todo el intervalo de una sola vez.</li>
-  <li>Si el fallo se produce por encima de \(C_{l,\max}\), no se trata de un problema numérico sino del límite de validez del método. El barrido debe detenerse ahí.</li>
-</ol>
+<div class="process-flow">
+  <div><strong>1</strong><span>Reducir el incremento \(\Delta\alpha\) a \(0.25^\circ\) en el tramo problemático.</span></div>
+  <div><strong>2</strong><span>Activar <code>Init BL</code> y repetir la ejecución.</span></div>
+  <div><strong>3</strong><span>Elevar el panelado a 200 paneles y volver a normalizar la geometría.</span></div>
+  <div><strong>4</strong><span>Ejecutar el barrido en dos tramos desde \(\alpha = 0^\circ\) hacia ambos extremos.</span></div>
+  <div><strong>5</strong><span>Si el fallo se produce por encima de \(C_{l,\max}\), es el límite de validez del método: el barrido debe detenerse ahí.</span></div>
+</div>
     </section>
     <section id="polars-es">
       <p class="section-label">Paso 4</p>
@@ -437,7 +437,7 @@
       <text class="svg-note-sm" x="96" y="396">codo de la polar  —  el arrastre se dispara hacia la pérdida</text>
       </g>
       </svg>
-  <figcaption><b class="fig-num">Figura 11.</b> <b class="fig-title">Polar de arrastre y construcción de la eficiencia máxima.</b> La pendiente de cualquier recta trazada desde el origen hasta un punto de la polar vale \(C_l/C_d\); la recta de mayor pendiente que aún toca la curva es su tangente desde el origen, y el punto de tangencia ② es por tanto el de eficiencia aerodinámica máxima. Obsérvese que <strong>no coincide</strong> con el punto de arrastre mínimo ①, que se sitúa a menor sustentación: minimizar el arrastre y maximizar la eficiencia son objetivos distintos. El codo ③ marca el tramo en que el arrastre crece mucho más deprisa que la sustentación al aproximarse a la pérdida. En la corrida de la figura 9 la eficiencia máxima resulta \(L/D = 86{.}2\) en \(\alpha = 6^\circ\).</figcaption>
+  <figcaption><b class="fig-num">Figura 11.</b> <b class="fig-title">Polar de arrastre y construcción de la eficiencia máxima.</b> La pendiente de cualquier recta trazada desde el origen hasta un punto de la polar vale \(C_l/C_d\); la recta de mayor pendiente que aún toca la curva es su tangente desde el origen, y el punto de tangencia ② es por tanto el de eficiencia aerodinámica máxima. Obsérvese que <strong>no coincide</strong> con el punto de arrastre mínimo ①, que se sitúa a menor sustentación: minimizar el arrastre y maximizar la eficiencia son objetivos distintos. El codo ③ marca el tramo en que el arrastre crece mucho más deprisa que la sustentación al aproximarse a la pérdida. En la corrida de la figura 9 la eficiencia máxima resulta \(L/D = 86.2\) en \(\alpha = 6^\circ\).</figcaption>
 </figure>
 
 <h3>Las cuatro lecturas que importan</h3>
@@ -445,10 +445,10 @@
   <table>
     <thead><tr><th>Representación</th><th>Magnitudes que se extraen</th><th>Valor de contraste</th></tr></thead>
     <tbody>
-      <tr><td><strong>\(C_l\) vs \(\alpha\)</strong></td><td>Pendiente \(a_0\), ángulo de sustentación nula \(\alpha_{L=0}\), \(C_{l,\max}\) y el ángulo en que se alcanza</td><td>Teoría de perfil delgado: \(a_0 = 2\pi\ \mathrm{rad}^{-1} = 0{.}110\ \mathrm{grado}^{-1}\). El cálculo viscoso devuelve entre 0.10 y 0.11; un valor de 0.13 indica que el perfil no está normalizado</td></tr>
+      <tr><td><strong>\(C_l\) vs \(\alpha\)</strong></td><td>Pendiente \(a_0\), ángulo de sustentación nula \(\alpha_{L=0}\), \(C_{l,\max}\) y el ángulo en que se alcanza</td><td>Teoría de perfil delgado: \(a_0 = 2\pi\ \mathrm{rad}^{-1} = 0.110\ \mathrm{grado}^{-1}\). El cálculo viscoso devuelve entre 0.10 y 0.11; un valor de 0.13 indica que el perfil no está normalizado</td></tr>
       <tr><td><strong>\(C_d\) vs \(C_l\)</strong></td><td>\(C_{d,\min}\) y la sustentación a la que se produce, amplitud de la zona de bajo arrastre, y el punto de eficiencia máxima obtenido por tangencia desde el origen</td><td>Perfil limpio a \(Re = 5\times 10^{5}\): \(C_{d,\min}\) entre 0.006 y 0.009. Un valor del orden de 0.02 señala un error en la geometría o en el panelado</td></tr>
       <tr><td><strong>\(C_l/C_d\) vs \(\alpha\)</strong></td><td>Eficiencia aerodinámica de la sección. Su máximo determina el mejor ángulo de planeo; en una aeronave de hélice coincide además con la condición de máximo alcance, mientras que en una de reacción esa condición corresponde al máximo de \(C_l^{1/2}/C_d\)</td><td>Un perfil de calidad a \(Re \approx 10^{6}\) alcanza valores de 100 a 150; a \(Re = 10^{5}\), aproximadamente la mitad</td></tr>
-      <tr><td><strong>\(C_m\) vs \(\alpha\)</strong></td><td>Momento respecto del cuarto de cuerda. Que permanezca constante en la zona lineal constituye la comprobación numérica de que ese punto es el centro aerodinámico</td><td>Perfil simétrico: \(C_m \approx 0\). NACA 2412: \(C_{m,c/4} \approx -0{.}05\)</td></tr>
+      <tr><td><strong>\(C_m\) vs \(\alpha\)</strong></td><td>Momento respecto del cuarto de cuerda. Que permanezca constante en la zona lineal constituye la comprobación numérica de que ese punto es el centro aerodinámico</td><td>Perfil simétrico: \(C_m \approx 0\). NACA 2412: \(C_{m,c/4} \approx -0.05\)</td></tr>
     </tbody>
     <caption><b class="tab-num">Tabla 6.</b> <b class="fig-title">Qué se extrae de cada representación.</b> La tercera columna es la que convierte una corrida en un resultado: si el valor obtenido se aparta del de contraste, el error está en el planteamiento y no en el perfil.</caption>
   </table>
@@ -488,7 +488,7 @@
 </div>
 <figure class="diagram">
   <img src="imagenes/10_cp.png" alt="Distribución de Cp del NACA 2412 a seis grados en la vista OpPoint" loading="lazy">
-  <figcaption><b class="fig-num">Figura 12.</b> <b class="fig-title">Vista <code>OpPoint view</code> en \(\alpha = 6^\circ\).</b> El recuadro de la derecha reúne los resultados del punto de operación seleccionado: \(C_L = 0{.}896\), \(C_d = 0{.}0104\), \(C_m = -0{.}048\), \(L/D = 86{.}2\) y transición del extradós en \(x/c = 0{.}274\). El valor de \(C_m\) puede contrastarse con el \(-0{.}047\) medido en túnel por Abbott y von Doenhoff.</figcaption>
+  <figcaption><b class="fig-num">Figura 12.</b> <b class="fig-title">Vista <code>OpPoint view</code> en \(\alpha = 6^\circ\).</b> El recuadro de la derecha reúne los resultados del punto de operación seleccionado: \(C_L = 0.896\), \(C_d = 0.0104\), \(C_m = -0.048\), \(L/D = 86.2\) y transición del extradós en \(x/c = 0.274\). El valor de \(C_m\) puede contrastarse con el \(-0.047\) medido en túnel por Abbott y von Doenhoff.</figcaption>
 </figure>
 
 <h3>Anatomía de la distribución</h3>
@@ -557,7 +557,7 @@
 <p class="lead">El ejercicio que sigue no es una entrega: es la forma más rápida de comprobar que el procedimiento se ha entendido. Consiste en analizar dos perfiles en condiciones idénticas y contrastar las diferencias con lo que predice la teoría de perfil delgado. Toda la corrida se completa en unos veinte minutos.</p>
 <div class="example">
   <p><strong>Enunciado.</strong> Analizar el NACA 0012 y el NACA 2412 bajo las mismas condiciones y explicar sus diferencias a partir de la geometría de cada uno.</p>
-  <p><strong>Condiciones.</strong> Type 1; \(Re = 5\times 10^{5}\); \(M = 0\); \(N_{\mathrm{crit}} = 9\); \(\alpha\) de \(-6^\circ\) a \(16^\circ\) con \(\Delta\alpha = 0{.}5^\circ\); 150 paneles.</p>
+  <p><strong>Condiciones.</strong> Type 1; \(Re = 5\times 10^{5}\); \(M = 0\); \(N_{\mathrm{crit}} = 9\); \(\alpha\) de \(-6^\circ\) a \(16^\circ\) con \(\Delta\alpha = 0.5^\circ\); 150 paneles.</p>
 </div>
 
 <h3>Registro de resultados</h3>
@@ -586,7 +586,7 @@
   <div class="details-content">
     <ul>
       <li>El NACA 0012 pasa por el origen: \(\alpha_{L=0} = 0\) y \(C_{m,c/4} \approx 0\) en toda la zona lineal. Es la comprobación de que la geometría está bien cargada y normalizada.</li>
-      <li>El NACA 2412 cruza \(C_l = 0\) en torno a \(-2^\circ\) y presenta un \(C_{m,c/4}\) negativo del orden de \(-0{.}05\): momento de picada, el que el estabilizador horizontal debe compensar.</li>
+      <li>El NACA 2412 cruza \(C_l = 0\) en torno a \(-2^\circ\) y presenta un \(C_{m,c/4}\) negativo del orden de \(-0.05\): momento de picada, el que el estabilizador horizontal debe compensar.</li>
       <li>Ambas pendientes resultan prácticamente iguales, entre 0.10 y 0.11 por grado, por debajo del valor potencial \(2\pi\). La diferencia la introduce el espesor de desplazamiento de la capa límite, que la teoría no viscosa no contempla.</li>
       <li>Los \(C_{d,\min}\) de ambas polares son similares; lo que cambia es la sustentación a la que se producen. En el NACA 0012 ocurre en \(C_l = 0\); en el NACA 2412, desplazado hacia sustentación positiva. En esa diferencia reside el argumento completo a favor de la curvatura.</li>
     </ul>
@@ -601,13 +601,13 @@
       <h2>Las cinco magnitudes que verifican una corrida</h2>
 <p>Cinco magnitudes bastan para verificar que una corrida es creíble antes de extraer conclusiones de ella. Las tres primeras proceden de la teoría potencial y deben reproducirse casi exactamente; las dos últimas dependen de la capa límite y sólo admiten una comprobación de orden de magnitud.</p>
 <div class="equation-grid">
-  <div class="equation-card">\[ a_0 = 2\pi\ \mathrm{rad}^{-1} = 0{.}110\ \mathrm{grado}^{-1} \]</div>
+  <div class="equation-card">\[ a_0 = 2\pi\ \mathrm{rad}^{-1} = 0.110\ \mathrm{grado}^{-1} \]</div>
   <div class="equation-card">\[ c_n = \int_0^1 \left(C_{p,\text{int}} - C_{p,\text{ext}}\right) \mathrm{d}(x/c) \]</div>
 </div>
 <div class="result-box">
-  <p><strong>Valores de contraste, NACA 2412 a \(Re = 5\times 10^{5}\), \(N_{\mathrm{crit}} = 9\):</strong> \(a_0 \approx 0{.}11\) por grado; \(\alpha_{L=0} \approx -2{.}1^\circ\); \(C_{m,c/4} \approx -0{.}05\); \(C_{d,\min} \approx 0{.}007\); \((C_l/C_d)_{\max}\) del orden de \(10^{2}\). La corrida documentada en esta guía devuelve \(C_L = 0{.}896\), \(C_d = 0{.}0104\), \(C_m = -0{.}048\) y \(L/D = 86{.}2\) en \(\alpha = 6^\circ\), con transición del extradós en \(x/c = 0{.}274\).</p>
+  <p><strong>Valores de contraste, NACA 2412 a \(Re = 5\times 10^{5}\), \(N_{\mathrm{crit}} = 9\):</strong> \(a_0 \approx 0.11\) por grado; \(\alpha_{L=0} \approx -2.1^\circ\); \(C_{m,c/4} \approx -0.05\); \(C_{d,\min} \approx 0.007\); \((C_l/C_d)_{\max}\) del orden de \(10^{2}\). La corrida documentada en esta guía devuelve \(C_L = 0.896\), \(C_d = 0.0104\), \(C_m = -0.048\) y \(L/D = 86.2\) en \(\alpha = 6^\circ\), con transición del extradós en \(x/c = 0.274\).</p>
 </div>
-<p>El \(C_{m,c/4}\) obtenido puede contrastarse con el valor de \(-0{.}047\) medido en túnel de viento por Abbott y von Doenhoff, lo que confirma que esa magnitud depende de la geometría y apenas del número de Reynolds.</p>
+<p>El \(C_{m,c/4}\) obtenido puede contrastarse con el valor de \(-0.047\) medido en túnel de viento por Abbott y von Doenhoff, lo que confirma que esa magnitud depende de la geometría y apenas del número de Reynolds.</p>
     </section>
     <section id="mistakes-es">
       <p class="section-label">Errores frecuentes</p>
@@ -620,7 +620,7 @@
   <li><strong>Ejecutar el barrido con <code>Store Opp</code> sin marcar.</strong> Resulta verosímil porque la corrida termina con normalidad y las polares aparecen completas. Esa casilla es la que ordena conservar cada punto de operación con su información local: sin ella el programa retiene únicamente los coeficientes integrados, la vista <code>OpPoint view</code> queda vacía y no hay forma de explicar de dónde salió ningún valor. La única salida es repetir el barrido.</li>
   <li><strong>Analizar el archivo <code>.dat</code> descargado tal como viene.</strong> Resulta verosímil porque el perfil se dibuja correctamente en pantalla. Conviene normalizar y refinar a 150–200 paneles: un panelado insuficiente se manifiesta como oscilaciones en \(C_p\) cerca del borde de ataque y como discontinuidades en la polar.</li>
   <li><strong>Identificar el punto de arrastre mínimo con el de máxima eficiencia.</strong> Resulta verosímil porque ambos se sitúan en la zona baja de la polar. Son puntos distintos: \(C_{d,\min}\) minimiza el arrastre, mientras que la eficiencia máxima maximiza \(C_l/C_d\) y se obtiene por tangencia desde el origen, siempre a mayor sustentación.</li>
-  <li><strong>Reportar \(C_d = 0{.}010392\).</strong> Resulta verosímil porque es lo que el programa muestra en pantalla. La precisión del método no alcanza la quinta cifra significativa: tres cifras bastan, acompañadas de una línea que declare las condiciones de cálculo.</li>
+  <li><strong>Reportar \(C_d = 0.010392\).</strong> Resulta verosímil porque es lo que el programa muestra en pantalla. La precisión del método no alcanza la quinta cifra significativa: tres cifras bastan, acompañadas de una línea que declare las condiciones de cálculo.</li>
 </ul>
     </section>
     <section id="references-es" class="references">
