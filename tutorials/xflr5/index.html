@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Tutorial series on XFLR5: two-dimensional airfoil analysis, finite wings and result interpretation." />
+  <meta name="description" content="Tutorial series on XFLR5: from an airfoil section to a complete aircraft and its static longitudinal, lateral and directional stability." />
   <meta name="author" content="Carlos Alberto Molina Holguín" />
   <meta name="theme-color" content="#071d33" />
   <title>XFLR5 Tutorials | Carlos Molina</title>
@@ -11,6 +11,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
   <script defer src="lecture.js?v=13"></script>
 </head>
 <body>
@@ -37,19 +39,19 @@
       <div data-language="en">
         <p class="eyebrow">Software tutorials · XFLR5</p>
         <h1>XFLR5</h1>
-        <p class="hero-copy">A tutorial series on XFLR5, the graphical front end to XFoil: how to run an analysis, and how to read what it returns. Each tutorial is verified against version 6.62 and every figure is a screenshot of an actual run.</p>
+        <p class="hero-copy">A tutorial series that runs from a single airfoil section to a complete aircraft with tail and fin, and from there to its static stability. Every tutorial is verified against version 6.62 and every figure is a screenshot of an actual run.</p>
       </div>
 
       <div data-language="es" hidden>
         <p class="eyebrow">Tutoriales de software · XFLR5</p>
         <h1>XFLR5</h1>
-        <p class="hero-copy">Serie de tutoriales sobre XFLR5, la interfaz gráfica de XFoil: cómo ejecutar un análisis y cómo interpretar lo que devuelve. Cada tutorial está verificado contra la versión 6.62 y todas las figuras proceden de una corrida real.</p>
+        <p class="hero-copy">Una serie que va desde un perfil aislado hasta un avión completo con estabilizador y deriva, y de ahí a su estabilidad estática. Cada tutorial está verificado contra la versión 6.62 y todas las figuras proceden de una corrida real.</p>
       </div>
 
       <div data-language="de" hidden>
         <p class="eyebrow">Software-Tutorials · XFLR5</p>
         <h1>XFLR5</h1>
-        <p class="hero-copy">Eine Tutorial-Reihe zu XFLR5, der grafischen Oberfläche von XFoil: wie man eine Analyse ausführt und wie man die Ergebnisse liest. Jedes Tutorial ist gegen Version 6.62 geprüft, und alle Abbildungen stammen aus einem tatsächlichen Lauf.</p>
+        <p class="hero-copy">Eine Reihe, die vom einzelnen Profil bis zum vollständigen Flugzeug mit Leitwerk führt und von dort zu seiner statischen Stabilität. Jedes Tutorial ist gegen Version 6.62 geprüft, alle Abbildungen stammen aus einem tatsächlichen Lauf.</p>
       </div>
   </div>
 </section>
@@ -57,83 +59,252 @@
 <main>
   <section class="section">
     <div class="container">
-      <div class="course-grid" data-language="en">
+    <div data-language="en">
+      <p class="section-label">Block 1 · The airfoil</p>
+      <div class="course-grid">
         <article class="course-card available">
-          <span class="course-card-number">01</span>
+          <span class="course-card-number">1.1</span>
           <h3>Analysis of an Airfoil Section</h3>
           <p>Loading the geometry, defining a viscous analysis, running an angle-of-attack sweep, and reading the polars and the pressure distribution.</p>
           <span class="status">Available</span>
-          <a href="perfil-y-polares.html">Open tutorial →</a>
+          <a href="perfil-y-polares.html?v=13">Open tutorial →</a>
         </article>
-
-        <article class="course-card available">
-          <span class="course-card-number">02</span>
-          <h3>From the Section to the Finite Wing</h3>
-          <p>Lifting-line theory, vortex-lattice meshes, and why the \(C_L\) of a wing is never the \(c_l\) of its section.</p>
-          <span class="status">Available</span>
-          <a href="ala-finita.html">Open tutorial →</a>
-        </article>
-
         <article class="course-card">
-          <span class="course-card-number">03</span>
+          <span class="course-card-number">1.2</span>
+          <h3>Batch Analysis and Airfoil Geometry Tools</h3>
+          <p>Sweeping families and several Reynolds numbers at once, and the design tools: interpolating between sections, scaling camber and thickness, and adding a flap.</p>
+          <span class="status">Planned</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">1.3</span>
           <h3>Inverse Design</h3>
           <p>Obtaining a geometry from a target velocity distribution with the XFoil inverse module.</p>
           <span class="status">Planned</span>
-
         </article>
       </div>
-
-      <div class="course-grid" data-language="es" hidden>
+      <p class="section-label">Block 2 · The wing</p>
+      <div class="course-grid">
         <article class="course-card available">
-          <span class="course-card-number">01</span>
+          <span class="course-card-number">2.1</span>
+          <h3>From the Section to the Finite Wing</h3>
+          <p>Downwash, induced angle, the four methods XFLR5 offers, induced drag and the span efficiency factor.</p>
+          <span class="status">Available</span>
+          <a href="ala-finita.html?v=13">Open tutorial →</a>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">2.2</span>
+          <h3>Planform, Twist and Sweep</h3>
+          <p>How the planform governs the spanwise loading: taper, washout to keep the tip from stalling first, and the effect of the mesh near the tip.</p>
+          <span class="status">Planned</span>
+        </article>
+      </div>
+      <p class="section-label">Block 3 · The complete aircraft</p>
+      <div class="course-grid">
+        <article class="course-card">
+          <span class="course-card-number">3.1</span>
+          <h3>Tailplane, Fin, Mass and Centre of Gravity</h3>
+          <p>Completing the aircraft in the plane editor, and defining the inertia and the centre of gravity that every stability analysis needs.</p>
+          <span class="status">Planned</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">3.2</span>
+          <h3>The Fuselage: With and Without</h3>
+          <p>XFLR5 advises against including the body in the analysis. Here that advice is measured rather than quoted: the same aircraft, run both ways, compared.</p>
+          <span class="status">Planned</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">3.3</span>
+          <h3>Static Longitudinal Stability</h3>
+          <p>The \(C_m\)–\(\alpha\) slope, the neutral point, the static margin, and trimming with elevator deflection.</p>
+          <span class="status">Planned</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">3.4</span>
+          <h3>Static Lateral and Directional Stability</h3>
+          <p>Sideslip analysis (Type 5): \(C_n\)–\(\beta\) and \(C_l\)–\(\beta\), the contribution of the fin and of dihedral. Requires VLM2: VLM1 admits no sideslip.</p>
+          <span class="status">Planned</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">3.5</span>
+          <h3>From Coefficients to an Aircraft that Flies</h3>
+          <p>Type 2 analysis at fixed lift, the extra-drag tab and the reference dimensions: the flight polar at the real weight, not an academic coefficient.</p>
+          <span class="status">Planned</span>
+        </article>
+      </div>
+      <p class="section-label">Appendix</p>
+      <div class="course-grid">
+        <article class="course-card">
+          <span class="course-card-number">A</span>
+          <h3>Export and Automation</h3>
+          <p>Exporting to STL, AVL and XML — the bridge to CAD, to 3D printing and to the meshing series — and batch runs with the script module.</p>
+          <span class="status">Planned</span>
+        </article>
+      </div>
+    </div>
+    <div data-language="es" hidden>
+      <p class="section-label">Bloque 1 · El perfil</p>
+      <div class="course-grid">
+        <article class="course-card available">
+          <span class="course-card-number">1.1</span>
           <h3>Análisis de un perfil alar</h3>
           <p>Cargar la geometría, definir un análisis viscoso, ejecutar el barrido de ángulo de ataque, y leer las polares y la distribución de presión.</p>
           <span class="status">Disponible</span>
-          <a href="perfil-y-polares.html">Abrir tutorial →</a>
+          <a href="perfil-y-polares.html?v=13">Abrir tutorial →</a>
         </article>
-
-        <article class="course-card available">
-          <span class="course-card-number">02</span>
-          <h3>Del perfil al ala finita</h3>
-          <p>Teoría de la línea sustentadora, mallas de vórtices, y por qué el \(C_L\) de un ala no coincide con el \(c_l\) de su perfil.</p>
-          <span class="status">Disponible</span>
-          <a href="ala-finita.html">Abrir tutorial →</a>
-        </article>
-
         <article class="course-card">
-          <span class="course-card-number">03</span>
+          <span class="course-card-number">1.2</span>
+          <h3>Análisis por lotes y herramientas de geometría</h3>
+          <p>Barrer familias y varios números de Reynolds de una vez, y las herramientas de diseño: interpolar entre perfiles, escalar curvatura y espesor, y añadir un flap.</p>
+          <span class="status">Previsto</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">1.3</span>
           <h3>Diseño inverso</h3>
           <p>Obtener una geometría a partir de una distribución de velocidad objetivo con el módulo inverso de XFoil.</p>
           <span class="status">Previsto</span>
-
         </article>
       </div>
-
-      <div class="course-grid" data-language="de" hidden>
+      <p class="section-label">Bloque 2 · El ala</p>
+      <div class="course-grid">
         <article class="course-card available">
-          <span class="course-card-number">01</span>
+          <span class="course-card-number">2.1</span>
+          <h3>Del perfil al ala finita</h3>
+          <p>Descenso inducido, ángulo inducido, los cuatro métodos de XFLR5, arrastre inducido y factor de eficiencia de envergadura.</p>
+          <span class="status">Disponible</span>
+          <a href="ala-finita.html?v=13">Abrir tutorial →</a>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">2.2</span>
+          <h3>Planta, torsión y flecha</h3>
+          <p>Cómo la planta gobierna la distribución de sustentación: estrechamiento, torsión para que la punta no entre en pérdida antes que la raíz, y el efecto del mallado en la punta.</p>
+          <span class="status">Previsto</span>
+        </article>
+      </div>
+      <p class="section-label">Bloque 3 · El avión completo</p>
+      <div class="course-grid">
+        <article class="course-card">
+          <span class="course-card-number">3.1</span>
+          <h3>Estabilizador, deriva, masas y centro de gravedad</h3>
+          <p>Completar la aeronave en el editor del avión, y definir las inercias y el centro de gravedad que todo análisis de estabilidad necesita.</p>
+          <span class="status">Previsto</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">3.2</span>
+          <h3>El fuselaje: con y sin</h3>
+          <p>XFLR5 desaconseja incluir el fuselaje en el análisis. Aquí esa advertencia se mide en vez de citarse: la misma aeronave, corrida de las dos formas, comparada.</p>
+          <span class="status">Previsto</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">3.3</span>
+          <h3>Estabilidad estática longitudinal</h3>
+          <p>La pendiente \(C_m\)–\(\alpha\), el punto neutro, el margen estático, y el trimado con deflexión de elevador.</p>
+          <span class="status">Previsto</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">3.4</span>
+          <h3>Estabilidad estática lateral y direccional</h3>
+          <p>Análisis con derrape (Type 5): \(C_n\)–\(\beta\) y \(C_l\)–\(\beta\), la contribución de la deriva y del diedro. Exige VLM2: VLM1 no admite derrape.</p>
+          <span class="status">Previsto</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">3.5</span>
+          <h3>Del coeficiente al avión que vuela</h3>
+          <p>Análisis Type 2 de sustentación fija, la pestaña de arrastre adicional y las dimensiones de referencia: la polar de vuelo con el peso real, no un coeficiente académico.</p>
+          <span class="status">Previsto</span>
+        </article>
+      </div>
+      <p class="section-label">Apéndice</p>
+      <div class="course-grid">
+        <article class="course-card">
+          <span class="course-card-number">A</span>
+          <h3>Exportación y automatización</h3>
+          <p>Exportar a STL, AVL y XML —el puente hacia el CAD, la impresión 3D y la serie de mallado— y corridas por lotes con el módulo de guiones.</p>
+          <span class="status">Previsto</span>
+        </article>
+      </div>
+    </div>
+    <div data-language="de" hidden>
+      <p class="section-label">Block 1 · Das Profil</p>
+      <div class="course-grid">
+        <article class="course-card available">
+          <span class="course-card-number">1.1</span>
           <h3>Analyse eines Tragflügelprofils</h3>
           <p>Geometrie laden, viskose Analyse definieren, Anstellwinkel-Durchlauf ausführen und Polaren sowie Druckverteilung lesen.</p>
           <span class="status">Verfügbar</span>
-          <a href="perfil-y-polares.html">Tutorial öffnen →</a>
+          <a href="perfil-y-polares.html?v=13">Tutorial öffnen →</a>
         </article>
-
-        <article class="course-card available">
-          <span class="course-card-number">02</span>
-          <h3>Vom Profil zur endlichen Tragfläche</h3>
-          <p>Traglinientheorie, Wirbelgitterverfahren, und warum der \(C_L\) einer Tragfläche nie der \(c_l\) ihres Profils ist.</p>
-          <span class="status">Verfügbar</span>
-          <a href="ala-finita.html">Tutorial öffnen →</a>
-        </article>
-
         <article class="course-card">
-          <span class="course-card-number">03</span>
+          <span class="course-card-number">1.2</span>
+          <h3>Stapelanalyse und Geometriewerkzeuge</h3>
+          <p>Familien und mehrere Reynolds-Zahlen auf einmal durchrechnen, dazu die Entwurfswerkzeuge: Profile interpolieren, Wölbung und Dicke skalieren, Klappe hinzufügen.</p>
+          <span class="status">Geplant</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">1.3</span>
           <h3>Inverser Entwurf</h3>
           <p>Eine Geometrie aus einer Zielgeschwindigkeitsverteilung mit dem inversen XFoil-Modul gewinnen.</p>
           <span class="status">Geplant</span>
-
         </article>
       </div>
+      <p class="section-label">Block 2 · Die Tragfläche</p>
+      <div class="course-grid">
+        <article class="course-card available">
+          <span class="course-card-number">2.1</span>
+          <h3>Vom Profil zur endlichen Tragfläche</h3>
+          <p>Abwind, induzierter Anstellwinkel, die vier Verfahren von XFLR5, induzierter Widerstand und Spannweitenwirkungsgrad.</p>
+          <span class="status">Verfügbar</span>
+          <a href="ala-finita.html?v=13">Tutorial öffnen →</a>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">2.2</span>
+          <h3>Grundriss, Schränkung und Pfeilung</h3>
+          <p>Wie der Grundriss die Auftriebsverteilung bestimmt: Zuspitzung, Schränkung gegen den Abriss an der Spitze und der Einfluss der Netzfeinheit.</p>
+          <span class="status">Geplant</span>
+        </article>
+      </div>
+      <p class="section-label">Block 3 · Das vollständige Flugzeug</p>
+      <div class="course-grid">
+        <article class="course-card">
+          <span class="course-card-number">3.1</span>
+          <h3>Leitwerk, Seitenflosse, Massen und Schwerpunkt</h3>
+          <p>Das Flugzeug im Editor vervollständigen und die Trägheiten und den Schwerpunkt festlegen, die jede Stabilitätsanalyse braucht.</p>
+          <span class="status">Geplant</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">3.2</span>
+          <h3>Der Rumpf: mit und ohne</h3>
+          <p>XFLR5 rät davon ab, den Rumpf in die Rechnung einzubeziehen. Hier wird dieser Rat gemessen statt zitiert: dasselbe Flugzeug, beide Rechnungen, verglichen.</p>
+          <span class="status">Geplant</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">3.3</span>
+          <h3>Statische Längsstabilität</h3>
+          <p>Die \(C_m\)–\(\alpha\)-Steigung, der Neutralpunkt, das Stabilitätsmaß und die Trimmung über den Höhenruderausschlag.</p>
+          <span class="status">Geplant</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">3.4</span>
+          <h3>Statische Quer- und Richtungsstabilität</h3>
+          <p>Schiebeanalyse (Type 5): \(C_n\)–\(\beta\) und \(C_l\)–\(\beta\), der Beitrag von Seitenflosse und V-Stellung. Erfordert VLM2: VLM1 lässt kein Schieben zu.</p>
+          <span class="status">Geplant</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">3.5</span>
+          <h3>Vom Beiwert zum fliegenden Flugzeug</h3>
+          <p>Type-2-Analyse bei festem Auftrieb, der Zusatzwiderstand und die Bezugsgrößen: die Flugpolare beim tatsächlichen Gewicht statt eines akademischen Beiwerts.</p>
+          <span class="status">Geplant</span>
+        </article>
+      </div>
+      <p class="section-label">Anhang</p>
+      <div class="course-grid">
+        <article class="course-card">
+          <span class="course-card-number">A</span>
+          <h3>Export und Automatisierung</h3>
+          <p>Export nach STL, AVL und XML — die Brücke zu CAD, 3D-Druck und der Vernetzungsreihe — sowie Stapelläufe mit dem Skriptmodul.</p>
+          <span class="status">Geplant</span>
+        </article>
+      </div>
+    </div>
     </div>
   </section>
 </main>

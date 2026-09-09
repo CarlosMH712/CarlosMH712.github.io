@@ -119,7 +119,13 @@ owns the plan of study rather than something to fix in content.
 program, and follows the same trilingual rules as a course. The first series is
 `tutorials/xflr5/`; OpenFOAM and Gmsh are the planned next two.
 
-The XFLR5 tutorial ships with **Spanish complete and English and German carrying
+The series runs to **eleven tutorials in three blocks**, from a single airfoil to
+a complete aircraft and its static longitudinal, lateral and directional
+stability; `tutorials/xflr5/index.html` carries the syllabus and is the record of
+what has been promised. Two are written. Filenames are topic-based, so inserting
+an intermediate tutorial renames nothing.
+
+The XFLR5 tutorials ship with **Spanish complete and English and German carrying
 a per-section summary plus a visible "translation in preparation" notice**. That
 is a deliberate, temporary state agreed with the author: the structure is
 trilingual and passes the verifier, but the full EN and DE prose is still owed.
