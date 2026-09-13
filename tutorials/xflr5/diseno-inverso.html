@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Inverse airfoil design in XFLR5: prescribing a velocity distribution and reading back the geometry it implies, with the velocity plot's abscissa identified, and the redesign measured against the original polar." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Inverse Design | XFLR5 Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">XFLR5 · Tutorial 1.3</p><h1>Inverse Design</h1><p class="hero-copy">The direct problem gives the pressure of a shape. The inverse problem gives the shape of a pressure. What that exchange buys, what it costs, and how to read the plot on which the whole method rests.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">XFLR5 · Tutorial 1.3</p><h1>Diseño inverso</h1><p class="hero-copy">El problema directo da la presión de una forma. El problema inverso da la forma de una presión. Qué compra ese intercambio, qué cuesta, y cómo se lee la gráfica sobre la que descansa todo el método.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">XFLR5 · Tutorial 1.3</p><h1>Inverser Entwurf</h1><p class="hero-copy">Das direkte Problem liefert den Druck einer Form. Das inverse Problem liefert die Form eines Drucks. Was dieser Tausch einbringt, was er kostet, und wie das Diagramm zu lesen ist, auf dem das ganze Verfahren beruht.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 45 min</span><span data-language="es" hidden>Lectura estimada: 45 min</span><span data-language="de" hidden>Lesedauer: ca. 45 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on XFLR5 v6.62</span><span data-language="es" hidden>Verificado en XFLR5 v6.62</span><span data-language="de" hidden>Geprüft mit XFLR5 v6.62</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="lotes-y-geometria.html?v=13">← <span>Tutorial 1.2</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#physics">The inverse problem</a><a href="#model">Scope</a><a href="#interface">Orientation</a><a href="#axis">Reading the plot</a><a href="#spline">Step 1</a><a href="#execute">Step 2</a><a href="#store">Step 3</a><a href="#polars">Step 4</a><a href="#mixed">Mixed Inverse</a><a href="#example">Suggested exercise</a><a href="#summary">Key points</a><a href="#mistakes">Common mistakes</a><a href="#proof">Appendix</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#physics-es">El problema inverso</a><a href="#model-es">Alcance</a><a href="#interface-es">Orientación</a><a href="#axis-es">Leer la gráfica</a><a href="#spline-es">Paso 1</a><a href="#execute-es">Paso 2</a><a href="#store-es">Paso 3</a><a href="#polars-es">Paso 4</a><a href="#mixed-es">Mixed Inverse</a><a href="#example-es">Práctica sugerida</a><a href="#summary-es">Puntos clave</a><a href="#mistakes-es">Errores frecuentes</a><a href="#proof-es">Apéndice</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#physics-de">Das inverse Problem</a><a href="#model-de">Geltungsbereich</a><a href="#interface-de">Orientierung</a><a href="#axis-de">Das Diagramm lesen</a><a href="#spline-de">Schritt 1</a><a href="#execute-de">Schritt 2</a><a href="#store-de">Schritt 3</a><a href="#polars-de">Schritt 4</a><a href="#mixed-de">Mixed Inverse</a><a href="#example-de">Übungsvorschlag</a><a href="#summary-de">Kernpunkte</a><a href="#mistakes-de">Häufige Fehler</a><a href="#proof-de">Anhang</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Prescribe a velocity distribution and read back the geometry it implies, identify what the plot's abscissa actually measures, and judge a redesign by comparing its polar against the original rather than by looking at the shape.</p>
+    </section>
+    <section id="physics">
+      <p class="section-label">The idea</p>
+      <h2>Why turning the question around is worth the trouble</h2>
+<p>The direct problem takes a shape and returns its pressure distribution; every tutorial so far has solved it. The inverse problem takes a pressure distribution and returns a shape. It is worth the trouble because the quantities an engineer actually cares about — where transition sits, whether the boundary layer separates, how wide the drag bucket is — are properties of the velocity distribution, not of the coordinates.</p>
+    </section>
+    <section id="model">
+      <p class="section-label">Scope and limits</p>
+      <h2>What the module does, and what it does not</h2>
+<p>XFLR5 offers two inverse modes. <code>Full Inverse</code> rebuilds the whole contour from the whole specified distribution, subject to trailing-edge constraints. <code>Mixed Inverse</code> changes only a marked stretch and holds the rest fixed, iterating to close the contour. Neither checks that the distribution you asked for is physically sensible, and neither runs a viscous analysis: the result must be taken to the direct module and measured.</p>
+    </section>
+    <section id="interface">
+      <p class="section-label">Orientation</p>
+      <h2>Where it lives, and how an airfoil gets in</h2>
+<p>The module is <code>Module ▸ XFoil Inverse Design</code>. It opens in <code>Mixed Inverse</code>, not in Full Inverse. There is no <code>File ▸ Open</code> for airfoils here: a section enters through <code>Foil ▸ Extract Foil</code>, which picks from the airfoils already in the project. So the airfoil must be loaded elsewhere first.</p>
+    </section>
+    <section id="axis">
+      <p class="section-label">The measurement that matters</p>
+      <h2>The axis labelled x/c is not x/c</h2>
+<p>The velocity plot labels its abscissa <code>x/c</code>, and it is not the chord station. It is normalised arc length along the contour: one trailing edge at 0, the leading edge near 0.5, the other trailing edge at 1. Two measurements settle it — a symmetric NACA 0012 at zero incidence puts its zero crossing at exactly 0.50000, and a cambered NACA 2412 at 0.49705 against 0.49641 computed from its arc lengths. On the upper surface the practical conversion is <span>\(x/c \approx 2(s-0.5)\)</span>.</p>
+    </section>
+    <section id="spline">
+      <p class="section-label">Step 1</p>
+      <h2>Modifying the velocity distribution</h2>
+<p><code>New Spline</code> puts the program into a mode in which two clicks on the curve delimit the segment to edit; five control points appear, of which the first and last are fixed anchors. Dragging the three interior ones changes the specified velocity; <code>Apply Spline</code> writes the change into the specification.</p>
+    </section>
+    <section id="execute">
+      <p class="section-label">Step 2</p>
+      <h2>Executing, and reading the geometry that comes back</h2>
+<p><code>Execute</code> solves for the new contour and draws it over the original, and the readout under the airfoil gains a second column, <em>Mod.</em>, beside <em>Base</em>. Raising the velocity over the middle of the upper surface thickened the NACA 2412 from 12.00 % to 12.88 %, moved its maximum thickness from 29.53 % to 37.74 % of chord, and its maximum camber from 39.94 % to 49.95 %.</p>
+    </section>
+    <section id="store">
+      <p class="section-label">Step 3</p>
+      <h2>Storing the airfoil and analysing it</h2>
+<p><code>Foil ▸ Store Foil</code> writes the result into the project as a new section. It arrives with a different number of points than the original — 257 against 149 here — so before comparing polars the panelling has to be equalised, which <code>Refine Globally</code> does.</p>
+    </section>
+    <section id="polars">
+      <p class="section-label">Step 4</p>
+      <h2>What was gained, and what it cost</h2>
+<p>With the panelling equalised, the redesigned section cuts drag by 12.7 % at \(\alpha = 5^\circ\) and raises peak lift-to-drag from 89.2 to 108.0 — and pays for it with 34 % more drag at \(\alpha = 0^\circ\) and some 8 % more above \(6^\circ\). The mechanism is visible in the transition location, which the redesign holds near 60 % of chord where the original has already moved it to 40 %.</p>
+    </section>
+    <section id="mixed">
+      <p class="section-label">The other mode</p>
+      <h2>Mixed Inverse: changing one stretch and holding the rest</h2>
+<p><code>Mark for modification</code> delimits a target stretch with two red ticks; outside it the contour is held and the solver iterates — <code>Max Iterations</code>, six by default — to close the section. It is the mode for local repairs; Full Inverse is the mode for wholesale redesign.</p>
+    </section>
+    <section id="example">
+      <p class="section-label">Suggested exercise</p>
+      <h2>Move the bucket somewhere else</h2>
+<p>Repeat the exercise with the flat stretch placed further forward, and measure where the drag bucket ends up. No report is expected: the point is to see that the bucket moves where the flat velocity segment is put.</p>
+    </section>
+    <section id="summary">
+      <p class="section-label">Key points</p>
+      <h2>Five statements to keep</h2>
+<p>The abscissa is arc length, not chord. The first and last spline points are anchors. Nothing about the result is known until its polar is measured. The panelling must be equalised before comparing. And an inverse design does not create performance: it moves it from one part of the envelope to another.</p>
+    </section>
+    <section id="mistakes">
+      <p class="section-label">Common mistakes</p>
+      <h2>Where this goes wrong</h2>
+<p>Reading the abscissa as chord station; judging a redesign by its outline; comparing polars computed with different panel counts; and assuming that a velocity distribution one can draw corresponds to an airfoil one can build.</p>
+    </section>
+    <section id="proof">
+      <p class="section-label">Appendix</p>
+      <h2>How the axis was verified</h2>
+<p>The visual argument rules out chord but does not prove what the abscissa is. The exported data were compared against arc lengths computed from the airfoil's analytic definition: exact agreement for the symmetric section, six ten-thousandths for the cambered one. Also: the coordinate readout at the right of the plot reports the airfoil drawing below, not the velocity graph.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>Drela's XFOIL papers for the mixed-inverse formulation, Abbott and von Doenhoff for the laminar-flow sections whose design logic this reproduces, and the XFLR5 guidelines for the interface.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="lotes-y-geometria.html?v=13"><span>Previous tutorial</span>← Batch Analysis and Airfoil Geometry</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>XFLR5 · Tutorial series</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">Los tres tutoriales anteriores resolvieron siempre el mismo problema: dada una geometría, obtener su comportamiento. Este invierte la pregunta. Al terminar esta guía debe ser posible:</p>
+<ul>
+  <li>Explicar en qué se diferencia el problema inverso del directo, y por qué a un diseñador le interesa el primero.</li>
+  <li>Cargar un perfil en el módulo <code>XFoil Inverse Design</code> y leer correctamente la gráfica sobre la que se trabaja, empezando por saber qué mide su eje horizontal.</li>
+  <li>Prescribir una distribución de velocidad con la herramienta de spline y obtener la geometría que le corresponde.</li>
+  <li>Guardar el resultado, homogeneizar su panelado y medirlo contra el original en el módulo directo.</li>
+  <li>Juzgar un rediseño por su polar y no por su silueta, y reconocer que lo que se gana en una zona del dominio de vuelo se paga en otra.</li>
+</ul>
+
+    </section>
+    <section id="physics-es">
+      <p class="section-label">La idea</p>
+      <h2>Por qué vale la pena invertir la pregunta</h2>
+
+<p>Un perfil alar se puede plantear de dos maneras. La primera es la que se ha usado hasta aquí: se dan las coordenadas del contorno y el método devuelve la distribución de velocidad sobre él, y con ella la polar. Es el <strong>problema directo</strong>, y tiene siempre solución, porque toda geometría produce algún campo de flujo.</p>
+<p>La segunda es la inversa: se prescribe la distribución de velocidad que se quiere y el método devuelve la geometría que la produciría. Es el <strong>problema inverso</strong>, y no siempre tiene solución, porque no toda distribución que se puede dibujar corresponde a un contorno cerrado, sin cruces y con un borde de fuga físicamente realizable.</p>
+<figure class="diagram">
+  <svg viewBox="0 0 540 210" role="img" aria-label="El problema directo va de la geometría a la distribución de velocidad; el inverso va en sentido contrario">
+  <defs><marker id="pta13" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+    <path d="M 0 0 L 7 3.5 L 0 7 z" fill="var(--muted)"/></marker></defs>
+  <text class="svg-title" x="20" y="18">Dos maneras de plantear el mismo problema</text>
+  <rect x="20" y="42" width="150" height="34" rx="6" fill="none" stroke="var(--line)" stroke-width="1.4"/>
+  <text class="svg-tick" x="95" y="58" text-anchor="middle" style="font-size:11.5px;fill:var(--ink)">geometría</text>
+  <text class="svg-note-sm" x="95" y="71" text-anchor="middle">coordenadas del perfil</text>
+  <path class="svg-line" d="M 178 59 L 222 59" stroke="var(--blue)" stroke-width="2" marker-end="url(#pta13)"/>
+  <rect x="230" y="42" width="180" height="34" rx="6" fill="none" stroke="var(--line)" stroke-width="1.4"/>
+  <text class="svg-tick" x="320" y="58" text-anchor="middle" style="font-size:11.5px;fill:var(--ink)">distribución de velocidad</text>
+  <text class="svg-note-sm" x="320" y="71" text-anchor="middle">Q/V∞ sobre el contorno</text>
+  <path class="svg-line" d="M 418 59 L 462 59" stroke="var(--blue)" stroke-width="2" marker-end="url(#pta13)"/>
+  <rect x="470" y="42" width="50" height="34" rx="6" fill="none" stroke="var(--line)" stroke-width="1.4"/>
+  <text class="svg-tick" x="495" y="58" text-anchor="middle" style="font-size:11.5px;fill:var(--ink)">polar</text>
+  <text class="svg-note-sm" x="495" y="71" text-anchor="middle"></text>
+  <text class="svg-note-sm" x="200" y="52" text-anchor="middle" fill="var(--blue)">directo</text>
+  <rect x="20" y="126" width="150" height="34" rx="6" fill="none" stroke="var(--line)" stroke-width="1.4"/>
+  <text class="svg-tick" x="95" y="142" text-anchor="middle" style="font-size:11.5px;fill:var(--ink)">geometría</text>
+  <text class="svg-note-sm" x="95" y="155" text-anchor="middle">la que el método devuelve</text>
+  <path class="svg-line" d="M 222 143 L 178 143" stroke="var(--accent)" stroke-width="2" marker-end="url(#pta13)"/>
+  <rect x="230" y="126" width="180" height="34" rx="6" fill="none" stroke="var(--line)" stroke-width="1.4"/>
+  <text class="svg-tick" x="320" y="142" text-anchor="middle" style="font-size:11.5px;fill:var(--ink)">distribución de velocidad</text>
+  <text class="svg-note-sm" x="320" y="155" text-anchor="middle">la que uno prescribe</text>
+  <text class="svg-note-sm" x="200" y="136" text-anchor="middle" fill="var(--accent-dark)">inverso</text>
+  <text class="svg-note-sm" x="20" y="182">El problema directo tiene siempre solución. El inverso, sólo si la distribución</text>
+  <text class="svg-note-sm" x="20" y="196">pedida corresponde a un contorno cerrado y sin cruces: de ahí las restricciones.</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">El problema directo y el problema inverso.</b> Todo lo hecho hasta ahora en esta serie recorre la fila de arriba: se da la geometría y el programa devuelve la distribución de velocidad y, con ella, la polar. El diseño inverso recorre la fila de abajo: se prescribe la distribución y el método devuelve la geometría que la produciría. El cambio de dirección no es gratuito: no toda distribución que se puede dibujar corresponde a un perfil que se pueda construir, y de ahí vienen las restricciones de borde de fuga que el panel impone.</figcaption>
+</figure>
+<h3>Por qué le sirve a un diseñador</h3>
+<p>La pregunta natural es por qué tomarse la molestia. La respuesta es que <strong>las magnitudes que de verdad le importan a un diseñador son propiedades de la distribución de velocidad, no de las coordenadas</strong>. Dónde transiciona la capa límite depende del gradiente de presión. Si el flujo se separa o no, también. Cuán ancha es la cubeta de arrastre que se discutió en el Tutorial 1.2 depende de sobre qué intervalo de ángulos se conserva un gradiente favorable. Nada de eso se lee en una lista de coordenadas.</p>
+<div class="callout">
+  <p>Dicho de otro modo: en el problema directo se toca aquello que no se entiende —la geometría— para conseguir un efecto sobre aquello que sí se entiende —la distribución de velocidad—. El problema inverso permite actuar directamente sobre lo segundo y dejar que el método se encargue de lo primero.</p>
+</div>
+<p>Esa es la lógica con la que se diseñaron las series de flujo laminar de la NACA en los años cuarenta, y la que reproduce esta guía a escala de un ejercicio: se toma el NACA 2412 del Tutorial 1.1, se le impone un tramo de velocidad plana sobre el extradós, y se mide qué perfil sale y cuánto mejor —o peor— vuela.</p>
+
+    </section>
+    <section id="model-es">
+      <p class="section-label">Alcance y límites</p>
+      <h2>Qué hace el módulo y qué no hace</h2>
+
+<p>XFLR5 ofrece dos métodos inversos, y conviene saber cuál se está usando antes de tocar nada, porque el panel de control cambia por completo entre uno y otro.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th></th><th><code>Full Inverse</code></th><th><code>Mixed Inverse</code></th></tr></thead>
+    <tbody>
+      <tr><td>Qué reconstruye</td><td>El contorno completo, a partir de toda la distribución especificada</td><td>Sólo el tramo marcado; el resto queda exactamente igual</td></tr>
+      <tr><td>Especificación</td><td><span>\(\alpha\)</span> o <span>\(C_l\)</span> de diseño</td><td>No la pide: hereda la del perfil de partida</td></tr>
+      <tr><td>Restricciones</td><td>Ángulo y separación del borde de fuga, y perfil simétrico si se marca</td><td>Ninguna sobre el borde de fuga: no se toca</td></tr>
+      <tr><td>Suavizado</td><td><code>Smooth QSpec</code> y filtro de Hanning con parámetro ajustable</td><td><code>Smooth</code>, sin parámetro</td></tr>
+      <tr><td>Cómo resuelve</td><td>De una vez</td><td>Iterando hasta cerrar el contorno; <code>Max Iterations</code>, seis por omisión</td></tr>
+      <tr><td>Cuándo conviene</td><td>Rediseño de fondo: mover la cubeta de arrastre, cambiar el carácter del perfil</td><td>Retoque local: corregir un pico de succión o un gradiente en una zona concreta</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Los dos modos inversos.</b> La diferencia de fondo no está en los botones sino en cuánto del perfil queda libre: Full Inverse rehace el contorno entero y necesita restricciones para que cierre; Mixed Inverse congela todo salvo un tramo y por eso itera.</caption>
+  </table>
+</div>
+<h3>Dos límites que conviene tener presentes</h3>
+<p>Hay dos límites que los dos comparten y que conviene tener presentes desde el principio.</p>
+<p>El primero: <strong>ninguno de los dos comprueba que la distribución pedida tenga sentido</strong>. Se puede especificar una velocidad que exija un perfil con espesor negativo o con el contorno cruzado; el método devolverá algo, y ese algo no será un perfil. Las restricciones de borde de fuga del modo completo acotan el problema, pero no lo resuelven.</p>
+<p>El segundo, y más importante en la práctica: <strong>el módulo inverso no ejecuta ningún análisis viscoso por su cuenta</strong>. Trabaja sobre la distribución de velocidad del flujo potencial —el menú <code>Foil</code> ofrece mostrar una curva <code>Q-Viscous</code>, pero ésa proviene de un análisis hecho en el módulo directo, no de aquí—. No sabe dónde transiciona la capa límite, ni si se separa, ni cuánto arrastre tiene el perfil que acaba de producir. Todo eso hay que ir a medirlo al módulo de análisis directo, y hasta que no se mide no se sabe si el rediseño sirvió de algo.</p>
+<div class="callout">
+  <p><strong>El error de fondo de este tutorial.</strong> Es tentador mirar el perfil nuevo, verlo más elegante que el de partida y darlo por bueno. Un perfil no se juzga por su silueta. La sección <a href="#polars-es">Paso 4</a> muestra un rediseño que parece una mejora clara y que, en la mitad del dominio de vuelo, es peor que el original.</p>
+</div>
+
+    </section>
+    <section id="interface-es">
+      <p class="section-label">Orientación</p>
+      <h2>Dónde está, y cómo entra un perfil</h2>
+
+<p>El módulo se abre en <code>Module ▸ XFoil Inverse Design</code>. Dos cosas sorprenden al entrar.</p>
+<figure class="diagram">
+  <img src="imagenes/t13-01_modulo_vacio.png" alt="Módulo XFoil Inverse Design recién abierto, sin perfil cargado" loading="lazy">
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">El módulo al entrar, todavía vacío.</b> Dos detalles que conviene notar desde el principio. El primero: la barra superior abre en <code>Mixed Inverse</code>, no en <code>Full Inverse</code>, de modo que el panel de la derecha no es el que describen la mayoría de las guías. El segundo: el recuadro inferior izquierdo declara espesor y curvatura en 0.00 %, porque todavía no hay ningún perfil dentro.</figcaption>
+</figure>
+<p>La primera es que <strong>el módulo arranca en <code>Mixed Inverse</code></strong>, no en <code>Full Inverse</code>. La mayoría de las guías describen el panel del modo completo, de modo que quien siga esas instrucciones al pie de la letra buscará controles que no están a la vista. El cambio se hace con los dos botones de radio de la barra superior.</p>
+<h3>Cómo entra un perfil</h3>
+<p>La segunda es que <strong>en este módulo no se abren archivos de perfil</strong>. El menú <code>File</code> sólo maneja proyectos. Un perfil entra por <code>Foil ▸ Extract Foil</code>, que abre un selector con los perfiles que ya están cargados en el proyecto.</p>
+<figure class="diagram medium">
+  <img src="imagenes/t13-02_extract_foil.png" alt="Diálogo Foil Selection con la lista de perfiles del proyecto" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">Así entra un perfil: <code>Foil ▸ Extract Foil</code>.</b> En este módulo el menú <code>File</code> no abre archivos <code>.dat</code>. El perfil se toma de los que ya están en el proyecto, y este diálogo es el que los lista. La consecuencia práctica es que el perfil hay que cargarlo antes en <em>Direct Foil Design</em>, o abrir un proyecto que ya lo contenga.</figcaption>
+</figure>
+<p>La consecuencia práctica es que el orden de trabajo está fijado: primero se carga o se crea el perfil en <em>Direct Foil Design</em> —o se abre un proyecto que ya lo contenga—, y sólo después se entra al módulo inverso. El proyecto que acompaña a esta guía parte del NACA 2412 del Tutorial 1.1: se pidieron 150 paneles en el diálogo y el programa declara 149, que es la cifra que hay que tener presente al comparar.</p>
+<figure class="diagram">
+  <img src="imagenes/t13-03_panel_full.png" alt="Módulo inverso con el NACA 2412 cargado y el panel de Full Inverse" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">El NACA 2412 cargado, en modo <code>Full Inverse</code>.</b> La curva azul es la distribución de velocidad <span>\(Q/V_\infty\)</span> que corresponde al perfil actual: es el punto de partida, y es la que se va a modificar. El panel de la derecha suma cuatro grupos que el modo mixto no tiene: la especificación de <span>\(\alpha\)</span> o <span>\(C_l\)</span>, el suavizado, las restricciones de borde de fuga y el botón <code>Execute</code>. Abajo a la izquierda, la geometría del perfil de partida.</figcaption>
+</figure>
+<h3>Las tres zonas de la ventana</h3>
+<p>Con el perfil dentro, la ventana se divide en tres. Arriba, la distribución de velocidad <span>\(Q/V_\infty\)</span>, que es donde se trabaja. Abajo, el perfil al que corresponde. A la derecha, el panel de control y el registro de operaciones, que va indicando qué espera el programa en cada momento y conviene leer.</p>
+
+    </section>
+    <section id="axis-es">
+      <p class="section-label">La medición que importa</p>
+      <h2>El eje que dice x/c y no es x/c</h2>
+
+<p>Antes de modificar nada hay que saber leer la gráfica, y aquí hay una trampa que conviene desarmar de entrada, porque desordena todo lo que sigue.</p>
+<p><strong>El eje horizontal está rotulado <code>x/c</code> y no es <span>\(x/c\)</span>.</strong> El rótulo aparece así en la gráfica y también en la cabecera del archivo que produce <code>Graph ▸ Export Graph</code>, de modo que no es un descuido de la pantalla.</p>
+<p>Que no puede ser la cuerda se ve casi sin medir. Si lo fuera, el extremo izquierdo del eje sería el borde de ataque, y alrededor de un borde de ataque la velocidad arranca en cero y crece por las dos caras. La curva de la figura 4 hace lo contrario: se anula en un solo punto del extremo y acto seguido está ya en <span>\(-0.73\)</span>, bajando hacia <span>\(-1.0\)</span>. Eso es un <em>borde de fuga</em>.</p>
+<h3>La prueba</h3>
+<p>La prueba limpia es un perfil simétrico a incidencia nula, cuyo punto de estancamiento está exactamente en el borde de ataque por razones de simetría.</p>
+<figure class="diagram">
+  <img src="imagenes/t13-04_naca0012_eje.png" alt="El mismo gráfico con un NACA 0012 simétrico a ángulo de ataque nulo" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">La prueba: un NACA 0012 a <span>\(\alpha = 0\)</span>.</b> Un perfil simétrico a incidencia nula tiene su punto de estancamiento exactamente en el borde de ataque, es decir en <span>\(x/c = 0\)</span>. Si la abscisa fuera la cuerda, la curva cruzaría el cero en el extremo izquierdo del eje. Cruza en el centro. Además la curva es antisimétrica: sus dos máximos valen ±1.18838, iguales a cinco decimales, y la velocidad se anula en los dos extremos del eje, que es lo que impone la condición de Kutta en un borde de fuga anguloso.</figcaption>
+</figure>
+<p>El cruce por cero cae en el centro del eje, no en su extremo. Lo que mide la abscisa es la <strong>longitud de arco normalizada a lo largo del contorno</strong>: se sale del borde de fuga por una cara, se rodea el borde de ataque y se vuelve al borde de fuga por la otra.</p>
+<figure class="diagram">
+  <svg viewBox="0 0 540 250" role="img" aria-label="La coordenada del eje recorre el contorno del perfil desde un borde de fuga hasta el otro, pasando por el borde de ataque hacia la mitad">
+  <text class="svg-title" x="20" y="18">La abscisa recorre el contorno, no la cuerda</text>
+  <path class="svg-line" d="M 440.0 120.5 L 436.8 120.7 L 433.6 120.9 L 430.4 121.2 L 427.2 121.4 L 424.0 121.6 L 420.8 121.8 L 417.6 122.1 L 414.4 122.3 L 411.2 122.5 L 408.1 122.7 L 404.9 123.0 L 401.7 123.2 L 398.5 123.4 L 395.3 123.6 L 392.1 123.8 L 389.0 124.0 L 385.8 124.3 L 382.6 124.5 L 379.4 124.7 L 376.3 124.9 L 373.1 125.1 L 369.9 125.3 L 366.7 125.5 L 363.6 125.7 L 360.4 125.9 L 357.2 126.2 L 354.0 126.4 L 350.9 126.6 L 347.7 126.8 L 344.5 127.0 L 341.4 127.2 L 338.2 127.4 L 335.0 127.6 L 331.9 127.8 L 328.7 128.0 L 325.5 128.2 L 322.4 128.4 L 319.2 128.6 L 316.0 128.8 L 312.9 129.0 L 309.7 129.2 L 306.6 129.4 L 303.4 129.6 L 300.2 129.8 L 297.1 130.0 L 293.9 130.2 L 290.8 130.4 L 287.6 130.6 L 284.5 130.8 L 281.3 131.0 L 278.1 131.1 L 275.0 131.3 L 271.8 131.5 L 268.7 131.7 L 265.5 131.9 L 262.4 132.0 L 259.2 132.2 L 256.1 132.4 L 252.9 132.6 L 249.8 132.7 L 246.6 132.9 L 243.5 133.1 L 240.3 133.2 L 237.2 133.4 L 234.0 133.5 L 230.9 133.7 L 227.7 133.8 L 224.6 133.9 L 221.4 134.1 L 218.3 134.2 L 215.1 134.3 L 212.0 134.5 L 208.9 134.6 L 205.8 134.7 L 202.6 134.8 L 199.5 134.9 L 196.4 135.0 L 193.3 135.1 L 190.2 135.2 L 187.0 135.3 L 183.9 135.4 L 180.8 135.5 L 177.7 135.6 L 174.6 135.7 L 171.5 135.7 L 168.3 135.8 L 165.2 135.9 L 162.1 135.9 L 159.0 136.0 L 155.8 136.0 L 152.7 136.1 L 149.6 136.1 L 146.5 136.1 L 143.3 136.1 L 140.2 136.1 L 137.1 136.1 L 134.0 136.0 L 130.8 136.0 L 127.7 135.9 L 124.6 135.9 L 121.4 135.8 L 118.3 135.6 L 115.1 135.5 L 112.0 135.3 L 108.8 135.2 L 105.7 134.9 L 102.5 134.7 L 99.3 134.4 L 96.2 134.1 L 93.0 133.7 L 89.8 133.3 L 86.6 132.9 L 83.4 132.3 L 80.2 131.7 L 76.9 130.9 L 73.7 130.1 L 70.4 129.0 L 67.1 127.6 L 63.7 125.6 L 60.0 120.0 L 60.0 120.0 L 62.6 113.8 L 65.5 111.2 L 68.6 109.2 L 71.6 107.5 L 74.7 106.1 L 77.8 104.8 L 80.9 103.6 L 84.1 102.5 L 87.2 101.5 L 90.4 100.6 L 93.5 99.7 L 96.7 98.9 L 99.8 98.2 L 103.0 97.5 L 106.2 96.8 L 109.4 96.2 L 112.5 95.6 L 115.7 95.1 L 118.9 94.6 L 122.1 94.1 L 125.3 93.7 L 128.5 93.3 L 131.7 92.9 L 134.9 92.5 L 138.1 92.2 L 141.3 91.9 L 144.5 91.6 L 147.7 91.4 L 150.9 91.1 L 154.2 90.9 L 157.4 90.7 L 160.6 90.5 L 163.8 90.4 L 167.0 90.3 L 170.2 90.2 L 173.4 90.1 L 176.6 90.0 L 179.9 90.0 L 183.1 89.9 L 186.3 89.9 L 189.5 89.9 L 192.7 89.9 L 195.9 89.9 L 199.1 90.0 L 202.4 90.1 L 205.6 90.1 L 208.8 90.2 L 212.0 90.3 L 215.2 90.5 L 218.4 90.6 L 221.6 90.8 L 224.7 90.9 L 227.9 91.1 L 231.1 91.2 L 234.3 91.4 L 237.5 91.6 L 240.7 91.8 L 243.9 92.0 L 247.0 92.3 L 250.2 92.5 L 253.4 92.7 L 256.6 93.0 L 259.8 93.2 L 263.0 93.5 L 266.1 93.8 L 269.3 94.1 L 272.5 94.3 L 275.7 94.6 L 278.9 94.9 L 282.0 95.3 L 285.2 95.6 L 288.4 95.9 L 291.6 96.2 L 294.7 96.6 L 297.9 96.9 L 301.1 97.3 L 304.3 97.7 L 307.4 98.0 L 310.6 98.4 L 313.8 98.8 L 317.0 99.2 L 320.1 99.6 L 323.3 100.0 L 326.5 100.4 L 329.6 100.8 L 332.8 101.2 L 336.0 101.7 L 339.1 102.1 L 342.3 102.5 L 345.5 103.0 L 348.6 103.4 L 351.8 103.9 L 355.0 104.4 L 358.1 104.8 L 361.3 105.3 L 364.4 105.8 L 367.6 106.3 L 370.8 106.8 L 373.9 107.3 L 377.1 107.8 L 380.2 108.4 L 383.4 108.9 L 386.5 109.4 L 389.7 110.0 L 392.9 110.5 L 396.0 111.1 L 399.2 111.6 L 402.3 112.2 L 405.5 112.8 L 408.6 113.3 L 411.8 113.9 L 414.9 114.5 L 418.0 115.1 L 421.2 115.7 L 424.3 116.3 L 427.5 117.0 L 430.6 117.6 L 433.8 118.2 L 436.9 118.9 L 440.0 119.5" stroke="var(--muted)" stroke-width="1.6"/>
+  <circle cx="440.0" cy="120.5" r="3.4" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="440.0" y="138.5" text-anchor="middle" fill="var(--accent-dark)">s = 0</text>
+  <text class="svg-note-sm" x="440.0" y="151.5" text-anchor="middle">borde de fuga</text>
+  <circle cx="246.6" cy="132.9" r="3.4" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="246.6" y="150.9" text-anchor="middle" fill="var(--accent-dark)">0.25</text>
+  <circle cx="60.0" cy="120.0" r="3.4" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="60.0" y="138.0" text-anchor="middle" fill="var(--accent-dark)">0.50</text>
+  <text class="svg-note-sm" x="60.0" y="151.0" text-anchor="middle">borde de ataque</text>
+  <circle cx="247.0" cy="92.3" r="3.4" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="247.0" y="82.3" text-anchor="middle" fill="var(--accent-dark)">0.75</text>
+  <circle cx="440.0" cy="119.5" r="3.4" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="440.0" y="109.5" text-anchor="middle" fill="var(--accent-dark)">s = 1</text>
+  <text class="svg-note-sm" x="440.0" y="96.5" text-anchor="middle">borde de fuga</text>
+  <line class="svg-grid" x1="60" y1="196" x2="440" y2="196"/>
+  <line class="svg-grid" x1="60.0" y1="192" x2="60.0" y2="200"/>
+  <text class="svg-tick" x="60.0" y="213" text-anchor="middle">0.00</text>
+  <line class="svg-grid" x1="155.0" y1="192" x2="155.0" y2="200"/>
+  <text class="svg-tick" x="155.0" y="213" text-anchor="middle">0.25</text>
+  <line class="svg-grid" x1="250.0" y1="192" x2="250.0" y2="200"/>
+  <text class="svg-tick" x="250.0" y="213" text-anchor="middle">0.50</text>
+  <line class="svg-grid" x1="345.0" y1="192" x2="345.0" y2="200"/>
+  <text class="svg-tick" x="345.0" y="213" text-anchor="middle">0.75</text>
+  <line class="svg-grid" x1="440.0" y1="192" x2="440.0" y2="200"/>
+  <text class="svg-tick" x="440.0" y="213" text-anchor="middle">1.00</text>
+  <text class="svg-note-sm" x="250" y="231" text-anchor="middle">x/c real</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">Qué mide realmente la abscisa.</b> La coordenada del eje recorre el contorno cerrado del perfil: vale 0 en el borde de fuga, avanza por el intradós hasta el borde de ataque —que cae cerca de 0.50— y sigue por el extradós hasta volver al borde de fuga en 1. Por eso hay un cero de la velocidad en cada extremo del eje, que son el mismo punto físico, y otro en el centro, que es el estancamiento del borde de ataque. La escala de abajo muestra la cuerda real para comparar: la mitad derecha del eje se reparte a lo largo de toda la cuerda del extradós.</figcaption>
+</figure>
+<p>De ahí que la velocidad se anule en los dos extremos del eje —que son el mismo punto físico— y otra vez en el centro, que es el estancamiento del borde de ataque. El signo cambia ahí porque lo que se grafica es la componente tangencial al contorno en el sentido del recorrido: negativa mientras se avanza contra la corriente por una cara, positiva cuando se avanza con ella por la otra.</p>
+<h3>Y el eje vertical, ¿qué tiene que ver con el \(C_p\) del Tutorial 1.1?</h3>
+<p>Esta gráfica muestra velocidad y aquélla mostraba presión, pero son la misma información. Para flujo incompresible, Bernoulli las liga con una sola relación:</p>
+<div class="equation-card">\[ C_p \;=\; 1 - \left(\frac{q}{V_\infty}\right)^{\!2} \]</div>
+<p>Se comprueba con las cifras de esta misma corrida. El pico de succión del NACA 2412 a <span>\(\alpha = 0\)</span> vale <span>\(Q/V_\infty = 1.25516\)</span>, que por esa relación da <span>\(C_p = -0.575\)</span>; el módulo directo reporta <span>\(-0.5625\)</span> para el mismo caso. La diferencia del 2 % es el espesor de desplazamiento de la capa límite, que la relación potencial no ve.</p>
+<div class="callout">
+  <p><strong>Por qué el módulo inverso trabaja con velocidad y no con presión.</strong> Porque el cuadrado de la relación destruye el signo. En <span>\(C_p\)</span>, el extradós y el intradós se separan en dos ramas que hay que distinguir a mano; en <span>\(q/V_\infty\)</span> el signo las distingue solo, y el punto de estancamiento queda marcado por el cruce. Para <em>leer</em> un perfil conviene el <span>\(C_p\)</span>; para <em>diseñarlo</em>, la velocidad.</p>
+</div>
+<h3>La conversión que hace falta para trabajar</h3>
+<p>Para marcar un tramo hay que poder pasar de una escala a la otra. La conversión exacta exige integrar el arco, pero hay una regla que basta para casi todo.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th><span>\(s\)</span>, el eje del gráfico</th><th><span>\(x/c\)</span> real</th><th>Regla <span>\(2(s-0.5)\)</span></th></tr></thead>
+    <tbody>
+      <tr><td>0.60</td><td>0.189</td><td>0.200</td></tr>
+      <tr><td>0.65</td><td>0.291</td><td>0.300</td></tr>
+      <tr><td>0.70</td><td>0.393</td><td>0.400</td></tr>
+      <tr><td>0.75</td><td>0.495</td><td>0.500</td></tr>
+      <tr><td>0.80</td><td>0.597</td><td>0.600</td></tr>
+      <tr><td>0.85</td><td>0.698</td><td>0.700</td></tr>
+      <tr><td>0.90</td><td>0.799</td><td>0.800</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Del eje del gráfico a la cuerda real, en el extradós.</b> Correspondencia calculada para el NACA 2412. Salvo muy cerca de la nariz, la regla <span>\(x/c \approx 2(s - 0.5)\)</span> acierta dentro de una centésima, y es suficiente para trabajar. En el intradós la regla es <span>\(x/c \approx 2(0.5 - s)\)</span>.</caption>
+  </table>
+</div>
+<p>Sobre el extradós, <span>\(x/c \approx 2(s - 0.5)\)</span>; sobre el intradós, <span>\(x/c \approx 2(0.5 - s)\)</span>. El error es de una centésima de cuerda salvo muy cerca del borde de ataque, donde el contorno se curva mucho y el arco avanza sin que avance la cuerda. <strong>Con esa regla ya se puede trabajar</strong>; quien quiera ver cómo se comprobó todo esto con cifras lo tiene en el <a href="#proof-es">apéndice</a>.</p>
+
+    </section>
+    <section id="spline-es">
+      <p class="section-label">Paso 1</p>
+      <h2>Modificar la distribución de velocidad</h2>
+
+<p>Aquí empieza el trabajo. El ciclo completo son seis operaciones, siempre en el mismo orden, y el registro de la derecha va anunciando cuál espera el programa:</p>
+<div class="callout">
+  <ol>
+    <li><code>New Spline</code> — el registro responde <code>Mark spline endpoints</code>.</li>
+    <li><strong>Dos clics sobre la curva</strong>, que delimitan el tramo a editar.</li>
+    <li><strong>Arrastrar</strong> los puntos de control interiores hasta la forma deseada.</li>
+    <li><code>Apply Spline</code> — el registro responde <code>Spline is applied</code>.</li>
+    <li><code>Execute</code> — el registro responde <code>executing...</code>.</li>
+    <li><code>Foil ▸ Store Foil</code> para conservar el resultado.</li>
+  </ol>
+</div>
+<p>Conviene detenerse en los dos primeros, porque no hacen lo que su nombre sugiere. <strong><code>New Spline</code> no crea ningún spline</strong>: pone el programa en un modo de espera. Y es un <strong>conmutador</strong>, no un botón: un clic lo enciende, dos lo dejan apagado, y entonces los clics sobre la curva no marcan nada. Si el registro no dice <code>Mark spline endpoints</code>, el modo no está activo.</p>
+<p>Con el modo encendido, los dos clics siguientes sobre la curva fijan los extremos del tramo. Aparecen entonces cinco puntos de control repartidos por igual.</p>
+<figure class="diagram">
+  <img src="imagenes/t13-05_spline.png" alt="La curva de velocidad con un spline de cinco puntos de control sobre el tramo marcado" loading="lazy">
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">El spline, con sus cinco puntos.</b> Tras <code>New Spline</code>, dos clics sobre la curva delimitan el tramo a editar y aparecen cinco puntos de control repartidos por igual. El primero y el último son anclas: no se mueven, y existen para que el tramo editado empalme sin escalón con el resto de la distribución. Sólo los tres interiores responden al arrastre.</figcaption>
+</figure>
+<div class="callout">
+  <p><strong>El primero y el último no se mueven.</strong> Son anclas, y existen para que el tramo modificado empalme sin escalón con el resto de la distribución. Sólo los tres interiores responden al arrastre. Intentar mover los extremos y concluir que la herramienta no funciona es un tropiezo frecuente.</p>
+</div>
+
+<h3>Qué tramo marcar, y hasta dónde subirlo</h3>
+<p>Para este ejemplo se marcó <span>\(s \in [0.65,\ 0.85]\)</span> —la cuerda entre el 29 % y el 70 % del extradós, por la tabla 2— y se subieron los tres puntos interiores hasta formar un tramo aproximadamente plano en <span>\(Q/V_\infty \approx 1.30\)</span>.</p>
+<p>La elección no es arbitraria. Un tramo de velocidad constante es un tramo de <strong>gradiente de presión nulo</strong>, y un gradiente nulo no empuja a la capa límite a transicionar. Es la idea que hay detrás de todo perfil de flujo laminar: estirar hacia atrás la zona de velocidad plana o creciente para que la transición se retrase, y con ella el arrastre de fricción turbulento.</p>
+<p>Hasta dónde se puede subir, en cambio, no es libre, y hay una cuenta que lo fija. El área con signo bajo la curva <em>es</em> la circulación, y la circulación <em>es</em> la sustentación:</p>
+<div class="equation-card">\[ \oint \frac{q}{V_\infty}\,\mathrm{d}s \;=\; \frac{\Gamma}{V_\infty} \;=\; \frac{C_l\,c}{2} \]</div>
+<p>Se puede comprobar con los datos exportados. Integrando la curva del NACA 2412 sobre el arco y multiplicando por su perímetro, <span>\(2.0414\,c\)</span>, sale <span>\(C_l = 0.255\)</span>; el programa reporta <span>\(0.229\)</span> a <span>\(\alpha = 0\)</span>. La diferencia del 10 % es el descurvado que provoca la capa límite, que la integral potencial no ve. En el NACA 0012 a incidencia nula el área da exactamente cero, como debe ser.</p>
+<div class="callout">
+  <p><strong>La consecuencia práctica.</strong> Subir la velocidad en una zona obliga a bajarla en otra, porque el área total está sujeta al <span>\(C_l\)</span> que se especificó arriba. Si se levanta un tramo sin moderación, el método no tiene más salida que devolver un contorno que se cruza a sí mismo o que no cierra. El suavizado —<code>Smooth QSpec</code> y el filtro de Hanning— quita además las irregularidades que el arrastre a mano introduce y que el solucionador amplifica.</p>
+</div>
+<p>Con el tramo dibujado, <code>Apply Spline</code> lo escribe en la distribución especificada. Hasta ese momento el spline es sólo un dibujo encima de la curva; después, es la distribución que el método va a intentar reproducir.</p>
+
+    </section>
+    <section id="execute-es">
+      <p class="section-label">Paso 2</p>
+      <h2>Ejecutar y leer la geometría que sale</h2>
+
+<p><code>Execute</code> resuelve el contorno que corresponde a la distribución especificada y lo dibuja superpuesto al de partida.</p>
+<figure class="diagram">
+  <img src="imagenes/t13-06_resultado.png" alt="Resultado tras ejecutar: distribución modificada arriba y los dos perfiles superpuestos abajo" loading="lazy">
+  <figcaption><b class="fig-num">Figura 8.</b> <b class="fig-title">Lo que devuelve <code>Execute</code>.</b> Arriba, la distribución especificada ya incorpora el tramo levantado. Abajo, el perfil original en rojo y el resultante en azul, superpuestos a la misma cuerda: el rediseñado es visiblemente más grueso en la mitad posterior. A la derecha, el registro enumera la secuencia completa —marcar extremos, arrastrar, aplicar, ejecutar—, que es la misma en los dos modos.</figcaption>
+</figure>
+<p>El resultado más útil no es el dibujo sino el recuadro de la esquina inferior izquierda, que en cuanto hay un perfil modificado pasa de una columna a dos.</p>
+<figure class="diagram">
+  <img src="imagenes/t13-07_geometria.png" alt="Lectura de geometría con dos columnas, Base y Mod." loading="lazy">
+  <figcaption><b class="fig-num">Figura 9.</b> <b class="fig-title">La lectura gana una segunda columna.</b> En cuanto hay un perfil modificado, el recuadro inferior izquierdo pasa de una columna a dos: <em>Base</em>, la del perfil de partida, y <em>Mod.</em>, la del resultado. Es la manera más rápida de cuantificar lo que hizo el cambio de velocidad, y la que alimenta la tabla 3.</figcaption>
+</figure>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th></th><th>Base</th><th>Modificado</th><th>Cambio</th></tr></thead>
+    <tbody>
+      <tr><td>Espesor máximo</td><td>12.00 %</td><td>12.88 %</td><td>+0.88 puntos</td></tr>
+      <tr><td>Posición del espesor máximo</td><td>29.53 %</td><td>37.74 %</td><td>+8.21 puntos</td></tr>
+      <tr><td>Curvatura máxima</td><td>2.00 %</td><td>2.50 %</td><td>+0.50 puntos</td></tr>
+      <tr><td>Posición de la curvatura máxima</td><td>39.94 %</td><td>49.95 %</td><td>+10.01 puntos</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">Lo que el cambio de velocidad le hizo a la geometría.</b> Los cuatro números que el programa muestra bajo el perfil, antes y después. Subir la velocidad sobre el tramo <span>\(s \in [0.65,\ 0.85]\)</span> —que es <span>\(x/c\)</span> entre 0.29 y 0.70 del extradós— engrosó el perfil y corrió hacia atrás tanto el espesor máximo como la curvatura máxima, que es exactamente la receta geométrica de un perfil de flujo laminar.</caption>
+  </table>
+</div>
+<h3>Por qué salió ese perfil y no otro</h3>
+<p>Los cuatro números cuentan una historia coherente. Subir la velocidad sobre la mitad del extradós <strong>engrosó el perfil y corrió hacia atrás sus dos máximos</strong>: el de espesor, del 29.5 % al 37.7 % de la cuerda; el de curvatura, del 39.9 % al 50.0 %. Ambos se movieron dentro de la ventana que se modificó, que iba del 29 % al 70 %.</p>
+<p>Eso es exactamente lo que dice la teoría de perfil delgado leída al revés. Para que el flujo acelere menos y más lentamente sobre una zona, esa zona tiene que ser más recta y más gruesa; y para que el punto de velocidad máxima se retrase, el punto de espesor máximo tiene que retrasarse con él. El método no hizo nada misterioso: tradujo una condición sobre la velocidad en la condición geométrica equivalente.</p>
+<div class="callout">
+  <p><strong>Comparar con la familia NACA.</strong> Un perfil NACA de cuatro dígitos tiene el espesor máximo fijo en el 30 % de la cuerda. Las series de flujo laminar de seis dígitos lo retrasan, y lo declaran de forma indirecta: su segundo dígito da la posición de la presión mínima en décimos de cuerda —un 65-218 la tiene al 50 %—, que es la manera que tiene esa familia de decir hasta dónde se extiende el tramo de gradiente favorable. El rediseño de este ejercicio corrió el espesor máximo del 29.5 % al 37.7 % por su cuenta, sin que nadie se lo pidiera en esos términos.</p>
+</div>
+
+    </section>
+    <section id="store-es">
+      <p class="section-label">Paso 3</p>
+      <h2>Guardar el perfil y analizarlo</h2>
+
+<p><code>Foil ▸ Store Foil</code> guarda el resultado en el proyecto como un perfil más, con su propio nombre. A partir de ahí se comporta como cualquier otro: se le pueden definir análisis, correr polares y compararlo.</p>
+<p>Antes de compararlo hay que resolver un detalle que echa a perder muchas comparaciones.</p>
+<div class="callout warning">
+  <p><strong>El perfil que sale no tiene el panelado del que entró.</strong> El NACA 2412 de partida tenía 149 paneles; el que devolvió el módulo inverso tiene 257. El Tutorial 1.2 ya advertía que comparar polares calculadas con panelados distintos no es comparar. Hay que igualarlos antes.</p>
+</div>
+<h3>Igualar el panelado</h3>
+<p>Se igualan con <code>Refine Globally</code>, que pide el número de paneles deseado. El refinado produce un perfil <em>nuevo</em>, de modo que el programa pide un nombre para él y el original queda intacto.</p>
+<div class="callout warning">
+  <p><strong>Una observación que no se pudo cerrar.</strong> El comando aparece bajo <code>Design</code> en <em>XFoil Direct Analysis</em> y bajo <code>Foil</code> en <em>Direct Foil Design</em>. En las corridas de esta guía el refinado sólo surtió efecto desde el segundo módulo; desde el primero el conteo de paneles no cambió. No se determinó la causa, así que conviene <strong>verificar el número de paneles en el recuadro inferior izquierdo</strong> después de refinar, en vez de darlo por hecho.</p>
+</div>
+<p>Para esta guía se refinó el NACA 2412 original a 257 paneles y se guardó aparte, de manera que la comparación enfrenta dos perfiles con idéntica discretización. Lo que eso cambia, y lo que no, está medido en la tabla 5.</p>
+<p>Con los dos perfiles listos, el análisis es el del Tutorial 1.1 y no tiene ninguna novedad: <code>Analysis ▸ Define an Analysis</code>, Type 1, <span>\(Re = 500\,000\)</span>, <span>\(M = 0\)</span>, <span>\(N_{\mathrm{crit}} = 9\)</span>, y un barrido de <span>\(-6°\)</span> a <span>\(16°\)</span> cada medio grado.</p>
+
+    </section>
+    <section id="polars-es">
+      <p class="section-label">Paso 4</p>
+      <h2>Qué se ganó y qué se pagó</h2>
+
+<p>Esta es la sección que decide si el ejercicio sirvió de algo. Las dos polares, superpuestas:</p>
+<figure class="diagram">
+  <img src="imagenes/t13-10_polares.png" alt="Las cuatro gráficas de polares con el perfil base y el rediseñado superpuestos" loading="lazy">
+  <figcaption><b class="fig-num">Figura 10.</b> <b class="fig-title">Las dos polares superpuestas en el módulo directo.</b> La comparación tal como la presenta XFLR5, con el perfil base en naranja y el rediseñado en azul. La gráfica más informativa es la de abajo a la derecha, <span>\(C_l\)</span> contra <code>Xtr top</code>: la meseta del rediseñado —la transición que no se mueve mientras la sustentación crece— es lo que distingue a un perfil de flujo laminar de uno convencional.</figcaption>
+</figure>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th></th><th>Base</th><th>Modificado</th></tr></thead>
+    <tbody>
+      <tr><td><span>\(\alpha_{L=0}\)</span></td><td>−2.244°</td><td>−2.230°</td></tr>
+      <tr><td>Pendiente de sustentación (ajuste 0–4°)</td><td>0.1241 /°</td><td>0.1360 /°</td></tr>
+      <tr><td><span>\(C_{l,\max}\)</span></td><td>1.389 a 15.5°</td><td>1.378 a 16.0°</td></tr>
+      <tr><td><span>\(C_{d,\min}\)</span></td><td>0.00631 a 0° <span>\((C_l = 0.23)\)</span></td><td>0.00788 a 5° <span>\((C_l = 0.85)\)</span></td></tr>
+      <tr><td><span>\((L/D)_{\max}\)</span></td><td>89.2 a 5.5°</td><td>108.0 a 5.0°</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">Las dos polares, resumidas.</b> Type 1, <span>\(Re = 500\,000\)</span>, <span>\(M = 0\)</span>, <span>\(N_{\mathrm{crit}} = 9\)</span>, ambos perfiles con 257 paneles. La pendiente y el ángulo de sustentación nula apenas se mueven: el rediseño no cambió el carácter del perfil, cambió dónde es eficiente.</caption>
+  </table>
+</div>
+<h3>La primera impresión</h3>
+<p>A primera vista el rediseño parece un éxito rotundo: la eficiencia máxima sube de 89.2 a 108.0, un 21 % más. Pero la eficiencia máxima es un punto, y un perfil no se juzga en un punto —esa fue la lección del Tutorial 1.2—. Conviene mirar el dominio completo.</p>
+<figure class="diagram">
+  <svg viewBox="0 0 540 245" role="img" aria-label="Coeficiente de arrastre contra ángulo de ataque para el perfil base y el rediseñado; el rediseñado sólo gana entre cuatro y cinco grados y medio">
+  <text class="svg-title" x="20" y="18">Arrastre contra ángulo de ataque</text>
+  <line class="svg-grid" x1="72" y1="173.2" x2="470" y2="173.2" stroke-dasharray="4 4"/>
+  <text class="svg-tick" x="66" y="176.8" text-anchor="end">0.008</text>
+  <line class="svg-grid" x1="72" y1="135.8" x2="470" y2="135.8" stroke-dasharray="4 4"/>
+  <text class="svg-tick" x="66" y="139.2" text-anchor="end">0.012</text>
+  <line class="svg-grid" x1="72" y1="98.2" x2="470" y2="98.2" stroke-dasharray="4 4"/>
+  <text class="svg-tick" x="66" y="101.8" text-anchor="end">0.016</text>
+  <line class="svg-grid" x1="72" y1="60.8" x2="470" y2="60.8" stroke-dasharray="4 4"/>
+  <text class="svg-tick" x="66" y="64.2" text-anchor="end">0.020</text>
+  <line class="svg-axis" x1="72" y1="192" x2="470" y2="192"/>
+  <text class="svg-tick" x="72.0" y="207" text-anchor="middle">0°</text>
+  <text class="svg-tick" x="151.6" y="207" text-anchor="middle">2°</text>
+  <text class="svg-tick" x="231.2" y="207" text-anchor="middle">4°</text>
+  <text class="svg-tick" x="310.8" y="207" text-anchor="middle">6°</text>
+  <text class="svg-tick" x="390.4" y="207" text-anchor="middle">8°</text>
+  <text class="svg-tick" x="470.0" y="207" text-anchor="middle">10°</text>
+  <path class="svg-line" d="M 72.0 189.1 L 91.9 188.2 L 111.8 185.9 L 131.7 183.1 L 151.6 180.5 L 171.5 178.3 L 191.4 176.1 L 211.3 173.4 L 231.2 170.5 L 251.1 167.2 L 271.0 163.6 L 290.9 158.9 L 310.8 152.9 L 330.7 145.0 L 350.6 135.6 L 370.5 125.1 L 390.4 114.1 L 410.3 103.2 L 430.2 92.4 L 450.1 80.8 L 470.0 68.8" stroke="var(--muted)" stroke-width="2.2"/>
+  <path class="svg-line" d="M 72.0 169.0 L 91.9 168.8 L 111.8 167.7 L 131.7 166.2 L 151.6 165.6 L 171.5 165.7 L 191.4 167.0 L 211.3 168.8 L 231.2 171.3 L 251.1 173.4 L 271.0 174.4" stroke="var(--accent)" stroke-width="2.4"/>
+  <path class="svg-line" d="M 310.8 145.1 L 330.7 136.0 L 350.6 126.0 L 370.5 115.3 L 390.4 104.2 L 410.3 93.1 L 430.2 81.2 L 450.1 67.1 L 470.0 52.1" stroke="var(--accent)" stroke-width="2.4"/>
+  <rect x="227.2" y="42" width="67.7" height="150" fill="var(--accent)" opacity="0.09"/>
+  <text class="svg-note-sm" x="261.1" y="54" text-anchor="middle" fill="var(--accent-dark)">gana aquí</text>
+  <text class="svg-note-sm" x="83.9" y="161.0" fill="var(--accent-dark)">rediseñado</text>
+  <text class="svg-note-sm" x="83.9" y="203.1">base</text>
+  <text class="svg-note-sm" x="470" y="34" text-anchor="end">C<tspan baseline-shift="sub" font-size="8">d</tspan></text>
+  <text class="svg-note-sm" x="20" y="232">Ambos con 257 paneles, Re = 500 000, Ncrit = 9. El rediseñado no converge en 5.5°.</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 11.</b> <b class="fig-title">Lo que se ganó y lo que se pagó.</b> El perfil rediseñado sólo tiene menos arrastre que el original en una ventana estrecha, entre unos 4° y 5.5°; fuera de ella pierde, y a ángulo de ataque nulo pierde mucho —un 34 % más de arrastre—. El diseño inverso no creó eficiencia: la movió de un sitio a otro del dominio de vuelo. Ambas polares se calcularon con el mismo panelado para que la comparación sea legítima.</figcaption>
+</figure>
+<h3>El dominio completo</h3>
+<p>El panorama cambia. El perfil rediseñado <strong>sólo tiene menos arrastre en una ventana estrecha</strong>, aproximadamente entre 4° y 5.5°. Fuera de ella pierde, y a ángulo de ataque nulo pierde mucho: un 34 % más de arrastre que el original. Por encima de 6° también pierde, en torno a un 8 %.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th><span>\(\alpha\)</span></th><th>Efecto del panelado sobre el mismo perfil</th><th>Efecto del rediseño, con el panelado ya igualado</th></tr></thead>
+    <tbody>
+      <tr><td>0°</td><td>+0.00 %</td><td>+33.9 %</td></tr>
+      <tr><td>2°</td><td>+0.00 %</td><td>+22.0 %</td></tr>
+      <tr><td>4°</td><td>+0.24 %</td><td>−1.0 %</td></tr>
+      <tr><td>5°</td><td>+0.11 %</td><td><strong>−12.7 %</strong></td></tr>
+      <tr><td>6°</td><td>+0.10 %</td><td>+8.2 %</td></tr>
+      <tr><td>10°</td><td>+0.42 %</td><td>+9.3 %</td></tr>
+      <tr><td>15.5°, ya en pérdida</td><td><strong>−4.05 %</strong></td><td>−0.8 %</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 5.</b> <b class="fig-title">La comprobación que legitima la comparación.</b> El módulo inverso devolvió un perfil de 257 puntos frente a los 149 del original, y comparar polares con panelados distintos no es válido. Para separar los dos efectos se corrió el perfil base dos veces, con 149 y con 257 paneles. En todo el intervalo donde se compara —de 0° a 10°— el panelado mueve el arrastre a lo sumo medio por ciento, mientras el rediseño lo mueve entre un −13 % y un +34 %: la diferencia es geometría, no discretización. La última fila es un aviso aparte, y se comenta abajo.</caption>
+  </table>
+</div>
+<p>La tabla 5 responde de paso a la objeción obvia —que la diferencia venga del panelado— y la descarta: en el intervalo donde se compara, el panelado mueve el arrastre a lo sumo medio por ciento, mientras el rediseño lo mueve decenas de por ciento.</p>
+<div class="callout">
+  <p><strong>La última fila de la tabla dice otra cosa, y conviene no pasarla por alto.</strong> Pasados los 11° el efecto del panelado crece deprisa, y a 15.5° llega al 4 %: cuatro veces el efecto que ahí tiene el rediseño. No es contradictorio, es donde el método es más frágil. Cerca de la pérdida la capa límite está a punto de separarse, la solución viscosa converge con dificultad y el resultado pasa a depender de cuántos paneles resuelvan la nariz. <strong>La regla que sale de aquí es que una comparación cerca de la pérdida exige igualar el panelado con más cuidado todavía que una en crucero</strong>, y que conviene desconfiar de diferencias de pocos por ciento en <span>\(C_{l,\max}\)</span> entre perfiles panelados distinto.</p>
+</div>
+<h3>El mecanismo</h3>
+<p>El mecanismo se ve mejor en la variable que lo causa.</p>
+<figure class="diagram">
+  <svg viewBox="0 0 540 245" role="img" aria-label="Posición de la transición contra ángulo de ataque; el perfil rediseñado mantiene la transición retrasada hasta cinco grados y luego la adelanta bruscamente">
+  <text class="svg-title" x="20" y="18">Posición de la transición en el extradós</text>
+  <line class="svg-grid" x1="72" y1="154.5" x2="470" y2="154.5" stroke-dasharray="4 4"/>
+  <text class="svg-tick" x="66" y="158.0" text-anchor="end">0.2</text>
+  <line class="svg-grid" x1="72" y1="117.0" x2="470" y2="117.0" stroke-dasharray="4 4"/>
+  <text class="svg-tick" x="66" y="120.5" text-anchor="end">0.4</text>
+  <line class="svg-grid" x1="72" y1="79.5" x2="470" y2="79.5" stroke-dasharray="4 4"/>
+  <text class="svg-tick" x="66" y="83.0" text-anchor="end">0.6</text>
+  <line class="svg-grid" x1="72" y1="42.0" x2="470" y2="42.0" stroke-dasharray="4 4"/>
+  <text class="svg-tick" x="66" y="45.5" text-anchor="end">0.8</text>
+  <line class="svg-axis" x1="72" y1="192" x2="470" y2="192"/>
+  <text class="svg-tick" x="72.0" y="207" text-anchor="middle">0°</text>
+  <text class="svg-tick" x="151.6" y="207" text-anchor="middle">2°</text>
+  <text class="svg-tick" x="231.2" y="207" text-anchor="middle">4°</text>
+  <text class="svg-tick" x="310.8" y="207" text-anchor="middle">6°</text>
+  <text class="svg-tick" x="390.4" y="207" text-anchor="middle">8°</text>
+  <text class="svg-tick" x="470.0" y="207" text-anchor="middle">10°</text>
+  <path class="svg-line" d="M 72.0 54.9 L 91.9 61.2 L 111.8 67.8 L 131.7 74.6 L 151.6 81.4 L 171.5 87.6 L 191.4 93.2 L 211.3 98.9 L 231.2 104.7 L 251.1 110.7 L 271.0 117.6 L 290.9 125.7 L 310.8 135.3 L 330.7 146.1 L 350.6 157.3 L 370.5 167.0 L 390.4 174.0 L 410.3 178.3 L 430.2 180.8 L 450.1 182.5 L 470.0 183.7" stroke="var(--muted)" stroke-width="2.2"/>
+  <path class="svg-line" d="M 72.0 60.8 L 91.9 61.7 L 111.8 62.6 L 131.7 63.6 L 151.6 64.8 L 171.5 66.4 L 191.4 68.2 L 211.3 70.4 L 231.2 73.1 L 251.1 77.2 L 271.0 86.0" stroke="var(--accent)" stroke-width="2.4"/>
+  <path class="svg-line" d="M 310.8 140.4 L 330.7 151.1 L 350.6 161.0 L 370.5 169.2 L 390.4 174.8 L 410.3 178.4 L 430.2 180.6 L 450.1 182.2 L 470.0 183.4" stroke="var(--accent)" stroke-width="2.4"/>
+  <text class="svg-note-sm" x="115.8" y="53.6" fill="var(--accent-dark)">rediseñado: la meseta</text>
+  <text class="svg-note-sm" x="167.5" y="113.2">base</text>
+  <text class="svg-note-sm" x="470" y="34" text-anchor="end">x/c de transición</text>
+  <text class="svg-note-sm" x="20" y="219">Mientras el base adelanta la transición de forma continua, el rediseñado la sostiene</text>
+  <text class="svg-note-sm" x="20" y="233">por encima del 61 % de la cuerda hasta los 4.5°, y sólo entonces la deja caer.</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 12.</b> <b class="fig-title">El mecanismo, visto en la transición.</b> Esta es la gráfica que explica la anterior. En el perfil original la transición se adelanta de forma continua conforme sube el ángulo de ataque, del 73 % de la cuerda al 40 % en cinco grados. En el rediseñado se mantiene por encima del 61 % hasta los 4.5° y todavía en el 56 % a los 5°, porque el tramo de velocidad plana suprime el gradiente adverso que la provocaba, y sólo entonces se desploma. Ese tramo laminar más largo es, literalmente, el arrastre que se ahorró.</figcaption>
+</figure>
+<p>En el perfil original la transición se adelanta de forma continua conforme crece el ángulo de ataque: del 73 % de la cuerda a ángulo nulo al 40 % a cinco grados. En el rediseñado se mantiene <strong>por encima del 61 % hasta los 4.5°</strong>, todavía en el 56 % a los 5°, y sólo entonces se desploma. Ese tramo laminar que no se mueve es el arrastre que se ahorró, y coincide en ángulo con la ventana donde el perfil rediseñado gana.</p>
+<div class="result-box">
+  <p><strong>El diseño inverso no creó eficiencia: la movió.</strong> El perfil de partida tenía su mínimo de arrastre en <span>\(C_l = 0.23\)</span>, que es casi vuelo sin sustentación. El rediseñado lo tiene en <span>\(C_l = 0.85\)</span>, que es un coeficiente de crucero razonable. Para un avión que pase su vida cerca de ese punto, el cambio es una mejora grande. Para uno que trabaje repartido por todo el dominio, es un empeoramiento.</p>
+</div>
+<p>Esa es la cubeta de arrastre del Tutorial 1.2, ahora fabricada a propósito en vez de encontrada en un catálogo. Y el precio —peor fuera de la cubeta— es el mismo que pagan los perfiles de flujo laminar reales.</p>
+
+    </section>
+    <section id="mixed-es">
+      <p class="section-label">El otro modo</p>
+      <h2>Mixed Inverse: cambiar un tramo sin tocar el resto</h2>
+
+<p>El otro modo resuelve un problema distinto. Full Inverse rehace el contorno entero; a veces lo que se quiere es corregir una zona concreta y dejar el resto intacto.</p>
+<figure class="diagram medium">
+  <img src="imagenes/t13-08_panel_mixed.png" alt="Panel de control del modo Mixed Inverse" loading="lazy">
+  <figcaption><b class="fig-num">Figura 13.</b> <b class="fig-title">El panel de <code>Mixed Inverse</code>.</b> Más corto que el de Full Inverse y con dos controles que aquél no tiene: <code>Mark for modification</code>, que delimita el tramo que sí puede cambiar, y <code>Max Iterations</code>, porque cerrar el contorno con el resto congelado exige iterar. A cambio, no ofrece especificación de <span>\(\alpha\)</span> ni restricciones de borde de fuga: no las necesita, porque el borde de fuga no se toca.</figcaption>
+</figure>
+<h3>Los dos controles propios</h3>
+<p>La diferencia visible está en dos controles. <code>Mark for modification</code> delimita, con dos clics sobre la curva, el tramo del contorno que sí puede cambiar.</p>
+<figure class="diagram">
+  <img src="imagenes/t13-09_mixed_marcado.png" alt="La curva de velocidad con dos marcas rojas verticales que delimitan el segmento objetivo" loading="lazy">
+  <figcaption><b class="fig-num">Figura 14.</b> <b class="fig-title">El segmento objetivo, marcado.</b> Las dos marcas rojas verticales delimitan el único tramo del contorno que el método puede mover. Fuera de ellas la geometría queda exactamente como estaba, lo que convierte a este modo en el adecuado para retocar un perfil que ya funciona en lo demás.</figcaption>
+</figure>
+<p>Fuera de esas dos marcas la geometría queda exactamente como estaba. Esa restricción es la que obliga al segundo control: <code>Max Iterations</code>, seis por omisión. Cerrar un contorno cuando la mayor parte está congelada no se consigue de una vez, y el método itera hasta que el perfil cierra o se agotan las iteraciones.</p>
+<p>A cambio, el panel no ofrece ni especificación de <span>\(\alpha\)</span> ni restricciones de borde de fuga: no le hacen falta, porque el borde de fuga está fuera del tramo editable y no se toca.</p>
+<div class="callout">
+  <p><strong>Cuál usar.</strong> Mixed Inverse para retoques: suavizar un pico de succión que dispara la transición, corregir un gradiente adverso demasiado brusco antes del borde de fuga. Full Inverse para lo que hizo este tutorial: cambiar el carácter del perfil, mover la cubeta de arrastre entera a otro coeficiente de sustentación.</p>
+</div>
+<p class="pending-note"><strong>Nota sobre el alcance de esta sección.</strong> Los controles y el marcado del segmento están verificados sobre el programa, pero la ejecución completa de un ciclo en modo mixto no se documentó en esta guía. Se añadirá cuando esté comprobada con el mismo detalle que el resto.</p>
+
+    </section>
+    <section id="example-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>Mover la cubeta a otro sitio</h2>
+
+<p class="lead">Esta práctica no se entrega. Es la manera más rápida de comprobar que el procedimiento se entendió, y de poner a prueba la afirmación central de la guía: que la cubeta de arrastre va a donde se pone el tramo de velocidad plana. La corrida completa toma unos veinte minutos.</p>
+<div class="example">
+  <p><strong>Enunciado.</strong> Repetir el rediseño de esta guía sobre el mismo NACA 2412, pero con el tramo plano <strong>más adelante</strong>, y determinar a qué coeficiente de sustentación queda esta vez el mínimo de arrastre.</p>
+  <p><strong>Condiciones.</strong> Tramo marcado en <span>\(s \in [0.55,\ 0.75]\)</span> —la cuerda entre el 10 % y el 50 % del extradós, por la tabla 2—; velocidad aplanada en <span>\(Q/V_\infty \approx 1.30\)</span>; polar Type 1, <span>\(Re = 500\,000\)</span>, <span>\(M = 0\)</span>, <span>\(N_{\mathrm{crit}} = 9\)</span>, con el panelado igualado al del perfil base.</p>
+</div>
+
+<h3>El procedimiento, en corto</h3>
+<ol>
+  <li>Cargar el NACA 2412 en <em>Direct Foil Design</em> y llevarlo al módulo inverso con <code>Foil ▸ Extract Foil</code>.</li>
+  <li>Pasar a <code>Full Inverse</code> y marcar el tramo con <code>New Spline</code> y dos clics.</li>
+  <li>Levantar los tres puntos interiores, <code>Apply Spline</code>, <code>Execute</code>.</li>
+  <li>Anotar los cuatro números de la columna <em>Mod.</em> antes de seguir.</li>
+  <li><code>Foil ▸ Store Foil</code>, igualar el panelado y correr la polar.</li>
+</ol>
+
+<h3>Registro de resultados</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Caso</th><th>Tramo plano marcado</th><th><span>\(x_{t,\max}/c\)</span></th><th><span>\(C_{d,\min}\)</span></th><th>a qué <span>\(C_l\)</span></th><th><span>\((L/D)_{\max}\)</span></th><th><span>\(C_d\)</span> a <span>\(0^\circ\)</span></th></tr></thead>
+    <tbody>
+      <tr><td>NACA 2412 base</td><td>—</td><td>29.5 %</td><td>0.00631</td><td>0.23</td><td>89.2</td><td>0.00631</td></tr>
+      <tr><td>Rediseño de esta guía</td><td><span>\(s\in[0.65,0.85]\)</span></td><td>37.7 %</td><td>0.00788</td><td>0.85</td><td>108.0</td><td>0.00845</td></tr>
+      <tr><td>Rediseño del ejercicio</td><td><span>\(s\in[0.55,0.75]\)</span></td><td></td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 6.</b> <b class="fig-title">Plantilla de registro.</b> Seis magnitudes bastan para saber si un rediseño inverso sirvió de algo y a costa de qué. Las dos primeras columnas salen del recuadro de geometría; las cuatro últimas, de la polar. La fila de la guía está llena para poder contrastar.</caption>
+  </table>
+</div>
+
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>¿Hacia dónde se movió el espesor máximo? El tramo marcado va del 10 % al 50 % de la cuerda; compárese con el rediseño de esta guía, donde iba del 29 % al 70 % y el espesor máximo quedó en 37.7 %.</li>
+  <li>¿A qué <span>\(C_l\)</span> quedó el mínimo de arrastre, comparado con el 0.85 de esta guía? ¿Subió o bajó, y es eso lo que cabía esperar?</li>
+  <li>¿Qué pasó con el arrastre a ángulo de ataque nulo? En esta guía empeoró un 34 %. ¿Mejoró ahora, y por qué tendría que hacerlo?</li>
+  <li>Mírese la gráfica <span>\(C_l\)</span> contra <code>Xtr top</code>. ¿Hay meseta? ¿Es más larga o más corta que la de la figura 12, y hasta qué <span>\(C_l\)</span> llega?</li>
+  <li>Si un avión vuela en crucero a <span>\(C_l = 0.45\)</span>, ¿cuál de los tres perfiles de la tabla le conviene? Razónese con las cifras, no con la silueta.</li>
+</ol>
+<p>La pregunta que da sentido al ejercicio es la última, porque revela lo que este tutorial no enseña: el diseño inverso permite <em>elegir</em> el coeficiente de sustentación en el que un perfil es eficiente, pero no dice cuál elegir. Ese dato —el <span>\(C_l\)</span> de crucero— viene del peso, la superficie alar y la velocidad de la aeronave, y no aparece en ninguna parte de esta guía. Es el puente hacia el bloque del ala.</p>
+<p>Como comprobación adicional, y más exigente: <strong>bajar</strong> la velocidad en lugar de subirla, y predecir antes de ejecutar qué le va a pasar al espesor.</p>
+
+    </section>
+    <section id="summary-es">
+      <p class="section-label">Puntos clave</p>
+      <h2>Cinco afirmaciones que conviene retener</h2>
+
+<p>De esta guía conviene retener cinco cosas.</p>
+<div class="result-box">
+  <p><strong>Una.</strong> La abscisa del gráfico inverso está rotulada <code>x/c</code> y es longitud de arco sobre el contorno: cero y uno son el mismo borde de fuga, y el borde de ataque cae cerca de 0.5. <strong>Dos.</strong> Del spline sólo se mueven los tres puntos interiores; los extremos son anclas. <strong>Tres.</strong> El módulo inverso no calcula nada viscoso: del perfil que devuelve no se sabe nada hasta que se mide su polar. <strong>Cuatro.</strong> El perfil resultante trae otro panelado, y hay que igualarlo antes de comparar. <strong>Cinco.</strong> Un rediseño inverso no crea eficiencia; la traslada de una zona del dominio de vuelo a otra, y conviene saber cuál se está sacrificando.</p>
+</div>
+<p>Y una relación que resume el oficio: la posición del tramo de velocidad plana fija la posición del espesor máximo, y la posición del espesor máximo fija el coeficiente de sustentación en el que el perfil es eficiente.</p>
+<div class="callout">
+  <p>Dónde se pone el tramo de velocidad plana decide hacia dónde se corre el espesor máximo, y la posición del espesor máximo decide a qué coeficiente de sustentación queda la cubeta de arrastre. La cadena es cualitativa, no una fórmula: en este ejercicio el tramo plano ocupó del 29 % al 70 % de la cuerda, el espesor máximo se fue al 37.7 % —el tercio delantero de esa ventana, no su centro— y la cubeta quedó en <span>\(C_l = 0.85\)</span>. Para predecirlo con cifras hay que ejecutar y medir, que es justamente lo que hace el <a href="#example-es">ejercicio propuesto</a>.</p>
+</div>
+
+    </section>
+    <section id="mistakes-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Dónde se tuerce esto</h2>
+
+<p>Cuatro maneras de equivocarse con este módulo, todas comprobadas.</p>
+<div class="callout warning">
+  <p><strong>Leer la abscisa como si fuera la cuerda.</strong> Es el error que más desordena: lleva a creer que se está modificando el 70 % de la cuerda cuando en realidad se toca el 40 %, y a buscar el pico de succión donde no está. La regla <span>\(x/c \approx 2(s-0.5)\)</span> lo resuelve.</p>
+</div>
+<div class="callout warning">
+  <p><strong>Juzgar el rediseño por su silueta.</strong> El perfil de la figura 8 se ve mejor que el original y es peor que él en la mitad del dominio de vuelo. La única prueba admisible es la polar, y hay que mirarla completa, no sólo su mejor punto.</p>
+</div>
+<div class="callout warning">
+  <p><strong>Comparar polares con panelados distintos.</strong> El módulo devuelve un perfil con más puntos de los que entraron. La diferencia que introduce es pequeña —medio por ciento— pero es gratuita de evitar, y quien no la controla nunca sabe cuánta de la diferencia observada es física.</p>
+</div>
+<div class="callout warning">
+  <p><strong>Suponer que toda distribución dibujable es realizable.</strong> El método no avisa de que la distribución pedida es imposible: devuelve el contorno que más se le parece, que puede ser un perfil cruzado o con espesor negativo. Si el resultado es absurdo, el problema está en lo que se pidió, no en el programa.</p>
+</div>
+<p>Y un tropiezo menor de manejo, por si ahorra tiempo: el botón <code>New Spline</code> es un conmutador. Un clic lo activa; dos lo dejan como estaba, y entonces los clics sobre la curva no marcan nada.</p>
+
+    </section>
+    <section id="proof-es">
+      <p class="section-label">Apéndice</p>
+      <h2>Cómo se verificó el eje</h2>
+
+<p>Esta sección no hace falta para usar el módulo. Recoge cómo se comprobó que la abscisa de la gráfica es longitud de arco, por si alguien quiere rehacerlo o dudar de ello con fundamento.</p>
+<p>El argumento visual de la figura 5 basta para descartar que el eje sea la cuerda, pero no prueba <em>qué</em> es. Para eso se exportaron los datos con <code>Graph ▸ Export Graph</code> y se compararon con las longitudes de arco calculadas directamente de la definición analítica del perfil.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Perfil</th><th>Cruce por cero medido en XFLR5</th><th>Fracción de arco del intradós, calculada</th><th>Diferencia</th></tr></thead>
+    <tbody>
+      <tr><td>NACA 0012</td><td>0.50000</td><td>0.50000</td><td>0.00000</td></tr>
+      <tr><td>NACA 2412</td><td>0.49705</td><td>0.49641</td><td>0.00064</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 7.</b> <b class="fig-title">La comprobación de qué mide la abscisa.</b> Si el eje fuera <span>\(x/c\)</span>, el cruce por cero de un perfil simétrico a incidencia nula estaría en 0, no en 0.5. La coincidencia con la fracción de arco calculada de la geometría —exacta en el simétrico y a seis diezmilésimas en el cambado— identifica la abscisa como longitud de arco normalizada. La diferencia restante es del orden del panelado.</caption>
+  </table>
+</div>
+<p>En el perfil simétrico la coincidencia es exacta. En el cambado el borde de ataque se corre ligeramente por debajo de 0.5 —porque el extradós de un perfil con curvatura es más largo que el intradós— y el cálculo predice ese corrimiento con un error de seis diezmilésimas, del orden de lo que aporta el panelado.</p>
+<p>La simetría del signo se puede comprobar con las mismas cifras: en el NACA 0012 a incidencia nula los dos máximos de la curva valen <span>\(\pm 1.18838\)</span>, iguales a cinco decimales, mientras que en el 2412 el del extradós llega a <span>\(+1.25516\)</span> y el del intradós sólo a <span>\(-1.15250\)</span>. Esa asimetría <em>es</em> la curvatura.</p>
+<div class="callout warning">
+  <p><strong>Una lectura más que engaña.</strong> El indicador de coordenadas del extremo derecho de la gráfica, el que muestra <code>x =</code> y <code>y =</code>, no reporta la posición sobre la gráfica de velocidad sino sobre <strong>el dibujo del perfil de abajo</strong>. Su <code>x</code> coincide por casualidad, porque las dos escalas horizontales están alineadas; su <code>y</code> no tiene nada que ver con <span>\(Q/V_\infty\)</span>. Quien intente leer un valor de velocidad ahí obtendrá un número sin significado.</p>
+</div>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ol>
+  <li>Drela, M. «XFOIL: An Analysis and Design System for Low Reynolds Number Airfoils», en <em>Low Reynolds Number Aerodynamics</em>. Berlín: Springer, 1989. Formulación del método inverso mixto y de las condiciones que debe cumplir la distribución especificada.</li>
+  <li>Abbott, I. H. y von Doenhoff, A. E. <em>Theory of Wing Sections</em>. Nueva York: Dover, 1959. Las series de flujo laminar de seis dígitos y la lógica de diseño que este tutorial reproduce; capítulos 6 y 7.</li>
+  <li>Eppler, R. <em>Airfoil Design and Data</em>. Berlín: Springer, 1990. Tratamiento sistemático del diseño inverso por especificación de velocidad.</li>
+  <li>Deperrois, A. <em>Guidelines for XFLR5</em>, sección de diseño inverso.</li>
+</ol>
+<p class="source-note">Capturas de pantalla tomadas de XFLR5 v6.62 sobre macOS. Las mediciones de las tablas 2 y 7 provienen de los datos exportados con <code>Graph ▸ Export Graph</code> y de un cálculo independiente de las longitudes de arco del perfil; las de las tablas 3 a 5, de corridas hechas expresamente para esta guía, cuyo proyecto la acompaña. Con este tutorial se cierra el bloque del perfil; el siguiente abre el del ala, con la planta, la torsión y la flecha.</p>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="lotes-y-geometria.html?v=13"><span>Tutorial anterior</span>← Análisis por lotes y geometría del perfil</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>XFLR5 · Serie de tutoriales</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Eine Geschwindigkeitsverteilung vorgeben und die zugehörige Geometrie zurücklesen, erkennen, was die Abszisse des Diagramms wirklich misst, und einen Entwurf am Polarenvergleich beurteilen statt an der Form.</p>
+    </section>
+    <section id="physics-de">
+      <p class="section-label">Die Idee</p>
+      <h2>Warum sich das Umkehren der Frage lohnt</h2>
+<p>Das direkte Problem nimmt eine Form und liefert ihre Druckverteilung; alle bisherigen Tutorials lösen es. Das inverse Problem nimmt eine Druckverteilung und liefert eine Form. Der Aufwand lohnt sich, weil die technisch interessanten Größen — Umschlaglage, Ablösung, Breite der Laminardelle — Eigenschaften der Geschwindigkeitsverteilung sind, nicht der Koordinaten.</p>
+    </section>
+    <section id="model-de">
+      <p class="section-label">Geltungsbereich und Grenzen</p>
+      <h2>Was das Modul leistet und was nicht</h2>
+<p>XFLR5 bietet zwei inverse Modi. <code>Full Inverse</code> baut die gesamte Kontur aus der gesamten Vorgabe neu auf, unter Hinterkanten-Randbedingungen. <code>Mixed Inverse</code> ändert nur einen markierten Abschnitt und hält den Rest fest. Keiner prüft die physikalische Sinnhaftigkeit der Vorgabe, und keiner rechnet viskos: das Ergebnis muss im direkten Modul gemessen werden.</p>
+    </section>
+    <section id="interface-de">
+      <p class="section-label">Orientierung</p>
+      <h2>Wo es liegt und wie ein Profil hineinkommt</h2>
+<p>Das Modul ist <code>Module ▸ XFoil Inverse Design</code>. Es öffnet in <code>Mixed Inverse</code>, nicht in Full Inverse. Ein <code>File ▸ Open</code> für Profile gibt es hier nicht: ein Profil kommt über <code>Foil ▸ Extract Foil</code> herein, das aus den bereits im Projekt vorhandenen Profilen wählt.</p>
+    </section>
+    <section id="axis-de">
+      <p class="section-label">Die entscheidende Messung</p>
+      <h2>Die mit x/c beschriftete Achse ist nicht x/c</h2>
+<p>Das Diagramm beschriftet seine Abszisse mit <code>x/c</code>, und das ist nicht die Profiltiefe. Es ist die normierte Bogenlänge entlang der Kontur: eine Hinterkante bei 0, die Nase nahe 0,5, die andere Hinterkante bei 1. Zwei Messungen belegen es — ein symmetrisches NACA 0012 bei null Anstellung kreuzt bei genau 0,50000, ein gewölbtes NACA 2412 bei 0,49705 gegenüber 0,49641 aus der Bogenlänge. Auf der Saugseite gilt praktisch <span>\(x/c \approx 2(s-0{,}5)\)</span>.</p>
+    </section>
+    <section id="spline-de">
+      <p class="section-label">Schritt 1</p>
+      <h2>Die Geschwindigkeitsverteilung ändern</h2>
+<p><code>New Spline</code> versetzt das Programm in einen Modus, in dem zwei Klicks auf die Kurve den zu bearbeitenden Abschnitt begrenzen; fünf Kontrollpunkte erscheinen, der erste und der letzte sind feste Anker. Das Ziehen der drei inneren ändert die vorgegebene Geschwindigkeit; <code>Apply Spline</code> schreibt sie fest.</p>
+    </section>
+    <section id="execute-de">
+      <p class="section-label">Schritt 2</p>
+      <h2>Ausführen und die entstandene Geometrie lesen</h2>
+<p><code>Execute</code> löst die neue Kontur und zeichnet sie über die ursprüngliche; die Anzeige unter dem Profil erhält eine zweite Spalte <em>Mod.</em> neben <em>Base</em>. Das Anheben der Geschwindigkeit über der Saugseitenmitte verdickte das NACA 2412 von 12,00 % auf 12,88 %, verschob die maximale Dicke von 29,53 % auf 37,74 % und die maximale Wölbung von 39,94 % auf 49,95 % der Tiefe.</p>
+    </section>
+    <section id="store-de">
+      <p class="section-label">Schritt 3</p>
+      <h2>Das Profil speichern und analysieren</h2>
+<p><code>Foil ▸ Store Foil</code> legt das Ergebnis als neues Profil im Projekt ab. Es kommt mit einer anderen Punktzahl als das Original — hier 257 gegen 149 —, daher muss vor dem Polarenvergleich die Panelierung angeglichen werden, wofür <code>Refine Globally</code> zuständig ist.</p>
+    </section>
+    <section id="polars-de">
+      <p class="section-label">Schritt 4</p>
+      <h2>Was gewonnen wurde und was es kostete</h2>
+<p>Bei angeglichener Panelierung senkt das neue Profil den Widerstand bei \(\alpha = 5^\circ\) um 12,7 % und hebt die beste Gleitzahl von 89,2 auf 108,0 — und bezahlt mit 34 % mehr Widerstand bei \(\alpha = 0^\circ\) und rund 8 % mehr oberhalb \(6^\circ\). Der Mechanismus zeigt sich in der Umschlaglage, die der Entwurf nahe 60 % der Tiefe hält, wo das Original bereits bei 40 % liegt.</p>
+    </section>
+    <section id="mixed-de">
+      <p class="section-label">Der andere Modus</p>
+      <h2>Mixed Inverse: einen Abschnitt ändern, den Rest halten</h2>
+<p><code>Mark for modification</code> begrenzt einen Zielabschnitt mit zwei roten Marken; außerhalb bleibt die Kontur fest und der Löser iteriert — <code>Max Iterations</code>, standardmäßig sechs —, um das Profil zu schließen. Das ist der Modus für örtliche Korrekturen; Full Inverse der für den Neuentwurf.</p>
+    </section>
+    <section id="example-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Die Laminardelle verschieben</h2>
+<p>Die Übung mit weiter vorn liegendem flachem Abschnitt wiederholen und messen, wo die Laminardelle landet. Kein Bericht erwartet: es geht darum zu sehen, dass die Delle dorthin wandert, wo der flache Abschnitt liegt.</p>
+    </section>
+    <section id="summary-de">
+      <p class="section-label">Kernpunkte</p>
+      <h2>Fünf Aussagen zum Mitnehmen</h2>
+<p>Die Abszisse ist Bogenlänge, nicht Profiltiefe. Erster und letzter Splinepunkt sind Anker. Über das Ergebnis ist nichts bekannt, bevor seine Polare gemessen ist. Die Panelierung muss vor dem Vergleich angeglichen werden. Und ein inverser Entwurf schafft keine Leistung: er verschiebt sie innerhalb des Flugbereichs.</p>
+    </section>
+    <section id="mistakes-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Wo es schiefgeht</h2>
+<p>Die Abszisse als Profiltiefe lesen; einen Entwurf nach seiner Silhouette beurteilen; Polaren mit unterschiedlicher Panelzahl vergleichen; und annehmen, jede zeichenbare Geschwindigkeitsverteilung gehöre zu einem baubaren Profil.</p>
+    </section>
+    <section id="proof-de">
+      <p class="section-label">Anhang</p>
+      <h2>Wie die Achse geprüft wurde</h2>
+<p>Das visuelle Argument schließt die Profiltiefe aus, beweist aber nicht, was die Abszisse ist. Die exportierten Daten wurden mit Bogenlängen aus der analytischen Profildefinition verglichen: exakt beim symmetrischen Profil, sechs Zehntausendstel beim gewölbten. Außerdem: die Koordinatenanzeige rechts bezieht sich auf die Profilzeichnung darunter, nicht auf das Geschwindigkeitsdiagramm.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>Drelas XFOIL-Arbeiten für die gemischt-inverse Formulierung, Abbott und von Doenhoff für die Laminarprofile, deren Entwurfslogik hier nachvollzogen wird, und die XFLR5-Guidelines für die Bedienung.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="lotes-y-geometria.html?v=13"><span>Vorheriges Tutorial</span>← Stapelanalyse und Profilgeometrie</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>XFLR5 · Tutorialreihe</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>

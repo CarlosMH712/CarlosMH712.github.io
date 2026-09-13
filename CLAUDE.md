@@ -122,15 +122,17 @@ program, and follows the same trilingual rules as a course. The first series is
 The series runs to **eleven tutorials in three blocks**, from a single airfoil to
 a complete aircraft and its static longitudinal, lateral and directional
 stability; `tutorials/xflr5/index.html` carries the syllabus and is the record of
-what has been promised. Two are written. Filenames are topic-based, so inserting
-an intermediate tutorial renames nothing.
+what has been promised. Four are published: 1.1, 1.2, 1.3 and 2.1. Filenames are
+topic-based, so inserting an intermediate tutorial renames nothing.
 
 The XFLR5 tutorials ship with **Spanish complete and English and German carrying
 a per-section summary plus a visible "translation in preparation" notice**. That
 is a deliberate, temporary state agreed with the author: the structure is
 trilingual and passes the verifier, but the full EN and DE prose is still owed.
-Do not treat the summaries as finished translations, and do not add another page
-to the series in that state without asking.
+Do not treat the summaries as finished translations. The author confirmed on
+2026-09-13 that the series is for Spanish-language classes and the other languages
+are low priority for now: new tutorials may ship in this same state, and effort
+belongs in the Spanish text.
 
 ## Calculators
 
