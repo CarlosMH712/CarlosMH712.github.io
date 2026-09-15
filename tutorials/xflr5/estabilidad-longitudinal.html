@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Static longitudinal stability in XFLR5: completing the aircraft with a tailplane, locating the neutral point from the Cm slope, measuring the static margin, and trimming with the tailplane incidence." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Static Longitudinal Stability | XFLR5 Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">XFLR5 · Tutorial 3.3</p><h1>Static Longitudinal Stability</h1><p class="hero-copy">A disturbed aircraft returns to its angle only if its centre of gravity lies ahead of a point that does not depend on it. How to find that point, how much margin it leaves, and why a stable aircraft still needs the elevator to fly.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">XFLR5 · Tutorial 3.3</p><h1>Estabilidad estática longitudinal</h1><p class="hero-copy">Un avión perturbado vuelve a su ángulo sólo si su centro de gravedad está por delante de un punto que no depende de él. Cómo encontrar ese punto, cuánto margen deja, y por qué un avión estable todavía necesita el elevador para volar.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">XFLR5 · Tutorial 3.3</p><h1>Statische Längsstabilität</h1><p class="hero-copy">Ein gestörtes Flugzeug kehrt nur dann zu seinem Anstellwinkel zurück, wenn sein Schwerpunkt vor einem Punkt liegt, der nicht von ihm abhängt. Wie man diesen Punkt findet, wie viel Reserve er lässt und warum ein stabiles Flugzeug trotzdem das Höhenruder zum Fliegen braucht.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 40 min</span><span data-language="es" hidden>Lectura estimada: 40 min</span><span data-language="de" hidden>Lesedauer: ca. 40 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on XFLR5 v6.62</span><span data-language="es" hidden>Verificado en XFLR5 v6.62</span><span data-language="de" hidden>Geprüft mit XFLR5 v6.62</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="ala-finita.html?v=13">← <span>Tutorial 2.1</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#physics">The idea</a><a href="#model">Scope</a><a href="#interface">Orientation</a><a href="#plane">Step 1</a><a href="#analysis">Step 2</a><a href="#slope">Step 3</a><a href="#neutral">Step 4</a><a href="#trim">Step 5</a><a href="#example">Suggested exercise</a><a href="#summary">Key points</a><a href="#mistakes">Common mistakes</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#physics-es">La idea</a><a href="#model-es">Alcance</a><a href="#interface-es">Orientación</a><a href="#plane-es">Paso 1</a><a href="#analysis-es">Paso 2</a><a href="#slope-es">Paso 3</a><a href="#neutral-es">Paso 4</a><a href="#trim-es">Paso 5</a><a href="#example-es">Práctica sugerida</a><a href="#summary-es">Puntos clave</a><a href="#mistakes-es">Errores frecuentes</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#physics-de">Die Idee</a><a href="#model-de">Geltungsbereich</a><a href="#interface-de">Orientierung</a><a href="#plane-de">Schritt 1</a><a href="#analysis-de">Schritt 2</a><a href="#slope-de">Schritt 3</a><a href="#neutral-de">Schritt 4</a><a href="#trim-de">Schritt 5</a><a href="#example-de">Übungsvorschlag</a><a href="#summary-de">Kernpunkte</a><a href="#mistakes-de">Häufige Fehler</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>State the static longitudinal stability condition and read it in the sign of the \(C_m\)–\(\alpha\) slope; complete the aircraft with a tailplane and declare mass and centre of gravity per analysis; obtain the neutral point three ways and check that they agree; compute the static margin; and trim the aircraft with the tailplane incidence, reading the corresponding flight speed. In the series syllabus this tutorial follows 3.1 and 3.2, not yet published, so it includes the minimum of both.</p>
+    </section>
+    <section id="physics">
+      <p class="section-label">The physics</p>
+      <h2>What makes an aircraft return to its angle</h2>
+<p>An aircraft is statically stable if a nose-up disturbance produces a nose-down moment about its centre of gravity: \(\mathrm{d}C_m/\mathrm{d}\alpha < 0\). The increment of lift acts at the neutral point; the static margin \(K_n = (x_N - x_{CG})/\bar c = -\mathrm{d}C_m/\mathrm{d}C_L\) measures how far ahead of it the centre of gravity sits. The wing alone of Tutorial 2.1 had its neutral point at 0.049 m; the tailplane moves it aft.</p>
+    </section>
+    <section id="model">
+      <p class="section-label">Scope and limits</p>
+      <h2>What this analysis measures, and what it does not</h2>
+<p>Inviscid VLM2 on wing and tailplane. It measures the \(C_m\) slope about the declared centre of gravity, the neutral point, and trim angle, lift and speed; it does not include profile drag, stall, the fuselage or the time response. In an inviscid analysis the coefficients do not depend on speed.</p>
+    </section>
+    <section id="interface">
+      <p class="section-label">Orientation</p>
+      <h2>Where the centre of gravity goes</h2>
+<p>The module is Wing and Plane Design. Mass and centre of gravity can be declared on the plane (Plane Inertia, point masses) or per analysis (Inertia tab, Use plane inertia unchecked); this guide uses the latter to run one analysis per centre of gravity. With nothing declared, the moment is taken at the wing leading edge.</p>
+    </section>
+    <section id="plane">
+      <p class="section-label">Step 1</p>
+      <h2>Completing the aircraft with a tailplane</h2>
+<p>Define a New Plane: the wing of Tutorial 2.1, fin unchecked, and a rectangular NACA 0009 tailplane of 0.500 × 0.100 m with its leading edge at 0.600 m. The editor reports a lever arm of 0.57 m and a tail volume of 0.45.</p>
+    </section>
+    <section id="analysis">
+      <p class="section-label">Step 2</p>
+      <h2>One analysis per centre of gravity</h2>
+<p>Three identical Type 1 inviscid VLM2 analyses at 10 m/s with 1.000 kg and the centre of gravity at 0.060, 0.090 and 0.120 m, each named by hand: the automatic name rounds the position to 0.1 m. With a tailplane present, 3D Panels is no longer offered.</p>
+    </section>
+    <section id="slope">
+      <p class="section-label">Step 3</p>
+      <h2>Reading the Cm–α slope</h2>
+<p>The lift curves coincide; the \(C_m\)–\(\alpha\) slopes are −0.0156, −0.0023 and +0.0109 per degree. The three lines cross where lift vanishes, near −2°: with zero tailplane incidence the stable aircraft trims at \(C_L \approx 0\).</p>
+    </section>
+    <section id="neutral">
+      <p class="section-label">Step 4</p>
+      <h2>The neutral point and the static margin</h2>
+<p>From \(\mathrm{d}C_m/\mathrm{d}C_L\) the three centres of gravity give the same neutral point, 0.095 m, and static margins of +17.6 %, +2.6 % and −12.3 %. XFLR5 reports XNP = 0.096 m; the lift-weighted estimate from the wing and tailplane slopes gives 0.0966 m.</p>
+    </section>
+    <section id="trim">
+      <p class="section-label">Step 5</p>
+      <h2>Trimming with the elevator</h2>
+<p>A Type 7 stability analysis with Elevator Tilt at −5° per control unit finds, for each incidence from 0° to −5°, the angle with \(C_m = 0\) and the speed at which that lift carries the weight. At −3° the aircraft trims at 4.34°, \(C_L = 0.502\) and 9.99 m/s; \(V = \sqrt{2W/\rho S C_L}\) reproduces every speed within 0.3 %.</p>
+    </section>
+    <section id="example">
+      <p class="section-label">Suggested exercise</p>
+      <h2>How much tail is enough</h2>
+<p>Change the tailplane chord to 0.080 m and 0.120 m and record tail volume, neutral point from XFLR5 and from theory, static margin at 0.060 m, and the incidence that trims at \(C_L = 0.5\).</p>
+    </section>
+    <section id="summary">
+      <p class="section-label">Key points</p>
+      <h2>Four statements and two relations</h2>
+<p>Stability is the sign of the \(C_m\) slope; the neutral point belongs to the aircraft, not to the load; stable is not trimmed; and in trimmed flight the tailplane incidence sets \(C_L\), and the weight sets the speed.</p>
+    </section>
+    <section id="mistakes">
+      <p class="section-label">Common mistakes</p>
+      <h2>Errors of interpretation that invalidate a stability study</h2>
+<p>Reading the slope without checking X_CG; confusing stable with trimmed; thinking the neutral point moves with the centre of gravity; accepting an unstable equilibrium; taking the Type 1 speed as flight speed; reading the dynamic modes of the Stability window as part of this study; extrapolating the margin to high angles.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>Etkin and Reid, <em>Dynamics of Flight: Stability and Control</em>; Nelson, <em>Flight Stability and Automatic Control</em>; Anderson, <em>Introduction to Flight</em>; Deperrois, <em>Guidelines for XFLR5</em>.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="ala-finita.html?v=13"><span>Previous tutorial</span>← From the Section to the Finite Wing</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>XFLR5 · Tutorial series</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">El Tutorial 2.1 dejó un ala que sustenta bien y una cifra sin usar: el punto neutro que el programa reportaba en el recuadro de la vista tridimensional. Esta guía convierte esa ala en un avión y pregunta si ese avión, perturbado, vuelve solo a su ángulo. Al terminarla debe ser posible:</p>
+<ul>
+  <li>Enunciar la condición de estabilidad estática longitudinal y leerla en el signo de la pendiente <span>\(C_m\)</span>–<span>\(\alpha\)</span>.</li>
+  <li>Completar el avión con un estabilizador y declarar, en cada análisis, la masa y la posición del centro de gravedad.</li>
+  <li>Obtener el punto neutro de tres maneras —la que reporta XFLR5, la que se deduce de las pendientes y la que da la teoría— y comprobar que coinciden.</li>
+  <li>Calcular el margen estático y explicar por qué un avión estable puede, aun así, no servir para volar.</li>
+  <li>Trimar el avión con la incidencia del estabilizador y leer en el resultado la velocidad de vuelo que le corresponde.</li>
+</ul>
+<div class="callout">
+  <p><strong>Una nota sobre el orden.</strong> En el temario de la serie, este tutorial va después del 3.1 —estabilizador, masas y centro de gravedad— y del 3.2 —el fuselaje—, que todavía no están publicados. Para que la guía se sostenga sola, incluye lo mínimo de ambos: cómo añadir un estabilizador y dónde se declara el centro de gravedad. Todo lo demás de este tutorial no depende de ellos.</p>
+</div>
+
+    </section>
+    <section id="physics-es">
+      <p class="section-label">La física</p>
+      <h2>Qué hace que un avión vuelva a su ángulo</h2>
+
+<p>Un avión en vuelo recibe perturbaciones continuamente: una ráfaga levanta la nariz y el ángulo de ataque crece unas décimas de grado. Lo que ocurra en el instante siguiente depende de un solo signo. Si el momento de cabeceo que aparece tiende a bajar la nariz, el avión regresa hacia el ángulo del que partió: es <strong>estáticamente estable</strong>. Si tiende a subirla todavía más, la perturbación se amplifica sola.</p>
+<p>Escrito con el coeficiente de momento de cabeceo respecto del centro de gravedad, positivo cuando levanta la nariz, la condición es</p>
+<div class="equation-card">\[ \frac{\mathrm{d}C_m}{\mathrm{d}\alpha} \;<\; 0 \]</div>
+<p>La palabra <em>estática</em> importa. La condición dice hacia dónde apunta el momento en el primer instante, no cómo evoluciona después el movimiento: un avión estáticamente estable puede oscilar varias veces antes de asentarse. Esa segunda pregunta es la estabilidad dinámica, que queda fuera de esta serie.</p>
+<figure class="diagram">
+  <svg viewBox="0 0 600 350" role="img" aria-label="Vista lateral del avión con las sustentaciones del ala y del estabilizador y el peso; debajo, la cuerda del ala ampliada con el punto neutro y los tres centros de gravedad estudiados">
+  <defs><marker id="pt33" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M 0 0 L 7 3.5 L 0 7 z" fill="var(--ink)"/></marker></defs>
+  <text class="svg-title" x="300.0" y="18.0" text-anchor="middle">Vista lateral (escala real en x)</text>
+  <line class="svg-grid" x1="26.0" y1="96" x2="558.0" y2="96"/>
+  <path d="M 40.0 96.0 L 40.1 95.0 L 40.7 94.0 L 41.7 93.0 L 43.1 92.1 L 44.9 91.1 L 47.2 90.1 L 49.8 89.2 L 52.9 88.4 L 56.3 87.6 L 60.0 86.9 L 64.1 86.3 L 68.5 85.8 L 73.1 85.4 L 78.0 85.1 L 83.0 84.9 L 88.3 84.9 L 93.6 85.0 L 99.1 85.2 L 104.6 85.5 L 110.1 85.9 L 115.6 86.3 L 121.1 86.8 L 126.5 87.4 L 131.8 88.0 L 137.0 88.6 L 142.0 89.3 L 146.7 90.0 L 151.3 90.6 L 155.6 91.3 L 159.6 92.0 L 163.4 92.6 L 166.7 93.2 L 169.8 93.8 L 172.4 94.3 L 174.7 94.8 L 176.6 95.1 L 178.1 95.4 L 179.2 95.6 L 179.8 95.8 L 180.0 95.8 L 180.0 96.2 L 179.8 96.2 L 179.1 96.2 L 178.0 96.3 L 176.5 96.4 L 174.6 96.6 L 172.3 96.7 L 169.6 96.9 L 166.5 97.1 L 163.1 97.4 L 159.4 97.6 L 155.3 97.9 L 151.0 98.2 L 146.4 98.5 L 141.6 98.8 L 136.6 99.1 L 131.5 99.4 L 126.2 99.8 L 120.8 100.1 L 115.4 100.4 L 109.9 100.7 L 104.5 101.0 L 99.0 101.2 L 93.7 101.4 L 88.5 101.6 L 83.4 101.7 L 78.5 101.9 L 73.8 101.9 L 69.2 101.9 L 65.0 101.9 L 61.0 101.7 L 57.3 101.5 L 53.9 101.3 L 50.8 100.9 L 48.1 100.4 L 45.7 99.9 L 43.8 99.3 L 42.2 98.6 L 41.0 97.8 L 40.3 96.9 L 40.0 96.0 Z" fill="var(--line)" stroke="var(--ink)" stroke-width="1"/>
+  <path d="M 460.0 96.0 L 460.1 95.6 L 460.4 95.3 L 461.0 95.0 L 461.7 94.6 L 462.7 94.3 L 463.8 94.1 L 465.2 93.8 L 466.7 93.6 L 468.4 93.4 L 470.3 93.2 L 472.3 93.1 L 474.4 93.0 L 476.7 92.9 L 479.1 92.9 L 481.6 92.9 L 484.2 92.9 L 486.8 92.9 L 489.5 93.0 L 492.3 93.1 L 495.0 93.2 L 497.7 93.4 L 500.5 93.5 L 503.2 93.7 L 505.8 93.9 L 508.4 94.0 L 510.9 94.2 L 513.3 94.4 L 515.6 94.6 L 517.7 94.8 L 519.7 94.9 L 521.6 95.1 L 523.3 95.3 L 524.8 95.4 L 526.2 95.5 L 527.3 95.7 L 528.3 95.8 L 529.0 95.8 L 529.6 95.9 L 529.9 95.9 L 530.0 95.9 L 530.0 96.1 L 529.9 96.1 L 529.6 96.1 L 529.0 96.2 L 528.3 96.2 L 527.3 96.3 L 526.2 96.5 L 524.8 96.6 L 523.3 96.7 L 521.6 96.9 L 519.7 97.1 L 517.7 97.2 L 515.6 97.4 L 513.3 97.6 L 510.9 97.8 L 508.4 98.0 L 505.8 98.1 L 503.2 98.3 L 500.5 98.5 L 497.7 98.6 L 495.0 98.8 L 492.3 98.9 L 489.5 99.0 L 486.8 99.1 L 484.2 99.1 L 481.6 99.1 L 479.1 99.1 L 476.7 99.1 L 474.4 99.0 L 472.3 98.9 L 470.3 98.8 L 468.4 98.6 L 466.7 98.4 L 465.2 98.2 L 463.8 97.9 L 462.7 97.7 L 461.7 97.4 L 461.0 97.0 L 460.4 96.7 L 460.1 96.4 L 460.0 96.0 Z" fill="var(--line)" stroke="var(--ink)" stroke-width="1"/>
+  <path class="svg-line" d="M 75.0 86 L 75.0 34" stroke="var(--blue)" stroke-width="2" marker-end="url(#pt33)"/>
+  <text class="svg-note-sm" x="81.0" y="46.0" text-anchor="start">L<tspan baseline-shift="sub" font-size="8">w</tspan></text>
+  <path class="svg-line" d="M 477.5 90 L 477.5 66" stroke="var(--blue)" stroke-width="2" marker-end="url(#pt33)"/>
+  <text class="svg-note-sm" x="483.5" y="74.0" text-anchor="start">L<tspan baseline-shift="sub" font-size="8">t</tspan></text>
+  <path class="svg-line" d="M 82.0 108 L 82.0 148" stroke="var(--accent-dark)" stroke-width="2" marker-end="url(#pt33)"/>
+  <text class="svg-note-sm" x="88.0" y="140.0" text-anchor="start">W</text>
+  <path class="svg-leader" d="M 75.0 100 L 477.5 100" stroke="var(--muted)" stroke-dasharray="3 3"/>
+  <text class="svg-note-sm" x="276.2" y="114.0" text-anchor="middle">brazo de cola l<tspan baseline-shift="sub" font-size="8">h</tspan> = 0.575 m</text>
+  <text class="svg-title" x="300.0" y="176.0" text-anchor="middle">Cuerda del ala ampliada: dónde puede ir el centro de gravedad</text>
+  <rect x="50.0" y="228" width="238.2" height="44" fill="var(--blue)" opacity="0.08"/>
+  <rect x="288.2" y="228" width="261.8" height="44" fill="var(--accent)" opacity="0.10"/>
+  <line class="svg-axis" x1="50.0" y1="250.0" x2="550.0" y2="250.0"/>
+  <line class="svg-axis" x1="50.0" y1="246" x2="50.0" y2="254"/>
+  <text class="svg-tick" x="50.0" y="268.0" text-anchor="middle">0.00 m</text>
+  <line class="svg-axis" x1="175.0" y1="246" x2="175.0" y2="254"/>
+  <text class="svg-tick" x="175.0" y="268.0" text-anchor="middle">0.05 m</text>
+  <line class="svg-axis" x1="300.0" y1="246" x2="300.0" y2="254"/>
+  <text class="svg-tick" x="300.0" y="268.0" text-anchor="middle">0.10 m</text>
+  <line class="svg-axis" x1="425.0" y1="246" x2="425.0" y2="254"/>
+  <text class="svg-tick" x="425.0" y="268.0" text-anchor="middle">0.15 m</text>
+  <line class="svg-axis" x1="550.0" y1="246" x2="550.0" y2="254"/>
+  <text class="svg-tick" x="550.0" y="268.0" text-anchor="middle">0.20 m</text>
+  <text class="svg-note-sm" x="169.1" y="220.0" text-anchor="middle">estable</text>
+  <text class="svg-note-sm" x="419.1" y="220.0" text-anchor="middle">inestable</text>
+  <line x1="288.2" y1="224" x2="288.2" y2="257" stroke="var(--ink)" stroke-width="2"/>
+  <text class="svg-note-sm" x="288.2" y="292.0" text-anchor="middle">punto neutro 0.095 m</text>
+  <path d="M 175.0 248 l -5 -9 l 10 0 z" fill="var(--muted)"/>
+  <text class="svg-note-sm" x="175.0" y="292.0" text-anchor="middle">c/4 del ala</text>
+  <circle cx="200.0" cy="250" r="5" fill="var(--blue)"/>
+  <text class="svg-note-sm" x="200.0" y="312.0" text-anchor="middle">CG 0.060 · K<tspan baseline-shift="sub" font-size="8">n</tspan> +17.6 %</text>
+  <circle cx="275.0" cy="250" r="5" fill="var(--muted)"/>
+  <text class="svg-note-sm" x="275.0" y="326.0" text-anchor="middle">CG 0.090 · K<tspan baseline-shift="sub" font-size="8">n</tspan> +2.6 %</text>
+  <circle cx="350.0" cy="250" r="5" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="350.0" y="312.0" text-anchor="middle">CG 0.120 · K<tspan baseline-shift="sub" font-size="8">n</tspan> −12.3 %</text>
+  </svg>
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">Qué decide el signo del momento.</b> Arriba, el avión de esta guía a escala en la dirección de vuelo: la sustentación del ala actúa cerca de su cuarto de cuerda, la del estabilizador a 0.575 m por detrás, y el peso en el centro de gravedad. Abajo, la cuerda del ala ampliada. El punto neutro, en 0.095 m, separa las posiciones del centro de gravedad que dan un avión estable de las que lo dan inestable; los tres puntos son los casos que se analizan en los pasos 2 a 4, con su margen estático.</figcaption>
+</figure>
+<h3>De dónde sale el momento que restituye</h3>
+<p>Al crecer el ángulo de ataque crecen a la vez la sustentación del ala y la del estabilizador. Cada una actúa en el centro aerodinámico de su superficie, y lo que decide el signo del momento total es dónde queda, respecto del centro de gravedad, el punto en el que actúa el <em>incremento</em> de sustentación del conjunto. Ese punto es el <strong>punto neutro</strong>.</p>
+<p>Si el centro de gravedad está por delante del punto neutro, el incremento de sustentación actúa detrás del centro de gravedad y baja la nariz: estable. Si está detrás, la sube: inestable. Si coinciden, el avión es indiferente. La distancia entre ambos, adimensionalizada con la cuerda media, es el <strong>margen estático</strong>:</p>
+<div class="equation-card">\[ K_n \;=\; \frac{x_N - x_{CG}}{\bar c} \;=\; -\,\frac{\mathrm{d}C_m}{\mathrm{d}C_L} \]</div>
+<p>La segunda igualdad es la que se va a comprobar con el programa: la pendiente de <span>\(C_m\)</span> frente a <span>\(C_L\)</span> es el margen estático con el signo cambiado.</p>
+<h3>Por qué hace falta la cola</h3>
+<p>El ala sola tiene su punto neutro cerca de su cuarto de cuerda. El Tutorial 2.1 lo midió sin decirlo: el recuadro de su vista tridimensional mostraba <span>\(XNP = 0.049\)</span> m para una cuerda de 0.200 m. Un centro de gravedad por delante de ese punto daría un ala estable, pero con tan poco margen que cualquier carga útil lo desplazaría. El estabilizador, a más de medio metro por detrás, lleva el punto neutro del conjunto hacia atrás y deja sitio para el centro de gravedad. Cuánto lo lleva es lo que mide este tutorial.</p>
+
+    </section>
+    <section id="model-es">
+      <p class="section-label">Alcance y límites</p>
+      <h2>Qué mide este análisis y qué no mide</h2>
+
+<p>El análisis es el mismo VLM2 no viscoso del Tutorial 2.1, ahora sobre dos superficies. Conviene tener claro qué se puede concluir de él.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Lo que mide</th><th>Lo que no mide</th></tr></thead>
+    <tbody>
+      <tr><td>La pendiente <span>\(C_m\)</span>–<span>\(\alpha\)</span> respecto del centro de gravedad que se declara en el análisis</td><td>El arrastre de perfil: el cálculo es no viscoso, y el <span>\(C_L/C_D\)</span> que muestra sólo incluye el inducido</td></tr>
+      <tr><td>La posición del punto neutro, que el programa reporta como <code>XNP</code></td><td>La pérdida: VLM2 es lineal, y los márgenes valen en el tramo recto de las curvas</td></tr>
+      <tr><td>El ángulo, la sustentación y la velocidad de trimado para cada incidencia del estabilizador</td><td>El fuselaje, que XFLR5 desaconseja incluir y que se estudiará aparte</td></tr>
+      <tr><td>La contribución del estabilizador, con el descenso inducido del ala sobre él</td><td>La respuesta en el tiempo: los modos que calcula el análisis de estabilidad son dinámica, no estática</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Alcance del estudio.</b> La columna de la derecha no es una lista de defectos: son las decisiones que permiten aislar la estabilidad estática, y cada una hay que declararla al reportar un resultado.</caption>
+  </table>
+</div>
+<p>Dos de esas decisiones merecen una línea. La primera: <strong>en un cálculo no viscoso los coeficientes no dependen de la velocidad</strong>, de modo que la velocidad del análisis Type 1 es sólo un rótulo. Se comprobó corriendo los mismos tres análisis a 10 y a 37.5 m/s: las polares exportadas coinciden en todas sus cifras. Se eligieron 10 m/s porque es del orden de la velocidad a la que vuela realmente un avión de 1 kg con esta ala, como se verá en el Paso 5. La segunda: los márgenes estáticos que se obtienen valen en el tramo lineal de las curvas. VLM2 no conoce la pérdida, y cerca de ella el estabilizador puede quedar en la estela del ala, algo que este modelo no representa.</p>
+<div class="callout">
+  <p><strong>Estática y dinámica en la misma ventana.</strong> El análisis de estabilidad que se usa en el Paso 5 calcula, además del trimado, los modos propios del avión, y al guardarlo el programa abre una ventana flotante titulada <code>Stability</code> con frecuencias y amortiguamientos. Pertenecen a la estabilidad dinámica. Aquí sólo se usa el trimado, y esa ventana se puede cerrar.</p>
+</div>
+
+    </section>
+    <section id="interface-es">
+      <p class="section-label">Orientación</p>
+      <h2>Dónde se pone el centro de gravedad</h2>
+
+<p>Todo ocurre en el módulo <code>Wing and Plane Design</code> del Tutorial 2.1. La novedad está en dos sitios: el editor del avión, donde se activa el estabilizador, y el lugar donde se declara el centro de gravedad.</p>
+<figure class="diagram">
+  <img src="imagenes/t33-01_editor_avion.png" alt="Editor del avión con el estabilizador activado y la deriva desactivada" loading="lazy">
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">El editor del avión, con estabilizador y sin deriva.</b> El ala es la del Tutorial 2.1 y el estabilizador está activado en su posición por omisión, <span>\(x = 0.600\)</span> m. Los recuadros inferiores confirman la configuración: <code>Elev. Area = 0.05</code> m², <code>Elev. Lever Arm = 0.57</code> m y <code>TailVolume = 0.45</code>, sin cifras de deriva. El botón <code>Plane Inertia</code>, arriba a la izquierda, es la otra vía para declarar masas y centro de gravedad.</figcaption>
+</figure>
+<h3>Dos lugares para el centro de gravedad</h3>
+<p>XFLR5 ofrece dos maneras de declarar la masa y el centro de gravedad, y conviene saber cuál se está usando, porque <strong>el momento de cabeceo se calcula respecto de ese punto</strong>.</p>
+<ul>
+  <li><strong>En el avión</strong>, con el botón <code>Plane Inertia</code> del editor: masas puntuales con su posición, de las que el programa deduce la masa total y el centro de gravedad. Es lo que corresponde a un avión real y lo que desarrollará el Tutorial 3.1.</li>
+  <li><strong>En cada análisis</strong>, en la pestaña <code>Inertia</code> del diálogo de definición, desmarcando <code>Use plane inertia</code> y escribiendo directamente la masa y <code>X_CoG</code>.</li>
+</ul>
+<p>Esta guía usa la segunda, porque permite correr el mismo avión con varios centros de gravedad sin tocar su definición: un análisis por posición.</p>
+<div class="callout warning">
+  <p><strong>Si no se declara nada, el momento se toma en el borde de ataque.</strong> Con <code>Use plane inertia</code> marcado y ninguna masa definida, el análisis corre con 0 kg y <code>X_CG = 0</code>. Las curvas salen, pero la pendiente <span>\(C_m\)</span>–<span>\(\alpha\)</span> describe un avión con el centro de gravedad en el borde de ataque del ala, que no es el que se quería estudiar. El recuadro de la vista 3D muestra <code>X_CG</code>: es lo primero que hay que mirar.</p>
+</div>
+
+    </section>
+    <section id="plane-es">
+      <p class="section-label">Paso 1</p>
+      <h2>Completar el avión con un estabilizador</h2>
+
+<p>El avión se crea con <code>Plane ▸ Define a New Plane</code>, igual que en el Tutorial 2.1. El editor propone un avión con ala, estabilizador y deriva; para el estudio longitudinal basta con las dos primeras superficies.</p>
+<div class="callout">
+  <ol>
+    <li>Nombre del avión, <strong>sin espacios</strong>: <code>Avion_AR8</code>.</li>
+    <li>Desmarcar <code>Fin</code>. <code>Elevator</code> queda marcado.</li>
+    <li><code>Define</code> del ala: la tabla del Tutorial 2.1 —cuerda 0.200 m en las dos secciones, semienvergadura 0.800 m, NACA 2412—. El panel debe decir alargamiento 8.00 y 494 paneles.</li>
+    <li><code>Define</code> del estabilizador: semienvergadura 0.250 m, cuerda 0.100 m en las dos secciones, desplazamiento nulo, NACA 0009.</li>
+    <li>Comprobar en el editor <code>Elev. Area = 0.05</code> y <code>TailVolume = 0.45</code>, y guardar.</li>
+  </ol>
+</div>
+<figure class="diagram">
+  <img src="imagenes/t33-02_estabilizador.png" alt="Editor del estabilizador con dos secciones de NACA 0009" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">El estabilizador, rectangular y simétrico.</b> Dos secciones de 0.100 m de cuerda separadas 0.250 m, sin desplazamiento, con NACA 0009. El panel derecho confirma envergadura 0.50 m, superficie 0.05 m², alargamiento 5.00, estrechamiento 1.00 y flecha nula. El que propone el programa tenía flecha de 5° y la columna de perfil vacía.</figcaption>
+</figure>
+<p>El estabilizador que propone el programa no sirve tal cual: tiene flecha de 5° y estrechamiento de 0.8, y su columna de perfil aparece vacía. Se sustituye por uno rectangular, con un perfil simétrico, para que su contribución sea fácil de razonar. El NACA 0009 tiene que existir en el proyecto antes de abrir el editor; se crea como el NACA 2412 del Tutorial 1.1.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th></th><th>Ala</th><th>Estabilizador</th></tr></thead>
+    <tbody>
+      <tr><td>Perfil</td><td>NACA 2412</td><td>NACA 0009</td></tr>
+      <tr><td>Envergadura</td><td>1.600 m</td><td>0.500 m</td></tr>
+      <tr><td>Cuerda</td><td>0.200 m</td><td>0.100 m</td></tr>
+      <tr><td>Superficie</td><td>0.320 m²</td><td>0.050 m²</td></tr>
+      <tr><td>Alargamiento</td><td>8.00</td><td>5.00</td></tr>
+      <tr><td>Posición del borde de ataque</td><td><span>\(x = 0\)</span></td><td><span>\(x = 0.600\)</span> m</td></tr>
+      <tr><td>Paneles VLM</td><td>494</td><td>266</td></tr>
+      <tr><td>Brazo y volumen de cola</td><td></td><td><code>Elev. Lever Arm</code> = 0.57 m; <code>TailVolume</code> = 0.45</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">El avión del tutorial.</b> El ala es la del Tutorial 2.1 sin cambios. El volumen de cola <span>\(V_H = S_h\,l_h/(S\,\bar c)\)</span> es la cifra que resume cuánta cola tiene el avión; el editor lo reporta como <code>TailVolume</code>.</caption>
+  </table>
+</div>
+<p>La posición del estabilizador se deja en la que propone el editor, <span>\(x = 0.600\)</span> m para su borde de ataque. Con el centro aerodinámico del ala en <span>\(0.050\)</span> m y el del estabilizador en <span>\(0.625\)</span> m, el brazo es de 0.575 m, que el editor redondea a 0.57, y el volumen de cola vale</p>
+<div class="equation-card">\[ V_H \;=\; \frac{S_h\,l_h}{S\,\bar c} \;=\; \frac{0.050 \cdot 0.575}{0.320 \cdot 0.200} \;=\; 0.449 \]</div>
+<p>la misma cifra que el recuadro de la vista 3D reporta como <code>Tail Volume</code>.</p>
+
+    </section>
+    <section id="analysis-es">
+      <p class="section-label">Paso 2</p>
+      <h2>Un análisis por centro de gravedad</h2>
+
+<p>Con el avión guardado, se definen tres análisis idénticos que sólo difieren en la posición del centro de gravedad: 0.060, 0.090 y 0.120 m desde el borde de ataque del ala.</p>
+<div class="callout">
+  <ol>
+    <li><code>Analysis ▸ Define an Analysis</code>. Pestaña <code>Polar Type</code>: Type 1 y <span>\(V_\infty = 10\)</span> m/s, confirmado con Return.</li>
+    <li>Pestaña <code>Analysis</code>: <code>Ring vortex (VLM2)</code>; <code>Viscous</code> y <code>Tilted geometry</code> desmarcadas.</li>
+    <li>Pestaña <code>Inertia</code>: desmarcar <code>Use plane inertia</code>, <code>Plane Mass = 1.000</code> kg y <code>X_CoG = 0.060</code> m.</li>
+    <li>Desmarcar <code>Auto Analysis Name</code> y escribir un nombre propio: <code>CG 0.060 m</code>.</li>
+    <li><code>Save</code> y, en el panel de la derecha, <code>Analyze</code> con α de <span>\(-4^\circ\)</span> a <span>\(12^\circ\)</span> cada <span>\(0.5^\circ\)</span>. El registro se abre y se cierra solo al terminar, en unos quince segundos en la computadora donde se preparó esta guía.</li>
+    <li>Repetir con 0.090 y 0.120 m.</li>
+  </ol>
+</div>
+<figure class="diagram">
+  <img src="imagenes/t33-03_inercia.png" alt="Pestaña Inertia del análisis con masa de un kilogramo y centro de gravedad en 0.060 m" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">El centro de gravedad se declara en el análisis.</b> Pestaña <code>Inertia</code> con <code>Use plane inertia</code> desmarcada: la masa y la posición del centro de gravedad pertenecen a este análisis y no al avión. El nombre se escribió a mano, porque el automático redondea la posición a una décima de metro.</figcaption>
+</figure>
+<p>El cuarto paso no es cosmético. El nombre automático incluye la masa y el centro de gravedad, pero <strong>redondea la posición a una décima de metro</strong>: los tres análisis se llamarían <code>…-1.0kg-x0.1m</code> y no habría forma de distinguirlos en el explorador ni en la leyenda.</p>
+<p>Dos detalles de la pestaña <code>Analysis</code> cambian respecto del ala sola. Con un estabilizador en el avión, la lista de métodos deja de ofrecer <code>3D Panels</code>. Y la casilla <code>Tilted geometry</code> queda justo debajo de <code>Viscous</code>: si se marca por error, el nombre automático termina en <code>-TG</code>, que es la forma de notarlo.</p>
+
+    </section>
+    <section id="slope-es">
+      <p class="section-label">Paso 3</p>
+      <h2>Leer la pendiente Cm–α</h2>
+
+<p><code>View ▸ Polar View</code> y <code>Graphs ▸ Four Graphs</code> muestran las tres polares juntas. Las gráficas de <span>\(C_L\)</span> coinciden, como debe ser: mover el centro de gravedad no cambia la sustentación. La de <span>\(C_m\)</span>–<span>\(\alpha\)</span>, abajo a la izquierda, es la que contiene el resultado.</p>
+<figure class="diagram">
+  <img src="imagenes/t33-04_polares.png" alt="Vista de polares con las tres rectas de momento de cabeceo" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">Las tres polares, en la vista del programa.</b> Arriba, <span>\(C_L\)</span>–<span>\(C_D\)</span> y <span>\(C_L\)</span>–<span>\(\alpha\)</span>, idénticas en los tres casos: el centro de gravedad no cambia la sustentación. Abajo a la izquierda, <span>\(C_m\)</span>–<span>\(\alpha\)</span>, con tres rectas de pendiente distinta que se cortan en un mismo punto. La leyenda de la derecha lista los tres análisis por su nombre.</figcaption>
+</figure>
+<figure class="diagram">
+  <svg viewBox="0 0 600 330" role="img" aria-label="Coeficiente de momento de cabeceo frente a el ángulo de ataque para los tres centros de gravedad">
+  <line class="svg-grid" x1="70.0" y1="30" x2="70.0" y2="290"/>
+  <text class="svg-tick" x="70.0" y="306.0" text-anchor="middle">−4</text>
+  <line class="svg-grid" x1="152.5" y1="30" x2="152.5" y2="290"/>
+  <text class="svg-tick" x="152.5" y="306.0" text-anchor="middle">0</text>
+  <line class="svg-grid" x1="235.0" y1="30" x2="235.0" y2="290"/>
+  <text class="svg-tick" x="235.0" y="306.0" text-anchor="middle">4</text>
+  <line class="svg-grid" x1="317.5" y1="30" x2="317.5" y2="290"/>
+  <text class="svg-tick" x="317.5" y="306.0" text-anchor="middle">8</text>
+  <line class="svg-grid" x1="400.0" y1="30" x2="400.0" y2="290"/>
+  <text class="svg-tick" x="400.0" y="306.0" text-anchor="middle">12</text>
+  <line class="svg-grid" x1="70" y1="264.0" x2="400" y2="264.0"/>
+  <text class="svg-tick" x="64.0" y="268.0" text-anchor="end">−0.20</text>
+  <line class="svg-grid" x1="70" y1="199.0" x2="400" y2="199.0"/>
+  <text class="svg-tick" x="64.0" y="203.0" text-anchor="end">−0.10</text>
+  <line class="svg-grid" x1="70" y1="134.0" x2="400" y2="134.0"/>
+  <text class="svg-tick" x="64.0" y="138.0" text-anchor="end">0.00</text>
+  <line class="svg-grid" x1="70" y1="69.0" x2="400" y2="69.0"/>
+  <text class="svg-tick" x="64.0" y="73.0" text-anchor="end">0.10</text>
+  <line class="svg-axis" x1="70.0" y1="134.0" x2="400.0" y2="134.0"/>
+  <line class="svg-axis" x1="70.0" y1="30.0" x2="70.0" y2="290.0"/>
+  <text class="svg-tick" x="235.0" y="324.0" text-anchor="middle">α (°)</text>
+  <text class="svg-tick" x="22.0" y="160.0" text-anchor="middle" transform="rotate(-90 22 160.0)">C<tspan baseline-shift="sub" font-size="8">m</tspan></text>
+  <path class="svg-line" d="M 70.0 109.0 L 80.3 114.0 L 90.6 119.1 L 100.9 124.1 L 111.2 129.2 L 121.6 134.2 L 131.9 139.3 L 142.2 144.4 L 152.5 149.5 L 162.8 154.5 L 173.1 159.6 L 183.4 164.7 L 193.8 169.8 L 204.1 174.9 L 214.4 179.9 L 224.7 185.0 L 235.0 190.1 L 245.3 195.1 L 255.6 200.2 L 265.9 205.2 L 276.2 210.2 L 286.6 215.2 L 296.9 220.2 L 307.2 225.1 L 317.5 230.1 L 327.8 235.0 L 338.1 239.9 L 348.4 244.7 L 358.8 249.6 L 369.1 254.4 L 379.4 259.2 L 389.7 263.9 L 400.0 268.6" stroke="var(--blue)" stroke-width="2.2" fill="none"/>
+  <path class="svg-line" d="M 70.0 128.8 L 80.3 129.5 L 90.6 130.2 L 100.9 130.9 L 111.2 131.6 L 121.6 132.3 L 131.9 133.1 L 142.2 133.8 L 152.5 134.6 L 162.8 135.3 L 173.1 136.1 L 183.4 136.8 L 193.8 137.6 L 204.1 138.3 L 214.4 139.1 L 224.7 139.9 L 235.0 140.7 L 245.3 141.4 L 255.6 142.2 L 265.9 143.0 L 276.2 143.8 L 286.6 144.6 L 296.9 145.4 L 307.2 146.1 L 317.5 146.9 L 327.8 147.7 L 338.1 148.5 L 348.4 149.3 L 358.8 150.1 L 369.1 150.9 L 379.4 151.7 L 389.7 152.5 L 400.0 153.3" stroke="var(--muted)" stroke-width="2.2" fill="none"/>
+  <path class="svg-line" d="M 70.0 148.5 L 80.3 144.9 L 90.6 141.3 L 100.9 137.7 L 111.2 134.1 L 121.6 130.5 L 131.9 126.9 L 142.2 123.3 L 152.5 119.7 L 162.8 116.1 L 173.1 112.5 L 183.4 108.9 L 193.8 105.4 L 204.1 101.8 L 214.4 98.3 L 224.7 94.8 L 235.0 91.2 L 245.3 87.8 L 255.6 84.3 L 265.9 80.8 L 276.2 77.4 L 286.6 74.0 L 296.9 70.6 L 307.2 67.2 L 317.5 63.8 L 327.8 60.5 L 338.1 57.2 L 348.4 53.9 L 358.8 50.7 L 369.1 47.4 L 379.4 44.2 L 389.7 41.1 L 400.0 37.9" stroke="var(--accent)" stroke-width="2.2" fill="none"/>
+  <line x1="420" y1="66.0" x2="437" y2="66.0" stroke="var(--accent)" stroke-width="2.2"/>
+  <text class="svg-note-sm" x="443.0" y="70.0" text-anchor="start">x<tspan baseline-shift="sub" font-size="8">CG</tspan> = 0.120 m</text>
+  <text class="svg-note-sm" x="443.0" y="84.0" text-anchor="start">pendiente +0.0109 /°</text>
+  <line x1="420" y1="128.0" x2="437" y2="128.0" stroke="var(--muted)" stroke-width="2.2"/>
+  <text class="svg-note-sm" x="443.0" y="132.0" text-anchor="start">x<tspan baseline-shift="sub" font-size="8">CG</tspan> = 0.090 m</text>
+  <text class="svg-note-sm" x="443.0" y="146.0" text-anchor="start">pendiente −0.0023 /°</text>
+  <line x1="420" y1="190.0" x2="437" y2="190.0" stroke="var(--blue)" stroke-width="2.2"/>
+  <text class="svg-note-sm" x="443.0" y="194.0" text-anchor="start">x<tspan baseline-shift="sub" font-size="8">CG</tspan> = 0.060 m</text>
+  <text class="svg-note-sm" x="443.0" y="208.0" text-anchor="start">pendiente −0.0156 /°</text>
+  <text class="svg-note-sm" x="420.0" y="254.0" text-anchor="start">Las tres rectas se cortan</text>
+  <text class="svg-note-sm" x="420.0" y="268.0" text-anchor="start">donde C<tspan baseline-shift="sub" font-size="8">L</tspan> = 0,</text>
+  <text class="svg-note-sm" x="420.0" y="282.0" text-anchor="start">en α = −1.7°.</text>
+  </svg>
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">La pendiente cambia de signo al retrasar el centro de gravedad.</b> Coeficiente de momento respecto del centro de gravedad frente al ángulo de ataque, trazado desde las polares exportadas. La pendiente de cada recta, ajustada entre <span>\(-2^\circ\)</span> y <span>\(6^\circ\)</span>, figura en la leyenda. Negativa: estable; positiva: inestable.</figcaption>
+</figure>
+<p>Las tres rectas cuentan lo que anunciaba la teoría. Con el centro de gravedad en 0.060 m la pendiente es <span>\(-0.0156\)</span> por grado: al subir la nariz aparece un momento que la baja. En 0.090 m es casi nula, <span>\(-0.0023\)</span> por grado. En 0.120 m cambia de signo, <span>\(+0.0109\)</span> por grado: ese avión amplifica cualquier perturbación.</p>
+<h3>El punto por el que pasan las tres</h3>
+<p>Las tres rectas se cruzan en un mismo punto, en <span>\(\alpha = -1.7^\circ\)</span> y <span>\(C_m = 0.003\)</span>. No es casualidad. Trasladar el punto de referencia del momento una distancia <span>\(\Delta x\)</span> hacia atrás cambia el coeficiente en <span>\(C_L\,\Delta x/\bar c\)</span>, y ese término se anula donde se anula la sustentación. Las tres rectas giran alrededor del ángulo de sustentación nula del avión, que el ajuste de <span>\(C_L\)</span> sitúa precisamente en <span>\(-1.7^\circ\)</span>.</p>
+<div class="callout">
+  <p><strong>Y de ahí sale el problema del Paso 5.</strong> Un avión vuela equilibrado donde <span>\(C_m = 0\)</span>. Como las rectas pasan casi por <span>\(C_m = 0\)</span> justo donde la sustentación se anula, con el estabilizador a incidencia nula el avión se equilibra muy cerca de ese punto: con el centro de gravedad en 0.060 m, a <span>\(-1.52^\circ\)</span> y <span>\(C_L = 0.017\)</span>. Está en equilibrio y es estable, pero no sostiene nada. Estable y útil no son lo mismo.</p>
+</div>
+
+    </section>
+    <section id="neutral-es">
+      <p class="section-label">Paso 4</p>
+      <h2>El punto neutro y el margen estático</h2>
+
+<p>La pendiente frente a <span>\(\alpha\)</span> depende también de cuánto sustenta el avión por grado. La que da el margen estático directamente es la pendiente frente a <span>\(C_L\)</span>, que se obtiene de las mismas polares exportadas con <code>Polars ▸ Current Polar ▸ Export results</code>.</p>
+<figure class="diagram">
+  <svg viewBox="0 0 600 330" role="img" aria-label="Coeficiente de momento de cabeceo frente a el coeficiente de sustentación para los tres centros de gravedad">
+  <line class="svg-grid" x1="70.0" y1="30" x2="70.0" y2="290"/>
+  <text class="svg-tick" x="70.0" y="306.0" text-anchor="middle">−0.2</text>
+  <line class="svg-grid" x1="117.1" y1="30" x2="117.1" y2="290"/>
+  <text class="svg-tick" x="117.1" y="306.0" text-anchor="middle">0.0</text>
+  <line class="svg-grid" x1="164.3" y1="30" x2="164.3" y2="290"/>
+  <text class="svg-tick" x="164.3" y="306.0" text-anchor="middle">0.2</text>
+  <line class="svg-grid" x1="211.4" y1="30" x2="211.4" y2="290"/>
+  <text class="svg-tick" x="211.4" y="306.0" text-anchor="middle">0.4</text>
+  <line class="svg-grid" x1="258.6" y1="30" x2="258.6" y2="290"/>
+  <text class="svg-tick" x="258.6" y="306.0" text-anchor="middle">0.6</text>
+  <line class="svg-grid" x1="305.7" y1="30" x2="305.7" y2="290"/>
+  <text class="svg-tick" x="305.7" y="306.0" text-anchor="middle">0.8</text>
+  <line class="svg-grid" x1="352.9" y1="30" x2="352.9" y2="290"/>
+  <text class="svg-tick" x="352.9" y="306.0" text-anchor="middle">1.0</text>
+  <line class="svg-grid" x1="400.0" y1="30" x2="400.0" y2="290"/>
+  <text class="svg-tick" x="400.0" y="306.0" text-anchor="middle">1.2</text>
+  <line class="svg-grid" x1="70" y1="264.0" x2="400" y2="264.0"/>
+  <text class="svg-tick" x="64.0" y="268.0" text-anchor="end">−0.20</text>
+  <line class="svg-grid" x1="70" y1="199.0" x2="400" y2="199.0"/>
+  <text class="svg-tick" x="64.0" y="203.0" text-anchor="end">−0.10</text>
+  <line class="svg-grid" x1="70" y1="134.0" x2="400" y2="134.0"/>
+  <text class="svg-tick" x="64.0" y="138.0" text-anchor="end">0.00</text>
+  <line class="svg-grid" x1="70" y1="69.0" x2="400" y2="69.0"/>
+  <text class="svg-tick" x="64.0" y="73.0" text-anchor="end">0.10</text>
+  <line class="svg-axis" x1="70.0" y1="134.0" x2="400.0" y2="134.0"/>
+  <line class="svg-axis" x1="70.0" y1="30.0" x2="70.0" y2="290.0"/>
+  <text class="svg-tick" x="235.0" y="324.0" text-anchor="middle">C<tspan baseline-shift="sub" font-size="8">L</tspan></text>
+  <text class="svg-tick" x="22.0" y="160.0" text-anchor="middle" transform="rotate(-90 22 160.0)">C<tspan baseline-shift="sub" font-size="8">m</tspan></text>
+  <path class="svg-line" d="M 79.7 114.0 L 90.2 119.1 L 100.7 124.1 L 111.2 129.2 L 121.7 134.2 L 132.2 139.3 L 142.7 144.4 L 153.2 149.5 L 163.6 154.5 L 174.1 159.6 L 184.6 164.7 L 195.0 169.8 L 205.5 174.9 L 215.9 179.9 L 226.3 185.0 L 236.7 190.1 L 247.1 195.1 L 257.5 200.2 L 267.8 205.2 L 278.1 210.2 L 288.4 215.2 L 298.7 220.2 L 308.9 225.1 L 319.1 230.1 L 329.2 235.0 L 339.4 239.9 L 349.5 244.7 L 359.5 249.6 L 369.5 254.4 L 379.5 259.2 L 389.4 263.9 L 399.3 268.6" stroke="var(--blue)" stroke-width="2.2" fill="none"/>
+  <path class="svg-line" d="M 79.7 129.5 L 90.2 130.2 L 100.7 130.9 L 111.2 131.6 L 121.7 132.3 L 132.2 133.1 L 142.7 133.8 L 153.2 134.6 L 163.6 135.3 L 174.1 136.1 L 184.6 136.8 L 195.0 137.6 L 205.5 138.3 L 215.9 139.1 L 226.3 139.9 L 236.7 140.7 L 247.1 141.4 L 257.5 142.2 L 267.8 143.0 L 278.1 143.8 L 288.4 144.6 L 298.7 145.4 L 308.9 146.1 L 319.1 146.9 L 329.2 147.7 L 339.4 148.5 L 349.5 149.3 L 359.5 150.1 L 369.5 150.9 L 379.5 151.7 L 389.4 152.5 L 399.3 153.3" stroke="var(--muted)" stroke-width="2.2" fill="none"/>
+  <path class="svg-line" d="M 79.7 144.9 L 90.2 141.3 L 100.7 137.7 L 111.2 134.1 L 121.7 130.5 L 132.2 126.9 L 142.7 123.3 L 153.2 119.7 L 163.6 116.1 L 174.1 112.5 L 184.6 108.9 L 195.0 105.4 L 205.5 101.8 L 215.9 98.3 L 226.3 94.8 L 236.7 91.2 L 247.1 87.8 L 257.5 84.3 L 267.8 80.8 L 278.1 77.4 L 288.4 74.0 L 298.7 70.6 L 308.9 67.2 L 319.1 63.8 L 329.2 60.5 L 339.4 57.2 L 349.5 53.9 L 359.5 50.7 L 369.5 47.4 L 379.5 44.2 L 389.4 41.1 L 399.3 37.9" stroke="var(--accent)" stroke-width="2.2" fill="none"/>
+  <line x1="420" y1="66.0" x2="437" y2="66.0" stroke="var(--accent)" stroke-width="2.2"/>
+  <text class="svg-note-sm" x="443.0" y="70.0" text-anchor="start">x<tspan baseline-shift="sub" font-size="8">CG</tspan> = 0.120 m</text>
+  <text class="svg-note-sm" x="443.0" y="84.0" text-anchor="start">K<tspan baseline-shift="sub" font-size="8">n</tspan> = −12.3 %</text>
+  <line x1="420" y1="128.0" x2="437" y2="128.0" stroke="var(--muted)" stroke-width="2.2"/>
+  <text class="svg-note-sm" x="443.0" y="132.0" text-anchor="start">x<tspan baseline-shift="sub" font-size="8">CG</tspan> = 0.090 m</text>
+  <text class="svg-note-sm" x="443.0" y="146.0" text-anchor="start">K<tspan baseline-shift="sub" font-size="8">n</tspan> = +2.6 %</text>
+  <line x1="420" y1="190.0" x2="437" y2="190.0" stroke="var(--blue)" stroke-width="2.2"/>
+  <text class="svg-note-sm" x="443.0" y="194.0" text-anchor="start">x<tspan baseline-shift="sub" font-size="8">CG</tspan> = 0.060 m</text>
+  <text class="svg-note-sm" x="443.0" y="208.0" text-anchor="start">K<tspan baseline-shift="sub" font-size="8">n</tspan> = +17.6 %</text>
+  <text class="svg-note-sm" x="420.0" y="254.0" text-anchor="start">Pendiente = −K<tspan baseline-shift="sub" font-size="8">n</tspan>.</text>
+  <text class="svg-note-sm" x="420.0" y="268.0" text-anchor="start">Una recta horizontal sería</text>
+  <text class="svg-note-sm" x="420.0" y="282.0" text-anchor="start">el punto neutro.</text>
+  </svg>
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">Frente a la sustentación, la pendiente es el margen estático.</b> Las mismas polares, ahora frente a <span>\(C_L\)</span>. La pendiente de cada recta es <span>\(-K_n\)</span>, y el margen estático que resulta figura en la leyenda. Un centro de gravedad en el punto neutro daría una recta horizontal.</figcaption>
+</figure>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th><span>\(x_{CG}\)</span> (m)</th><th><span>\(\mathrm{d}C_m/\mathrm{d}\alpha\)</span> (por grado)</th><th><span>\(\mathrm{d}C_m/\mathrm{d}C_L\)</span></th><th>Margen estático</th><th><span>\(x_N\)</span> deducido (m)</th><th>Veredicto</th></tr></thead>
+    <tbody>
+      <tr><td>0.060</td><td>−0.0156</td><td>−0.176</td><td>+17.6 %</td><td>0.0952</td><td>Estable</td></tr>
+      <tr><td>0.090</td><td>−0.0023</td><td>−0.026</td><td>+2.6 %</td><td>0.0953</td><td>Apenas estable</td></tr>
+      <tr><td>0.120</td><td>+0.0109</td><td>+0.123</td><td>−12.3 %</td><td>0.0953</td><td>Inestable</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">Tres centros de gravedad, un solo punto neutro.</b> Pendientes ajustadas por mínimos cuadrados de <span>\(-2^\circ\)</span> a <span>\(6^\circ\)</span> sobre las polares exportadas. El punto neutro se despeja de <span>\(\mathrm{d}C_m/\mathrm{d}C_L = (x_{CG}-x_N)/\bar c\)</span>. Que salga el mismo en las tres filas es la comprobación de que el punto neutro es una propiedad del avión y no del centro de gravedad.</caption>
+  </table>
+</div>
+<p>Despejando <span>\(x_N\)</span> de <span>\(\mathrm{d}C_m/\mathrm{d}C_L = (x_{CG} - x_N)/\bar c\)</span> en cada fila sale 0.0952 o 0.0953 m. <strong>Tres centros de gravedad distintos dan el mismo punto neutro</strong>, que es lo que debe ocurrir si la relación es correcta.</p>
+<h3>Lo que reporta el programa</h3>
+<p>XFLR5 calcula el punto neutro por su cuenta. Se lee en el recuadro de la vista tridimensional, bajo el rótulo <code>XNP = d(XCp.Cl)/dCl</code>, que declara también cómo lo obtiene: como la posición en la que actúa el incremento de sustentación.</p>
+<figure class="diagram">
+  <img src="imagenes/t33-05_vista3d.png" alt="Vista tridimensional del avión a cuatro grados con el recuadro de datos" loading="lazy">
+  <figcaption><b class="fig-num">Figura 8.</b> <b class="fig-title">El punto neutro en el recuadro de la vista 3D.</b> Caso con el centro de gravedad en 0.060 m, a <span>\(\alpha = 4^\circ\)</span>. En la columna derecha del recuadro, <code>X_CG</code> confirma respecto de qué punto se calculó el momento; en la izquierda, <code>XNP = d(XCp.Cl)/dCl</code> da el punto neutro y <code>Tail Volume</code> el volumen de cola. <code>Plane Mass = 0.000</code> se refiere a las masas del avión, que no se definieron; la del análisis aparece abajo a la izquierda, <code>Mass = 1.000 kg</code>.</figcaption>
+</figure>
+<p>A <span>\(4^\circ\)</span> el recuadro dice <span>\(XNP = 0.096\)</span> m. Recalculando esa misma derivada con la columna <code>XCP</code> de las polares exportadas sale entre 0.0950 y 0.0960 m de <span>\(-2^\circ\)</span> a <span>\(6^\circ\)</span>, y sube hasta 0.0976 m a <span>\(10^\circ\)</span>, donde la curva deja de ser recta. Las dos vías coinciden con la tabla 3 dentro de una milésima de metro.</p>
+<h3>Lo que predice la teoría</h3>
+<p>El punto neutro es el centro aerodinámico del avión completo: la media de los centros aerodinámicos del ala y del estabilizador, cada uno pesado por cuánta sustentación añade por radián de ángulo de ataque.</p>
+<div class="equation-card">\[ x_N \;=\; \frac{a_w\,x_{w} + a_t\,\dfrac{S_h}{S}\left(1-\dfrac{\mathrm{d}\varepsilon}{\mathrm{d}\alpha}\right)x_{t}}{a_w + a_t\,\dfrac{S_h}{S}\left(1-\dfrac{\mathrm{d}\varepsilon}{\mathrm{d}\alpha}\right)} \]</div>
+<p>El factor <span>\(1-\mathrm{d}\varepsilon/\mathrm{d}\alpha\)</span> es el descenso inducido del Tutorial 2.1 visto desde la cola: el ala inclina hacia abajo la corriente que llega al estabilizador, y cuando el avión sube la nariz el estabilizador ve crecer su ángulo menos que el ala. Con los valores de este avión:</p>
+<ul>
+  <li><span>\(a_w = 4.63\)</span> rad⁻¹, la pendiente medida en el Tutorial 2.1, y <span>\(x_w = 0.050\)</span> m.</li>
+  <li><span>\(a_t = 4.13\)</span> rad⁻¹: la línea sustentadora da 4.49 para alargamiento 5, corregida por el mismo cociente entre VLM2 y línea sustentadora que se midió en el 2.1. <span>\(x_t = 0.625\)</span> m.</li>
+  <li><span>\(\mathrm{d}\varepsilon/\mathrm{d}\alpha = 2a_w/(\pi AR) = 0.368\)</span>, la estimación para carga elíptica.</li>
+</ul>
+<p>resulta <span>\(x_N = 0.0966\)</span> m, un 1.4 % por encima de lo que da el programa. El denominador de la fórmula es además la pendiente de sustentación del avión completo, 5.04 rad⁻¹; el ajuste de las polares da 5.07.</p>
+<div class="result-box">
+  <p><strong>Margen estático del avión de referencia.</strong> Con <span>\(x_{CG} = 0.060\)</span> m y <span>\(x_N = 0.095\)</span> m, <span>\(K_n = 17.6\)</span> %. Mover el centro de gravedad 0.035 m hacia atrás, menos de la quinta parte de la cuerda, lo dejaría indiferente.</p>
+</div>
+
+    </section>
+    <section id="trim-es">
+      <p class="section-label">Paso 5</p>
+      <h2>Trimar con el elevador</h2>
+
+<p>El avión con el centro de gravedad en 0.060 m es estable, pero se equilibra con sustentación casi nula. Para que vuele con una sustentación útil hay que desplazar su recta <span>\(C_m\)</span>–<span>\(\alpha\)</span> hacia arriba, de modo que corte el cero a un ángulo mayor. Eso hace el elevador: al subir su borde de salida, la cola sustenta menos, el momento de cabeceo crece y el punto de equilibrio se desplaza hacia la derecha. Aquí se representa girando el estabilizador completo, que es lo que el programa llama <code>Elevator Tilt</code>.</p>
+<p>XFLR5 no pide encontrar el equilibrio a mano. Su análisis de estabilidad, el Type 7, lo busca para cada valor de un parámetro de control, y el control se puede ligar a la incidencia del estabilizador.</p>
+<div class="callout">
+  <ol>
+    <li><code>Analysis ▸ Define a Stability Analysis</code>. Pestaña <code>Analysis</code>: desmarcar <code>Viscous Analysis</code>, que viene marcada.</li>
+    <li>Pestaña <code>Mass and inertia</code>: desmarcar <code>Use plane inertia</code> y escribir en la columna <code>Mean value</code> la masa, 1.000 kg, y <code>CoG_x</code> = 0.060 m. La tabla incluye también los momentos de inercia; se les da un orden de magnitud, porque no intervienen en el trimado, sólo en los modos dinámicos.</li>
+    <li>Pestaña <code>Control parameters</code>: <code>Elevator Tilt</code> con ganancia <span>\(-5\)</span> grados por unidad de control. La nota del diálogo recuerda el convenio: positivo es borde de salida hacia abajo.</li>
+    <li><code>Save</code>. Aparece la ventana flotante <code>Stability</code>, que se puede cerrar, y el panel de la derecha cambia de α a <code>Control parameter</code>, de 0 a 1 cada 0.1.</li>
+    <li><code>Analyze</code>. En un par de segundos aparecen once puntos, uno por valor del control, es decir, incidencias de 0° a <span>\(-5^\circ\)</span> cada medio grado.</li>
+  </ol>
+</div>
+<figure class="diagram">
+  <img src="imagenes/t33-06_t7_masa.png" alt="Pestaña de masa e inercia del análisis de estabilidad" loading="lazy">
+  <figcaption><b class="fig-num">Figura 9.</b> <b class="fig-title">Masa, centro de gravedad e inercias del análisis de estabilidad.</b> Con <code>Use plane inertia</code> desmarcada se escriben en la columna <code>Mean value</code>. Las inercias no intervienen en el trimado; se les dio un orden de magnitud porque el análisis también calcula los modos dinámicos.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t33-07_t7_control.png" alt="Pestaña de parámetros de control con la ganancia del estabilizador" loading="lazy">
+  <figcaption><b class="fig-num">Figura 10.</b> <b class="fig-title">El control ligado a la incidencia del estabilizador.</b> <code>Elevator Tilt</code> con ganancia <span>\(-5\)</span> grados por unidad de control. Con el control de 0 a 1, el estabilizador gira de 0° a <span>\(-5^\circ\)</span>, borde de salida hacia arriba, según el convenio que el propio diálogo recuerda abajo.</figcaption>
+</figure>
+<p>Cada punto de esa polar es un vuelo equilibrado. El programa encontró el ángulo de ataque al que <span>\(C_m = 0\)</span> para esa incidencia del estabilizador, y después la velocidad a la que la sustentación de ese ángulo sostiene el peso.</p>
+<figure class="diagram">
+  <svg viewBox="0 0 600 320" role="img" aria-label="Coeficiente de sustentación y velocidad de trimado frente a la incidencia del estabilizador">
+  <text class="svg-title" x="170.0" y="22.0" text-anchor="middle">C<tspan baseline-shift="sub" font-size="8">L</tspan> de trimado</text>
+  <line class="svg-grid" x1="60.0" y1="40" x2="60.0" y2="260"/>
+  <text class="svg-tick" x="60.0" y="276.0" text-anchor="middle">0°</text>
+  <line class="svg-grid" x1="104.0" y1="40" x2="104.0" y2="260"/>
+  <text class="svg-tick" x="104.0" y="276.0" text-anchor="middle">-1°</text>
+  <line class="svg-grid" x1="148.0" y1="40" x2="148.0" y2="260"/>
+  <text class="svg-tick" x="148.0" y="276.0" text-anchor="middle">-2°</text>
+  <line class="svg-grid" x1="192.0" y1="40" x2="192.0" y2="260"/>
+  <text class="svg-tick" x="192.0" y="276.0" text-anchor="middle">-3°</text>
+  <line class="svg-grid" x1="236.0" y1="40" x2="236.0" y2="260"/>
+  <text class="svg-tick" x="236.0" y="276.0" text-anchor="middle">-4°</text>
+  <line class="svg-grid" x1="280.0" y1="40" x2="280.0" y2="260"/>
+  <text class="svg-tick" x="280.0" y="276.0" text-anchor="middle">-5°</text>
+  <line class="svg-grid" x1="60" y1="260.0" x2="280" y2="260.0"/>
+  <text class="svg-tick" x="54.0" y="264.0" text-anchor="end">0.0</text>
+  <line class="svg-grid" x1="60" y1="211.1" x2="280" y2="211.1"/>
+  <text class="svg-tick" x="54.0" y="215.1" text-anchor="end">0.2</text>
+  <line class="svg-grid" x1="60" y1="162.2" x2="280" y2="162.2"/>
+  <text class="svg-tick" x="54.0" y="166.2" text-anchor="end">0.4</text>
+  <line class="svg-grid" x1="60" y1="113.3" x2="280" y2="113.3"/>
+  <text class="svg-tick" x="54.0" y="117.3" text-anchor="end">0.6</text>
+  <line class="svg-grid" x1="60" y1="64.4" x2="280" y2="64.4"/>
+  <text class="svg-tick" x="54.0" y="68.4" text-anchor="end">0.8</text>
+  <line class="svg-axis" x1="60.0" y1="260.0" x2="280.0" y2="260.0"/>
+  <line class="svg-axis" x1="60.0" y1="40.0" x2="60.0" y2="260.0"/>
+  <path class="svg-line" d="M 60.0 255.8 L 82.0 235.8 L 104.0 215.9 L 126.0 196.1 L 148.0 176.4 L 170.0 156.8 L 192.0 137.3 L 214.0 118.0 L 236.0 98.9 L 258.0 80.0 L 280.0 61.3" stroke="var(--blue)" stroke-width="2.2" fill="none"/>
+  <circle cx="60.0" cy="255.8" r="3" fill="var(--blue)"/>
+  <circle cx="82.0" cy="235.8" r="3" fill="var(--blue)"/>
+  <circle cx="104.0" cy="215.9" r="3" fill="var(--blue)"/>
+  <circle cx="126.0" cy="196.1" r="3" fill="var(--blue)"/>
+  <circle cx="148.0" cy="176.4" r="3" fill="var(--blue)"/>
+  <circle cx="170.0" cy="156.8" r="3" fill="var(--blue)"/>
+  <circle cx="192.0" cy="137.3" r="3" fill="var(--blue)"/>
+  <circle cx="214.0" cy="118.0" r="3" fill="var(--blue)"/>
+  <circle cx="236.0" cy="98.9" r="3" fill="var(--blue)"/>
+  <circle cx="258.0" cy="80.0" r="3" fill="var(--blue)"/>
+  <circle cx="280.0" cy="61.3" r="3" fill="var(--blue)"/>
+  <text class="svg-note-sm" x="56.0" y="247.8" text-anchor="end">α -1.5°</text>
+  <text class="svg-note-sm" x="100.0" y="207.9" text-anchor="end">α 0.4°</text>
+  <text class="svg-note-sm" x="144.0" y="168.4" text-anchor="end">α 2.4°</text>
+  <text class="svg-note-sm" x="188.0" y="129.3" text-anchor="end">α 4.3°</text>
+  <text class="svg-note-sm" x="232.0" y="90.9" text-anchor="end">α 6.3°</text>
+  <text class="svg-note-sm" x="276.0" y="53.3" text-anchor="end">α 8.2°</text>
+  <text class="svg-tick" x="170.0" y="294.0" text-anchor="middle">incidencia del estabilizador</text>
+  <text class="svg-title" x="460.0" y="22.0" text-anchor="middle">Velocidad de trimado (m/s)</text>
+  <line class="svg-grid" x1="350.0" y1="40" x2="350.0" y2="260"/>
+  <text class="svg-tick" x="350.0" y="276.0" text-anchor="middle">0°</text>
+  <line class="svg-grid" x1="394.0" y1="40" x2="394.0" y2="260"/>
+  <text class="svg-tick" x="394.0" y="276.0" text-anchor="middle">-1°</text>
+  <line class="svg-grid" x1="438.0" y1="40" x2="438.0" y2="260"/>
+  <text class="svg-tick" x="438.0" y="276.0" text-anchor="middle">-2°</text>
+  <line class="svg-grid" x1="482.0" y1="40" x2="482.0" y2="260"/>
+  <text class="svg-tick" x="482.0" y="276.0" text-anchor="middle">-3°</text>
+  <line class="svg-grid" x1="526.0" y1="40" x2="526.0" y2="260"/>
+  <text class="svg-tick" x="526.0" y="276.0" text-anchor="middle">-4°</text>
+  <line class="svg-grid" x1="570.0" y1="40" x2="570.0" y2="260"/>
+  <text class="svg-tick" x="570.0" y="276.0" text-anchor="middle">-5°</text>
+  <line class="svg-grid" x1="350" y1="260.0" x2="570" y2="260.0"/>
+  <text class="svg-tick" x="344.0" y="264.0" text-anchor="end">0</text>
+  <line class="svg-grid" x1="350" y1="216.0" x2="570" y2="216.0"/>
+  <text class="svg-tick" x="344.0" y="220.0" text-anchor="end">5</text>
+  <line class="svg-grid" x1="350" y1="172.0" x2="570" y2="172.0"/>
+  <text class="svg-tick" x="344.0" y="176.0" text-anchor="end">10</text>
+  <line class="svg-grid" x1="350" y1="128.0" x2="570" y2="128.0"/>
+  <text class="svg-tick" x="344.0" y="132.0" text-anchor="end">15</text>
+  <line class="svg-grid" x1="350" y1="84.0" x2="570" y2="84.0"/>
+  <text class="svg-tick" x="344.0" y="88.0" text-anchor="end">20</text>
+  <line class="svg-grid" x1="350" y1="40.0" x2="570" y2="40.0"/>
+  <text class="svg-tick" x="344.0" y="44.0" text-anchor="end">25</text>
+  <line class="svg-axis" x1="350.0" y1="260.0" x2="570.0" y2="260.0"/>
+  <line class="svg-axis" x1="350.0" y1="40.0" x2="350.0" y2="260.0"/>
+  <path class="svg-line" d="M 367.6 41.2 L 372.0 60.0 L 376.4 74.6 L 380.8 86.4 L 385.2 96.3 L 389.6 104.6 L 394.0 111.8 L 398.4 118.0 L 402.8 123.6 L 407.2 128.5 L 411.6 132.9 L 416.0 136.9 L 420.4 140.6 L 424.8 143.9 L 429.2 147.0 L 433.6 149.9 L 438.0 152.5 L 442.4 155.0 L 446.8 157.3 L 451.2 159.4 L 455.6 161.5 L 460.0 163.4 L 464.4 165.2 L 468.8 166.9 L 473.2 168.5 L 477.6 170.0 L 482.0 171.5 L 486.4 172.9 L 490.8 174.2 L 495.2 175.5 L 499.6 176.7 L 504.0 177.8 L 508.4 179.0 L 512.8 180.0 L 517.2 181.1 L 521.6 182.0 L 526.0 183.0 L 530.4 183.9 L 534.8 184.8 L 539.2 185.7 L 543.6 186.5 L 548.0 187.3 L 552.4 188.1 L 556.8 188.8 L 561.2 189.6 L 565.6 190.3 L 570.0 190.9" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="5 4" fill="none"/>
+  <circle cx="372.0" cy="62.0" r="3.2" fill="var(--accent)"/>
+  <circle cx="394.0" cy="113.4" r="3.2" fill="var(--accent)"/>
+  <circle cx="416.0" cy="138.2" r="3.2" fill="var(--accent)"/>
+  <circle cx="438.0" cy="153.5" r="3.2" fill="var(--accent)"/>
+  <circle cx="460.0" cy="164.2" r="3.2" fill="var(--accent)"/>
+  <circle cx="482.0" cy="172.1" r="3.2" fill="var(--accent)"/>
+  <circle cx="504.0" cy="178.2" r="3.2" fill="var(--accent)"/>
+  <circle cx="526.0" cy="183.2" r="3.2" fill="var(--accent)"/>
+  <circle cx="548.0" cy="187.3" r="3.2" fill="var(--accent)"/>
+  <circle cx="570.0" cy="190.8" r="3.2" fill="var(--accent)"/>
+  <path class="svg-line" d="M 364.0 75.2 L 352.0 43.5" stroke="var(--accent)" stroke-width="1.4" marker-end="url(#pt33b)"/>
+  <defs><marker id="pt33b" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M 0 0 L 7 3.5 L 0 7 z" fill="var(--accent)"/></marker></defs>
+  <text class="svg-note-sm" x="368.0" y="84.0" text-anchor="start">a 0°: 53.8 m/s, fuera de escala</text>
+  <text class="svg-note-sm" x="570.0" y="224.8" text-anchor="end">puntos: XFLR5</text>
+  <text class="svg-note-sm" x="570.0" y="242.4" text-anchor="end">trazos: √(2W/ρSC<tspan baseline-shift="sub" font-size="8">L</tspan>)</text>
+  <text class="svg-tick" x="460.0" y="294.0" text-anchor="middle">incidencia del estabilizador</text>
+  </svg>
+  <figcaption><b class="fig-num">Figura 11.</b> <b class="fig-title">El elevador fija la sustentación; el peso, la velocidad.</b> Resultado del análisis de estabilidad: un punto por valor del control. A la izquierda, el <span>\(C_L\)</span> de trimado crece de forma lineal con la incidencia negativa, y el ángulo de ataque con él. A la derecha, la velocidad de trimado que calcula el programa coincide con la que da el peso, trazada a partir del mismo <span>\(C_L\)</span>.</figcaption>
+</figure>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Incidencia del estabilizador</th><th><span>\(\alpha\)</span> de trimado</th><th><span>\(C_L\)</span></th><th>Velocidad (XFLR5)</th><th><span>\(\sqrt{2W/\rho S C_L}\)</span></th></tr></thead>
+    <tbody>
+      <tr><td>0°</td><td>−1.52°</td><td>0.017</td><td>53.81 m/s</td><td>53.79 m/s</td></tr>
+      <tr><td>−1°</td><td>0.44°</td><td>0.180</td><td>16.66 m/s</td><td>16.66 m/s</td></tr>
+      <tr><td>−2°</td><td>2.40°</td><td>0.342</td><td>12.10 m/s</td><td>12.10 m/s</td></tr>
+      <tr><td>−3°</td><td>4.34°</td><td>0.502</td><td>9.99 m/s</td><td>9.99 m/s</td></tr>
+      <tr><td>−4°</td><td>6.27°</td><td>0.659</td><td>8.73 m/s</td><td>8.72 m/s</td></tr>
+      <tr><td>−5°</td><td>8.17°</td><td>0.813</td><td>7.87 m/s</td><td>7.85 m/s</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">El elevador fija la sustentación, y el peso fija la velocidad.</b> Análisis de estabilidad con 1.000 kg y <span>\(x_{CG} = 0.060\)</span> m. Cada fila es un vuelo equilibrado: el programa busca el ángulo con <span>\(C_m = 0\)</span> y después la velocidad a la que esa sustentación iguala al peso. La última columna es la velocidad recalculada con la fórmula del texto.</caption>
+  </table>
+</div>
+<h3>El elevador elige la sustentación; el peso elige la velocidad</h3>
+<p>La tabla se lee de izquierda a derecha como una cadena de causas. Cada grado de incidencia negativa añade casi dos grados al ángulo de trimado —1.94, en promedio— y 0.16 al <span>\(C_L\)</span>. Y como en vuelo equilibrado la sustentación iguala al peso, fijar el <span>\(C_L\)</span> fija la velocidad:</p>
+<div class="equation-card">\[ V \;=\; \sqrt{\frac{2\,W}{\rho\,S\,C_L}} \]</div>
+<p>Con 1.000 kg, <span>\(\rho = 1.225\)</span> kg/m³ y <span>\(S = 0.320\)</span> m², esa fórmula reproduce la velocidad que calcula el programa con una diferencia máxima del 0.3 % en toda la tabla. Es el resultado más útil de la mecánica de vuelo elemental: <strong>en vuelo equilibrado, el piloto no controla la velocidad con el motor sino con el elevador</strong>.</p>
+<figure class="diagram">
+  <img src="imagenes/t33-08_trimado3d.png" alt="Vista tridimensional de un punto trimado con el recuadro de datos" loading="lazy">
+  <figcaption><b class="fig-num">Figura 12.</b> <b class="fig-title">Un punto trimado: la resultante pasa por el centro de gravedad.</b> Control 0.6, incidencia del estabilizador <span>\(-3^\circ\)</span>. El recuadro muestra la velocidad y el ángulo de trimado, <code>Cm = 0.000</code>, y <code>X_CP</code> igual a <code>X_CG</code>; <code>X_NP</code> no se ha movido.</figcaption>
+</figure>
+<p>El recuadro de la vista 3D confirma qué significa «equilibrado» para el programa: en cada punto trimado <code>Cm = 0.000</code> y <code>X_CP</code> coincide con <code>X_CG</code>. La resultante aerodinámica pasa por el centro de gravedad, y no queda momento que corregir. El punto neutro, en cambio, sigue donde estaba: <code>X_NP = 0.096 m</code>. En los puntos de un análisis de estabilidad la línea <code>XNP = d(XCp.Cl)/dCl</code> del recuadro izquierdo aparece en 0.000; el valor está en la columna derecha, como <code>X_NP</code>.</p>
+<div class="callout warning">
+  <p><strong>El avión inestable también tiene un punto de equilibrio.</strong> Con el centro de gravedad en 0.120 m, la recta de la figura 6 cruza el cero a <span>\(-1.99^\circ\)</span>, y un cálculo de trimado lo encontraría. Pero es un equilibrio inestable, como una bola en lo alto de una colina: existe y no sirve. Antes de aceptar un punto trimado hay que comprobar el signo del margen estático.</p>
+</div>
+
+    </section>
+    <section id="example-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>Cuánta cola hace falta</h2>
+
+<p class="lead">Esta práctica no se entrega. Sirve para comprobar que la relación entre el tamaño de la cola y el punto neutro se entendió, y para medir cuánto se equivoca la estimación teórica.</p>
+<div class="example">
+  <p><strong>Enunciado.</strong> Partiendo del avión de esta guía, cambiar la cuerda del estabilizador a 0.080 m y a 0.120 m, sin mover su borde de ataque. Para cada variante, obtener el punto neutro, el margen estático con el centro de gravedad en 0.060 m y la incidencia del estabilizador que trima el avión a <span>\(C_L = 0.5\)</span>.</p>
+  <p><strong>Condiciones.</strong> Las del tutorial: VLM2 no viscoso, 1.000 kg, α de <span>\(-4^\circ\)</span> a <span>\(12^\circ\)</span>, control de 0 a 1 con ganancia <span>\(-5\)</span> grados por unidad.</p>
+</div>
+<h3>El procedimiento, en corto</h3>
+<ol>
+  <li><code>Plane ▸ Current Plane ▸ Edit elevator</code> y cambiar la cuerda en las dos secciones. Anotar <code>TailVolume</code> en el editor.</li>
+  <li>Definir dos análisis Type 1 con centros de gravedad distintos, exportar sus polares y despejar <span>\(x_N\)</span> de la pendiente <span>\(C_m\)</span>–<span>\(C_L\)</span>. Contrastar con <code>XNP</code> en la vista 3D.</li>
+  <li>Calcular la predicción con la fórmula del punto neutro, teniendo en cuenta que al cambiar la cuerda cambian <span>\(S_h\)</span> y la posición del centro aerodinámico del estabilizador.</li>
+  <li>Definir el análisis de estabilidad y leer, por interpolación en su polar, la incidencia a la que <span>\(C_L = 0.5\)</span>.</li>
+</ol>
+<h3>Registro de resultados</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Cuerda del estabilizador</th><th><span>\(V_H\)</span></th><th><span>\(x_N\)</span> XFLR5</th><th><span>\(x_N\)</span> teoría</th><th>Margen con <span>\(x_{CG} = 0.060\)</span> m</th><th>Incidencia para <span>\(C_L = 0.5\)</span></th></tr></thead>
+    <tbody>
+      <tr><td>0.080 m</td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>0.100 m</td><td>0.45</td><td>0.095 m</td><td>0.097 m</td><td>+17.6 %</td><td>≈ −3°</td></tr>
+      <tr><td>0.120 m</td><td></td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 5.</b> <b class="fig-title">Plantilla de registro de la práctica.</b> La fila de 0.100 m es la de esta guía. Las otras dos se llenan con la misma receta; la columna de la teoría se calcula con la estimación de la sección de puntos clave.</caption>
+  </table>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>¿El punto neutro avanza o retrocede al agrandar la cola? ¿Es proporcional al volumen de cola, o se satura?</li>
+  <li>¿La estimación teórica se equivoca siempre en el mismo sentido? ¿Qué hipótesis de la fórmula es la más dudosa para un estabilizador de alargamiento bajo?</li>
+  <li>Con la cola mayor, ¿hace falta más o menos incidencia para trimar a <span>\(C_L = 0.5\)</span>? Razonarlo antes de correr el análisis.</li>
+  <li>Una cola mayor da más margen, pero también más arrastre y más peso atrás. ¿Qué pasaría con el centro de gravedad si esa masa extra se incluyera?</li>
+</ol>
+
+    </section>
+    <section id="summary-es">
+      <p class="section-label">Puntos clave</p>
+      <h2>Cuatro afirmaciones y dos relaciones</h2>
+
+<p>Lo que hay que retener de esta guía cabe en cuatro afirmaciones.</p>
+<div class="result-box">
+  <p><strong>Una.</strong> Un avión es estáticamente estable si la pendiente <span>\(C_m\)</span>–<span>\(\alpha\)</span> respecto de su centro de gravedad es negativa. <strong>Dos.</strong> El punto neutro es una propiedad del avión, no de la carga: tres centros de gravedad distintos dieron el mismo, 0.095 m. <strong>Tres.</strong> Estable no quiere decir trimado: con el estabilizador a incidencia nula, este avión se equilibraba con sustentación casi nula. <strong>Cuatro.</strong> En vuelo equilibrado, la incidencia del estabilizador fija el <span>\(C_L\)</span>, y el peso fija con él la velocidad.</p>
+</div>
+<p>Y dos relaciones, las dos comprobadas con la corrida de esta guía:</p>
+<div class="equation-card">\[ K_n \;=\; \frac{x_N - x_{CG}}{\bar c} \;=\; -\frac{\mathrm{d}C_m}{\mathrm{d}C_L}, \qquad V \;=\; \sqrt{\frac{2\,W}{\rho\,S\,C_L}} \]</div>
+<p>La primera dio el mismo punto neutro en los tres casos, a una milésima de metro del que reporta el programa; la segunda reprodujo la velocidad de trimado con un error máximo del 0.3 %.</p>
+
+    </section>
+    <section id="mistakes-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Errores de interpretación que invalidan un estudio de estabilidad</h2>
+
+<p>Como en el resto de la serie, éstos no son errores de manejo sino de interpretación.</p>
+<ul class="check-list">
+  <li><strong>Leer la pendiente sin mirar respecto de qué punto se calculó.</strong> Resulta verosímil porque la curva sale igual de limpia. Con <code>Use plane inertia</code> marcado y sin masas, el momento se toma en el borde de ataque del ala, y el resultado describe otro avión. El recuadro de la vista 3D dice <code>X_CG</code>: hay que comprobarlo antes de interpretar nada.</li>
+  <li><strong>Confundir estable con trimado.</strong> Resulta verosímil porque las dos cosas se leen en la misma gráfica. La estabilidad es el signo de la pendiente; el trimado, el punto donde la recta corta el cero. Un avión puede tener lo primero y equilibrarse donde no sustenta.</li>
+  <li><strong>Pensar que el punto neutro se mueve con el centro de gravedad.</strong> Resulta verosímil porque el margen estático sí cambia. El margen es la distancia entre los dos; el que se mueve es el centro de gravedad.</li>
+  <li><strong>Aceptar un punto de equilibrio sin comprobar el margen.</strong> Resulta verosímil porque el programa lo encuentra igual. Un avión con margen negativo también tiene un ángulo con <span>\(C_m = 0\)</span>, y es un equilibrio inestable.</li>
+  <li><strong>Tomar la velocidad del análisis Type 1 por velocidad de vuelo.</strong> Resulta verosímil porque aparece en el nombre del análisis. En un cálculo no viscoso los coeficientes no dependen de ella; la velocidad a la que vuela el avión la da el trimado con su peso.</li>
+  <li><strong>Leer los modos de la ventana <code>Stability</code> como parte de este estudio.</strong> Resulta verosímil porque aparece al guardar el análisis de estabilidad. Esas frecuencias y amortiguamientos son dinámica, y dependen de inercias a las que aquí sólo se dio un orden de magnitud.</li>
+  <li><strong>Extrapolar el margen estático a ángulos altos.</strong> Resulta verosímil porque VLM2 da rectas en todo el barrido. El método no conoce la pérdida ni la estela del ala sobre la cola, y ya a <span>\(10^\circ\)</span> el punto neutro calculado empieza a desplazarse.</li>
+</ul>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ol>
+  <li>Etkin, B. y Reid, L. D. <em>Dynamics of Flight: Stability and Control</em>, 3.ª ed. Nueva York: Wiley, 1996, capítulo 2: estabilidad estática longitudinal, punto neutro y margen estático.</li>
+  <li>Nelson, R. C. <em>Flight Stability and Automatic Control</em>, 2.ª ed. Boston: McGraw-Hill, 1998, capítulo 2: contribuciones del ala y de la cola al momento de cabeceo, y volumen de cola.</li>
+  <li>Anderson, J. D., Jr. <em>Introduction to Flight</em>, 8.ª ed. Nueva York: McGraw-Hill Education, 2016, capítulo 7: principios de estabilidad y control.</li>
+  <li>Deperrois, A. <em>Guidelines for XFLR5</em>. Documentación oficial del programa, donde se describen la definición de masas e inercias y el análisis de estabilidad.</li>
+</ol>
+<p class="source-note">Capturas de pantalla tomadas de XFLR5 v6.62 sobre macOS. Los valores numéricos proceden de las cuatro polares de la corrida documentada, exportadas con <code>Export results</code> y ajustadas por mínimos cuadrados; la estimación teórica del punto neutro se recalculó con los datos del Tutorial 2.1. La estabilidad lateral y direccional es el tema del Tutorial 3.4.</p>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="ala-finita.html?v=13"><span>Tutorial anterior</span>← Del perfil al ala finita</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>XFLR5 · Serie de tutoriales</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Die Bedingung der statischen Längsstabilität formulieren und am Vorzeichen der \(C_m\)–\(\alpha\)-Steigung ablesen; das Flugzeug um ein Höhenleitwerk ergänzen und Masse und Schwerpunkt je Analyse angeben; den Neutralpunkt auf drei Wegen bestimmen; das Stabilitätsmaß berechnen und das Flugzeug über den Einstellwinkel des Leitwerks trimmen. Im Lehrplan folgt dieses Tutorial auf 3.1 und 3.2, die noch nicht erschienen sind; es enthält daher das Nötigste aus beiden.</p>
+    </section>
+    <section id="physics-de">
+      <p class="section-label">Die Physik</p>
+      <h2>Was ein Flugzeug zu seinem Winkel zurückführt</h2>
+<p>Ein Flugzeug ist statisch stabil, wenn eine Störung mit angehobener Nase ein kopflastiges Moment um den Schwerpunkt erzeugt: \(\mathrm{d}C_m/\mathrm{d}\alpha < 0\). Der Auftriebszuwachs greift im Neutralpunkt an; das Stabilitätsmaß \(K_n = (x_N - x_{CG})/\bar c = -\mathrm{d}C_m/\mathrm{d}C_L\) misst, wie weit der Schwerpunkt davor liegt. Der Flügel allein aus Tutorial 2.1 hatte den Neutralpunkt bei 0,049 m; das Leitwerk verschiebt ihn nach hinten.</p>
+    </section>
+    <section id="model-de">
+      <p class="section-label">Geltungsbereich und Grenzen</p>
+      <h2>Was diese Analyse misst und was nicht</h2>
+<p>Reibungsfreies VLM2 auf Flügel und Höhenleitwerk. Gemessen werden die \(C_m\)-Steigung um den angegebenen Schwerpunkt, der Neutralpunkt sowie Trimmwinkel, Auftrieb und Geschwindigkeit; nicht erfasst sind Profilwiderstand, Strömungsabriss, Rumpf und Zeitverhalten. Die Beiwerte hängen hier nicht von der Geschwindigkeit ab.</p>
+    </section>
+    <section id="interface-de">
+      <p class="section-label">Orientierung</p>
+      <h2>Wohin der Schwerpunkt kommt</h2>
+<p>Das Modul ist Wing and Plane Design. Masse und Schwerpunkt lassen sich am Flugzeug (Plane Inertia, Punktmassen) oder je Analyse (Registerkarte Inertia, Use plane inertia abgewählt) angeben; diese Anleitung nutzt Letzteres. Ohne Angabe wird das Moment um die Flügelvorderkante gebildet.</p>
+    </section>
+    <section id="plane-de">
+      <p class="section-label">Schritt 1</p>
+      <h2>Das Flugzeug mit einem Höhenleitwerk ergänzen</h2>
+<p>Define a New Plane: der Flügel aus Tutorial 2.1, ohne Seitenleitwerk, und ein rechteckiges Höhenleitwerk NACA 0009 von 0,500 × 0,100 m mit Vorderkante bei 0,600 m. Der Editor meldet einen Hebelarm von 0,57 m und ein Leitwerksvolumen von 0,45.</p>
+    </section>
+    <section id="analysis-de">
+      <p class="section-label">Schritt 2</p>
+      <h2>Eine Analyse je Schwerpunktlage</h2>
+<p>Drei gleiche reibungsfreie VLM2-Analysen vom Typ 1 bei 10 m/s mit 1,000 kg und dem Schwerpunkt bei 0,060, 0,090 und 0,120 m, jeweils von Hand benannt: der automatische Name rundet die Lage auf 0,1 m. Mit Höhenleitwerk wird 3D Panels nicht mehr angeboten.</p>
+    </section>
+    <section id="slope-de">
+      <p class="section-label">Schritt 3</p>
+      <h2>Die Cm–α-Steigung lesen</h2>
+<p>Die Auftriebskurven fallen zusammen; die \(C_m\)–\(\alpha\)-Steigungen betragen −0,0156, −0,0023 und +0,0109 pro Grad. Die drei Geraden schneiden sich beim Nullauftrieb nahe −2°: ohne Leitwerkseinstellung trimmt das stabile Flugzeug bei \(C_L \approx 0\).</p>
+    </section>
+    <section id="neutral-de">
+      <p class="section-label">Schritt 4</p>
+      <h2>Neutralpunkt und Stabilitätsmaß</h2>
+<p>Aus \(\mathrm{d}C_m/\mathrm{d}C_L\) ergeben die drei Schwerpunktlagen denselben Neutralpunkt, 0,095 m, und Stabilitätsmaße von +17,6 %, +2,6 % und −12,3 %. XFLR5 meldet XNP = 0,096 m; die mit den Auftriebsanstiegen gewichtete Abschätzung ergibt 0,0966 m.</p>
+    </section>
+    <section id="trim-de">
+      <p class="section-label">Schritt 5</p>
+      <h2>Mit dem Höhenruder trimmen</h2>
+<p>Eine Stabilitätsanalyse vom Typ 7 mit Elevator Tilt von −5° je Steuereinheit bestimmt für jede Einstellung von 0° bis −5° den Winkel mit \(C_m = 0\) und die Geschwindigkeit, bei der dieser Auftrieb das Gewicht trägt. Bei −3° trimmt das Flugzeug bei 4,34°, \(C_L = 0,502\) und 9,99 m/s; \(V = \sqrt{2W/\rho S C_L}\) trifft alle Geschwindigkeiten auf 0,3 %.</p>
+    </section>
+    <section id="example-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Wie viel Leitwerk genügt</h2>
+<p>Die Leitwerkstiefe auf 0,080 m und 0,120 m ändern und Leitwerksvolumen, Neutralpunkt aus XFLR5 und aus der Theorie, Stabilitätsmaß bei 0,060 m und die Einstellung für \(C_L = 0,5\) festhalten.</p>
+    </section>
+    <section id="summary-de">
+      <p class="section-label">Kernpunkte</p>
+      <h2>Vier Aussagen und zwei Beziehungen</h2>
+<p>Stabilität ist das Vorzeichen der \(C_m\)-Steigung; der Neutralpunkt gehört zum Flugzeug, nicht zur Beladung; stabil heißt nicht getrimmt; und im getrimmten Flug legt die Leitwerkseinstellung \(C_L\) fest und das Gewicht damit die Geschwindigkeit.</p>
+    </section>
+    <section id="mistakes-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Auslegungsfehler, die eine Stabilitätsuntersuchung entwerten</h2>
+<p>Die Steigung lesen, ohne X_CG zu prüfen; stabil mit getrimmt verwechseln; glauben, der Neutralpunkt wandere mit dem Schwerpunkt; ein instabiles Gleichgewicht akzeptieren; die Geschwindigkeit der Typ-1-Analyse für die Fluggeschwindigkeit halten; die dynamischen Moden des Fensters Stability hierzu zählen; das Stabilitätsmaß auf große Winkel übertragen.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>Etkin und Reid, <em>Dynamics of Flight: Stability and Control</em>; Nelson, <em>Flight Stability and Automatic Control</em>; Anderson, <em>Introduction to Flight</em>; Deperrois, <em>Guidelines for XFLR5</em>.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="ala-finita.html?v=13"><span>Vorheriges Tutorial</span>← Vom Profil zur endlichen Tragfläche</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>XFLR5 · Tutorialreihe</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>

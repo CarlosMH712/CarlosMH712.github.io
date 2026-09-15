@@ -122,7 +122,9 @@ program, and follows the same trilingual rules as a course. The first series is
 The series runs to **eleven tutorials in three blocks**, from a single airfoil to
 a complete aircraft and its static longitudinal, lateral and directional
 stability; `tutorials/xflr5/index.html` carries the syllabus and is the record of
-what has been promised. Four are published: 1.1, 1.2, 1.3 and 2.1. Filenames are
+what has been promised. Five are published: 1.1, 1.2, 1.3, 2.1 and 3.3. Static
+longitudinal stability (3.3) went out ahead of 2.2, 3.1 and 3.2 at the author's request,
+so it carries the minimum of 3.1 itself and its previous-tutorial link points to 2.1. Filenames are
 topic-based, so inserting an intermediate tutorial renames nothing.
 
 The XFLR5 tutorials ship with **Spanish complete and English and German carrying
