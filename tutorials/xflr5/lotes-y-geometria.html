@@ -74,7 +74,7 @@
     <section id="scale">
       <p class="section-label">Step 1</p>
       <h2>Scaling camber and thickness</h2>
-      <p>The <em>Foil Geometry</em> dialogue exposes the four numbers that <em>are</em> the four digits of a NACA designation, each on a continuous slider. That turns it into a generator of parametric families. After scaling, normalise and refine again: the contour has been rebuilt.</p>
+      <p>The <em>Foil Geometry</em> dialogue exposes the four numbers that <em>are</em> the four digits of a NACA designation, each on a continuous slider. That turns it into a generator of parametric families. After scaling, normalise and refine again: the contour has been rebuilt. On accepting, the name dialogue proposes the original airfoil's name; accepting it unchanged silently replaces the original and deletes its polars, so type a new name. The same dialogue follows a flap (current airfoil) and an interpolation (the airfoil in the upper selector).</p>
     </section>
     <section id="interpolate">
       <p class="section-label">Step 2</p>
@@ -224,6 +224,9 @@
 <p>Los cuatro campos que muestra —valor y posición de la curvatura, valor y posición del espesor— <strong>son exactamente los cuatro dígitos de la designación NACA</strong>. El 2412 declara curvatura del 2 % al 40 % de la cuerda y espesor del 12 %, y el diálogo lo confirma con 2.00 % al 39.94 % y 12.00 % al 29.53 %.</p>
 <p>La utilidad no es leerlos sino moverlos. Los deslizadores permiten variar cada uno de forma continua, y ahí está el valor de la herramienta: <strong>generar una familia paramétrica</strong> —el mismo perfil con espesores del 10, 12, 15 y 18 %— para ver qué cuesta cada milímetro de larguero en arrastre y en \(c_{l,\max}\).</p>
 <div class="callout warning">
+  <p><strong>El nombre que propone el programa es el del perfil original.</strong> Al hacer clic en <code>OK</code> se abre un diálogo que pide el nombre del perfil nuevo y ya trae escrito el del perfil actual —aquí, <code>NACA 2412</code>—. Si se acepta tal cual, <strong>el original se sustituye sin aviso</strong>: con su nombre queda la geometría escalada, y sus polares se borran. Hay que escribir un nombre distinto antes de aceptar.</p>
+</div>
+<div class="callout warning">
   <p><strong>Después de escalar, hay que volver a preparar la geometría.</strong> El escalado reconstruye el contorno punto a punto, de modo que la normalización y el panelado del Tutorial 1.1 dejan de estar garantizados. Conviene pasar otra vez por <code>Normalize the Foil</code> y <code>Refine Globally</code> antes de analizar, o los perfiles de la familia no serán comparables entre sí, que es justo lo que se buscaba.</p>
 </div>
     </section>
@@ -236,6 +239,7 @@
   <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">Interpolación entre dos perfiles.</b> Al 50 % entre el NACA 0012 y el NACA 4412 el resultado es curvatura del 2.00 % al 39.7 % y espesor del 11.99 % al 29.7 %: el NACA 2412. La familia de cuatro dígitos define la curvatura de forma lineal, y la interpolación lo reproduce.</figcaption>
 </figure>
 <p>La figura muestra una comprobación que conviene hacer la primera vez: interpolar al 50 % entre el NACA 0012 y el NACA 4412 devuelve curvatura del 2.00 % al 39.7 % y espesor del 11.99 % al 29.7 %. Es decir, <strong>reproduce el NACA 2412</strong>, que es lo que la familia de cuatro dígitos predice, porque en ella la curvatura entra de forma lineal.</p>
+<p>Al aceptar aparece el mismo diálogo de nombre del Paso 1, pero aquí propone el del <strong>perfil del desplegable de arriba</strong> —el NACA 0012 de la figura—, aunque no sea el perfil actual. Si no se cambia, ese perfil queda sustituido por el interpolado.</p>
 <div class="callout">
   <p><strong>Para qué sirve de verdad.</strong> Un ala con perfil distinto en la raíz y en la punta necesita perfiles intermedios, y XFLR5 los interpola internamente al mallar. Generarlos de forma explícita permite <em>verlos</em> y analizarlos por separado antes de montarlos, en lugar de confiar en lo que ocurre dentro del mallador. Es la herramienta que el Tutorial 2.2 usará para las alas de perfil variable.</p>
 </div>
@@ -256,7 +260,7 @@
   <img src="imagenes/t12-04_flap_perfil.png" alt="Perfil NACA 2412 con el flap de borde de salida deflectado diez grados" loading="lazy">
   <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">El perfil con el flap deflectado.</b> Aplicada la deflexión, el recuadro inferior incorpora <code>Flap Angle</code>, <code>XHinge</code> e <code>YHinge</code> junto al resto de la geometría. A partir de ese momento es un perfil distinto, con su propia polar y su propio ángulo de sustentación nula.</figcaption>
 </figure>
-<p>Aceptada la deflexión, el recuadro de datos del perfil incorpora tres líneas nuevas —<code>Flap Angle</code>, <code>XHinge</code> e <code>YHinge</code>— que quedan asociadas a la geometría.</p>
+<p>Aceptada la deflexión, el recuadro de datos del perfil incorpora tres líneas nuevas —<code>Flap Angle</code>, <code>XHinge</code> e <code>YHinge</code>— que quedan asociadas a la geometría. Antes aparece el diálogo de nombre del Paso 1, con el nombre del perfil actual: si se acepta tal cual, el perfil sin flap desaparece junto con sus polares. Conviene que el nombre nuevo lleve la deflexión.</p>
 <div class="callout warning">
   <p><strong>Un perfil con flap deflectado es un perfil distinto.</strong> No es el mismo perfil «en otra condición»: tiene su propia geometría, su propia polar y su propio \(\alpha_{L=0}\). XFoil <strong>no interpola entre deflexiones</strong>, de modo que estudiar un elevador que se mueve entre \(-15^\circ\) y \(+15^\circ\) obliga a generar un perfil por cada deflexión que se quiera resolver, y a analizarlos todos. Ahí es donde el análisis por lotes deja de ser una comodidad y pasa a ser la única forma razonable de hacerlo.</p>
 </div>
@@ -268,9 +272,9 @@
 <p>Menú <code>Analysis ▸ Batch Analysis</code>. El diálogo se titula <em>Multi-threaded batch analysis</em> y concentra, en una sola pantalla, todo lo que en el Tutorial 1.1 se definía perfil a perfil.</p>
 <figure class="diagram">
   <img src="imagenes/t12-06_batch.png" alt="Diálogo de análisis por lotes configurado con tres perfiles y varios números de Reynolds" loading="lazy">
-  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">El diálogo de análisis por lotes.</b> Arriba a la izquierda, la lista de perfiles con selección múltiple: están marcados los tres NACA limpios y queda fuera el cuarto. Debajo, la tabla de números de Reynolds —que admite más filas de las que muestra—, el tipo de polar, la transición forzada y el rango de ángulos. A la derecha, las opciones que deciden el tiempo de corrida y el número de hilos.</figcaption>
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">El diálogo de análisis por lotes.</b> Arriba a la izquierda, la lista de perfiles con selección múltiple: están marcados los tres NACA de la familia y quedan fuera los tres perfiles creados en los pasos anteriores. Debajo, la tabla de números de Reynolds —que admite más filas de las que muestra—, el tipo de polar, la transición forzada y el rango de ángulos. A la derecha, las opciones que deciden el tiempo de corrida y el número de hilos.</figcaption>
 </figure>
-<p>Se lee por zonas. Arriba a la izquierda, la <strong>lista de perfiles</strong>, con selección múltiple: en la figura están marcados los tres NACA de la familia y queda fuera un cuarto perfil que no interesa comparar. Debajo, la <strong>tabla de números de Reynolds</strong>, con su Mach y su \(N_{\mathrm{crit}}\) por fila —la tabla admite más filas de las que muestra a primera vista, y conviene desplazarla antes de suponer cuántas hay—. Después, el tipo de polar, la transición forzada y el rango de ángulos, con el mismo significado que en el Tutorial 1.1.</p>
+<p>Se lee por zonas. Arriba a la izquierda, la <strong>lista de perfiles</strong>, con selección múltiple: en la figura están marcados los tres NACA de la familia y quedan fuera los perfiles escalado, interpolado y con flap de los pasos anteriores, que aquí no interesa comparar. Debajo, la <strong>tabla de números de Reynolds</strong>, con su Mach y su \(N_{\mathrm{crit}}\) por fila —la tabla admite más filas de las que muestra a primera vista, y conviene desplazarla antes de suponer cuántas hay—. Después, el tipo de polar, la transición forzada y el rango de ángulos, con el mismo significado que en el Tutorial 1.1.</p>
 <h3>Las opciones de la derecha, que son las que deciden el tiempo</h3>
 <div class="table-wrap">
   <table>
@@ -434,7 +438,7 @@
     <section id="scale-de">
       <p class="section-label">Schritt 1</p>
       <h2>Wölbung und Dicke skalieren</h2>
-      <p>Der Dialog <em>Foil Geometry</em> zeigt die vier Größen, die den vier Ziffern einer NACA-Bezeichnung entsprechen, jede an einem stufenlosen Regler. Damit wird er zum Erzeuger parametrischer Familien. Nach dem Skalieren erneut normieren und verfeinern: die Kontur wurde neu aufgebaut.</p>
+      <p>Der Dialog <em>Foil Geometry</em> zeigt die vier Größen, die den vier Ziffern einer NACA-Bezeichnung entsprechen, jede an einem stufenlosen Regler. Damit wird er zum Erzeuger parametrischer Familien. Nach dem Skalieren erneut normieren und verfeinern: die Kontur wurde neu aufgebaut. Beim Bestätigen schlägt der Namensdialog den Namen des Originalprofils vor; wer ihn unverändert übernimmt, ersetzt das Original ohne Warnung und löscht seine Polaren. Derselbe Dialog folgt auf eine Klappe (aktuelles Profil) und eine Interpolation (das Profil in der oberen Auswahl).</p>
     </section>
     <section id="interpolate-de">
       <p class="section-label">Schritt 2</p>
