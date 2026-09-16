@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Static lateral and directional stability in XFLR5: sideslip polars, the yawing and rolling derivatives, and how the fin and the dihedral divide the work between them." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Static Lateral and Directional Stability | XFLR5 Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">XFLR5 · Tutorial 3.4</p><h1>Static Lateral and Directional Stability</h1><p class="hero-copy">A disturbed aircraft that yaws must return to its heading, and one that drops a wing must pick it up again. Two derivatives decide both, the fin looks after one and the dihedral after the other, and each is paid for with the other.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">XFLR5 · Tutorial 3.4</p><h1>Estabilidad estática lateral y direccional</h1><p class="hero-copy">Un avión que guiña debe volver a su rumbo, y uno que baja un ala debe levantarla. Dos derivadas deciden ambas cosas, la deriva se ocupa de una y el diedro de la otra, y cada una se paga con la contraria.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">XFLR5 · Tutorial 3.4</p><h1>Statische Quer- und Richtungsstabilität</h1><p class="hero-copy">Ein gestörtes Flugzeug muss nach einem Gieren auf seinen Kurs zurückkehren, und nach einem Absacken einer Fläche muss es diese wieder heben. Zwei Ableitungen entscheiden darüber: das Seitenleitwerk sorgt für die eine, die V-Stellung für die andere, und jede wird mit der anderen bezahlt.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 45 min</span><span data-language="es" hidden>Lectura estimada: 45 min</span><span data-language="de" hidden>Lesedauer: ca. 45 min</span><span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span><span data-language="en">Verified on XFLR5 v6.62</span><span data-language="es" hidden>Verificado en XFLR5 v6.62</span><span data-language="de" hidden>Geprüft mit XFLR5 v6.62</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="estabilidad-longitudinal.html?v=13">← <span>Tutorial 3.3</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/cxbKmgwglwU" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Watch the video</span><span data-language="es" hidden>Ver el vídeo</span><span data-language="de" hidden>Video ansehen</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#physics">The two derivatives</a><a href="#model">Scope</a><a href="#interface">Orientation</a><a href="#plane">Step 1 · The fin</a><a href="#analysis">Step 2 · Type 5</a><a href="#reading">Step 3 · Reading</a><a href="#fin">Step 4 · The fin's share</a><a href="#dihedral">Step 5 · The dihedral</a><a href="#tradeoff">Step 6 · The trade</a><a href="#example">Suggested practice</a><a href="#summary">Key values</a><a href="#mistakes">Common mistakes</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#physics-es">Las dos derivadas</a><a href="#model-es">Alcance</a><a href="#interface-es">Orientación</a><a href="#plane-es">Paso 1 · La deriva</a><a href="#analysis-es">Paso 2 · Type 5</a><a href="#reading-es">Paso 3 · Leer</a><a href="#fin-es">Paso 4 · Cuánto aporta la deriva</a><a href="#dihedral-es">Paso 5 · El diedro</a><a href="#tradeoff-es">Paso 6 · El intercambio</a><a href="#example-es">Práctica sugerida</a><a href="#summary-es">Puntos clave</a><a href="#mistakes-es">Errores frecuentes</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#physics-de">Die zwei Ableitungen</a><a href="#model-de">Gültigkeit</a><a href="#interface-de">Orientierung</a><a href="#plane-de">Schritt 1 · Seitenleitwerk</a><a href="#analysis-de">Schritt 2 · Type 5</a><a href="#reading-de">Schritt 3 · Ablesen</a><a href="#fin-de">Schritt 4 · Anteil des Leitwerks</a><a href="#dihedral-de">Schritt 5 · V-Stellung</a><a href="#tradeoff-de">Schritt 6 · Der Handel</a><a href="#example-de">Übung</a><a href="#summary-de">Kernpunkte</a><a href="#mistakes-de">Häufige Fehler</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Tell the two lateral stabilities apart and write each as the sign of a derivative; add a fin and size it with its vertical tail volume; define a Type 5 sideslip analysis; read Cn and Cl against beta in the program; and measure by difference how much the fin and the dihedral each contribute. In the series syllabus this tutorial follows 3.1 and 3.2, not yet published, so it carries the minimum of both.</p><div class="callout"><p><strong>About the program version.</strong> The XFLR5 project was closed on 30 June 2026: version 6.62, on which this guide was verified, is the final release. Development continues in <a href="https://flow5.tech" target="_blank" rel="noopener">flow5</a>, presented as version 7 of XFLR5 and open source since 1 January 2026. The series stays with XFLR5 for two reasons: a frozen program keeps these instructions valid, and XFLR5 was developed for model-scale aircraft, which is the scale of the examples. Version 6.62 for Windows and macOS remains available on <a href="https://sourceforge.net/projects/xflr5/files/6.62/" target="_blank" rel="noopener">SourceForge</a>.</p></div><p></p>
+    </section>
+    <section id="physics">
+      <p class="section-label">The physics</p>
+      <h2>Sideslip, yaw and roll</h2>
+<p>A gust from the side gives the aircraft a sideslip angle beta. Two independent things may follow: it may yaw, governed by Cn, and it may roll, governed by Cl. Directional stability asks for Cn_beta > 0 and roll stability for Cl_beta < 0. The signs differ because in both cases the moment must oppose the disturbance, and the two disturbances have opposite senses. The fin looks after the first, the wing dihedral after the second.</p>
+    </section>
+    <section id="model">
+      <p class="section-label">Scope and limits</p>
+      <h2>What this analysis measures and what it does not</h2>
+<p>The same inviscid VLM2 analysis as Tutorial 3.3, now with sideslip and one more surface. It measures the three sideslip derivatives at the angle of attack declared, and the separate contributions of fin and dihedral. It does not include the fuselage, which destabilises in yaw, nor stall, nor the time response.</p>
+    </section>
+    <section id="interface">
+      <p class="section-label">Orientation</p>
+      <h2>Where the fin and the sideslip live</h2>
+<p>Everything happens in Wing and Plane Design. The fin is enabled with a checkbox in the plane editor, and XFLR5 edits it in the same Wing Edition window as the wing — which is why it reports a span of 0.30 m for a fin 0.150 m tall: it assumes a symmetric surface. The area, 0.018 m², is the real one.</p>
+    </section>
+    <section id="plane">
+      <p class="section-label">Step 1</p>
+      <h2>Add the fin to the aircraft</h2>
+<p>The aircraft of Tutorial 3.3 with a fin added: rectangular, NACA 0009, 0.150 m tall and 0.120 m in chord, its leading edge at x = 0.600 m like the tailplane. Its size is judged by the vertical tail volume, V_v = S_v l_v / (S b) = 0.0200, which the program does not report: the TailVolume box is the horizontal one.</p>
+    </section>
+    <section id="analysis">
+      <p class="section-label">Step 2</p>
+      <h2>The sideslip analysis</h2>
+<p>Type 5 (Beta range) sweeps sideslip with the angle of attack held fixed: selecting it enables the alpha field and greys out beta, the reverse of a Type 1. The program also switches the method to VLM2 by itself and disables both LLT and VLM1, which carries the label (No sideslip). Mass and centre of gravity are declared per analysis, as in 3.3.</p>
+    </section>
+    <section id="reading">
+      <p class="section-label">Step 3</p>
+      <h2>Reading Cn and Cl against beta</h2>
+<p>The four default graphs plot against alpha, which in a sideslip polar is fixed: every curve collapses to a vertical line. The axes have to be changed to Cn and Cl against beta, one graph at a time. Both curves pass through the origin and are odd in beta, which is the symmetry check. The derivatives are least-squares slopes fitted within |beta| <= 5 degrees, and the interval is declared.</p>
+    </section>
+    <section id="fin">
+      <p class="section-label">Step 4</p>
+      <h2>How much the fin contributes</h2>
+<p>Comparing the aircraft with and without the fin isolates its share. Without it, Cn_beta = +0.0008 per radian and the aircraft is indifferent in yaw; with it, +0.0594. The fin supplies 99 % of the directional stability, and 82 % of the side force, because it works with the whole tail arm.</p>
+    </section>
+    <section id="dihedral">
+      <p class="section-label">Step 5</p>
+      <h2>The dihedral and the rolling moment</h2>
+<p>With no dihedral the aircraft is unstable in roll: Cl_beta = +0.0163 per radian. Raising the wing tips changes that, and almost perfectly linearly: -0.0155 per radian and per degree of dihedral, so a little over one degree is enough to reach neutrality. The dihedral column lives in the wing section table, and each variant is a duplicated plane because editing geometry discards the polars.</p>
+    </section>
+    <section id="tradeoff">
+      <p class="section-label">Step 6</p>
+      <h2>What the dihedral costs in yaw</h2>
+<p>The dihedral is not free. With the fin unchanged, Cn_beta falls from +0.0594 with no dihedral to +0.0397 with ten degrees: a third of the directional stability the fin bought. Lateral design is a trade between two parts that get in each other's way, and the fine balance belongs to dynamic stability. These figures are optimistic, too, because the model carries no fuselage.</p>
+    </section>
+    <section id="example">
+      <p class="section-label">Suggested practice</p>
+      <h2>How much fin does it take</h2>
+<p>Suggested practice, not an assignment: change the fin height to 0.100 m and 0.200 m, obtain the vertical tail volume and both derivatives for each, and work out how much dihedral would bring Cl_beta to -0.05 per radian.</p>
+    </section>
+    <section id="summary">
+      <p class="section-label">Key values</p>
+      <h2>Four statements and two relations</h2>
+<p>Directional stability is Cn_beta > 0 and roll stability Cl_beta < 0; the fin supplies almost all of the first and the dihedral all of the second, at -0.0155 per radian per degree; and every degree of dihedral costs directional stability. The vertical tail volume of this aircraft is 0.0200.</p>
+    </section>
+    <section id="mistakes">
+      <p class="section-label">Common mistakes</p>
+      <h2>Mistakes that invalidate a lateral study</h2>
+<p>Reading a graph by its printed axis label after changing the variables; confusing CL with Cl in the variable list; leaving VLM1 selected for a sideslip analysis; reading the sign of Cl_beta as if it were Cn_beta; taking these figures for an aircraft with a fuselage; reading the neutral point in a Type 5 run; and fitting the slope over the whole sweep.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>Etkin and Reid, Nelson, Anderson, and the XFLR5 guidelines. Screenshots from XFLR5 v6.62 on macOS; the numbers come from four exported Type 5 polars fitted by least squares, and the project with the four aircraft accompanies the guide.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="estabilidad-longitudinal.html?v=13"><span>Previous tutorial</span>← Static Longitudinal Stability</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>XFLR5 · Tutorial series</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">El Tutorial 3.3 dejó un avión que vuelve solo a su ángulo de ataque. Eso resuelve la mitad del problema: falta que, al recibir una ráfaga de costado, vuelva también a su rumbo y mantenga las alas niveladas. Al terminar esta guía debe ser posible:</p>
+<ul>
+  <li>Distinguir las dos estabilidades que gobierna el derrape —la direccional y la de balanceo— y escribirlas como el signo de dos derivadas.</li>
+  <li>Añadir una deriva al avión y dimensionarla con su volumen de cola vertical.</li>
+  <li>Definir un análisis <code>Type 5 (Beta range)</code>, que barre el derrape con el ángulo de ataque fijo, y saber por qué ese análisis no admite todos los métodos.</li>
+  <li>Leer <span>\(C_n\)</span> y <span>\(C_l\)</span> contra <span>\(\beta\)</span> en el programa, cambiando las variables de las gráficas, y medir sobre ellas las dos derivadas.</li>
+  <li>Medir por diferencia cuánto aporta la deriva y cuánto el diedro, y reconocer que cada uno se paga con el otro.</li>
+</ul>
+<div class="callout">
+  <p><strong>Una nota sobre el orden.</strong> En el temario de la serie este tutorial va después del 3.1 —estabilizador, deriva, masas y centro de gravedad— y del 3.2 —el fuselaje—, que todavía no están publicados. Para que la guía se sostenga sola, incluye lo mínimo de ambos: cómo añadir la deriva y dónde se declara el centro de gravedad. El avión de partida es el del Tutorial 3.3, sin cambios.</p>
+</div>
+
+    </section>
+    <section id="physics-es">
+      <p class="section-label">La física</p>
+      <h2>Derrape, guiñada y balanceo</h2>
+
+<p>Un avión en vuelo recto recibe una ráfaga de costado. La corriente deja de venirle de frente y le llega con un ángulo de derrape <span>\(\beta\)</span>, medido entre el plano de simetría y la velocidad. A partir de ahí, dos cosas pueden ocurrir, y son independientes entre sí.</p>
+<p>La primera es que el avión <strong>guiñe</strong>: que el morro gire hacia el viento o se aparte de él. Lo decide el momento de guiñada, cuyo coeficiente es <span>\(C_n\)</span>. Si al aparecer un derrape positivo surge un momento que lleva el morro hacia esa corriente, el avión se alinea solo y es <strong>direccionalmente estable</strong>:</p>
+<div class="equation-card">\[ C_{n\beta} \;=\; \frac{\partial C_n}{\partial \beta} \;>\; 0 \]</div>
+<p>La segunda es que el avión <strong>balancee</strong>: que una de las dos alas baje. Lo decide el momento de balanceo, <span>\(C_l\)</span>. Aquí la condición tiene el signo contrario, y conviene razonarla despacio porque es la que más se equivoca:</p>
+<div class="equation-card">\[ C_{l\beta} \;=\; \frac{\partial C_l}{\partial \beta} \;<\; 0 \]</div>
+<p>El razonamiento es este. Si el avión baja el ala derecha, resbala hacia ese lado y aparece un derrape positivo. Para que se enderece hace falta un momento que levante esa ala, es decir, de signo contrario al derrape que lo provocó. De ahí que la derivada tenga que ser negativa: no es una convención arbitraria, es la condición de que el momento se oponga a la perturbación.</p>
+<div class="callout">
+  <p><strong>Las dos no se resuelven con la misma pieza.</strong> De la guiñada se ocupa la deriva, que es una superficie vertical muy por detrás del centro de gravedad: al aparecer derrape recibe una fuerza lateral y, con el brazo que tiene, un momento que alinea el morro. Del balanceo se ocupa el <strong>diedro</strong> del ala: con derrape, el ala que avanza contra la corriente recibe un ángulo de ataque efectivo mayor que la otra, sustenta más, y el avión rueda hacia el lado contrario al resbalón. Este tutorial mide las dos contribuciones por separado.</p>
+</div>
+<p>Hay una tercera magnitud que conviene mirar aunque no sea una condición de estabilidad: la fuerza lateral, <span>\(C_Y\)</span>. Su derivada <span>\(C_{Y\beta}\)</span> es negativa en cualquier avión razonable —la corriente lateral empuja al avión hacia el lado del que viene— y sirve de control: si sale positiva, algo está mal planteado.</p>
+
+    </section>
+    <section id="model-es">
+      <p class="section-label">Alcance y límites</p>
+      <h2>Qué mide este análisis y qué no mide</h2>
+
+<p>El análisis es el mismo VLM2 no viscoso del Tutorial 3.3, ahora con derrape y con una superficie más. Conviene delimitar qué se puede concluir de él.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Lo que mide</th><th>Lo que no mide</th></tr></thead>
+    <tbody>
+      <tr><td>Las pendientes \(C_{n\beta}\), \(C_{l\beta}\) y \(C_{Y\beta}\) en el ángulo de ataque que se declare</td><td>El fuselaje, que XFLR5 desaconseja incluir y que desestabiliza en guiñada</td></tr>
+      <tr><td>La contribución de la deriva y la del diedro, por separado</td><td>El arrastre de perfil: el cálculo es no viscoso</td></tr>
+      <tr><td>El reparto entre ambas y lo que cada una le cuesta a la otra</td><td>La pérdida: VLM2 es lineal, y los valores valen en el tramo recto</td></tr>
+      <tr><td>La simetría del modelo, porque barre \(\beta\) hacia los dos lados</td><td>La respuesta en el tiempo: el balanceo holandés y la espiral son dinámica</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Alcance del estudio.</b> La columna de la derecha no es una lista de defectos: son las decisiones que permiten aislar la estabilidad estática lateral, y cada una hay que declararla al reportar un resultado.</caption>
+  </table>
+</div>
+<p>Tres decisiones merecen una línea. La primera: los coeficientes de un cálculo no viscoso no dependen de la velocidad, de modo que los 10 m/s del análisis son un rótulo; se eligieron porque son del orden de la velocidad de trimado que midió el Tutorial 3.3. La segunda: el ángulo de ataque queda fijo en <span>\(4^\circ\)</span>, que es el del vuelo trimado con el estabilizador a <span>\(-3^\circ\)</span>, y las derivadas que se obtienen valen para esa condición de vuelo y no para todas. La tercera: el centro de gravedad se declara en cada análisis, en <span>\(x_{CG} = 0.060\)</span> m, el mismo del 3.3, porque los momentos se calculan respecto de ese punto.</p>
+<div class="callout warning">
+  <p><strong>Sin fuselaje, la estabilidad direccional sale optimista.</strong> Un fuselaje real es una superficie lateral por delante del centro de gravedad y su contribución a <span>\(C_{n\beta}\)</span> es <em>desestabilizadora</em>: la deriva tiene que compensarla además de aportar el margen. Este modelo no lo incluye —XFLR5 desaconseja meter el fuselaje en el análisis, y el Tutorial 3.2 lo medirá—, de modo que las cifras de aquí son el límite superior de lo que da esta cola.</p>
+</div>
+
+    </section>
+    <section id="interface-es">
+      <p class="section-label">Orientación</p>
+      <h2>Dónde están la deriva y el derrape</h2>
+
+<p>Todo ocurre en el módulo <em>Wing and Plane Design</em>, el del Tutorial 3.3. Hay dos novedades: la deriva se activa en el editor del avión, y el derrape aparece al elegir un tipo de análisis que hasta ahora no se había usado.</p>
+<figure class="diagram">
+  <img src="imagenes/t34-01_editor_deriva.png" alt="Editor del avión con la casilla Fin marcada y el bloque de la deriva" loading="lazy">
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">El editor del avión, con la deriva activada.</b> La casilla <code>Fin</code> habilita el bloque de la derecha: su botón <code>Define</code>, la posición en <span>\(x\)</span> y las opciones <code>Two-sided Fin</code> y <code>Double Fin</code>. Abajo, el resumen confirma <code>Fin Area = 0.02 m²</code>; <code>TailVolume = 0.45</code> es el volumen de cola horizontal y no cambia al añadir la deriva.</figcaption>
+</figure>
+<div class="callout">
+  <p><strong>El editor de la deriva es el mismo del ala.</strong> XFLR5 no tiene un editor propio para superficies verticales: abre <em>Wing Edition</em>, con la misma tabla de secciones. Conviene saberlo porque lo que ahí se llama envergadura es, para una deriva, su altura.</p>
+</div>
+<div class="callout warning">
+  <p><strong>Y por eso reporta el doble de lo que mide.</strong> Con la deriva de esta guía —0.150 m de altura— el panel derecho del editor anuncia <code>Wing Span 0.30 m</code>: duplica la altura, porque el editor supone una superficie simétrica respecto del plano central. El <strong>área</strong>, en cambio, sí es la de una sola cara, 0.018 m². El alargamiento que muestra, 5.00, sale de la envergadura duplicada. Al dimensionar la deriva hay que usar el área y la altura reales, no la cifra de envergadura.</p>
+</div>
+
+    </section>
+    <section id="plane-es">
+      <p class="section-label">Paso 1</p>
+      <h2>Añadir la deriva al avión</h2>
+
+<p>El avión de partida es el del Tutorial 3.3: el ala del 2.1 más un estabilizador rectangular de NACA 0009. Se le añade la deriva.</p>
+<div class="callout">
+  <ul>
+    <li><code>Plane ▸ Define a New Plane</code>, o bien <code>Plane ▸ Current Plane ▸ Edit</code> sobre el avión del 3.3.</li>
+    <li>Marcar la casilla <code>Fin</code>. El bloque de la derecha se habilita y aparece el botón <code>Define</code> de la deriva.</li>
+    <li>Llevar su posición a <span>\(x = 0.600\)</span> m, la misma del estabilizador: el programa la propone en 0.650 m.</li>
+    <li><code>Define</code>: dos secciones de cuerda 0.120 m, la segunda a 0.150 m de altura, sin desplazamiento, con NACA 0009 en ambas.</li>
+    <li>Comprobar en el editor del avión que aparece <code>Fin Area = 0.02 m²</code> y que <code>Total Panels</code> sube a 809.</li>
+  </ul>
+</div>
+<p>La deriva que propone el programa no sirve tal cual: trae flecha de 14° y estrechamiento de 0.60. Se sustituye por una rectangular, por la misma razón que en el 3.3 se rehízo el estabilizador: para que su contribución sea fácil de razonar y de comparar.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th></th><th>Ala</th><th>Estabilizador</th><th>Deriva</th></tr></thead>
+    <tbody>
+      <tr><td>Perfil</td><td>NACA 2412</td><td>NACA 0009</td><td>NACA 0009</td></tr>
+      <tr><td>Envergadura o altura</td><td>1.600 m</td><td>0.500 m</td><td>0.150 m</td></tr>
+      <tr><td>Cuerda</td><td>0.200 m</td><td>0.100 m</td><td>0.120 m</td></tr>
+      <tr><td>Superficie</td><td>0.320 m²</td><td>0.050 m²</td><td>0.018 m²</td></tr>
+      <tr><td>Borde de ataque</td><td>\(x = 0\)</td><td>\(x = 0.600\) m</td><td>\(x = 0.600\) m</td></tr>
+      <tr><td>Paneles VLM</td><td>494</td><td>266</td><td>49</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">El avión del tutorial.</b> El ala y el estabilizador son los del Tutorial 3.3, sin tocar; la deriva es lo nuevo. El volumen de cola vertical no lo reporta el programa y se calcula aparte: \(V_v = S_v\,l_v/(S\,b) = 0.018 \cdot 0.570/(0.320 \cdot 1.600) = 0.0200\).</caption>
+  </table>
+</div>
+<h3>Cuánta deriva es «suficiente»</h3>
+<p>La medida que ordena esta decisión es el <strong>volumen de cola vertical</strong>, que compara el momento que puede dar la deriva con el tamaño del ala:</p>
+<div class="equation-card">\[ V_v \;=\; \frac{S_v\,l_v}{S\,b} \]</div>
+<p>con <span>\(S_v\)</span> el área de la deriva, <span>\(l_v\)</span> la distancia del centro de gravedad a su cuarto de cuerda, y <span>\(S\)</span> y <span>\(b\)</span> la superficie y la envergadura del ala. Para esta deriva, <span>\(V_v = 0.018 \cdot 0.570/(0.320 \cdot 1.600) = 0.0200\)</span>, que está en el orden de lo habitual en un planeador o un modelo. Es el equivalente del volumen de cola horizontal del 3.3, que ahí valía 0.45.</p>
+<div class="callout warning">
+  <p><strong>El programa no reporta el volumen de cola vertical.</strong> El recuadro del editor muestra <code>TailVolume</code>, y ése es el <em>horizontal</em>: con esta deriva sigue valiendo 0.45, porque sólo depende del estabilizador. El vertical hay que calcularlo a mano con la fórmula de arriba.</p>
+</div>
+
+    </section>
+    <section id="analysis-es">
+      <p class="section-label">Paso 2</p>
+      <h2>El análisis con derrape</h2>
+
+<p>Hasta aquí la serie ha usado tres tipos de análisis: el Type 1 de velocidad fija del 2.1 y el 3.3, y el Type 7 de estabilidad con el que se trimó el avión. El derrape necesita uno nuevo.</p>
+<figure class="diagram">
+  <img src="imagenes/t34-02_type5.png" alt="Diálogo de análisis con Type 5 marcado y el campo alfa activo" loading="lazy">
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">El análisis de derrape.</b> Con <code>Type 5 (Beta range)</code> marcado, el campo <span>\(\alpha\)</span> queda activo y el de <span>\(\beta\)</span> en gris: el ángulo de ataque es el dato fijo y el derrape es lo que se barre. El nombre automático pasa a <code>T5-a4.0°-10.0m/s-VLM2</code>, porque el programa cambia el método por su cuenta.</figcaption>
+</figure>
+<div class="callout">
+  <ul>
+    <li><code>Analysis ▸ Define an Analysis</code>. Pestaña <code>Polar Type</code>: marcar <code>Type 5 (Beta range)</code>.</li>
+    <li>Escribir la velocidad, 10 m/s, y el ángulo de ataque, <span>\(4^\circ\)</span>, que es el dato que queda fijo.</li>
+    <li>Pestaña <code>Analysis</code>: desmarcar <code>Viscous</code>, que viene marcada, y dejar <code>Ring vortex (VLM2)</code>.</li>
+    <li>Pestaña <code>Inertia</code>: desmarcar <code>Use plane inertia</code> y escribir 1.000 kg y <span>\(x_{CG} = 0.060\)</span> m.</li>
+    <li>Desmarcar <code>Auto Analysis Name</code> y ponerle un nombre propio, para distinguir las variantes en el explorador.</li>
+  </ul>
+</div>
+<p>Al marcar <code>Type 5</code> ocurren dos cosas que conviene mirar. La primera: <strong>el campo <span>\(\alpha\)</span> se habilita y el de <span>\(\beta\)</span> se apaga</strong>. Es lo contrario de lo que pasa en un Type 1, donde <span>\(\beta\)</span> es un derrape fijo que se puede declarar. El tipo de polar decide cuál de los dos ángulos es el dato y cuál el barrido.</p>
+<div class="callout warning">
+  <p><strong>El programa cambia el método por su cuenta.</strong> El nombre automático pasa a <code>T5-a4.0°-10.0m/s-VLM2</code>: al elegir Type 5, XFLR5 selecciona VLM2 y <strong>deshabilita</strong> tanto <code>LLT (Wing only)</code> como <code>Horseshoe vortex (VLM1)</code>, que aparece con la etiqueta <code>(No sideslip)</code> al lado. No es una advertencia que se pueda ignorar: el método de herradura del Tutorial 2.1 no puede representar el derrape, y el programa no deja elegirlo.</p>
+</div>
+<p>El barrido se define en el panel de la derecha, que ahora pide <span>\(\beta\)</span> en vez de <span>\(\alpha\)</span>. Para esta guía, de <span>\(-10^\circ\)</span> a <span>\(10^\circ\)</span> cada grado: el intervalo simétrico permite comprobar que los coeficientes son impares en <span>\(\beta\)</span>, que es la verificación de que el modelo es simétrico. La corrida entera toma un par de segundos.</p>
+
+    </section>
+    <section id="reading-es">
+      <p class="section-label">Paso 3</p>
+      <h2>Leer Cn y Cl contra β</h2>
+
+<p>La corrida termina y la vista de polares no muestra nada útil. No es un fallo: es que las cuatro gráficas siguen dibujando lo de siempre —<span>\(C_L\)</span> contra <span>\(C_D\)</span>, y tres magnitudes contra <span>\(\alpha\)</span>—, y en un análisis Type 5 el ángulo de ataque no varía. Cada curva se reduce a <strong>una raya vertical</strong> en <span>\(\alpha = 4^\circ\)</span>.</p>
+<div class="callout">
+  <p><strong>Hay que cambiarle los ejes a las gráficas.</strong> Se abre <code>Graphs ▸ All Graph Settings</code>, pestaña <code>Variables</code>: son dos listas idénticas, <code>YAxis</code> y <code>XAxis</code>. Para la primera gráfica, <code>Cn</code> contra <code>β</code>; para la segunda, <code>Cl</code> contra <code>β</code>. El ajuste se aplica a la gráfica activa, de modo que hay que repetirlo gráfica por gráfica.</p>
+</div>
+<div class="callout warning">
+  <p><strong>En esa lista, <code>CL</code> y <code>Cl</code> no son lo mismo y están a dos renglones de distancia.</strong> <code>CL</code> es la sustentación del avión; <code>Cl</code>, el momento de balanceo. Junto a <code>Cn</code> aparecen además <code>Cn_viscous</code> y <code>Cn_induced</code>. Elegir mal no da ningún error: da una gráfica plausible de otra magnitud, y todo el análisis posterior queda mal sin que nada avise.</p>
+</div>
+<div class="callout warning">
+  <p><strong>El rótulo del eje puede quedarse viejo.</strong> Al aceptar el diálogo, la gráfica pasa a dibujar las curvas correctas —los números del eje horizontal cambian a <span>\(-10\)</span>…<span>\(10\)</span>—, pero <strong>el rótulo puede seguir diciendo <code>CL</code> y <code>CD</code></strong> durante el resto de la sesión; salir a la vista 3D y volver no lo arregla. El rótulo se corrige cuando la gráfica se construye de nuevo, al reabrir el programa. Mientras tanto, hay que fiarse de las variables que se eligieron y no de lo que está impreso en el eje, y no publicar una figura sin comprobarlo.</p>
+</div>
+<figure class="diagram">
+  <img src="imagenes/t34-03_graficas.png" alt="Vista de polares con el momento de guiñada y el de balanceo contra beta" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">Las dos derivadas, en el programa.</b> Las cuatro configuraciones superpuestas tras cambiar las variables de los ejes. Ambas curvas pasan por el origen y son impares en <span>\(\beta\)</span>. Los ejes de esta captura están bien rotulados porque las variables se fijaron antes de abrir el programa; si se cambian con el programa abierto, el rótulo puede quedarse en <code>CL</code> y <code>CD</code> hasta la sesión siguiente.</figcaption>
+</figure>
+<p>Con los ejes puestos, las dos gráficas dicen lo que se buscaba. Ambas pasan por el origen, porque un avión simétrico sin derrape no tiene ni momento de guiñada ni de balanceo, y ambas son <strong>impares</strong> en <span>\(\beta\)</span>: derrapar hacia un lado da exactamente lo contrario que derrapar hacia el otro. Esa simetría es la primera comprobación de que el modelo está bien planteado —en las corridas de esta guía se cumple hasta la última cifra— y es la razón de barrer <span>\(\beta\)</span> hacia los dos lados en vez de sólo hacia uno.</p>
+<h3>Medir la pendiente en el origen</h3>
+<p>Las derivadas se miden como pendientes en el origen. Ajustando por mínimos cuadrados en <span>\(|\beta| \le 5^\circ\)</span> sobre las polares exportadas con <code>Polars ▸ Current Polar ▸ Export results</code>:</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Configuración</th><th>\(C_{Y\beta}\) (rad⁻¹)</th><th>\(C_{l\beta}\) (rad⁻¹)</th><th>\(C_{n\beta}\) (rad⁻¹)</th><th>Veredicto</th></tr></thead>
+    <tbody>
+      <tr><td>Sin deriva, sin diedro</td><td>-0.0352</td><td>+0.0100</td><td>+0.0008</td><td>Indiferente en guiñada, inestable en balanceo</td></tr>
+      <tr><td>Con deriva, diedro 0°</td><td>-0.1998</td><td>+0.0163</td><td>+0.0594</td><td>Direccionalmente estable; sigue inestable en balanceo</td></tr>
+      <tr><td>Con deriva, diedro 5°</td><td>-0.2171</td><td>-0.0611</td><td>+0.0489</td><td>Estable en ambos</td></tr>
+      <tr><td>Con deriva, diedro 10°</td><td>-0.2880</td><td>-0.1413</td><td>+0.0397</td><td>Estable en ambos, con menos guiñada</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">Las tres derivadas de derrape, en cuatro configuraciones.</b> Todas a \(\alpha = 4^\circ\), \(V_\infty = 10\) m/s, \(x_{CG} = 0.060\) m, VLM2 no viscoso, con el ajuste por mínimos cuadrados en \(|\beta| \le 5^\circ\). El signo es lo que hay que leer: \(C_{n\beta} > 0\) es estabilidad direccional y \(C_{l\beta} < 0\) es estabilidad de balanceo.</caption>
+  </table>
+</div>
+<div class="callout">
+  <p><strong>Declarar el intervalo del ajuste, como siempre en esta serie.</strong> Entre <span>\(|\beta| \le 3^\circ\)</span> y <span>\(|\beta| \le 5^\circ\)</span> las derivadas cambian un 1.5 % o menos, así que la cifra es robusta; con todo el barrido hasta <span>\(10^\circ\)</span> se mueven hasta un 6 %. La corrida de 10° de diedro tiene además un rizo local en <span>\(C_n\)</span> cerca de <span>\(\beta = \pm 8^\circ\)</span>, que queda fuera del intervalo de ajuste y por eso no contamina el resultado.</p>
+</div>
+
+    </section>
+    <section id="fin-es">
+      <p class="section-label">Paso 4</p>
+      <h2>Cuánto aporta la deriva</h2>
+
+<p>La tabla 3 tiene una fila que no es una variante del avión sino un experimento: la misma aeronave <strong>sin deriva</strong>. Compararla con el caso de diedro nulo aísla lo que aporta esa superficie, porque entre las dos no cambia nada más.</p>
+<figure class="diagram">
+<svg viewBox="0 0 520 300" role="img" aria-label="Momento de guiñada contra derrape">
+  <text class="svg-title" x="90" y="18">Momento de guiñada contra derrape</text>
+  <g class="svg-grid">
+  <line x1="90.0" y1="40" x2="90.0" y2="260" stroke-dasharray="4 3"/>
+  <line x1="190.0" y1="40" x2="190.0" y2="260" stroke-dasharray="4 3"/>
+  <line x1="290.0" y1="40" x2="290.0" y2="260" stroke-dasharray="4 3"/>
+  <line x1="390.0" y1="40" x2="390.0" y2="260" stroke-dasharray="4 3"/>
+  <line x1="490.0" y1="40" x2="490.0" y2="260" stroke-dasharray="4 3"/>
+  <line x1="90" y1="205.0" x2="490" y2="205.0" stroke-dasharray="4 3"/>
+  <line x1="90" y1="150.0" x2="490" y2="150.0" stroke-dasharray="4 3"/>
+  <line x1="90" y1="95.0" x2="490" y2="95.0" stroke-dasharray="4 3"/>
+  </g>
+  <g class="svg-axis"><line x1="90" y1="150.0" x2="490" y2="150.0"/><line x1="290" y1="40" x2="290" y2="260"/></g>
+  <g class="svg-tick" text-anchor="middle">
+  <text x="90.0" y="166.0">-10</text>
+  <text x="190.0" y="166.0">-5</text>
+  <text x="390.0" y="166.0">5</text>
+  <text x="490.0" y="166.0">10</text>
+  <text x="490" y="182.0">β (°)</text>
+  </g>
+  <g class="svg-tick" text-anchor="end">
+  <text x="86" y="209.0">-0.005</text>
+  <text x="86" y="99.0">+0.005</text>
+  </g>
+  <text class="svg-tick" x="30" y="150" text-anchor="middle" transform="rotate(-90 30 150)">C<tspan baseline-shift="sub" font-size="8">n</tspan></text>
+  <path class="svg-line" d="M 90.0 151.5 L 110.0 151.3 L 130.0 151.2 L 150.0 151.0 L 170.0 150.9 L 190.0 150.7 L 210.0 150.6 L 230.0 150.4 L 250.0 150.3 L 270.0 150.1 L 290.0 150.0 L 310.0 149.9 L 330.0 149.7 L 350.0 149.6 L 370.0 149.4 L 390.0 149.3 L 410.0 149.1 L 430.0 149.0 L 450.0 148.8 L 470.0 148.7 L 490.0 148.5" stroke="var(--muted)" stroke-width="2.2" fill="none"/>
+  <text class="svg-note-sm" x="105" y="52" fill="var(--muted)">sin deriva</text>
+  <path class="svg-line" d="M 90.0 257.1 L 110.0 247.5 L 130.0 237.8 L 150.0 227.8 L 170.0 217.2 L 190.0 206.6 L 210.0 195.7 L 230.0 184.6 L 250.0 173.2 L 270.0 161.7 L 290.0 150.0 L 310.0 138.3 L 330.0 126.8 L 350.0 115.4 L 370.0 104.3 L 390.0 93.4 L 410.0 82.8 L 430.0 72.2 L 450.0 62.2 L 470.0 52.5 L 490.0 42.9" stroke="var(--blue)" stroke-width="2.2" fill="none"/>
+  <text class="svg-note-sm" x="105" y="69" fill="var(--blue)">diedro 0°</text>
+  <path class="svg-line" d="M 90.0 236.8 L 110.0 228.8 L 130.0 219.4 L 150.0 210.8 L 170.0 205.0 L 190.0 196.5 L 210.0 187.7 L 230.0 178.6 L 250.0 169.1 L 270.0 159.4 L 290.0 150.0 L 310.0 140.6 L 330.0 130.9 L 350.0 121.4 L 370.0 112.3 L 390.0 103.5 L 410.0 95.0 L 430.0 89.2 L 450.0 80.6 L 470.0 71.2 L 490.0 63.2" stroke="var(--accent)" stroke-width="2.2" fill="none"/>
+  <text class="svg-note-sm" x="105" y="86" fill="var(--accent)">diedro 5°</text>
+  <path class="svg-line" d="M 90.0 219.1 L 110.0 212.9 L 130.0 216.2 L 150.0 207.0 L 170.0 195.0 L 190.0 187.8 L 210.0 180.6 L 230.0 173.2 L 250.0 165.5 L 270.0 157.3 L 290.0 150.0 L 310.0 142.7 L 330.0 134.5 L 350.0 126.8 L 370.0 119.4 L 390.0 112.2 L 410.0 105.0 L 430.0 93.0 L 450.0 83.8 L 470.0 87.1 L 490.0 80.9" stroke="var(--accent-dark)" stroke-width="2.2" fill="none"/>
+  <text class="svg-note-sm" x="105" y="103" fill="var(--accent-dark)">diedro 10°</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">El momento de guiñada contra el derrape.</b> Las cuatro configuraciones, todas a \(\alpha = 4^\circ\). La pendiente en el origen es \(C_{n\beta}\): positiva devuelve el morro al viento. Sin deriva la recta es casi horizontal —el avión no sabe volver—; con ella, la pendiente se multiplica por casi ochenta. El diedro la reduce, y en la corrida de 10° se ve además un rizo cerca de \(\beta = \pm 8^\circ\), fuera del intervalo de ajuste.</figcaption>
+</figure>
+<p>El resultado no admite matices. Sin deriva, <span>\(C_{n\beta} = +0.0008\)</span> por radián: la recta es prácticamente horizontal y el avión es <strong>indiferente</strong> en guiñada —ni vuelve al rumbo ni se aparta más—. Con la deriva puesta pasa a <span>\(+0.0594\)</span>, casi ochenta veces más.</p>
+<div class="result-box">
+  La deriva aporta <span>\(\Delta C_{n\beta} = +0.0587\)</span> de los <span>\(+0.0594\)</span> del avión completo: el <strong>99 %</strong> de su estabilidad direccional. El ala y el estabilizador, por sí solos, no saben volver al rumbo.
+</div>
+<h3>Por qué el ala no contribuye</h3>
+<p>Conviene detenerse en por qué el ala no contribuye. En guiñada, el ala derecha y la izquierda avanzan a velocidades ligeramente distintas y con flechas efectivas distintas, y en un ala recta y sin torsión esos dos efectos son pequeños y casi se cancelan. La deriva, en cambio, es una superficie vertical entera trabajando con un brazo de más de medio metro: su fuerza lateral multiplicada por ese brazo es todo el momento restaurador.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Contribución</th><th>\(\Delta C_{n\beta}\)</th><th>\(\Delta C_{l\beta}\)</th><th>Qué significa</th></tr></thead>
+    <tbody>
+      <tr><td>La deriva (diferencia con y sin)</td><td>+0.0587</td><td>+0.0063</td><td>Casi toda la estabilidad direccional del avión: el 99 % de \(C_{n\beta}\)</td></tr>
+      <tr><td>El diedro, por grado (ajuste 0°–10°)</td><td>-0.00197</td><td>-0.01575</td><td>Toda la estabilidad de balanceo, y se paga con estabilidad direccional</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">Quién aporta cada estabilidad.</b> Las dos contribuciones se obtienen por diferencia entre configuraciones, que es lo que permite atribuirlas: la deriva comparando con y sin ella a diedro nulo, y el diedro comparando 0°, 5° y 10° con la deriva puesta.</caption>
+  </table>
+</div>
+<div class="callout warning">
+  <p><strong>Una cifra de esa tabla que no queda explicada.</strong> La deriva aporta también <span>\(\Delta C_{l\beta} = +0.0063\)</span>, es decir, empeora un poco el balanceo. Para una deriva por encima del centro de gravedad, el razonamiento de libro predice lo contrario: su fuerza lateral, aplicada arriba, debería levantar el ala que baja. La cifra está medida y es pequeña —el diedro la borra con menos de medio grado—, pero <strong>no se determinó a qué se debe</strong>, y por eso se deja anotada en vez de explicada. Comprobarlo pide mover la deriva en altura y volver a medir.</p>
+</div>
+<p>La fuerza lateral cuenta la misma historia desde otro lado: <span>\(C_{Y\beta}\)</span> pasa de <span>\(-0.0352\)</span> a <span>\(-0.1998\)</span>. El 82 % de la fuerza lateral del avión la genera la deriva; lo que la distingue del resto es que la genera <em>lejos</em> del centro de gravedad.</p>
+
+    </section>
+    <section id="dihedral-es">
+      <p class="section-label">Paso 5</p>
+      <h2>El diedro y el momento de balanceo</h2>
+
+<p>Con la deriva puesta, el avión vuelve al rumbo. Pero mírese la columna de <span>\(C_{l\beta}\)</span> de la tabla 3: con diedro nulo vale <span>\(+0.0163\)</span>, y <strong>positivo es inestable</strong>. Ese avión, al resbalar, tiende a hundir más el ala que ya venía bajando.</p>
+<figure class="diagram">
+<svg viewBox="0 0 520 300" role="img" aria-label="Momento de balanceo contra derrape">
+  <text class="svg-title" x="90" y="18">Momento de balanceo contra derrape</text>
+  <g class="svg-grid">
+  <line x1="90.0" y1="40" x2="90.0" y2="260" stroke-dasharray="4 3"/>
+  <line x1="190.0" y1="40" x2="190.0" y2="260" stroke-dasharray="4 3"/>
+  <line x1="290.0" y1="40" x2="290.0" y2="260" stroke-dasharray="4 3"/>
+  <line x1="390.0" y1="40" x2="390.0" y2="260" stroke-dasharray="4 3"/>
+  <line x1="490.0" y1="40" x2="490.0" y2="260" stroke-dasharray="4 3"/>
+  <line x1="90" y1="192.3" x2="490" y2="192.3" stroke-dasharray="4 3"/>
+  <line x1="90" y1="150.0" x2="490" y2="150.0" stroke-dasharray="4 3"/>
+  <line x1="90" y1="107.7" x2="490" y2="107.7" stroke-dasharray="4 3"/>
+  </g>
+  <g class="svg-axis"><line x1="90" y1="150.0" x2="490" y2="150.0"/><line x1="290" y1="40" x2="290" y2="260"/></g>
+  <g class="svg-tick" text-anchor="middle">
+  <text x="90.0" y="166.0">-10</text>
+  <text x="190.0" y="166.0">-5</text>
+  <text x="390.0" y="166.0">5</text>
+  <text x="490.0" y="166.0">10</text>
+  <text x="490" y="182.0">β (°)</text>
+  </g>
+  <g class="svg-tick" text-anchor="end">
+  <text x="86" y="196.3">-0.010</text>
+  <text x="86" y="111.7">+0.010</text>
+  </g>
+  <text class="svg-tick" x="30" y="150" text-anchor="middle" transform="rotate(-90 30 150)">C<tspan baseline-shift="sub" font-size="8">l</tspan></text>
+  <path class="svg-line" d="M 90.0 157.1 L 110.0 156.5 L 130.0 155.8 L 150.0 155.1 L 170.0 154.4 L 190.0 153.7 L 210.0 152.9 L 230.0 152.2 L 250.0 151.5 L 270.0 150.7 L 290.0 150.0 L 310.0 149.3 L 330.0 148.5 L 350.0 147.8 L 370.0 147.1 L 390.0 146.3 L 410.0 145.6 L 430.0 144.9 L 450.0 144.2 L 470.0 143.5 L 490.0 142.9" stroke="var(--muted)" stroke-width="2.2" fill="none"/>
+  <text class="svg-note-sm" x="370" y="52" fill="var(--muted)">sin deriva</text>
+  <path class="svg-line" d="M 90.0 161.0 L 110.0 160.1 L 130.0 159.1 L 150.0 158.1 L 170.0 157.0 L 190.0 155.9 L 210.0 154.8 L 230.0 153.6 L 250.0 152.4 L 270.0 151.2 L 290.0 150.0 L 310.0 148.8 L 330.0 147.6 L 350.0 146.4 L 370.0 145.2 L 390.0 144.1 L 410.0 143.0 L 430.0 141.9 L 450.0 140.9 L 470.0 139.9 L 490.0 139.0" stroke="var(--blue)" stroke-width="2.2" fill="none"/>
+  <text class="svg-note-sm" x="370" y="69" fill="var(--blue)">diedro 0°</text>
+  <path class="svg-line" d="M 90.0 106.0 L 110.0 110.1 L 130.0 114.3 L 150.0 118.6 L 170.0 123.1 L 190.0 127.5 L 210.0 132.0 L 230.0 136.4 L 250.0 141.0 L 270.0 145.5 L 290.0 150.0 L 310.0 154.5 L 330.0 159.0 L 350.0 163.6 L 370.0 168.0 L 390.0 172.5 L 410.0 176.9 L 430.0 181.4 L 450.0 185.7 L 470.0 189.9 L 490.0 194.0" stroke="var(--accent)" stroke-width="2.2" fill="none"/>
+  <text class="svg-note-sm" x="370" y="86" fill="var(--accent)">diedro 5°</text>
+  <path class="svg-line" d="M 90.0 48.8 L 110.0 58.2 L 130.0 68.4 L 150.0 78.0 L 170.0 87.8 L 190.0 98.0 L 210.0 108.2 L 230.0 118.6 L 250.0 129.0 L 270.0 139.5 L 290.0 150.0 L 310.0 160.5 L 330.0 171.0 L 350.0 181.4 L 370.0 191.8 L 390.0 202.0 L 410.0 212.2 L 430.0 222.0 L 450.0 231.6 L 470.0 241.8 L 490.0 251.2" stroke="var(--accent-dark)" stroke-width="2.2" fill="none"/>
+  <text class="svg-note-sm" x="370" y="103" fill="var(--accent-dark)">diedro 10°</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">El momento de balanceo contra el derrape.</b> La pendiente en el origen es \(C_{l\beta}\), y aquí el signo es el que importa: negativo levanta el ala que bajó. Sin diedro sale positiva —el avión tiende a seguir cayendo— y basta un diedro de 5° para cambiarle el signo.</figcaption>
+</figure>
+<p>El remedio es geométrico y cuesta muy poco: levantar las puntas del ala. Con derrape, el ala que queda contra la corriente presenta un ángulo de ataque efectivo mayor que la otra —la componente lateral de la velocidad le llega por debajo— y sustenta más, de modo que aparece un momento que levanta el ala baja. Cuanto mayor el diedro, mayor esa diferencia.</p>
+<h3>Cuánto diedro hace falta</h3>
+<p>Las tres corridas lo miden. Con 5° de diedro, <span>\(C_{l\beta}\)</span> pasa a <span>\(-0.0611\)</span>; con 10°, a <span>\(-0.1413\)</span>. Entre los dos casos la relación es casi perfectamente lineal:</p>
+<div class="result-box">
+  El diedro mueve <span>\(C_{l\beta}\)</span> en <span>\(-0.0155\)</span> por radián y por <strong>grado</strong> de diedro: <span>\(-0.01547\)</span> medido con 5° y <span>\(-0.01575\)</span> con 10°. Basta poco más de <strong>un grado</strong> de diedro —1.03°, con la tasa medida— para llevar a cero la inestabilidad de partida.
+</div>
+<p>De ahí que casi todo avión de ala baja lleve diedro visible, y que un planeador de ala alta necesite menos: la posición del ala respecto del fuselaje aporta por su cuenta un efecto del mismo signo, que este modelo sin fuselaje no puede ver.</p>
+<div class="callout">
+  <p><strong>Cómo se cambia en el programa.</strong> El diedro es una columna de la tabla de secciones del ala, <code>dihedral(°)</code>, y se escribe en la fila de la raíz: se aplica al tramo que va de esa sección a la siguiente. Como tocar la geometría invalida las polares ya calculadas, cada variante de esta guía es un <strong>avión propio</strong>, duplicado con <code>Plane ▸ Current Plane ▸ Duplicate</code>. El editor confirma el cambio en la envergadura proyectada: 1.60 m con diedro nulo, 1.59 m con 5° y 1.58 m con 10°.</p>
+</div>
+
+    </section>
+    <section id="tradeoff-es">
+      <p class="section-label">Paso 6</p>
+      <h2>Lo que el diedro cuesta en guiñada</h2>
+
+<p>Queda la parte que un tutorial honesto no puede omitir: el diedro no sale gratis. Recórrase otra vez la tabla 3, ahora por la columna de <span>\(C_{n\beta}\)</span>.</p>
+<div class="result-box">
+  Con la deriva fija, <span>\(C_{n\beta}\)</span> baja de <span>\(+0.0594\)</span> sin diedro a <span>\(+0.0489\)</span> con 5° y a <span>\(+0.0397\)</span> con 10°. Diez grados de diedro se llevan un <strong>tercio</strong> de la estabilidad direccional que costó poner la deriva.
+</div>
+<p>La explicación más simple es geométrica: al levantar las puntas, el ala deja de estar en un plano horizontal y presenta superficie al flujo lateral, con parte de su sustentación inclinada, y esa contribución actúa cerca del centro de gravedad. Es una interpretación razonable de lo medido, no algo que estas corridas separen: para atribuirla habría que aislar la fuerza lateral del ala de la de la cola, y el análisis sólo reporta los coeficientes del conjunto.</p>
+<h3>Dónde se decide el reparto</h3>
+<p>El diseño lateral de un avión es, por eso, un reparto entre dos piezas que se estorban: la deriva pone la estabilidad direccional y el diedro la de balanceo, pero cada grado de diedro obliga a algo más de deriva. Esta guía se detiene en la estática; el equilibrio fino entre las dos —demasiado diedro y poca deriva da un balanceo holandés incómodo, y lo contrario una espiral divergente— se decide en la <strong>estabilidad dinámica</strong>, que es una continuación de esta serie.</p>
+<div class="callout">
+  <p><strong>Y estas cifras son optimistas.</strong> El modelo no incluye fuselaje. Un fuselaje real es superficie lateral repartida a lo largo del avión, buena parte por delante del centro de gravedad, y su contribución a <span>\(C_{n\beta}\)</span> es desestabilizadora: la deriva de un avión completo tiene que ser mayor que la que aquí basta. El Tutorial 3.2 medirá ese efecto en lugar de citarlo.</p>
+</div>
+
+    </section>
+    <section id="example-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>Cuánta deriva hace falta</h2>
+
+<p class="lead">Esta práctica no se entrega. Sirve para comprobar que el reparto entre la deriva y el diedro se entendió, y para medir cuánto de cada uno hace falta en un avión concreto.</p>
+<div class="example">
+  <p><strong>Enunciado.</strong> Partiendo del avión de esta guía, cambiar la altura de la deriva a 0.100 m y a 0.200 m, sin mover su borde de ataque ni su cuerda. Para cada variante, obtener el volumen de cola vertical, <span>\(C_{n\beta}\)</span> y <span>\(C_{l\beta}\)</span>, y determinar cuánto diedro haría falta para que <span>\(C_{l\beta}\)</span> valga <span>\(-0.05\)</span> por radián.</p>
+  <p><strong>Condiciones.</strong> Las del tutorial: VLM2 no viscoso, <span>\(\alpha = 4^\circ\)</span>, <span>\(V_\infty = 10\)</span> m/s, 1.000 kg, <span>\(x_{CG} = 0.060\)</span> m, <span>\(\beta\)</span> de <span>\(-10^\circ\)</span> a <span>\(10^\circ\)</span> cada grado, con el ajuste en <span>\(|\beta| \le 5^\circ\)</span>.</p>
+</div>
+<h3>El procedimiento, en corto</h3>
+<ol>
+  <li><code>Plane ▸ Current Plane ▸ Duplicate</code> y un nombre propio para cada variante: tocar la geometría de un avión con polares las invalida.</li>
+  <li><code>Plane ▸ Current Plane ▸ Edit fin</code> y cambiar la altura en la segunda sección.</li>
+  <li>Anotar del editor el área de la deriva y calcular <span>\(V_v = S_v\,l_v/(S\,b)\)</span>.</li>
+  <li>Definir el análisis Type 5, ejecutarlo y exportar la polar con <code>Polars ▸ Current Polar ▸ Export results</code>.</li>
+  <li>Ajustar las pendientes en <span>\(|\beta| \le 5^\circ\)</span>.</li>
+</ol>
+<h3>Registro de resultados</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Altura de la deriva</th><th>\(S_v\) (m²)</th><th>\(V_v\)</th><th>\(C_{n\beta}\) (rad⁻¹)</th><th>\(C_{l\beta}\) (rad⁻¹)</th></tr></thead>
+    <tbody>
+      <tr><td>0.100 m</td><td>0.012</td><td></td><td></td><td></td></tr>
+      <tr><td>0.150 m (esta guía)</td><td>0.018</td><td>0.0200</td><td>+0.0594</td><td>+0.0163</td></tr>
+      <tr><td>0.200 m</td><td>0.024</td><td></td><td></td><td></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 5.</b> <b class="fig-title">Plantilla de registro de la práctica.</b> La fila de esta guía está llena para poder contrastar. Las otras se llenan con la misma receta: una copia del avión por variante, su polar Type 5 y el ajuste en \(|\beta| \le 5^\circ\).</caption>
+  </table>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>¿Crece <span>\(C_{n\beta}\)</span> en proporción al volumen de cola vertical, o se satura? Compárese con lo que ocurría en el Tutorial 3.3 al agrandar el estabilizador.</li>
+  <li>¿Cambia <span>\(C_{l\beta}\)</span> al agrandar la deriva? Razónese antes de correr el análisis: ¿dónde actúa esa fuerza lateral respecto del centro de gravedad?</li>
+  <li>Con la deriva más pequeña, ¿sigue siendo el 99 % de la estabilidad direccional, o el ala empieza a contar?</li>
+  <li>Si el avión llevara fuselaje, ¿en qué dirección se moverían estas cifras? ¿Y cuál de las dos derivadas se vería más afectada?</li>
+  <li>Con un grado escaso de diedro, <span>\(C_{l\beta}\)</span> queda en cero. ¿Es eso un buen diseño? Razónese con lo que ocurre ante una ráfaga, no con el signo.</li>
+</ol>
+
+    </section>
+    <section id="summary-es">
+      <p class="section-label">Puntos clave</p>
+      <h2>Cuatro afirmaciones y dos relaciones</h2>
+
+<p>Lo que hay que retener de esta guía cabe en cuatro afirmaciones.</p>
+<div class="result-box">
+  <strong>Una.</strong> La estabilidad direccional es <span>\(C_{n\beta} > 0\)</span> y la de balanceo es <span>\(C_{l\beta} < 0\)</span>: los signos son contrarios porque en ambos casos el momento debe oponerse a la perturbación. <strong>Dos.</strong> La deriva pone casi toda la primera: el 99 % en este avión. <strong>Tres.</strong> El diedro pone toda la segunda, a razón de <span>\(-0.0155\)</span> por radián y por grado de diedro. <strong>Cuatro.</strong> Cada grado de diedro cuesta estabilidad direccional: diez grados se llevan un tercio de la que puso la deriva.
+</div>
+<p>Y dos relaciones, las dos comprobadas con las corridas de esta guía:</p>
+<div class="equation-card">\[ C_{n\beta} \;=\; \frac{\partial C_n}{\partial \beta} \;>\; 0, \qquad C_{l\beta} \;=\; \frac{\partial C_l}{\partial \beta} \;<\; 0, \qquad V_v \;=\; \frac{S_v\,l_v}{S\,b} \]</div>
+<p>El volumen de cola vertical de este avión, <span>\(V_v = 0.0200\)</span>, es la cifra que resume cuánta deriva lleva, igual que el 0.45 del volumen horizontal resumía cuánto estabilizador. Las dos se calculan a mano: el programa sólo reporta la segunda.</p>
+<figure class="diagram">
+  <img src="imagenes/t34-04_vista3d.png" alt="Vista tridimensional del avión con diez grados de derrape" loading="lazy">
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">El avión derrapando, visto en tres dimensiones.</b> Punto de operación de <span>\(\beta = 10^\circ\)</span>: la corriente llega de costado y la deriva aparece cargada. El recuadro da <code>Cl = 0.003</code> y <code>Cn = 0.010</code>, que son los valores de la polar exportada. <code>XNP</code> marca aquí <span>\(-0.375\)</span> m y no significa nada: el punto neutro se obtiene derivando respecto del ángulo de ataque, que en este análisis no varía.</figcaption>
+</figure>
+
+    </section>
+    <section id="mistakes-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Errores que invalidan un estudio lateral</h2>
+
+<p>Como en el resto de la serie, éstos no son errores de manejo sino de interpretación.</p>
+<ul>
+  <li><strong>Leer la gráfica por su rótulo.</strong> Resulta verosímil porque el rótulo está impreso en el eje. Cambiadas las variables con el programa abierto, XFLR5 puede seguir rotulando <code>CL</code> y <code>CD</code> el resto de la sesión aunque dibuje <span>\(C_n\)</span> contra <span>\(\beta\)</span>. Hay que fiarse de lo que se eligió en <code>Variables</code>, y decirlo en el pie de cualquier figura que se publique.</li>
+  <li><strong>Confundir <code>CL</code> con <code>Cl</code> en la lista de variables.</strong> Resulta verosímil porque están a dos renglones y sólo cambia una mayúscula. La primera es la sustentación del avión; la segunda, el momento de balanceo. El programa no protesta: dibuja una curva plausible de otra magnitud.</li>
+  <li><strong>Pedir un análisis con derrape y dejar el método del Tutorial 2.1.</strong> Resulta verosímil porque VLM1 fue suficiente hasta ahora. Con Type 5 el programa lo deshabilita y lo rotula <code>(No sideslip)</code>: el método de herradura no representa el derrape, y el análisis se corre en VLM2.</li>
+  <li><strong>Interpretar el signo de <span>\(C_{l\beta}\)</span> como el de <span>\(C_{n\beta}\)</span>.</strong> Resulta verosímil porque ambas son «estabilidad». Positiva es estable en guiñada y <em>inestable</em> en balanceo: el criterio es que el momento se oponga a la perturbación, y las dos perturbaciones tienen signos contrarios.</li>
+  <li><strong>Dar por buenas estas cifras para un avión con fuselaje.</strong> Resulta verosímil porque el modelo es el mismo. El fuselaje desestabiliza en guiñada, y la deriva de un avión completo tiene que ser mayor que la que aquí basta.</li>
+  <li><strong>Leer el punto neutro en la vista 3D de un análisis Type 5.</strong> Resulta verosímil porque el recuadro lo muestra igual que siempre. Se obtiene derivando respecto del ángulo de ataque, que en este análisis está fijo: el valor que aparece no significa nada.</li>
+  <li><strong>Ajustar la pendiente con todo el barrido.</strong> Resulta verosímil porque usa todos los puntos. Las curvas se apartan de la recta al crecer <span>\(\beta\)</span>, y con 10° de diedro hay además un rizo cerca de <span>\(\pm 8^\circ\)</span>: la derivada se mide cerca del origen y se declara el intervalo.</li>
+</ul>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ol>
+  <li>Etkin, B. y Reid, L. D. <em>Dynamics of Flight: Stability and Control</em>, 3.ª ed. Nueva York: Wiley, 1996, capítulo 3: derivadas laterales, contribución de la deriva y efecto diedro.</li>
+  <li>Nelson, R. C. <em>Flight Stability and Automatic Control</em>, 2.ª ed. Boston: McGraw-Hill, 1998, capítulo 3: estabilidad direccional y de balanceo, y volumen de cola vertical.</li>
+  <li>Anderson, J. D., Jr. <em>Introduction to Flight</em>, 8.ª ed. Nueva York: McGraw-Hill Education, 2016, capítulo 7.</li>
+  <li>Deperrois, A. <em>Guidelines for XFLR5</em>, sección de análisis con derrape y tipos de polar.</li>
+</ol>
+<p class="source-note">Capturas de pantalla tomadas de XFLR5 v6.62 sobre macOS. Los valores numéricos proceden de las cuatro polares Type 5 exportadas con <code>Export results</code> y ajustadas por mínimos cuadrados en <span>\(|\beta| \le 5^\circ\)</span>; el proyecto con los cuatro aviones acompaña a esta guía. El siguiente tutorial de la serie, el 3.5, cierra el bloque del avión: del coeficiente al avión que vuela, con el análisis Type 2 de sustentación fija.</p>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="estabilidad-longitudinal.html?v=13"><span>Tutorial anterior</span>← Estabilidad estática longitudinal</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>XFLR5 · Serie de tutoriales</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Die beiden Querstabilitäten unterscheiden und je als Vorzeichen einer Ableitung schreiben; ein Seitenleitwerk ergänzen und über sein Leitwerksvolumen auslegen; eine Type-5-Analyse mit Schiebewinkel definieren; Cn und Cl über Beta im Programm ablesen; und durch Differenzbildung messen, wie viel Seitenleitwerk und V-Stellung jeweils beitragen. Im Lehrplan folgt dieses Tutorial auf 3.1 und 3.2, die noch nicht erschienen sind.</p><div class="callout"><p><strong>Zur Programmversion.</strong> Das Projekt XFLR5 wurde am 30. Juni 2026 eingestellt: XFLR5 v6.62, mit der diese Anleitung geprüft wurde, ist die letzte Version. Die Entwicklung wird in <a href="https://flow5.tech" target="_blank" rel="noopener">flow5</a> fortgesetzt, das als Version 7 von XFLR5 gilt und seit dem 1. Januar 2026 quelloffen ist. Die Reihe bleibt aus zwei Gründen bei XFLR5: Ein eingefrorenes Programm hält diese Anleitungen gültig, und XFLR5 wurde für Flugzeuge im Modellmaßstab entwickelt, den Maßstab der Beispiele. XFLR5 v6.62 für Windows und macOS ist weiterhin bei <a href="https://sourceforge.net/projects/xflr5/files/6.62/" target="_blank" rel="noopener">SourceForge</a> erhältlich.</p></div><p></p>
+    </section>
+    <section id="physics-de">
+      <p class="section-label">Die Physik</p>
+      <h2>Schiebewinkel, Gieren und Rollen</h2>
+<p>Eine Bö von der Seite erzeugt den Schiebewinkel Beta. Zwei unabhängige Dinge können folgen: Gieren, bestimmt durch Cn, und Rollen, bestimmt durch Cl. Richtungsstabilität verlangt Cn_beta > 0, Rollstabilität Cl_beta < 0. Die Vorzeichen unterscheiden sich, weil das Moment der Störung entgegenwirken muss und beide Störungen entgegengesetzt gerichtet sind. Um das erste kümmert sich das Seitenleitwerk, um das zweite die V-Stellung.</p>
+    </section>
+    <section id="model-de">
+      <p class="section-label">Gültigkeit und Grenzen</p>
+      <h2>Was diese Analyse misst und was nicht</h2>
+<p>Dieselbe reibungsfreie VLM2-Analyse wie in Tutorial 3.3, nun mit Schiebewinkel und einer Fläche mehr. Sie liefert die drei Ableitungen beim angegebenen Anstellwinkel und die getrennten Beiträge von Seitenleitwerk und V-Stellung. Nicht enthalten sind der Rumpf, der beim Gieren destabilisiert, der Strömungsabriss und das Zeitverhalten.</p>
+    </section>
+    <section id="interface-de">
+      <p class="section-label">Orientierung</p>
+      <h2>Wo Seitenleitwerk und Schiebewinkel zu finden sind</h2>
+<p>Alles geschieht in Wing and Plane Design. Das Seitenleitwerk wird im Flugzeugeditor per Kontrollkästchen aktiviert, und XFLR5 bearbeitet es im selben Fenster Wing Edition wie den Flügel — daher meldet es 0,30 m Spannweite für ein 0,150 m hohes Leitwerk: es nimmt eine symmetrische Fläche an. Die Fläche, 0,018 m², stimmt.</p>
+    </section>
+    <section id="plane-de">
+      <p class="section-label">Schritt 1</p>
+      <h2>Das Seitenleitwerk ergänzen</h2>
+<p>Das Flugzeug aus Tutorial 3.3 mit Seitenleitwerk: rechteckig, NACA 0009, 0,150 m hoch und 0,120 m Tiefe, Nasenleiste bei x = 0,600 m wie beim Höhenleitwerk. Seine Größe misst das Seitenleitwerksvolumen V_v = S_v l_v / (S b) = 0,0200, das das Programm nicht ausgibt: die Anzeige TailVolume ist die des Höhenleitwerks.</p>
+    </section>
+    <section id="analysis-de">
+      <p class="section-label">Schritt 2</p>
+      <h2>Die Analyse mit Schiebewinkel</h2>
+<p>Type 5 (Beta range) fährt den Schiebewinkel bei festem Anstellwinkel ab: die Auswahl aktiviert das Alpha-Feld und sperrt Beta — umgekehrt als bei Type 1. Das Programm stellt zudem selbst auf VLM2 um und sperrt LLT und VLM1, das den Zusatz (No sideslip) trägt. Masse und Schwerpunkt werden je Analyse angegeben wie in 3.3.</p>
+    </section>
+    <section id="reading-de">
+      <p class="section-label">Schritt 3</p>
+      <h2>Cn und Cl über β ablesen</h2>
+<p>Die vier voreingestellten Diagramme laufen über Alpha, das in einer Schiebepolare fest ist: jede Kurve wird zur senkrechten Linie. Die Achsen müssen auf Cn und Cl über Beta umgestellt werden, Diagramm für Diagramm. Beide Kurven gehen durch den Ursprung und sind ungerade in Beta — die Symmetrieprüfung. Die Ableitungen sind Ausgleichsgeraden in |Beta| <= 5 Grad; das Intervall wird angegeben.</p>
+    </section>
+    <section id="fin-de">
+      <p class="section-label">Schritt 4</p>
+      <h2>Wie viel das Seitenleitwerk beiträgt</h2>
+<p>Der Vergleich mit und ohne Seitenleitwerk trennt seinen Anteil ab. Ohne es ist Cn_beta = +0,0008 pro Radiant, das Flugzeug also indifferent im Gieren; mit ihm +0,0594. Das Leitwerk liefert 99 % der Richtungsstabilität und 82 % der Seitenkraft, weil es mit dem vollen Hebelarm arbeitet.</p>
+    </section>
+    <section id="dihedral-de">
+      <p class="section-label">Schritt 5</p>
+      <h2>Die V-Stellung und das Rollmoment</h2>
+<p>Ohne V-Stellung ist das Flugzeug rollinstabil: Cl_beta = +0,0163 pro Radiant. Das Anheben der Flügelenden ändert das, und zwar nahezu linear: -0,0155 pro Radiant und Grad V-Stellung, sodass gut ein Grad zur Neutralität reicht. Die Spalte dihedral steht in der Schnitttabelle des Flügels; jede Variante ist ein dupliziertes Flugzeug, weil das Bearbeiten der Geometrie die Polaren verwirft.</p>
+    </section>
+    <section id="tradeoff-de">
+      <p class="section-label">Schritt 6</p>
+      <h2>Was die V-Stellung beim Gieren kostet</h2>
+<p>Die V-Stellung ist nicht umsonst. Bei unverändertem Leitwerk fällt Cn_beta von +0,0594 ohne V-Stellung auf +0,0397 bei zehn Grad: ein Drittel der erkauften Richtungsstabilität. Der Querentwurf ist ein Handel zwischen zwei Teilen, die einander stören; die Feinabstimmung gehört zur dynamischen Stabilität. Die Werte sind zudem optimistisch, da das Modell keinen Rumpf hat.</p>
+    </section>
+    <section id="example-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Wie viel Seitenleitwerk ist nötig</h2>
+<p>Übungsvorschlag, keine Abgabe: die Höhe des Seitenleitwerks auf 0,100 m und 0,200 m ändern, für jede Variante Leitwerksvolumen und beide Ableitungen bestimmen und ausrechnen, wie viel V-Stellung Cl_beta auf -0,05 pro Radiant brächte.</p>
+    </section>
+    <section id="summary-de">
+      <p class="section-label">Kernpunkte</p>
+      <h2>Vier Aussagen und zwei Beziehungen</h2>
+<p>Richtungsstabilität heißt Cn_beta > 0, Rollstabilität Cl_beta < 0; das Seitenleitwerk liefert fast die erste vollständig, die V-Stellung die zweite mit -0,0155 pro Radiant und Grad; und jedes Grad V-Stellung kostet Richtungsstabilität. Das Seitenleitwerksvolumen dieses Flugzeugs beträgt 0,0200.</p>
+    </section>
+    <section id="mistakes-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Fehler, die eine Querstabilitätsstudie entwerten</h2>
+<p>Ein Diagramm nach der aufgedruckten Achsenbeschriftung lesen, nachdem die Variablen geändert wurden; CL mit Cl in der Variablenliste verwechseln; VLM1 für eine Schiebeanalyse stehen lassen; das Vorzeichen von Cl_beta wie das von Cn_beta deuten; diese Werte auf ein Flugzeug mit Rumpf übertragen; den Neutralpunkt in einem Type-5-Lauf ablesen; und die Steigung über den ganzen Bereich ausgleichen.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>Etkin und Reid, Nelson, Anderson sowie die XFLR5-Guidelines. Bildschirmfotos aus XFLR5 v6.62 unter macOS; die Zahlen stammen aus vier exportierten Type-5-Polaren, nach kleinsten Quadraten ausgeglichen; das Projekt mit den vier Flugzeugen liegt bei.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="estabilidad-longitudinal.html?v=13"><span>Vorheriges Tutorial</span>← Statische Längsstabilität</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>XFLR5 · Tutorialreihe</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>

@@ -55,6 +55,9 @@
       <h2>What you should be able to do</h2>
       <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
       <p>Load an airfoil by either route, define a viscous analysis, run an angle-of-attack sweep, read the four polars and the pressure distribution, and know the interval in which the results carry physical meaning.</p>
+      <div class="callout">
+        <p><strong>About the program version.</strong> The XFLR5 project was closed on 30 June 2026: version 6.62, on which this guide was verified, is the final release. Development continues in <a href="https://flow5.tech" target="_blank" rel="noopener">flow5</a>, presented as version 7 of XFLR5 and open source since 1 January 2026. The series stays with XFLR5 for two reasons: a frozen program keeps these instructions valid, and XFLR5 was developed for model-scale aircraft, which is the scale of the examples. Version 6.62 for Windows and macOS remains available on <a href="https://sourceforge.net/projects/xflr5/files/6.62/" target="_blank" rel="noopener">SourceForge</a>.</p>
+      </div>
     </section>
     <section id="physics">
       <p class="section-label">The method</p>
@@ -121,10 +124,11 @@
   <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 4.</li>
   <li><a href="http://airfoiltools.com" target="_blank" rel="noopener noreferrer">Airfoil Tools</a> y la <a href="https://m-selig.ae.illinois.edu/ads/coord_database.html" target="_blank" rel="noopener noreferrer">UIUC Airfoil Coordinates Database</a>, fuentes de archivos de coordenadas.</li>
 </ol>
-<p class="source-note">Capturas de pantalla tomadas de XFLR5 v6.62 sobre macOS. Todos los valores numéricos proceden de la corrida documentada en las figuras 9 y 12, ejecutada expresamente para esta guía; los valores de contraste se recalcularon a partir de la teoría de perfil delgado. El siguiente tutorial de la serie, el 1.2, cierra el trabajo sobre el perfil con el análisis por lotes y las herramientas de geometría: comparar familias enteras en una corrida, escalar curvatura y espesor, interpolar entre perfiles y añadir un flap.</p>
+<p class="source-note">Screenshots taken from XFLR5 v6.62 on macOS. The numerical values come from the run documented in figures 9 and 12, carried out for this guide, except figure 11, which is drawn from the exported polar of the same airfoil under the same conditions; the contrast values were recomputed from thin-airfoil theory. The next tutorial, 1.2, completes the work on the airfoil with batch analysis and the geometry tools.</p>
     </section>
     <nav class="next-nav">
       <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>XFLR5 · Tutorial series</a>
+      <a class="next-link" href="lotes-y-geometria.html?v=13"><span>Next tutorial</span>Batch Analysis and Airfoil Geometry →</a>
     </nav>
   </article>
 
@@ -141,6 +145,9 @@
   <li>Leer una distribución de coeficiente de presión y localizar en ella el estancamiento, el pico de succión, la transición y el gradiente adverso.</li>
   <li>Reconocer el intervalo en que los resultados admiten interpretación física y truncar la curva donde corresponde.</li>
 </ul>
+<div class="callout">
+  <p><strong>Sobre la versión del programa.</strong> El proyecto XFLR5 se cerró el 30 de junio de 2026: la versión 6.62, con la que se verificó esta guía, es la última y ya no recibirá cambios. El desarrollo continúa en <a href="https://flow5.tech" target="_blank" rel="noopener">flow5</a>, que se presenta como la versión 7 de XFLR5 y es de código abierto desde el 1 de enero de 2026. La serie se mantiene en XFLR5 por dos razones: al estar congelado, lo que aquí se describe ya no va a cambiar, y el programa se desarrolló para aeronaves a escala de modelo, que es la escala de los ejemplos de la serie. La versión 6.62 para Windows y macOS sigue disponible en <a href="https://sourceforge.net/projects/xflr5/files/6.62/" target="_blank" rel="noopener">SourceForge</a>.</p>
+</div>
     </section>
     <section id="physics-es">
       <p class="section-label">El método</p>
@@ -185,7 +192,7 @@
     <thead><tr><th>Módulo</th><th>Función</th><th>Uso en esta guía</th></tr></thead>
     <tbody>
       <tr><td><strong>Direct Foil Design</strong></td><td>Cargar, generar y editar la geometría del perfil</td><td>Paso 1</td></tr>
-      <tr><td><strong>XFoil Inverse Design</strong></td><td>Problema inverso: obtener la geometría a partir de una distribución de velocidad objetivo</td><td>No se emplea</td></tr>
+      <tr><td><strong>XFoil Inverse Design</strong></td><td>Problema inverso: obtener la geometría a partir de una distribución de velocidad objetivo</td><td>Tutorial 1.3</td></tr>
       <tr><td><strong>XFoil Direct Analysis</strong></td><td>Análisis bidimensional: puntos de operación y polares</td><td>Pasos 2 a 5</td></tr>
       <tr><td><strong>Wing and Plane Design</strong></td><td>Ala finita y aeronave completa: línea sustentadora, malla de vórtices y paneles tridimensionales</td><td>Tutorial 2.1</td></tr>
     </tbody>
@@ -260,7 +267,7 @@
     <tbody>
       <tr><td><strong>Type 1</strong></td><td>La velocidad, y con ella \(Re\)</td><td><strong>El caso habitual.</strong> Ensayo en túnel de viento, comparación de perfiles y ejercicios de curso</td></tr>
       <tr><td><strong>Type 2</strong></td><td>La sustentación: \(Re\sqrt{C_l}\) constante</td><td>Vuelo nivelado: al aumentar el ángulo de ataque, la velocidad disminuye</td></tr>
-      <tr><td><strong>Type 3</strong></td><td>Las revoluciones</td><td>Secciones de pala de hélice</td></tr>
+      <tr><td><strong>Type 3</strong></td><td>La sustentación y la velocidad: \(Re\,C_l\) constante</td><td>Cuerda «elástica» (<em>rubber chord</em>): la cuerda que da una sustentación dada a una velocidad dada</td></tr>
       <tr><td><strong>Type 4</strong></td><td>El ángulo de ataque; barre \(Re\)</td><td>Estudio del efecto de escala sobre un mismo ángulo</td></tr>
     </tbody>
     <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">Los cuatro tipos de análisis.</b> La elección del tipo determina qué magnitud se mantiene constante a lo largo del barrido y, por tanto, qué ensayo físico se está reproduciendo.</caption>
@@ -289,7 +296,7 @@
 </div>
 
 <h3>El número de Mach</h3>
-<p>Se deja en cero para todo régimen por debajo de \(M = 0.3\): el efecto de la compresibilidad es despreciable y la convergencia mejora. Por encima de ese valor XFoil aplica la corrección de Kármán–Tsien, válida hasta \(M \approx 0.6\) mientras el flujo se mantenga subcrítico. En cuanto aparece una onda de choque en el extradós, el resultado deja de tener significado físico.</p>
+<p>Se deja en cero para todo régimen por debajo de \(M = 0.3\): el efecto de la compresibilidad es despreciable y la convergencia mejora. Si se declara un número de Mach distinto de cero, XFoil aplica la corrección de compresibilidad de Kármán–Tsien, que da buenos resultados mientras el flujo sobre el perfil se mantenga subsónico. En cuanto aparece una onda de choque en el extradós, el resultado deja de tener significado físico.</p>
 
 <h3>El factor \(N_{\mathrm{crit}}\)</h3>
 <p>Es el factor de amplificación del criterio \(e^{N}\): el número de órdenes de crecimiento que debe acumular una perturbación antes de que la capa límite se declare turbulenta. En la práctica, es el parámetro que describe el nivel de turbulencia de la corriente y el acabado de la superficie.</p>
@@ -299,10 +306,11 @@
     <tbody>
       <tr><td>4 – 8</td><td>Túnel de elevada turbulencia residual; superficie con rugosidad apreciable</td></tr>
       <tr><td><strong>9</strong></td><td><strong>Valor de referencia:</strong> túnel de viento convencional. Debe emplearse salvo que exista una razón documentada para no hacerlo</td></tr>
-      <tr><td>10 – 12</td><td>Túnel de baja turbulencia; motovelero con superficie pulida</td></tr>
+      <tr><td>10 – 12</td><td>Túnel de baja turbulencia</td></tr>
+      <tr><td>11 – 13</td><td>Motovelero</td></tr>
       <tr><td>12 – 14</td><td>Velero de competición en atmósfera muy estable</td></tr>
     </tbody>
-    <caption><b class="tab-num">Tabla 5.</b> <b class="fig-title">Valores de \(N_{\mathrm{crit}}\) y entorno que representan.</b> El parámetro no describe el perfil, sino las condiciones del ensayo con el que se pretende comparar.</caption>
+    <caption><b class="tab-num">Tabla 5.</b> <b class="fig-title">Valores de \(N_{\mathrm{crit}}\) y entorno que representan.</b> El parámetro no describe el perfil, sino las condiciones del ensayo con el que se pretende comparar. Los intervalos son los del manual de XFoil.</caption>
   </table>
 </div>
 <div class="callout">
@@ -415,29 +423,29 @@
       </g>
       <text class="svg-tick" x="285" y="326" text-anchor="middle">C_d</text>
       <text class="svg-tick" x="30" y="160" text-anchor="middle" transform="rotate(-90 30 160)">C_l</text>
-      <path class="svg-leader" d="M 80 210 L 300 65" stroke="var(--accent-dark)" stroke-dasharray="5 3"/>
-      <path class="svg-line" d="M 224 250 L 206 230 L 192 210 L 184 190 L 181 170 L 187 150 L 203 130 L 233 110 L 299 90 L 388 78 L 442 75" stroke="var(--blue)" stroke-width="2.4"/>
+      <path class="svg-leader" d="M 80 210 L 302.2 65" stroke="var(--accent-dark)" stroke-dasharray="5 3"/>
+      <path class="svg-line" d="M 247.7 254.1 L 237.4 246.8 L 227.1 240.3 L 217.8 234.4 L 209.7 228.8 L 202.5 223.3 L 195.9 218.0 L 189.9 212.7 L 183.7 207.4 L 176.9 202.2 L 171.5 197.1 L 168.1 192.1 L 166.4 187.1 L 167.7 181.9 L 171.0 175.5 L 175.1 167.9 L 179.1 159.7 L 181.9 153.6 L 185.4 148.8 L 189.2 144.1 L 193.3 139.3 L 198.2 134.5 L 203.6 129.8 L 210.3 125.0 L 219.2 120.3 L 230.7 115.8 L 244.7 111.5 L 260.0 107.2 L 275.8 103.0 L 291.9 98.9 L 307.0 94.8 L 323.4 90.9 L 341.1 87.4 L 362.1 84.7 L 380.6 81.8 L 410.0 80.0 L 436.2 77.6 L 471.4 76.0" stroke="var(--blue)" stroke-width="2.4"/>
       <g>
-      <circle cx="181" cy="170" r="8.5" fill="var(--accent)"/>
-      <text x="181" y="173.6" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="700">1</text>
-      <circle cx="217" cy="120" r="8.5" fill="var(--accent)"/>
-      <text x="217" y="123.6" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="700">2</text>
-      <circle cx="299" cy="90" r="8.5" fill="var(--accent)"/>
-      <text x="299" y="93.6" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="700">3</text>
+      <circle cx="166.4" cy="187.1" r="8.5" fill="var(--accent)"/>
+      <text x="166.4" y="190.7" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="700">1</text>
+      <circle cx="210.3" cy="125.0" r="8.5" fill="var(--accent)"/>
+      <text x="210.3" y="128.6" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="700">2</text>
+      <circle cx="341.1" cy="87.4" r="8.5" fill="var(--accent)"/>
+      <text x="341.1" y="91.0" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="700">3</text>
       </g>
       <g>
       <circle cx="80" cy="348" r="8.5" fill="var(--accent)"/>
       <text x="80" y="351.6" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="700">1</text>
-      <text class="svg-note-sm" x="96" y="352">C_d,mín ≈ 0.0074  —  arrastre mínimo, en C_l ≈ 0.4</text>
+      <text class="svg-note-sm" x="96" y="352">C_d,mín ≈ 0.0063  —  arrastre mínimo, en C_l ≈ 0.23</text>
       <circle cx="80" cy="370" r="8.5" fill="var(--accent)"/>
       <text x="80" y="373.6" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="700">2</text>
-      <text class="svg-note-sm" x="96" y="374">(C_l/C_d)máx  —  punto de tangencia de la recta desde el origen</text>
+      <text class="svg-note-sm" x="96" y="374">(C_l/C_d)máx ≈ 89  —  tangencia de la recta desde el origen</text>
       <circle cx="80" cy="392" r="8.5" fill="var(--accent)"/>
       <text x="80" y="395.6" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="700">3</text>
       <text class="svg-note-sm" x="96" y="396">codo de la polar  —  el arrastre se dispara hacia la pérdida</text>
       </g>
       </svg>
-  <figcaption><b class="fig-num">Figura 11.</b> <b class="fig-title">Polar de arrastre y construcción de la eficiencia máxima.</b> La pendiente de cualquier recta trazada desde el origen hasta un punto de la polar vale \(C_l/C_d\); la recta de mayor pendiente que aún toca la curva es su tangente desde el origen, y el punto de tangencia ② es por tanto el de eficiencia aerodinámica máxima. Obsérvese que <strong>no coincide</strong> con el punto de arrastre mínimo ①, que se sitúa a menor sustentación: minimizar el arrastre y maximizar la eficiencia son objetivos distintos. El codo ③ marca el tramo en que el arrastre crece mucho más deprisa que la sustentación al aproximarse a la pérdida. En la corrida de la figura 9 la eficiencia máxima resulta \(L/D = 86.2\) en \(\alpha = 6^\circ\).</figcaption>
+  <figcaption><b class="fig-num">Figura 11.</b> <b class="fig-title">Polar de arrastre y construcción de la eficiencia máxima.</b> La pendiente de cualquier recta trazada desde el origen hasta un punto de la polar vale \(C_l/C_d\); la recta de mayor pendiente que aún toca la curva es su tangente desde el origen, y el punto de tangencia ② es por tanto el de eficiencia aerodinámica máxima. Obsérvese que <strong>no coincide</strong> con el punto de arrastre mínimo ①, que se sitúa a menor sustentación: minimizar el arrastre y maximizar la eficiencia son objetivos distintos. El codo ③ marca el tramo en que el arrastre crece mucho más deprisa que la sustentación al aproximarse a la pérdida. La curva está trazada con la polar exportada del mismo NACA 2412 en las mismas condiciones, la que acompaña al Tutorial 1.3: arrastre mínimo \(C_d = 0.0063\) en \(\alpha = 0^\circ\) y eficiencia máxima \(L/D = 89.4\) en \(\alpha = 5.5^\circ\). La corrida de la figura 12 da \(L/D = 86.2\) en \(\alpha = 6^\circ\), junto a ese máximo.</figcaption>
 </figure>
 
 <h3>Las cuatro lecturas que importan</h3>
@@ -445,7 +453,7 @@
   <table>
     <thead><tr><th>Representación</th><th>Magnitudes que se extraen</th><th>Valor de contraste</th></tr></thead>
     <tbody>
-      <tr><td><strong>\(C_l\) vs \(\alpha\)</strong></td><td>Pendiente \(a_0\), ángulo de sustentación nula \(\alpha_{L=0}\), \(C_{l,\max}\) y el ángulo en que se alcanza</td><td>Teoría de perfil delgado: \(a_0 = 2\pi\ \mathrm{rad}^{-1} = 0.110\ \mathrm{grado}^{-1}\). El cálculo viscoso devuelve entre 0.10 y 0.11; un valor de 0.13 indica que el perfil no está normalizado</td></tr>
+      <tr><td><strong>\(C_l\) vs \(\alpha\)</strong></td><td>Pendiente \(a_0\), ángulo de sustentación nula \(\alpha_{L=0}\), \(C_{l,\max}\) y el ángulo en que se alcanza</td><td>Teoría de perfil delgado: \(a_0 = 2\pi\ \mathrm{rad}^{-1} = 0.110\ \mathrm{grado}^{-1}\). El cálculo viscoso queda cerca, pero su pendiente depende del tramo: en la polar exportada del NACA 2412 a \(Re = 5\times 10^{5}\) sale 0.113 ajustando de \(-2^\circ\) a \(6^\circ\) y 0.124 de \(0^\circ\) a \(4^\circ\). Por eso se declara el intervalo del ajuste</td></tr>
       <tr><td><strong>\(C_d\) vs \(C_l\)</strong></td><td>\(C_{d,\min}\) y la sustentación a la que se produce, amplitud de la zona de bajo arrastre, y el punto de eficiencia máxima obtenido por tangencia desde el origen</td><td>Perfil limpio a \(Re = 5\times 10^{5}\): \(C_{d,\min}\) entre 0.006 y 0.009. Un valor del orden de 0.02 señala un error en la geometría o en el panelado</td></tr>
       <tr><td><strong>\(C_l/C_d\) vs \(\alpha\)</strong></td><td>Eficiencia aerodinámica de la sección. Su máximo determina el mejor ángulo de planeo; en una aeronave de hélice coincide además con la condición de máximo alcance, mientras que en una de reacción esa condición corresponde al máximo de \(C_l^{1/2}/C_d\)</td><td>Un perfil de calidad a \(Re \approx 10^{6}\) alcanza valores de 100 a 150; a \(Re = 10^{5}\), aproximadamente la mitad</td></tr>
       <tr><td><strong>\(C_m\) vs \(\alpha\)</strong></td><td>Momento respecto del cuarto de cuerda. Que permanezca constante en la zona lineal constituye la comprobación numérica de que ese punto es el centro aerodinámico</td><td>Perfil simétrico: \(C_m \approx 0\). NACA 2412: \(C_{m,c/4} \approx -0.05\)</td></tr>
@@ -587,7 +595,7 @@
     <ul>
       <li>El NACA 0012 pasa por el origen: \(\alpha_{L=0} = 0\) y \(C_{m,c/4} \approx 0\) en toda la zona lineal. Es la comprobación de que la geometría está bien cargada y normalizada.</li>
       <li>El NACA 2412 cruza \(C_l = 0\) en torno a \(-2^\circ\) y presenta un \(C_{m,c/4}\) negativo del orden de \(-0.05\): momento de picada, el que el estabilizador horizontal debe compensar.</li>
-      <li>Ambas pendientes resultan prácticamente iguales, entre 0.10 y 0.11 por grado, por debajo del valor potencial \(2\pi\). La diferencia la introduce el espesor de desplazamiento de la capa límite, que la teoría no viscosa no contempla.</li>
+      <li>Ambas pendientes resultan cercanas al valor de perfil delgado, 0.11 por grado, pero ni iguales a él ni constantes: el espesor tiende a aumentarla, la capa límite a reducirla, y la pendiente local cambia a medida que se desplaza la transición. Por eso se da siempre con su intervalo de ajuste.</li>
       <li>Los \(C_{d,\min}\) de ambas polares son similares; lo que cambia es la sustentación a la que se producen. En el NACA 0012 ocurre en \(C_l = 0\); en el NACA 2412, desplazado hacia sustentación positiva. En esa diferencia reside el argumento completo a favor de la curvatura.</li>
     </ul>
   </div>
@@ -633,10 +641,11 @@
   <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 4.</li>
   <li><a href="http://airfoiltools.com" target="_blank" rel="noopener noreferrer">Airfoil Tools</a> y la <a href="https://m-selig.ae.illinois.edu/ads/coord_database.html" target="_blank" rel="noopener noreferrer">UIUC Airfoil Coordinates Database</a>, fuentes de archivos de coordenadas.</li>
 </ol>
-<p class="source-note">Capturas de pantalla tomadas de XFLR5 v6.62 sobre macOS. Todos los valores numéricos proceden de la corrida documentada en las figuras 9 y 12, ejecutada expresamente para esta guía; los valores de contraste se recalcularon a partir de la teoría de perfil delgado. El siguiente tutorial de la serie, el 1.2, cierra el trabajo sobre el perfil con el análisis por lotes y las herramientas de geometría: comparar familias enteras en una corrida, escalar curvatura y espesor, interpolar entre perfiles y añadir un flap.</p>
+<p class="source-note">Capturas de pantalla tomadas de XFLR5 v6.62 sobre macOS. Los valores numéricos proceden de la corrida documentada en las figuras 9 y 12, ejecutada expresamente para esta guía, salvo la figura 11, trazada con la polar exportada del mismo perfil en las mismas condiciones; los valores de contraste se recalcularon a partir de la teoría de perfil delgado. El siguiente tutorial de la serie, el 1.2, cierra el trabajo sobre el perfil con el análisis por lotes y las herramientas de geometría: comparar familias enteras en una corrida, escalar curvatura y espesor, interpolar entre perfiles y añadir un flap.</p>
     </section>
     <nav class="next-nav">
       <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>XFLR5 · Serie de tutoriales</a>
+      <a class="next-link" href="lotes-y-geometria.html?v=13"><span>Tutorial siguiente</span>Análisis por lotes y geometría del perfil →</a>
     </nav>
   </article>
 
@@ -646,6 +655,9 @@
       <h2>Was Sie danach können sollten</h2>
       <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
       <p>Ein Profil auf einem der beiden Wege laden, eine viskose Analyse definieren, einen Anstellwinkel-Durchlauf ausführen, die vier Polaren und die Druckverteilung lesen und den Gültigkeitsbereich der Ergebnisse kennen.</p>
+      <div class="callout">
+        <p><strong>Zur Programmversion.</strong> Das Projekt XFLR5 wurde am 30. Juni 2026 eingestellt: XFLR5 v6.62, mit der diese Anleitung geprüft wurde, ist die letzte Version. Die Entwicklung wird in <a href="https://flow5.tech" target="_blank" rel="noopener">flow5</a> fortgesetzt, das als Version 7 von XFLR5 gilt und seit dem 1. Januar 2026 quelloffen ist. Die Reihe bleibt aus zwei Gründen bei XFLR5: Ein eingefrorenes Programm hält diese Anleitungen gültig, und XFLR5 wurde für Flugzeuge im Modellmaßstab entwickelt, den Maßstab der Beispiele. XFLR5 v6.62 für Windows und macOS ist weiterhin bei <a href="https://sourceforge.net/projects/xflr5/files/6.62/" target="_blank" rel="noopener">SourceForge</a> erhältlich.</p>
+      </div>
     </section>
     <section id="physics-de">
       <p class="section-label">Die Methode</p>
@@ -712,10 +724,11 @@
   <li>Anderson, J. D., Jr. <em>Fundamentals of Aerodynamics</em>, 6.ª ed. Nueva York: McGraw-Hill Education, 2017, capítulo 4.</li>
   <li><a href="http://airfoiltools.com" target="_blank" rel="noopener noreferrer">Airfoil Tools</a> y la <a href="https://m-selig.ae.illinois.edu/ads/coord_database.html" target="_blank" rel="noopener noreferrer">UIUC Airfoil Coordinates Database</a>, fuentes de archivos de coordenadas.</li>
 </ol>
-<p class="source-note">Capturas de pantalla tomadas de XFLR5 v6.62 sobre macOS. Todos los valores numéricos proceden de la corrida documentada en las figuras 9 y 12, ejecutada expresamente para esta guía; los valores de contraste se recalcularon a partir de la teoría de perfil delgado. El siguiente tutorial de la serie, el 1.2, cierra el trabajo sobre el perfil con el análisis por lotes y las herramientas de geometría: comparar familias enteras en una corrida, escalar curvatura y espesor, interpolar entre perfiles y añadir un flap.</p>
+<p class="source-note">Bildschirmfotos aus XFLR5 v6.62 unter macOS. Die Zahlenwerte stammen aus dem in den Abbildungen 9 und 12 dokumentierten Lauf, der eigens für diese Anleitung ausgeführt wurde; Abbildung 11 ist mit der exportierten Polare desselben Profils unter denselben Bedingungen gezeichnet. Die Vergleichswerte wurden aus der Theorie dünner Profile neu berechnet. Das nächste Tutorial, 1.2, schließt die Arbeit am Profil mit der Stapelanalyse und den Geometriewerkzeugen ab.</p>
     </section>
     <nav class="next-nav">
       <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>XFLR5 · Tutorial-Reihe</a>
+      <a class="next-link" href="lotes-y-geometria.html?v=13"><span>Nächstes Tutorial</span>Stapelanalyse und Profilgeometrie →</a>
     </nav>
   </article>
 </div></main>

@@ -55,6 +55,9 @@
       <h2>What you should be able to do</h2>
       <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
       <p>Compare airfoils with a method, modify a geometry in a controlled way — scaling camber and thickness, interpolating, adding a flap — run dozens of polars in one go, and clear the result afterwards.</p>
+      <div class="callout">
+        <p><strong>About the program version.</strong> The XFLR5 project was closed on 30 June 2026: version 6.62, on which this guide was verified, is the final release. Development continues in <a href="https://flow5.tech" target="_blank" rel="noopener">flow5</a>, presented as version 7 of XFLR5 and open source since 1 January 2026. The series stays with XFLR5 for two reasons: a frozen program keeps these instructions valid, and XFLR5 was developed for model-scale aircraft, which is the scale of the examples. Version 6.62 for Windows and macOS remains available on <a href="https://sourceforge.net/projects/xflr5/files/6.62/" target="_blank" rel="noopener">SourceForge</a>.</p>
+      </div>
     </section>
     <section id="physics">
       <p class="section-label">The need</p>
@@ -74,7 +77,7 @@
     <section id="scale">
       <p class="section-label">Step 1</p>
       <h2>Scaling camber and thickness</h2>
-      <p>The <em>Foil Geometry</em> dialogue exposes the four numbers that <em>are</em> the four digits of a NACA designation, each on a continuous slider. That turns it into a generator of parametric families. After scaling, normalise and refine again: the contour has been rebuilt. On accepting, the name dialogue proposes the original airfoil's name; accepting it unchanged silently replaces the original and deletes its polars, so type a new name. The same dialogue follows a flap (current airfoil) and an interpolation (the airfoil in the upper selector).</p>
+      <p>The <em>Foil Geometry</em> dialogue exposes camber and thickness with their chordwise positions, each on a continuous slider: the three quantities of a NACA four-digit designation, plus the thickness position, which that family fixes at 30 % of the chord. That turns it into a generator of parametric families. After scaling, normalise and refine again: the contour has been rebuilt. On accepting, the name dialogue proposes the original airfoil's name; accepting it unchanged silently replaces the original and deletes its polars, so type a new name. The same dialogue follows a flap (current airfoil) and an interpolation (the airfoil in the upper selector).</p>
     </section>
     <section id="interpolate">
       <p class="section-label">Step 2</p>
@@ -145,6 +148,9 @@
   <li>Ordenar el resultado: qué oculta realmente el filtro de polares y qué no.</li>
   <li>Leer una comparación en las dos direcciones que importan: entre perfiles a Reynolds fijo, y entre Reynolds para un mismo perfil.</li>
 </ul>
+<div class="callout">
+  <p><strong>Sobre la versión del programa.</strong> El proyecto XFLR5 se cerró el 30 de junio de 2026: la versión 6.62, con la que se verificó esta guía, es la última y ya no recibirá cambios. El desarrollo continúa en <a href="https://flow5.tech" target="_blank" rel="noopener">flow5</a>, que se presenta como la versión 7 de XFLR5 y es de código abierto desde el 1 de enero de 2026. La serie se mantiene en XFLR5 por dos razones: al estar congelado, lo que aquí se describe ya no va a cambiar, y el programa se desarrolló para aeronaves a escala de modelo, que es la escala de los ejemplos de la serie. La versión 6.62 para Windows y macOS sigue disponible en <a href="https://sourceforge.net/projects/xflr5/files/6.62/" target="_blank" rel="noopener">SourceForge</a>.</p>
+</div>
     </section>
     <section id="physics-es">
       <p class="section-label">La necesidad</p>
@@ -219,9 +225,9 @@
 <p>Menú <code>Design ▸ Scale camber and thickness</code> (<code>F9</code>). El diálogo se titula <em>Foil Geometry</em>.</p>
 <figure class="diagram medium">
   <img src="imagenes/t12-02_scale.png" alt="Diálogo de escalado de curvatura y espesor mostrando los valores del NACA 2412" loading="lazy">
-  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">Diálogo <em>Foil Geometry</em>.</b> Los cuatro campos son exactamente los cuatro dígitos de la designación NACA: valor y posición de la curvatura, valor y posición del espesor. Los deslizadores permiten variarlos de forma continua, que es lo que convierte esta herramienta en un generador de familias paramétricas.</figcaption>
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">Diálogo <em>Foil Geometry</em>.</b> Los cuatro campos son valor y posición de la curvatura y valor y posición del espesor: las tres magnitudes de la designación NACA de cuatro dígitos, más la posición del espesor, que esa familia fija en el 30 % de la cuerda. Los deslizadores permiten variarlos de forma continua, que es lo que convierte esta herramienta en un generador de familias paramétricas.</figcaption>
 </figure>
-<p>Los cuatro campos que muestra —valor y posición de la curvatura, valor y posición del espesor— <strong>son exactamente los cuatro dígitos de la designación NACA</strong>. El 2412 declara curvatura del 2 % al 40 % de la cuerda y espesor del 12 %, y el diálogo lo confirma con 2.00 % al 39.94 % y 12.00 % al 29.53 %.</p>
+<p>Los cuatro campos que muestra —valor y posición de la curvatura, valor y posición del espesor— <strong>contienen la designación NACA de cuatro dígitos y un dato más</strong>. El primer dígito es la curvatura máxima en porcentaje de la cuerda, el segundo su posición en décimos de cuerda y los dos últimos el espesor; la posición del espesor no figura en la designación, porque en esa familia es siempre el 30 % de la cuerda. El 2412 declara curvatura del 2 % al 40 % de la cuerda y espesor del 12 %, y el diálogo lo confirma con 2.00 % al 39.94 % y 12.00 % al 29.53 %.</p>
 <p>La utilidad no es leerlos sino moverlos. Los deslizadores permiten variar cada uno de forma continua, y ahí está el valor de la herramienta: <strong>generar una familia paramétrica</strong> —el mismo perfil con espesores del 10, 12, 15 y 18 %— para ver qué cuesta cada milímetro de larguero en arrastre y en \(c_{l,\max}\).</p>
 <div class="callout warning">
   <p><strong>El nombre que propone el programa es el del perfil original.</strong> Al hacer clic en <code>OK</code> se abre un diálogo que pide el nombre del perfil nuevo y ya trae escrito el del perfil actual —aquí, <code>NACA 2412</code>—. Si se acepta tal cual, <strong>el original se sustituye sin aviso</strong>: con su nombre queda la geometría escalada, y sus polares se borran. Hay que escribir un nombre distinto antes de aceptar.</p>
@@ -264,7 +270,7 @@
 <div class="callout warning">
   <p><strong>Un perfil con flap deflectado es un perfil distinto.</strong> No es el mismo perfil «en otra condición»: tiene su propia geometría, su propia polar y su propio \(\alpha_{L=0}\). XFoil <strong>no interpola entre deflexiones</strong>, de modo que estudiar un elevador que se mueve entre \(-15^\circ\) y \(+15^\circ\) obliga a generar un perfil por cada deflexión que se quiera resolver, y a analizarlos todos. Ahí es donde el análisis por lotes deja de ser una comodidad y pasa a ser la única forma razonable de hacerlo.</p>
 </div>
-<p>Esta herramienta es la que hará falta en el bloque 3 para trimar la aeronave: sin deflexión de elevador no hay equilibrio de momentos.</p>
+<p>En el bloque 3 la deflexión se trata de otra manera: el Tutorial 3.3 trima el avión girando el estabilizador completo con el control <code>Elevator Tilt</code> del análisis de estabilidad, sin generar perfiles con flap. Lo que esta herramienta aporta es ver, en dos dimensiones, qué le hace a la polar de una sección la deflexión de su superficie de control.</p>
     </section>
     <section id="batch-es">
       <p class="section-label">Paso 4</p>
@@ -363,7 +369,7 @@
   <summary>Comprobación: qué debe observarse si el procedimiento fue correcto</summary>
   <div class="details-content">
     <ul>
-      <li>Los tres Reynolds salen \(2.0\times10^{5}\), \(4.3\times10^{5}\) y \(6.7\times10^{5}\): un factor de \(3.3\) entre los extremos, suficiente para que el orden de mérito pueda cambiar de uno a otro.</li>
+      <li>Con la viscosidad que el programa usa por omisión, \(\nu = 1.5\times10^{-5}\ \mathrm{m^2/s}\), los tres Reynolds salen \(2.0\times10^{5}\), \(4.3\times10^{5}\) y \(6.7\times10^{5}\): un factor de \(3.3\) entre los extremos, suficiente para que el orden de mérito pueda cambiar de uno a otro.</li>
       <li>El de mayor \((c_l/c_d)_{\max}\) y el de mayor \(c_{l,\max}\) rara vez coinciden: la curvatura que ayuda al máximo penaliza el arrastre en crucero. Ésa es la decisión de diseño, y no tiene respuesta única.</li>
       <li>Los cuatro se degradan al bajar el Reynolds, pero no todos en la misma medida. Cuál resiste mejor y por qué —dónde queda su punto de operación y cómo le afecta la burbuja laminar— es la parte del ejercicio que exige pensar, y no tiene una respuesta que se pueda dar de antemano.</li>
       <li>El flap a \(10^\circ\) debe subir \(c_{l,\max}\) de forma apreciable, y el arrastre bastante más en proporción. Es lo esperable en un dispositivo pensado para aterrizar, no para crucero.</li>
@@ -379,8 +385,8 @@
   <p><strong>Una.</strong> Comparar exige fijar de antemano \(Re\), \(M\), \(N_{\mathrm{crit}}\), el rango de ángulos y el panelado, y variar <em>una</em> cosa. <strong>Dos.</strong> Un perfil se juzga en un dominio de Reynolds, no en un punto. <strong>Tres.</strong> Un perfil escalado, interpolado o con flap deflectado es un perfil <em>nuevo</em>, con su propia polar. <strong>Cuatro.</strong> El filtro de polares filtra por tipo; para ocultar curvas se usa el explorador.</p>
 </div>
 <p>Y una relación que conviene tener presente al dimensionar la corrida: el número de polares es el producto de perfiles por números de Reynolds, y el de puntos de operación, ese producto por el número de ángulos del barrido.</p>
-<div class="equation-card">\[ N_{\text{polares}} = N_{\text{perfiles}} \times N_{Re}, \qquad N_{\text{puntos}} = N_{\text{polares}} \times \frac{\alpha_{\max}-\alpha_{\min}}{\Delta\alpha} \]</div>
-<p>Los tres perfiles y doce Reynolds de esta guía son 36 polares y unos 1500 puntos de operación.</p>
+<div class="equation-card">\[ N_{\text{polares}} = N_{\text{perfiles}} \times N_{Re}, \qquad N_{\text{puntos}} = N_{\text{polares}} \times \left(\frac{\alpha_{\max}-\alpha_{\min}}{\Delta\alpha}+1\right) \]</div>
+<p>Los tres perfiles y doce Reynolds de esta guía, con un barrido de \(-5^\circ\) a \(15^\circ\) cada \(0.5^\circ\), son 36 polares de 41 ángulos cada una: hasta 1476 puntos de operación, porque los ángulos que no convergen no se guardan.</p>
     </section>
     <section id="mistakes-es">
       <p class="section-label">Errores frecuentes</p>
@@ -419,6 +425,9 @@
       <h2>Was Sie danach können sollten</h2>
       <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
       <p>Profile methodisch vergleichen, Geometrie kontrolliert ändern — Wölbung und Dicke skalieren, interpolieren, Klappe anlegen —, Dutzende Polaren in einem Lauf rechnen und das Ergebnis danach aufräumen.</p>
+      <div class="callout">
+        <p><strong>Zur Programmversion.</strong> Das Projekt XFLR5 wurde am 30. Juni 2026 eingestellt: XFLR5 v6.62, mit der diese Anleitung geprüft wurde, ist die letzte Version. Die Entwicklung wird in <a href="https://flow5.tech" target="_blank" rel="noopener">flow5</a> fortgesetzt, das als Version 7 von XFLR5 gilt und seit dem 1. Januar 2026 quelloffen ist. Die Reihe bleibt aus zwei Gründen bei XFLR5: Ein eingefrorenes Programm hält diese Anleitungen gültig, und XFLR5 wurde für Flugzeuge im Modellmaßstab entwickelt, den Maßstab der Beispiele. XFLR5 v6.62 für Windows und macOS ist weiterhin bei <a href="https://sourceforge.net/projects/xflr5/files/6.62/" target="_blank" rel="noopener">SourceForge</a> erhältlich.</p>
+      </div>
     </section>
     <section id="physics-de">
       <p class="section-label">Der Bedarf</p>
@@ -438,7 +447,7 @@
     <section id="scale-de">
       <p class="section-label">Schritt 1</p>
       <h2>Wölbung und Dicke skalieren</h2>
-      <p>Der Dialog <em>Foil Geometry</em> zeigt die vier Größen, die den vier Ziffern einer NACA-Bezeichnung entsprechen, jede an einem stufenlosen Regler. Damit wird er zum Erzeuger parametrischer Familien. Nach dem Skalieren erneut normieren und verfeinern: die Kontur wurde neu aufgebaut. Beim Bestätigen schlägt der Namensdialog den Namen des Originalprofils vor; wer ihn unverändert übernimmt, ersetzt das Original ohne Warnung und löscht seine Polaren. Derselbe Dialog folgt auf eine Klappe (aktuelles Profil) und eine Interpolation (das Profil in der oberen Auswahl).</p>
+      <p>Der Dialog <em>Foil Geometry</em> zeigt Wölbung und Dicke mit ihren Lagen, jede an einem stufenlosen Regler: die drei Größen einer vierstelligen NACA-Bezeichnung und dazu die Dickenlage, die in dieser Familie fest bei 30 % der Sehne liegt. Damit wird er zum Erzeuger parametrischer Familien. Nach dem Skalieren erneut normieren und verfeinern: die Kontur wurde neu aufgebaut. Beim Bestätigen schlägt der Namensdialog den Namen des Originalprofils vor; wer ihn unverändert übernimmt, ersetzt das Original ohne Warnung und löscht seine Polaren. Derselbe Dialog folgt auf eine Klappe (aktuelles Profil) und eine Interpolation (das Profil in der oberen Auswahl).</p>
     </section>
     <section id="interpolate-de">
       <p class="section-label">Schritt 2</p>

@@ -127,6 +127,10 @@ longitudinal stability (3.3) went out ahead of 2.2, 3.1 and 3.2 at the author's 
 so it carries the minimum of 3.1 itself and its previous-tutorial link points to 2.1. Filenames are
 topic-based, so inserting an intermediate tutorial renames nothing.
 
+XFLR5 itself was closed on 2026-06-30 and 6.62 is its final release; its successor
+is flow5. The series stays on 6.62 by the author's decision of 2026-09-15, and the
+series index and every guide carry a visible notice saying so.
+
 The XFLR5 tutorials ship with **Spanish complete and English and German carrying
 a per-section summary plus a visible "translation in preparation" notice**. That
 is a deliberate, temporary state agreed with the author: the structure is

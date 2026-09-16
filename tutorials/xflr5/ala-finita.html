@@ -32,7 +32,7 @@
     <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
     <span data-language="en">Verified on XFLR5 v6.62</span><span data-language="es" hidden>Verificado en XFLR5 v6.62</span><span data-language="de" hidden>Geprüft mit XFLR5 v6.62</span>
   </div>
-  <div class="button-row"><a class="button secondary" href="lotes-y-geometria.html?v=13">← <span>Tutorial 1.2</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/H0cqsztwue4" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Watch the video</span><span data-language="es" hidden>Ver el vídeo</span><span data-language="de" hidden>Video ansehen</span></a></div>
+  <div class="button-row"><a class="button secondary" href="diseno-inverso.html?v=13">← <span>Tutorial 1.3</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/H0cqsztwue4" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Watch the video</span><span data-language="es" hidden>Ver el vídeo</span><span data-language="de" hidden>Video ansehen</span></a></div>
 </div></section>
 
 <main><div class="container lecture-shell">
@@ -55,6 +55,9 @@
       <h2>What you should be able to do</h2>
       <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
       <p>Explain why a finite wing lifts less than its own section, choose between the four methods XFLR5 offers, define a wing, diagnose the viscous-interpolation failure, and measure the three-dimensional lift slope and the span efficiency factor.</p>
+      <div class="callout">
+        <p><strong>About the program version.</strong> The XFLR5 project was closed on 30 June 2026: version 6.62, on which this guide was verified, is the final release. Development continues in <a href="https://flow5.tech" target="_blank" rel="noopener">flow5</a>, presented as version 7 of XFLR5 and open source since 1 January 2026. The series stays with XFLR5 for two reasons: a frozen program keeps these instructions valid, and XFLR5 was developed for model-scale aircraft, which is the scale of the examples. Version 6.62 for Windows and macOS remains available on <a href="https://sourceforge.net/projects/xflr5/files/6.62/" target="_blank" rel="noopener">SourceForge</a>.</p>
+      </div>
     </section>
     <section id="physics">
       <p class="section-label">The physics</p>
@@ -94,7 +97,7 @@
     <section id="slope">
       <p class="section-label">Step 5</p>
       <h2>The slope falls, the zero-lift angle does not</h2>
-      <p>A least-squares fit over the linear range gives \(a = 0.0808\) per degree \(= 4.629\ \mathrm{rad}^{-1}\), against \(a_0 = 2\pi = 6.283\ \mathrm{rad}^{-1}\) for the section: a fall of 26.3 %. The zero-lift angle, however, is \(-1.99^\circ\) against the \(-2.1^\circ\) measured in Tutorial 1.1 — unchanged, because without twist every section keeps the same mean camber line. Finite span rotates the curve; it does not shift it.</p>
+      <p>A least-squares fit from \(0^\circ\) to \(4^\circ\) gives \(a = 0.0808\) per degree \(= 4.629\ \mathrm{rad}^{-1}\), against \(a_0 = 2\pi = 6.283\ \mathrm{rad}^{-1}\) for the section: a fall of 26.3 %. The zero-lift angle, however, is \(-1.99^\circ\) against \(-2.08^\circ\) from thin-airfoil theory for the section's camber line — unchanged, because without twist every section keeps the same mean camber line. Finite span rotates the curve; it does not shift it.</p>
     </section>
     <section id="induced">
       <p class="section-label">Step 6</p>
@@ -130,11 +133,11 @@
   <li>Katz, J. y Plotkin, A. <em>Low-Speed Aerodynamics</em>, 2.ª ed. Cambridge University Press, 2001, capítulo 12: formulación de los métodos de malla de vórtices y de paneles.</li>
   <li>Deperrois, A. <em>Guidelines for XFLR5</em> y <em>Part IV: Wing analysis</em>. Documentación oficial del programa, donde se detallan las hipótesis de LLT, VLM1, VLM2 y paneles tridimensionales.</li>
 </ol>
-<p class="source-note">Screenshots taken from XFLR5 v6.62 on macOS. The numerical values come from the run documented in figures 11 and 13, exported to text and fitted by least squares; the contrast values were recomputed from lifting-line theory. The XFLR5 project that reproduces the run accompanies this guide. The next tutorial, 2.2, closes the wing block: how the planform governs the spanwise loading — taper, twist and sweep — before moving on to the complete aircraft.</p>
+<p class="source-note">Screenshots taken from XFLR5 v6.62 on macOS. The numerical values come from the run documented in figures 11 and 13, exported to text and fitted by least squares; the contrast values were recomputed from lifting-line theory. The XFLR5 project that reproduces the run accompanies this guide. The next tutorial, 2.2, closes the wing block: how the planform governs the spanwise loading — taper, twist and sweep — before moving on to the complete aircraft. While 2.2 is in preparation, the series continues with Tutorial 3.3, static longitudinal stability.</p>
     </section>
     <nav class="next-nav">
-      <a class="next-link" href="perfil-y-polares.html?v=13"><span>Previous tutorial</span>← Analysis of an Airfoil Section</a>
-      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>XFLR5 · Tutorial series</a>
+      <a class="next-link" href="diseno-inverso.html?v=13"><span>Previous tutorial</span>← Inverse Design</a>
+      <a class="next-link" href="estabilidad-longitudinal.html?v=13"><span>Next tutorial</span>Static Longitudinal Stability →</a>
     </nav>
   </article>
 
@@ -142,7 +145,7 @@
     <section id="objectives-es">
       <p class="section-label">Objetivos de aprendizaje</p>
       <h2>Qué se debe poder hacer al terminar</h2>
-<p class="lead">El Tutorial 1.1 terminó con una pregunta: si el perfil da \(c_{l,\max}=1.35\), ¿el ala construida con él dará \(C_{L,\max}=1.35\)? La respuesta es que no, y esta guía explica por qué y cuánto. Al terminarla debe ser posible:</p>
+<p class="lead">Del Tutorial 1.1 queda una pregunta abierta: si el perfil da \(c_{l,\max} \approx 1.35\), ¿el ala construida con él dará \(C_{L,\max}=1.35\)? La respuesta es que no, y esta guía explica por qué y cuánto. Al terminarla debe ser posible:</p>
 <ul>
   <li>Explicar el mecanismo por el cual un ala de envergadura finita sustenta menos que su propio perfil al mismo ángulo geométrico.</li>
   <li>Elegir con criterio entre los cuatro métodos que ofrece XFLR5 —línea sustentadora, VLM1, VLM2 y paneles tridimensionales— y enunciar la hipótesis que invalida a cada uno.</li>
@@ -151,6 +154,9 @@
   <li>Medir sobre las polares la pendiente de sustentación tridimensional y contrastarla con la predicción de la teoría de la línea sustentadora.</li>
   <li>Verificar que el arrastre inducido crece con el cuadrado de la sustentación y extraer de ahí el factor de eficiencia de envergadura.</li>
 </ul>
+<div class="callout">
+  <p><strong>Sobre la versión del programa.</strong> El proyecto XFLR5 se cerró el 30 de junio de 2026: la versión 6.62, con la que se verificó esta guía, es la última y ya no recibirá cambios. El desarrollo continúa en <a href="https://flow5.tech" target="_blank" rel="noopener">flow5</a>, que se presenta como la versión 7 de XFLR5 y es de código abierto desde el 1 de enero de 2026. La serie se mantiene en XFLR5 por dos razones: al estar congelado, lo que aquí se describe ya no va a cambiar, y el programa se desarrolló para aeronaves a escala de modelo, que es la escala de los ejemplos de la serie. La versión 6.62 para Windows y macOS sigue disponible en <a href="https://sourceforge.net/projects/xflr5/files/6.62/" target="_blank" rel="noopener">SourceForge</a>.</p>
+</div>
     </section>
     <section id="physics-es">
       <p class="section-label">La física</p>
@@ -361,14 +367,14 @@
       <p class="section-label">Paso 5</p>
       <h2>La pendiente cae, el ángulo de sustentación nula no</h2>
 <p class="lead">Éste es el resultado central de la guía, y se mide directamente sobre la curva \(C_L\)–\(\alpha\).</p>
-<p>Un ajuste por mínimos cuadrados sobre el tramo lineal —de \(0^\circ\) a \(8^\circ\), donde la curva es recta— de la corrida documentada en la figura 7 da:</p>
+<p>Un ajuste por mínimos cuadrados sobre el tramo lineal —de \(0^\circ\) a \(4^\circ\), el intervalo de ángulos pequeños— de la corrida documentada en la figura 11 da:</p>
 <div class="result-box">
   <p>\(a = 0.0808\) por grado \(= 4.629\ \mathrm{rad}^{-1}\), con \(C_L(0^\circ) = 0.1609\) y, por tanto, \(\alpha_{L=0} = -1.99^\circ\).</p>
 </div>
 <h3>La pendiente cae</h3>
 <p>La teoría de perfil delgado da, para el perfil aislado, \(a_0 = 2\pi = 6.283\ \mathrm{rad}^{-1}\). El ala construida con ese mismo perfil rinde \(4.629\), un <strong>26.3 % menos</strong>. La teoría de la línea sustentadora predice esa caída con</p>
 <div class="equation-card">\[ a = \frac{a_0}{1 + \dfrac{a_0}{\pi\,e\,AR}} \]</div>
-<p>que para \(AR = 8\) y carga elíptica (\(e = 1\)) da \(5.027\ \mathrm{rad}^{-1}\), es decir \(0.0877\) por grado. El valor medido queda un \(8.6\ \%\) por debajo, y las dos razones de esa diferencia son instructivas: el ala es <strong>rectangular</strong> y su carga no es elíptica, y el mallado en la punta es finito. Ambas se pueden poner a prueba, y el ejercicio de esta guía lo hace.</p>
+<p>que para \(AR = 8\) y carga elíptica (\(e = 1\)) da \(5.027\ \mathrm{rad}^{-1}\), es decir \(0.0877\) por grado. El valor medido queda un \(7.9\ \%\) por debajo, y las dos razones de esa diferencia son instructivas: el ala es <strong>rectangular</strong> y su carga no es elíptica, y el mallado en la punta es finito. Ambas se pueden poner a prueba, y el ejercicio de esta guía lo hace.</p>
 <h3>Antes de creerse el número: ¿la curva es realmente recta?</h3>
 <p>VLM2 es un método <em>lineal</em>, de modo que cabría esperar una recta perfecta. No lo es del todo, y conviene comprobarlo antes de citar una pendiente. Midiendo la pendiente local a lo largo del barrido:</p>
 <div class="table-wrap">
@@ -393,7 +399,7 @@
 
 <h3>El ángulo de sustentación nula no cambia</h3>
 <div class="callout">
-  <p>El Tutorial 1.1 midió \(\alpha_{L=0} \approx -2.1^\circ\) para el perfil NACA 2412 aislado. El ala construida con ese perfil da \(-1.99^\circ\). <strong>Prácticamente el mismo valor</strong>, y no es casualidad: sin torsión geométrica ni aerodinámica, todas las secciones tienen la misma línea de curvatura media y el mismo ángulo de sustentación nula, de modo que el ala lo hereda intacto. El descenso inducido inclina la corriente, pero no cambia la geometría del perfil.</p>
+  <p>Para el NACA 2412 aislado, la teoría de perfil delgado da \(\alpha_{L=0} = -2.08^\circ\) a partir de su línea de curvatura media, y el cálculo viscoso del Tutorial 1.1 queda cerca, en torno a \(-2.2^\circ\). El ala construida con ese perfil da \(-1.99^\circ\). <strong>Prácticamente el mismo valor</strong>, y no es casualidad: sin torsión geométrica ni aerodinámica, todas las secciones tienen la misma línea de curvatura media y el mismo ángulo de sustentación nula, de modo que el ala lo hereda intacto. El descenso inducido inclina la corriente, pero no cambia la geometría del perfil. La referencia justa es la de perfil delgado, porque VLM2 es no viscoso y sólo representa la línea de curvatura media.</p>
 </div>
 <p>La conclusión práctica es que <strong>la envergadura finita gira la curva, no la desplaza</strong>: mismo corte con el eje, menor pendiente. Comparado al mismo ángulo geométrico \(\alpha = 6^\circ\), el perfil del Tutorial 1.1 daba \(c_l = 0.896\) y esta ala da \(C_L = 0.644\): un \(28\ \%\) menos.</p>
     </section>
@@ -431,7 +437,7 @@
   <text class="svg-note-sm" x="96" y="286">α = 0°</text>
   <text class="svg-note-sm" x="430" y="60" text-anchor="end">α = 15°</text>
 </svg>
-  <figcaption><b class="fig-num">Figura 12.</b> <b class="fig-title">El arrastre inducido crece con el cuadrado de la sustentación.</b> Puntos calculados de la corrida de la figura 7, exportados a texto. La recta es el ajuste por mínimos cuadrados forzado por el origen, de pendiente \(k = 0.0400\). Que los puntos caigan sobre ella en todo el intervalo confirma la predicción \(C_{D_i} = C_L^2/(\pi e AR)\) de la teoría de la línea sustentadora, y de la pendiente se despeja \(e = 0.995\).</figcaption>
+  <figcaption><b class="fig-num">Figura 12.</b> <b class="fig-title">El arrastre inducido crece con el cuadrado de la sustentación.</b> Puntos calculados de la corrida de la figura 11, exportados a texto. La recta es el ajuste por mínimos cuadrados forzado por el origen, de pendiente \(k = 0.0400\). Que los puntos caigan sobre ella en todo el intervalo confirma la predicción \(C_{D_i} = C_L^2/(\pi e AR)\) de la teoría de la línea sustentadora, y de la pendiente se despeja \(e = 0.995\).</figcaption>
 </figure>
 <p>El ajuste da una recta que pasa por el origen con pendiente \(k = 0.0400\), de donde</p>
 <div class="result-box">
@@ -442,7 +448,7 @@
   <p><strong>Un detalle que conviene no pasar por alto.</strong> El factor no sale exactamente constante: crece de \(0.98\) a \(1^\circ\) hasta \(1.00\) a \(15^\circ\). Un valor de \(e\) igual o superior a la unidad es <em>imposible</em> en un ala plana —la distribución elíptica es el óptimo—, de modo que esa deriva no es física: es el error de calcular el arrastre inducido integrando presiones sobre los paneles en lugar de hacerlo en el plano de la estela. En el intervalo útil, de \(2^\circ\) a \(10^\circ\), \(e\) se mantiene entre \(0.985\) y \(0.996\), y ése es el valor que tiene sentido citar.</p>
 </div>
 <div class="callout">
-  <p><strong>El orden de magnitud importa.</strong> A \(\alpha = 6^\circ\) esta ala tiene \(C_{D_i} = 0.0166\). El arrastre de perfil del NACA 2412 medido en el Tutorial 1.1 en condiciones equivalentes era \(c_d = 0.0104\). El arrastre inducido es, por sí solo, <strong>una vez y media el arrastre de perfil</strong> — y crece con el cuadrado de \(C_L\), mientras que el de perfil apenas se mueve. En despegue y en viraje sostenido, el inducido domina.</p>
+  <p><strong>El orden de magnitud importa.</strong> A \(\alpha = 6^\circ\) esta ala tiene \(C_L = 0.644\) y \(C_{D_i} = 0.0166\). El arrastre de perfil hay que tomarlo al mismo coeficiente de sustentación, no al mismo ángulo: la polar del NACA 2412 a \(Re = 5\times 10^{5}\), exportada en el Tutorial 1.3, da \(c_d = 0.0079\) en \(c_l = 0.644\). El arrastre inducido es, por sí solo, <strong>unas dos veces el arrastre de perfil</strong> — y crece con el cuadrado de \(C_L\), mientras que el de perfil cambia mucho menos en el tramo de crucero. En despegue y en viraje sostenido, el inducido domina.</p>
 </div>
 <p>De la expresión anterior se sigue el argumento de diseño más citado de la aerodinámica subsónica: para reducir el arrastre inducido a igualdad de sustentación hay que <strong>aumentar el alargamiento</strong>. Un planeador tiene \(AR\) de 20 a 30 por esa razón, y un caza lo tiene de 3 porque prioriza otra cosa.</p>
     </section>
@@ -478,7 +484,7 @@
     <thead><tr><th>\(AR\)</th><th>\(b\) (m)</th><th>\(c\) (m)</th><th>\(a\) (grado\(^{-1}\))</th><th>\(\alpha_{L=0}\)</th><th>\(e\)</th><th>\(C_{D_i}\) a \(C_L = 0.6\)</th></tr></thead>
     <tbody>
       <tr><td>4</td><td>1.131</td><td>0.283</td><td></td><td></td><td></td><td></td></tr>
-      <tr><td>8</td><td>1.600</td><td>0.200</td><td>0.0808</td><td>−1.99°</td><td>0.995</td><td>0.0143</td></tr>
+      <tr><td>8</td><td>1.600</td><td>0.200</td><td>0.0808</td><td>−1.99°</td><td>0.995</td><td>0.0144</td></tr>
       <tr><td>12</td><td>1.960</td><td>0.163</td><td></td><td></td><td></td><td></td></tr>
       <tr><td>20</td><td>2.530</td><td>0.126</td><td></td><td></td><td></td><td></td></tr>
     </tbody>
@@ -554,11 +560,11 @@
   <li>Katz, J. y Plotkin, A. <em>Low-Speed Aerodynamics</em>, 2.ª ed. Cambridge University Press, 2001, capítulo 12: formulación de los métodos de malla de vórtices y de paneles.</li>
   <li>Deperrois, A. <em>Guidelines for XFLR5</em> y <em>Part IV: Wing analysis</em>. Documentación oficial del programa, donde se detallan las hipótesis de LLT, VLM1, VLM2 y paneles tridimensionales.</li>
 </ol>
-<p class="source-note">Capturas de pantalla tomadas de XFLR5 v6.62 sobre macOS. Los valores numéricos proceden de la corrida documentada en las figuras 11 y 13, exportada a texto y ajustada por mínimos cuadrados; los valores de contraste se recalcularon a partir de la teoría de la línea sustentadora. El proyecto de XFLR5 que reproduce la corrida acompaña a esta guía. El siguiente tutorial, el 2.2, cierra el bloque del ala: cómo la planta gobierna la distribución de sustentación —estrechamiento, torsión y flecha— antes de pasar al avión completo.</p>
+<p class="source-note">Capturas de pantalla tomadas de XFLR5 v6.62 sobre macOS. Los valores numéricos proceden de la corrida documentada en las figuras 11 y 13, exportada a texto y ajustada por mínimos cuadrados; los valores de contraste se recalcularon a partir de la teoría de la línea sustentadora. El proyecto de XFLR5 que reproduce la corrida acompaña a esta guía. El siguiente tutorial, el 2.2, cierra el bloque del ala: cómo la planta gobierna la distribución de sustentación —estrechamiento, torsión y flecha— antes de pasar al avión completo. Mientras el 2.2 se prepara, la serie continúa con el Tutorial 3.3, estabilidad estática longitudinal.</p>
     </section>
     <nav class="next-nav">
-      <a class="next-link" href="perfil-y-polares.html?v=13"><span>Tutorial anterior</span>← Análisis de un perfil alar</a>
-      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>XFLR5 · Serie de tutoriales</a>
+      <a class="next-link" href="diseno-inverso.html?v=13"><span>Tutorial anterior</span>← Diseño inverso</a>
+      <a class="next-link" href="estabilidad-longitudinal.html?v=13"><span>Tutorial siguiente</span>Estabilidad estática longitudinal →</a>
     </nav>
   </article>
 
@@ -568,6 +574,9 @@
       <h2>Was Sie danach können sollten</h2>
       <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
       <p>Erklären, warum eine endliche Tragfläche weniger Auftrieb erzeugt als ihr Profil, zwischen den vier Verfahren von XFLR5 wählen, eine Fläche definieren, den Fehler der viskosen Interpolation deuten und den räumlichen Auftriebsanstieg sowie den Spannweitenwirkungsgrad messen.</p>
+      <div class="callout">
+        <p><strong>Zur Programmversion.</strong> Das Projekt XFLR5 wurde am 30. Juni 2026 eingestellt: XFLR5 v6.62, mit der diese Anleitung geprüft wurde, ist die letzte Version. Die Entwicklung wird in <a href="https://flow5.tech" target="_blank" rel="noopener">flow5</a> fortgesetzt, das als Version 7 von XFLR5 gilt und seit dem 1. Januar 2026 quelloffen ist. Die Reihe bleibt aus zwei Gründen bei XFLR5: Ein eingefrorenes Programm hält diese Anleitungen gültig, und XFLR5 wurde für Flugzeuge im Modellmaßstab entwickelt, den Maßstab der Beispiele. XFLR5 v6.62 für Windows und macOS ist weiterhin bei <a href="https://sourceforge.net/projects/xflr5/files/6.62/" target="_blank" rel="noopener">SourceForge</a> erhältlich.</p>
+      </div>
     </section>
     <section id="physics-de">
       <p class="section-label">Die Physik</p>
@@ -643,11 +652,11 @@
   <li>Katz, J. y Plotkin, A. <em>Low-Speed Aerodynamics</em>, 2.ª ed. Cambridge University Press, 2001, capítulo 12: formulación de los métodos de malla de vórtices y de paneles.</li>
   <li>Deperrois, A. <em>Guidelines for XFLR5</em> y <em>Part IV: Wing analysis</em>. Documentación oficial del programa, donde se detallan las hipótesis de LLT, VLM1, VLM2 y paneles tridimensionales.</li>
 </ol>
-<p class="source-note">Bildschirmfotos aus XFLR5 v6.62 unter macOS. Die Zahlenwerte stammen aus dem in den Abbildungen 11 und 13 dokumentierten Lauf, als Text exportiert und nach kleinsten Quadraten ausgeglichen; die Vergleichswerte wurden aus der Traglinientheorie neu berechnet. Das XFLR5-Projekt zum Lauf liegt dieser Anleitung bei. Das nächste Tutorial, 2.2, schließt den Flügelblock ab: wie der Grundriss die Auftriebsverteilung bestimmt — Zuspitzung, Schränkung und Pfeilung — vor dem Übergang zum vollständigen Flugzeug.</p>
+<p class="source-note">Bildschirmfotos aus XFLR5 v6.62 unter macOS. Die Zahlenwerte stammen aus dem in den Abbildungen 11 und 13 dokumentierten Lauf, als Text exportiert und nach kleinsten Quadraten ausgeglichen; die Vergleichswerte wurden aus der Traglinientheorie neu berechnet. Das XFLR5-Projekt zum Lauf liegt dieser Anleitung bei. Das nächste Tutorial, 2.2, schließt den Flügelblock ab: wie der Grundriss die Auftriebsverteilung bestimmt — Zuspitzung, Schränkung und Pfeilung — vor dem Übergang zum vollständigen Flugzeug. Bis 2.2 erscheint, geht die Reihe mit Tutorial 3.3 weiter, der statischen Längsstabilität.</p>
     </section>
     <nav class="next-nav">
-      <a class="next-link" href="perfil-y-polares.html?v=13"><span>Vorheriges Tutorial</span>← Analyse eines Tragflügelprofils</a>
-      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>XFLR5 · Tutorial-Reihe</a>
+      <a class="next-link" href="diseno-inverso.html?v=13"><span>Vorheriges Tutorial</span>← Inverser Entwurf</a>
+      <a class="next-link" href="estabilidad-longitudinal.html?v=13"><span>Nächstes Tutorial</span>Statische Längsstabilität →</a>
     </nav>
   </article>
 </div></main>

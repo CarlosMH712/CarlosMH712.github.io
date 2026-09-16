@@ -54,7 +54,7 @@
       <p class="section-label">Learning objectives</p>
       <h2>What you should be able to do</h2>
       <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
-<p>Prescribe a velocity distribution and read back the geometry it implies, identify what the plot's abscissa actually measures, and judge a redesign by comparing its polar against the original rather than by looking at the shape.</p>
+<p>Prescribe a velocity distribution and read back the geometry it implies, identify what the plot's abscissa actually measures, and judge a redesign by comparing its polar against the original rather than by looking at the shape.</p><div class="callout"><p><strong>About the program version.</strong> The XFLR5 project was closed on 30 June 2026: version 6.62, on which this guide was verified, is the final release. Development continues in <a href="https://flow5.tech" target="_blank" rel="noopener">flow5</a>, presented as version 7 of XFLR5 and open source since 1 January 2026. The series stays with XFLR5 for two reasons: a frozen program keeps these instructions valid, and XFLR5 was developed for model-scale aircraft, which is the scale of the examples. Version 6.62 for Windows and macOS remains available on <a href="https://sourceforge.net/projects/xflr5/files/6.62/" target="_blank" rel="noopener">SourceForge</a>.</p></div>
     </section>
     <section id="physics">
       <p class="section-label">The idea</p>
@@ -128,7 +128,7 @@
     </section>
     <nav class="next-nav">
       <a class="next-link" href="lotes-y-geometria.html?v=13"><span>Previous tutorial</span>← Batch Analysis and Airfoil Geometry</a>
-      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>XFLR5 · Tutorial series</a>
+      <a class="next-link" href="ala-finita.html?v=13"><span>Next tutorial</span>From the Section to the Finite Wing →</a>
     </nav>
   </article>
   <article class="lecture" data-language="es" hidden>
@@ -136,7 +136,7 @@
       <p class="section-label">Objetivos de aprendizaje</p>
       <h2>Qué se debe poder hacer al terminar</h2>
 
-<p class="lead">Los tres tutoriales anteriores resolvieron siempre el mismo problema: dada una geometría, obtener su comportamiento. Este invierte la pregunta. Al terminar esta guía debe ser posible:</p>
+<p class="lead">Los dos tutoriales anteriores resolvieron siempre el mismo problema: dada una geometría, obtener su comportamiento. Este invierte la pregunta. Al terminar esta guía debe ser posible:</p>
 <ul>
   <li>Explicar en qué se diferencia el problema inverso del directo, y por qué a un diseñador le interesa el primero.</li>
   <li>Cargar un perfil en el módulo <code>XFoil Inverse Design</code> y leer correctamente la gráfica sobre la que se trabaja, empezando por saber qué mide su eje horizontal.</li>
@@ -144,6 +144,9 @@
   <li>Guardar el resultado, homogeneizar su panelado y medirlo contra el original en el módulo directo.</li>
   <li>Juzgar un rediseño por su polar y no por su silueta, y reconocer que lo que se gana en una zona del dominio de vuelo se paga en otra.</li>
 </ul>
+<div class="callout">
+  <p><strong>Sobre la versión del programa.</strong> El proyecto XFLR5 se cerró el 30 de junio de 2026: la versión 6.62, con la que se verificó esta guía, es la última y ya no recibirá cambios. El desarrollo continúa en <a href="https://flow5.tech" target="_blank" rel="noopener">flow5</a>, que se presenta como la versión 7 de XFLR5 y es de código abierto desde el 1 de enero de 2026. La serie se mantiene en XFLR5 por dos razones: al estar congelado, lo que aquí se describe ya no va a cambiar, y el programa se desarrolló para aeronaves a escala de modelo, que es la escala de los ejemplos de la serie. La versión 6.62 para Windows y macOS sigue disponible en <a href="https://sourceforge.net/projects/xflr5/files/6.62/" target="_blank" rel="noopener">SourceForge</a>.</p>
+</div>
 
     </section>
     <section id="physics-es">
@@ -398,9 +401,9 @@
   <p><strong>El perfil que sale no tiene el panelado del que entró.</strong> El NACA 2412 de partida tenía 149 paneles; el que devolvió el módulo inverso tiene 257. El Tutorial 1.2 ya advertía que comparar polares calculadas con panelados distintos no es comparar. Hay que igualarlos antes.</p>
 </div>
 <h3>Igualar el panelado</h3>
-<p>Se igualan con <code>Refine Globally</code>, que pide el número de paneles deseado. El refinado produce un perfil <em>nuevo</em>, de modo que el programa pide un nombre para él y el original queda intacto.</p>
+<p>Se igualan con <code>Refine Globally</code>, que pide el número de paneles deseado. Hay que hacer clic en <code>Apply</code> antes que en <code>OK</code>: <code>OK</code> por sí solo cierra el diálogo sin refinar. El refinado produce un perfil <em>nuevo</em>, de modo que el programa pide un nombre para él y el original queda intacto.</p>
 <div class="callout warning">
-  <p><strong>Una observación que no se pudo cerrar.</strong> El comando aparece bajo <code>Design</code> en <em>XFoil Direct Analysis</em> y bajo <code>Foil</code> en <em>Direct Foil Design</em>. En las corridas de esta guía el refinado sólo surtió efecto desde el segundo módulo; desde el primero el conteo de paneles no cambió. No se determinó la causa, así que conviene <strong>verificar el número de paneles en el recuadro inferior izquierdo</strong> después de refinar, en vez de darlo por hecho.</p>
+  <p><strong>Una observación que no se pudo cerrar.</strong> El comando aparece bajo <code>Design</code> en <em>XFoil Direct Analysis</em> y bajo <code>Foil</code> en <em>Direct Foil Design</em>. En las corridas de esta guía el refinado sólo surtió efecto desde el segundo módulo; desde el primero el conteo de paneles no cambió. No se determinó la causa —queda por comprobar si en el primer caso se cerró con <code>OK</code> sin pasar por <code>Apply</code>—, así que conviene <strong>verificar el número de paneles en el recuadro inferior izquierdo</strong> después de refinar, en vez de darlo por hecho.</p>
 </div>
 <p>Para esta guía se refinó el NACA 2412 original a 257 paneles y se guardó aparte, de manera que la comparación enfrenta dos perfiles con idéntica discretización. Lo que eso cambia, y lo que no, está medido en la tabla 5.</p>
 <p>Con los dos perfiles listos, el análisis es el del Tutorial 1.1 y no tiene ninguna novedad: <code>Analysis ▸ Define an Analysis</code>, Type 1, <span>\(Re = 500\,000\)</span>, <span>\(M = 0\)</span>, <span>\(N_{\mathrm{crit}} = 9\)</span>, y un barrido de <span>\(-6°\)</span> a <span>\(16°\)</span> cada medio grado.</p>
@@ -582,7 +585,7 @@
   <li>Mírese la gráfica <span>\(C_l\)</span> contra <code>Xtr top</code>. ¿Hay meseta? ¿Es más larga o más corta que la de la figura 12, y hasta qué <span>\(C_l\)</span> llega?</li>
   <li>Si un avión vuela en crucero a <span>\(C_l = 0.45\)</span>, ¿cuál de los tres perfiles de la tabla le conviene? Razónese con las cifras, no con la silueta.</li>
 </ol>
-<p>La pregunta que da sentido al ejercicio es la última, porque revela lo que este tutorial no enseña: el diseño inverso permite <em>elegir</em> el coeficiente de sustentación en el que un perfil es eficiente, pero no dice cuál elegir. Ese dato —el <span>\(C_l\)</span> de crucero— viene del peso, la superficie alar y la velocidad de la aeronave, y no aparece en ninguna parte de esta guía. Es el puente hacia el bloque del ala.</p>
+<p>La pregunta que da sentido al ejercicio es la última, porque revela lo que este tutorial no enseña: el diseño inverso permite <em>elegir</em> el coeficiente de sustentación en el que un perfil es eficiente, pero no dice cuál elegir. Ese dato —el <span>\(C_l\)</span> de crucero— viene del peso, la superficie alar y la velocidad de la aeronave, y no aparece en ninguna parte de esta guía. Es el puente hacia los bloques del ala y del avión: el Tutorial 3.3 lo obtiene del peso con el trimado.</p>
 <p>Como comprobación adicional, y más exigente: <strong>bajar</strong> la velocidad en lugar de subirla, y predecir antes de ejecutar qué le va a pasar al espesor.</p>
 
     </section>
@@ -653,12 +656,12 @@
   <li>Eppler, R. <em>Airfoil Design and Data</em>. Berlín: Springer, 1990. Tratamiento sistemático del diseño inverso por especificación de velocidad.</li>
   <li>Deperrois, A. <em>Guidelines for XFLR5</em>, sección de diseño inverso.</li>
 </ol>
-<p class="source-note">Capturas de pantalla tomadas de XFLR5 v6.62 sobre macOS. Las mediciones de las tablas 2 y 7 provienen de los datos exportados con <code>Graph ▸ Export Graph</code> y de un cálculo independiente de las longitudes de arco del perfil; las de las tablas 3 a 5, de corridas hechas expresamente para esta guía, cuyo proyecto la acompaña. Con este tutorial se cierra el bloque del perfil; el siguiente abre el del ala, con la planta, la torsión y la flecha.</p>
+<p class="source-note">Capturas de pantalla tomadas de XFLR5 v6.62 sobre macOS. Las mediciones de las tablas 2 y 7 provienen de los datos exportados con <code>Graph ▸ Export Graph</code> y de un cálculo independiente de las longitudes de arco del perfil; las de las tablas 3 a 5, de corridas hechas expresamente para esta guía, cuyo proyecto la acompaña. Con este tutorial se cierra el bloque del perfil; el siguiente, el 2.1, abre el del ala: por qué un ala finita sustenta menos que el perfil con que está construida.</p>
 
     </section>
     <nav class="next-nav">
       <a class="next-link" href="lotes-y-geometria.html?v=13"><span>Tutorial anterior</span>← Análisis por lotes y geometría del perfil</a>
-      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>XFLR5 · Serie de tutoriales</a>
+      <a class="next-link" href="ala-finita.html?v=13"><span>Tutorial siguiente</span>Del perfil al ala finita →</a>
     </nav>
   </article>
   <article class="lecture" data-language="de" hidden>
@@ -666,7 +669,7 @@
       <p class="section-label">Lernziele</p>
       <h2>Was Sie danach können sollten</h2>
       <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
-<p>Eine Geschwindigkeitsverteilung vorgeben und die zugehörige Geometrie zurücklesen, erkennen, was die Abszisse des Diagramms wirklich misst, und einen Entwurf am Polarenvergleich beurteilen statt an der Form.</p>
+<p>Eine Geschwindigkeitsverteilung vorgeben und die zugehörige Geometrie zurücklesen, erkennen, was die Abszisse des Diagramms wirklich misst, und einen Entwurf am Polarenvergleich beurteilen statt an der Form.</p><div class="callout"><p><strong>Zur Programmversion.</strong> Das Projekt XFLR5 wurde am 30. Juni 2026 eingestellt: XFLR5 v6.62, mit der diese Anleitung geprüft wurde, ist die letzte Version. Die Entwicklung wird in <a href="https://flow5.tech" target="_blank" rel="noopener">flow5</a> fortgesetzt, das als Version 7 von XFLR5 gilt und seit dem 1. Januar 2026 quelloffen ist. Die Reihe bleibt aus zwei Gründen bei XFLR5: Ein eingefrorenes Programm hält diese Anleitungen gültig, und XFLR5 wurde für Flugzeuge im Modellmaßstab entwickelt, den Maßstab der Beispiele. XFLR5 v6.62 für Windows und macOS ist weiterhin bei <a href="https://sourceforge.net/projects/xflr5/files/6.62/" target="_blank" rel="noopener">SourceForge</a> erhältlich.</p></div>
     </section>
     <section id="physics-de">
       <p class="section-label">Die Idee</p>
@@ -740,7 +743,7 @@
     </section>
     <nav class="next-nav">
       <a class="next-link" href="lotes-y-geometria.html?v=13"><span>Vorheriges Tutorial</span>← Stapelanalyse und Profilgeometrie</a>
-      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>XFLR5 · Tutorialreihe</a>
+      <a class="next-link" href="ala-finita.html?v=13"><span>Nächstes Tutorial</span>Vom Profil zur endlichen Tragfläche →</a>
     </nav>
   </article>
 
