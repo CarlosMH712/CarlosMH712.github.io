@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Tutorial series on Gmsh: 2.5D meshes for OpenFOAM, three-dimensional meshes for fluids and meshes for solid mechanics in CalculiX, through the interface and the .geo file." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Gmsh Tutorials | Carlos Molina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../../index.html">Carlos Molina</a>
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=13" data-ui-key="course">Tutorials</a>
+      <a href="../../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="course-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Software tutorials · Gmsh</p>
+        <h1>Gmsh</h1>
+        <p class="hero-copy">A tutorial series on mesh generation with Gmsh for simulation: from a 2.5D mesh for OpenFOAM, through three-dimensional meshes for fluids, to meshes for solid mechanics in CalculiX. The main thread is fluid dynamics, but nothing is restricted to aerodynamics.</p>
+        <p class="hero-copy"><strong>Two paths, one file.</strong> Every tutorial is taught twice: with the graphical interface, to see what happens, and by writing the .geo file, to parametrise and repeat. Every figure and number comes from an actual run of Gmsh 4.15.2 and, where a solver is involved, of OpenFOAM 13.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Tutoriales de software · Gmsh</p>
+        <h1>Gmsh</h1>
+        <p class="hero-copy">Una serie sobre generación de mallas con Gmsh para simulación: de la malla 2.5D para OpenFOAM, pasando por mallas tridimensionales para fluidos, hasta mallas para mecánica de sólidos en CalculiX. El hilo conductor es la dinámica de fluidos, pero nada se limita a la aerodinámica.</p>
+        <p class="hero-copy"><strong>Dos caminos, un solo archivo.</strong> Cada tutorial se enseña dos veces: con la interfaz gráfica, para ver qué ocurre, y escribiendo el archivo .geo, para parametrizar y repetir. Todas las figuras y cifras proceden de corridas reales de Gmsh 4.15.2 y, cuando interviene un solver, de OpenFOAM 13.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Software-Tutorials · Gmsh</p>
+        <h1>Gmsh</h1>
+        <p class="hero-copy">Eine Reihe zur Netzerzeugung mit Gmsh für die Simulation: vom 2,5D-Netz für OpenFOAM über dreidimensionale Netze für Strömungen bis zu Netzen für die Festkörpermechanik in CalculiX. Der rote Faden ist die Strömungsmechanik, doch nichts ist auf Aerodynamik beschränkt.</p>
+        <p class="hero-copy"><strong>Zwei Wege, eine Datei.</strong> Jedes Tutorial wird zweimal gezeigt: über die grafische Oberfläche, um zu sehen, was geschieht, und durch Schreiben der .geo-Datei, um zu parametrisieren und zu wiederholen. Alle Abbildungen und Zahlen stammen aus tatsächlichen Läufen von Gmsh 4.15.2 und, wo ein Löser beteiligt ist, von OpenFOAM 13.</p>
+      </div>
+  </div>
+</section>
+
+<main>
+  <section class="section">
+    <div class="container">
+    <div data-language="en">
+      <p class="section-label">Block 1 · Foundations: 2D and 2.5D meshes for OpenFOAM</p>
+      <div class="course-grid">
+        <article class="course-card available">
+          <span class="course-card-number">1.1</span>
+          <h3>The Lid-Driven Cavity: From Points to a 2.5D Mesh</h3>
+          <p>Points, lines and a surface; unstructured and structured meshes with Transfinite and Recombine; a one-cell extrusion; physical groups; gmshToFoam and checkMesh.</p>
+          <span class="status">Available</span>
+          <a href="cavidad-cuadrada.html?v=13">Open tutorial →</a>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">1.2</span>
+          <h3>Parametrising the .geo and Controlling Element Size</h3>
+          <p>Variables, DefineConstant and loops; wall grading with Progression and Bump; characteristic length versus the global size factor; refinement fields.</p>
+          <span class="status">Planned</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">1.3</span>
+          <h3>Several Blocks: the Backward-Facing Step</h3>
+          <p>Structured surfaces that share lines, conformity between blocks and grading towards the wall, in the classic separation and reattachment case.</p>
+          <span class="status">Planned</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">1.4</span>
+          <h3>Hybrid Meshes and the Boundary Layer: a Cylinder in a Channel</h3>
+          <p>A structured ring around the body and an unstructured mesh far away; distance and boundary-layer fields; first-cell height and \(y^+\).</p>
+          <span class="status">Planned</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">1.5</span>
+          <h3>Mesh Quality: What Each Metric Measures</h3>
+          <p>SICN and gamma in Gmsh; non-orthogonality, skewness and aspect ratio in checkMesh; how to find and fix the failing element.</p>
+          <span class="status">Planned</span>
+        </article>
+      </div>
+      <p class="section-label">Block 2 · Aerodynamics and compressible flow in 2.5D</p>
+      <div class="course-grid">
+        <article class="course-card">
+          <span class="course-card-number">2.1</span>
+          <h3>The Compression Corner: a Mesh for Shock Waves</h3>
+          <p>A supersonic ramp refined where the oblique shock will sit, checked against the \(\theta\)–\(\beta\)–\(M\) relation.</p>
+          <span class="status">Planned</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">2.2</span>
+          <h3>The Airfoil in a C-Domain</h3>
+          <p>NACA contour with Spline, block-structured C-grid, boundary layer and wake, and mesh symmetry as the condition for zero \(C_L\) at zero incidence.</p>
+          <span class="status">Planned</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">2.3</span>
+          <h3>The Axisymmetric Converging-Diverging Nozzle</h3>
+          <p>Rotational extrusion to a thin wedge and patches of type wedge: OpenFOAM's axisymmetric case.</p>
+          <span class="status">Planned</span>
+        </article>
+      </div>
+      <p class="section-label">Block 3 · 3D meshes for fluids</p>
+      <div class="course-grid">
+        <article class="course-card">
+          <span class="course-card-number">3.1</span>
+          <h3>The Pipe: Hexahedra with an O-Grid Section</h3>
+          <p>A circular section in blocks (the “butterfly”) extruded along the pipe; inlet, outlet and wall; validation against the Hagen-Poiseuille profile.</p>
+          <span class="status">Planned</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">3.2</span>
+          <h3>CAD Geometry with OpenCASCADE</h3>
+          <p>Boxes, cylinders and Boolean operations; importing a STEP file; a tetrahedral mesh with local refinement around a body.</p>
+          <span class="status">Planned</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">3.3</span>
+          <h3>Prism Layers on Walls</h3>
+          <p>Three-dimensional boundary-layer extrusion to resolve the near-wall region inside an unstructured volume mesh.</p>
+          <span class="status">Planned</span>
+        </article>
+      </div>
+      <p class="section-label">Block 4 · Meshes for solids: CalculiX</p>
+      <div class="course-grid">
+        <article class="course-card">
+          <span class="course-card-number">4.1</span>
+          <h3>The Plate with a Hole: Second-Order Tetrahedra</h3>
+          <p>C3D10 elements, export to .inp with physical groups as node and element sets, and the stress concentration factor as validation.</p>
+          <span class="status">Planned</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">4.2</span>
+          <h3>The Cantilever Beam: Hexahedra and Convergence</h3>
+          <p>A structured hexahedral mesh, successive refinement and comparison with the Euler-Bernoulli deflection.</p>
+          <span class="status">Planned</span>
+        </article>
+      </div>
+      <p class="section-label">Appendices</p>
+      <div class="course-grid">
+        <article class="course-card">
+          <span class="course-card-number">A</span>
+          <h3>The Python API: Sweeps Without the Interface</h3>
+          <p>The same .geo driven from Python to sweep a parameter —angle of attack, cell count— and export each mesh.</p>
+          <span class="status">Planned</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">B</span>
+          <h3>Formats and Converters</h3>
+          <p>MSH 2 and 4, .inp, .su2, .vtk and .unv: what Gmsh writes, what each program reads and with which options.</p>
+          <span class="status">Planned</span>
+        </article>
+      </div>
+    </div>
+    <div data-language="es" hidden>
+      <p class="section-label">Bloque 1 · Fundamentos: mallas 2D y 2.5D para OpenFOAM</p>
+      <div class="course-grid">
+        <article class="course-card available">
+          <span class="course-card-number">1.1</span>
+          <h3>La cavidad cuadrada: de los puntos a la malla 2.5D</h3>
+          <p>Puntos, líneas y superficie; malla no estructurada y estructurada con Transfinite y Recombine; extrusión de una celda; grupos físicos; gmshToFoam y checkMesh.</p>
+          <span class="status">Disponible</span>
+          <a href="cavidad-cuadrada.html?v=13">Abrir tutorial →</a>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">1.2</span>
+          <h3>Parametrizar el .geo y controlar el tamaño</h3>
+          <p>Variables, DefineConstant y bucles; gradación hacia las paredes con Progression y Bump; longitud característica frente a factor global de tamaño; campos de refinamiento.</p>
+          <span class="status">Previsto</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">1.3</span>
+          <h3>Varios bloques: el escalón hacia atrás</h3>
+          <p>Superficies estructuradas que comparten líneas, conformidad entre bloques y gradación hacia la pared, en el caso clásico de separación y readherencia.</p>
+          <span class="status">Previsto</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">1.4</span>
+          <h3>Mallas híbridas y capa límite: el cilindro en un canal</h3>
+          <p>Anillo estructurado alrededor del cuerpo y malla no estructurada lejos; campos de distancia y de capa límite; primer espesor e \(y^+\).</p>
+          <span class="status">Previsto</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">1.5</span>
+          <h3>Calidad de malla: qué mide cada métrica</h3>
+          <p>SICN y gamma en Gmsh; no ortogonalidad, oblicuidad y relación de aspecto en checkMesh; cómo encontrar y corregir el elemento que falla.</p>
+          <span class="status">Previsto</span>
+        </article>
+      </div>
+      <p class="section-label">Bloque 2 · Aerodinámica y flujo compresible en 2.5D</p>
+      <div class="course-grid">
+        <article class="course-card">
+          <span class="course-card-number">2.1</span>
+          <h3>La esquina de compresión: una malla para ondas de choque</h3>
+          <p>Rampa supersónica con refinamiento donde va a estar el choque oblicuo, y comprobación del ángulo de choque con la relación \(\theta\)–\(\beta\)–\(M\).</p>
+          <span class="status">Previsto</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">2.2</span>
+          <h3>El perfil alar en un dominio en C</h3>
+          <p>Contorno NACA con Spline, malla C estructurada por bloques, capa límite y estela, y la simetría de la malla como condición para un \(C_L\) nulo a cero grados.</p>
+          <span class="status">Previsto</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">2.3</span>
+          <h3>La tobera convergente-divergente axisimétrica</h3>
+          <p>Extrusión por rotación a una cuña de pocos grados y parches de tipo wedge: el caso axisimétrico de OpenFOAM.</p>
+          <span class="status">Previsto</span>
+        </article>
+      </div>
+      <p class="section-label">Bloque 3 · Mallas 3D para fluidos</p>
+      <div class="course-grid">
+        <article class="course-card">
+          <span class="course-card-number">3.1</span>
+          <h3>La tubería: hexaedros con una sección en O</h3>
+          <p>Sección circular en bloques («mariposa») extruida a lo largo del tubo; entrada, salida y pared; validación con el perfil de Hagen-Poiseuille.</p>
+          <span class="status">Previsto</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">3.2</span>
+          <h3>Geometría CAD con OpenCASCADE</h3>
+          <p>Cajas, cilindros y operaciones booleanas; importar un STEP; malla tetraédrica con refinamiento local alrededor de un cuerpo.</p>
+          <span class="status">Previsto</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">3.3</span>
+          <h3>Capas de prismas sobre las paredes</h3>
+          <p>Extrusión de capa límite en 3D para resolver la zona cercana a la pared con una malla volumétrica no estructurada.</p>
+          <span class="status">Previsto</span>
+        </article>
+      </div>
+      <p class="section-label">Bloque 4 · Mallas para sólidos: CalculiX</p>
+      <div class="course-grid">
+        <article class="course-card">
+          <span class="course-card-number">4.1</span>
+          <h3>La placa con agujero: tetraedros de segundo orden</h3>
+          <p>Elementos C3D10, exportación a .inp con los grupos físicos como conjuntos de nodos y elementos, y el factor de concentración de esfuerzos como validación.</p>
+          <span class="status">Previsto</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">4.2</span>
+          <h3>La viga en voladizo: hexaedros y convergencia</h3>
+          <p>Malla estructurada de hexaedros, refinamiento sucesivo y comparación con la flecha de Euler-Bernoulli.</p>
+          <span class="status">Previsto</span>
+        </article>
+      </div>
+      <p class="section-label">Apéndices</p>
+      <div class="course-grid">
+        <article class="course-card">
+          <span class="course-card-number">A</span>
+          <h3>La API de Python: barridos sin tocar la interfaz</h3>
+          <p>El mismo .geo manejado desde Python para barrer un parámetro —ángulo de ataque, número de celdas— y exportar cada malla.</p>
+          <span class="status">Previsto</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">B</span>
+          <h3>Formatos y convertidores</h3>
+          <p>MSH 2 y 4, .inp, .su2, .vtk y .unv: qué escribe Gmsh, qué lee cada programa y con qué opciones.</p>
+          <span class="status">Previsto</span>
+        </article>
+      </div>
+    </div>
+    <div data-language="de" hidden>
+      <p class="section-label">Block 1 · Grundlagen: 2D- und 2,5D-Netze für OpenFOAM</p>
+      <div class="course-grid">
+        <article class="course-card available">
+          <span class="course-card-number">1.1</span>
+          <h3>Die Nischenströmung: von Punkten zum 2,5D-Netz</h3>
+          <p>Punkte, Linien und Fläche; unstrukturierte und strukturierte Netze mit Transfinite und Recombine; Extrusion um eine Zelle; physikalische Gruppen; gmshToFoam und checkMesh.</p>
+          <span class="status">Verfügbar</span>
+          <a href="cavidad-cuadrada.html?v=13">Tutorial öffnen →</a>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">1.2</span>
+          <h3>Die .geo-Datei parametrisieren und die Elementgröße steuern</h3>
+          <p>Variablen, DefineConstant und Schleifen; Wandverdichtung mit Progression und Bump; charakteristische Länge gegenüber globalem Größenfaktor; Verfeinerungsfelder.</p>
+          <span class="status">Geplant</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">1.3</span>
+          <h3>Mehrere Blöcke: die rückspringende Stufe</h3>
+          <p>Strukturierte Flächen mit gemeinsamen Linien, Konformität zwischen Blöcken und Wandverdichtung am klassischen Fall von Ablösung und Wiederanlegen.</p>
+          <span class="status">Geplant</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">1.4</span>
+          <h3>Hybride Netze und Grenzschicht: der Zylinder im Kanal</h3>
+          <p>Strukturierter Ring um den Körper und unstrukturiertes Netz im Fernfeld; Abstands- und Grenzschichtfelder; erste Zellhöhe und \(y^+\).</p>
+          <span class="status">Geplant</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">1.5</span>
+          <h3>Netzqualität: was jede Kennzahl misst</h3>
+          <p>SICN und Gamma in Gmsh; Nichtorthogonalität, Schiefe und Seitenverhältnis in checkMesh; das fehlerhafte Element finden und beheben.</p>
+          <span class="status">Geplant</span>
+        </article>
+      </div>
+      <p class="section-label">Block 2 · Aerodynamik und kompressible Strömung in 2,5D</p>
+      <div class="course-grid">
+        <article class="course-card">
+          <span class="course-card-number">2.1</span>
+          <h3>Die Kompressionsecke: ein Netz für Verdichtungsstöße</h3>
+          <p>Überschallrampe mit Verfeinerung am späteren schrägen Stoß, geprüft mit der \(\theta\)–\(\beta\)–\(M\)-Beziehung.</p>
+          <span class="status">Geplant</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">2.2</span>
+          <h3>Das Tragflächenprofil im C-Gebiet</h3>
+          <p>NACA-Kontur mit Spline, blockstrukturiertes C-Netz, Grenzschicht und Nachlauf, und die Netzsymmetrie als Bedingung für \(C_L = 0\) bei null Grad.</p>
+          <span class="status">Geplant</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">2.3</span>
+          <h3>Die achsensymmetrische Laval-Düse</h3>
+          <p>Rotationsextrusion zu einem dünnen Keil und Patches vom Typ wedge: der achsensymmetrische Fall in OpenFOAM.</p>
+          <span class="status">Geplant</span>
+        </article>
+      </div>
+      <p class="section-label">Block 3 · 3D-Netze für Strömungen</p>
+      <div class="course-grid">
+        <article class="course-card">
+          <span class="course-card-number">3.1</span>
+          <h3>Das Rohr: Hexaeder mit O-Netz-Querschnitt</h3>
+          <p>Kreisquerschnitt in Blöcken („Schmetterling“), entlang des Rohrs extrudiert; Einlass, Auslass und Wand; Validierung mit dem Hagen-Poiseuille-Profil.</p>
+          <span class="status">Geplant</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">3.2</span>
+          <h3>CAD-Geometrie mit OpenCASCADE</h3>
+          <p>Quader, Zylinder und boolesche Operationen; STEP-Import; Tetraedernetz mit lokaler Verfeinerung um einen Körper.</p>
+          <span class="status">Geplant</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">3.3</span>
+          <h3>Prismenschichten an Wänden</h3>
+          <p>Dreidimensionale Grenzschichtextrusion, um den wandnahen Bereich in einem unstrukturierten Volumennetz aufzulösen.</p>
+          <span class="status">Geplant</span>
+        </article>
+      </div>
+      <p class="section-label">Block 4 · Netze für Festkörper: CalculiX</p>
+      <div class="course-grid">
+        <article class="course-card">
+          <span class="course-card-number">4.1</span>
+          <h3>Die Lochplatte: Tetraeder zweiter Ordnung</h3>
+          <p>C3D10-Elemente, Export nach .inp mit physikalischen Gruppen als Knoten- und Elementsätze, und die Formzahl als Validierung.</p>
+          <span class="status">Geplant</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">4.2</span>
+          <h3>Der Kragbalken: Hexaeder und Konvergenz</h3>
+          <p>Strukturiertes Hexaedernetz, schrittweise Verfeinerung und Vergleich mit der Durchbiegung nach Euler-Bernoulli.</p>
+          <span class="status">Geplant</span>
+        </article>
+      </div>
+      <p class="section-label">Anhänge</p>
+      <div class="course-grid">
+        <article class="course-card">
+          <span class="course-card-number">A</span>
+          <h3>Die Python-API: Parameterstudien ohne Oberfläche</h3>
+          <p>Dieselbe .geo-Datei aus Python gesteuert, um einen Parameter —Anstellwinkel, Zellzahl— zu variieren und jedes Netz zu exportieren.</p>
+          <span class="status">Geplant</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">B</span>
+          <h3>Formate und Konverter</h3>
+          <p>MSH 2 und 4, .inp, .su2, .vtk und .unv: was Gmsh schreibt, was jedes Programm liest und mit welchen Optionen.</p>
+          <span class="status">Geplant</span>
+        </article>
+      </div>
+    </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>
