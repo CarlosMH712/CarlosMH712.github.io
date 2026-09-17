@@ -41,18 +41,21 @@
         <h1>Gmsh</h1>
         <p class="hero-copy">A tutorial series on mesh generation with Gmsh for simulation: from a 2.5D mesh for OpenFOAM, through three-dimensional meshes for fluids, to meshes for solid mechanics in CalculiX. The main thread is fluid dynamics, but nothing is restricted to aerodynamics.</p>
         <p class="hero-copy"><strong>Two paths, one file.</strong> Every tutorial is taught twice: with the graphical interface, to see what happens, and by writing the .geo file, to parametrise and repeat. Every figure and number comes from an actual run of Gmsh 4.15.2 and, where a solver is involved, of OpenFOAM 13.</p>
+        <div class="button-row"><a class="button secondary" href="https://www.youtube.com/playlist?list=PLGXnWkj2UZJY" target="_blank" rel="noopener">▶&nbsp;Series videos on YouTube (no audio)</a></div>
       </div>
       <div data-language="es" hidden>
         <p class="eyebrow">Tutoriales de software · Gmsh</p>
         <h1>Gmsh</h1>
         <p class="hero-copy">Una serie sobre generación de mallas con Gmsh para simulación: de la malla 2.5D para OpenFOAM, pasando por mallas tridimensionales para fluidos, hasta mallas para mecánica de sólidos en CalculiX. El hilo conductor es la dinámica de fluidos, pero nada se limita a la aerodinámica.</p>
         <p class="hero-copy"><strong>Dos caminos, un solo archivo.</strong> Cada tutorial se enseña dos veces: con la interfaz gráfica, para ver qué ocurre, y escribiendo el archivo .geo, para parametrizar y repetir. Todas las figuras y cifras proceden de corridas reales de Gmsh 4.15.2 y, cuando interviene un solver, de OpenFOAM 13.</p>
+        <div class="button-row"><a class="button secondary" href="https://www.youtube.com/playlist?list=PLGXnWkj2UZJY" target="_blank" rel="noopener">▶&nbsp;Vídeos de la serie en YouTube (sin audio)</a></div>
       </div>
       <div data-language="de" hidden>
         <p class="eyebrow">Software-Tutorials · Gmsh</p>
         <h1>Gmsh</h1>
         <p class="hero-copy">Eine Reihe zur Netzerzeugung mit Gmsh für die Simulation: vom 2,5D-Netz für OpenFOAM über dreidimensionale Netze für Strömungen bis zu Netzen für die Festkörpermechanik in CalculiX. Der rote Faden ist die Strömungsmechanik, doch nichts ist auf Aerodynamik beschränkt.</p>
         <p class="hero-copy"><strong>Zwei Wege, eine Datei.</strong> Jedes Tutorial wird zweimal gezeigt: über die grafische Oberfläche, um zu sehen, was geschieht, und durch Schreiben der .geo-Datei, um zu parametrisieren und zu wiederholen. Alle Abbildungen und Zahlen stammen aus tatsächlichen Läufen von Gmsh 4.15.2 und, wo ein Löser beteiligt ist, von OpenFOAM 13.</p>
+        <div class="button-row"><a class="button secondary" href="https://www.youtube.com/playlist?list=PLGXnWkj2UZJY" target="_blank" rel="noopener">▶&nbsp;Videos der Reihe auf YouTube (ohne Ton)</a></div>
       </div>
   </div>
 </section>
@@ -103,10 +106,17 @@
           <p>A supersonic ramp refined where the oblique shock will sit, checked against the \(\theta\)–\(\beta\)–\(M\) relation.</p>
           <span class="status">Planned</span>
         </article>
+        <article class="course-card available">
+          <span class="course-card-number">2.2.1</span>
+          <h3>The Airfoil in a C-Domain: a Block-Structured Mesh</h3>
+          <p>NACA contour with a loop and Spline, six four-sided blocks through the interface and the .geo file, Progression and curve direction, and the pressure at zero incidence against a panel method.</p>
+          <span class="status">Available</span>
+          <a href="perfil-dominio-c.html?v=13">Open tutorial →</a>
+        </article>
         <article class="course-card">
-          <span class="course-card-number">2.2</span>
-          <h3>The Airfoil in a C-Domain</h3>
-          <p>NACA contour with Spline, block-structured C-grid, boundary layer and wake, and mesh symmetry as the condition for zero \(C_L\) at zero incidence.</p>
+          <span class="course-card-number">2.2.2</span>
+          <h3>The Airfoil in a C-Domain: Parameters, Boundary Layer and Wake</h3>
+          <p>DefineConstant, cambered four-digit NACA, control stations, first-cell height from y⁺, a wake band and a continuous size transition, with a mesh whose symmetry is checked.</p>
           <span class="status">Planned</span>
         </article>
         <article class="course-card">
@@ -211,10 +221,17 @@
           <p>Rampa supersónica con refinamiento donde va a estar el choque oblicuo, y comprobación del ángulo de choque con la relación \(\theta\)–\(\beta\)–\(M\).</p>
           <span class="status">Previsto</span>
         </article>
+        <article class="course-card available">
+          <span class="course-card-number">2.2.1</span>
+          <h3>El perfil alar en un dominio en C: la malla por bloques</h3>
+          <p>Contorno NACA con un bucle y Spline, seis bloques de cuatro lados por la interfaz y en el .geo, Progression y el sentido de las curvas, y la presión a cero grados frente a un método de paneles.</p>
+          <span class="status">Disponible</span>
+          <a href="perfil-dominio-c.html?v=13">Abrir tutorial →</a>
+        </article>
         <article class="course-card">
-          <span class="course-card-number">2.2</span>
-          <h3>El perfil alar en un dominio en C</h3>
-          <p>Contorno NACA con Spline, malla C estructurada por bloques, capa límite y estela, y la simetría de la malla como condición para un \(C_L\) nulo a cero grados.</p>
+          <span class="course-card-number">2.2.2</span>
+          <h3>El perfil alar en un dominio en C: parámetros, capa límite y estela</h3>
+          <p>DefineConstant, NACA de cuatro dígitos con curvatura, estaciones de control, primera celda a partir de y⁺, banda de estela y transición continua de tamaños, con una malla simétrica comprobada.</p>
           <span class="status">Previsto</span>
         </article>
         <article class="course-card">
@@ -319,10 +336,17 @@
           <p>Überschallrampe mit Verfeinerung am späteren schrägen Stoß, geprüft mit der \(\theta\)–\(\beta\)–\(M\)-Beziehung.</p>
           <span class="status">Geplant</span>
         </article>
+        <article class="course-card available">
+          <span class="course-card-number">2.2.1</span>
+          <h3>Das Tragflächenprofil im C-Gebiet: ein blockstrukturiertes Netz</h3>
+          <p>NACA-Kontur mit Schleife und Spline, sechs vierseitige Blöcke über Oberfläche und .geo-Datei, Progression und Kurvenrichtung, und der Druck bei null Grad gegenüber einem Panelverfahren.</p>
+          <span class="status">Verfügbar</span>
+          <a href="perfil-dominio-c.html?v=13">Tutorial öffnen →</a>
+        </article>
         <article class="course-card">
-          <span class="course-card-number">2.2</span>
-          <h3>Das Tragflächenprofil im C-Gebiet</h3>
-          <p>NACA-Kontur mit Spline, blockstrukturiertes C-Netz, Grenzschicht und Nachlauf, und die Netzsymmetrie als Bedingung für \(C_L = 0\) bei null Grad.</p>
+          <span class="course-card-number">2.2.2</span>
+          <h3>Das Tragflächenprofil im C-Gebiet: Parameter, Grenzschicht und Nachlauf</h3>
+          <p>DefineConstant, gewölbtes vierstelliges NACA-Profil, Kontrollstationen, erste Zellhöhe aus y⁺, Nachlaufband und stetiger Größenübergang, mit geprüfter Netzsymmetrie.</p>
           <span class="status">Geplant</span>
         </article>
         <article class="course-card">
