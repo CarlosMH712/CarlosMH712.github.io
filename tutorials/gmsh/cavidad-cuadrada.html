@@ -384,7 +384,7 @@ Plane Surface(1) = {1};</code></pre>
   <figcaption><b class="fig-num">Figura 10.</b> <b class="fig-title">Los nodos de cada línea.</b> <code>Mesh Context</code> con <code>Number of points</code> en 21. El programa propone 10, con <code>Type</code> en <code>Progression</code> y <code>Parameter</code> en 1, que es una distribución uniforme.</figcaption>
 </figure>
 <div class="callout">
-  <p><strong>Cada orden nueva borra la malla.</strong> Al agregar <code>Transfinite</code> o <code>Recombine</code>, la interfaz escribe la línea y vuelve a leer el archivo, y la malla que había desaparece de la vista. Por eso los pasos 3 y 5 de la receta repiten <code>Mesh ▸ 2D</code>.</p>
+  <p><strong>La malla que se ve puede ser la vieja.</strong> Al agregar <code>Transfinite</code> o <code>Recombine</code>, la interfaz escribe la línea en el archivo, pero en pantalla sigue dibujada la malla anterior: la no estructurada del paso 2 permanece hasta volver a hacer <code>Mesh ▸ 2D</code>. Por eso los pasos 3 y 5 de la receta repiten esa orden, y conviene no sacar conclusiones de la vista sin volver a mallar.</p>
 </div>
 <div class="callout warning">
   <p><strong>Las ventanas de contexto tapan la geometría.</strong> Aparecen sobre la ventana gráfica, y un clic que cae en ellas no selecciona nada: en la verificación de esta guía, la tapa quedó fuera del <code>Transfinite</code> por eso, y la línea escrita fue <code>{1, 2, 4}</code>. Conviene arrastrar la ventana de contexto a un lado antes de seleccionar, y leer la línea que se escribió en el archivo.</p>
@@ -1354,7 +1354,7 @@ Physical Surface(&quot;fixedWalls&quot;)   = {fondo[], izq[], der[]};</code></pr
   <li><code>Geometry ▸ Physical groups ▸ Add ▸ Surface</code>. Se abre <code>Physical Surface Context</code> (figura 15). Escribir <code>movingWall</code> en <code>Name</code>, hacer clic en la cruz de la tapa y presionar <code>e</code>. La interfaz escribe <code>Physical Surface("movingWall", 27) = {21};</code>.</li>
   <li>Sin salir, escribir <code>fixedWalls</code> en <code>Name</code>, hacer clic en las cruces de la pared derecha, el fondo y la pared izquierda, y presionar <code>e</code>. Repetir con <code>frontAndBack</code> y las caras de frente y de fondo. Presionar <code>q</code>.</li>
   <li><code>Geometry ▸ Physical groups ▸ Add ▸ Volume</code>. Se abre <code>Physical Volume Context</code> y el volumen se dibuja como una esfera amarilla en su centro. Escribir <code>fluid</code>, hacer clic en la esfera, <code>e</code> y <code>q</code>.</li>
-  <li><code>Mesh ▸ 3D</code> otra vez: los grupos recargan el archivo y la malla desaparece.</li>
+  <li><code>Mesh ▸ 3D</code> otra vez. A diferencia de <code>Transfinite</code> y <code>Recombine</code>, los grupos físicos sí borran la malla: después de agregarlos, <code>Tools ▸ Statistics</code> marca 0 nodos.</li>
 </ol>
 <figure class="diagram medium">
   <img src="imagenes/t11-09_superficies_en_cruz.png" alt="La losa girada, sin malla, con las superficies en cruces punteadas" loading="lazy">
