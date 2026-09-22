@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Gmsh tutorial: turn the C-grid of Tutorial 2.2.1 into a parametric mesh: DefineConstant, a cambered four-digit NACA, control stations, the first cell height from y+, a graded wake, and a RANS run in OpenFOAM that measures the y+ the mesh was designed for." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>The C-Domain Airfoil Mesh, Parametrised | Gmsh Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">Gmsh · Tutorial 2.2.2</p><h1>The C-Domain Airfoil Mesh, Parametrised</h1><p class="hero-copy">The same six blocks, now written with parameters: the airfoil comes from its four-digit code, the first cell height from a target y+, and every progression from the cell sizes you ask for. A Spalart-Allmaras run measures what the mesh was designed to deliver.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">Gmsh · Tutorial 2.2.2</p><h1>El perfil en un dominio en C: parámetros, capa límite y estela</h1><p class="hero-copy">Los mismos bloques, ahora escritos con parámetros: el perfil sale de su código de cuatro dígitos, la primera celda de un y⁺ pedido y cada progresión de los tamaños de celda que uno elige. Un cálculo con Spalart-Allmaras mide lo que la malla prometía.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">Gmsh · Tutorial 2.2.2</p><h1>Das C-Netz mit Parametern: Grenzschicht und Nachlauf</h1><p class="hero-copy">Dieselben Blöcke, nun mit Parametern geschrieben: das Profil aus seinem vierstelligen Code, die erste Zellhöhe aus einem gewünschten y⁺ und jede Progression aus den geforderten Zellgrößen. Eine Spalart-Allmaras-Rechnung misst, was das Netz versprochen hat.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 50 min</span><span data-language="es" hidden>Lectura estimada: 50 min</span><span data-language="de" hidden>Lesedauer: ca. 50 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on Gmsh 4.15.2 and OpenFOAM 13</span><span data-language="es" hidden>Verificado en Gmsh 4.15.2 y OpenFOAM 13</span><span data-language="de" hidden>Geprüft mit Gmsh 4.15.2 und OpenFOAM 13</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="perfil-dominio-c.html?v=13">← <span>2.2.1</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#why">Why parametrise</a><a href="#params">Step 1 · Parameters</a><a href="#airfoil">Step 2 · Airfoil</a><a href="#domain">Step 3 · Domain</a><a href="#blocks">Step 4 · Blocks</a><a href="#openfoam">Step 5 · OpenFOAM</a><a href="#check">The check</a><a href="#fixes">What was corrected</a><a href="#files">The files</a><a href="#example">Suggested practice</a><a href="#summary">Key points</a><a href="#mistakes">Common mistakes</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#why-es">Por qué parametrizar</a><a href="#params-es">Paso 1 · Parámetros</a><a href="#airfoil-es">Paso 2 · Perfil</a><a href="#domain-es">Paso 3 · Dominio</a><a href="#blocks-es">Paso 4 · Bloques</a><a href="#openfoam-es">Paso 5 · OpenFOAM</a><a href="#check-es">La prueba</a><a href="#fixes-es">Lo que se corrigió</a><a href="#files-es">Los archivos</a><a href="#example-es">Práctica sugerida</a><a href="#summary-es">Puntos clave</a><a href="#mistakes-es">Errores frecuentes</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#why-de">Warum parametrisieren</a><a href="#params-de">Schritt 1 · Parameter</a><a href="#airfoil-de">Schritt 2 · Profil</a><a href="#domain-de">Schritt 3 · Gebiet</a><a href="#blocks-de">Schritt 4 · Blöcke</a><a href="#openfoam-de">Schritt 5 · OpenFOAM</a><a href="#check-de">Die Probe</a><a href="#fixes-de">Was korrigiert wurde</a><a href="#files-de">Die Dateien</a><a href="#example-de">Übung</a><a href="#summary-de">Kernpunkte</a><a href="#mistakes-de">Häufige Fehler</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Turn the C-grid of Tutorial 2.2.1 into a parametric file: a four-digit NACA with camber, control stations, a first cell height computed from a target y+, progressions that join two cell sizes without a jump, physical groups whose face indices are computed rather than copied, and a check in OpenFOAM 13 that measures the y+, the drag and the symmetry of the result.</p>
+    </section>
+    <section id="why">
+      <p class="section-label">The idea</p>
+      <h2>A mesh that is written once and used many times</h2>
+<p>A mesh written with numbers only serves one case. The same mesh written with parameters serves a family: another airfoil, another Reynolds number, another y+, a finer or a larger mesh. The price is that every number must come from a formula, and the formulas are the content of this tutorial.</p>
+    </section>
+    <section id="params">
+      <p class="section-label">Step 1</p>
+      <h2>The parameters, y+ and the two progressions</h2>
+<p>DefineConstant declares the parameters and -setnumber overrides them from the terminal. The first cell height is 2 y1 with y1 = y+ nu/u_tau, because y+ measures the distance of the cell centre to the wall. Two macros do the rest: one that solves the ratio and the node count of a progression that joins two cell sizes, and one that bisects for the ratio when the topology has already fixed the node count.</p>
+    </section>
+    <section id="airfoil">
+      <p class="section-label">Step 2</p>
+      <h2>A cambered four-digit NACA and the control stations</h2>
+<p>The four-digit code is decoded into camber, its position and thickness; the thickness is measured perpendicular to the camber line, so the two surfaces no longer share an abscissa. Three control stations split each surface into four spans, and the node count of each span comes from the arc length measured while the points are created.</p>
+    </section>
+    <section id="domain">
+      <p class="section-label">Step 3</p>
+      <h2>The C-domain, now an ellipse</h2>
+<p>The front of the C is half an ellipse, so the inlet distance and the half height are independent parameters; with equal values it is the circle of Tutorial 2.2.1. Gmsh's built-in Ellipse accepts a point of the shorter axis as its third argument.</p>
+    </section>
+    <section id="blocks">
+      <p class="section-label">Step 4</p>
+      <h2>Ten blocks and the mesh</h2>
+<p>Ten blocks: four along each surface and two along the wake. Every curve of the domain gets its node count and its progression from step 1 or step 2; no number is typed twice. A single radial progression runs from the wall to the far field, so no offset band is needed.</p>
+    </section>
+    <section id="openfoam">
+      <p class="section-label">Step 5</p>
+      <h2>Extrusion and groups without copying indices</h2>
+<p>The extrusion returns, per block, the front face, the volume and one side face per curve of its Curve Loop. A small macro turns a list of (block, curve position) pairs into the face list of each patch, so the physical groups survive a change of parameters.</p>
+    </section>
+    <section id="check">
+      <p class="section-label">The check</p>
+      <h2>Does the mesh deliver the y+ it promised?</h2>
+<p>With Spalart-Allmaras at zero incidence and Re = 2.05e6, the mesh gives a mean y+ of 0.97 for a requested value of 1, a drag coefficient of 0.00994 against a reference of about 0.0102, and a lift coefficient of -0.0003 on a symmetric airfoil. The starting mesh diverges with the same case.</p>
+    </section>
+    <section id="fixes">
+      <p class="section-label">The starting mesh</p>
+      <h2>Six things that a mesh like the starting one gets wrong</h2>
+<p>The starting mesh names the airfoil patch wall, takes the first cell height as y1 instead of 2 y1, smooths a structured mesh, mirrors the trailing edge with a hardcoded normal, jumps 130 times in cell size where the boundary-layer band meets the outer block, and rotates the airfoil inside the domain to set the angle of attack.</p>
+    </section>
+    <section id="files">
+      <p class="section-label">Files</p>
+      <h2>The six .geo files, complete</h2>
+<p>Six chained files: parameters, airfoil, domain, blocks, mesh and OpenFOAM. The whole mesh is rebuilt from the terminal with -setnumber.</p>
+    </section>
+    <section id="example">
+      <p class="section-label">Suggested practice</p>
+      <h2>Three runs that change one number each</h2>
+<p>Three variants, each one number away: a cambered NACA 2412, whose lift depends on the far-field boundary condition; a mesh for wall functions, which delivers a mean y+ of 28.7 for a requested 30; and a domain ten times larger, which changes the drag by one per cent.</p>
+    </section>
+    <section id="summary">
+      <p class="section-label">Key points</p>
+      <h2>What to keep from this guide</h2>
+<p>Ask for cell sizes, not node counts; y+ fixes the first cell, the topology fixes the node counts and the ratio follows; a structured mesh is never smoothed; and a mesh is validated by a result, measured on the mesh itself.</p>
+    </section>
+    <section id="mistakes">
+      <p class="section-label">Common mistakes</p>
+      <h2>Mistakes that only show up in the solver</h2>
+<p>Writing a Call and using its result on the same line, expecting Transfinite to put nodes on the control points of a spline, offsetting a curved contour to build a boundary-layer band, letting the wake keep the wall's vertical spacing, and reading y+ as a cell height.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>Gmsh reference manual; Abbott and von Doenhoff; Schlichting; Spalart and Allmaras (1992); the NASA Turbulence Modeling Resource for the NACA 0012 at zero incidence; OpenFOAM 13 user guide.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="perfil-dominio-c.html?v=13"><span>Previous tutorial</span>← Tutorial 2.2.1 · The airfoil in a C-domain</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Tutorial series</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">El Tutorial 2.2.1 construyó una malla en C alrededor de un NACA 0012 escribiendo números: 41 nodos aquí, una progresión de 1.13 allá. Esa malla sirve para un caso. Este tutorial la vuelve a escribir de modo que sirva para una familia de casos: otro perfil, otro número de Reynolds, otro y⁺, una malla más fina o un dominio más grande, sin tocar la geometría. A cambio, cada número tiene que salir de una fórmula.</p>
+<ul>
+  <li>Declarar parámetros con <code>DefineConstant</code> y cambiarlos desde la terminal con <code>-setnumber</code>.</li>
+  <li>Generar cualquier perfil NACA de cuatro dígitos, con curvatura, a partir de su código.</li>
+  <li>Calcular la altura de la primera celda a partir de un y⁺ pedido, y saber por qué vale el doble de la distancia que dice la fórmula.</li>
+  <li>Repartir los nodos de una curva pidiendo tamaños de celda en vez de contar nodos, con las dos fórmulas de la progresión geométrica.</li>
+  <li>Escribir los grupos físicos de modo que sobrevivan a un cambio de parámetros, sin copiar índices a mano.</li>
+  <li>Comprobar la malla con una corrida RANS: medir el y⁺ que de verdad resulta y comparar la resistencia con un valor conocido.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> Gmsh 4.15.2 (<a href="https://gmsh.info" target="_blank" rel="noopener">gmsh.info</a>) y, para la comprobación, OpenFOAM 13 (<a href="https://openfoam.org" target="_blank" rel="noopener">openfoam.org</a>). Este tutorial supone el <a href="perfil-dominio-c.html">2.2.1</a>: la topología en C, <code>Transfinite</code>, <code>Recombine</code>, la extrusión y los grupos físicos se dan por sabidos. Los seis archivos <code>.geo</code> se reproducen completos.</p>
+</div>
+<div class="callout">
+  <p><strong>De dónde sale este tutorial.</strong> El punto de partida es una malla real, escrita por un profesor de la materia para sus propios cálculos, que funciona pero arrastra media docena de errores típicos. El tutorial la reconstruye desde cero y al final los enumera, medidos: no como reproche, sino porque son exactamente los errores que uno comete al escribir su primera malla parametrizada.</p>
+</div>
+
+    </section>
+    <section id="why-es">
+      <p class="section-label">La idea</p>
+      <h2>Una malla que se escribe una vez y sirve muchas</h2>
+
+<p>Una malla escrita con números fijos responde una pregunta. Si después se quiere otro perfil, otro Reynolds o una malla más fina, hay que volver a decidir todos los números y, sobre todo, volver a decidirlos <em>de forma coherente</em>: si la primera celda se afina, la progresión radial tiene que cambiar; si el perfil lleva más nodos, la estela también, o aparecerá un salto de tamaño en el borde de salida.</p>
+<p>Parametrizar consiste en escribir esas dependencias una sola vez. El archivo del paso 1 declara veinte constantes y calcula, a partir de ellas, todos los repartos de nodos del resto de los archivos. Cambiar el perfil es cambiar un número:</p>
+<pre class="code"><code>gmsh perfil2_6_openfoam.geo -3 -setnumber naca 2412 -o naca2412.msh
+gmsh perfil2_6_openfoam.geo -3 -setnumber yplus 30 -o funciones_de_pared.msh
+gmsh perfil2_6_openfoam.geo -3 -setnumber R 50 -setnumber entrada 50 -setnumber L 50 -setnumber hFar 4</code></pre>
+<h3>Qué se conserva del 2.2.1 y qué cambia</h3>
+<p>La topología es la misma: un dominio en C partido en bloques de cuatro lados, con el corte de estela saliendo del borde de salida. Lo que cambia es de dónde salen los números.</p>
+<ul>
+  <li><strong>Dos estaciones de control más por cara.</strong> El 2.2.1 partía cada cara en el espesor máximo; aquí hay tres cortes, en <span>\(x/c\)</span> = 0.30, 0.55 y 0.75, que permiten pedir tamaños distintos a lo largo de la cuerda. Son diez bloques en vez de seis.</li>
+  <li><strong>Los tamaños mandan, no los conteos.</strong> En vez de «41 nodos», se pide «celdas de 0.0005 c en el borde de ataque y de 0.015 c a media cuerda», y el archivo calcula cuántos nodos hacen falta y con qué progresión.</li>
+  <li><strong>La primera celda sale del y⁺.</strong> El 2.2.1 no resolvía la capa límite; aquí la primera celda se calcula para un y⁺ pedido y la progresión radial la lleva desde la pared hasta el campo lejano.</li>
+  <li><strong>La salida se reparte aparte.</strong> Las verticales de la salida no heredan la progresión de la pared: veinte cuerdas atrás, la estela no necesita celdas de micras.</li>
+</ul>
+<figure class="diagram">
+<svg viewBox="0 0 780 430" role="img" aria-label="Los diez bloques del dominio en C">
+  <text class="svg-title" x="30" y="28">Todo el dominio, a escala</text>
+  <polygon points="30.0,210.0 30.1,206.1 30.3,202.2 30.7,198.4 31.2,194.5 31.9,190.7 32.7,186.9 33.7,183.1 34.8,179.4 36.1,175.7 37.5,172.1 39.1,168.6 40.8,165.1 42.6,161.6 44.6,158.3 46.7,155.0 48.9,151.8 51.3,148.7 53.7,145.7 56.3,142.8 59.0,140.0 61.8,137.3 64.7,134.7 67.7,132.3 70.8,129.9 74.0,127.7 77.3,125.6 80.6,123.6 84.1,121.8 87.6,120.1 91.1,118.5 94.7,117.1 98.4,115.8 102.1,114.7 105.9,113.7 109.7,112.9 113.5,112.2 117.4,111.7 121.2,111.3 125.1,111.1 129.0,111.0 129.0,209.6 129.0,209.6 128.9,209.6 128.8,209.6 128.7,209.6 128.6,209.6 128.5,209.6 128.4,209.6 128.3,209.6 128.2,209.6 128.1,209.6 128.0,209.6 127.9,209.7 127.9,209.7 127.8,209.7 127.7,209.7 127.7,209.7 127.6,209.7 127.5,209.7 127.5,209.7 127.4,209.7 127.4,209.8 127.3,209.8 127.3,209.8 127.2,209.8 127.2,209.8 127.1,209.8 127.1,209.9 127.1,209.9 127.1,209.9 127.1,209.9 127.0,209.9 127.0,210.0 127.0,210.0 127.0,210.0" fill="var(--sky)" stroke="var(--muted)" stroke-width="0.7"/>
+  <polygon points="129.0,111.0 130.6,111.0 130.6,209.7 130.6,209.7 130.4,209.7 130.3,209.7 130.2,209.6 130.1,209.6 130.0,209.6 129.9,209.6 129.7,209.6 129.6,209.6 129.5,209.6 129.4,209.6 129.3,209.6 129.2,209.6 129.1,209.6" fill="var(--sky)" stroke="var(--muted)" stroke-width="0.7"/>
+  <polygon points="130.6,111.0 132.0,111.0 132.0,209.8 132.0,209.8 131.9,209.8 131.8,209.8 131.7,209.8 131.6,209.8 131.4,209.7 131.3,209.7 131.2,209.7 131.1,209.7 131.0,209.7 130.9,209.7 130.8,209.7 130.7,209.7" fill="var(--sky)" stroke="var(--muted)" stroke-width="0.7"/>
+  <polygon points="132.0,111.0 133.6,111.0 133.6,210.0 133.6,210.0 133.6,210.0 133.6,210.0 133.6,210.0 133.6,210.0 133.6,210.0 133.5,210.0 133.5,210.0 133.5,210.0 133.5,210.0 133.4,210.0 133.4,210.0 133.3,210.0 133.3,210.0 133.2,209.9 133.2,209.9 133.1,209.9 133.1,209.9 133.0,209.9 132.9,209.9 132.8,209.9 132.8,209.9 132.7,209.9 132.6,209.9 132.5,209.9 132.4,209.8 132.4,209.8 132.3,209.8 132.2,209.8 132.1,209.8 132.0,209.8" fill="var(--sky)" stroke="var(--muted)" stroke-width="0.7"/>
+  <polygon points="133.6,210.0 133.6,111.0 265.6,111.0 265.6,210.0" fill="var(--sky)" stroke="var(--muted)" stroke-width="0.7"/>
+  <polygon points="30.0,210.0 30.1,213.9 30.3,217.8 30.7,221.6 31.2,225.5 31.9,229.3 32.7,233.1 33.7,236.9 34.8,240.6 36.1,244.3 37.5,247.9 39.1,251.4 40.8,254.9 42.6,258.4 44.6,261.7 46.7,265.0 48.9,268.2 51.3,271.3 53.7,274.3 56.3,277.2 59.0,280.0 61.8,282.7 64.7,285.3 67.7,287.7 70.8,290.1 74.0,292.3 77.3,294.4 80.6,296.4 84.1,298.2 87.6,299.9 91.1,301.5 94.7,302.9 98.4,304.2 102.1,305.3 105.9,306.3 109.7,307.1 113.5,307.8 117.4,308.3 121.2,308.7 125.1,308.9 129.0,309.0 129.0,210.4 129.0,210.4 128.9,210.4 128.8,210.4 128.7,210.4 128.6,210.4 128.5,210.4 128.4,210.4 128.3,210.4 128.2,210.4 128.1,210.4 128.0,210.4 127.9,210.3 127.9,210.3 127.8,210.3 127.7,210.3 127.7,210.3 127.6,210.3 127.5,210.3 127.5,210.3 127.4,210.3 127.4,210.2 127.3,210.2 127.3,210.2 127.2,210.2 127.2,210.2 127.1,210.2 127.1,210.1 127.1,210.1 127.1,210.1 127.1,210.1 127.0,210.1 127.0,210.0 127.0,210.0 127.0,210.0" fill="var(--line)" stroke="var(--muted)" stroke-width="0.7"/>
+  <polygon points="129.0,309.0 130.6,309.0 130.6,210.3 130.6,210.3 130.4,210.3 130.3,210.3 130.2,210.4 130.1,210.4 130.0,210.4 129.9,210.4 129.7,210.4 129.6,210.4 129.5,210.4 129.4,210.4 129.3,210.4 129.2,210.4 129.1,210.4" fill="var(--line)" stroke="var(--muted)" stroke-width="0.7"/>
+  <polygon points="130.6,309.0 132.0,309.0 132.0,210.2 132.0,210.2 131.9,210.2 131.8,210.2 131.7,210.2 131.6,210.2 131.4,210.3 131.3,210.3 131.2,210.3 131.1,210.3 131.0,210.3 130.9,210.3 130.8,210.3 130.7,210.3" fill="var(--line)" stroke="var(--muted)" stroke-width="0.7"/>
+  <polygon points="132.0,309.0 133.6,309.0 133.6,210.0 133.6,210.0 133.6,210.0 133.6,210.0 133.6,210.0 133.6,210.0 133.6,210.0 133.5,210.0 133.5,210.0 133.5,210.0 133.5,210.0 133.4,210.0 133.4,210.0 133.3,210.0 133.3,210.0 133.2,210.1 133.2,210.1 133.1,210.1 133.1,210.1 133.0,210.1 132.9,210.1 132.8,210.1 132.8,210.1 132.7,210.1 132.6,210.1 132.5,210.1 132.4,210.2 132.4,210.2 132.3,210.2 132.2,210.2 132.1,210.2 132.0,210.2" fill="var(--line)" stroke="var(--muted)" stroke-width="0.7"/>
+  <polygon points="133.6,210.0 133.6,309.0 265.6,309.0 265.6,210.0" fill="var(--line)" stroke="var(--muted)" stroke-width="0.7"/>
+  <line x1="133.6" y1="210.0" x2="265.6" y2="210.0" stroke="var(--muted)" stroke-width="1"/>
+  <path d="M 30.0,210.0 L 30.1,206.1 L 30.3,202.2 L 30.7,198.4 L 31.2,194.5 L 31.9,190.7 L 32.7,186.9 L 33.7,183.1 L 34.8,179.4 L 36.1,175.7 L 37.5,172.1 L 39.1,168.6 L 40.8,165.1 L 42.6,161.6 L 44.6,158.3 L 46.7,155.0 L 48.9,151.8 L 51.3,148.7 L 53.7,145.7 L 56.3,142.8 L 59.0,140.0 L 61.8,137.3 L 64.7,134.7 L 67.7,132.3 L 70.8,129.9 L 74.0,127.7 L 77.3,125.6 L 80.6,123.6 L 84.1,121.8 L 87.6,120.1 L 91.1,118.5 L 94.7,117.1 L 98.4,115.8 L 102.1,114.7 L 105.9,113.7 L 109.7,112.9 L 113.5,112.2 L 117.4,111.7 L 121.2,111.3 L 125.1,111.1 L 129.0,111.0" fill="none" stroke="var(--accent)" stroke-width="3"/>
+  <path d="M 30.0,210.0 L 30.1,213.9 L 30.3,217.8 L 30.7,221.6 L 31.2,225.5 L 31.9,229.3 L 32.7,233.1 L 33.7,236.9 L 34.8,240.6 L 36.1,244.3 L 37.5,247.9 L 39.1,251.4 L 40.8,254.9 L 42.6,258.4 L 44.6,261.7 L 46.7,265.0 L 48.9,268.2 L 51.3,271.3 L 53.7,274.3 L 56.3,277.2 L 59.0,280.0 L 61.8,282.7 L 64.7,285.3 L 67.7,287.7 L 70.8,290.1 L 74.0,292.3 L 77.3,294.4 L 80.6,296.4 L 84.1,298.2 L 87.6,299.9 L 91.1,301.5 L 94.7,302.9 L 98.4,304.2 L 102.1,305.3 L 105.9,306.3 L 109.7,307.1 L 113.5,307.8 L 117.4,308.3 L 121.2,308.7 L 125.1,308.9 L 129.0,309.0" fill="none" stroke="var(--accent)" stroke-width="3"/>
+  <line x1="129.0" y1="111.0" x2="265.6" y2="111.0" stroke="var(--blue)" stroke-width="3"/>
+  <line x1="129.0" y1="309.0" x2="265.6" y2="309.0" stroke="var(--blue)" stroke-width="3"/>
+  <line x1="265.6" y1="111.0" x2="265.6" y2="309.0" stroke="var(--ink)" stroke-width="3" stroke-dasharray="7 4"/>
+  <circle cx="87.4" cy="167.8" r="8.5" fill="var(--paper)" stroke="var(--ink)" stroke-width="1"/>
+  <text class="svg-note-sm" x="87.4" y="171.4" text-anchor="middle" fill="var(--ink)" font-weight="600">1</text>
+  <circle cx="199.6" cy="159.8" r="8.5" fill="var(--paper)" stroke="var(--ink)" stroke-width="1"/>
+  <text class="svg-note-sm" x="199.6" y="163.4" text-anchor="middle" fill="var(--ink)" font-weight="600">9</text>
+  <circle cx="87.4" cy="252.2" r="8.5" fill="var(--paper)" stroke="var(--ink)" stroke-width="1"/>
+  <text class="svg-note-sm" x="87.4" y="255.8" text-anchor="middle" fill="var(--ink)" font-weight="600">5</text>
+  <circle cx="199.6" cy="260.2" r="8.5" fill="var(--paper)" stroke="var(--ink)" stroke-width="1"/>
+  <text class="svg-note-sm" x="199.6" y="263.8" text-anchor="middle" fill="var(--ink)" font-weight="600">10</text>
+  <text class="svg-note-sm" x="34.0" y="165.4" fill="var(--accent-dark)">entrada</text>
+  <text class="svg-note-sm" x="173.2" y="103.0" fill="var(--blue)">campo lejano</text>
+  <text class="svg-note-sm" x="267.6" y="301.0" text-anchor="end">salida</text>
+  <text class="svg-note-sm" x="166.6" y="204.0">corte de estela</text>
+  <rect x="124.4" y="205.1" width="11.5" height="9.9" fill="none" stroke="var(--accent-dark)" stroke-width="1.1"/>
+  <text class="svg-title" x="470" y="28">El perfil, ampliado</text>
+  <clipPath id="zoom222"><rect x="470.0" y="97.5" width="262.5" height="225.0"/></clipPath>
+  <g clip-path="url(#zoom222)">
+  <polygon points="-1675.0,210.0 -1673.3,121.7 -1668.1,33.5 -1659.4,-54.5 -1647.3,-142.0 -1631.8,-229.0 -1612.8,-315.3 -1590.5,-400.7 -1564.9,-485.3 -1535.9,-568.8 -1503.7,-651.0 -1468.3,-732.0 -1429.8,-811.5 -1388.1,-889.4 -1343.4,-965.6 -1295.8,-1040.0 -1245.3,-1112.5 -1192.0,-1183.0 -1135.9,-1251.3 -1077.2,-1317.3 -1016.0,-1381.0 -952.3,-1442.2 -886.3,-1500.9 -818.0,-1557.0 -747.5,-1610.3 -675.0,-1660.8 -600.6,-1708.4 -524.4,-1753.1 -446.5,-1794.8 -367.0,-1833.3 -286.0,-1868.7 -203.8,-1900.9 -120.3,-1929.9 -35.7,-1955.5 49.7,-1977.8 136.0,-1996.8 223.0,-2012.3 310.5,-2024.4 398.5,-2033.1 486.7,-2038.3 575.0,-2040.0 575.0,201.0 574.5,201.0 572.1,201.0 569.8,201.0 567.5,201.1 565.3,201.2 563.1,201.2 560.9,201.3 558.8,201.5 556.8,201.6 554.8,201.8 552.9,201.9 551.0,202.1 549.3,202.4 547.5,202.6 545.9,202.8 544.3,203.1 542.8,203.4 541.4,203.7 540.0,204.0 538.8,204.3 537.6,204.6 536.5,205.0 535.5,205.4 534.5,205.7 533.7,206.1 532.9,206.5 532.2,206.9 531.6,207.3 531.1,207.8 530.7,208.2 530.4,208.6 530.2,209.1 530.0,209.5 530.0,210.0" fill="var(--sky)" stroke="var(--muted)" stroke-width="0.7"/>
+  <polygon points="575.0,-2040.0 612.5,-2040.0 612.5,202.6 610.2,202.4 607.6,202.2 605.0,202.1 602.4,201.9 599.8,201.8 597.2,201.6 594.6,201.5 592.0,201.4 589.4,201.3 586.9,201.2 584.3,201.1 581.8,201.1 579.3,201.0 576.9,201.0" fill="var(--sky)" stroke="var(--muted)" stroke-width="0.7"/>
+  <polygon points="612.5,-2040.0 642.5,-2040.0 642.5,205.3 642.5,205.3 640.2,205.1 637.9,204.8 635.5,204.6 633.1,204.4 630.7,204.1 628.2,203.9 625.7,203.7 623.1,203.4 620.6,203.2 618.0,203.0 615.4,202.8 612.8,202.6" fill="var(--sky)" stroke="var(--muted)" stroke-width="0.7"/>
+  <polygon points="642.5,-2040.0 680.0,-2040.0 680.0,210.0 680.0,210.0 680.0,210.0 679.8,210.0 679.6,209.9 679.3,209.9 678.9,209.8 678.4,209.8 677.8,209.7 677.1,209.6 676.3,209.5 675.5,209.4 674.5,209.2 673.5,209.1 672.4,208.9 671.2,208.8 670.0,208.6 668.6,208.4 667.2,208.2 665.7,208.0 664.1,207.8 662.5,207.6 660.7,207.4 659.0,207.2 657.1,207.0 655.2,206.7 653.2,206.5 651.2,206.3 649.1,206.0 646.9,205.8 644.7,205.6 642.5,205.3" fill="var(--sky)" stroke="var(--muted)" stroke-width="0.7"/>
+  <polygon points="680.0,210.0 680.0,-2040.0 3680.0,-2040.0 3680.0,210.0" fill="var(--sky)" stroke="var(--muted)" stroke-width="0.7"/>
+  <polygon points="-1675.0,210.0 -1673.3,298.3 -1668.1,386.5 -1659.4,474.5 -1647.3,562.0 -1631.8,649.0 -1612.8,735.3 -1590.5,820.7 -1564.9,905.3 -1535.9,988.8 -1503.7,1071.0 -1468.3,1152.0 -1429.8,1231.5 -1388.1,1309.4 -1343.4,1385.6 -1295.8,1460.0 -1245.3,1532.5 -1192.0,1603.0 -1135.9,1671.3 -1077.2,1737.3 -1016.0,1801.0 -952.3,1862.2 -886.3,1920.9 -818.0,1977.0 -747.5,2030.3 -675.0,2080.8 -600.6,2128.4 -524.4,2173.1 -446.5,2214.8 -367.0,2253.3 -286.0,2288.7 -203.8,2320.9 -120.3,2349.9 -35.7,2375.5 49.7,2397.8 136.0,2416.8 223.0,2432.3 310.5,2444.4 398.5,2453.1 486.7,2458.3 575.0,2460.0 575.0,219.0 574.5,219.0 572.1,219.0 569.8,219.0 567.5,218.9 565.3,218.8 563.1,218.8 560.9,218.7 558.8,218.5 556.8,218.4 554.8,218.2 552.9,218.1 551.0,217.9 549.3,217.6 547.5,217.4 545.9,217.2 544.3,216.9 542.8,216.6 541.4,216.3 540.0,216.0 538.8,215.7 537.6,215.4 536.5,215.0 535.5,214.6 534.5,214.3 533.7,213.9 532.9,213.5 532.2,213.1 531.6,212.7 531.1,212.2 530.7,211.8 530.4,211.4 530.2,210.9 530.0,210.5 530.0,210.0" fill="var(--line)" stroke="var(--muted)" stroke-width="0.7"/>
+  <polygon points="575.0,2460.0 612.5,2460.0 612.5,217.4 610.2,217.6 607.6,217.8 605.0,217.9 602.4,218.1 599.8,218.2 597.2,218.4 594.6,218.5 592.0,218.6 589.4,218.7 586.9,218.8 584.3,218.9 581.8,218.9 579.3,219.0 576.9,219.0" fill="var(--line)" stroke="var(--muted)" stroke-width="0.7"/>
+  <polygon points="612.5,2460.0 642.5,2460.0 642.5,214.7 642.5,214.7 640.2,214.9 637.9,215.2 635.5,215.4 633.1,215.6 630.7,215.9 628.2,216.1 625.7,216.3 623.1,216.6 620.6,216.8 618.0,217.0 615.4,217.2 612.8,217.4" fill="var(--line)" stroke="var(--muted)" stroke-width="0.7"/>
+  <polygon points="642.5,2460.0 680.0,2460.0 680.0,210.0 680.0,210.0 680.0,210.0 679.8,210.0 679.6,210.1 679.3,210.1 678.9,210.2 678.4,210.2 677.8,210.3 677.1,210.4 676.3,210.5 675.5,210.6 674.5,210.8 673.5,210.9 672.4,211.1 671.2,211.2 670.0,211.4 668.6,211.6 667.2,211.8 665.7,212.0 664.1,212.2 662.5,212.4 660.7,212.6 659.0,212.8 657.1,213.0 655.2,213.3 653.2,213.5 651.2,213.7 649.1,214.0 646.9,214.2 644.7,214.4 642.5,214.7" fill="var(--line)" stroke="var(--muted)" stroke-width="0.7"/>
+  <polygon points="680.0,210.0 680.0,2460.0 3680.0,2460.0 3680.0,210.0" fill="var(--line)" stroke="var(--muted)" stroke-width="0.7"/>
+  <polygon points="530.0,210.0 530.0,209.5 530.2,209.1 530.4,208.6 530.7,208.2 531.1,207.8 531.6,207.3 532.2,206.9 532.9,206.5 533.7,206.1 534.5,205.7 535.5,205.4 536.5,205.0 537.6,204.6 538.8,204.3 540.0,204.0 541.4,203.7 542.8,203.4 544.3,203.1 545.9,202.8 547.5,202.6 549.3,202.4 551.0,202.1 552.9,201.9 554.8,201.8 556.8,201.6 558.8,201.5 560.9,201.3 563.1,201.2 565.3,201.2 567.5,201.1 569.8,201.0 572.1,201.0 574.5,201.0 576.9,201.0 579.3,201.0 581.8,201.1 584.3,201.1 586.9,201.2 589.4,201.3 592.0,201.4 594.6,201.5 597.2,201.6 599.8,201.8 602.4,201.9 605.0,202.1 607.6,202.2 610.2,202.4 612.8,202.6 615.4,202.8 618.0,203.0 620.6,203.2 623.1,203.4 625.7,203.7 628.2,203.9 630.7,204.1 633.1,204.4 635.5,204.6 637.9,204.8 640.2,205.1 642.5,205.3 644.7,205.6 646.9,205.8 649.1,206.0 651.2,206.3 653.2,206.5 655.2,206.7 657.1,207.0 659.0,207.2 660.7,207.4 662.5,207.6 664.1,207.8 665.7,208.0 667.2,208.2 668.6,208.4 670.0,208.6 671.2,208.8 672.4,208.9 673.5,209.1 674.5,209.2 675.5,209.4 676.3,209.5 677.1,209.6 677.8,209.7 678.4,209.8 678.9,209.8 679.3,209.9 679.6,209.9 679.8,210.0 680.0,210.0 680.0,210.0 680.0,210.0 680.0,210.0 679.8,210.0 679.6,210.1 679.3,210.1 678.9,210.2 678.4,210.2 677.8,210.3 677.1,210.4 676.3,210.5 675.5,210.6 674.5,210.8 673.5,210.9 672.4,211.1 671.2,211.2 670.0,211.4 668.6,211.6 667.2,211.8 665.7,212.0 664.1,212.2 662.5,212.4 660.7,212.6 659.0,212.8 657.1,213.0 655.2,213.3 653.2,213.5 651.2,213.7 649.1,214.0 646.9,214.2 644.7,214.4 642.5,214.7 640.2,214.9 637.9,215.2 635.5,215.4 633.1,215.6 630.7,215.9 628.2,216.1 625.7,216.3 623.1,216.6 620.6,216.8 618.0,217.0 615.4,217.2 612.8,217.4 610.2,217.6 607.6,217.8 605.0,217.9 602.4,218.1 599.8,218.2 597.2,218.4 594.6,218.5 592.0,218.6 589.4,218.7 586.9,218.8 584.3,218.9 581.8,218.9 579.3,219.0 576.9,219.0 574.5,219.0 572.1,219.0 569.8,219.0 567.5,218.9 565.3,218.8 563.1,218.8 560.9,218.7 558.8,218.5 556.8,218.4 554.8,218.2 552.9,218.1 551.0,217.9 549.3,217.6 547.5,217.4 545.9,217.2 544.3,216.9 542.8,216.6 541.4,216.3 540.0,216.0 538.8,215.7 537.6,215.4 536.5,215.0 535.5,214.6 534.5,214.3 533.7,213.9 532.9,213.5 532.2,213.1 531.6,212.7 531.1,212.2 530.7,211.8 530.4,211.4 530.2,210.9 530.0,210.5 530.0,210.0" fill="var(--paper)" stroke="var(--ink)" stroke-width="1.2"/>
+  <line x1="680.0" y1="210.0" x2="3680.0" y2="210.0" stroke="var(--muted)" stroke-width="1"/>
+    <line x1="575.0" y1="201.0" x2="575.0" y2="97.5" stroke="var(--muted)" stroke-width="0.9" stroke-dasharray="4 3"/>
+    <line x1="575.0" y1="219.0" x2="575.0" y2="322.5" stroke="var(--muted)" stroke-width="0.9" stroke-dasharray="4 3"/>
+    <line x1="612.5" y1="202.6" x2="612.5" y2="97.5" stroke="var(--muted)" stroke-width="0.9" stroke-dasharray="4 3"/>
+    <line x1="612.5" y1="217.4" x2="612.5" y2="322.5" stroke="var(--muted)" stroke-width="0.9" stroke-dasharray="4 3"/>
+    <line x1="642.5" y1="205.3" x2="642.5" y2="97.5" stroke="var(--muted)" stroke-width="0.9" stroke-dasharray="4 3"/>
+    <line x1="642.5" y1="214.7" x2="642.5" y2="322.5" stroke="var(--muted)" stroke-width="0.9" stroke-dasharray="4 3"/>
+    <line x1="680.0" y1="210.0" x2="680.0" y2="97.5" stroke="var(--muted)" stroke-width="0.9" stroke-dasharray="4 3"/>
+    <line x1="680.0" y1="210.0" x2="680.0" y2="322.5" stroke="var(--muted)" stroke-width="0.9" stroke-dasharray="4 3"/>
+  </g>
+  <rect x="470.0" y="97.5" width="262.5" height="225.0" fill="none" stroke="var(--accent-dark)" stroke-width="1.1"/>
+  <circle cx="527.0" cy="147.0" r="8.5" fill="var(--paper)" stroke="var(--ink)" stroke-width="1"/>
+  <text class="svg-note-sm" x="527.0" y="150.6" text-anchor="middle" fill="var(--ink)" font-weight="600">1</text>
+  <circle cx="593.0" cy="147.0" r="8.5" fill="var(--paper)" stroke="var(--ink)" stroke-width="1"/>
+  <text class="svg-note-sm" x="593.0" y="150.6" text-anchor="middle" fill="var(--ink)" font-weight="600">2</text>
+  <circle cx="626.8" cy="147.0" r="8.5" fill="var(--paper)" stroke="var(--ink)" stroke-width="1"/>
+  <text class="svg-note-sm" x="626.8" y="150.6" text-anchor="middle" fill="var(--ink)" font-weight="600">3</text>
+  <circle cx="661.2" cy="147.0" r="8.5" fill="var(--paper)" stroke="var(--ink)" stroke-width="1"/>
+  <text class="svg-note-sm" x="661.2" y="150.6" text-anchor="middle" fill="var(--ink)" font-weight="600">4</text>
+  <circle cx="527.0" cy="273.0" r="8.5" fill="var(--paper)" stroke="var(--ink)" stroke-width="1"/>
+  <text class="svg-note-sm" x="527.0" y="276.6" text-anchor="middle" fill="var(--ink)" font-weight="600">5</text>
+  <circle cx="593.0" cy="273.0" r="8.5" fill="var(--paper)" stroke="var(--ink)" stroke-width="1"/>
+  <text class="svg-note-sm" x="593.0" y="276.6" text-anchor="middle" fill="var(--ink)" font-weight="600">6</text>
+  <circle cx="626.8" cy="273.0" r="8.5" fill="var(--paper)" stroke="var(--ink)" stroke-width="1"/>
+  <text class="svg-note-sm" x="626.8" y="276.6" text-anchor="middle" fill="var(--ink)" font-weight="600">7</text>
+  <circle cx="661.2" cy="273.0" r="8.5" fill="var(--paper)" stroke="var(--ink)" stroke-width="1"/>
+  <text class="svg-note-sm" x="661.2" y="276.6" text-anchor="middle" fill="var(--ink)" font-weight="600">8</text>
+  <circle cx="707.0" cy="165.0" r="8.5" fill="var(--paper)" stroke="var(--ink)" stroke-width="1"/>
+  <text class="svg-note-sm" x="707.0" y="168.6" text-anchor="middle" fill="var(--ink)" font-weight="600">9</text>
+  <circle cx="707.0" cy="255.0" r="8.5" fill="var(--paper)" stroke="var(--ink)" stroke-width="1"/>
+  <text class="svg-note-sm" x="707.0" y="258.6" text-anchor="middle" fill="var(--ink)" font-weight="600">10</text>
+  <text class="svg-note-sm" x="575.0" y="91.5" text-anchor="middle" fill="var(--muted)">0.30</text>
+  <text class="svg-note-sm" x="612.5" y="91.5" text-anchor="middle" fill="var(--muted)">0.55</text>
+  <text class="svg-note-sm" x="642.5" y="91.5" text-anchor="middle" fill="var(--muted)">0.75</text>
+  <text class="svg-note-sm" x="612.5" y="75.5" text-anchor="middle" fill="var(--muted)">estaciones de control (x/c)</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">Los diez bloques.</b> Los seis del Tutorial 2.2.1, con dos estaciones de control más por cara: cuatro bloques a lo largo del extradós, cuatro a lo largo del intradós y dos en la estela. El color distingue arriba de abajo; los números son los del archivo del paso 4. La frontera naranja es <code>inlet</code>, la azul <code>farfield</code> y la punteada <code>outlet</code>.</figcaption>
+</figure>
+<div class="callout">
+  <p><strong>El ángulo de ataque no se malla.</strong> Es tentador girar el perfil dentro del dominio con un parámetro <code>aoaDeg</code>. No conviene: al girarlo, el corte de estela deja de seguir a la estela, los bloques de la estela se tuercen y la malla pierde la simetría que permite comprobarla. El ángulo de ataque se pone en el solver, girando la velocidad de la corriente libre —<code>(U cos α, U sin α, 0)</code>—, que es lo que hace el caso <code>airFoil2D</code> de OpenFOAM. Una sola malla sirve para todos los ángulos.</p>
+</div>
+
+    </section>
+    <section id="params-es">
+      <p class="section-label">Paso 1</p>
+      <h2>Los parámetros, el y⁺ y las dos progresiones</h2>
+
+<p>El primer archivo no dibuja nada: declara los parámetros y calcula con ellos todo lo que los demás necesitan. Es el único que hay que leer para saber qué puede cambiarse.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Constante</th><th>Valor por omisión</th><th>Grupo</th><th>Qué es</th></tr></thead>
+    <tbody>
+      <tr><td><code>naca</code></td><td>12</td><td>Perfil</td><td>Código NACA de 4 dígitos</td></tr>
+      <tr><td><code>c</code></td><td>1.0</td><td>Perfil</td><td>Cuerda</td></tr>
+      <tr><td><code>n</code></td><td>120</td><td>Perfil</td><td>Intervalos por cara del contorno</td></tr>
+      <tr><td><code>xs</code></td><td>0.30</td><td>Perfil</td><td>Estación 1: espesor máximo (x/c)</td></tr>
+      <tr><td><code>xr1</code></td><td>0.55</td><td>Perfil</td><td>Estación 2 (x/c)</td></tr>
+      <tr><td><code>xr2</code></td><td>0.75</td><td>Perfil</td><td>Estación 3 (x/c)</td></tr>
+      <tr><td><code>hBA</code></td><td>0.0005</td><td>Perfil</td><td>Celda en el borde de ataque</td></tr>
+      <tr><td><code>hMed</code></td><td>0.015</td><td>Perfil</td><td>Celda a media cuerda</td></tr>
+      <tr><td><code>hBS</code></td><td>0.002</td><td>Perfil</td><td>Celda en el borde de salida</td></tr>
+      <tr><td><code>R</code></td><td>15.0</td><td>Dominio</td><td>Radio y semialtura (cuerdas)</td></tr>
+      <tr><td><code>entrada</code></td><td>15.0</td><td>Dominio</td><td>Entrada, desde el centro de la C (cuerdas)</td></tr>
+      <tr><td><code>L</code></td><td>20.0</td><td>Dominio</td><td>Estela hasta la salida (cuerdas)</td></tr>
+      <tr><td><code>hFar</code></td><td>1.5</td><td>Dominio</td><td>Celda en el campo lejano</td></tr>
+      <tr><td><code>hSalida</code></td><td>0.01</td><td>Dominio</td><td>Celda vertical en la salida, sobre la estela</td></tr>
+      <tr><td><code>rho</code></td><td>1.225</td><td>y+</td><td>rho [kg/m3]</td></tr>
+      <tr><td><code>mu</code></td><td>1.789e-5</td><td>y+</td><td>mu [Pa s]</td></tr>
+      <tr><td><code>Uinf</code></td><td>30.0</td><td>y+</td><td>U_inf [m/s]</td></tr>
+      <tr><td><code>yplus</code></td><td>1.0</td><td>y+</td><td>y+ buscado</td></tr>
+      <tr><td><code>e</code></td><td>0.01</td><td>OpenFOAM</td><td>Espesor de la extrusión</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Los parámetros del archivo.</b> Se leen tal como están en el bloque <code>DefineConstant</code> de <code>perfil2_1_parametros.geo</code>. Cualquiera se cambia desde la terminal con <code>-setnumber</code>, sin tocar el archivo. Las longitudes están en cuerdas.</caption>
+  </table>
+</div>
+<h3><code>DefineConstant</code> y la terminal</h3>
+<p><code>DefineConstant[ nombre = {valor, Name "Grupo/Etiqueta"} ]</code> declara una constante con su valor por omisión. En la interfaz gráfica aparecen todas en un árbol (<code>Tools ▸ Parameters</code>), agrupadas por lo que va antes de la diagonal; desde la terminal se cambian con <code>-setnumber</code>. La diferencia con una asignación normal es justamente esa: <strong><code>-setnumber</code> pisa un <code>DefineConstant</code>, pero no una asignación simple</strong>. Si un número se escribe como <code>R = 15;</code>, la terminal no puede cambiarlo.</p>
+<h3>La primera celda, a partir del y⁺</h3>
+<p>La distancia adimensional a la pared es <span>\(y^+ = y\,u_\tau/\nu\)</span>, con <span>\(u_\tau=\sqrt{\tau_w/\rho}\)</span>. Para pedir un y⁺ hay que estimar <span>\(\tau_w\)</span> antes de calcular, y para eso sirve la correlación de placa plana turbulenta:</p>
+<div class="equation-card">\[ C_f = 0.074\,Re_c^{-1/5},\qquad u_\tau = U_\infty\sqrt{C_f/2},\qquad y_1 = \frac{y^+\,\nu}{u_\tau} \]</div>
+<p><strong>Y aquí está el detalle que se equivoca con más frecuencia:</strong> <span>\(y_1\)</span> es la distancia del <em>centro</em> de la primera celda a la pared, porque el volumen finito evalúa la velocidad en el centro de la celda. La altura de la celda es el doble:</p>
+<div class="equation-card">\[ h_w = 2\,y_1 \]</div>
+<p>Con los valores por omisión —aire, <span>\(U_\infty\)</span> = 30 m/s, cuerda 1 m— sale <span>\(Re_c\)</span> = 2.05·10<sup>6</sup>, <span>\(y_1\)</span> = 1.08·10<sup>-5</sup> c y <span>\(h_w\)</span> = 2.17·10<sup>-5</sup> c. Usar <span>\(y_1\)</span> como altura de celda da un y⁺ de 0.5 en vez de 1: el error es de un factor dos y no se nota hasta que se mide.</p>
+<h3>La progresión que empalma dos tamaños</h3>
+<p>Una curva transfinita de longitud <span>\(L\)</span> con <span>\(N\)</span> nodos y progresión <span>\(r\)</span> tiene celdas en progresión geométrica: la primera mide <span>\(h_1\)</span> y la última <span>\(h_N = h_1 r^{N-2}\)</span>. Sumando la progresión, <span>\(L = (r\,h_N - h_1)/(r-1)\)</span>, y de ahí salen las dos fórmulas que usa todo el archivo:</p>
+<div class="equation-card">\[ r = \frac{L - h_1}{L - h_N}, \qquad N = 2 + \frac{\ln(h_N/h_1)}{\ln r} \]</div>
+<figure class="diagram">
+<svg viewBox="0 0 740 260" role="img" aria-label="Una progresión geométrica entre dos tamaños de celda">
+  <text class="svg-title" x="40" y="30">Una progresión que empalma dos tamaños</text>
+  <rect x="60.0" y="116.0" width="16.1" height="34" fill="var(--sky)" stroke="var(--ink)" stroke-width="0.8"/>
+  <rect x="76.1" y="116.0" width="20.6" height="34" fill="var(--paper)" stroke="var(--ink)" stroke-width="0.8"/>
+  <rect x="96.6" y="116.0" width="26.3" height="34" fill="var(--sky)" stroke="var(--ink)" stroke-width="0.8"/>
+  <rect x="123.0" y="116.0" width="33.7" height="34" fill="var(--paper)" stroke="var(--ink)" stroke-width="0.8"/>
+  <rect x="156.6" y="116.0" width="43.1" height="34" fill="var(--sky)" stroke="var(--ink)" stroke-width="0.8"/>
+  <rect x="199.8" y="116.0" width="55.2" height="34" fill="var(--paper)" stroke="var(--ink)" stroke-width="0.8"/>
+  <rect x="255.0" y="116.0" width="70.7" height="34" fill="var(--sky)" stroke="var(--ink)" stroke-width="0.8"/>
+  <rect x="325.6" y="116.0" width="90.4" height="34" fill="var(--paper)" stroke="var(--ink)" stroke-width="0.8"/>
+  <rect x="416.1" y="116.0" width="115.8" height="34" fill="var(--sky)" stroke="var(--ink)" stroke-width="0.8"/>
+  <rect x="531.8" y="116.0" width="148.2" height="34" fill="var(--paper)" stroke="var(--ink)" stroke-width="0.8"/>
+  <line x1="60.0" y1="166.0" x2="680.0" y2="166.0" stroke="var(--muted)" stroke-width="1"/>
+  <text class="svg-note-sm" x="370.0" y="184.0" text-anchor="middle">longitud de la curva, L</text>
+  <text class="svg-note-sm" x="68.0" y="108.0" text-anchor="middle" fill="var(--blue)">h₁</text>
+  <text class="svg-note-sm" x="605.9" y="108.0" text-anchor="middle" fill="var(--blue)">h_N = h₁ r^(N−2)</text>
+  <text class="svg-note" x="40" y="212">De los dos tamaños salen la razón y el número de nodos:</text>
+  <text class="svg-note" x="40" y="238" fill="var(--blue)">r = (L − h₁)/(L − h_N)        N = 2 + ln(h_N/h₁)/ln r</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">La progresión que empalma dos tamaños.</b> Una curva de longitud \(L\) repartida en celdas que crecen con razón \(r\) desde \(h_1\) hasta \(h_N\). Si se piden los dos tamaños, la razón y el número de nodos quedan determinados; si la topología ya fijó el número de nodos, sólo queda buscar la razón. Las dos cuentas están en las macros <code>Empalme</code> y <code>Razon</code> del paso 1.</figcaption>
+</figure>
+<p>Se piden los dos tamaños y quedan determinados la razón y el número de nodos. Eso es lo que hace la macro <code>Empalme</code>. Pero en una malla estructurada <strong>la topología impone conteos</strong>: dos lados opuestos de un bloque llevan el mismo número de nodos, y ese número puede venir de otra curva. Cuando eso pasa, <span>\(N\)</span> ya no es libre y la razón no se despeja; hay que buscarla. La macro <code>Razon</code> la busca por bisección, porque la suma de la progresión crece con <span>\(r\)</span>:</p>
+<pre class="code"><code>Macro Razon
+  rA = 1.0 + 1.e-9;  rB = 3.0;
+  For iter In {1:80}
+    rM = 0.5 * (rA + rB);
+    sM = eh1 * (rM^(eN - 1) - 1.0) / (rM - 1.0);
+    If (sM &lt; eL)  rA = rM;  Else  rB = rM;  EndIf
+  EndFor
+  eR = 0.5 * (rA + rB);
+Return</code></pre>
+<div class="callout warn">
+  <p><strong>Cada <code>Call</code> va en su propio renglón.</strong> Si se escribe <code>eL = 15; eh1 = hw; Call Empalme; nRadial = eN;</code> en un solo renglón, <code>nRadial</code> se queda con el valor <em>anterior</em> de <code>eN</code>: lo que sigue al <code>Call</code> en el mismo renglón se evalúa antes de que la macro corra. Con la macro de este tutorial el síntoma es una lista vacía o un conteo de la corrida pasada; se comprobó reduciendo el caso a cuatro renglones.</p>
+</div>
+<h3>Lo que el archivo calcula</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Cantidad</th><th>Fórmula</th><th>Valor</th></tr></thead>
+    <tbody>
+      <tr><td>Número de Reynolds</td><td>\(Re_c = U_\infty c/\nu\)</td><td>2.05·10<sup>6</sup></td></tr>
+      <tr><td>Fricción de placa plana</td><td>\(C_f = 0.074\,Re_c^{-1/5}\)</td><td>0.00404</td></tr>
+      <tr><td>Velocidad de fricción</td><td>\(u_\tau = U_\infty\sqrt{C_f/2}\)</td><td>1.349 m/s</td></tr>
+      <tr><td>Centro de la primera celda</td><td>\(y_1 = y^+\,\nu/u_\tau\)</td><td>1.08·10<sup>-5</sup> c</td></tr>
+      <tr><td><b>Altura de la primera celda</b></td><td>\(h_w = 2\,y_1\)</td><td><b>2.17·10<sup>-5</sup> c</b></td></tr>
+      <tr><td>Espesor de capa límite estimado</td><td>\(\delta = 0.37\,c\,Re_c^{-1/5}\)</td><td>0.0202 c</td></tr>
+      <tr><td>Celdas dentro de esa capa límite</td><td>\(\ln[1+\delta(r-1)/h_w]/\ln r\)</td><td>44.1</td></tr>
+      <tr><td>Radial: nodos y progresión</td><td>empalme de \(h_w\) a <code>hFar</code></td><td>108 nodos, 1.1111</td></tr>
+      <tr><td>Estela: nodos y progresión</td><td>empalme de <code>hBS</code> a <code>hFar</code></td><td>87 nodos, 1.0810</td></tr>
+      <tr><td>Salida: progresión</td><td>bisección con 108 nodos</td><td>1.0389</td></tr>
+      <tr><td>Celdas alrededor del perfil</td><td>\(2\sum (N_i-1)\)</td><td>284</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Lo que el archivo calcula con esos parámetros.</b> Cifras del registro que imprime Gmsh al leer los pasos 1 y 2 con los valores por omisión. Ninguna se escribe en el archivo.</caption>
+  </table>
+</div>
+<p>La progresión radial sale de empalmar <span>\(h_w\)</span> con el tamaño del campo lejano: 108 nodos con razón 1.1111. Con esa razón, dentro del espesor de capa límite estimado para esta cuerda caben 44 celdas, que es el orden que pide un modelo de turbulencia que resuelve hasta la pared. El archivo lo imprime al leerse, de modo que uno se entera antes de mallar.</p>
+<p class="code-name"><code>perfil2_1_parametros.geo</code></p>
+<pre class="code"><code>// Perfil NACA en dominio en C · paso 1: los parámetros
+// Todo lo que se puede cambiar sin tocar el resto de los archivos.
+// Cada constante se puede fijar desde la terminal:  gmsh ... -setnumber naca 2412
+
+SetFactory(&quot;Built-in&quot;);
+
+DefineConstant[
+  // ---- perfil ----------------------------------------------------------
+  naca   = {12,     Name &quot;Perfil/Código NACA de 4 dígitos&quot;},
+  c      = {1.0,    Name &quot;Perfil/Cuerda&quot;},
+  n      = {120,    Name &quot;Perfil/Intervalos por cara del contorno&quot;},
+  xs     = {0.30,   Name &quot;Perfil/Estación 1: espesor máximo (x/c)&quot;},
+  xr1    = {0.55,   Name &quot;Perfil/Estación 2 (x/c)&quot;},
+  xr2    = {0.75,   Name &quot;Perfil/Estación 3 (x/c)&quot;},
+  hBA    = {0.0005, Name &quot;Perfil/Celda en el borde de ataque&quot;},
+  hMed   = {0.015,  Name &quot;Perfil/Celda a media cuerda&quot;},
+  hBS    = {0.002,  Name &quot;Perfil/Celda en el borde de salida&quot;},
+
+  // ---- dominio ---------------------------------------------------------
+  R       = {15.0, Name &quot;Dominio/Radio y semialtura (cuerdas)&quot;},
+  entrada = {15.0, Name &quot;Dominio/Entrada, desde el centro de la C (cuerdas)&quot;},
+  L       = {20.0, Name &quot;Dominio/Estela hasta la salida (cuerdas)&quot;},
+  hFar    = {1.5,  Name &quot;Dominio/Celda en el campo lejano&quot;},
+  hSalida = {0.01, Name &quot;Dominio/Celda vertical en la salida, sobre la estela&quot;},
+
+  // ---- la primera celda, a partir de y+ --------------------------------
+  rho    = {1.225,    Name &quot;y+/rho [kg/m3]&quot;},
+  mu     = {1.789e-5, Name &quot;y+/mu [Pa s]&quot;},
+  Uinf   = {30.0,     Name &quot;y+/U_inf [m/s]&quot;},
+  yplus  = {1.0,      Name &quot;y+/y+ buscado&quot;},
+
+  // ---- extrusión para OpenFOAM ----------------------------------------
+  e      = {0.01, Name &quot;OpenFOAM/Espesor de la extrusión&quot;}
+];
+
+// ---------------------------------------------------------------- perfil
+// Los dígitos del código: curvatura máxima m, su posición p y el espesor t.
+Md = Floor(naca / 1000);
+Pd = Floor((naca - 1000 * Md) / 100);
+Td = naca - 1000 * Md - 100 * Pd;
+m = Md / 100.0;     // curvatura máxima, en cuerdas
+p = Pd / 10.0;      // posición de la curvatura máxima
+t = Td / 100.0;     // espesor máximo, en cuerdas
+
+// Índices de las tres estaciones de control: se invierte el espaciado coseno,
+// x = [1 − cos(π i/n)]/2, y se redondea al punto más cercano del contorno.
+ks  = Floor(n / Pi * Acos(1.0 - 2.0 * xs)  + 0.5);
+kr1 = Floor(n / Pi * Acos(1.0 - 2.0 * xr1) + 0.5);
+kr2 = Floor(n / Pi * Acos(1.0 - 2.0 * xr2) + 0.5);
+
+// ------------------------------------------------- primera celda desde y+
+// Placa plana turbulenta: Cf = 0.074 Re^(-1/5), válido para 5e5 &lt; Re &lt; 1e7.
+nu   = mu / rho;
+Rec  = Uinf * c / nu;
+Cf   = 0.074 / Rec^0.2;
+utau = Uinf * Sqrt(Cf / 2.0);
+
+// y+ mide la distancia del CENTRO de la primera celda a la pared:
+// la altura de la celda es el doble.
+y1 = yplus * nu / utau;
+hw = 2.0 * y1;
+
+// ------------------------------------------- la progresión que empalma dos tamaños
+// Reparte una longitud eL en celdas que van de eh1 a ehN sin salto en los extremos:
+//   suma de la progresión:  eL = (eR·ehN − eh1)/(eR − 1)   →   eR = (eL − eh1)/(eL − ehN)
+//   última celda:           ehN = eh1·eR^(eN−2)            →   eN = 2 + ln(ehN/eh1)/ln(eR)
+// Devuelve eR (razón) y eN (nodos, ya redondeado).
+Macro Empalme
+  eR = (eL - eh1) / (eL - ehN);
+  eN = 2 + Floor(Log(ehN / eh1) / Log(eR) + 0.5);
+Return
+
+// Cuando la topología fija el número de nodos, la razón ya no se despeja: se
+// busca por bisección la eR que reparte eL en eN nodos empezando por eh1.
+// La suma crece con la razón, así que basta partir el intervalo a la mitad.
+Macro Razon
+  rA = 1.0 + 1.e-9;  rB = 3.0;
+  For iter In {1:80}
+    rM = 0.5 * (rA + rB);
+    sM = eh1 * (rM^(eN - 1) - 1.0) / (rM - 1.0);
+    If (sM &lt; eL)
+      rA = rM;
+    Else
+      rB = rM;
+    EndIf
+  EndFor
+  eR = 0.5 * (rA + rB);
+Return
+
+// Radial: de la pared al campo lejano, con una sola progresión que arranca en hw.
+eL = R;  eh1 = hw;  ehN = hFar;  Call Empalme;
+nRadial = eN;  rRadial = eR;
+
+// Cuántas de esas celdas caen dentro de la capa límite turbulenta de una placa
+// plana a esta cuerda (Schlichting): sirve para saber si la malla la resuelve.
+dBL = 0.37 * c / Rec^0.2;
+nBL = Log(1.0 + dBL * (rRadial - 1.0) / hw) / Log(rRadial);
+
+// Axial en la estela: arranca con la celda del borde de salida del perfil.
+eL = L;  eh1 = hBS;  ehN = hFar;  Call Empalme;
+nEstela = eN;  rEstela = eR;
+
+// Vertical en la salida: el número de nodos lo impone la radial del borde de
+// salida, así que sólo queda buscar la razón que empieza en hSalida. Sin esto,
+// las celdas del corte de estela seguirían midiendo hw veinte cuerdas atrás.
+eL = R;  eh1 = hSalida;  eN = nRadial;  Call Razon;
+rSalida = eR;
+hSalidaN = hSalida * rSalida^(nRadial - 2);
+
+Printf(&quot;Re_c = %g   Cf = %g   u_tau = %g&quot;, Rec, Cf, utau);
+Printf(&quot;y+ = %g  -&gt;  centro de la primera celda y1 = %g c, altura hw = %g c&quot;, yplus, y1, hw);
+Printf(&quot;radial: %g nodos con progresión %g (de %g c a %g c)&quot;, nRadial, rRadial, hw, hFar);
+Printf(&quot;capa límite estimada %g c: %g celdas dentro&quot;, dBL, nBL);
+Printf(&quot;estela: %g nodos con progresión %g (de %g c a %g c)&quot;, nEstela, rEstela, hBS, hFar);
+Printf(&quot;salida: %g nodos con progresión %g (de %g c a %g c)&quot;, nRadial, rSalida, hSalida, hSalidaN);
+Printf(&quot;estaciones de control: i = %g, %g, %g&quot;, ks, kr1, kr2);</code></pre>
+
+    </section>
+    <section id="airfoil-es">
+      <p class="section-label">Paso 2</p>
+      <h2>El NACA de cuatro dígitos con curvatura y las estaciones de control</h2>
+
+<p>El segundo archivo genera el contorno y decide cuántos nodos lleva cada tramo. El código de cuatro dígitos se descompone en tres números: curvatura máxima <span>\(m\)</span>, su posición <span>\(p\)</span> y espesor <span>\(t\)</span>.</p>
+<div class="equation-card">\[ y_c = \begin{cases} \dfrac{m}{p^2}\,(2px - x^2), & x < p \\[6pt] \dfrac{m}{(1-p)^2}\,\big[(1-2p) + 2px - x^2\big], & x \ge p \end{cases} \]</div>
+<p>El espesor se reparte <strong>perpendicular a la línea de curvatura</strong>, no en vertical: con <span>\(\theta = \arctan(\mathrm{d}y_c/\mathrm{d}x)\)</span>,</p>
+<div class="equation-card">\[ x_u = x - y_t\sin\theta,\quad y_u = y_c + y_t\cos\theta, \qquad x_l = x + y_t\sin\theta,\quad y_l = y_c - y_t\cos\theta \]</div>
+<p>Por eso, en cuanto hay curvatura, las dos caras dejan de compartir la abscisa: el punto del extradós y el del intradós con el mismo índice están en <span>\(x\)</span> distintos. Con <span>\(m = 0\)</span> todo esto se reduce al perfil simétrico del 2.2.1.</p>
+<figure class="diagram">
+<svg viewBox="0 0 700 260" role="img" aria-label="NACA 2412: línea de curvatura y espesor">
+  <text class="svg-title" x="40" y="28">El espesor se mide perpendicular a la línea de curvatura</text>
+  <line x1="80.0" y1="190.0" x2="600.0" y2="190.0" stroke="var(--muted)" stroke-width="0.8" stroke-dasharray="4 3"/>
+  <polyline points="80.0,190.0 80.2,190.0 80.6,189.9 81.4,189.9 82.5,189.7 83.9,189.6 85.7,189.4 87.7,189.2 90.1,189.0 92.7,188.8 95.7,188.5 98.9,188.2 102.5,187.9 106.3,187.5 110.4,187.2 114.8,186.8 119.5,186.4 124.5,186.0 129.7,185.6 135.1,185.2 140.8,184.8 146.8,184.4 153.0,184.0 159.4,183.6 166.0,183.2 172.9,182.8 179.9,182.4 187.2,182.0 194.6,181.7 202.2,181.4 210.0,181.1 217.9,180.8 226.0,180.5 234.2,180.3 242.6,180.1 251.1,179.9 259.7,179.8 268.3,179.7 277.1,179.6 285.9,179.6 294.9,179.6 303.8,179.6 312.8,179.7 321.9,179.7 330.9,179.8 340.0,179.9 349.1,180.0 358.1,180.1 367.2,180.3 376.2,180.4 385.1,180.6 394.1,180.8 402.9,181.0 411.7,181.2 420.3,181.5 428.9,181.7 437.4,182.0 445.8,182.3 454.0,182.5 462.1,182.8 470.0,183.1 477.8,183.4 485.4,183.8 492.8,184.1 500.1,184.4 507.1,184.7 514.0,185.1 520.6,185.4 527.0,185.7 533.2,186.0 539.2,186.3 544.9,186.7 550.3,187.0 555.5,187.2 560.5,187.5 565.2,187.8 569.6,188.1 573.7,188.3 577.5,188.6 581.1,188.8 584.3,189.0 587.3,189.2 589.9,189.3 592.3,189.5 594.3,189.6 596.1,189.7 597.5,189.8 598.6,189.9 599.4,190.0 599.8,190.0 600.0,190.0" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-dasharray="7 3"/>
+  <polygon points="80.0,190.0 80.0,188.4 80.3,186.8 81.0,185.1 81.9,183.5 83.2,181.9 84.8,180.2 86.7,178.6 88.9,177.0 91.5,175.4 94.3,173.8 97.5,172.2 100.9,170.6 104.7,169.0 108.8,167.5 113.1,166.0 117.7,164.5 122.6,163.1 127.8,161.8 133.3,160.4 139.0,159.2 145.0,157.9 151.2,156.8 157.7,155.7 164.4,154.7 171.3,153.7 178.4,152.9 185.7,152.1 193.2,151.4 201.0,150.7 208.8,150.2 216.9,149.7 225.1,149.4 233.4,149.1 241.9,148.9 250.5,148.8 259.2,148.8 268.0,148.9 276.9,149.1 285.9,149.4 294.9,149.7 303.9,150.1 313.0,150.6 322.1,151.2 331.2,151.7 340.3,152.4 349.4,153.1 358.5,153.9 367.6,154.7 376.7,155.5 385.7,156.4 394.6,157.3 403.5,158.3 412.2,159.3 420.9,160.3 429.5,161.4 438.0,162.5 446.4,163.5 454.6,164.7 462.7,165.8 470.6,166.9 478.4,168.1 486.0,169.2 493.4,170.4 500.7,171.5 507.7,172.6 514.5,173.8 521.1,174.9 527.5,176.0 533.7,177.1 539.6,178.1 545.3,179.2 550.7,180.2 555.9,181.1 560.8,182.1 565.5,183.0 569.8,183.8 573.9,184.6 577.7,185.4 581.2,186.1 584.5,186.8 587.4,187.4 590.0,187.9 592.3,188.4 594.4,188.8 596.1,189.2 597.5,189.5 598.6,189.7 599.4,189.9 599.8,190.0 600.0,190.0 600.0,190.0 599.8,190.0 599.4,190.0 598.6,190.1 597.4,190.2 596.0,190.3 594.3,190.4 592.2,190.6 589.8,190.8 587.2,191.0 584.2,191.2 580.9,191.5 577.3,191.7 573.5,192.0 569.3,192.3 564.9,192.7 560.2,193.0 555.2,193.4 550.0,193.7 544.5,194.1 538.7,194.5 532.7,195.0 526.5,195.4 520.1,195.9 513.4,196.3 506.6,196.8 499.5,197.3 492.2,197.8 484.8,198.3 477.2,198.8 469.4,199.4 461.4,199.9 453.3,200.4 445.1,201.0 436.8,201.5 428.3,202.1 419.7,202.6 411.1,203.2 402.3,203.7 393.5,204.3 384.6,204.8 375.7,205.3 366.7,205.9 357.7,206.4 348.7,206.9 339.7,207.4 330.7,207.8 321.7,208.3 312.7,208.7 303.7,209.1 294.8,209.5 286.0,209.8 277.3,210.2 268.6,210.5 260.1,210.8 251.6,211.0 243.3,211.3 235.1,211.5 227.0,211.7 219.0,211.8 211.2,211.9 203.5,212.0 196.0,212.0 188.6,212.0 181.5,212.0 174.5,211.8 167.7,211.7 161.1,211.5 154.7,211.2 148.6,210.9 142.6,210.5 136.9,210.0 131.5,209.5 126.3,208.9 121.3,208.3 116.6,207.6 112.1,206.9 107.9,206.0 104.0,205.2 100.4,204.2 97.0,203.2 94.0,202.2 91.2,201.1 88.7,199.9 86.6,198.6 84.7,197.3 83.1,196.0 81.9,194.6 80.9,193.1 80.3,191.6 80.0,190.0" fill="var(--sky)" stroke="var(--ink)" stroke-width="1.4"/>
+  <line x1="158.0" y1="183.7" x2="156.3" y2="155.9" stroke="var(--blue)" stroke-width="1.4"/>
+  <line x1="158.0" y1="183.7" x2="159.7" y2="211.4" stroke="var(--blue)" stroke-width="1.4"/>
+  <circle cx="158.0" cy="183.7" r="2.6" fill="var(--accent)"/>
+  <line x1="340.0" y1="179.9" x2="340.3" y2="152.4" stroke="var(--blue)" stroke-width="1.4"/>
+  <line x1="340.0" y1="179.9" x2="339.7" y2="207.4" stroke="var(--blue)" stroke-width="1.4"/>
+  <circle cx="340.0" cy="179.9" r="2.6" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="407.6" y="138.0" fill="var(--accent-dark)">línea de curvatura y_c</text>
+  <line x1="402.4" y1="141.6" x2="366.0" y2="166.1" stroke="var(--accent-dark)" stroke-width="0.8"/>
+  <text class="svg-note-sm" x="132.0" y="114.6" fill="var(--blue)">espesor y_t, perpendicular a ella</text>
+  <line x1="163.2" y1="118.2" x2="163.2" y2="145.8" stroke="var(--blue)" stroke-width="0.8"/>
+  <text class="svg-note-sm" x="496.0" y="200.4">cuerda</text>
+  <text class="svg-note-sm" x="90.4" y="262.8" text-anchor="middle">borde de ataque</text>
+  <text class="svg-note-sm" x="574.0" y="262.8" text-anchor="middle">borde de salida</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">El perfil de cuatro dígitos con curvatura.</b> Con los dos primeros dígitos distintos de cero, el perfil deja de ser simétrico: el espesor \(y_t\) se mide perpendicular a la línea de curvatura \(y_c\), de modo que las dos caras ya no comparten la abscisa. El dibujo es un NACA 2412 trazado con las fórmulas del paso 2.</figcaption>
+</figure>
+<h3>Las estaciones de control</h3>
+<p>Cada cara se parte en cuatro tramos por tres estaciones. Como los puntos del contorno están repartidos con espaciado coseno, el índice de la estación se obtiene invirtiendo ese espaciado:</p>
+<div class="equation-card">\[ x = \tfrac12\big[1 - \cos(\pi i/n)\big] \;\Longrightarrow\; i = \frac{n}{\pi}\arccos(1 - 2x) \]</div>
+<p>redondeado al punto más cercano. Con <span>\(n\)</span> = 120 intervalos por cara, las estaciones 0.30, 0.55 y 0.75 caen en los índices 44, 64 y 80.</p>
+<h3>Los nodos salen de los tamaños</h3>
+<p>El archivo mide la longitud de arco de cada tramo mientras crea los puntos —sumando las distancias entre puntos consecutivos— y con ella llama a <code>Empalme</code>. El primer tramo va de <code>hBA</code> a <code>hMed</code>; los dos del centro son uniformes; el último baja de <code>hMed</code> a <code>hBS</code>, con razón menor que uno.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Tramo</th><th>Arco (cuerdas)</th><th>De</th><th>A</th><th>Nodos</th><th>Progresión</th></tr></thead>
+    <tbody>
+      <tr><td>Borde de ataque → x/c = 0.30</td><td>0.3133</td><td><code>hBA</code></td><td><code>hMed</code></td><td>74</td><td>1.0486</td></tr>
+      <tr><td>0.30 → 0.55</td><td>0.2559</td><td><code>hMed</code></td><td><code>hMed</code></td><td>18</td><td>1 (uniforme)</td></tr>
+      <tr><td>0.55 → 0.75</td><td>0.1986</td><td><code>hMed</code></td><td><code>hMed</code></td><td>14</td><td>1 (uniforme)</td></tr>
+      <tr><td>0.75 → borde de salida</td><td>0.2520</td><td><code>hMed</code></td><td><code>hBS</code></td><td>40</td><td>0.9480</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">Los cuatro tramos de cada cara.</b> El arco de cada tramo lo mide el propio archivo mientras crea los puntos; los nodos y la progresión salen de los tamaños de celda pedidos. La frontera exterior que está enfrente de cada tramo lleva los mismos nodos y la misma progresión, salvo la elipse de la entrada.</caption>
+  </table>
+</div>
+<div class="callout">
+  <p><strong><code>Transfinite</code> no pone los nodos en los puntos de control de una <code>Spline</code>.</strong> Los reparte por longitud de arco. Se comprueba con una spline de cinco puntos muy desiguales y <code>Transfinite Curve = 5</code>: los nodos de la malla no caen sobre los puntos, sino a distancias iguales a lo largo de la curva. De ahí que el espaciado coseno del contorno sirva para <em>definir la forma</em> —muchos puntos donde la curvatura es grande— y no para repartir la malla, que es lo que hacen las progresiones de esta tabla.</p>
+</div>
+<p class="code-name"><code>perfil2_2_perfil.geo</code></p>
+<pre class="code"><code>// Perfil NACA en dominio en C · paso 2: el contorno del perfil
+// Un NACA de cuatro dígitos, con curvatura, partido en cuatro tramos por las
+// estaciones de control. De aquí salen también los nodos de cada tramo.
+Include &quot;perfil2_1_parametros.geo&quot;;
+
+// Numeración: 1000 + i el extradós, 2000 + i el intradós. El borde de ataque
+// (1000) y el de salida (1000 + n) son de las dos caras.
+sTramo[] = {0, 0, 0, 0};       // longitud de arco de los cuatro tramos del extradós
+xAnt = 0;  yAnt = 0;
+
+For i In {0:n}
+  x = 0.5 * (1.0 - Cos(Pi * i / n));                  // espaciado coseno
+  yt = 5.0 * t * (0.2969 * Sqrt(x) - 0.1260 * x - 0.3516 * x^2
+                  + 0.2843 * x^3 - 0.1036 * x^4);      // borde de salida cerrado
+
+  yc = 0.0;  dyc = 0.0;                                // línea de curvatura
+  If (m &gt; 0)
+    If (x &lt; p)
+      yc = m / p^2 * (2.0 * p * x - x^2);
+      dyc = 2.0 * m / p^2 * (p - x);
+    Else
+      yc = m / (1.0 - p)^2 * ((1.0 - 2.0 * p) + 2.0 * p * x - x^2);
+      dyc = 2.0 * m / (1.0 - p)^2 * (p - x);
+    EndIf
+  EndIf
+  th = Atan(dyc);
+
+  // El espesor se mide perpendicular a la línea de curvatura: con curvatura,
+  // las dos caras no comparten la abscisa.
+  xu = c * (x - yt * Sin(th));   yu = c * (yc + yt * Cos(th));
+  xl = c * (x + yt * Sin(th));   yl = c * (yc - yt * Cos(th));
+
+  Point(1000 + i) = {xu, yu, 0};
+  If (i &gt; 0 &amp;&amp; i &lt; n)
+    Point(2000 + i) = {xl, yl, 0};
+  EndIf
+
+  If (i &gt; 0)                     // arco recorrido, para repartir los nodos
+    dS = Sqrt((xu - xAnt)^2 + (yu - yAnt)^2);
+    If (i &lt;= ks)        sTramo[0] += dS;
+    ElseIf (i &lt;= kr1)   sTramo[1] += dS;
+    ElseIf (i &lt;= kr2)   sTramo[2] += dS;
+    Else                sTramo[3] += dS;
+    EndIf
+  EndIf
+  xAnt = xu;  yAnt = yu;
+EndFor
+
+// Cuatro tramos por cara, del borde de ataque al de salida.
+Spline(1) = {1000 : 1000 + ks};
+Spline(2) = {1000 + ks : 1000 + kr1};
+Spline(3) = {1000 + kr1 : 1000 + kr2};
+Spline(4) = {1000 + kr2 : 1000 + n};
+
+Spline(5) = {1000, 2001 : 2000 + ks};
+Spline(6) = {2000 + ks : 2000 + kr1};
+Spline(7) = {2000 + kr1 : 2000 + kr2};
+Spline(8) = {2000 + kr2 : 2000 + n - 1, 1000 + n};
+
+// Sólo quedan visibles los puntos que hacen falta para construir el dominio.
+Hide { Point{1001 : 1000 + n - 1, 2001 : 2000 + n - 1}; }
+Show { Point{1000 + ks, 1000 + kr1, 1000 + kr2, 2000 + ks, 2000 + kr1, 2000 + kr2}; }
+
+// ---------------------------------------------- nodos a lo largo del perfil
+// Mandan los tamaños: la celda del borde de ataque, la de media cuerda y la del
+// borde de salida. Cada tramo reparte su arco entre dos de esos tamaños. Los
+// puntos del contorno sólo dan la forma: Transfinite reparte por longitud de
+// arco, no por puntos de control.
+eL = sTramo[0];  eh1 = hBA;   ehN = hMed;  Call Empalme;
+nT1 = eN;  rT1 = eR;
+nT2 = 1 + Floor(sTramo[1] / hMed + 0.5);   rT2 = 1.0;
+nT3 = 1 + Floor(sTramo[2] / hMed + 0.5);   rT3 = 1.0;
+eL = sTramo[3];  eh1 = hMed;  ehN = hBS;   Call Empalme;
+nT4 = eN;  rT4 = eR;
+
+// La media elipse de la entrada lleva los mismos nodos que el primer tramo del
+// perfil, pero mide veinte veces más: sin progresión, sus celdas serían cien
+// veces las de la línea de arriba. Se recorre del frente hacia arriba, así que
+// la razón se calcula al revés.
+hArriba = sTramo[1] / (nT2 - 1);
+sElipse = Pi * (3.0 * (entrada + R)
+                - Sqrt((3.0 * entrada + R) * (entrada + 3.0 * R))) / 4.0;   // Ramanujan
+eL = sElipse;  eh1 = hArriba;  eN = nT1;
+Call Razon;
+rEntrada = 1.0 / eR;
+hEntrada1 = hArriba * eR^(nT1 - 2);
+
+Printf(&quot;arcos del extradós: %g, %g, %g, %g&quot;, sTramo[0], sTramo[1], sTramo[2], sTramo[3]);
+Printf(&quot;tramo 1: %g nodos con progresión %g (de %g c a %g c)&quot;, nT1, rT1, hBA, hMed);
+Printf(&quot;tramos 2 y 3: %g y %g nodos, celdas de %g c&quot;, nT2, nT3, hMed);
+Printf(&quot;tramo 4: %g nodos con progresión %g (de %g c a %g c)&quot;, nT4, rT4, hMed, hBS);
+Printf(&quot;celdas alrededor del perfil: %g&quot;, 2 * (nT1 + nT2 + nT3 + nT4 - 4));
+Printf(&quot;entrada: %g nodos, celdas de %g c (frente) a %g c (arriba)&quot;, nT1, hEntrada1, hArriba);</code></pre>
+
+    </section>
+    <section id="domain-es">
+      <p class="section-label">Paso 3</p>
+      <h2>El dominio en C, ahora una elipse</h2>
+
+<p>El dominio es el del 2.2.1 con dos diferencias: la C del frente es media elipse, de modo que la distancia a la entrada y la semialtura son parámetros independientes, y hay dos estaciones más en las fronteras de arriba y de abajo.</p>
+<div class="callout">
+  <p><strong><code>Ellipse</code> en el núcleo <code>Built-in</code>.</strong> La orden es <code>Ellipse(n) = {inicio, centro, punto del eje, fin}</code>. El tercer punto sólo fija la dirección del primer semieje: <strong>no tiene que ser el mayor</strong>. Se comprobó con una elipse de semiejes 12 (horizontal) y 15 (vertical) pasando el punto del semieje horizontal: los nodos de la malla cumplen <span>\(x^2/12^2 + y^2/15^2 = 1\)</span> con error de 3·10⁻⁴. Con <code>entrada = R</code> la elipse es la circunferencia del 2.2.1.</p>
+</div>
+<p>Las líneas radiales salen del perfil hacia la frontera: del borde de ataque al frente de la entrada, de cada estación al punto correspondiente de la frontera y del borde de salida a la esquina. Como en el 2.2.1, el orden de los clics —aquí, el orden de los puntos en cada <code>Line</code>— es el sentido de la curva, y de él dependen las progresiones del paso 5.</p>
+<p class="code-name"><code>perfil2_3_dominio.geo</code></p>
+<pre class="code"><code>// Perfil NACA en dominio en C · paso 3: el dominio
+// La C exterior es media elipse con centro en la estación de espesor máximo;
+// con entrada = R es el arco de circunferencia del Tutorial 2.2.1.
+Include &quot;perfil2_2_perfil.geo&quot;;
+
+xc = xs * c;            // centro de la C, sobre la cuerda
+xf = xc - entrada;      // frente de la entrada
+xo = c + L;             // salida
+
+Point(1) = {xf, 0, 0};                  // frente
+Point(2) = {xc, 0, 0};                  // centro de la elipse (queda dentro del perfil)
+Point(3) = {xc, R, 0};        Point(4)  = {xc, -R, 0};
+Point(5) = {xr1 * c, R, 0};   Point(6)  = {xr1 * c, -R, 0};
+Point(7) = {xr2 * c, R, 0};   Point(8)  = {xr2 * c, -R, 0};
+Point(9) = {c, R, 0};         Point(10) = {c, -R, 0};
+Point(11) = {xo, R, 0};       Point(12) = {xo, -R, 0};
+Point(13) = {xo, 0, 0};                 // fin del corte de estela
+
+// Entrada en C: dos medias elipses de semiejes entrada (horizontal) y R (vertical).
+// El tercer punto sólo fija la dirección del primer semieje; no tiene que ser el mayor.
+Ellipse(11) = {1, 2, 1, 3};
+Ellipse(12) = {1, 2, 1, 4};
+
+Line(13) = {3, 5};  Line(14) = {5, 7};  Line(15) = {7, 9};  Line(16) = {9, 11};
+Line(17) = {4, 6};  Line(18) = {6, 8};  Line(19) = {8, 10}; Line(20) = {10, 12};
+
+Line(21) = {1000 + n, 13};              // corte de estela, del borde de salida a la salida
+
+// Radiales: del perfil a la frontera, en el borde de ataque, en las tres
+// estaciones de cada cara y en el borde de salida.
+Line(22) = {1000, 1};
+Line(23) = {1000 + ks,  3};  Line(24) = {1000 + kr1, 5};
+Line(25) = {1000 + kr2, 7};  Line(26) = {1000 + n,   9};
+Line(27) = {2000 + ks,  4};  Line(28) = {2000 + kr1, 6};
+Line(29) = {2000 + kr2, 8};  Line(30) = {1000 + n,  10};
+
+Line(31) = {13, 11};  Line(32) = {13, 12};      // la salida, arriba y abajo</code></pre>
+
+    </section>
+    <section id="blocks-es">
+      <p class="section-label">Paso 4</p>
+      <h2>Los diez bloques y la malla</h2>
+
+<p>Diez bloques: cuatro a lo largo del extradós, cuatro a lo largo del intradós y dos en la estela. Cada lazo empieza en el perfil o en el corte de estela y da la vuelta al bloque; ese orden es el que después decide cuál cara lateral pertenece a cuál frontera.</p>
+<p class="code-name"><code>perfil2_4_bloques.geo</code></p>
+<pre class="code"><code>// Perfil NACA en dominio en C · paso 4: los diez bloques
+// Los seis del Tutorial 2.2.1, con dos estaciones más por cara. Cada lazo
+// empieza en el perfil o en el corte de estela y da la vuelta al bloque.
+Include &quot;perfil2_3_dominio.geo&quot;;
+
+Curve Loop(1) = {1, 23, -11, -22};   Plane Surface(1) = {1};
+Curve Loop(2) = {2, 24, -13, -23};   Plane Surface(2) = {2};
+Curve Loop(3) = {3, 25, -14, -24};   Plane Surface(3) = {3};
+Curve Loop(4) = {4, 26, -15, -25};   Plane Surface(4) = {4};
+
+Curve Loop(5) = {5, 27, -12, -22};   Plane Surface(5) = {5};
+Curve Loop(6) = {6, 28, -17, -27};   Plane Surface(6) = {6};
+Curve Loop(7) = {7, 29, -18, -28};   Plane Surface(7) = {7};
+Curve Loop(8) = {8, 30, -19, -29};   Plane Surface(8) = {8};
+
+Curve Loop(9)  = {21, 31, -16, -26};  Plane Surface(9)  = {9};
+Curve Loop(10) = {21, 32, -20, -30};  Plane Surface(10) = {10};</code></pre>
+<h3>Quién manda en cada curva</h3>
+<p>El archivo de la malla no contiene un solo número: todos vienen de los pasos 1 y 2. Conviene leerlo como una tabla de correspondencias.</p>
+<ul>
+  <li><strong>El perfil y la frontera que tiene enfrente</strong> llevan los mismos nodos y la misma progresión. Así, el tamaño de celda es continuo a lo largo de toda la frontera exterior.</li>
+  <li><strong>La elipse de la entrada es la excepción.</strong> Lleva los nodos del primer tramo del perfil, pero mide veinte veces más: con la misma progresión sus celdas serían cien veces las de la línea de arriba. Se le calcula una razón propia —con <code>Razon</code>, porque el número de nodos ya está impuesto— para que su última celda valga lo mismo que la primera de la línea que sigue. La longitud de la media elipse se estima con la fórmula de Ramanujan.</li>
+  <li><strong>Las radiales</strong> llevan una sola progresión desde la pared hasta el campo lejano.</li>
+  <li><strong>Las verticales de la salida</strong> llevan el número de nodos de las radiales —se lo impone el bloque— pero su propia razón, calculada por bisección para que empiecen con <code>hSalida</code>.</li>
+</ul>
+<p class="code-name"><code>perfil2_5_malla.geo</code></p>
+<pre class="code"><code>// Perfil NACA en dominio en C · paso 5: los nodos y la malla
+// Ningún número se escribe a mano: todos salen de los pasos 1 y 2.
+Include &quot;perfil2_4_bloques.geo&quot;;
+
+// ---- a lo largo del perfil, y la frontera que tiene enfrente -----------
+// Cada tramo y su línea exterior llevan el mismo número de nodos y la misma
+// progresión, de modo que los tamaños casan a lo largo de toda la frontera.
+// La elipse es la excepción: mide mucho más que el tramo que tiene enfrente.
+Transfinite Curve {1, 5}        = nT1 Using Progression rT1;
+Transfinite Curve {11, 12}      = nT1 Using Progression rEntrada;
+Transfinite Curve {2, 6, 13, 17} = nT2;
+Transfinite Curve {3, 7, 14, 18} = nT3;
+Transfinite Curve {4, 8, 15, 19} = nT4 Using Progression rT4;
+
+// ---- hacia afuera: una sola progresión, de la pared al campo lejano ----
+Transfinite Curve {22, 23, 24, 25, 26, 27, 28, 29, 30} = nRadial Using Progression rRadial;
+
+// ---- a lo largo de la estela ------------------------------------------
+Transfinite Curve {21, 16, 20} = nEstela Using Progression rEstela;
+
+// ---- verticales de la salida ------------------------------------------
+// No heredan la progresión de la pared: veinte cuerdas atrás, una celda de
+// 2e-5 c de alto por 1.5 c de largo no tiene sentido.
+Transfinite Curve {31, 32} = nRadial Using Progression rSalida;
+
+Transfinite Surface {1:10};
+Recombine Surface {1:10};
+
+// La malla estructurada no se suaviza: el suavizado mueve los nodos que
+// Transfinite acaba de colocar y rompe la simetría.
+Mesh.Smoothing = 0;</code></pre>
+<div class="callout warn">
+  <p><strong><code>Mesh.Smoothing = 0</code>.</strong> El suavizado de Gmsh mueve los nodos para mejorar la forma de los elementos, y también los de las superficies transfinitas: deshace el reparto que uno acaba de calcular y, en un perfil simétrico, rompe la simetría. En la malla de partida, con <code>Mesh.Smoothing = 40</code>, la primera celda medía entre 1.08·10<sup>-5</sup> y 3.82·10<sup>-5</sup> c en vez de una sola altura.</p>
+</div>
+<figure class="diagram">
+  <img src="imagenes/t222-01_malla.png" alt="La malla del tutorial en cuatro escalas" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">La malla, de lejos y de cerca.</b> Trazada desde la malla 2D que escribe <code>gmsh perfil2_5_malla.geo -2</code>. Arriba, el dominio completo y el perfil con el arranque de la estela; abajo, la nariz y el borde de salida. Las celdas crecen desde 2.17·10⁻5 c en la pared hasta 1.5 c en el campo lejano sin ningún salto brusco.</figcaption>
+</figure>
+
+    </section>
+    <section id="openfoam-es">
+      <p class="section-label">Paso 5</p>
+      <h2>Extrusión y grupos sin copiar índices</h2>
+
+<p>La extrusión es la del 2.2.1: una capa, <code>Recombine</code>, y los grupos físicos con los nombres que espera el caso. Lo que cambia es cómo se eligen las caras.</p>
+<p><code>Extrude</code> devuelve, por cada superficie, la cara de enfrente, el volumen y una cara lateral <strong>por cada curva del <code>Curve Loop</code>, en el orden en que se escribió el lazo</strong>. Con diez bloques de cuatro lados, la lista tiene seis entradas por bloque:</p>
+<pre class="code"><code>ext[6i]         cara de enfrente del bloque i
+ext[6i + 1]     volumen
+ext[6i + 2 + j] cara lateral de la curva j + 1 del lazo</code></pre>
+<p>Escribir esos índices a mano —<code>extruded[64]</code>, <code>extruded[94]</code>— funciona hasta que se agrega un bloque o se cambia el orden de un lazo, y entonces el parche de la entrada aparece en mitad del dominio sin que nada avise. En su lugar, se declara qué curva de qué bloque está en cada frontera y una macro calcula los índices:</p>
+<pre class="code"><code>perfilB[]  = {1, 2, 3, 4, 5, 6, 7, 8};  perfilC[]  = {1, 1, 1, 1, 1, 1, 1, 1};
+entradaB[] = {1, 5};                    entradaC[] = {3, 3};
+
+Macro Caras
+  caras[] = {};
+  For iC In {0 : #bloques[] - 1}
+    caras[] += {ext[6 * (bloques[iC] - 1) + 2 + (curvas[iC] - 1)]};
+  EndFor
+Return</code></pre>
+<div class="callout">
+  <p><strong>El parche del perfil no se llama <code>wall</code>.</strong> OpenFOAM agrupa por su cuenta todos los parches de tipo <code>wall</code> en un grupo con ese nombre; si además hay un parche llamado <code>wall</code>, avisa <code>Removing patchGroup 'wall' which clashes with patch 1 of the same name</code> y el grupo desaparece. Con <code>airfoil</code> no hay conflicto. Es el mismo hallazgo del Tutorial 2.2.1.</p>
+</div>
+<p class="code-name"><code>perfil2_6_openfoam.geo</code></p>
+<pre class="code"><code>// Perfil NACA en dominio en C · paso 6: la extrusión y los grupos físicos
+// Los índices de las caras no se copian a mano: se calculan a partir del lugar
+// que ocupa cada curva en su Curve Loop.
+Include &quot;perfil2_5_malla.geo&quot;;
+
+fluido2D[] = {1 : 10};
+
+// Extrude devuelve, por cada superficie: la cara de enfrente, el volumen y una
+// cara lateral por curva del Curve Loop, en el orden en que se escribió el lazo.
+//   ext[6i]         cara de enfrente del bloque i        (i = 0, …, 9)
+//   ext[6i + 1]     volumen
+//   ext[6i + 2 + j] cara lateral de la curva j + 1 del lazo
+ext[] = Extrude {0, 0, e} { Surface{fluido2D[]}; Layers{1}; Recombine; };
+
+// Bloque y posición de la curva dentro de su lazo, para cada frontera.
+perfilB[]  = {1, 2, 3, 4, 5, 6, 7, 8};  perfilC[]  = {1, 1, 1, 1, 1, 1, 1, 1};
+entradaB[] = {1, 5};                    entradaC[] = {3, 3};
+lejosB[]   = {2, 3, 4, 6, 7, 8, 9, 10}; lejosC[]   = {3, 3, 3, 3, 3, 3, 3, 3};
+salidaB[]  = {9, 10};                   salidaC[]  = {2, 2};
+
+Macro Caras
+  caras[] = {};
+  For iC In {0 : #bloques[] - 1}
+    caras[] += {ext[6 * (bloques[iC] - 1) + 2 + (curvas[iC] - 1)]};
+  EndFor
+Return
+
+// Cada Call va en su propio renglón: lo que se escribe después del Call en el
+// mismo renglón se evalúa ANTES de que la macro corra, y recoge valores viejos.
+bloques[] = perfilB[];  curvas[] = perfilC[];
+Call Caras;
+cPerfil[] = caras[];
+
+bloques[] = entradaB[]; curvas[] = entradaC[];
+Call Caras;
+cEntrada[] = caras[];
+
+bloques[] = lejosB[];   curvas[] = lejosC[];
+Call Caras;
+cLejos[] = caras[];
+
+bloques[] = salidaB[];  curvas[] = salidaC[];
+Call Caras;
+cSalida[] = caras[];
+
+traseras[] = {};  volumenes[] = {};
+For i In {0 : #fluido2D[] - 1}
+  traseras[]  += {ext[6 * i]};
+  volumenes[] += {ext[6 * i + 1]};
+EndFor
+
+// El parche del perfil NO se llama wall: OpenFOAM agrupa por sí solo los parches
+// de tipo wall y el nombre choca con ese grupo.
+Physical Surface(&quot;airfoil&quot;)      = cPerfil[];
+Physical Surface(&quot;inlet&quot;)        = cEntrada[];
+Physical Surface(&quot;farfield&quot;)     = cLejos[];
+Physical Surface(&quot;outlet&quot;)       = cSalida[];
+Physical Surface(&quot;frontAndBack&quot;) = {fluido2D[], traseras[]};
+Physical Volume(&quot;fluid&quot;)         = volumenes[];
+
+Mesh.MshFileVersion = 2.2;   // gmshToFoam sólo lee MSH 2 ASCII
+Mesh.Binary = 0;</code></pre>
+<p>Con los valores por omisión, la malla tiene 48 792 hexaedros y 284 celdas alrededor del perfil. Se genera y se guarda en un solo paso:</p>
+<pre class="code"><code>gmsh perfil2_6_openfoam.geo -3 -o perfil_c2.msh</code></pre>
+
+    </section>
+    <section id="check-es">
+      <p class="section-label">La prueba</p>
+      <h2>¿La malla da el y⁺ que prometía?</h2>
+
+<p>La malla promete dos cosas: que la primera celda da un y⁺ de 1 y que no hay saltos de tamaño. Las dos se comprueban con una corrida, no leyendo la malla.</p>
+<h3>El caso</h3>
+<p>Spalart-Allmaras, incompresible, a cero grados, con <span>\(U_\infty\)</span> = 30 m/s y <span>\(\nu\)</span> = 1.4604·10⁻⁵ m²/s, es decir <span>\(Re_c\)</span> = 2.05·10<sup>6</sup>. Es el modelo del caso <code>airFoil2D</code> de OpenFOAM, que conviene tener a la vista. Los parches se nombran como en la malla; <code>frontAndBack</code> es <code>empty</code> y <code>airfoil</code> es <code>wall</code>:</p>
+<pre class="code"><code>gmshToFoam perfil_c2.msh
+foamDictionary constant/polyMesh/boundary -entry entry0/frontAndBack/type -set empty
+foamDictionary constant/polyMesh/boundary -entry entry0/airfoil/type -set wall
+checkMesh
+foamRun</code></pre>
+<p>Lo indispensable del caso, que parte del tutorial <code>airFoil2D</code> de OpenFOAM:</p>
+<ul>
+  <li><strong>Modelo:</strong> <code>RAS</code> con <code>SpalartAllmaras</code>; <span>\(\tilde\nu\)</span> = 3ν en la corriente libre.</li>
+  <li><strong>Velocidad:</strong> <code>(30 0 0)</code> impuesta en <code>inlet</code> y <code>farfield</code>, <code>inletOutlet</code> en <code>outlet</code> y <code>noSlip</code> en <code>airfoil</code>.</li>
+  <li><strong>Presión:</strong> cero en <code>outlet</code> y gradiente nulo en las demás fronteras.</li>
+  <li><strong>Pared:</strong> <code>nutUSpaldingWallFunction</code> para <span>\(\nu_t\)</span>, que vale tanto con y⁺ = 1 como con y⁺ = 30, y <span>\(\tilde\nu\)</span> = 0.</li>
+  <li><strong>Esquemas:</strong> <code>bounded Gauss linearUpwind grad(U)</code> para la convección de U, un corrector de no ortogonalidad y control de residuos de 10⁻⁵.</li>
+  <li><strong>Post-proceso:</strong> las funciones <code>forceCoeffs</code> (con área de referencia cuerda × espesor, 0.01), <code>yPlus</code> y <code>wallShearStress</code> en el <code>controlDict</code>.</li>
+</ul>
+<p>El procedimiento detallado de un caso de OpenFOAM es materia de otra serie; aquí interesa el resultado.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Cantidad</th><th>Resultado</th><th>Referencia</th></tr></thead>
+    <tbody>
+      <tr><td><code>checkMesh</code></td><td>Mesh OK; no ortogonalidad 47.6°, sesgo 0.66, aspecto 769</td><td>&lt; 70°, &lt; 4, sin límite duro</td></tr>
+      <tr><td>Iteraciones hasta converger</td><td>3600</td><td>control de residuos 10⁻⁵</td></tr>
+      <tr><td>y⁺ sobre el perfil</td><td>mínimo 0.20, medio <b>0.97</b>, máximo 1.31</td><td>pedido: 1</td></tr>
+      <tr><td>\(C_d\)</td><td><b>0.00994</b></td><td>0.0082 (NASA, \(Re\) = 6·10⁶) escalado a \(Re^{-1/5}\): 0.0102</td></tr>
+      <tr><td>\(C_l\)</td><td>−0.00031</td><td>0 (perfil simétrico a 0°)</td></tr>
+      <tr><td>\(C_m\) respecto de c/4</td><td>−0.00004</td><td>0</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">Lo que dice la corrida.</b> Spalart-Allmaras a 0°, \(U_\infty\) = 30 m/s y \(Re_c\) = 2.05·10⁶, con la malla del tutorial y convección de U de segundo orden. La malla de partida, con el mismo caso, diverge.</caption>
+  </table>
+</div>
+<h3>El y⁺ que resulta</h3>
+<p>La función <code>yPlus</code> escribe el y⁺ cara por cara. El valor medio sale 0.97 para un y⁺ pedido de 1, y la distribución es la que se espera de una placa plana: mayor cerca del borde de ataque, donde <span>\(u_\tau\)</span> es grande, y menor hacia el borde de salida.</p>
+<figure class="diagram">
+  <img src="imagenes/t222-04_yplus.png" alt="y+ medido a lo largo de la cuerda" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">El y⁺ que resulta, medido cara por cara.</b> Cada punto es una cara del perfil en la corrida de Spalart-Allmaras a 0°. El valor pedido era 1 (línea roja) y el medio sale 0.97: la primera celda vale el doble de \(y_1\), como debe ser. El y⁺ baja hacia el borde de salida porque \(u_\tau\) disminuye con \(x\); cerca del punto de remanso cae a cero. Los puntos del extradós y del intradós se superponen: la malla es simétrica.</figcaption>
+</figure>
+<p>Que los puntos del extradós y del intradós se superpongan no es adorno: es la comprobación de que la malla es simétrica. La medida directa sobre los nodos da 1.00·10<sup>-12</sup> c de desajuste, que es el redondeo de doble precisión.</p>
+<h3>La resistencia y la presión</h3>
+<p>El coeficiente de resistencia sale <strong>0.00994</strong>. La referencia habitual para el NACA 0012 completamente turbulento es 0.0082 a <span>\(Re\)</span> = 6·10⁶ (NASA, <em>Turbulence Modeling Resource</em>); escalada con <span>\(Re^{-1/5}\)</span> a este Reynolds da 0.0102, de modo que la malla queda dentro del 3 %. El coeficiente de sustentación, que en un perfil simétrico a cero grados debe ser cero, sale −0.00031.</p>
+<figure class="diagram">
+  <img src="imagenes/t222-05_cp.png" alt="C_p del cálculo viscoso contra el método de paneles" loading="lazy">
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">La presión sobre el perfil.</b> El cálculo viscoso (puntos) sigue al método de paneles del Tutorial 2.2.1 (línea) salvo donde se espera que no: la succión máxima queda un poco por debajo y, cerca del borde de salida, la capa límite impide que la presión se recupere hasta el valor no viscoso.</figcaption>
+</figure>
+<div class="callout warn">
+  <p><strong>El esquema de convección cambia la respuesta más que la malla.</strong> La primera corrida se hizo con convección de primer orden (<code>upwind</code>), que converge con más facilidad: dio <span>\(C_d\)</span> = 0.0139 y un <span>\(C_p\)</span> de remanso de 1.046, imposible en flujo incompresible. Reanudada con <code>linearUpwind</code>, de segundo orden, bajó a 0.00994 y 1.005. La difusión numérica del primer orden infla la resistencia un 39 %: una malla no se juzga con una corrida de primer orden.</p>
+</div>
+<h3>La malla de partida, con el mismo caso</h3>
+<p>La malla que sirvió de punto de partida pasa <code>checkMesh</code> —«Mesh OK»— y sin embargo el mismo caso <strong>diverge</strong>: hacia la iteración 1100 los coeficientes valen 10¹⁴² y el cálculo se pierde. Las causas están medidas en la sección siguiente. La moraleja es la del Tutorial 2.2.1, ahora con un solver de verdad: <code>checkMesh</code> dice que la malla es utilizable, no que sea buena.</p>
+
+    </section>
+    <section id="fixes-es">
+      <p class="section-label">La malla de partida</p>
+      <h2>Seis cosas que una malla como la de partida hace mal</h2>
+
+<p>La malla de partida es un archivo de 691 renglones, bien organizado y con casi todos los parámetros que hacen falta. Lo que sigue no son errores de descuido, sino los seis que aparecen una y otra vez al escribir una malla de capa límite.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Malla</th><th>Celdas</th><th>Salto de tamaño</th><th>No ortogonalidad junto al perfil</th><th>No ortogonalidad máxima</th><th>Simetría</th><th>Primera celda (media)</th></tr></thead>
+    <tbody>
+      <tr><td>De partida</td><td>97 440</td><td>130.5×</td><td>68.0°</td><td>79.8°</td><td>4.93·10<sup>-3</sup></td><td>2.87·10<sup>-5</sup> c</td></tr>
+      <tr><td>Del tutorial</td><td>48 792</td><td>1.6×</td><td>25.8°</td><td>47.6°</td><td>1.00·10<sup>-12</sup></td><td>2.11·10<sup>-5</sup> c</td></tr>
+      <tr><td>Del tutorial, con curvatura (NACA 2412)</td><td>49 006</td><td>1.6×</td><td>30.9°</td><td>47.6°</td><td>3.82·10<sup>-2</sup></td><td>2.11·10<sup>-5</sup> c</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 5.</b> <b class="fig-title">La malla de partida y la del tutorial, medidas igual.</b> Las dos se midieron con el mismo programa, que reproduce la no ortogonalidad que reporta <code>checkMesh</code>; «junto al perfil» es la mayor dentro de 0.2 cuerdas de la pared. El salto de tamaño es el mayor cociente de áreas entre dos celdas vecinas, que <code>checkMesh</code> no mide. La simetría es la mayor distancia entre un nodo del extradós y el espejo del correspondiente del intradós: con un perfil simétrico debe salir cero salvo redondeo, y con uno curvado, no.</caption>
+  </table>
+</div>
+<h3>1. La banda de capa límite desplazada</h3>
+<p>Para concentrar celdas junto a la pared, la malla de partida desplaza el contorno una distancia constante y malla la banda que queda entre el perfil y su copia. La idea es correcta —es lo que hace un mallador de capa límite—, pero con <code>Transfinite</code> no funciona: el contorno desplazado es <em>más largo</em> que el perfil (tanto más cuanto más gira la pared), y Gmsh reparte los nodos de cada curva por longitud de arco, por separado. Los nodos de las dos curvas dejan de corresponderse y las líneas radiales se tuercen: junto al perfil, la no ortogonalidad llega a 68°, en la estación de espesor máximo, donde la banda se une con el bloque exterior. En la malla del tutorial, en la misma región, no pasa de 26°.</p>
+<p>El remedio de este tutorial es no hacer la banda: una sola progresión radial desde la pared, con la primera celda del y⁺ y razón 1.1111, resuelve la capa límite con 44 celdas y deja la mitad de las celdas totales.</p>
+<figure class="diagram">
+  <img src="imagenes/t222-02_nariz.png" alt="La nariz en la malla de partida y en la del tutorial" loading="lazy">
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">La nariz: banda desplazada contra progresión única.</b> Misma ventana en las dos. A la izquierda, la malla de partida: una banda de capa límite muy fina pegada a la pared y, en cuanto termina, celdas treinta veces mayores; además las líneas radiales se tuercen, porque el contorno desplazado es más largo que el perfil y <code>Transfinite</code> reparte los nodos de cada curva por separado. A la derecha, la del tutorial: una sola progresión desde la pared, sin banda y sin salto.</figcaption>
+</figure>
+<h3>2. El salto de tamaño donde termina la banda</h3>
+<p>En la malla de partida, la última celda de la banda y la primera del bloque exterior se eligen por separado: medidas en la dirección del salto valen 2.49·10<sup>-4</sup> c y 3.25·10<sup>-2</sup> c. Medido como cociente de áreas entre celdas vecinas, el salto es de <strong>131×</strong>. <code>checkMesh</code> no mide eso. En la malla del tutorial el mayor salto es de 1.6×.</p>
+<h3>3. La esquina de la banda de estela, en la salida</h3>
+<p>La banda de capa límite sigue a lo largo de la estela hasta la salida, donde se abre a tres décimas de cuerda. Ahí vuelve a pasar lo mismo que en el perfil: la última celda de la banda y la primera de la línea que sigue hacia el campo lejano se eligen por separado, 2.93·10<sup>-3</sup> c contra 2.66·10<sup>-2</sup> c, un salto de 9×. En esa esquina está la peor celda de toda la malla: 79.8° de no ortogonalidad, por encima de los 70° que OpenFOAM considera graves. En la malla del tutorial no hay banda ni esquina: las verticales de la salida llevan su propia razón, calculada por bisección, y en las últimas cinco cuerdas la no ortogonalidad no pasa de 15°.</p>
+<figure class="diagram">
+  <img src="imagenes/t222-03_salida.png" alt="La estela en la salida en las dos mallas" loading="lazy">
+  <figcaption><b class="fig-num">Figura 8.</b> <b class="fig-title">La estela, donde sale del dominio.</b> A la izquierda la malla de partida y a la derecha la del tutorial, cada una en su propia salida. En la de partida se ve la banda de estela, fina y densa, y el cambio brusco de tamaño en sus bordes, donde está la celda de 79.8° de no ortogonalidad. En la del tutorial las celdas crecen sin saltos desde el corte de estela.</figcaption>
+</figure>
+<h3>4. La normal del borde de salida, escrita a mano</h3>
+<p>En la malla de partida, el punto desplazado del intradós en el borde de salida usa la normal <code>(0, −1)</code> en vez de la normal real de la superficie, que ahí está inclinada unos 8°. El extradós sí usa la normal real. El resultado es una malla asimétrica —4.93·10<sup>-3</sup> c— en un problema perfectamente simétrico, de modo que ya no se puede usar la simetría para comprobar nada.</p>
+<h3>5. El suavizado sobre una malla estructurada</h3>
+<p><code>Mesh.Smoothing = 40</code> mueve los nodos que <code>Transfinite</code> acaba de colocar. Además de estropear la simetría, hace que la primera celda mida entre 1.08·10<sup>-5</sup> y 3.82·10<sup>-5</sup> c según el punto del perfil, cuando debería medir una sola altura.</p>
+<h3>6. Los índices de las caras, copiados</h3>
+<p>Los grupos físicos de la malla de partida se escriben con índices literales de la lista que devuelve <code>Extrude</code>. Sobreviven mientras nadie cambie un lazo. La macro del paso 5 los calcula.</p>
+<div class="callout">
+  <p><strong>Y el que no es un error de malla:</strong> el parche del perfil se llama <code>wall</code>, que choca con el grupo automático de OpenFOAM, y el ángulo de ataque se aplica girando el perfil dentro del dominio. Los dos se corrigen sin tocar la topología.</p>
+</div>
+
+    </section>
+    <section id="files-es">
+      <p class="section-label">Archivos</p>
+      <h2>Los seis archivos .geo, completos</h2>
+
+<p>Los seis archivos se encadenan con <code>Include</code>, como en el 2.2.1: cada uno incluye al anterior, de modo que se puede abrir cualquiera de ellos y ver hasta dónde va la construcción.</p>
+<ul>
+  <li><code>perfil2_1_parametros.geo</code> — las constantes, el y⁺ y las dos macros de progresión.</li>
+  <li><code>perfil2_2_perfil.geo</code> — el contorno del NACA y los nodos de cada tramo.</li>
+  <li><code>perfil2_3_dominio.geo</code> — la entrada en C, las fronteras y las radiales.</li>
+  <li><code>perfil2_4_bloques.geo</code> — los diez lazos y sus superficies.</li>
+  <li><code>perfil2_5_malla.geo</code> — <code>Transfinite</code>, <code>Recombine</code> y el suavizado apagado.</li>
+  <li><code>perfil2_6_openfoam.geo</code> — la extrusión, los grupos y el formato MSH 2.2.</li>
+</ul>
+<p>Para rehacer la malla completa basta el último:</p>
+<pre class="code"><code>gmsh perfil2_6_openfoam.geo -3 -o perfil_c2.msh          # la del tutorial
+gmsh perfil2_6_openfoam.geo -3 -setnumber naca 2412 -o naca2412.msh
+gmsh perfil2_5_malla.geo   -2 -o perfil_c2_2d.msh       # sólo la malla 2D, para mirarla</code></pre>
+<p>Y para ver los parámetros en la interfaz, con sus grupos: abrir <code>perfil2_6_openfoam.geo</code> y mirar el árbol de <code>Tools ▸ Parameters</code>; cada cambio vuelve a leer el archivo.</p>
+
+    </section>
+    <section id="example-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>Tres corridas que cambian un número cada una</h2>
+
+<p>Tres variantes, cada una a un número de distancia. Las tres se mallan con el mismo archivo y se corren con el mismo caso; lo que se pide es predecir el resultado antes de correrlo.</p>
+<h3>1. Un perfil con curvatura</h3>
+<pre class="code"><code>gmsh perfil2_6_openfoam.geo -3 -setnumber naca 2412 -o naca2412.msh</code></pre>
+<ol>
+  <li>Antes de mallar: ¿cuántas celdas tendrá la malla? ¿Y el y⁺?</li>
+  <li>Comprobar que la malla ya no es simétrica y que la asimetría vale lo que vale la curvatura.</li>
+  <li>Correr el caso a cero grados y comparar el <span>\(C_l\)</span> con el valor de referencia del NACA 2412, que está alrededor de 0.25.</li>
+  <li>Repetir con condiciones de campo libre (<code>freestream</code> en OpenFOAM) en lugar de la velocidad impuesta en toda la frontera. ¿Cuánto cambia el <span>\(C_l\)</span>? ¿Y el <span>\(C_d\)</span>?</li>
+</ol>
+<h3>2. Una malla para funciones de pared</h3>
+<pre class="code"><code>gmsh perfil2_6_openfoam.geo -3 -setnumber yplus 30 -o funciones_de_pared.msh</code></pre>
+<ol>
+  <li>Predecir la altura de la primera celda y el número de nodos radiales con las fórmulas del paso 1.</li>
+  <li>Comprobar el conteo de celdas que informa Gmsh.</li>
+  <li>Correr y medir el y⁺: ¿sale 30?</li>
+</ol>
+<h3>3. Un dominio diez veces más grande</h3>
+<pre class="code"><code>gmsh perfil2_6_openfoam.geo -3 -setnumber R 50 -setnumber entrada 50 \
+     -setnumber L 50 -setnumber hFar 4 -o dominio50.msh</code></pre>
+<ol>
+  <li>¿Por qué hay que subir también <code>hFar</code>? ¿Qué pasa si no se sube?</li>
+  <li>Correr y comparar el <span>\(C_d\)</span> y el <span>\(C_p\)</span> de remanso con los del dominio de quince cuerdas. ¿Era demasiado pequeño?</li>
+</ol>
+<details class="details">
+  <summary>Comprobación: lo que dieron las corridas</summary>
+  <div class="details-content">
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Variante</th><th>Orden</th><th>Celdas</th><th>y⁺ medio</th><th>\(C_d\)</th><th>\(C_l\)</th><th>\(C_p\) de remanso</th><th>Iteraciones</th></tr></thead>
+    <tbody>
+      <tr><td>La del tutorial, frontera rígida</td><td>—</td><td>48 792</td><td>0.97</td><td>0.00994</td><td>−0.0003</td><td>1.005</td><td>3638</td></tr>
+      <tr><td>Funciones de pared</td><td><code>-setnumber yplus 30</code></td><td>34 200</td><td>28.75</td><td>0.01091</td><td>0.0000</td><td>1.006</td><td>1080</td></tr>
+      <tr><td>Dominio de 50 cuerdas, rígida</td><td><code>R</code>, <code>entrada</code>, <code>L</code> = 50; <code>hFar</code> = 4</td><td>68 328</td><td>1.02</td><td>0.01004</td><td>−0.0258</td><td>1.006</td><td>4000 (sin converger)</td></tr>
+      <tr><td>Dominio de 15 cuerdas, <em>freestream</em></td><td>—</td><td>48 792</td><td>0.97</td><td>0.00988</td><td>−0.0001</td><td>1.006</td><td>2813</td></tr>
+      <tr><td>NACA 2412, rígida</td><td><code>-setnumber naca 2412</code></td><td>49 006</td><td>0.97</td><td>0.01142</td><td>0.1972</td><td>1.011</td><td>4000 (sin converger)</td></tr>
+      <tr><td>NACA 2412, <em>freestream</em></td><td><code>-setnumber naca 2412</code></td><td>49 006</td><td>0.97</td><td>0.01024</td><td>0.2132</td><td>1.007</td><td>3157</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 6.</b> <b class="fig-title">Las variantes, medidas.</b> Todas con Spalart-Allmaras a 0° y \(U_\infty\) = 30 m/s. «Rígida» es la velocidad impuesta en toda la frontera, como en la corrida principal; «freestream» son las condiciones características de OpenFOAM, que dejan entrar y salir el flujo inducido por el perfil. El \(C_p\) de remanso debe valer 1.</caption>
+  </table>
+</div>
+    <ul>
+      <li><strong>El y⁺ pedido se cumple en los dos extremos:</strong> 0.97 al pedir 1 y 28.7 al pedir 30. La misma fórmula sirve para resolver la pared y para usar funciones de pared.</li>
+      <li><strong>Quince cuerdas bastan para la resistencia a cero grados:</strong> con cincuenta, el <span>\(C_d\)</span> cambia de 0.00994 a 0.01004, un 1 %, y el remanso ni se mueve.</li>
+      <li><strong>La sustentación sí depende de la frontera:</strong> el NACA 2412 da <span>\(C_l\)</span> = 0.197 con la velocidad impuesta y 0.213 con <code>freestream</code>, porque la frontera rígida frena la circulación. El resto de la distancia a 0.25 se debe a que el cálculo es turbulento desde el borde de ataque, y la transición no se modela.</li>
+    </ul>
+  </div>
+</details>
+
+    </section>
+    <section id="summary-es">
+      <p class="section-label">Puntos clave</p>
+      <h2>Lo que hay que retener</h2>
+
+<ul>
+  <li><strong>Se piden tamaños, no conteos.</strong> De dos tamaños y una longitud salen la razón y el número de nodos: <span>\(r = (L-h_1)/(L-h_N)\)</span> y <span>\(N = 2 + \ln(h_N/h_1)/\ln r\)</span>.</li>
+  <li><strong>Cuando la topología fija el número de nodos, la razón se busca.</strong> Una bisección de veinte renglones basta, y evita los saltos de tamaño en las esquinas del dominio.</li>
+  <li><strong>y⁺ mide la distancia del centro de la primera celda.</strong> La altura de la celda es el doble. El error de factor dos sólo se descubre midiendo el y⁺ de una corrida.</li>
+  <li><strong>Una banda desplazada no se lleva bien con <code>Transfinite</code>:</strong> el contorno desplazado es más largo y los nodos dejan de corresponderse. Una sola progresión radial resuelve la capa límite con menos celdas y sin torcer nada.</li>
+  <li><strong>Una malla estructurada no se suaviza.</strong></li>
+  <li><strong>El ángulo de ataque se pone en el solver</strong>, no girando el perfil dentro del dominio.</li>
+  <li><strong>La prueba de una malla es un resultado medido</strong>: el y⁺, la resistencia, la simetría. <code>checkMesh</code> es el primer filtro, no el último.</li>
+</ul>
+
+    </section>
+    <section id="mistakes-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Errores que sólo se ven en el solver</h2>
+
+<ul>
+  <li><strong>Usar el resultado de un <code>Call</code> en el mismo renglón.</strong> La macro corre después; lo que sigue en ese renglón se queda con los valores anteriores.</li>
+  <li><strong>Esperar que <code>Transfinite</code> ponga los nodos en los puntos de la <code>Spline</code>.</strong> Los reparte por longitud de arco: el espaciado coseno del contorno no se hereda.</li>
+  <li><strong>Escribir un número dos veces.</strong> Si la primera celda de la estela se escribe aparte de la del borde de salida del perfil, al cambiar un parámetro aparece un salto donde antes no había.</li>
+  <li><strong>Dejar que la salida herede la progresión de la pared.</strong> Celdas de micras a veinte cuerdas del perfil, con relaciones de aspecto de miles.</li>
+  <li><strong>Pisar un parámetro con una asignación simple.</strong> <code>-setnumber</code> cambia un <code>DefineConstant</code>, pero no un <code>R = 15;</code> escrito más abajo.</li>
+  <li><strong>Creer que «Mesh OK» es una validación.</strong> La malla de partida la pasa y el cálculo diverge.</li>
+</ul>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ul>
+  <li>Geuzaine, C. y Remacle, J.-F. <em>Gmsh reference manual</em>, versión 4.15. <a href="https://gmsh.info/doc/texinfo/gmsh.html" target="_blank" rel="noopener">gmsh.info</a>. <code>DefineConstant</code>, macros, <code>Transfinite</code> y <code>Extrude</code>.</li>
+  <li>Abbott, I. H. y von Doenhoff, A. E. <em>Theory of Wing Sections</em>. Dover, 1959. Las fórmulas del NACA de cuatro dígitos y los datos experimentales del 0012 y del 2412.</li>
+  <li>Schlichting, H. y Gersten, K. <em>Boundary-Layer Theory</em>, 9.ª ed. Springer, 2017. Correlaciones de placa plana turbulenta: <span>\(C_f\)</span> y <span>\(\delta\)</span>.</li>
+  <li>Spalart, P. R. y Allmaras, S. R. «A one-equation turbulence model for aerodynamic flows». <em>AIAA Paper</em> 92-0439, 1992.</li>
+  <li>NASA Langley. <em>Turbulence Modeling Resource: 2D NACA 0012 Airfoil Validation Case</em>. <a href="https://turbmodels.larc.nasa.gov/naca0012_val.html" target="_blank" rel="noopener">turbmodels.larc.nasa.gov</a>. Valores de referencia de <span>\(C_d\)</span> a <span>\(Re\)</span> = 6·10⁶.</li>
+  <li>OpenFOAM Foundation. <em>OpenFOAM v13 User Guide</em> y el caso <code>incompressibleFluid/airFoil2D</code>.</li>
+</ul>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="perfil-dominio-c.html?v=13"><span>Tutorial anterior</span>← Tutorial 2.2.1 · El perfil en un dominio en C</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Serie de tutoriales</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Das C-Netz aus Tutorial 2.2.1 in eine parametrische Datei verwandeln: ein vierstelliges NACA-Profil mit Wölbung, Kontrollstationen, die erste Zellhöhe aus einem gewünschten y⁺, Progressionen, die zwei Zellgrößen ohne Sprung verbinden, physikalische Gruppen mit berechneten statt kopierten Indizes und eine Probe in OpenFOAM 13, die y⁺, Widerstand und Symmetrie misst.</p>
+    </section>
+    <section id="why-de">
+      <p class="section-label">Die Idee</p>
+      <h2>Ein Netz, das man einmal schreibt und oft benutzt</h2>
+<p>Ein mit festen Zahlen geschriebenes Netz dient einem Fall. Dasselbe Netz mit Parametern dient einer Familie: ein anderes Profil, eine andere Reynolds-Zahl, ein anderes y⁺, ein feineres oder größeres Netz. Der Preis: Jede Zahl muss aus einer Formel kommen, und die Formeln sind der Inhalt dieses Tutorials.</p>
+    </section>
+    <section id="params-de">
+      <p class="section-label">Schritt 1</p>
+      <h2>Die Parameter, y⁺ und die beiden Progressionen</h2>
+<p>DefineConstant deklariert die Parameter, -setnumber überschreibt sie vom Terminal. Die erste Zellhöhe ist 2 y1 mit y1 = y⁺ nu/u_tau, denn y⁺ misst den Abstand des Zellmittelpunkts zur Wand. Zwei Makros erledigen den Rest: eines löst Verhältnis und Knotenzahl einer Progression zwischen zwei Zellgrößen, das andere halbiert nach dem Verhältnis, wenn die Topologie die Knotenzahl schon festlegt.</p>
+    </section>
+    <section id="airfoil-de">
+      <p class="section-label">Schritt 2</p>
+      <h2>Das gewölbte vierstellige NACA-Profil und die Kontrollstationen</h2>
+<p>Der vierstellige Code wird in Wölbung, deren Lage und Dicke zerlegt; die Dicke steht senkrecht auf der Skelettlinie, daher teilen sich die beiden Seiten keine Abszisse mehr. Drei Kontrollstationen teilen jede Seite in vier Abschnitte, und die Knotenzahl jedes Abschnitts folgt aus der Bogenlänge, die beim Erzeugen der Punkte gemessen wird.</p>
+    </section>
+    <section id="domain-de">
+      <p class="section-label">Schritt 3</p>
+      <h2>Das C-Gebiet, jetzt eine Ellipse</h2>
+<p>Die Front des C ist eine halbe Ellipse, sodass Einlaufabstand und halbe Höhe unabhängige Parameter sind; bei gleichen Werten ist es der Kreis aus Tutorial 2.2.1. Die eingebaute Ellipse von Gmsh akzeptiert als dritten Punkt auch einen der kürzeren Achse.</p>
+    </section>
+    <section id="blocks-de">
+      <p class="section-label">Schritt 4</p>
+      <h2>Zehn Blöcke und das Netz</h2>
+<p>Zehn Blöcke: je vier entlang der Seiten und zwei entlang des Nachlaufs. Jede Kurve erhält Knotenzahl und Progression aus Schritt 1 oder 2; keine Zahl wird zweimal geschrieben. Eine einzige radiale Progression läuft von der Wand ins Fernfeld, ein Versatzband entfällt.</p>
+    </section>
+    <section id="openfoam-de">
+      <p class="section-label">Schritt 5</p>
+      <h2>Extrusion und Gruppen ohne kopierte Indizes</h2>
+<p>Die Extrusion liefert je Block die Vorderfläche, das Volumen und eine Seitenfläche je Kurve des Curve Loop. Ein kleines Makro macht aus einer Liste von (Block, Kurvenposition) die Flächen jedes Patches, sodass die physikalischen Gruppen einen Parameterwechsel überstehen.</p>
+    </section>
+    <section id="check-de">
+      <p class="section-label">Die Probe</p>
+      <h2>Liefert das Netz das versprochene y⁺?</h2>
+<p>Mit Spalart-Allmaras bei null Grad und Re = 2,05e6 liefert das Netz ein mittleres y⁺ von 0,97 bei gefordertem 1, einen Widerstandsbeiwert von 0,00994 gegenüber etwa 0,0102 als Referenz und einen Auftriebsbeiwert von −0,0003 am symmetrischen Profil. Das Ausgangsnetz divergiert im selben Fall.</p>
+    </section>
+    <section id="fixes-de">
+      <p class="section-label">Das Ausgangsnetz</p>
+      <h2>Sechs Dinge, die ein Netz wie das Ausgangsnetz falsch macht</h2>
+<p>Das Ausgangsnetz nennt den Profil-Patch wall, setzt die erste Zellhöhe auf y1 statt 2 y1, glättet ein strukturiertes Netz, spiegelt die Hinterkante mit einer fest eingetragenen Normalen, springt um den Faktor 130 in der Zellgröße am Übergang des Grenzschichtbandes und dreht das Profil im Gebiet, um den Anstellwinkel zu setzen.</p>
+    </section>
+    <section id="files-de">
+      <p class="section-label">Dateien</p>
+      <h2>Die sechs .geo-Dateien, vollständig</h2>
+<p>Sechs verkettete Dateien: Parameter, Profil, Gebiet, Blöcke, Netz und OpenFOAM. Das ganze Netz wird vom Terminal mit -setnumber neu erzeugt.</p>
+    </section>
+    <section id="example-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Drei Rechnungen, die je eine Zahl ändern</h2>
+<p>Drei Varianten, je eine Zahl entfernt: ein gewölbtes NACA 2412, dessen Auftrieb von der Fernfeld-Randbedingung abhängt; ein Netz für Wandfunktionen, das bei gefordertem y⁺ = 30 im Mittel 28,7 liefert; und ein zehnmal größeres Gebiet, das den Widerstand um ein Prozent ändert.</p>
+    </section>
+    <section id="summary-de">
+      <p class="section-label">Kernpunkte</p>
+      <h2>Was man behalten sollte</h2>
+<p>Zellgrößen fordern, nicht Knotenzahlen; y⁺ legt die erste Zelle fest, die Topologie die Knotenzahl, das Verhältnis folgt; ein strukturiertes Netz wird nie geglättet; und ein Netz wird an einem Ergebnis geprüft, gemessen am Netz selbst.</p>
+    </section>
+    <section id="mistakes-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Fehler, die erst im Löser auffallen</h2>
+<p>Ein Call und die Nutzung seines Ergebnisses in derselben Zeile, die Erwartung, Transfinite lege Knoten auf die Kontrollpunkte einer Spline, ein Versatzband an einer gekrümmten Kontur, ein Nachlauf mit der Wandauflösung und y⁺ als Zellhöhe gelesen.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>Gmsh-Referenzhandbuch; Abbott und von Doenhoff; Schlichting; Spalart und Allmaras (1992); die NASA Turbulence Modeling Resource für das NACA 0012 bei null Grad; OpenFOAM-13-Handbuch.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="perfil-dominio-c.html?v=13"><span>Vorheriges Tutorial</span>← Tutorial 2.2.1 · Das Profil im C-Gebiet</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Tutorialreihe</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>
