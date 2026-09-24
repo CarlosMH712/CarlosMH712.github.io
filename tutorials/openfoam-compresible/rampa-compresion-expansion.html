@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="OpenFOAM tutorial: a Mach 5 flow over a 5-degree ramp, with an oblique shock and a Prandtl-Meyer expansion fan, run with shockFluid in blueCFD-Core (OpenFOAM 12) on a Gmsh mesh and validated against theory for every downstream property, with a three-mesh convergence study." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>The Compression–Expansion Ramp | OpenFOAM Compressible-Flow Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">OpenFOAM · Compressible flow · Tutorial 1.1</p><h1>The Compression–Expansion Ramp</h1><p class="hero-copy">A Mach 5 stream turns 5° at a compression corner and turns back at an expansion corner: an oblique shock and a Prandtl-Meyer fan. The case runs with shockFluid on a Gmsh mesh, and every downstream property is checked against theory on three meshes.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">OpenFOAM · Flujo compresible · Tutorial 1.1</p><h1>La rampa de compresión y expansión</h1><p class="hero-copy">Una corriente a Mach 5 gira 5° en una esquina de compresión y regresa en una de expansión: un choque oblicuo y un abanico de Prandtl-Meyer. El caso corre con <code>shockFluid</code> sobre una malla de Gmsh, y cada propiedad aguas abajo se compara con la teoría en tres mallas.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">OpenFOAM · Kompressible Strömung · Tutorial 1.1</p><h1>Die Kompressions-Expansions-Rampe</h1><p class="hero-copy">Eine Mach-5-Strömung wird an einer Kompressionsecke um 5° umgelenkt und an einer Expansionsecke zurückgedreht: ein schräger Verdichtungsstoß und ein Prandtl-Meyer-Fächer. Der Fall läuft mit shockFluid auf einem Gmsh-Netz, und jede Größe stromab wird auf drei Netzen mit der Theorie verglichen.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 60 min</span><span data-language="es" hidden>Lectura estimada: 60 min</span><span data-language="de" hidden>Lesedauer: ca. 60 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on OpenFOAM 12 (blueCFD-Core 2024), Gmsh 4.15.2 and ParaView 5.11.2</span><span data-language="es" hidden>Verificado en OpenFOAM 12 (blueCFD-Core 2024), Gmsh 4.15.2 y ParaView 5.11.2</span><span data-language="de" hidden>Geprüft mit OpenFOAM 12 (blueCFD-Core 2024), Gmsh 4.15.2 und ParaView 5.11.2</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="index.html?v=13">← <span>Serie</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#problem">The problem</a><a href="#theory">Theory</a><a href="#recipe">Recipe</a><a href="#case">The case</a><a href="#results">ParaView</a><a href="#validation">Validation</a><a href="#errors">Common errors</a><a href="#practice">Suggested exercise</a><a href="#appendix">Appendix</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#problem-es">El problema</a><a href="#theory-es">Teoría</a><a href="#recipe-es">Receta</a><a href="#case-es">El caso</a><a href="#results-es">ParaView</a><a href="#validation-es">Validación</a><a href="#errors-es">Errores frecuentes</a><a href="#practice-es">Práctica sugerida</a><a href="#appendix-es">Apéndice</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#problem-de">Das Problem</a><a href="#theory-de">Theorie</a><a href="#recipe-de">Ablauf</a><a href="#case-de">Der Fall</a><a href="#results-de">ParaView</a><a href="#validation-de">Validierung</a><a href="#errors-de">Häufige Fehler</a><a href="#practice-de">Übungsvorschlag</a><a href="#appendix-de">Anhang</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Run a supersonic, inviscid case in OpenFOAM 12 (blueCFD-Core 2024 on Windows) from a Gmsh mesh; compute by hand every property behind an oblique shock and a Prandtl-Meyer fan; read the same properties from files that OpenFOAM writes; and judge the numerical solution with a three-mesh convergence study, including why the time step matters.</p>
+    </section>
+    <section id="problem">
+      <p class="section-label">The problem</p>
+      <h2>What is simulated</h2>
+<p>A flat plate, a 1 m ramp at 5° and a 1 m plateau, in a domain 1 m high; free stream at Mach 5 of the 'normalised gas' of the wedge15Ma5 tutorial. Region 2 lies behind the shock, region 3 behind the fan; the two do not meet inside the domain.</p>
+    </section>
+    <section id="theory">
+      <p class="section-label">The theory</p>
+      <h2>The theory the simulation must reproduce</h2>
+<p>The θ-β-M relation gives β = 15.07°; the normal-shock relations with M<sub>n1</sub> = M<sub>1</sub> sin β give p, T, ρ and M in region 2; the Prandtl-Meyer function gives M<sub>3</sub> = 4.98 and isentropic relations the rest. The fan brings the pressure back to p<sub>1</sub>, but not the total pressure: p<sub>0</sub> drops 2.07 % across the shock and stays there.</p>
+    </section>
+    <section id="recipe">
+      <p class="section-label">Step by step</p>
+      <h2>From the mesh to the results</h2>
+<p>In the blueCFD-Core terminal (a bash shell): add Gmsh to the PATH, which the terminal starts without, mesh with gmsh -setnumber d, convert with gmshToFoam, set the patch types with foamDictionary, check with checkMesh, run foamRun and open paraFoam. ./Allrun does all of it in one command.</p>
+    </section>
+    <section id="case">
+      <p class="section-label">The case</p>
+      <h2>The case, file by file</h2>
+<p>Every file of the case, reproduced in full: the parametric rampa.geo; the normalised gas (molWeight 11640.3 and Cp 2.5 give γ = 1.4 and a = 1, so U = 5 means Mach 5); supersonic inlet and outlet, slip wall and symmetry plane; the Kurganov flux with van Leer reconstruction; the adjustable time step with maxCo 0.2; and three functions of our own that average each region and sample two lines.</p>
+    </section>
+    <section id="results">
+      <p class="section-label">Results</p>
+      <h2>Looking at the results in ParaView</h2>
+<p>paraFoam, Apply, the last time step, the −Z view; the pressure and Mach fields; and Plot Over Line along y = 0.2 m with only p shown, as a visual check of the shock and the fan.</p>
+    </section>
+    <section id="validation">
+      <p class="section-label">Worked example</p>
+      <h2>Validation and mesh convergence</h2>
+<p>The three meshes against theory for fifteen quantities. On the finest mesh every quantity is within 0.25 % except the total pressure of region 3 (−0.60 %). That error halves with each refinement, and a first-order Richardson extrapolation recovers the theory to 0.005 %: the shock loss is physical, the extra entropy of the scheme is proportional to the cell size.</p>
+    </section>
+    <section id="errors">
+      <p class="section-label">Common errors</p>
+      <h2>What goes wrong, and what OpenFOAM says</h2>
+<p>A mesh too coarse across the shock layer; maxCo 0.5, which leaves spurious waves and blows up the fine mesh with a floating-point exception; the stock maxDeltaT of 1e-06; patch names or types that do not match (with the exact messages); Gmsh missing from the blueCFD PATH; region points outside the mesh; and OpenFOAM's totalPressureCompressible, which is the incompressible total pressure.</p>
+    </section>
+    <section id="practice">
+      <p class="section-label">Suggested exercise</p>
+      <h2>The 10° ramp</h2>
+<p>Repeat the study with a 10° ramp: β = 19.38°, p<sub>2</sub>/p<sub>1</sub> = 3.04 and a total-pressure loss of 12.8 %, large enough to see that the fan does not undo the shock. Then find the largest turn Mach 5 admits before the shock detaches (41.1°).</p>
+    </section>
+    <section id="appendix">
+      <p class="section-label">Appendix</p>
+      <h2>Where the formulas come from</h2>
+<p>The derivation of the θ-β-M relation from the normal-shock relations, of the Prandtl-Meyer function from an infinitesimal turn, and of the normalised gas.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>Anderson's Modern Compressible Flow and NACA Report 1135 for the theory; the OpenFOAM 12 sources and the papers behind the Kurganov-Tadmor flux and the van Leer limiter for the numerics; Roache for grid-refinement studies.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="index.html?v=13"><span>Series index</span>← OpenFOAM compressible-flow tutorials</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Compressible flow</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">Una corriente a Mach 5 se encuentra una rampa de 5°. En la esquina de compresión nace un choque oblicuo; en la de expansión, un abanico de Prandtl-Meyer. Los dos fenómenos tienen solución exacta, de modo que el caso sirve para dos cosas a la vez: aprender a correr un caso compresible en OpenFOAM y, sobre todo, aprender a juzgar si lo que calcula es correcto.</p>
+<ul>
+  <li>Calcular a mano todas las propiedades detrás de un choque oblicuo y de un abanico de Prandtl-Meyer: presión, temperatura, densidad, número de Mach, velocidad, dirección del flujo y presión total.</li>
+  <li>Llevar una malla de Gmsh a OpenFOAM con <code>gmshToFoam</code> y corregir los tipos de frontera que deja.</li>
+  <li>Correr <code>shockFluid</code> en blueCFD-Core 2024 (OpenFOAM 12) en Windows, desde su terminal.</li>
+  <li>Leer los archivos de un caso compresible: el gas normalizado, las condiciones de frontera supersónicas, el esquema de Kurganov y el paso de tiempo.</li>
+  <li>Hacer que OpenFOAM escriba en archivos las cifras de la validación, en lugar de leerlas en una imagen.</li>
+  <li>Hacer un estudio de convergencia de malla con tres mallas y leer lo que dice: qué converge, a qué ritmo y qué error queda.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> blueCFD-Core 2024 (<a href="https://bluecfd.github.io/Core/" target="_blank" rel="noopener">bluecfd.github.io/Core</a>), que instala OpenFOAM 12 para Windows y trae ParaView 5.11.2; Gmsh 4.15.2 (<a href="https://gmsh.info" target="_blank" rel="noopener">gmsh.info</a>), el archivo comprimido para Windows, descomprimido en una carpeta cualquiera; el caso, <a href="archivos/rampa.zip"><code>rampa.zip</code></a>, cuyos archivos se reproducen completos en la sección <a href="#case-es">«El caso, archivo por archivo»</a>; y una calculadora u hoja de cálculo para la teoría. No hace falta programar.</p>
+</div>
+<div class="callout">
+  <p><strong>De dónde sale este tutorial.</strong> El punto de partida fue una adaptación del tutorial <code>wedge15Ma5</code> de OpenFOAM, hecha por un profesor de la materia para una rampa de 5°, cuyos resultados no coincidían con la teoría. La causa estaba en la malla, no en el solver (sección <a href="#errors-es">«Errores frecuentes»</a>). El caso se rehizo y se validó en OpenFOAM 13 (openfoam.org, en Linux) y en OpenFOAM 12 (blueCFD-Core, en Windows), con diferencias entre las dos versiones menores al 0.1 %. Todas las cifras y capturas de esta guía son de OpenFOAM 12, que es lo que usan los alumnos.</p>
+</div>
+
+    </section>
+    <section id="problem-es">
+      <p class="section-label">El problema</p>
+      <h2>Qué se va a simular</h2>
+
+<p>El dominio es un canal bidimensional: una placa plana, una rampa que sube 5° y una meseta (figura 1). Por la izquierda entra aire a Mach 5, paralelo a la placa. El flujo no tiene viscosidad —se resuelven las ecuaciones de Euler—, así que no hay capa límite: la pared sólo obliga al flujo a seguirla.</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 318" role="img" aria-label="Dominio de la rampa: regiones 1, 2 y 3, choque oblicuo y abanico de expansión">
+  <text class="svg-title" x="60" y="26">El dominio, a escala: un choque en la primera esquina y un abanico en la segunda</text>
+  <polygon points="60.0,262.0 260.0,262.0 459.2,244.6 659.2,244.6 659.2,62.0 60.0,62.0" fill="var(--sky)" stroke="none"/>
+  <polygon points="260.0,262.0 459.2,244.6 660.0,179.9 660.0,154.3" fill="var(--accent)" fill-opacity="0.18" stroke="none"/>
+  <polygon points="459.2,244.6 660.0,244.6 660.0,203.4" fill="var(--blue)" fill-opacity="0.12" stroke="none"/>
+  <line x1="260.0" y1="262.0" x2="660.0" y2="154.3" stroke="var(--accent-dark)" stroke-width="2.4"/>
+  <line x1="459.2" y1="244.6" x2="660.0" y2="179.9" stroke="var(--blue)" stroke-width="1.2" stroke-dasharray="5 3"/>
+  <line x1="459.2" y1="244.6" x2="660.0" y2="203.4" stroke="var(--blue)" stroke-width="1.2" stroke-dasharray="5 3"/>
+  <polyline points="60.0,262.0 260.0,262.0 459.2,244.6 659.2,244.6" fill="none" stroke="var(--ink)" stroke-width="2.2"/>
+  <polyline points="659.2,244.6 659.2,62.0 60.0,62.0 60.0,262.0" fill="none" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="6 4"/>
+  <text class="svg-note" x="220.0" y="152.0" font-size="15" font-weight="700">1</text>
+  <text class="svg-note" x="380.0" y="245.0" font-size="15" font-weight="700">2</text>
+  <text class="svg-note" x="604.0" y="231.0" font-size="15" font-weight="700">3</text>
+  <text class="svg-note-sm" x="184.0" y="168.0">corriente libre, M = 5</text>
+  <text class="svg-note-sm" x="456.0" y="194.0" fill="var(--accent-dark)" text-anchor="end">choque oblicuo, β = 15.07°</text>
+  <line class="svg-leader" x1="458.0" y1="196.0" x2="480.0" y2="202.0" stroke="var(--accent-dark)" stroke-width="0.8"/>
+  <line class="svg-leader" x1="550.0" y1="220.6" x2="520.0" y2="262.0" stroke="var(--blue)" stroke-width="0.8"/>
+  <text class="svg-note-sm" x="516.0" y="266.0" fill="var(--blue)" text-anchor="end">abanico de expansión</text>
+  <text class="svg-note-sm" x="284.0" y="276.0">θ = 5°</text>
+  <text class="svg-note-sm" x="54.0" y="162.0" text-anchor="end">inlet</text>
+  <text class="svg-note-sm" x="665.2" y="162.0">outlet</text>
+  <text class="svg-note-sm" x="350.0" y="56.0">top</text>
+  <text class="svg-note-sm" x="140.0" y="278.0">walls</text>
+  <line x1="60.0" y1="288.0" x2="60.0" y2="294.0" stroke="var(--muted)" stroke-width="0.6"/>
+  <line x1="260.0" y1="288.0" x2="260.0" y2="294.0" stroke="var(--muted)" stroke-width="0.6"/>
+  <line x1="459.2" y1="288.0" x2="459.2" y2="294.0" stroke="var(--muted)" stroke-width="0.6"/>
+  <line x1="659.2" y1="288.0" x2="659.2" y2="294.0" stroke="var(--muted)" stroke-width="0.6"/>
+  <text class="svg-tick" x="60.0" y="308.0" text-anchor="middle">x = 0</text>
+  <text class="svg-tick" x="260.0" y="308.0" text-anchor="middle">1</text>
+  <text class="svg-tick" x="459.2" y="308.0" text-anchor="middle">1.996</text>
+  <text class="svg-tick" x="659.2" y="308.0" text-anchor="middle">2.996 m</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">La rampa y sus tres regiones.</b> Placa plana de 1 m, rampa de 1 m a 5° y meseta de 1 m, con el dominio de 1 m de alto (línea discontinua gris). El choque sale de la primera esquina a 15.07°; el abanico, de la segunda, entre las rectas azules discontinuas (a 17.86° y 11.58° del eje x). Sombreadas, las regiones 2 y 3 de la teoría. Los nombres de las fronteras son los que usan Gmsh y OpenFOAM.</figcaption>
+</figure>
+<ul>
+  <li><strong>Región 1, la corriente libre.</strong> Hasta la primera esquina, en x = 1 m, nada perturba el flujo.</li>
+  <li><strong>Región 2, detrás del choque.</strong> En la esquina de compresión la pared gira 5° hacia el flujo. A velocidad supersónica, la información no puede viajar aguas arriba para avisar que viene una desviación: el flujo gira de manera abrupta, a través de un choque oblicuo que nace en la esquina con un ángulo β = 15.07°. Detrás del choque el flujo es uniforme, paralelo a la rampa, más lento, más denso, más caliente y a mayor presión.</li>
+  <li><strong>Región 3, detrás del abanico.</strong> En la segunda esquina, en x = 1.996 m, la pared vuelve a la horizontal y el flujo gira de regreso, ahora alejándose de sí mismo. Ese giro no es brusco: ocurre a través de un abanico de ondas de expansión que salen de la esquina, entre dos rectas a 17.86° y 11.58° del eje x. Detrás del abanico el flujo vuelve a ser horizontal y uniforme.</li>
+</ul>
+<p>El choque sale del dominio por la salida, a y = 0.54 m, y el abanico no lo alcanza: la primera onda del abanico lo cruzaría en x ≈ 5.4 m, fuera del dominio. Por eso cada región queda uniforme y la teoría se puede aplicar por separado a cada una. El techo, a 1 m de la placa, queda lejos de los dos fenómenos.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Dato</th><th>Valor</th><th>Dónde se fija</th></tr></thead>
+    <tbody>
+      <tr><td>Número de Mach de la corriente libre, \(M_1\)</td><td>5</td><td><code>0/U</code>: velocidad (5 0 0)</td></tr>
+      <tr><td>Presión y temperatura de la corriente libre</td><td>\(p_1 = 1\), \(T_1 = 1\)</td><td><code>0/p</code>, <code>0/T</code></td></tr>
+      <tr><td>Relación de calores específicos, \(\gamma\)</td><td>1.4</td><td><code>constant/physicalProperties</code></td></tr>
+      <tr><td>Ángulo de la rampa, \(\theta\)</td><td>5°</td><td><code>rampa.geo</code>: <code>th</code></td></tr>
+      <tr><td>Placa plana antes de la rampa</td><td>1 m</td><td><code>L1</code></td></tr>
+      <tr><td>Largo de la rampa, medido sobre ella</td><td>1 m (avanza 0.9962 m en x y sube 0.0872 m)</td><td><code>Lr</code></td></tr>
+      <tr><td>Meseta después de la segunda esquina</td><td>1 m (la salida queda en x = 2.996 m)</td><td><code>L3</code></td></tr>
+      <tr><td>Altura del dominio sobre la placa</td><td>1 m</td><td><code>H</code></td></tr>
+      <tr><td>Tamaño de celda</td><td>0.02, 0.01 y 0.005 m</td><td><code>d</code>, desde la terminal</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Datos del caso.</b> La geometría es la del caso que el profesor adaptó del tutorial <code>wedge15Ma5</code> de OpenFOAM, con un dominio más bajo; el gas es el «gas normalizado» de ese tutorial (<a href='#case-es'>«El caso, archivo por archivo»</a>).</caption>
+  </table>
+</div>
+<p>La malla es 2D en el sentido de OpenFOAM: una sola capa de celdas de 1 cm de espesor, con las caras de adelante y atrás marcadas como <code>empty</code>. Las celdas son cuadradas en el plano, de lado d; el estudio de convergencia usa d = 0.02, 0.01 y 0.005 m.</p>
+
+    </section>
+    <section id="theory-es">
+      <p class="section-label">La teoría</p>
+      <h2>La teoría que la simulación tiene que reproducir</h2>
+
+<p>La validación compara la simulación con una solución que se calcula a mano, con las relaciones de flujo compresible de cualquier curso de aerodinámica <a href="#references-es">(Anderson, 2003; Ames Research Staff, 1953)</a>. Aquí están las fórmulas y el orden en que se usan; de dónde salen está en el <a href="#appendix-es">apéndice</a>. El gas es ideal y calóricamente perfecto, con γ = 1.4.</p>
+<h3>El choque oblicuo</h3>
+<p>El ángulo del choque depende del número de Mach y de la desviación, pero la relación no se puede despejar:</p>
+<div class="equation-card"><p class="equation-label">El ángulo del choque</p>\[ \tan\theta = 2\cot\beta\;\frac{M_1^2\sin^2\beta - 1}{M_1^2(\gamma+\cos 2\beta)+2} \tag{1} \]</div>
+<p>β se encuentra probando valores, con la herramienta «Buscar objetivo» de una hoja de cálculo o con una calculadora de flujo compresible. Para una desviación dada hay dos soluciones; la que aparece en una esquina con una desviación moderada es la <strong>débil</strong>, la de menor β, que está entre el ángulo de Mach, \(\mu_1 = \arcsin(1/M_1)\) = 11.54°, y el β de la desviación máxima. Con M₁ = 5 y θ = 5°, β = 15.073°.</p>
+<p>Un choque oblicuo es un choque normal para la componente de la velocidad perpendicular a él; la componente paralela no cambia. Con el número de Mach normal,</p>
+<div class="equation-card">\[ M_{n1} = M_1\sin\beta \tag{2} \]</div>
+<p>se usan las relaciones del choque normal:</p>
+<div class="equation-card"><p class="equation-label">Choque normal</p>\[ \frac{p_2}{p_1} = 1+\frac{2\gamma}{\gamma+1}\left(M_{n1}^2-1\right),\qquad \frac{\rho_2}{\rho_1} = \frac{(\gamma+1)M_{n1}^2}{(\gamma-1)M_{n1}^2+2},\qquad \frac{T_2}{T_1} = \frac{p_2/p_1}{\rho_2/\rho_1} \tag{3} \]</div>
+<p>El número de Mach detrás del choque sale de su componente normal, que se mide respecto al choque, no respecto a la rampa; por eso se divide entre el seno de β − θ:</p>
+<div class="equation-card">\[ M_{n2}^2 = \frac{1+\frac{\gamma-1}{2}M_{n1}^2}{\gamma M_{n1}^2-\frac{\gamma-1}{2}},\qquad M_2 = \frac{M_{n2}}{\sin(\beta-\theta)} \tag{4} \]</div>
+<h3>La presión total</h3>
+<p>La presión total, o de estancamiento, es la que tendría el gas si se frenara sin pérdidas. Relativa a la de la corriente libre,</p>
+<div class="equation-card">\[ \frac{p_0}{p_{0,1}} = \frac{p}{p_1}\left[\frac{1+\frac{\gamma-1}{2}M^2}{1+\frac{\gamma-1}{2}M_1^2}\right]^{\gamma/(\gamma-1)} \tag{5} \]</div>
+<p>Un proceso sin pérdidas —isentrópico— la conserva; un choque la reduce, porque genera entropía. Es la medida más directa de cuánta entropía generó el flujo.</p>
+<h3>El abanico de Prandtl-Meyer</h3>
+<p>Una expansión supersónica sí es isentrópica. El número de Mach después de un giro θ sale de la función de Prandtl-Meyer, que mide el ángulo que ha girado un flujo que partió de Mach 1:</p>
+<div class="equation-card"><p class="equation-label">Función de Prandtl-Meyer</p>\[ \nu(M) = \sqrt{\frac{\gamma+1}{\gamma-1}}\,\arctan\sqrt{\frac{\gamma-1}{\gamma+1}\left(M^2-1\right)} - \arctan\sqrt{M^2-1},\qquad \nu(M_3) = \nu(M_2)+\theta \tag{6} \]</div>
+<p>De nuevo, M₃ se encuentra probando valores. Como el proceso es isentrópico, las demás propiedades salen de las relaciones isentrópicas entre las regiones 2 y 3:</p>
+<div class="equation-card">\[ \frac{T_3}{T_2} = \frac{1+\frac{\gamma-1}{2}M_2^2}{1+\frac{\gamma-1}{2}M_3^2},\qquad \frac{p_3}{p_2} = \left(\frac{T_3}{T_2}\right)^{\gamma/(\gamma-1)},\qquad \frac{\rho_3}{\rho_2} = \left(\frac{T_3}{T_2}\right)^{1/(\gamma-1)} \tag{7} \]</div>
+<p>La magnitud de la velocidad, por último, es el número de Mach por la velocidad del sonido, que es proporcional a \(\sqrt{T}\): \(|U|/|U_1| = (M/M_1)\sqrt{T/T_1}\).</p>
+<h3>Los números</h3>
+<p>La tabla 2 da el resultado de cada paso, en orden, y la tabla 3 reúne las propiedades de las dos regiones. Son las cifras contra las que se valida.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Paso</th><th>Qué se calcula</th><th>Resultado</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>\(\beta\) de la relación \(\theta\)–\(\beta\)–\(M\), solución débil</td><td>15.073°</td></tr>
+      <tr><td>2</td><td>\(M_{n1} = M_1 \sin\beta\)</td><td>1.3002</td></tr>
+      <tr><td>3</td><td>\(p_2/p_1\), \(\rho_2/\rho_1\), \(T_2/T_1\) con \(M_{n1}\)</td><td>1.8057, 1.5161, 1.1910</td></tr>
+      <tr><td>4</td><td>\(M_{n2}\) y \(M_2 = M_{n2}/\sin(\beta-\theta)\)</td><td>0.7858 y 4.4932</td></tr>
+      <tr><td>5</td><td>\(p_{0,2}/p_{0,1}\)</td><td>0.9793</td></tr>
+      <tr><td>6</td><td>\(\nu(M_2)\) y \(\nu(M_3) = \nu(M_2) + \theta\)</td><td>71.756° y 76.756°</td></tr>
+      <tr><td>7</td><td>\(M_3\), despejando \(\nu(M_3)\)</td><td>4.9825</td></tr>
+      <tr><td>8</td><td>\(p_3/p_2\), \(T_3/T_2\), \(\rho_3/\rho_2\) (isentrópico)</td><td>0.5536, 0.8445, 0.6555</td></tr>
+      <tr><td>9</td><td>\(p_3/p_1 = (p_3/p_2)(p_2/p_1)\), igual para \(T\) y \(\rho\)</td><td>0.9995, 1.0059, 0.9937</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">El cálculo, paso a paso.</b> Los números que se obtienen en cada paso de las ecuaciones (1) a (7), en el orden en que se calculan. Conviene repetirlos con calculadora antes de seguir: la validación compara contra ellos.</caption>
+  </table>
+</div>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Propiedad</th><th>Región 2</th><th>Región 3</th></tr></thead>
+    <tbody>
+      <tr><td>Ángulo del choque, \(\beta\)</td><td>15.073°</td><td>—</td></tr>
+      <tr><td>\(p/p_1\)</td><td>1.8057</td><td>0.9995</td></tr>
+      <tr><td>\(T/T_1\)</td><td>1.1910</td><td>1.0059</td></tr>
+      <tr><td>\(\rho/\rho_1\)</td><td>1.5161</td><td>0.9937</td></tr>
+      <tr><td>\(M\)</td><td>4.4932</td><td>4.9825</td></tr>
+      <tr><td>\(|U|/|U_1|\)</td><td>0.9807</td><td>0.9994</td></tr>
+      <tr><td>Ángulo del flujo</td><td>5.0°</td><td>0°</td></tr>
+      <tr><td>\(p_0/p_{0,1}\)</td><td>0.9793</td><td>0.9793</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">La solución analítica.</b> Propiedades de las regiones 2 (sobre la rampa, detrás del choque) y 3 (sobre la meseta, detrás del abanico), relativas a la corriente libre. Calculadas con las ecuaciones (1) a (7), sin redondear en los pasos intermedios. El ángulo del flujo se mide desde el eje x.</caption>
+  </table>
+</div>
+<div class="result-box">
+  <p><strong>El abanico devuelve la presión, no la presión total.</strong> Detrás del abanico, p₃/p₁ = 0.9995: la presión vuelve casi a la de la corriente libre. Pero la región 3 no es la región 1: la presión total sigue 2.07 % abajo, igual que detrás del choque, porque la expansión es isentrópica y no puede deshacer la entropía que generó el choque. Por eso M₃ = 4.983 y no 5, y T₃ es 0.59 % mayor que T₁. Con 5° la diferencia es pequeña; la <a href="#practice-es">práctica sugerida</a> la hace evidente con 10°.</p>
+</div>
+
+    </section>
+    <section id="recipe-es">
+      <p class="section-label">Paso a paso</p>
+      <h2>De la malla a los resultados</h2>
+
+<p>Todo se hace en la terminal de blueCFD-Core. La receta completa es para la malla de 0.01 m; el estudio de convergencia de la sección <a href="#validation-es">«Validación y convergencia de malla»</a> la repite con 0.02 y 0.005 m, cambiando un solo número.</p>
+<ol>
+  <li><strong>Descomprimir el caso.</strong> Descomprimir <code>rampa.zip</code> en la carpeta Descargas: queda una carpeta <code>rampa</code> con <code>rampa.geo</code>, <code>Allrun</code>, <code>Allrun.bat</code> y las carpetas <code>0</code>, <code>constant</code> y <code>system</code>.</li>
+  <li><strong>Abrir la terminal.</strong> En el menú Inicio, <code>blueCFD-Core 2024 ▸ blueCFD-Core terminal</code>. Responde «Setting environment for OpenFOAM 12 mingw-w64 Double Precision (of12-64)…» y «Environment is now ready». Es una terminal <code>bash</code>, como la de Linux: las rutas de Windows se escriben con diagonales normales y la unidad como carpeta, de modo que <code>C:&#92;Users&#92;ana&#92;Downloads</code> es <code>/c/Users/ana/Downloads</code>.</li>
+  <li><strong>Agregar Gmsh a la ruta de búsqueda.</strong> Si Gmsh se descomprimió en <code>C:&#92;gmsh-4.15.2-Windows64</code>:<pre class="code"><code>export PATH=&quot;$PATH:/c/gmsh-4.15.2-Windows64&quot;
+gmsh --version</code></pre>Responde <code>4.15.2</code>. Hay que hacerlo cada vez que se abre la terminal: arranca con una ruta de búsqueda que sólo contiene OpenFOAM y Windows, y cualquier programa instalado aparte, Gmsh incluido, responde <code>bash: gmsh: command not found</code>.</li>
+  <li><strong>Copiar el caso a la carpeta de corridas.</strong> <code>$FOAM_RUN</code> es la carpeta <code>run</code> de blueCFD, fuera de OneDrive y de las carpetas sincronizadas, que estorban a un programa que escribe cientos de archivos:<pre class="code"><code>cd $FOAM_RUN
+cp -r /c/Users/ana/Downloads/rampa .
+cd rampa</code></pre>(con el nombre de usuario de cada quien en lugar de <code>ana</code>).</li>
+  <li><strong>Hacer la malla.</strong> <code>-setnumber d 0.01</code> fija el tamaño de celda; <code>-3</code>, la malla 3D; <code>-o</code>, el archivo de salida:<pre class="code"><code>gmsh rampa.geo -setnumber d 0.01 -3 -o rampa.msh</code></pre>Termina en menos de un segundo con «Info : 60802 nodes 93024 elements» y «Done writing 'rampa.msh'».</li>
+  <li><strong>Convertirla a OpenFOAM.</strong> <code>gmshToFoam rampa.msh</code> escribe <code>constant/polyMesh</code>. Responde, entre otras cosas, cuántas celdas leyó y qué nombre dio a cada parche:<pre class="code"><code>Cells:
+    total:30000
+    hex  :30000
+    prism:0
+    pyr  :0
+    tet  :0</code></pre><pre class="code"><code>Patch 0 gets name frontAndBack
+Patch 1 gets name walls
+Patch 2 gets name top
+Patch 3 gets name inlet
+Patch 4 gets name outlet</code></pre></li>
+  <li><strong>Corregir los tipos de parche.</strong> <code>gmshToFoam</code> declara todos los parches como <code>patch</code>, un tipo genérico. Tres de ellos necesitan otro:<pre class="code"><code>foamDictionary constant/polyMesh/boundary -entry entry0/walls/type -set wall
+foamDictionary constant/polyMesh/boundary -entry entry0/top/type -set symmetryPlane
+foamDictionary constant/polyMesh/boundary -entry entry0/frontAndBack/type -set empty</code></pre>Cada línea responde «New entry type wall;», «… symmetryPlane;» y «… empty;». Sin este paso, <code>foamRun</code> se detiene con un error (sección <a href="#errors-es">«Errores frecuentes»</a>).</li>
+  <li><strong>Revisar la malla.</strong> <code>checkMesh</code>. Lo importante está al final:<pre class="code"><code>    Mesh has 2 geometric (non-empty/wedge) directions (1 1 0)
+    Mesh has 2 solution (non-empty) directions (1 1 0)</code></pre><pre class="code"><code>Mesh OK.</code></pre>Dos direcciones: OpenFOAM reconoce que la malla es 2D. Si dijera tres, los tipos del paso anterior no se aplicaron.</li>
+  <li><strong>Correr el solver.</strong> <code>foamRun &gt; log.foamRun</code>. <code>foamRun</code> lee el solver en <code>system/controlDict</code> (<code>shockFluid</code>) y avanza hasta t = 1.5. En la malla de 0.01 m tarda cerca de un minuto y medio; mientras corre, la terminal no responde. Al terminar, <code>tail log.foamRun</code> muestra las últimas líneas, que acaban en «End».</li>
+  <li><strong>Ver los resultados.</strong> <code>paraFoam</code> abre ParaView con el caso (sección <a href="#results-es">«Resultados»</a>).</li>
+</ol>
+<h3>Lo que escribe <code>foamRun</code></h3>
+<p>Cada paso de tiempo deja un bloque como éste (el primero de la corrida):</p>
+<pre class="code"><code>Starting time loop
+
+Courant Number mean: 0.055669896 max: 0.058045272
+deltaT = 0.00011990408
+Time = 0.000119904s
+
+diagonal:  Solving for rho, Initial residual = 0, Final residual = 0, No Iterations 0
+diagonal:  Solving for Ux, Initial residual = 0, Final residual = 0, No Iterations 0
+diagonal:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+diagonal:  Solving for e, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.511 s  ClockTime = 0 s</code></pre>
+<ul>
+  <li><strong><code>Courant Number</code></strong>: el número de Courant medio y el máximo de la malla, cuántas celdas avanza la información en un paso de tiempo. <code>controlDict</code> pide que el máximo no pase de 0.2; en los primeros pasos el paso de tiempo crece poco a poco hasta llegar ahí, y el resto de la corrida se queda en 0.19–0.20.</li>
+  <li><strong><code>deltaT</code> y <code>Time</code></strong>: el paso de tiempo que eligió <code>foamRun</code> para cumplir ese Courant y el tiempo alcanzado.</li>
+  <li><strong><code>diagonal: Solving for …</code></strong>: los residuos valen 0 porque no hay sistema de ecuaciones que resolver. <code>shockFluid</code> avanza la densidad, la cantidad de movimiento y la energía de forma explícita, celda por celda. <strong>Aquí los residuos no dicen nada sobre la convergencia</strong>: si el flujo ya es estacionario se juzga mirando cómo cambian las propiedades con el tiempo, lo que hace la sección de validación.</li>
+</ul>
+<p>Hacia t = 1 aparece un aviso inofensivo:</p>
+<pre class="code"><code>--&gt; FOAM Warning :
+    From function virtual Foam::Time&amp; Foam::Time::operator++()
+    in file db/Time/Time.T.C at line 1315
+    Increased the timePrecision from 6 to 7 to distinguish between timeNames at time 1.000347</code></pre>
+<p>OpenFOAM agrega un decimal a los nombres de las carpetas de tiempo para no confundir dos tiempos cercanos; no afecta la solución.</p>
+<h3>Todo en un comando</h3>
+<p>Los pasos 5 a 9 están en <code>Allrun</code>, con el tamaño de celda como argumento:</p>
+<pre class="code"><code>./Allrun 0.01</code></pre>
+<p>Deja la salida de cada programa en <code>log.gmsh</code>, <code>log.gmshToFoam</code>, <code>log.checkMesh</code> y <code>log.foamRun</code>. Si Gmsh no está en la ruta de búsqueda, lo dice y se detiene. <code>Allrun.bat</code> hace lo mismo en la terminal de Windows (<code>cmd</code>) de blueCFD —el acceso directo «blueCFD-Core in Windows Command Line», en la carpeta <code>shortcuts</code> de la instalación—, con <code>Allrun.bat 0.01</code>.</p>
+
+    </section>
+    <section id="case-es">
+      <p class="section-label">El caso</p>
+      <h2>El caso, archivo por archivo</h2>
+
+<p>Los archivos vienen del tutorial <code>wedge15Ma5</code> de OpenFOAM 12 (<code>$FOAM_TUTORIALS/shockFluid/wedge15Ma5</code>), un choque sobre una cuña a Mach 5. Se cambiaron la malla, el paso de tiempo, lo que se escribe al final y los nombres de las fronteras; el gas y el esquema numérico son los mismos (tabla 4).</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Archivo</th><th>Qué fija</th></tr></thead>
+    <tbody>
+      <tr><td><code>rampa.geo</code> *</td><td>la geometría y la malla (Gmsh)</td></tr>
+      <tr><td><code>0/p</code>, <code>0/T</code>, <code>0/U</code></td><td>el estado inicial y las condiciones de frontera</td></tr>
+      <tr><td><code>constant/physicalProperties</code></td><td>el gas: ideal, calóricamente perfecto, normalizado</td></tr>
+      <tr><td><code>constant/momentumTransport</code></td><td><code>laminar</code>; con \(\mu = 0\), flujo no viscoso (Euler)</td></tr>
+      <tr><td><code>system/controlDict</code></td><td>el solver, el paso de tiempo, cuándo escribir y qué funciones correr</td></tr>
+      <tr><td><code>system/fvSchemes</code></td><td>el esquema numérico: flujos de Kurganov y reconstrucción de van Leer</td></tr>
+      <tr><td><code>system/fvSolution</code></td><td>cómo se resuelven las ecuaciones en cada paso</td></tr>
+      <tr><td><code>system/region2</code>, <code>system/region3</code> *</td><td>promedios de p, T, ρ, U y Ma en el centro de cada región</td></tr>
+      <tr><td><code>system/lineas</code> *</td><td>p, T y Ma a lo largo de y = 0.2 m y y = 0.5 m</td></tr>
+      <tr><td><code>Allrun.bat</code> *</td><td>la receta completa en un solo comando (Windows); <code>Allrun</code> en Linux</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">Los archivos del caso.</b> Todos se reproducen completos en esta sección. Los marcados con * son propios de esta guía; los demás vienen del tutorial <code>wedge15Ma5</code> de OpenFOAM 12, con los cambios que se explican.</caption>
+  </table>
+</div>
+<h3><code>rampa.geo</code>: la geometría y la malla</h3>
+<p>Un archivo de Gmsh paramétrico. Los seis parámetros de <code>DefineConstant</code> —ángulo, largos, altura y tamaño de celda— se cambian desde la terminal con <code>-setnumber</code>, sin editar el archivo. El dominio se parte en tres bloques de cuatro lados (placa, rampa y meseta), cada uno con malla <code>Transfinite</code> de cuadriláteros de lado d, que se extruye una sola capa en z para hacer la malla 2D de OpenFOAM (figura 2). Los grupos físicos dan nombre a las fronteras; son los nombres que usan los archivos de <code>0/</code>. La última línea pide el formato 2.2 de archivo de malla, el que lee <code>gmshToFoam</code>.</p>
+<figure class="diagram">
+  <img src="imagenes/t11-01_malla_esquinas.png" alt="Malla de 2 cm alrededor de las dos esquinas" loading="lazy">
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">La malla gruesa (d = 0.02 m) alrededor de las dos esquinas.</b> Vista en ParaView, de x = 0.7 a 2.35 m. Tres bloques de cuadriláteros: en el de la rampa, las columnas siguen siendo verticales y las filas se inclinan poco a poco, desde los 5° de la pared hasta la horizontal del techo. Las celdas son casi cuadradas en todo el dominio.</figcaption>
+</figure>
+<p class="code-name"><code>rampa.geo</code></p>
+<pre class="code"><code>// Rampa de compresión y expansión para OpenFOAM (shockFluid), malla 2.5D estructurada
+// Placa plana, rampa de ángulo th y meseta: un choque oblicuo en la primera esquina
+// y un abanico de Prandtl-Meyer en la segunda. Unidades: metros.
+// Se puede cambiar cualquier parámetro desde la terminal: gmsh rampa.geo -setnumber d 0.01 -3
+
+DefineConstant[ th = 5 ];     // ángulo de la rampa (grados)
+DefineConstant[ L1 = 1 ];     // placa plana antes de la rampa
+DefineConstant[ Lr = 1 ];     // largo de la rampa, medido sobre su superficie
+DefineConstant[ L3 = 1 ];     // meseta después de la segunda esquina
+DefineConstant[ H = 1 ];      // altura del dominio sobre la placa
+DefineConstant[ d = 0.01 ];   // tamaño de celda (cuadrada lejos de la rampa)
+e = 0.01;                     // espesor de la extrusión (una sola celda)
+
+t = th*Pi/180;
+x2 = L1 + Lr*Cos(t);  y2 = Lr*Sin(t);   // segunda esquina
+x3 = x2 + L3;
+
+Point(1) = {0,  0,  0};
+Point(2) = {L1, 0,  0};       // esquina de compresión
+Point(3) = {x2, y2, 0};       // esquina de expansión
+Point(4) = {x3, y2, 0};
+Point(5) = {x3, H,  0};
+Point(6) = {x2, H,  0};
+Point(7) = {L1, H,  0};
+Point(8) = {0,  H,  0};
+
+Line(1) = {1, 2};  Line(2) = {2, 3};  Line(3) = {3, 4};    // pared
+Line(4) = {4, 5};                                          // salida
+Line(5) = {5, 6};  Line(6) = {6, 7};  Line(7) = {7, 8};    // techo
+Line(8) = {8, 1};                                          // entrada
+Line(9) = {2, 7};  Line(10) = {3, 6};                      // divisiones entre bloques
+
+Curve Loop(1) = {1, 9, 7, 8};    Plane Surface(1) = {1};   // bloque de la placa
+Curve Loop(2) = {2, 10, 6, -9};  Plane Surface(2) = {2};   // bloque de la rampa
+Curve Loop(3) = {3, 4, 5, -10};  Plane Surface(3) = {3};   // bloque de la meseta
+
+nx1 = Round(L1/d);  nx2 = Round((x2 - L1)/d);  nx3 = Round(L3/d);  ny = Round(H/d);
+Transfinite Curve{1, 7} = nx1 + 1;
+Transfinite Curve{2, 6} = nx2 + 1;
+Transfinite Curve{3, 5} = nx3 + 1;
+Transfinite Curve{8, 9, 10, 4} = ny + 1;
+Transfinite Surface{1, 2, 3};
+Recombine Surface{1, 2, 3};
+
+ext[] = Extrude {0, 0, e} { Surface{1, 2, 3}; Layers{1}; Recombine; };
+// ext[]: para cada superficie, [tapa, volumen, cara sobre la 1.ª curva, 2.ª, 3.ª, 4.ª]
+Physical Surface(&quot;inlet&quot;)        = {ext[5]};
+Physical Surface(&quot;outlet&quot;)       = {ext[15]};
+Physical Surface(&quot;walls&quot;)        = {ext[2], ext[8], ext[14]};
+Physical Surface(&quot;top&quot;)          = {ext[4], ext[10], ext[16]};
+Physical Surface(&quot;frontAndBack&quot;) = {1, 2, 3, ext[0], ext[6], ext[12]};
+Physical Volume(&quot;fluid&quot;)         = {ext[1], ext[7], ext[13]};
+
+Mesh.MshFileVersion = 2.2;    // gmshToFoam lee el formato 2</code></pre>
+<div class="callout">
+  <p><strong>Por qué celdas cuadradas y un dominio de 1 m de alto.</strong> Lo que decide la calidad del resultado es cuántas celdas hay entre la rampa y el choque, en la dirección y. Al final de la rampa esa distancia es de unos 18 cm: con d = 0.02 m caben nueve celdas; con 0.005 m, treinta y seis. Un dominio más alto sólo agregaría celdas en la corriente libre, donde no pasa nada. El 2.1 de la serie de Gmsh enseña a construir este archivo paso a paso.</p>
+</div>
+
+<h3><code>constant/physicalProperties</code>: el gas normalizado</h3>
+<p class="code-name"><code>constant/physicalProperties</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    &quot;constant&quot;;
+    object      physicalProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+thermoType
+{
+    type            hePsiThermo;
+    mixture         pureMixture;
+    transport       const;
+    thermo          hConst;
+    equationOfState perfectGas;
+    specie          specie;
+    energy          sensibleInternalEnergy;
+}
+
+mixture
+{
+    // normalised gas
+    specie
+    {
+        molWeight       11640.3;
+    }
+    thermodynamics
+    {
+        Cp              2.5;
+        hf              0;
+    }
+    transport
+    {
+        mu              0;
+        Pr              1;
+    }
+}
+
+
+// ************************************************************************* //</code></pre>
+<p>No es aire en unidades del SI: es un gas elegido para que las cuentas salgan sencillas. Con la constante universal de OpenFOAM, 8314.47 J/(kmol·K), y <code>molWeight 11640.3</code>,</p>
+<div class="equation-card">\[ R = \frac{8314.47}{11640.3} = 0.714283 = \frac{1}{1.4},\qquad c_v = c_p - R = 1.7857,\qquad \gamma = \frac{c_p}{c_v} = 1.4000 \]</div>
+<p>Con T = 1, la velocidad del sonido vale \(a = \sqrt{\gamma R T} = 1\), así que <strong>la magnitud de la velocidad es directamente el número de Mach</strong>: <code>U = (5 0 0)</code> es Mach 5. Y con p = 1, la densidad de la corriente libre vale \(\rho_1 = p/(RT) = 1.4\). <code>hePsiThermo</code> con <code>perfectGas</code> y <code>hConst</code> es un gas ideal de calores específicos constantes; <code>mu 0</code> anula la viscosidad.</p>
+<h3><code>constant/momentumTransport</code></h3>
+<p class="code-name"><code>constant/momentumTransport</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    &quot;constant&quot;;
+    object      momentumTransport;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+simulationType  laminar;
+
+
+// ************************************************************************* //</code></pre>
+<p><code>laminar</code> significa sin modelo de turbulencia; como la viscosidad es cero, las ecuaciones que se resuelven son las de Euler.</p>
+<h3><code>0/</code>: el estado inicial y las condiciones de frontera</h3>
+<p>Todo el dominio arranca con la corriente libre (p = 1, T = 1, U = (5 0 0)). Las condiciones de frontera siguen la regla del flujo supersónico: <strong>en una entrada supersónica se fija todo, en una salida supersónica no se fija nada</strong>, porque las perturbaciones sólo viajan aguas abajo (tabla 5).</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Parche (tipo en la malla)</th><th><code>p</code></th><th><code>T</code></th><th><code>U</code></th><th>Por qué</th></tr></thead>
+    <tbody>
+      <tr><td><code>inlet</code> (<code>patch</code>)</td><td>1</td><td>1</td><td>(5 0 0)</td><td>flujo supersónico entrante: las tres características entran al dominio</td></tr>
+      <tr><td><code>outlet</code> (<code>patch</code>)</td><td>gradiente cero</td><td>gradiente cero</td><td>gradiente cero</td><td>flujo supersónico saliente: ninguna información vuelve hacia adentro</td></tr>
+      <tr><td><code>walls</code> (<code>wall</code>)</td><td>gradiente cero</td><td>gradiente cero</td><td><code>slip</code></td><td>pared sin fricción: el flujo no la atraviesa, pero se desliza</td></tr>
+      <tr><td><code>top</code> (<code>symmetryPlane</code>)</td><td><code>symmetryPlane</code></td><td><code>symmetryPlane</code></td><td><code>symmetryPlane</code></td><td>frontera lejana sin flujo a través</td></tr>
+      <tr><td><code>frontAndBack</code> (<code>empty</code>)</td><td><code>empty</code></td><td><code>empty</code></td><td><code>empty</code></td><td>la malla es 2D: una sola celda de espesor</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 5.</b> <b class="fig-title">Condiciones de frontera.</b> Una entrada supersónica fija todo; una salida supersónica no fija nada. El techo es un plano de simetría, es decir, una pared sin fricción lejos del fenómeno.</caption>
+  </table>
+</div>
+<p class="code-name"><code>0/U</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (5 0 0);
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform (5 0 0);
+    }
+
+    outlet
+    {
+        type            zeroGradient;
+    }
+
+    top
+    {
+        type            symmetryPlane;
+    }
+
+    walls
+    {
+        type            slip;
+    }
+
+    frontAndBack
+    {
+        type            empty;
+    }
+}
+
+// ************************************************************************* //</code></pre><p class="code-name"><code>0/p</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       volScalarField;
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [1 -1 -2 0 0 0 0];
+
+internalField   uniform 1;
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform 1;
+    }
+
+    outlet
+    {
+        type            zeroGradient;
+    }
+
+    top
+    {
+        type            symmetryPlane;
+    }
+
+    walls
+    {
+        type            zeroGradient;
+    }
+
+    frontAndBack
+    {
+        type            empty;
+    }
+
+}
+
+// ************************************************************************* //</code></pre><p class="code-name"><code>0/T</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       volScalarField;
+    object      T;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 1 0 0 0];
+
+internalField   uniform 1;
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform 1;
+    }
+
+    outlet
+    {
+        type            zeroGradient;
+    }
+
+    top
+    {
+        type            symmetryPlane;
+    }
+
+    walls
+    {
+        type            zeroGradient;
+    }
+
+    frontAndBack
+    {
+        type            empty;
+    }
+}
+
+// ************************************************************************* //</code></pre>
+<p><code>slip</code> en la pared anula la componente normal de la velocidad y deja libre la tangencial: es la condición de una pared sin fricción. Los nombres de los parches tienen que ser exactamente los de <code>constant/polyMesh/boundary</code>, que vienen de los grupos físicos de <code>rampa.geo</code>.</p>
+<h3><code>system/fvSchemes</code>: el esquema numérico</h3>
+<p class="code-name"><code>system/fvSchemes</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    &quot;system&quot;;
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+fluxScheme      Kurganov;
+
+ddtSchemes
+{
+    default         Euler;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+divSchemes
+{
+    default         none;
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+
+    reconstruct(rho) vanLeer;
+    reconstruct(U)  vanLeerV;
+    reconstruct(T)  vanLeer;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+
+// ************************************************************************* //</code></pre>
+<p><code>fluxScheme Kurganov</code> calcula los flujos en las caras con el esquema central-contra-el-viento de Kurganov y Tadmor, que OpenFOAM implementa como describen Greenshields et al. (2010). Los valores a cada lado de una cara se reconstruyen con el limitador de van Leer (<code>reconstruct(rho)</code>, <code>reconstruct(U)</code>, <code>reconstruct(T)</code>): de segundo orden donde el campo es suave, pero cerca de un choque el limitador baja a primer orden para no crear oscilaciones. Por eso, en un flujo con choques, lo que cabe esperar al refinar la malla es convergencia de primer orden.</p>
+<h3><code>system/fvSolution</code></h3>
+<p class="code-name"><code>system/fvSolution</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    &quot;system&quot;;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    &quot;rho.*&quot;
+    {
+        solver          diagonal;
+    }
+
+    &quot;U.*&quot;
+    {
+        solver          smoothSolver;
+        smoother        GaussSeidel;
+
+        tolerance       1e-9;
+        relTol          0;
+    }
+
+    &quot;e.*&quot;
+    {
+        $U;
+
+        tolerance       1e-10;
+    }
+}
+
+PIMPLE
+{}
+
+
+// ************************************************************************* //</code></pre>
+<p><code>diagonal</code> para la densidad: se avanza de forma explícita, sin sistema que resolver. Los solvers de <code>U</code> y <code>e</code> sólo trabajarían en los términos viscosos, que aquí no existen; por eso la salida de <code>foamRun</code> los muestra también como <code>diagonal</code>.</p>
+<h3><code>system/controlDict</code>: el paso de tiempo y lo que se escribe</h3>
+<p class="code-name"><code>system/controlDict</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    &quot;system&quot;;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solver          shockFluid;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         1.5;
+
+deltaT          1e-4;
+
+writeControl    adjustableRunTime;
+
+writeInterval   0.1;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  8;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+adjustTimeStep  yes;
+
+maxCo           0.2;         // con 0.5 aparecen ondas espurias y la malla fina revienta
+
+maxDeltaT       1;
+
+functions
+{
+    #includeFunc MachNo     // escribe el campo Ma
+    #includeFunc region2    // promedios en la región 2 (system/region2)
+    #includeFunc region3    // promedios en la región 3 (system/region3)
+    #includeFunc lineas     // p, T y Ma sobre y = 0.2 m y y = 0.5 m (system/lineas)
+}
+
+// ************************************************************************* //</code></pre>
+<ul>
+  <li><strong><code>solver shockFluid</code></strong>: el solver de flujo compresible con choques de OpenFOAM 12; <code>foamRun</code> lo lee de aquí.</li>
+  <li><strong><code>endTime 1.5</code></strong>: el flujo recorre los 3 m del dominio a velocidad 5 en 0.6 unidades de tiempo; con 1.5 se da tiempo de sobra a que el estado transitorio de arranque salga del dominio.</li>
+  <li><strong><code>adjustTimeStep yes</code> y <code>maxCo 0.2</code></strong>: el paso de tiempo se ajusta solo para que el número de Courant máximo sea 0.2. <strong>No conviene subirlo a 0.5</strong>: aparecen ondas espurias y la malla fina revienta (sección <a href="#errors-es">«Errores frecuentes»</a>).</li>
+  <li><strong><code>maxDeltaT 1</code></strong>: un techo para el paso de tiempo que nunca se alcanza. El tutorial de fábrica trae <code>1e-06</code>, que con <code>adjustTimeStep</code> frenaría la corrida sin avisar.</li>
+  <li><strong><code>writeInterval 0.1</code></strong>: una carpeta de resultados cada 0.1 unidades de tiempo, quince en total.</li>
+  <li><strong><code>functions</code></strong>: cuatro funciones que corren junto con el solver cada vez que escribe. <code>MachNo</code>, de OpenFOAM, escribe el campo <code>Ma</code>; las otras tres son propias de este caso.</li>
+</ul>
+<h3><code>system/region2</code> y <code>system/region3</code>: los promedios de cada región</h3>
+<p>Para comparar con la teoría hacen falta los valores de p, T, ρ, U y M en el centro de cada región, lejos del choque, del abanico y de las esquinas. Un solo punto no basta: en la malla gruesa, dentro de la región 2, la presión varía ±4 % de una celda a otra. Estas dos funciones promedian 18 celdas de cada región (<code>volFieldValue</code> con <code>select points</code>: las celdas que contienen 18 puntos). Los puntos están a 30, 50 y 70 % de la altura de cada región:</p>
+<div class="equation-card"><p class="equation-label">Puntos de la región 2</p>\[ y = (x-1)\tan\theta + f\,(x-1)\left(\tan\beta-\tan\theta\right) \tag{8} \]</div>
+<div class="equation-card"><p class="equation-label">Puntos de la región 3</p>\[ y = y_2 + f\,(x-x_2)\tan\mu_3 \tag{9} \]</div>
+<p>con x = 1.4, 1.5, …, 1.9 m en la región 2 y x = 2.5, 2.59, …, 2.95 m en la región 3; f = 0.3, 0.5 y 0.7 en las dos; \((x_2, y_2)\) = (1.9962, 0.0872) la segunda esquina y \(\mu_3 = \arcsin(1/M_3)\) = 11.58° el ángulo de la última onda del abanico. Cada vez que escribe, la función agrega una fila a <code>postProcessing/region2/0/volFieldValue.dat</code> (y lo mismo con <code>region3</code>).</p>
+<p class="code-name"><code>system/region2</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    &quot;system&quot;;
+    object      region2;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Promedio de los campos en el centro de la región 2, entre la rampa y el choque.
+// Se promedian las celdas que contienen estos 18 puntos:
+// x de 1.4 a 1.9 m, al 30, 50 y 70 % de la distancia entre la rampa y el choque.
+// Uso: foamPostProcess -func region2 -latestTime  -&gt;  postProcessing/region2/&lt;tiempo&gt;/volFieldValue.dat
+
+#includeEtc &quot;caseDicts/functions/volFieldValue/volAverage.cfg&quot;
+
+executeControl  writeTime;
+writeControl    writeTime;
+
+select          points;
+
+points
+(
+    (1.40 0.057 0.005)
+    (1.40 0.071 0.005)
+    (1.40 0.086 0.005)
+    (1.50 0.071 0.005)
+    (1.50 0.089 0.005)
+    (1.50 0.107 0.005)
+    (1.60 0.085 0.005)
+    (1.60 0.107 0.005)
+    (1.60 0.129 0.005)
+    (1.70 0.099 0.005)
+    (1.70 0.125 0.005)
+    (1.70 0.150 0.005)
+    (1.80 0.114 0.005)
+    (1.80 0.143 0.005)
+    (1.80 0.172 0.005)
+    (1.90 0.128 0.005)
+    (1.90 0.161 0.005)
+    (1.90 0.193 0.005)
+);
+
+fields          (p T rho U Ma);
+
+// ************************************************************************* //</code></pre>
+<h3><code>system/lineas</code>: dos rectas a través del choque</h3>
+<p class="code-name"><code>system/lineas</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    &quot;system&quot;;
+    object      lineas;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Presión, temperatura y número de Mach a lo largo de dos rectas horizontales, de la entrada a la
+// salida (601 puntos, uno cada 5 mm): y = 0.2 m, que cruza el choque y el abanico, y y = 0.5 m, la
+// más alta que todavía cruza el choque dentro del dominio (el choque sale por x = 3 a y = 0.54 m).
+// Uso: foamPostProcess -func lineas -latestTime  -&gt;  postProcessing/lineas/&lt;tiempo&gt;/y02.xy y y05.xy
+// Columnas de cada archivo: x, p, T, Ma.
+
+#includeEtc &quot;caseDicts/functions/graphs/graph.cfg&quot;
+
+fields          (p T Ma);
+
+sets
+(
+    y02
+    {
+        type            lineUniform;
+        axis            x;
+        start           (0 0.2 0.005);
+        end             (3 0.2 0.005);
+        nPoints         601;
+    }
+
+    y05
+    {
+        type            lineUniform;
+        axis            x;
+        start           (0 0.5 0.005);
+        end             (3 0.5 0.005);
+        nPoints         601;
+    }
+);
+
+// ************************************************************************* //</code></pre>
+<p>Escribe p, T y Ma en 601 puntos a lo largo de y = 0.2 m, que cruza el choque y el abanico, y de y = 0.5 m, la recta más alta que todavía cruza el choque dentro del dominio. De ahí sale el ángulo del choque.</p>
+<h3><code>Allrun</code></h3>
+<p class="code-name"><code>Allrun</code></p>
+<pre class="code"><code>#!/bin/sh
+# Uso: ./Allrun [d]   (tamaño de celda en metros: 0.02, 0.01 o 0.005; por omisión 0.01)
+cd ${0%/*} || exit 1
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+d=${1:-0.01}
+command -v gmsh &gt; /dev/null || {
+    echo &quot;No se encuentra gmsh: agregue su carpeta al PATH, por ejemplo&quot;
+    echo &#x27;    export PATH=&quot;$PATH:/c/gmsh-4.15.2-Windows64&quot;&#x27;
+    exit 1
+}
+gmsh rampa.geo -setnumber d $d -3 -o rampa.msh &gt; log.gmsh 2&gt;&amp;1 || exit 1
+runApplication gmshToFoam rampa.msh
+foamDictionary constant/polyMesh/boundary -entry entry0/walls/type -set wall
+foamDictionary constant/polyMesh/boundary -entry entry0/top/type -set symmetryPlane
+foamDictionary constant/polyMesh/boundary -entry entry0/frontAndBack/type -set empty
+runApplication checkMesh
+runApplication foamRun</code></pre>
+<p><code>runApplication</code>, de OpenFOAM, corre cada programa y guarda su salida en <code>log.&lt;programa&gt;</code>. Si ese <code>log</code> ya existe, no vuelve a correr el programa y sólo avisa «foamRun already run on …: remove log file 'log.foamRun' to re-run». Para repetir el caso desde cero hay que borrar antes los <code>log.*</code>, o partir de una copia limpia.</p>
+
+    </section>
+    <section id="results-es">
+      <p class="section-label">Resultados</p>
+      <h2>Ver los resultados en ParaView</h2>
+
+<p>ParaView sirve para ver el flujo y comprobar que tiene la forma esperada. Las cifras de la validación no se leen aquí, sino de los archivos de la sección siguiente.</p>
+<h3>Abrir el caso</h3>
+<ol>
+  <li>En la terminal, dentro de la carpeta del caso, <code>paraFoam</code>. Responde «Created temporary 'rampa.foam'» y abre ParaView con el caso en el <em>Pipeline Browser</em> (figura 3).</li>
+  <li>Hacer clic en <code>Apply</code>. ParaView lee la malla y el primer tiempo, y colorea por <code>p</code>.</li>
+  <li>Hacer clic en <code>Last Frame</code> (el botón ⏭ de la barra de tiempo): el tiempo pasa a 1.5.</li>
+  <li>Hacer clic en <code>-Z</code> en la barra de la cámara: la vista mira el plano x-y de frente. <code>Reset Camera</code> encuadra el dominio, y la rueda del ratón acerca (figura 4).</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t11-02_parafoam.png" alt="ParaView recién abierto por paraFoam" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">ParaView, recién abierto con <code>paraFoam</code>.</b> El caso aparece como <code>rampa.foam</code> (el nombre de la carpeta; <code>paraFoam</code> crea ese archivo vacío y lo borra al cerrar) en el <em>Pipeline Browser</em>, y el botón <code>Apply</code> está en verde: todavía no se ha leído nada. <code>Skip Zero Time</code> está marcado, por eso el tiempo arranca en 0.1 (el primero que escribió <code>foamRun</code>).</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t11-03_presion.png" alt="Campo de presión en ParaView" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">El campo de presión a t = 1.5, en la malla fina.</b> Después de <code>Apply</code>, el último tiempo y la vista −Z. ParaView colorea solo por <code>p</code>. Se ven el choque, que nace en la primera esquina, y el abanico, que abre la presión alta de la región 2 en la segunda.</figcaption>
+</figure>
+<p>Se ven las tres regiones de la figura 1: la corriente libre en azul, la región 2 en rojo sobre la rampa, limitada por un choque recto que nace en la esquina, y la región 3 sobre la meseta, detrás del abanico, que abre la región 2 en la segunda esquina.</p>
+<h3>El número de Mach</h3>
+<ol>
+  <li>En el desplegable de variables de la barra de herramientas (el que dice <code>p</code>), elegir <code>Ma</code>.</li>
+  <li>Hacer clic en <code>Rescale to Data Range</code>, a la izquierda del desplegable, para que la escala de colores vaya del mínimo al máximo de <code>Ma</code> (figura 5).</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t11-04_mach.png" alt="Campo del número de Mach en ParaView" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">El número de Mach, con la escala ajustada a los datos.</b> El campo <code>Ma</code> lo escribe la función <code>MachNo</code> del <code>controlDict</code>. La región 2 queda en azul (M ≈ 4.49) y la 3 vuelve a rojo, pero sin llegar al valor de la corriente libre: M₃ = 4.98, no 5.</figcaption>
+</figure>
+<h3>La presión a lo largo de una recta</h3>
+<ol>
+  <li>Con <code>rampa.foam</code> seleccionado en el <em>Pipeline Browser</em>, <code>Filters ▸ Data Analysis ▸ Plot Over Line</code> (figura 6).</li>
+  <li>En <code>Properties</code>, escribir <code>Point1</code> = 0, 0.2, 0.005 y <code>Point2</code> = 3, 0.2, 0.005. La recta aparece en la vista (figura 7).</li>
+  <li>Hacer clic en <code>Apply</code>. La ventana se divide y a la derecha aparece una gráfica con todas las variables.</li>
+  <li>Para dejar sólo la presión: escribir <code>series</code> en el buscador de <code>Properties</code>, desmarcar la casilla del encabezado de la tabla <code>Series Parameters</code> (desmarca todas) y marcar <code>p</code>, que está al final de la lista (figura 8).</li>
+</ol>
+<figure class="diagram medium">
+  <img src="imagenes/t11-05_menu_plot_over_line.png" alt="Menú Filters, Data Analysis, Plot Over Line" loading="lazy">
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title"><code>Filters ▸ Data Analysis ▸ Plot Over Line</code>.</b> En ParaView 5.11.2 el filtro está en este submenú; también se encuentra con <code>Ctrl+Espacio</code> y su nombre.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t11-06_plot_over_line_propiedades.png" alt="Propiedades de Plot Over Line" loading="lazy">
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">La recta de muestreo, antes de <code>Apply</code>.</b> <code>Point1</code> = (0, 0.2, 0.005) y <code>Point2</code> = (3, 0.2, 0.005): la recta y = 0.2 m, a la mitad del espesor de la malla. En la vista aparece como una línea blanca con sus dos extremos.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t11-07_grafica_p.png" alt="Gráfica de p a lo largo de la recta" loading="lazy">
+  <figcaption><b class="fig-num">Figura 8.</b> <b class="fig-title">La presión a lo largo de y = 0.2 m, sólo con <code>p</code>.</b> En la tabla <code>Series Parameters</code> (buscador del panel: «series»), la casilla del encabezado desmarca todas las series y luego se marca <code>p</code>. El eje horizontal es la distancia desde <code>Point1</code>, que aquí coincide con x. El salto está cerca de x = 1.74 m y la caída del abanico termina cerca de x = 2.55 m.</figcaption>
+</figure>
+<p>La gráfica tiene la forma de la teoría: presión de corriente libre, un salto casi vertical en el choque hasta 1.8, una meseta y una caída continua a través del abanico. Los picos pequeños justo detrás del choque son oscilaciones que el esquema no alcanza a amortiguar en tres o cuatro celdas.</p>
+
+    </section>
+    <section id="validation-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>Validación y convergencia de malla</h2>
+
+<div class="example">
+  <p><strong>Enunciado.</strong> Comprobar que la simulación reproduce la solución analítica de la tabla 3 y medir cuánto depende el resultado de la malla. <strong>Condiciones:</strong> el caso sin cambios, con d = 0.02, 0.01 y 0.005 m; los valores se toman a t = 1.5.</p>
+</div>
+<h3>Dónde están los números</h3>
+<p>Al terminar <code>foamRun</code>, la carpeta <code>postProcessing</code> tiene tres subcarpetas, una por función. En <code>region2/0/volFieldValue.dat</code>, la última fila es la de t = 1.5. Para la malla de 0.01 m:</p>
+<pre class="code"><code># Time          	volAverage(p)	volAverage(T)	volAverage(rho)	volAverage(U)	volAverage(Ma)
+1.5             	1.81108670e+00	1.19415802e+00	2.12324850e+00	(4.88850499e+00 4.31914527e-01 0.00000000e+00)	4.49094487e+00</code></pre>
+<p>De esa fila salen todas las propiedades de la región 2, relativas a la corriente libre (p₁ = 1, T₁ = 1, ρ₁ = 1.4, |U₁| = 5):</p>
+<ul>
+  <li>\(p_2/p_1\) = 1.8111 y \(T_2/T_1\) = 1.1942, directamente.</li>
+  <li>\(\rho_2/\rho_1\) = 2.1232 / 1.4 = 1.5166.</li>
+  <li>\(|U_2| = \sqrt{U_x^2+U_y^2}\) = 4.9075, así que \(|U_2|/|U_1|\) = 0.9815; el ángulo del flujo es \(\arctan(U_y/U_x)\) = 5.049°.</li>
+  <li>\(M_2\) = 4.4909, directamente (campo <code>Ma</code>).</li>
+  <li>\(p_{0,2}/p_{0,1}\), con la ecuación (5): 1.8111 × [(1 + 0.2 × 4.4909²)/(1 + 0.2 × 5²)]<sup>3.5</sup> = 0.9795.</li>
+</ul>
+<p>Lo mismo con <code>region3</code> para la región 3.</p>
+<div class="callout warning">
+  <p><strong>La presión total no se pide a OpenFOAM.</strong> OpenFOAM 12 tiene una función <code>totalPressureCompressible</code>, pero calcula \(p + \tfrac{1}{2}\rho|U|^2\), la presión total de un flujo incompresible. A Mach 5 da \(p_0/p\) = 18.5 en lugar de 529. La presión total isentrópica se calcula aparte, con la ecuación (5).</p>
+</div>
+<h3>El ángulo del choque</h3>
+<p>En <code>lineas/1.5/y02.xy</code> y <code>y05.xy</code> están x, p, T y Ma a lo largo de las dos rectas. En cada una se busca dónde cruza la presión el valor intermedio entre la corriente libre y la región 2, \((1 + p_2/p_1)/2\) = 1.4055, interpolando entre los dos puntos que lo encierran. Con la malla de 0.01 m, el choque cruza y = 0.2 m en x = 1.7427 y y = 0.5 m en x = 2.8495 m, así que</p>
+<div class="equation-card">\[ \beta = \arctan\frac{0.5-0.2}{x_{0.5}-x_{0.2}} = \arctan\frac{0.3}{1.1068} = 15.166^\circ \]</div>
+<p>Se usan dos rectas, y no una sola con el vértice en la esquina, porque cerca de la esquina el choque todavía se está formando; y tan separadas como se puede, porque el cruce se ubica con una precisión de media celda, que pesa menos cuanto mayor sea la distancia entre las rectas.</p>
+<h3>Las tres mallas</h3>
+<p>Sólo cambia el número después de <code>-setnumber d</code> (o el argumento de <code>Allrun</code>). Conviene una copia del caso por malla (<code>cp -r rampa rampa_d0.02</code>, etc.). La tabla 6 muestra lo que cuesta cada una.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>d (m)</th><th>Celdas</th><th>Pasos de tiempo</th><th>Δt al final</th><th>Tiempo</th><th>No ortogonalidad máx.</th></tr></thead>
+    <tbody>
+      <tr><td>0.02</td><td>7 500</td><td>2 176</td><td>6.94·10<sup>−4</sup></td><td>12 s</td><td>4.95°</td></tr>
+      <tr><td>0.01</td><td>30 000</td><td>4 340</td><td>3.40·10<sup>−4</sup></td><td>89 s</td><td>4.97°</td></tr>
+      <tr><td>0.005</td><td>119 800</td><td>8 668</td><td>1.74·10<sup>−4</sup></td><td>16.2 min</td><td>4.99°</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 6.</b> <b class="fig-title">Las tres mallas.</b> Cifras de <code>checkMesh</code> y de <code>foamRun</code> en una laptop con Intel Core i7-11800H, un solo núcleo, OpenFOAM 12 de blueCFD-Core 2024. El tiempo incluye Gmsh y todos los pasos de <code>Allrun.bat</code>. Al dividir d entre dos, las celdas se multiplican por cuatro y los pasos de tiempo por dos: el costo, por ocho o más.</caption>
+  </table>
+</div>
+<figure class="diagram">
+  <img src="imagenes/t11-08_presion_d002.png" alt="Presión, malla de 2 cm" loading="lazy">
+  <img src="imagenes/t11-09_presion_d001.png" alt="Presión, malla de 1 cm" loading="lazy">
+  <img src="imagenes/t11-10_presion_d0005.png" alt="Presión, malla de 5 mm" loading="lazy">
+  <figcaption><b class="fig-num">Figura 9.</b> <b class="fig-title">La presión en las tres mallas, con la misma escala.</b> De arriba abajo, d = 0.02, 0.01 y 0.005 m; de x = 0.9 a 3 m y de y = 0 a 0.6 m. Al refinar, el choque se afila (se difunde siempre en tres o cuatro celdas, que son cada vez más angostas), la región 2 se vuelve uniforme y desaparece la sobrepresión junto a la primera esquina. La discontinuidad vertical de la malla gruesa en x ≈ 2 es el borde entre dos bloques de la malla, no un fenómeno físico.</figcaption>
+</figure>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Presión sobre la recta y = 0.2 m en las tres mallas y la solución analítica">
+  <text class="svg-title" x="70" y="28">La presión a través del choque y del abanico: la malla fina se pega a la teoría</text>
+  <line class="svg-grid" x1="70" y1="276.2" x2="660" y2="276.2"/>
+  <text class="svg-tick" x="64" y="280.2" text-anchor="end">1.0</text>
+  <line class="svg-grid" x1="70" y1="228.6" x2="660" y2="228.6"/>
+  <text class="svg-tick" x="64" y="232.6" text-anchor="end">1.2</text>
+  <line class="svg-grid" x1="70" y1="181.0" x2="660" y2="181.0"/>
+  <text class="svg-tick" x="64" y="185.0" text-anchor="end">1.4</text>
+  <line class="svg-grid" x1="70" y1="133.3" x2="660" y2="133.3"/>
+  <text class="svg-tick" x="64" y="137.3" text-anchor="end">1.6</text>
+  <line class="svg-grid" x1="70" y1="85.7" x2="660" y2="85.7"/>
+  <text class="svg-tick" x="64" y="89.7" text-anchor="end">1.8</text>
+  <text class="svg-tick" x="70.0" y="318" text-anchor="middle">1.4</text>
+  <text class="svg-tick" x="143.8" y="318" text-anchor="middle">1.6</text>
+  <text class="svg-tick" x="217.5" y="318" text-anchor="middle">1.8</text>
+  <text class="svg-tick" x="291.2" y="318" text-anchor="middle">2.0</text>
+  <text class="svg-tick" x="365.0" y="318" text-anchor="middle">2.2</text>
+  <text class="svg-tick" x="438.8" y="318" text-anchor="middle">2.4</text>
+  <text class="svg-tick" x="512.5" y="318" text-anchor="middle">2.6</text>
+  <text class="svg-tick" x="586.2" y="318" text-anchor="middle">2.8</text>
+  <text class="svg-tick" x="660.0" y="318" text-anchor="middle">3.0</text>
+  <line class="svg-axis" x1="70" y1="300" x2="660" y2="300"/>
+  <line class="svg-axis" x1="70" y1="50" x2="70" y2="300"/>
+  <text class="svg-note-sm" x="365.0" y="338" text-anchor="middle">x (m)</text>
+  <text class="svg-note-sm" x="18" y="175.0" transform="rotate(-90 18 175.0)" text-anchor="middle">p / p₁</text>
+  <polyline points="70.0,276.2 70.7,276.2 71.5,276.2 72.2,276.2 73.0,276.2 73.7,276.2 74.4,276.2 75.2,276.2 75.9,276.2 76.6,276.2 77.4,276.2 78.1,276.2 78.9,276.2 79.6,276.2 80.3,276.2 81.1,276.2 81.8,276.2 82.5,276.2 83.3,276.2 84.0,276.2 84.8,276.2 85.5,276.2 86.2,276.2 87.0,276.2 87.7,276.2 88.4,276.2 89.2,276.2 89.9,276.2 90.7,276.2 91.4,276.2 92.1,276.2 92.9,276.2 93.6,276.2 94.3,276.2 95.1,276.2 95.8,276.2 96.6,276.2 97.3,276.2 98.0,276.2 98.8,276.2 99.5,276.2 100.2,276.2 101.0,276.2 101.7,276.2 102.5,276.2 103.2,276.2 103.9,276.2 104.7,276.2 105.4,276.2 106.1,276.2 106.9,276.2 107.6,276.2 108.4,276.2 109.1,276.2 109.8,276.2 110.6,276.2 111.3,276.2 112.0,276.2 112.8,276.2 113.5,276.2 114.3,276.2 115.0,276.2 115.7,276.2 116.5,276.2 117.2,276.2 117.9,276.2 118.7,276.2 119.4,276.2 120.2,276.2 120.9,276.2 121.6,276.2 122.4,276.2 123.1,276.2 123.8,276.2 124.6,276.2 125.3,276.2 126.1,276.2 126.8,276.2 127.5,276.2 128.3,276.2 129.0,276.2 129.7,276.2 130.5,276.2 131.2,276.2 131.9,276.2 132.7,276.2 133.4,276.2 134.2,276.2 134.9,276.2 135.6,276.2 136.4,276.2 137.1,276.2 137.8,276.2 138.6,276.2 139.3,276.2 140.1,276.2 140.8,276.2 141.5,276.2 142.3,276.2 143.0,276.2 143.8,276.2 144.5,276.2 145.2,276.2 146.0,276.2 146.7,276.2 147.4,276.2 148.2,276.2 148.9,276.2 149.6,276.2 150.4,276.2 151.1,276.2 151.9,276.2 152.6,276.2 153.3,276.2 154.1,276.2 154.8,276.2 155.6,276.2 156.3,276.2 157.0,276.2 157.8,276.2 158.5,276.2 159.2,276.2 160.0,276.2 160.7,276.2 161.4,276.2 162.2,276.2 162.9,276.2 163.7,276.2 164.4,276.2 165.1,276.2 165.9,276.2 166.6,276.2 167.4,276.2 168.1,276.2 168.8,276.2 169.6,276.2 170.3,276.2 171.0,276.2 171.8,276.2 172.5,276.2 173.2,276.2 174.0,276.2 174.7,276.2 175.5,276.2 176.2,276.2 176.9,276.2 177.7,276.2 178.4,276.2 179.2,276.2 179.9,276.2 180.6,276.2 181.4,276.2 182.1,276.2 182.8,276.2 183.6,276.2 184.3,276.2 185.1,276.2 185.8,276.2 186.5,276.2 187.3,276.2 188.0,276.2 188.7,276.2 189.5,276.2 190.2,276.2 191.0,276.2 191.7,276.2 192.4,276.2 193.2,276.2 193.9,276.2 194.6,276.2 195.4,276.2 196.1,276.2 196.8,84.4 197.6,84.4 198.3,84.4 199.1,84.4 199.8,84.4 200.5,84.4 201.3,84.4 202.0,84.4 202.7,84.4 203.5,84.4 204.2,84.4 205.0,84.4 205.7,84.4 206.4,84.4 207.2,84.4 207.9,84.4 208.6,84.4 209.4,84.4 210.1,84.4 210.9,84.4 211.6,84.4 212.3,84.4 213.1,84.4 213.8,84.4 214.5,84.4 215.3,84.4 216.0,84.4 216.8,84.4 217.5,84.4 218.2,84.4 219.0,84.4 219.7,84.4 220.4,84.4 221.2,84.4 221.9,84.4 222.7,84.4 223.4,84.4 224.1,84.4 224.9,84.4 225.6,84.4 226.3,84.4 227.1,84.4 227.8,84.4 228.6,84.4 229.3,84.4 230.0,84.4 230.8,84.4 231.5,84.4 232.2,84.4 233.0,84.4 233.7,84.4 234.5,84.4 235.2,84.4 235.9,84.4 236.7,84.4 237.4,84.4 238.1,84.4 238.9,84.4 239.6,84.4 240.4,84.4 241.1,84.4 241.8,84.4 242.6,84.4 243.3,84.4 244.0,84.4 244.8,84.4 245.5,84.4 246.3,84.4 247.0,84.4 247.7,84.4 248.5,84.4 249.2,84.4 249.9,84.4 250.7,84.4 251.4,84.4 252.2,84.4 252.9,84.4 253.6,84.4 254.4,84.4 255.1,84.4 255.8,84.4 256.6,84.4 257.3,84.4 258.1,84.4 258.8,84.4 259.5,84.4 260.3,84.4 261.0,84.4 261.8,84.4 262.5,84.4 263.2,84.4 264.0,84.4 264.7,84.4 265.4,84.4 266.2,84.4 266.9,84.4 267.6,84.4 268.4,84.4 269.1,84.4 269.9,84.4 270.6,84.4 271.3,84.4 272.1,84.4 272.8,84.4 273.6,84.4 274.3,84.4 275.0,84.4 275.8,84.4 276.5,84.4 277.2,84.4 278.0,84.4 278.7,84.4 279.5,84.4 280.2,84.4 280.9,84.4 281.7,84.4 282.4,84.4 283.1,84.4 283.9,84.4 284.6,84.4 285.4,84.4 286.1,84.4 286.8,84.4 287.6,84.4 288.3,84.4 289.0,84.4 289.8,84.4 290.5,84.4 291.2,84.4 292.0,84.4 292.7,84.4 293.5,84.4 294.2,84.4 294.9,84.4 295.7,84.4 296.4,84.4 297.2,84.4 297.9,84.4 298.6,84.4 299.4,84.4 300.1,84.4 300.8,84.4 301.6,84.4 302.3,84.4 303.1,84.4 303.8,84.4 304.5,84.4 305.3,84.4 306.0,84.4 306.7,84.4 307.5,84.4 308.2,84.4 309.0,84.4 309.7,84.4 310.4,84.4 311.2,84.4 311.9,84.4 312.6,84.4 313.4,84.4 314.1,84.4 314.9,84.4 315.6,84.4 316.3,84.4 317.1,84.4 317.8,84.4 318.5,84.4 319.3,84.4 320.0,84.4 320.8,84.4 321.5,84.4 322.2,84.4 323.0,84.4 323.7,84.4 324.4,84.4 325.2,84.4 325.9,84.4 326.7,84.4 327.4,84.4 328.1,84.4 328.9,84.4 329.6,84.4 330.3,84.4 331.1,84.4 331.8,84.4 332.6,84.4 333.3,84.4 334.0,84.4 334.8,84.4 335.5,84.4 336.2,84.4 337.0,84.4 337.7,84.4 338.5,84.4 339.2,84.4 339.9,84.4 340.7,84.4 341.4,84.4 342.1,84.4 342.9,84.4 343.6,84.4 344.4,84.4 345.1,84.4 345.8,84.4 346.6,84.4 347.3,84.4 348.0,84.4 348.8,84.4 349.5,84.4 350.3,84.4 351.0,84.4 351.7,84.4 352.5,84.4 353.2,84.4 353.9,84.4 354.7,84.4 355.4,84.4 356.2,84.4 356.9,84.4 357.6,84.4 358.4,84.4 359.1,84.4 359.8,84.4 360.6,84.4 361.3,84.4 362.1,84.4 362.8,84.4 363.5,84.4 364.3,84.4 365.0,84.4 365.7,84.4 366.5,84.4 367.2,84.4 368.0,84.4 368.7,84.4 369.4,84.4 370.2,84.4 370.9,84.4 371.6,84.4 372.4,84.4 373.1,84.4 373.9,84.4 374.6,84.4 375.3,84.4 376.1,84.4 376.8,84.4 377.5,84.4 378.3,84.4 379.0,84.4 379.7,84.4 380.5,84.4 381.2,84.4 382.0,84.4 382.7,84.4 383.4,84.4 384.2,84.4 384.9,84.4 385.7,84.4 386.4,84.4 387.1,84.4 387.9,84.4 388.6,84.4 389.3,84.4 390.1,84.4 390.8,84.4 391.5,84.4 392.3,84.4 393.0,84.4 393.8,84.4 394.5,84.4 395.2,84.4 396.0,84.4 396.7,84.4 397.5,84.4 398.2,84.4 398.9,84.4 399.7,84.4 400.4,84.4 401.1,84.4 401.9,84.4 402.6,84.4 403.3,84.4 404.1,84.4 404.8,84.4 405.6,84.4 406.3,84.4 407.0,84.4 407.8,84.4 408.5,84.4 409.2,84.4 410.0,84.4 410.7,84.4 411.5,84.4 412.2,84.4 412.9,84.4 413.7,84.4 414.4,84.4 415.1,84.4 415.9,84.4 416.6,84.4 417.4,84.4 418.1,84.4 418.8,84.4 419.6,87.2 420.3,90.8 421.1,94.4 421.8,97.8 422.5,101.2 423.3,104.6 424.0,107.9 424.7,111.1 425.5,114.3 426.2,117.4 426.9,120.5 427.7,123.5 428.4,126.5 429.2,129.5 429.9,132.3 430.6,135.2 431.4,138.0 432.1,140.8 432.9,143.5 433.6,146.1 434.3,148.8 435.1,151.4 435.8,153.9 436.5,156.4 437.3,158.9 438.0,161.4 438.8,163.8 439.5,166.1 440.2,168.5 441.0,170.8 441.7,173.1 442.4,175.3 443.2,177.5 443.9,179.7 444.6,181.8 445.4,183.9 446.1,186.0 446.9,188.1 447.6,190.1 448.3,192.1 449.1,194.1 449.8,196.0 450.6,197.9 451.3,199.8 452.0,201.7 452.8,203.5 453.5,205.3 454.2,207.1 455.0,208.9 455.7,210.7 456.4,212.4 457.2,214.1 457.9,215.8 458.7,217.4 459.4,219.1 460.1,220.7 460.9,222.3 461.6,223.9 462.4,225.4 463.1,227.0 463.8,228.5 464.6,230.0 465.3,231.5 466.0,232.9 466.8,234.4 467.5,235.8 468.2,237.2 469.0,238.6 469.7,240.0 470.5,241.4 471.2,242.7 471.9,244.0 472.7,245.3 473.4,246.6 474.2,247.9 474.9,249.2 475.6,250.5 476.4,251.7 477.1,252.9 477.8,254.1 478.6,255.3 479.3,256.5 480.1,257.7 480.8,258.9 481.5,260.0 482.3,261.1 483.0,262.3 483.7,263.4 484.5,264.5 485.2,265.6 486.0,266.6 486.7,267.7 487.4,268.8 488.2,269.8 488.9,270.8 489.6,271.8 490.4,272.9 491.1,273.8 491.9,274.8 492.6,275.8 493.3,276.3 494.1,276.3 494.8,276.3 495.5,276.3 496.3,276.3 497.0,276.3 497.7,276.3 498.5,276.3 499.2,276.3 500.0,276.3 500.7,276.3 501.4,276.3 502.2,276.3 502.9,276.3 503.7,276.3 504.4,276.3 505.1,276.3 505.9,276.3 506.6,276.3 507.3,276.3 508.1,276.3 508.8,276.3 509.5,276.3 510.3,276.3 511.0,276.3 511.8,276.3 512.5,276.3 513.2,276.3 514.0,276.3 514.7,276.3 515.5,276.3 516.2,276.3 516.9,276.3 517.7,276.3 518.4,276.3 519.1,276.3 519.9,276.3 520.6,276.3 521.3,276.3 522.1,276.3 522.8,276.3 523.6,276.3 524.3,276.3 525.0,276.3 525.8,276.3 526.5,276.3 527.2,276.3 528.0,276.3 528.7,276.3 529.5,276.3 530.2,276.3 530.9,276.3 531.7,276.3 532.4,276.3 533.1,276.3 533.9,276.3 534.6,276.3 535.4,276.3 536.1,276.3 536.8,276.3 537.6,276.3 538.3,276.3 539.0,276.3 539.8,276.3 540.5,276.3 541.3,276.3 542.0,276.3 542.7,276.3 543.5,276.3 544.2,276.3 544.9,276.3 545.7,276.3 546.4,276.3 547.2,276.3 547.9,276.3 548.6,276.3 549.4,276.3 550.1,276.3 550.8,276.3 551.6,276.3 552.3,276.3 553.1,276.3 553.8,276.3 554.5,276.3 555.3,276.3 556.0,276.3 556.7,276.3 557.5,276.3 558.2,276.3 559.0,276.3 559.7,276.3 560.4,276.3 561.2,276.3 561.9,276.3 562.6,276.3 563.4,276.3 564.1,276.3 564.9,276.3 565.6,276.3 566.3,276.3 567.1,276.3 567.8,276.3 568.5,276.3 569.3,276.3 570.0,276.3 570.8,276.3 571.5,276.3 572.2,276.3 573.0,276.3 573.7,276.3 574.4,276.3 575.2,276.3 575.9,276.3 576.7,276.3 577.4,276.3 578.1,276.3 578.9,276.3 579.6,276.3 580.3,276.3 581.1,276.3 581.8,276.3 582.6,276.3 583.3,276.3 584.0,276.3 584.8,276.3 585.5,276.3 586.2,276.3 587.0,276.3 587.7,276.3 588.5,276.3 589.2,276.3 589.9,276.3 590.7,276.3 591.4,276.3 592.1,276.3 592.9,276.3 593.6,276.3 594.4,276.3 595.1,276.3 595.8,276.3 596.6,276.3 597.3,276.3 598.0,276.3 598.8,276.3 599.5,276.3 600.3,276.3 601.0,276.3 601.7,276.3 602.5,276.3 603.2,276.3 603.9,276.3 604.7,276.3 605.4,276.3 606.2,276.3 606.9,276.3 607.6,276.3 608.4,276.3 609.1,276.3 609.8,276.3 610.6,276.3 611.3,276.3 612.1,276.3 612.8,276.3 613.5,276.3 614.3,276.3 615.0,276.3 615.8,276.3 616.5,276.3 617.2,276.3 618.0,276.3 618.7,276.3 619.4,276.3 620.2,276.3 620.9,276.3 621.6,276.3 622.4,276.3 623.1,276.3 623.9,276.3 624.6,276.3 625.3,276.3 626.1,276.3 626.8,276.3 627.5,276.3 628.3,276.3 629.0,276.3 629.8,276.3 630.5,276.3 631.2,276.3 632.0,276.3 632.7,276.3 633.4,276.3 634.2,276.3 634.9,276.3 635.7,276.3 636.4,276.3 637.1,276.3 637.9,276.3 638.6,276.3 639.4,276.3 640.1,276.3 640.8,276.3 641.6,276.3 642.3,276.3 643.0,276.3 643.8,276.3 644.5,276.3 645.2,276.3 646.0,276.3 646.7,276.3 647.5,276.3 648.2,276.3 648.9,276.3 649.7,276.3 650.4,276.3 651.1,276.3 651.9,276.3 652.6,276.3 653.4,276.3 654.1,276.3 654.8,276.3 655.6,276.3 656.3,276.3 657.0,276.3 657.8,276.3 658.5,276.3 659.3,276.3 660.0,276.3" fill="none" stroke="var(--ink)" stroke-width="2.4"/>
+  <polyline points="70.0,276.2 71.8,276.2 73.7,276.2 75.5,276.2 77.4,276.2 79.2,276.2 81.1,276.2 82.9,276.2 84.8,276.2 86.6,276.2 88.4,276.2 90.3,276.2 92.1,276.2 94.0,276.2 95.8,276.2 97.7,276.2 99.5,276.2 101.3,276.2 103.2,276.2 105.0,276.2 106.9,276.2 108.7,276.2 110.6,276.2 112.4,276.2 114.3,276.2 116.1,276.2 117.9,276.2 119.8,276.2 121.6,276.2 123.5,276.2 125.3,276.2 127.2,276.1 129.0,276.1 130.8,276.1 132.7,276.1 134.5,276.1 136.4,275.8 138.2,275.9 140.1,275.9 141.9,275.2 143.8,274.6 145.6,275.4 147.4,275.3 149.3,273.0 151.1,272.1 153.0,274.3 154.8,274.0 156.7,268.8 158.5,267.5 160.3,271.3 162.2,270.1 164.0,261.5 165.9,259.6 167.7,264.2 169.6,261.5 171.4,251.2 173.2,249.0 175.1,254.2 176.9,249.9 178.8,238.0 180.6,234.7 182.5,238.4 184.3,232.1 186.2,219.4 188.0,214.0 189.8,212.3 191.7,206.1 193.5,197.2 195.4,192.4 197.2,188.3 199.1,182.2 200.9,175.2 202.8,170.2 204.6,164.2 206.4,158.0 208.3,151.8 210.1,145.0 212.0,139.4 213.8,133.7 215.7,128.0 217.5,122.4 219.3,116.9 221.2,111.4 223.0,105.8 224.9,102.0 226.7,97.9 228.6,93.8 230.4,92.0 232.3,89.7 234.1,87.7 235.9,86.0 237.8,87.9 239.6,86.4 241.5,83.6 243.3,82.2 245.2,85.0 247.0,83.1 248.8,79.4 250.7,78.5 252.5,81.1 254.4,79.1 256.2,75.0 258.1,75.2 259.9,77.6 261.8,76.1 263.6,72.9 265.4,73.4 267.3,75.4 269.1,74.4 271.0,72.6 272.8,73.3 274.7,75.2 276.5,75.0 278.3,74.8 280.2,75.5 282.0,77.3 283.9,78.4 285.7,79.2 287.6,79.9 289.4,80.4 291.2,81.2 293.1,81.6 294.9,82.1 296.8,81.9 298.6,82.2 300.5,82.3 302.3,82.4 304.2,82.0 306.0,82.3 307.8,82.4 309.7,82.5 311.5,82.1 313.4,82.6 315.2,82.8 317.1,83.0 318.9,82.8 320.8,83.4 322.6,83.7 324.4,84.0 326.3,83.7 328.1,84.2 330.0,84.4 331.8,84.6 333.7,84.4 335.5,84.9 337.3,85.2 339.2,85.6 341.0,85.5 342.9,86.3 344.7,86.6 346.6,86.9 348.4,86.7 350.3,87.3 352.1,87.5 353.9,87.6 355.8,87.4 357.6,87.8 359.5,88.0 361.3,88.1 363.2,88.1 365.0,88.3 366.8,88.6 368.7,88.9 370.5,89.1 372.4,89.2 374.2,89.6 376.1,90.1 377.9,90.6 379.8,90.5 381.6,91.3 383.4,92.1 385.3,93.1 387.1,92.8 389.0,94.2 390.8,95.6 392.7,97.6 394.5,97.5 396.3,99.4 398.2,101.4 400.0,104.4 401.9,105.0 403.7,107.3 405.6,109.6 407.4,112.9 409.2,114.1 411.1,116.8 412.9,119.6 414.8,123.2 416.6,124.4 418.5,127.5 420.3,130.7 422.2,134.7 424.0,136.3 425.8,139.1 427.7,141.9 429.5,145.6 431.4,148.1 433.2,150.4 435.1,152.7 436.9,155.1 438.8,157.3 440.6,160.3 442.4,163.2 444.3,166.4 446.1,168.3 448.0,172.4 449.8,176.5 451.7,181.3 453.5,184.7 455.3,188.3 457.2,191.9 459.0,196.0 460.9,200.9 462.7,203.0 464.6,205.1 466.4,206.4 468.2,209.1 470.1,210.9 471.9,212.7 473.8,214.1 475.6,215.4 477.5,218.2 479.3,220.9 481.2,224.0 483.0,226.2 484.8,229.0 486.7,231.8 488.5,235.2 490.4,240.4 492.2,242.0 494.1,243.5 495.9,243.7 497.8,246.5 499.6,247.0 501.4,247.5 503.3,247.1 505.1,248.1 507.0,249.1 508.8,250.2 510.7,250.9 512.5,252.1 514.3,254.2 516.2,256.2 518.0,258.2 519.9,262.1 521.7,264.2 523.6,266.2 525.4,267.3 527.2,272.1 529.1,273.1 530.9,274.0 532.8,273.0 534.6,274.9 536.5,275.2 538.3,275.4 540.2,274.7 542.0,275.9 543.8,276.3 545.7,276.8 547.5,276.4 549.4,277.8 551.2,278.2 553.1,278.7 554.9,278.1 556.8,279.8 558.6,280.1 560.4,280.3 562.3,279.2 564.1,280.7 566.0,280.7 567.8,280.8 569.7,279.8 571.5,281.0 573.3,281.3 575.2,281.6 577.0,281.1 578.9,282.4 580.7,283.0 582.6,283.6 584.4,283.7 586.2,285.1 588.1,285.6 589.9,286.1 591.8,285.9 593.6,286.7 595.5,286.8 597.3,286.9 599.2,286.6 601.0,286.9 602.8,286.8 604.7,286.7 606.5,286.3 608.4,286.5 610.2,286.1 612.1,285.7 613.9,284.9 615.8,284.3 617.6,283.7 619.4,283.2 621.3,282.5 623.1,281.8 625.0,281.6 626.8,281.3 628.7,281.2 630.5,281.1 632.3,281.2 634.2,281.3 636.0,281.6 637.9,281.8 639.7,282.1 641.6,282.4 643.4,282.9 645.2,283.4 647.1,283.5 648.9,283.7 650.8,283.8 652.6,283.8 654.5,283.8 656.3,283.8 658.2,283.8" fill="none" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="5 3"/>
+  <polyline points="70.0,276.2 71.8,276.2 73.7,276.2 75.5,276.2 77.4,276.2 79.2,276.2 81.1,276.2 82.9,276.2 84.8,276.2 86.6,276.2 88.4,276.2 90.3,276.2 92.1,276.2 94.0,276.2 95.8,276.2 97.7,276.2 99.5,276.2 101.3,276.2 103.2,276.2 105.0,276.2 106.9,276.2 108.7,276.2 110.6,276.2 112.4,276.2 114.3,276.2 116.1,276.2 117.9,276.2 119.8,276.2 121.6,276.2 123.5,276.2 125.3,276.2 127.2,276.2 129.0,276.2 130.8,276.2 132.7,276.2 134.5,276.2 136.4,276.2 138.2,276.2 140.1,276.2 141.9,276.2 143.8,276.2 145.6,276.2 147.4,276.2 149.3,276.2 151.1,276.2 153.0,276.2 154.8,276.2 156.7,276.1 158.5,276.1 160.3,276.0 162.2,275.9 164.0,275.5 165.9,275.2 167.7,274.6 169.6,273.8 171.4,272.7 173.2,271.1 175.1,269.2 176.9,266.1 178.8,263.4 180.6,258.6 182.5,253.5 184.3,245.2 186.2,236.1 188.0,224.4 189.8,215.2 191.7,204.7 193.5,195.8 195.4,184.9 197.2,175.1 199.1,162.0 200.9,152.5 202.8,138.5 204.6,130.7 206.4,116.9 208.3,111.8 210.1,107.2 212.0,105.0 213.8,102.1 215.7,99.5 217.5,95.9 219.3,91.8 221.2,87.9 223.0,84.7 224.9,83.2 226.7,82.5 228.6,82.0 230.4,81.8 232.3,80.9 234.1,80.8 235.9,79.4 237.8,79.9 239.6,79.3 241.5,80.2 243.3,79.7 245.2,80.7 247.0,80.2 248.8,81.0 250.7,80.8 252.5,81.1 254.4,81.1 256.2,81.3 258.1,81.7 259.9,82.1 261.8,82.7 263.6,83.3 265.4,84.0 267.3,84.8 269.1,85.3 271.0,85.8 272.8,85.8 274.7,86.0 276.5,85.8 278.3,85.7 280.2,85.5 282.0,85.3 283.9,85.2 285.7,85.0 287.6,85.1 289.4,85.0 291.2,85.1 293.1,85.2 294.9,85.4 296.8,85.5 298.6,86.0 300.5,85.9 302.3,86.1 304.2,85.9 306.0,85.9 307.8,85.6 309.7,85.5 311.5,85.0 313.4,84.7 315.2,84.5 317.1,84.4 318.9,84.3 320.8,84.4 322.6,84.4 324.4,84.5 326.3,84.6 328.1,84.8 330.0,84.9 331.8,84.9 333.7,84.9 335.5,84.9 337.3,84.7 339.2,84.5 341.0,84.4 342.9,84.1 344.7,84.1 346.6,84.0 348.4,84.1 350.3,84.1 352.1,84.2 353.9,84.3 355.8,84.5 357.6,84.6 359.5,84.8 361.3,84.8 363.2,84.8 365.0,84.8 366.8,84.7 368.7,84.5 370.5,84.5 372.4,84.2 374.2,84.3 376.1,84.2 377.9,84.3 379.8,84.3 381.6,84.5 383.4,84.7 385.3,85.1 387.1,85.2 389.0,85.7 390.8,85.7 392.7,86.6 394.5,86.4 396.3,87.7 398.2,87.5 400.0,89.4 401.9,89.3 403.7,91.9 405.6,92.2 407.4,95.8 409.2,96.5 411.1,101.2 412.9,102.8 414.8,107.8 416.6,110.8 418.5,115.0 420.3,117.8 422.2,122.7 424.0,125.2 425.8,131.7 427.7,135.0 429.5,141.3 431.4,147.5 433.2,150.4 435.1,154.6 436.9,156.9 438.8,158.7 440.6,164.3 442.4,166.5 444.3,174.4 446.1,181.9 448.0,185.7 449.8,192.7 451.7,192.9 453.5,194.8 455.3,196.9 457.2,197.8 459.0,203.4 460.9,207.7 462.7,213.6 464.6,222.2 466.4,223.3 468.2,226.7 470.1,227.0 471.9,227.0 473.8,229.0 475.6,229.2 477.5,232.4 479.3,235.8 481.2,238.0 483.0,242.4 484.8,243.7 486.7,246.5 488.5,248.7 490.4,251.6 492.2,254.9 494.1,260.0 495.9,261.4 497.8,265.9 499.6,264.7 501.4,266.7 503.3,265.2 505.1,265.8 507.0,265.0 508.8,265.6 510.7,265.8 512.5,267.6 514.3,268.9 516.2,272.6 518.0,274.1 519.9,278.0 521.7,278.1 523.6,280.2 525.4,279.3 527.2,280.6 529.1,279.5 530.9,280.8 532.8,279.6 534.6,280.8 536.5,279.6 538.3,280.5 540.2,279.5 542.0,280.1 543.8,279.7 545.7,280.2 547.5,280.7 549.4,281.6 551.2,281.8 553.1,282.3 554.9,282.2 556.8,282.4 558.6,282.0 560.4,281.9 562.3,281.3 564.1,280.8 566.0,280.4 567.8,280.3 569.7,280.2 571.5,280.4 573.3,280.5 575.2,280.8 577.0,280.8 578.9,280.8 580.7,280.6 582.6,280.5 584.4,280.1 586.2,279.8 588.1,279.6 589.9,279.4 591.8,279.3 593.6,279.3 595.5,279.1 597.3,279.1 599.2,278.8 601.0,278.5 602.8,278.3 604.7,277.8 606.5,277.7 608.4,277.4 610.2,277.3 612.1,277.1 613.9,277.1 615.8,277.0 617.6,277.0 619.4,276.9 621.3,276.9 623.1,276.7 625.0,276.8 626.8,276.7 628.7,276.7 630.5,276.6 632.3,276.5 634.2,276.3 636.0,276.2 637.9,276.1 639.7,276.1 641.6,276.0 643.4,276.0 645.2,276.0 647.1,276.0 648.9,276.0 650.8,276.0 652.6,275.9 654.5,275.9 656.3,275.8 658.2,275.8" fill="none" stroke="var(--blue)" stroke-width="1.6"/>
+  <polyline points="70.0,276.2 71.8,276.2 73.7,276.2 75.5,276.2 77.4,276.2 79.2,276.2 81.1,276.2 82.9,276.2 84.8,276.2 86.6,276.2 88.4,276.2 90.3,276.2 92.1,276.2 94.0,276.2 95.8,276.2 97.7,276.2 99.5,276.2 101.3,276.2 103.2,276.2 105.0,276.2 106.9,276.2 108.7,276.2 110.6,276.2 112.4,276.2 114.3,276.2 116.1,276.2 117.9,276.2 119.8,276.2 121.6,276.2 123.5,276.2 125.3,276.2 127.2,276.2 129.0,276.2 130.8,276.2 132.7,276.2 134.5,276.2 136.4,276.2 138.2,276.2 140.1,276.2 141.9,276.2 143.8,276.2 145.6,276.2 147.4,276.2 149.3,276.2 151.1,276.2 153.0,276.2 154.8,276.2 156.7,276.2 158.5,276.2 160.3,276.2 162.2,276.2 164.0,276.2 165.9,276.2 167.7,276.2 169.6,276.2 171.4,276.2 173.2,276.2 175.1,276.1 176.9,275.9 178.8,275.4 180.6,274.3 182.5,272.0 184.3,268.0 186.2,262.3 188.0,253.9 189.8,240.7 191.7,222.5 193.5,202.7 195.4,181.7 197.2,160.4 199.1,139.7 200.9,121.2 202.8,109.8 204.6,101.1 206.4,93.4 208.3,88.5 210.1,86.2 212.0,84.8 213.8,84.0 215.7,83.4 217.5,83.4 219.3,84.1 221.2,85.3 223.0,86.4 224.9,87.1 226.7,86.5 228.6,85.7 230.4,85.1 232.3,85.2 234.1,85.6 235.9,86.1 237.8,86.2 239.6,85.9 241.5,85.4 243.3,84.6 245.2,84.1 247.0,84.0 248.8,84.2 250.7,84.7 252.5,85.0 254.4,84.9 256.2,84.6 258.1,84.1 259.9,83.8 261.8,83.9 263.6,84.2 265.4,84.6 267.3,84.9 269.1,84.9 271.0,84.7 272.8,84.3 274.7,84.0 276.5,84.1 278.3,84.3 280.2,84.7 282.0,84.9 283.9,84.9 285.7,84.7 287.6,84.3 289.4,84.1 291.2,84.1 293.1,84.3 294.9,84.6 296.8,84.8 298.6,84.7 300.5,84.6 302.3,84.3 304.2,84.1 306.0,84.1 307.8,84.3 309.7,84.5 311.5,84.7 313.4,84.6 315.2,84.5 317.1,84.3 318.9,84.2 320.8,84.2 322.6,84.3 324.4,84.5 326.3,84.6 328.1,84.6 330.0,84.5 331.8,84.4 333.7,84.2 335.5,84.2 337.3,84.3 339.2,84.5 341.0,84.6 342.9,84.6 344.7,84.5 346.6,84.4 348.4,84.3 350.3,84.3 352.1,84.3 353.9,84.4 355.8,84.5 357.6,84.5 359.5,84.5 361.3,84.4 363.2,84.3 365.0,84.3 366.8,84.3 368.7,84.4 370.5,84.5 372.4,84.5 374.2,84.4 376.1,84.4 377.9,84.3 379.8,84.3 381.6,84.3 383.4,84.3 385.3,84.4 387.1,84.4 389.0,84.4 390.8,84.3 392.7,84.3 394.5,84.3 396.3,84.3 398.2,84.4 400.0,84.5 401.9,84.7 403.7,85.0 405.6,85.5 407.4,86.3 409.2,87.7 411.1,89.8 412.9,92.2 414.8,95.5 416.6,100.0 418.5,104.9 420.3,108.9 422.2,113.5 424.0,120.5 425.8,128.0 427.7,132.1 429.5,135.9 431.4,142.8 433.2,152.1 435.1,155.5 436.9,156.6 438.8,160.0 440.6,168.5 442.4,176.5 444.3,180.6 446.1,184.0 448.0,188.2 449.8,192.8 451.7,194.8 453.5,195.9 455.3,199.1 457.2,207.1 459.0,215.6 460.9,219.4 462.7,221.2 464.6,222.7 466.4,225.1 468.2,226.9 470.1,228.5 471.9,232.1 473.8,239.6 475.6,246.4 477.5,247.9 479.3,248.1 481.2,248.8 483.0,250.3 484.8,252.3 486.7,254.8 488.5,259.3 490.4,265.1 492.2,267.0 494.1,267.2 495.9,266.9 497.8,266.8 499.6,268.2 501.4,271.5 503.3,274.9 505.1,276.3 507.0,276.3 508.8,276.2 510.7,276.0 512.5,276.5 514.3,277.4 516.2,278.5 518.0,279.0 519.9,279.2 521.7,279.2 523.6,278.9 525.4,278.8 527.2,279.0 529.1,279.2 530.9,279.5 532.8,279.6 534.6,279.6 536.5,279.5 538.3,279.5 540.2,279.5 542.0,279.5 543.8,279.3 545.7,279.0 547.5,278.5 549.4,278.0 551.2,277.6 553.1,277.4 554.9,277.3 556.8,277.1 558.6,276.9 560.4,276.8 562.3,276.6 564.1,276.4 566.0,276.4 567.8,276.3 569.7,276.3 571.5,276.2 573.3,276.2 575.2,276.3 577.0,276.4 578.9,276.4 580.7,276.2 582.6,275.9 584.4,275.8 586.2,275.9 588.1,275.9 589.9,276.0 591.8,276.0 593.6,276.0 595.5,276.0 597.3,276.0 599.2,276.0 601.0,276.0 602.8,276.0 604.7,276.0 606.5,276.1 608.4,276.2 610.2,276.2 612.1,276.2 613.9,276.2 615.8,276.1 617.6,276.1 619.4,276.0 621.3,276.0 623.1,276.0 625.0,276.1 626.8,276.1 628.7,276.2 630.5,276.4 632.3,276.4 634.2,276.4 636.0,276.4 637.9,276.4 639.7,276.4 641.6,276.3 643.4,276.3 645.2,276.2 647.1,276.0 648.9,276.0 650.8,276.0 652.6,276.0 654.5,276.1 656.3,276.2 658.2,276.2" fill="none" stroke="var(--accent)" stroke-width="1.6"/>
+  <line x1="254" y1="169" x2="284" y2="169" stroke="var(--ink)" stroke-width="2.4"/>
+  <text class="svg-note-sm" x="290" y="173">teoría</text>
+  <line x1="254" y1="186" x2="284" y2="186" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="5 3"/>
+  <text class="svg-note-sm" x="290" y="190">d = 0.02 m</text>
+  <line x1="254" y1="203" x2="284" y2="203" stroke="var(--blue)" stroke-width="1.6"/>
+  <text class="svg-note-sm" x="290" y="207">d = 0.01 m</text>
+  <line x1="254" y1="220" x2="284" y2="220" stroke="var(--accent)" stroke-width="1.6"/>
+  <text class="svg-note-sm" x="290" y="224">d = 0.005 m</text>
+  <text class="svg-note-sm" x="143.8" y="128.6">choque</text>
+  <text class="svg-note-sm" x="475.6" y="128.6">abanico</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 10.</b> <b class="fig-title">La presión sobre y = 0.2 m, contra la teoría.</b> Curvas de <code>postProcessing/lineas/1.5/y02.xy</code> de cada malla. La teoría (negro) salta en el choque y cae de forma continua a través del abanico, que en esta recta ocupa de x = 2.35 a 2.55 m.</figcaption>
+</figure>
+<p>La tabla 7 reúne las quince magnitudes de las tres mallas y su error contra la teoría.</p>
+<div class="table-wrap wide">
+  <table>
+    <thead><tr><th>Propiedad</th><th>Teoría</th><th>d = 0.02 m</th><th>d = 0.01 m</th><th>d = 0.005 m</th><th>Error 0.02</th><th>Error 0.01</th><th>Error 0.005</th></tr></thead>
+    <tbody>
+      <tr><td>\(\beta\)</td><td>15.073°</td><td>15.380°</td><td>15.166°</td><td>15.090°</td><td>+2.04 %</td><td>+0.62 %</td><td>+0.12 %</td></tr>
+      <tr><td>\(p_2/p_1\)</td><td>1.8057</td><td>1.8399</td><td>1.8111</td><td>1.8045</td><td>+1.89 %</td><td>+0.30 %</td><td>−0.07 %</td></tr>
+      <tr><td>\(T_2/T_1\)</td><td>1.1910</td><td>1.1992</td><td>1.1942</td><td>1.1921</td><td>+0.69 %</td><td>+0.26 %</td><td>+0.09 %</td></tr>
+      <tr><td>\(\rho_2/\rho_1\)</td><td>1.5161</td><td>1.5342</td><td>1.5166</td><td>1.5138</td><td>+1.19 %</td><td>+0.03 %</td><td>−0.15 %</td></tr>
+      <tr><td>\(M_2\)</td><td>4.4932</td><td>4.4837</td><td>4.4909</td><td>4.4917</td><td>−0.21 %</td><td>−0.05 %</td><td>−0.03 %</td></tr>
+      <tr><td>\(|U_2|/|U_1|\)</td><td>0.9807</td><td>0.9820</td><td>0.9815</td><td>0.9808</td><td>+0.13 %</td><td>+0.08 %</td><td>+0.01 %</td></tr>
+      <tr><td>ángulo 2</td><td>5.000°</td><td>5.165°</td><td>5.049°</td><td>4.998°</td><td>+0.17°</td><td>+0.05°</td><td>−0.00°</td></tr>
+      <tr><td>\(p_{0,2}/p_{0,1}\)</td><td>0.9793</td><td>0.9862</td><td>0.9795</td><td>0.9769</td><td>+0.70 %</td><td>+0.02 %</td><td>−0.25 %</td></tr>
+      <tr><td>\(p_3/p_1\)</td><td>0.9995</td><td>0.9741</td><td>0.9920</td><td>0.9994</td><td>−2.54 %</td><td>−0.75 %</td><td>−0.02 %</td></tr>
+      <tr><td>\(T_3/T_1\)</td><td>1.0059</td><td>1.0018</td><td>1.0064</td><td>1.0075</td><td>−0.41 %</td><td>+0.05 %</td><td>+0.16 %</td></tr>
+      <tr><td>\(\rho_3/\rho_1\)</td><td>0.9937</td><td>0.9724</td><td>0.9857</td><td>0.9920</td><td>−2.15 %</td><td>−0.81 %</td><td>−0.18 %</td></tr>
+      <tr><td>\(M_3\)</td><td>4.9825</td><td>4.9832</td><td>4.9788</td><td>4.9775</td><td>+0.01 %</td><td>−0.08 %</td><td>−0.10 %</td></tr>
+      <tr><td>\(|U_3|/|U_1|\)</td><td>0.9994</td><td>0.9975</td><td>0.9989</td><td>0.9992</td><td>−0.19 %</td><td>−0.05 %</td><td>−0.02 %</td></tr>
+      <tr><td>ángulo 3</td><td>0.000°</td><td>−0.216°</td><td>−0.055°</td><td>−0.004°</td><td>−0.22°</td><td>−0.05°</td><td>−0.00°</td></tr>
+      <tr><td>\(p_{0,3}/p_{0,1}\)</td><td>0.9793</td><td>0.9552</td><td>0.9677</td><td>0.9735</td><td>−2.46 %</td><td>−1.19 %</td><td>−0.60 %</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 7.</b> <b class="fig-title">Validación: las tres mallas contra la teoría.</b> Valores a t = 1.5 leídos de <code>postProcessing/region2</code>, <code>region3</code> y <code>lineas</code>, y error contra la Tabla 3: en porcentaje, salvo los ángulos del flujo, en grados. \(\beta\) se mide con las dos rectas; \(\rho/\rho_1\) usa \(\rho_1 = 1.4\); \(p_0/p_{0,1}\) se calcula con la ecuación (5).</caption>
+  </table>
+</div>
+<h3>Qué dice la tabla</h3>
+<ul>
+  <li><strong>Con la malla fina, todo queda dentro del 0.25 %</strong>, salvo la presión total de la región 3 (−0.60 %). Con la malla gruesa los errores llegan al 2–3 %: el choque se difunde en tres o cuatro celdas, que en la malla gruesa son 6–8 cm, una fracción grande de la región 2.</li>
+  <li><strong>La presión total es la prueba más exigente.</strong> Derivando la ecuación (5), \(\mathrm{d}(\ln p_0) = \mathrm{d}(\ln p) + \frac{\gamma M}{1+\frac{\gamma-1}{2}M^2}\,\mathrm{d}M\), y a M = 4.49 el factor vale 1.25: un error de 0.03 % en M₂ (0.0015) pesa 0.19 % en \(p_{0,2}\).</li>
+  <li><strong>El esquema genera entropía que la física no genera.</strong> En la malla fina, T sale un poco alta y ρ un poco baja en las dos regiones, a la misma presión: hay más entropía que en la teoría. Y en la región 3 hay más que en la 2 —\(p_{0,3}\) = 0.9735 contra \(p_{0,2}\) = 0.9769, cuando la teoría dice que son iguales—: el esquema la crea en la esquina de expansión y en el abanico, donde el flujo real es isentrópico.</li>
+</ul>
+<h3>Convergencia: la presión total de la región 3</h3>
+<p>El error de \(p_{0,3}/p_{0,1}\) se reduce a la mitad con cada refinamiento: −2.46 %, −1.19 % y −0.60 % (figura 11). Es el comportamiento de un error de primer orden, proporcional a d, el que se espera de un esquema cuyo limitador baja a primer orden en los choques. Si el error es \(e = C\,d\), dos mallas de razón 2 bastan para eliminarlo (extrapolación de Richardson; Roache, 1994):</p>
+<div class="equation-card"><p class="equation-label">Extrapolación de Richardson de primer orden</p>\[ f_0 \approx 2\,f(d/2) - f(d) \tag{10} \]</div>
+<p>donde \(f(d)\) es el valor calculado con la malla de tamaño d y \(f_0\), el que se obtendría con una malla infinitamente fina.</p>
+<p>Con las mallas de 0.01 y 0.005 m: 2 × 0.97349 − 0.96770 = 0.97928, contra 0.97934 de la teoría: una diferencia de 0.005 %.</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 350" role="img" aria-label="Error de la presión total en la región 3 contra el tamaño de celda">
+  <text class="svg-title" x="80" y="28">El error de la presión total en la región 3 se reduce a la mitad con cada malla</text>
+  <line class="svg-grid" x1="80" y1="266.0" x2="620" y2="266.0"/>
+  <text class="svg-tick" x="68" y="270.0" text-anchor="end">−2.5</text>
+  <line class="svg-grid" x1="80" y1="226.0" x2="620" y2="226.0"/>
+  <text class="svg-tick" x="68" y="230.0" text-anchor="end">−2.0</text>
+  <line class="svg-grid" x1="80" y1="186.0" x2="620" y2="186.0"/>
+  <text class="svg-tick" x="68" y="190.0" text-anchor="end">−1.5</text>
+  <line class="svg-grid" x1="80" y1="146.0" x2="620" y2="146.0"/>
+  <text class="svg-tick" x="68" y="150.0" text-anchor="end">−1.0</text>
+  <line class="svg-grid" x1="80" y1="106.0" x2="620" y2="106.0"/>
+  <text class="svg-tick" x="68" y="110.0" text-anchor="end">−0.5</text>
+  <line class="svg-grid" x1="80" y1="66.0" x2="620" y2="66.0"/>
+  <text class="svg-tick" x="68" y="70.0" text-anchor="end">0.0</text>
+  <text class="svg-tick" x="80.0" y="308" text-anchor="middle">0</text>
+  <text class="svg-tick" x="208.6" y="308" text-anchor="middle">0.005</text>
+  <text class="svg-tick" x="337.1" y="308" text-anchor="middle">0.01</text>
+  <text class="svg-tick" x="465.7" y="308" text-anchor="middle">0.015</text>
+  <text class="svg-tick" x="594.3" y="308" text-anchor="middle">0.02</text>
+  <line class="svg-axis" x1="80" y1="290" x2="620" y2="290"/>
+  <line class="svg-axis" x1="80" y1="50" x2="80" y2="290"/>
+  <text class="svg-note-sm" x="350.0" y="328" text-anchor="middle">tamaño de celda d (m)</text>
+  <text class="svg-note-sm" x="24" y="170.0" transform="rotate(-90 24 170.0)" text-anchor="middle">error (%)</text>
+  <line x1="80.0" y1="66.0" x2="620.0" y2="266.5" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="6 4"/>
+  <text class="svg-note-sm" x="383.4" y="200.6" text-anchor="end">error ∝ d (primer orden)</text>
+  <circle cx="594.3" cy="262.8" r="5" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="603.3" y="254.8">−2.46 %</text>
+  <circle cx="337.1" cy="161.0" r="5" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="346.1" y="153.0">−1.19 %</text>
+  <circle cx="208.6" cy="113.7" r="5" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="217.6" y="105.7">−0.60 %</text>
+  <circle cx="80.0" cy="66.4" r="5" fill="none" stroke="var(--blue)" stroke-width="2"/>
+  <text class="svg-note-sm" x="90.0" y="56.4" fill="var(--blue)">Richardson: −0.005 %</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 11.</b> <b class="fig-title">La presión total en la región 3: convergencia de primer orden.</b> Error de \(p_{0,3}/p_{0,1}\) contra la teoría en cada malla. Los tres puntos caen casi sobre una recta que pasa por el origen: el error es proporcional a d. Extrapolando a d = 0 con la ecuación (10) (círculo azul) el error desaparece.</figcaption>
+</figure>
+<div class="result-box">
+  <p><strong>La pérdida del choque es física; la de más es numérica.</strong> La presión total cae 2.07 % en el choque, y esa caída sobrevive a cualquier refinamiento: es la entropía del choque. Lo que el esquema agrega encima es proporcional al tamaño de celda y desaparece al extrapolar a d = 0.</p>
+</div>
+<p>Las demás magnitudes no sirven para esto. Entre la malla media y la fina su error cae más rápido que d o cambia de signo, porque ya toca el piso de la medición, alrededor del 0.1 % (dónde se ubica el choque, cuánto oscila todavía el flujo): con la ecuación (10), \(p_2/p_1\) se pasaría a 1.7979 (teoría 1.8057). El orden de convergencia calculado con tres mallas sale entre 1.1 y 3.3 según la magnitud; como número, no dice mucho.</p>
+<h3>¿Llegó el flujo al estado estacionario?</h3>
+<p>Los residuos no lo dicen (valen 0 en cada paso), pero los archivos de <code>region2</code> y <code>region3</code> tienen una fila por cada tiempo escrito. En las tres mallas, el promedio de la región 2 queda dentro del 0.5 % de su valor final desde t = 0.3, y el de la región 3 desde t = 0.5. Después sólo oscila: 0.3 % en la malla gruesa, 0.2 % en la media y 0.07 % en la fina. <code>endTime 1.5</code> deja un margen amplio.</p>
+<h3>Registro de resultados</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Malla</th><th>\(\beta\)</th><th>\(p_2/p_1\)</th><th>\(M_2\)</th><th>\(p_3/p_1\)</th><th>\(p_{0,3}/p_{0,1}\)</th><th>Tiempo</th></tr></thead>
+    <tbody>
+      <tr><td>Teoría</td><td>15.07°</td><td>1.8057</td><td>4.493</td><td>0.9995</td><td>0.9793</td><td>—</td></tr>
+      <tr><td>d = 0.02 m</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>d = 0.01 m (referencia)</td><td>15.17°</td><td>1.8111</td><td>4.491</td><td>0.9920</td><td>0.9677</td><td>89 s</td></tr>
+      <tr><td>d = 0.005 m</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 8.</b> <b class="fig-title">Registro del estudio de convergencia.</b> Las filas de la malla de 0.01 m son la referencia de esta guía; las otras dos las llena el alumno con sus propias corridas. Basta con estas cinco magnitudes para contestar las preguntas.</caption>
+  </table>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>¿Qué magnitud converge primero y cuál al último? ¿Por qué la presión total de la región 3 es la más exigente de todas?</li>
+  <li>La malla gruesa difunde el choque en unos 6 cm. ¿Por qué eso cambia mucho el β medido y la presión de la región 2, pero poco M₂?</li>
+  <li>De 0.01 a 0.005 m, el tiempo de cómputo se multiplicó por diez. ¿Cuánto bajó el error de β y el de \(p_{0,3}\)? ¿Valdría la pena una cuarta malla de 0.0025 m?</li>
+  <li>Con la ecuación (10) y sus propias corridas, extrapole \(p_{0,3}/p_{0,1}\). ¿Qué parte de la pérdida de presión total es física y qué parte numérica?</li>
+  <li>En la simulación, \(p_{0,3} &lt; p_{0,2}\). ¿Por qué la teoría dice que son iguales, y qué hace el esquema en la segunda esquina para que no lo sean?</li>
+</ol>
+
+    </section>
+    <section id="errors-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Qué sale mal y qué dice OpenFOAM</h2>
+
+<h3>Una malla que no resuelve la capa de choque</h3>
+<p>El caso original, del que salió este tutorial, usaba un dominio de 3 × 3 m con 147 × 49 celdas: Δx = 0.020 m, pero Δy = 0.061 m. Entre la rampa y el choque, al final de la rampa, cabían tres celdas. El choque se difunde en tres o cuatro, así que la región 2 nunca llegaba a formarse: en su centro el flujo giraba 3.3° en lugar de 5°, y la presión subía a 1.69 en lugar de 1.81 (valores medidos en OpenFOAM 13 durante la preparación de esta guía). La malla de 0.02 m de este tutorial tiene casi las mismas celdas (7 500 contra 7 203) y sí forma la región 2: <strong>lo que importa no es cuántas celdas hay, sino dónde están</strong>. El 95 % de las celdas del caso original estaba en la corriente libre, donde no pasa nada.</p>
+<h3><code>maxCo 0.5</code>: ondas que no existen</h3>
+<p>Con <code>maxCo 0.5</code> la corrida tarda la mitad (43 s contra 86 s en la malla de 0.01 m) y termina sin ningún aviso. Pero un tren de ondas recorre la región 2 y sale por la salida sin amortiguarse (figura 12): entre t = 1.4 y 1.5, la presión cambia hasta 0.83 en una celda (con 0.2, hasta 0.09), y 3 487 celdas cambian más de 0.05 (con 0.2, 130). Lo engañoso es que los promedios por región casi no cambian: <strong>una tabla de promedios no basta; hay que mirar el campo</strong>.</p>
+<figure class="diagram">
+  <img src="imagenes/t11-11_maxco05.png" alt="Presión con maxCo 0.5" loading="lazy">
+  <img src="imagenes/t11-09_presion_d001.png" alt="Presión con maxCo 0.2" loading="lazy">
+  <figcaption><b class="fig-num">Figura 12.</b> <b class="fig-title">El mismo caso con <code>maxCo 0.5</code> (arriba) y <code>0.2</code> (abajo).</b> Malla de 0.01 m, t = 1.5, misma escala que la Figura 9. Con 0.5, un tren de ondas que no existe en la física recorre la región 2 y sale por la salida sin amortiguarse.</figcaption>
+</figure>
+<p>En la malla fina es peor: la corrida revienta en t = 0.269. blueCFD no da un mensaje de error de OpenFOAM, sino una excepción de punto flotante dentro del limitador de van Leer:</p>
+<pre class="code"><code>Generating stack trace...
+
+
+Backtrace:
+	ZN10StackTraceC1Ev [0x7ffacbfa1805+0x25]
+	ZN4Foam5error10printStackERNS_7OstreamE [0x7ffa62c4c0dc+0x23c]
+	ZN4Foam6sigFpe13sigFpeHandlerEi [0x7ffa62c4c774+0x34]
+	(No symbol) [0x7ff6e6242982]
+	_C_specific_handler [0x7ffaf324bdaf+0x9f]
+	0_chkstk [0x7ffaf45e631f+0x9f]
+	RtlWow64GetCurrentMachine [0x7ffaf4544035+0x655]
+	KiUserExceptionDispatcher [0x7ffaf45e5c5e+0x2e]
+	ZNK4Foam13LimitedSchemeIdNS_14vanLeerLimiterINS_6NVDTVDEEENS_10limitFuncs6magSqrEE11calcLimiterERKNS_14GeometricFieldIdNS_12fvPatchFieldENS_7volMeshEEERNS7_IdNS_13fvsPatchFieldENS_11surfaceMeshEEE [0x7ffa247bfdd5+0x185]</code></pre>
+<p>(fragmento: se omiten las líneas <code>module:</code> y el resto de la pila). La causa es la misma: con un paso de tiempo demasiado grande, el esquema produce un estado no físico —en OpenFOAM 13 el mensaje es «Negative initial temperature T0»— y el cálculo se detiene.</p>
+<h3><code>maxDeltaT 1e-06</code>: una corrida que nunca termina</h3>
+<p>El tutorial de fábrica trae <code>adjustTimeStep no</code> y <code>maxDeltaT 1e-06</code>. Si sólo se cambia lo primero, el paso de tiempo queda topado en 10<sup>−6</sup>, con un número de Courant de 0.0003: en 20 segundos, la malla gruesa avanza hasta t = 0.004. Llegar a 1.5 tomaría unas dos horas. No hay ningún aviso; la única pista es el Courant diminuto de cada paso.</p>
+<h3>Tipos de parche sin corregir</h3>
+<p>Si se omite el paso 7 de la receta, <code>checkMesh</code> da «Mesh OK», pero con una línea distinta: «Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)», es decir, trata la malla como 3D. <code>foamRun</code> se detiene al leer la primera condición de frontera que no cuadra:</p>
+<pre class="code"><code>--&gt; FOAM FATAL IO ERROR:
+
+    patch type &#x27;patch&#x27; not constraint type &#x27;empty&#x27;
+    for patch frontAndBack of field T in file &quot;D:/blueCFD-Core/2024/ofuser-of12/RUN/rampa-errores/tipos/0/T&quot;</code></pre>
+<h3>Un nombre de parche que no coincide</h3>
+<p>Si en <code>0/U</code> la pared se llama, por ejemplo, <code>pared</code> en vez de <code>walls</code>:</p>
+<pre class="code"><code>--&gt; FOAM FATAL IO ERROR:
+Cannot find patchField entry for walls</code></pre>
+<p>Ojo con un caso que no falla: si se llama <code>wall</code>, sin la s, la corrida termina normalmente, porque OpenFOAM mete todo parche de tipo <code>wall</code> en un grupo llamado <code>wall</code>, y una entrada con el nombre del grupo se aplica a todos sus parches. Aquí da lo mismo, pero con dos paredes que necesitaran condiciones distintas sería un error silencioso.</p>
+<h3>Gmsh no se encuentra</h3>
+<p>«bash: gmsh: command not found» significa que falta el paso 3 de la receta: la terminal de blueCFD arranca con una ruta de búsqueda propia, sin los programas instalados aparte. Hay que repetirlo cada vez que se abre la terminal.</p>
+<h3>Puntos de región fuera de la malla</h3>
+<p>Si cambia la geometría (otro ángulo, otra altura), los puntos de <code>region2</code> y <code>region3</code> pueden caer fuera del dominio. <code>foamRun</code> no se detiene: avisa y promedia las celdas que sí encontró.</p>
+<pre class="code"><code>--&gt; FOAM Warning :
+    From function void Foam::polyCellSet::setCells()
+    in file sets/polyCellSet/polyCellSet.C at line 75
+    Unable to find owner cell for point (1.4 0.057 0.005)</code></pre>
+<p>Con la rampa de 10° y los puntos de 5°, la región 2 se promediaba con 12 celdas en lugar de 18, y la región 3 con menos aún. Hay que recalcular los puntos con las ecuaciones (8) y (9).</p>
+
+    </section>
+    <section id="practice-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>La rampa de 10°</h2>
+
+<div class="example">
+  <p><strong>Enunciado.</strong> Repetir la validación con una rampa de 10°. Con el doble de desviación, el choque es más fuerte, la pérdida de presión total pasa de 2.1 % a 12.8 %, y se ve con claridad que el abanico no deshace el choque. <strong>Condiciones:</strong> el mismo caso, con <code>-setnumber th 10</code>; mallas de 0.01 y 0.005 m; valores a t = 1.5.</p>
+</div>
+<h3>El procedimiento, en corto</h3>
+<ol>
+  <li>Con las ecuaciones (1) a (7), calcular la teoría para θ = 10°: β = 19.38°, \(M_2\) = 3.999, \(M_3\) = 4.880, y el resto.</li>
+  <li>Copiar el caso a una carpeta nueva y hacer la malla con <code>gmsh rampa.geo -setnumber th 10 -setnumber d 0.01 -3 -o rampa.msh</code>. <code>Allrun</code> no pasa el ángulo: seguir los pasos 6 a 9 de la receta a mano.</li>
+  <li>Recalcular los 18 puntos de <code>system/region2</code> con la ecuación (8) y β = 19.376°, y los de <code>system/region3</code> con la ecuación (9), \((x_2, y_2)\) = (1.9848, 0.1736) y \(\mu_3\) = 11.825°. Si se olvida este paso, <code>foamRun</code> avisa «Unable to find owner cell for point».</li>
+  <li>Correr, leer los promedios y las rectas como en el ejemplo resuelto, y repetir con 0.005 m. En la laptop de referencia, la malla fina de 10° tardó unos 18 minutos.</li>
+</ol>
+<h3>Registro de resultados</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Propiedad</th><th>Teoría</th><th>Simulación, d = 0.01 m</th><th>Simulación, d = 0.005 m</th></tr></thead>
+    <tbody>
+      <tr><td>\(\beta\)</td><td>19.38°</td><td>19.43°</td><td>19.39°</td></tr>
+      <tr><td>\(p_2/p_1\)</td><td>3.0437</td><td>3.0261</td><td>3.0405</td></tr>
+      <tr><td>\(M_2\)</td><td>3.999</td><td>3.992</td><td>3.994</td></tr>
+      <tr><td>\(p_{0,2}/p_{0,1}\)</td><td>0.8725</td><td>0.8593</td><td>0.8656</td></tr>
+      <tr><td>\(p_3/p_1\)</td><td>1.0049</td><td>0.9963</td><td>1.0060</td></tr>
+      <tr><td>\(T_3/T_1\)</td><td>1.0412</td><td>1.0466</td><td>1.0471</td></tr>
+      <tr><td>\(M_3\)</td><td>4.880</td><td>4.865</td><td>4.865</td></tr>
+      <tr><td>\(p_{0,3}/p_{0,1}\)</td><td>0.8725</td><td>0.8499</td><td>0.8578</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 9.</b> <b class="fig-title">La rampa de 10°: teoría y referencia.</b> Teoría con las ecuaciones (1) a (7); la simulación, con el caso sin cambios salvo <code>-setnumber th 10</code> en Gmsh y los puntos de <code>region2</code> y <code>region3</code> recalculados para 10° (ecuaciones (8) y (9)).</caption>
+  </table>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>Compare la región 3 con la corriente libre: \(p_3/p_1\), \(T_3/T_1\), \(M_3\) y \(p_{0,3}/p_{0,1}\). ¿Qué recupera el abanico y qué no?</li>
+  <li>El error de \(p_{0,3}\) en la malla fina es mayor que a 5°. ¿Qué relación tiene eso con la entropía que genera el esquema en un choque y un abanico más fuertes?</li>
+  <li>Con la ecuación (1), busque la desviación máxima para la que existe un choque oblicuo pegado a la esquina a Mach 5 (debe dar 41.1°). ¿Qué esperaría ver en la simulación con una rampa de 45°, y qué parte de la teoría de este tutorial dejaría de valer?</li>
+</ol>
+
+    </section>
+    <section id="appendix-es">
+      <p class="section-label">Apéndice</p>
+      <h2>De dónde salen las fórmulas</h2>
+
+<h3>La relación θ–β–M</h3>
+<p>A través de un choque oblicuo, la componente de la velocidad paralela al choque no cambia (no hay fuerza en esa dirección), y la componente normal cumple las relaciones del choque normal con \(M_{n1} = M_1 \sin\beta\). Con \(w\) la componente paralela y \(u\) la normal, antes y después del choque:</p>
+<div class="equation-card">\[ \tan\beta = \frac{u_1}{w},\qquad \tan(\beta-\theta) = \frac{u_2}{w}\quad\Rightarrow\quad \frac{\tan(\beta-\theta)}{\tan\beta} = \frac{u_2}{u_1} = \frac{\rho_1}{\rho_2} = \frac{(\gamma-1)M_1^2\sin^2\beta+2}{(\gamma+1)M_1^2\sin^2\beta} \]</div>
+<p>(la segunda igualdad es la conservación de la masa, \(\rho_1 u_1 = \rho_2 u_2\)). Despejando \(\tan\theta\) con la identidad de la tangente de una diferencia se llega a la ecuación (1).</p>
+<h3>La función de Prandtl-Meyer</h3>
+<p>Un giro infinitesimal \(\mathrm{d}\theta\) a través de una onda de Mach cambia la velocidad en \(\mathrm{d}V/V = \mathrm{d}\theta/\sqrt{M^2-1}\). Con la relación isentrópica entre \(V\) y \(M\), \(\mathrm{d}V/V = \mathrm{d}M/\left[M\left(1+\frac{\gamma-1}{2}M^2\right)\right]\), el giro total desde Mach 1 es</p>
+<div class="equation-card">\[ \nu(M) = \int_1^M \frac{\sqrt{M^2-1}}{1+\frac{\gamma-1}{2}M^2}\,\frac{\mathrm{d}M}{M} \]</div>
+<p>cuya integral es la ecuación (6). Un giro θ que se aleja del flujo lleva de \(\nu(M_2)\) a \(\nu(M_2)+\theta\).</p>
+<h3>Las cifras de la teoría</h3>
+<p>Las tablas 2 y 3 se calcularon con un programa corto de Python que resuelve la ecuación (1) por bisección entre \(\mu_1\) y 90° —la primera raíz es la solución débil— y la ecuación (6) por bisección en M. Con una hoja de cálculo se obtiene lo mismo con «Buscar objetivo».</p>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ul>
+  <li>Ames Research Staff (1953). <em>Equations, tables, and charts for compressible flow</em>. NACA Report 1135.</li>
+  <li>Anderson, J. D. (2003). <em>Modern compressible flow: with historical perspective</em> (3.ª ed.). McGraw-Hill. Capítulos 3 y 4: choques normales y oblicuos, ondas de expansión de Prandtl-Meyer.</li>
+  <li>Greenshields, C. J., Weller, H. G., Gasparini, L. y Reese, J. M. (2010). Implementation of semi-discrete, non-staggered central schemes in a colocated, polyhedral, finite volume framework, for high-speed viscous flows. <em>International Journal for Numerical Methods in Fluids</em>, 63(1), 1–21.</li>
+  <li>Kurganov, A. y Tadmor, E. (2000). New high-resolution central schemes for nonlinear conservation laws and convection–diffusion equations. <em>Journal of Computational Physics</em>, 160(1), 241–282.</li>
+  <li>Roache, P. J. (1994). Perspective: a method for uniform reporting of grid refinement studies. <em>Journal of Fluids Engineering</em>, 116(3), 405–413.</li>
+  <li>van Leer, B. (1974). Towards the ultimate conservative difference scheme. II. Monotonicity and conservation combined in a second-order scheme. <em>Journal of Computational Physics</em>, 14(4), 361–370.</li>
+  <li>OpenFOAM 12: el tutorial <code>tutorials/shockFluid/wedge15Ma5</code> y el código de <code>shockFluid</code>, tal como los instala blueCFD-Core 2024.</li>
+</ul>
+<p class="source-note">Todas las cifras de la simulación salen de corridas de OpenFOAM 12 (blueCFD-Core 2024) en una laptop con Windows 11, leídas de los archivos que escribe el propio caso; las de la teoría, de las ecuaciones (1) a (7). Las capturas son de ParaView 5.11.2, el que instala blueCFD-Core.</p>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="index.html?v=13"><span>Índice de la serie</span>← Tutoriales de OpenFOAM: flujo compresible</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Flujo compresible</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Einen reibungsfreien Überschallfall in OpenFOAM 12 (blueCFD-Core 2024 unter Windows) aus einem Gmsh-Netz rechnen; alle Größen hinter einem schrägen Stoß und einem Prandtl-Meyer-Fächer von Hand bestimmen; dieselben Größen aus Dateien lesen, die OpenFOAM schreibt; und die numerische Lösung mit einer Konvergenzstudie auf drei Netzen beurteilen, einschließlich der Rolle des Zeitschritts.</p>
+    </section>
+    <section id="problem-de">
+      <p class="section-label">Das Problem</p>
+      <h2>Was simuliert wird</h2>
+<p>Eine ebene Platte, eine 1 m lange Rampe unter 5° und ein 1 m langes Plateau in einem 1 m hohen Gebiet; Zuströmung mit Mach 5 im „normierten Gas“ des Tutorials wedge15Ma5. Gebiet 2 liegt hinter dem Stoß, Gebiet 3 hinter dem Fächer; beide treffen sich im Rechengebiet nicht.</p>
+    </section>
+    <section id="theory-de">
+      <p class="section-label">Die Theorie</p>
+      <h2>Die Theorie, die die Simulation wiedergeben muss</h2>
+<p>Die θ-β-M-Beziehung liefert β = 15,07°; die Beziehungen des senkrechten Stoßes mit M<sub>n1</sub> = M<sub>1</sub> sin β liefern p, T, ρ und M im Gebiet 2; die Prandtl-Meyer-Funktion liefert M<sub>3</sub> = 4,98, die isentropen Beziehungen den Rest. Der Fächer bringt den Druck auf p<sub>1</sub> zurück, nicht aber den Totaldruck: p<sub>0</sub> fällt am Stoß um 2,07 % und bleibt dort.</p>
+    </section>
+    <section id="recipe-de">
+      <p class="section-label">Schritt für Schritt</p>
+      <h2>Vom Netz zu den Ergebnissen</h2>
+<p>Im blueCFD-Core-Terminal (eine bash-Shell): Gmsh zum PATH hinzufügen, der dort fehlt, mit gmsh -setnumber d vernetzen, mit gmshToFoam umwandeln, die Patch-Typen mit foamDictionary setzen, mit checkMesh prüfen, foamRun starten und paraFoam öffnen. ./Allrun erledigt alles in einem Befehl.</p>
+    </section>
+    <section id="case-de">
+      <p class="section-label">Der Fall</p>
+      <h2>Der Fall, Datei für Datei</h2>
+<p>Jede Datei des Falls vollständig: die parametrische rampa.geo; das normierte Gas (molWeight 11640,3 und Cp 2,5 ergeben γ = 1,4 und a = 1, also bedeutet U = 5 Mach 5); Überschall-Ein- und Auslass, Gleitwand und Symmetrieebene; der Kurganov-Fluss mit van-Leer-Rekonstruktion; der adaptive Zeitschritt mit maxCo 0,2; und drei eigene Funktionen, die jedes Gebiet mitteln und zwei Linien abtasten.</p>
+    </section>
+    <section id="results-de">
+      <p class="section-label">Ergebnisse</p>
+      <h2>Die Ergebnisse in ParaView</h2>
+<p>paraFoam, Apply, der letzte Zeitschritt, die Ansicht −Z; Druck- und Machzahlfeld; und Plot Over Line entlang y = 0,2 m nur mit p, als Sichtprüfung von Stoß und Fächer.</p>
+    </section>
+    <section id="validation-de">
+      <p class="section-label">Durchgerechnetes Beispiel</p>
+      <h2>Validierung und Netzkonvergenz</h2>
+<p>Die drei Netze gegen die Theorie für fünfzehn Größen. Auf dem feinsten Netz liegen alle Größen innerhalb von 0,25 %, außer dem Totaldruck im Gebiet 3 (−0,60 %). Dieser Fehler halbiert sich mit jeder Verfeinerung, und eine Richardson-Extrapolation erster Ordnung trifft die Theorie auf 0,005 %: Der Stoßverlust ist physikalisch, die zusätzliche Entropie des Verfahrens proportional zur Zellgröße.</p>
+    </section>
+    <section id="errors-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Was schiefgeht und was OpenFOAM meldet</h2>
+<p>Ein Netz, das die Stoßschicht zu grob auflöst; maxCo 0,5, das Störwellen hinterlässt und das feine Netz mit einer Gleitkomma-Ausnahme abbrechen lässt; das maxDeltaT von 1e-06 der Vorlage; Patch-Namen oder -Typen, die nicht passen (mit den genauen Meldungen); Gmsh fehlt im PATH von blueCFD; Gebietspunkte außerhalb des Netzes; und totalPressureCompressible, das den inkompressiblen Totaldruck berechnet.</p>
+    </section>
+    <section id="practice-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Die 10°-Rampe</h2>
+<p>Die Studie mit einer 10°-Rampe wiederholen: β = 19,38°, p<sub>2</sub>/p<sub>1</sub> = 3,04 und ein Totaldruckverlust von 12,8 %, groß genug, um zu sehen, dass der Fächer den Stoß nicht rückgängig macht. Dann den größten Umlenkwinkel bei Mach 5 suchen, bevor der Stoß abhebt (41,1°).</p>
+    </section>
+    <section id="appendix-de">
+      <p class="section-label">Anhang</p>
+      <h2>Woher die Formeln stammen</h2>
+<p>Die Herleitung der θ-β-M-Beziehung aus dem senkrechten Stoß, der Prandtl-Meyer-Funktion aus einer infinitesimalen Umlenkung und des normierten Gases.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>Andersons Modern Compressible Flow und NACA Report 1135 für die Theorie; die Quellen von OpenFOAM 12 und die Arbeiten zu Kurganov-Tadmor und van Leer für die Numerik; Roache für Netzverfeinerungsstudien.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="index.html?v=13"><span>Übersicht der Reihe</span>← OpenFOAM-Tutorials: kompressible Strömung</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Kompressible Strömung</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>

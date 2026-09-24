@@ -140,6 +140,13 @@ Do not treat the summaries as finished translations. The author confirmed on
 are low priority for now: new tutorials may ship in this same state, and effort
 belongs in the Spanish text.
 
+`tutorials/openfoam-compresible/` is the series «OpenFOAM · Compressible flow» (added
+2026-09-24), separate from the planned OpenFOAM aircraft series (card 02 of the portal). It runs
+on blueCFD-Core 2024 (OpenFOAM 12) on Windows, in the bash terminal that blueCFD installs. Its
+first tutorial, the compression–expansion ramp, ships the case as `archivos/rampa.zip`, the first
+downloadable file of the tutorials. Pages, index and zip are generated from
+`~/Documents/tutoriales/openfoam-compresible/generadores/` (`t11_build.py`, `indice_build.py`).
+
 ## Calculators
 
 Separate repositories, deployed on Streamlit Cloud, each with a landing page
