@@ -293,7 +293,7 @@ foamDictionary constant/polyMesh/boundary -entry entry0/top/type -set symmetryPl
 foamDictionary constant/polyMesh/boundary -entry entry0/frontAndBack/type -set empty</code></pre>Cada línea responde «New entry type wall;», «… symmetryPlane;» y «… empty;». Sin este paso, <code>foamRun</code> se detiene con un error (sección <a href="#errors-es">«Errores frecuentes»</a>).</li>
   <li><strong>Revisar la malla.</strong> <code>checkMesh</code>. Lo importante está al final:<pre class="code"><code>    Mesh has 2 geometric (non-empty/wedge) directions (1 1 0)
     Mesh has 2 solution (non-empty) directions (1 1 0)</code></pre><pre class="code"><code>Mesh OK.</code></pre>Dos direcciones: OpenFOAM reconoce que la malla es 2D. Si dijera tres, los tipos del paso anterior no se aplicaron.</li>
-  <li><strong>Correr el solver.</strong> <code>foamRun &gt; log.foamRun</code>. <code>foamRun</code> lee el solver en <code>system/controlDict</code> (<code>shockFluid</code>) y avanza hasta t = 1.5. En la malla de 0.01 m tarda cerca de un minuto y medio; mientras corre, la terminal no responde. Al terminar, <code>tail log.foamRun</code> muestra las últimas líneas, que acaban en «End».</li>
+  <li><strong>Correr el solver.</strong> <code>foamRun | tee log.foamRun</code>. <code>foamRun</code> lee el solver en <code>system/controlDict</code> (<code>shockFluid</code>) y avanza hasta t = 1.5; <code>tee</code> muestra el avance en pantalla y a la vez lo guarda en <code>log.foamRun</code>. En la malla de 0.01 m tarda cerca de un minuto y medio, y termina con «End».</li>
   <li><strong>Ver los resultados.</strong> <code>paraFoam</code> abre ParaView con el caso (sección <a href="#results-es">«Resultados»</a>).</li>
 </ol>
 <h3>Lo que escribe <code>foamRun</code></h3>
@@ -411,7 +411,7 @@ Physical Volume(&quot;fluid&quot;)         = {ext[1], ext[7], ext[13]};
 
 Mesh.MshFileVersion = 2.2;    // gmshToFoam lee el formato 2</code></pre>
 <div class="callout">
-  <p><strong>Por qué celdas cuadradas y un dominio de 1 m de alto.</strong> Lo que decide la calidad del resultado es cuántas celdas hay entre la rampa y el choque, en la dirección y. Al final de la rampa esa distancia es de unos 18 cm: con d = 0.02 m caben nueve celdas; con 0.005 m, treinta y seis. Un dominio más alto sólo agregaría celdas en la corriente libre, donde no pasa nada. El 2.1 de la serie de Gmsh enseña a construir este archivo paso a paso.</p>
+  <p><strong>Por qué celdas cuadradas y un dominio de 1 m de alto.</strong> Lo que decide la calidad del resultado es cuántas celdas hay entre la rampa y el choque, en la dirección y. Al final de la rampa esa distancia es de unos 18 cm: con d = 0.02 m caben nueve celdas; con 0.005 m, treinta y seis. Un dominio más alto sólo agregaría celdas en la corriente libre, donde no pasa nada. El <a href="../gmsh/rampa-compresion-expansion.html">2.1 de la serie de Gmsh</a> enseña a construir este archivo paso a paso.</p>
 </div>
 
 <h3><code>constant/physicalProperties</code>: el gas normalizado</h3>

@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Gmsh tutorial: a parametric three-block structured mesh of a supersonic compression and expansion ramp for OpenFOAM, with parameters shown in the Gmsh interface, a cell size chosen from the shock layer, and checkMesh figures predicted by formulas." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>The Compression and Expansion Ramp: A Mesh for Shock Waves | Gmsh Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">Gmsh · Tutorial 2.1</p><h1>The Compression and Expansion Ramp: A Mesh for Shock Waves</h1><p class="hero-copy">Three structured blocks, six parameters and one rule: count the cells between the wall and the shock. The parameters appear as fields in the Gmsh window, and the mesh is the one used by the OpenFOAM tutorial on oblique shocks and Prandtl-Meyer fans.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">Gmsh · Tutorial 2.1</p><h1>La rampa de compresión y expansión: una malla para ondas de choque</h1><p class="hero-copy">Tres bloques estructurados, seis parámetros y una regla: contar las celdas que caben entre la pared y el choque. Los parámetros aparecen como campos en la ventana de Gmsh, y la malla es la que usa el tutorial de OpenFOAM sobre el choque oblicuo y el abanico de Prandtl-Meyer.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">Gmsh · Tutorial 2.1</p><h1>Die Kompressions- und Expansionsrampe: ein Netz für Stoßwellen</h1><p class="hero-copy">Drei strukturierte Blöcke, sechs Parameter und eine Regel: die Zellen zwischen Wand und Stoß zählen. Die Parameter erscheinen als Felder im Gmsh-Fenster, und das Netz ist das des OpenFOAM-Tutorials über den schiefen Stoß und den Prandtl-Meyer-Fächer.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 35 min</span><span data-language="es" hidden>Lectura estimada: 35 min</span><span data-language="de" hidden>Lesedauer: ca. 35 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on Gmsh 4.15.2 and OpenFOAM 13</span><span data-language="es" hidden>Verificado en Gmsh 4.15.2 y OpenFOAM 13</span><span data-language="de" hidden>Geprüft mit Gmsh 4.15.2 und OpenFOAM 13</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="cavidad-cuadrada.html?v=13">← <span>1.1</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/kiTLEQFK-6Y" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Watch the video</span><span data-language="es" hidden>Ver el vídeo</span><span data-language="de" hidden>Video ansehen</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#physics">What the flow asks for</a><a href="#recipe">Recipe</a><a href="#params">Step 1 · Parameters</a><a href="#blocks">Step 2 · Blocks</a><a href="#mesh">Step 3 · Mesh</a><a href="#openfoam">Step 4 · OpenFOAM</a><a href="#gui">In the interface</a><a href="#quality">checkMesh</a><a href="#files">The file</a><a href="#example">Suggested practice</a><a href="#summary">Key points</a><a href="#mistakes">Common mistakes</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#physics-es">Lo que pide el flujo</a><a href="#recipe-es">Receta</a><a href="#params-es">Paso 1 · Parámetros</a><a href="#blocks-es">Paso 2 · Bloques</a><a href="#mesh-es">Paso 3 · Malla</a><a href="#openfoam-es">Paso 4 · OpenFOAM</a><a href="#gui-es">En la interfaz</a><a href="#quality-es">checkMesh</a><a href="#files-es">El archivo</a><a href="#example-es">Práctica sugerida</a><a href="#summary-es">Puntos clave</a><a href="#mistakes-es">Errores frecuentes</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#physics-de">Was die Strömung verlangt</a><a href="#recipe-de">Ablauf</a><a href="#params-de">Schritt 1 · Parameter</a><a href="#blocks-de">Schritt 2 · Blöcke</a><a href="#mesh-de">Schritt 3 · Netz</a><a href="#openfoam-de">Schritt 4 · OpenFOAM</a><a href="#gui-de">In der Oberfläche</a><a href="#quality-de">checkMesh</a><a href="#files-de">Die Datei</a><a href="#example-de">Übung</a><a href="#summary-de">Kernpunkte</a><a href="#mistakes-de">Häufige Fehler</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Build, by file and by interface, the structured mesh of a Mach 5 compression and expansion ramp: six parameters that appear as fields in the Gmsh window, three blocks with shared edges, square cells of side d, a one-cell extrusion and the physical groups that OpenFOAM expects.</p>
+    </section>
+    <section id="physics">
+      <p class="section-label">The idea</p>
+      <h2>Count the cells between the wall and the shock</h2>
+<p>The oblique shock leaves the compression corner at beta = 15.07 degrees. At the end of the ramp the layer between the wall and the shock is about 0.18 m thick, and the quality of the result depends on how many cells fit across it: three in a 3 m domain with 49 cells, nine with d = 0.02 m and thirty-six with d = 0.005 m.</p>
+    </section>
+    <section id="recipe">
+      <p class="section-label">Recipe</p>
+      <h2>From the parameters to the .msh in eight steps</h2>
+<p>Eight steps from the parameters to the .msh file, with what Gmsh answers at each one.</p>
+    </section>
+    <section id="params">
+      <p class="section-label">Step 1</p>
+      <h2>Six parameters and eight points</h2>
+<p>DefineConstant with a Name puts each parameter in a panel of the interface and still obeys -setnumber from the terminal. The eight points follow from the angle through Cos and Sin in radians.</p>
+    </section>
+    <section id="blocks">
+      <p class="section-label">Step 2</p>
+      <h2>Ten lines and three blocks that share two</h2>
+<p>Ten lines and three curve loops. The two vertical dividing lines belong to two blocks each and enter the second loop with a minus sign; without it Gmsh answers «Curve loop 2 is wrong».</p>
+    </section>
+    <section id="mesh">
+      <p class="section-label">Step 3</p>
+      <h2>Square cells of side d</h2>
+<p>Node counts come from d through Round; opposite sides of each block get the same count, and the four vertical lines share one. The cell count is (n1 + n2 + n3) ny.</p>
+    </section>
+    <section id="openfoam">
+      <p class="section-label">Step 4</p>
+      <h2>Extrusion, physical groups and file format</h2>
+<p>Extruding three surfaces returns six entries per surface; the physical groups pick the side faces by position in that list. The file is written in MSH 2.2, the format gmshToFoam reads.</p>
+    </section>
+    <section id="gui">
+      <p class="section-label">The interface</p>
+      <h2>The parameter panel</h2>
+<p>The parameters appear in a panel called Rampa. Changing a value redraws the geometry at once but does not modify the file. Parameters created with Add > Parameter are written as DefineNumber, which ignores -setnumber with the short name.</p>
+    </section>
+    <section id="quality">
+      <p class="section-label">Worked example</p>
+      <h2>Predicting what checkMesh will say</h2>
+<p>The cell count equals the formula exactly, and the maximum non-orthogonality equals the ramp angle: 4.95, 9.90 and 14.86 degrees for ramps of 5, 10 and 15 degrees.</p>
+    </section>
+    <section id="files">
+      <p class="section-label">File</p>
+      <h2>rampa.geo, complete</h2>
+<p>The single file that the OpenFOAM tutorial downloads, with the parameter panel.</p>
+    </section>
+    <section id="example">
+      <p class="section-label">Suggested practice</p>
+      <h2>Three meshes that change one number each</h2>
+<p>A 10 degree ramp, the coarse tall mesh that fails, and a parameter created with the buttons.</p>
+    </section>
+    <section id="summary">
+      <p class="section-label">Key points</p>
+      <h2>What to keep from this guide</h2>
+<p>Choose d from the layer the physics must resolve; write every node count from d; expect the non-orthogonality to equal the ramp angle.</p>
+    </section>
+    <section id="mistakes">
+      <p class="section-label">Common mistakes</p>
+      <h2>What goes wrong and what Gmsh says</h2>
+<p>A missing minus sign in a curve loop, a panel change that was never saved, a GUI parameter that ignores -setnumber, and a tall domain with few cells.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>Gmsh reference manual (ONELAB parameters); Anderson, Modern Compressible Flow; OpenFOAM 13 user guide; the OpenFOAM · Compressible flow tutorial 1.1.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="cavidad-cuadrada.html?v=13"><span>Previous tutorial</span>← Tutorial 1.1 · The lid-driven cavity</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Tutorial series</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">El tutorial 1.1 de la serie «OpenFOAM · Flujo compresible» simula una rampa supersónica a Mach 5 y compara el choque oblicuo y el abanico de expansión con la teoría. Allí la malla viene hecha. Aquí se construye: tres bloques de cuadriláteros, seis parámetros y una regla para elegir el tamaño de celda que sale de la física del problema, no de la costumbre.</p>
+<ul>
+  <li>Estimar cuántas celdas hacen falta entre la pared y un choque oblicuo, y elegir con eso el tamaño de celda.</li>
+  <li>Declarar parámetros con <code>DefineConstant</code> de modo que aparezcan como campos en la interfaz de Gmsh y sigan obedeciendo a <code>-setnumber</code> en la terminal.</li>
+  <li>Escribir puntos cuyas coordenadas dependen de un ángulo.</li>
+  <li>Partir un dominio en tres bloques que comparten líneas y mallarlos con <code>Transfinite</code>, con todos los números de nodos calculados a partir del tamaño de celda.</li>
+  <li>Localizar cada cara en la lista que devuelve <code>Extrude</code> para asignar los grupos físicos.</li>
+  <li>Predecir, antes de correrlo, el número de celdas y la no ortogonalidad que va a reportar <code>checkMesh</code>.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> Gmsh 4.15.2 (<a href="https://gmsh.info" target="_blank" rel="noopener">gmsh.info</a>). Para la comprobación, OpenFOAM (<a href="https://openfoam.org" target="_blank" rel="noopener">openfoam.org</a>): <code>gmshToFoam</code> y <code>checkMesh</code>. Este tutorial supone el <a href="cavidad-cuadrada.html">1.1</a>: <code>Transfinite</code>, <code>Recombine</code>, la extrusión de una celda, los grupos físicos y el formato MSH 2 se dan por sabidos. La simulación y su validación están en la <a href="../openfoam-compresible/rampa-compresion-expansion.html">guía de OpenFOAM</a>, que usa exactamente el archivo que aquí se construye.</p>
+</div>
+
+    </section>
+    <section id="physics-es">
+      <p class="section-label">La idea</p>
+      <h2>Contar las celdas entre la pared y el choque</h2>
+
+<p>Un flujo supersónico que encuentra una rampa de ángulo θ no la «ve» venir: en la esquina se forma un choque oblicuo y, detrás de él, el flujo ya va paralelo a la rampa. Donde la rampa termina, el flujo gira de regreso a través de un abanico de expansión de Prandtl-Meyer (figura 1). A Mach 5 y con θ = 5°, la relación θ–β–M da un choque inclinado β = 15.07° respecto a la placa; el cálculo completo está en la <a href="../openfoam-compresible/rampa-compresion-expansion.html">guía de OpenFOAM</a>.</p>
+<figure class="diagram">
+<svg viewBox="0 0 739 345" role="img" aria-label="La rampa, el choque y el abanico">
+<defs><marker id="f" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#10243a"/></marker></defs>
+<polygon points="40.0,300.0 260.0,300.0 479.2,280.8 699.2,280.8 699.2,80.0 40.0,80.0" fill="#eef3f8" stroke="#5b6b7b" stroke-width="1"/>
+<polyline points="40.0,300.0 260.0,300.0 479.2,280.8 699.2,280.8" fill="none" stroke="#10243a" stroke-width="3"/>
+<line x1="260.0" y1="300.0" x2="699.2" y2="181.7" stroke="#b3401f" stroke-width="2"/>
+<line x1="479.2" y1="280.8" x2="699.2" y2="209.9" stroke="#0d568d" stroke-width="1.5" stroke-dasharray="5 4"/>
+<line x1="479.2" y1="280.8" x2="699.2" y2="235.8" stroke="#0d568d" stroke-width="1.5" stroke-dasharray="5 4"/>
+<line x1="471.2" y1="280.8" x2="471.2" y2="241.0" stroke="#10243a" stroke-width="1.2" marker-start="url(#f)" marker-end="url(#f)"/>
+<text x="139.0" y="223.0" font-size="18" fill="#10243a" font-weight="600">1</text>
+<text x="370.0" y="285.7" font-size="15" fill="#10243a" font-weight="600">2</text>
+<text x="634.0" y="269.2" font-size="18" fill="#10243a" font-weight="600">3</text>
+<text x="337.0" y="190.0" font-size="13" fill="#b3401f">choque, β = 15.07°</text>
+<text x="546.0" y="163.6" font-size="13" fill="#0d568d">abanico</text>
+<text x="381.2" y="235.0" font-size="12" fill="#10243a">capa: 0.181 m</text>
+<text x="244.6" y="318.0" font-size="12" fill="#5b6b7b">compresión</text>
+<text x="469.2" y="302.8" font-size="12" fill="#5b6b7b">expansión</text>
+<text x="40.0" y="334.0" font-size="11" fill="#5b6b7b">x = 0</text>
+<text x="669.2" y="334.0" font-size="11" fill="#5b6b7b">x = 2.996 m</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">La rampa y las tres regiones del flujo.</b> A escala, con la misma escala en x y en y. La corriente llega a Mach 5 (región 1); en la esquina de compresión nace un choque oblicuo (rojo) y detrás de él el flujo sigue la rampa (región 2); en la esquina de expansión se abre un abanico de Prandtl-Meyer entre las dos rectas punteadas y el flujo vuelve a ser horizontal (región 3). La flecha marca el espesor de la capa entre la pared y el choque al final de la rampa: es lo que la malla tiene que resolver.</figcaption>
+</figure>
+<p>Para una malla, lo que importa es la región 2, entre la rampa y el choque. Si en ella caben pocas celdas, el esquema numérico reparte el salto de presión del choque en esas mismas celdas y la región uniforme que predice la teoría nunca se llega a formar. Al final de la rampa, a una distancia <span>\(L_r\cos\theta\)</span> de la esquina, la separación vertical entre la pared y el choque es</p>
+<div class="equation-card">\[ \delta = L_r\cos\theta\,\left(\tan\beta - \tan\theta\right) \approx 0.9962\,(0.2693 - 0.0875) = 0.181\ \text{m}, \qquad n = \frac{\delta}{\Delta y}. \]</div>
+<p>La tabla 1 aplica la fórmula a cuatro mallas. La primera es la que dio origen a este tutorial: un dominio de 3 × 3 m con 49 celdas en vertical. Tiene casi tantas celdas como la de d = 0.02 m, pero en la capa sólo le caben 3, porque casi todas están en la corriente libre, donde no pasa nada. Con ella, el flujo sobre la rampa gira 3.3° en vez de 5° y la presión de la región 2 queda 6 % por debajo de la teórica.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Malla</th><th>Δx (m)</th><th>Δy (m)</th><th>Celdas en la capa</th><th>Error en p₂/p₁</th></tr></thead>
+    <tbody>
+      <tr><td>3 × 3 m, 147 × 49</td><td>0.020</td><td>0.061</td><td>3.0</td><td>−6.3 %</td></tr>
+      <tr><td>rampa.geo, d = 0.02 m</td><td>0.020</td><td>0.020</td><td>9.1</td><td>1.89 %</td></tr>
+      <tr><td>rampa.geo, d = 0.01 m</td><td>0.010</td><td>0.010</td><td>18.1</td><td>0.30 %</td></tr>
+      <tr><td>rampa.geo, d = 0.005 m</td><td>0.005</td><td>0.005</td><td>36.2</td><td>−0.07 %</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Celdas entre la rampa y el choque, al final de la rampa.</b> El espesor de la capa es 0.181 m (ecuación del texto). La primera fila es una malla de 3 × 3 m con 147 × 49 celdas, la que motivó este tutorial (resultado de OpenFOAM 13); las otras tres son las de la guía de OpenFOAM, medidas en OpenFOAM 12. La última columna compara la presión en el centro de la región 2 con la teórica, p₂/p₁ = 1.806.</caption>
+  </table>
+</div>
+<div class="callout">
+  <p><strong>La regla.</strong> Primero se estima el espesor de la zona que hay que resolver; después se elige un tamaño de celda que ponga en ella al menos diez celdas; al final, el dominio sólo tiene que ser lo bastante grande para que el choque salga por la frontera de salida y no por el techo. Aquí el choque cruza x = 2.996 m a una altura de 0.54 m, así que un dominio de 1 m de alto basta.</p>
+</div>
+
+    </section>
+    <section id="recipe-es">
+      <p class="section-label">Receta</p>
+      <h2>De los parámetros al .msh en ocho pasos</h2>
+
+<p>El archivo se construye en cuatro pasos, cada uno en su propio <code>.geo</code> que incluye al anterior con <code>Include</code>. Cada paso se puede abrir en Gmsh para ver cómo va.</p>
+<ol>
+  <li><strong>Parámetros y puntos.</strong> Escribir <code>rampa_1_parametros.geo</code> y abrirlo en Gmsh (<code>File ▸ Open</code>). Se ven ocho puntos y, debajo de <code>Modules</code>, la rama <code>Rampa</code> con seis campos (figura 3).</li>
+  <li><strong>Líneas y bloques.</strong> Escribir <code>rampa_2_bloques.geo</code>. Gmsh dibuja el contorno y dos líneas verticales que lo parten en tres bloques; la barra de estado dice <code>Done reading 'rampa_2_bloques.geo'</code>.</li>
+  <li><strong>Malla estructurada.</strong> Escribir <code>rampa_3_malla.geo</code>, abrirlo y hacer <code>Mesh ▸ 2D</code>. Responde <code>Done meshing 2D</code> y dibuja tres bloques de cuadriláteros (figura 2).</li>
+  <li><strong>Extrusión, grupos y formato.</strong> Escribir <code>rampa_4_openfoam.geo</code>.</li>
+  <li><strong>Mallar desde la terminal.</strong> En la carpeta de los archivos:<pre class="code"><code>gmsh rampa_4_openfoam.geo -3 -o rampa.msh</code></pre>Entre otras cosas responde <code>Info    : 60802 nodes 93024 elements</code>: son los nodos y elementos de todas las dimensiones, no las celdas.</li>
+  <li><strong>Contar las celdas antes de convertir.</strong> Con d = 0.01 m, (100 + 100 + 100) × 100 = 30 000 hexaedros (tabla 3).</li>
+  <li><strong>Convertir y revisar en OpenFOAM.</strong> En la carpeta de un caso: <code>gmshToFoam rampa.msh</code> y <code>checkMesh</code>. Responde <code>cells: 30000</code>, <code>Mesh non-orthogonality Max: 4.9751498</code> y, al final, <code>Mesh OK.</code></li>
+  <li><strong>Cambiar el tamaño sin editar nada.</strong> <code>gmsh rampa_4_openfoam.geo -3 -setnumber d 0.005 -o rampa.msh</code> responde <code>241200 nodes 365418 elements</code>, que son 119 800 celdas. La <a href="../openfoam-compresible/rampa-compresion-expansion.html">guía de OpenFOAM</a> sigue desde aquí.</li>
+</ol>
+
+    </section>
+    <section id="params-es">
+      <p class="section-label">Paso 1</p>
+      <h2>Seis parámetros y ocho puntos</h2>
+
+<p>El primer archivo declara los seis parámetros y coloca los ocho puntos del contorno.</p>
+<p class="code-name"><code>rampa_1_parametros.geo</code></p>
+<pre class="code"><code>// Rampa de compresión y expansión · paso 1: parámetros y puntos
+// Placa plana, rampa de ángulo th y meseta. Unidades: metros.
+// Name hace que cada parámetro aparezca en el panel «Rampa» de la interfaz;
+// el número al principio del nombre sólo fija el orden y no se muestra.
+
+DefineConstant[ th = {5,    Name &quot;Rampa/1Ángulo θ (grados)&quot;} ];
+DefineConstant[ L1 = {1,    Name &quot;Rampa/2Placa L1 (m)&quot;} ];
+DefineConstant[ Lr = {1,    Name &quot;Rampa/3Rampa Lr (m)&quot;} ];
+DefineConstant[ L3 = {1,    Name &quot;Rampa/4Meseta L3 (m)&quot;} ];
+DefineConstant[ H  = {1,    Name &quot;Rampa/5Altura H (m)&quot;} ];
+DefineConstant[ d  = {0.01, Name &quot;Rampa/6Celda d (m)&quot;} ];
+
+t  = th*Pi/180;                         // Cos y Sin trabajan en radianes
+x2 = L1 + Lr*Cos(t);  y2 = Lr*Sin(t);   // esquina de expansión
+x3 = x2 + L3;                           // salida
+
+Point(1) = {0,  0,  0};
+Point(2) = {L1, 0,  0};       // esquina de compresión
+Point(3) = {x2, y2, 0};       // esquina de expansión
+Point(4) = {x3, y2, 0};
+Point(5) = {x3, H,  0};
+Point(6) = {x2, H,  0};
+Point(7) = {L1, H,  0};
+Point(8) = {0,  H,  0};</code></pre>
+<h3>Los parámetros</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Variable</th><th>Valor por omisión</th><th>Rótulo en el panel</th><th>Qué es</th></tr></thead>
+    <tbody>
+      <tr><td><code>th</code></td><td>5</td><td>Ángulo θ (grados)</td><td>ángulo de la rampa θ; <code>t</code> lo pasa a radianes</td></tr>
+      <tr><td><code>L1</code></td><td>1</td><td>Placa L1 (m)</td><td>placa plana antes de la esquina de compresión</td></tr>
+      <tr><td><code>Lr</code></td><td>1</td><td>Rampa Lr (m)</td><td>largo de la rampa, medido sobre su superficie</td></tr>
+      <tr><td><code>L3</code></td><td>1</td><td>Meseta L3 (m)</td><td>meseta después de la esquina de expansión</td></tr>
+      <tr><td><code>H</code></td><td>1</td><td>Altura H (m)</td><td>altura del dominio sobre la placa</td></tr>
+      <tr><td><code>d</code></td><td>0.01</td><td>Celda d (m)</td><td>lado de las celdas; decide todos los números de nodos</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Los seis parámetros.</b> Leídos del archivo del paso 1. El rótulo es lo que muestra el panel «Rampa» de la interfaz; el nombre de la variable es el que se usa en el resto del archivo y con <code>-setnumber</code>.</caption>
+  </table>
+</div>
+<p><code>DefineConstant</code> ya se usó en el tutorial 2.2.2: declara una variable cuyo valor se puede cambiar desde la terminal con <code>-setnumber</code>, sin tocar el archivo. La forma de este tutorial agrega entre llaves un <code>Name</code>, y con eso Gmsh muestra el parámetro como un campo editable en la ventana. El nombre tiene dos partes separadas por una diagonal: <code>Rampa</code> es la rama del árbol donde aparece, y lo que sigue es el rótulo. El número que va pegado al principio del rótulo (<code>1Ángulo</code>, <code>2Placa</code>…) sólo fija el orden de los campos y Gmsh no lo muestra (figura 3).</p>
+<h3>Los puntos</h3>
+<p>Las funciones trigonométricas de Gmsh trabajan en radianes, por eso la variable <code>t</code> convierte el ángulo. La segunda esquina está donde termina una rampa de largo <span>\(L_r\)</span>:</p>
+<div class="equation-card">\[ x_2 = L_1 + L_r\cos\theta, \qquad y_2 = L_r\sin\theta, \]</div>
+<p>que con los valores por omisión da (1.9962, 0.0872). Los ocho puntos recorren el contorno en sentido antihorario, empezando en el origen: la placa, las dos esquinas, la salida y el techo. Como las coordenadas dependen de <code>th</code>, cambiar el ángulo mueve la segunda esquina, la meseta y la salida a la vez.</p>
+
+    </section>
+    <section id="blocks-es">
+      <p class="section-label">Paso 2</p>
+      <h2>Diez líneas y tres bloques que comparten dos</h2>
+
+<p><code>Transfinite</code> sólo malla superficies de tres o cuatro lados. El contorno de la rampa tiene seis vértices, así que se parte con dos líneas verticales en tres bloques de cuatro lados: la placa, la rampa y la meseta.</p>
+<p class="code-name"><code>rampa_2_bloques.geo</code></p>
+<pre class="code"><code>// Rampa · paso 2: líneas y tres bloques de cuatro lados
+Include &quot;rampa_1_parametros.geo&quot;;
+
+Line(1) = {1, 2};  Line(2) = {2, 3};  Line(3) = {3, 4};    // pared
+Line(4) = {4, 5};                                          // salida
+Line(5) = {5, 6};  Line(6) = {6, 7};  Line(7) = {7, 8};    // techo
+Line(8) = {8, 1};                                          // entrada
+Line(9) = {2, 7};  Line(10) = {3, 6};                      // divisiones entre bloques
+
+Curve Loop(1) = {1, 9, 7, 8};    Plane Surface(1) = {1};   // bloque de la placa
+Curve Loop(2) = {2, 10, 6, -9};  Plane Surface(2) = {2};   // bloque de la rampa
+Curve Loop(3) = {3, 4, 5, -10};  Plane Surface(3) = {3};   // bloque de la meseta</code></pre>
+<h3>Las líneas compartidas</h3>
+<p>Las líneas 9 y 10 pertenecen a dos bloques cada una. Cada <code>Curve Loop</code> recorre su bloque en sentido antihorario, y una línea compartida se recorre en un sentido en un bloque y al revés en el otro. La línea 9 va de la esquina 2 hacia arriba: en el bloque de la placa se recorre así, <code>9</code>, y en el de la rampa hacia abajo, <code>-9</code>. Lo mismo pasa con la línea 10 entre la rampa y la meseta.</p>
+<p>Si se omite el signo, Gmsh no construye la superficie y responde:</p>
+<pre class="code"><code>Error   : Curve loop 2 is wrong
+Error   : &#x27;rampa.geo&#x27;, line 35: Could not add curve loop</code></pre>
+<p>No se detiene: sigue leyendo el archivo y los errores que vienen después («Something wrong in boundary mesh of transfinite surface 2») se refieren a la superficie que faltó. Hay que buscar siempre el primer error de la lista.</p>
+
+    </section>
+    <section id="mesh-es">
+      <p class="section-label">Paso 3</p>
+      <h2>Celdas cuadradas de lado d</h2>
+
+<p>El tercer archivo reparte los nodos. Ningún número se escribe a mano: todos salen del tamaño de celda <code>d</code>.</p>
+<p class="code-name"><code>rampa_3_malla.geo</code></p>
+<pre class="code"><code>// Rampa · paso 3: malla estructurada de cuadriláteros de lado d
+Include &quot;rampa_2_bloques.geo&quot;;
+
+nx1 = Round(L1/d);  nx2 = Round((x2 - L1)/d);  nx3 = Round(L3/d);  ny = Round(H/d);
+Transfinite Curve{1, 7} = nx1 + 1;          // lados opuestos: mismo número de nodos
+Transfinite Curve{2, 6} = nx2 + 1;
+Transfinite Curve{3, 5} = nx3 + 1;
+Transfinite Curve{8, 9, 10, 4} = ny + 1;    // las cuatro verticales, compartidas
+Transfinite Surface{1, 2, 3};
+Recombine Surface{1, 2, 3};</code></pre>
+<h3>Por qué estos números</h3>
+<p>En cada bloque, los dos lados opuestos tienen que llevar el mismo número de nodos, o <code>Transfinite</code> no puede tender la malla estructurada (el tutorial 1.1 muestra que Gmsh sólo avisa y malla ese bloque sin estructura). Por eso la placa y su techo reciben los mismos <code>nx1 + 1</code> nodos, y lo mismo pasa con la rampa y con la meseta. Las cuatro líneas verticales —entrada, las dos divisiones y salida— son lados opuestos de un bloque o de otro, así que todas llevan <code>ny + 1</code>.</p>
+<p>En el bloque de la rampa, el número se calcula con la longitud horizontal, <span>\(x_2 - L_1 = L_r\cos\theta\)</span>, que es la del techo. La pared inclinada mide <span>\(L_r\)</span> y recibe los mismos nodos, así que sus celdas son un poco más largas, <span>\(d/\cos\theta\)</span>: 0.4 %% más con 5°. <code>Round</code> redondea al entero más cercano, porque el cociente rara vez es exacto: <span>\(\cos 5° / 0.005 = 199.2\)</span>.</p>
+<p>El número de celdas de la malla 2D, y de hexaedros después de extruir una capa, es</p>
+<div class="equation-card">\[ N = (n_1 + n_2 + n_3)\,n_y. \]</div>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>d (m)</th><th>n₁</th><th>n₂</th><th>n₃</th><th>n_y</th><th>(n₁ + n₂ + n₃)·n_y</th><th>checkMesh</th></tr></thead>
+    <tbody>
+      <tr><td>0.020</td><td>50</td><td>50</td><td>50</td><td>50</td><td>7 500</td><td>7 500</td></tr>
+      <tr><td>0.010</td><td>100</td><td>100</td><td>100</td><td>100</td><td>30 000</td><td>30 000</td></tr>
+      <tr><td>0.005</td><td>200</td><td>199</td><td>200</td><td>200</td><td>119 800</td><td>119 800</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">Número de nodos por curva y número de celdas.</b> Con θ = 5°. Los números de nodos de cada curva son uno más que los de la tabla. La última columna es lo que reporta <code>checkMesh</code> sobre la malla convertida con <code>gmshToFoam</code>: coincide con la fórmula en las tres.</caption>
+  </table>
+</div>
+<figure class="diagram">
+  <img src="imagenes/t21-03_malla_d005.png" alt="La malla 2D con d = 0.05 m: tres bloques de 20 por 20 cuadriláteros" loading="lazy">
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">La malla con d = 0.05 m.</b> Con una celda grande para que se distingan: cada bloque queda de 20 × 20 cuadriláteros. En la placa y en la meseta las celdas son cuadradas; en el bloque de la rampa, las líneas verticales siguen siendo verticales y las horizontales pasan de la inclinación de la rampa, abajo, a la horizontal, arriba. <code>Mesh ▸ 2D</code>; la barra de estado dice <code>Done meshing 2D</code>.</figcaption>
+</figure>
+
+    </section>
+    <section id="openfoam-es">
+      <p class="section-label">Paso 4</p>
+      <h2>Extrusión, grupos físicos y formato</h2>
+
+<p>OpenFOAM no tiene mallas 2D: resuelve en una capa de celdas y declara vacías (<code>empty</code>) las caras delantera y trasera. El último archivo extruye los tres bloques una celda en z, nombra las fronteras y pide el formato que lee <code>gmshToFoam</code>.</p>
+<p class="code-name"><code>rampa_4_openfoam.geo</code></p>
+<pre class="code"><code>// Rampa · paso 4: extrusión de una capa, grupos físicos y formato para OpenFOAM
+Include &quot;rampa_3_malla.geo&quot;;
+
+e = 0.01;                     // espesor de la extrusión (una sola celda)
+ext[] = Extrude {0, 0, e} { Surface{1, 2, 3}; Layers{1}; Recombine; };
+// ext[]: seis entradas por superficie, [tapa, volumen, cara sobre la 1.ª curva, 2.ª, 3.ª, 4.ª]
+Physical Surface(&quot;inlet&quot;)        = {ext[5]};
+Physical Surface(&quot;outlet&quot;)       = {ext[15]};
+Physical Surface(&quot;walls&quot;)        = {ext[2], ext[8], ext[14]};
+Physical Surface(&quot;top&quot;)          = {ext[4], ext[10], ext[16]};
+Physical Surface(&quot;frontAndBack&quot;) = {1, 2, 3, ext[0], ext[6], ext[12]};
+Physical Volume(&quot;fluid&quot;)         = {ext[1], ext[7], ext[13]};
+
+Mesh.MshFileVersion = 2.2;    // gmshToFoam lee el formato 2</code></pre>
+<h3>Dónde queda cada cara</h3>
+<p>En el tutorial 1.1, la extrusión de una superficie devolvía una lista <code>v[]</code> de seis entradas. Con tres superficies, <code>ext[]</code> tiene dieciocho: seis por superficie, en el orden de <code>Surface{1, 2, 3}</code>. En cada grupo de seis, la primera es la tapa (la copia de la superficie en z = e), la segunda el volumen y las cuatro siguientes las caras laterales, en el orden en que el <code>Curve Loop</code> del paso 2 recorre sus líneas (tabla 4).</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Bloque</th><th>Tapa</th><th>Volumen</th><th>Cara sobre la 1.ª curva</th><th>2.ª</th><th>3.ª</th><th>4.ª</th></tr></thead>
+    <tbody>
+      <tr><td>placa (lazo {1, 9, 7, 8})</td><td>ext[0]</td><td>ext[1]</td><td>ext[2]: pared</td><td>ext[3]: interior</td><td>ext[4]: techo</td><td>ext[5]: entrada</td></tr>
+      <tr><td>rampa (lazo {2, 10, 6, −9})</td><td>ext[6]</td><td>ext[7]</td><td>ext[8]: pared</td><td>ext[9]: interior</td><td>ext[10]: techo</td><td>ext[11]: interior</td></tr>
+      <tr><td>meseta (lazo {3, 4, 5, −10})</td><td>ext[12]</td><td>ext[13]</td><td>ext[14]: pared</td><td>ext[15]: salida</td><td>ext[16]: techo</td><td>ext[17]: interior</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">Qué hay en cada posición de <code>ext[]</code>.</b> La extrusión de las superficies 1, 2 y 3 devuelve seis entradas por superficie, en el orden de <code>Surface{1, 2, 3}</code>. Las caras laterales siguen el orden de cada <code>Curve Loop</code> del paso 2, no el número de las líneas.</caption>
+  </table>
+</div>
+<p>Con la tabla se leen los grupos: la pared son las caras sobre las líneas 1, 2 y 3, que son la primera línea de cada lazo (<code>ext[2]</code>, <code>ext[8]</code>, <code>ext[14]</code>); el techo, la tercera de cada lazo; la entrada, la cuarta del primero; la salida, la segunda del tercero. Las caras sobre las líneas 9 y 10 quedan dentro del dominio y no van en ningún grupo. <code>frontAndBack</code> reúne las tres superficies originales, en z = 0, y sus tres tapas.</p>
+<div class="callout">
+  <p><strong>Los nombres importan.</strong> <code>inlet</code>, <code>outlet</code>, <code>walls</code>, <code>top</code> y <code>frontAndBack</code> son los nombres que usan los archivos de <code>0/</code> del caso de OpenFOAM. <code>gmshToFoam</code> los convierte en parches, todos de tipo <code>patch</code>; la <a href="../openfoam-compresible/rampa-compresion-expansion.html">guía de OpenFOAM</a> explica cómo cambiar tres de ellos a <code>wall</code>, <code>symmetryPlane</code> y <code>empty</code>.</p>
+</div>
+
+    </section>
+    <section id="gui-es">
+      <p class="section-label">La interfaz</p>
+      <h2>El panel de parámetros</h2>
+
+<p>Todo lo anterior se puede hacer con los botones de la interfaz, como en los tutoriales 1.1 y 2.2.1. Lo nuevo de este tutorial es el panel de parámetros: se puede usar con un archivo ya escrito y también llenarlo desde los botones.</p>
+<h3>Abrir el archivo y ver los parámetros</h3>
+<ol>
+  <li><code>File ▸ Open</code> y elegir <code>rampa.geo</code> (el archivo completo de la sección «El archivo»). Gmsh dibuja el contorno y los tres bloques.</li>
+  <li>Debajo de <code>Modules</code> aparece la rama <code>Rampa</code> con seis campos. Si los rótulos se ven cortados, arrastrar hacia la derecha el borde entre la columna del árbol y la zona gráfica (figura 3).</li>
+  <li>Escribir <code>15</code> en el campo <code>Ángulo θ (grados)</code> y presionar Intro. La rampa se redibuja con la nueva inclinación (figura 4).</li>
+  <li>Regresar el ángulo a 5, escribir <code>0.05</code> en <code>Celda d (m)</code> y hacer <code>Mesh ▸ 2D</code>. Cambiar un parámetro borra la malla que hubiera, así que siempre hay que volver a mallar. Responde <code>Done meshing 2D</code> y dibuja la malla gruesa de la figura 2.</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t21-01_panel_rampa.png" alt="Gmsh con rampa.geo abierto y el panel Rampa con seis parámetros" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">El archivo abierto en la interfaz.</b> Debajo de <code>Modules</code> aparece la rama <code>Rampa</code> con un campo por cada <code>DefineConstant</code> que lleva <code>Name</code>, en el orden que fija el número inicial del nombre. La columna izquierda se ensanchó arrastrando su borde derecho para que se lean los rótulos completos.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t21-02_angulo_15.png" alt="La misma geometría con el ángulo cambiado a 15 grados en el panel" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">El ángulo cambiado a 15° desde el panel.</b> Basta escribir el valor en el campo y presionar Intro: Gmsh vuelve a leer el archivo con el nuevo valor y la rampa se redibuja. Aparece además una rama <code>Gmsh</code> con opciones del propio programa. El archivo <code>rampa.geo</code> no cambia: sigue diciendo 5.</figcaption>
+</figure>
+<div class="callout warning">
+  <p><strong>El panel no guarda, pero recuerda.</strong> Un valor cambiado en el panel no se escribe en <code>rampa.geo</code>: el archivo sigue con 5. En cambio, Gmsh lo recuerda durante la sesión: sobrevive a <code>Geometry ▸ Reload script</code> e incluso a <code>File ▸ New</code>, de modo que un archivo nuevo, vacío, sigue mostrando la rama <code>Rampa</code> con los valores cambiados. Para volver a los valores del archivo se usa el menú del engrane, junto a <code>Run</code>: <code>Reset database</code>. Para conservar un cambio hay que editar la línea del <code>DefineConstant</code>, o dar el valor con <code>-setnumber</code> cada vez que se malla desde la terminal.</p>
+</div>
+<h3>Crear un parámetro con los botones</h3>
+<p>En <code>Geometry ▸ Elementary entities ▸ Add</code>, la primera hoja es <code>Parameter</code>. Abre la ventana de la figura 5 con cuatro campos: <code>Name</code> es el nombre de la variable; <code>Value</code>, su valor; <code>Label</code> y <code>Path</code> forman el nombre que se ve en el panel.</p>
+<figure class="diagram">
+  <img src="imagenes/t21-05_dialogo_parameter.png" alt="El diálogo Add Parameter lleno para el ángulo" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title"><code>Add ▸ Parameter</code>, lleno para el ángulo.</b> <code>Name</code> es la variable que se usa en el archivo; <code>Label</code> y <code>Path</code> forman el nombre que se ve en el panel. El botón <code>Add</code> escribe la línea en el <code>.geo</code>.</figcaption>
+</figure>
+<p>Con los valores de la figura, el botón <code>Add</code> escribe en el archivo:</p>
+<pre class="code"><code>th = DefineNumber[ 5, Name &quot;Rampa/Ángulo θ (grados)&quot; ];</code></pre>
+<p>El parámetro aparece de inmediato en el panel, pero no está escrito como <code>DefineConstant</code> y eso tiene una consecuencia en la terminal: <code>-setnumber th 10</code> no lo cambia. Hay que dar el nombre completo, <code>-setnumber "Rampa/Ángulo θ (grados)" 10</code>. La tabla 5 resume las tres formas. La receta de la guía de OpenFOAM usa <code>-setnumber d</code> y <code>-setnumber th</code>, así que conviene crear los parámetros con el botón y después cambiar cada línea a la forma <code>DefineConstant</code> con <code>Edit script</code>.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Forma</th><th>Quién la escribe</th><th>¿Aparece en el panel?</th><th>¿Obedece <code>-setnumber th 10</code>?</th></tr></thead>
+    <tbody>
+      <tr><td><code>DefineConstant[ th = 5 ];</code></td><td>a mano</td><td>no</td><td>sí</td></tr>
+      <tr><td><code>DefineConstant[ th = {5, Name "Rampa/…"} ];</code></td><td>a mano (este tutorial)</td><td>sí</td><td>sí</td></tr>
+      <tr><td><code>th = DefineNumber[ 5, Name "Rampa/…" ];</code></td><td><code>Add ▸ Parameter</code> de la interfaz</td><td>sí</td><td>no: hay que dar el nombre completo, <code>-setnumber "Rampa/Ángulo θ (grados)" 10</code></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 5.</b> <b class="fig-title">Tres maneras de declarar un parámetro.</b> Comprobado con Gmsh 4.15.2: se abre cada archivo en la interfaz y se corre <code>gmsh archivo.geo -setnumber th 10 -0</code>, que sólo lee el archivo, y se revisa con qué valor quedó <code>th</code>.</caption>
+  </table>
+</div>
+<h3>Puntos que dependen del ángulo</h3>
+<p>En <code>Add ▸ Point</code>, los campos aceptan expresiones con los parámetros ya declarados. Para la segunda esquina, con <span>\(L_1 = L_r = 1\)</span>: <code>1 + Cos(th*Pi/180)</code> en X y <code>Sin(th*Pi/180)</code> en Y (figura 6). Gmsh escribe la expresión, no su valor:</p>
+<pre class="code"><code>Point(1) = {1 + Cos(th*Pi/180), Sin(th*Pi/180), 0, 1.0};</code></pre>
+<figure class="diagram">
+  <img src="imagenes/t21-06_dialogo_point.png" alt="El diálogo Add Point con una expresión que usa el parámetro th" loading="lazy">
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">Un punto con coordenadas escritas como expresión.</b> Los campos aceptan expresiones con los parámetros ya declarados; Gmsh escribe la expresión en el archivo, no su valor, así que el punto se mueve cuando cambia el ángulo.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t21-07_punto_creado.png" alt="El punto creado y el parámetro th en el panel Rampa" loading="lazy">
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">El resultado de los dos diálogos.</b> El punto queda en (1.996, 0.0872), la segunda esquina de una rampa de 5°, y el parámetro aparece de inmediato en el panel <code>Rampa</code>. El texto de arriba es el modo de creación de puntos, que sigue activo hasta presionar <code>q</code>.</figcaption>
+</figure>
+<h3>El resto, como en el tutorial 1.1</h3>
+<p>Las líneas, las tres superficies, <code>Transfinite</code>, <code>Recombine</code>, la extrusión, los grupos físicos y la exportación en formato MSH 2 se hacen con las mismas ventanas del <a href="cavidad-cuadrada.html">tutorial 1.1</a>. Con curvas compartidas, cada <code>Plane surface</code> se construye con un clic en cada una de sus cuatro curvas, en orden, como en el <a href="perfil-dominio-c.html">2.2.1</a>.</p>
+<h3>Transfinite con expresiones</h3>
+<p>Los números de nodos también pueden depender de <code>d</code> cuando se definen con los botones. Basta con que el archivo tenga la línea que los calcula, <code>nx1 = Round(L1/d);</code> … <code>ny = Round(H/d);</code> (se agrega con <code>Edit script</code>). Después, en <code>Mesh ▸ Define ▸ Transfinite ▸ Curve</code>, el campo <code>Number of points</code> acepta una expresión igual que los campos de <code>Add ▸ Point</code>: con <code>nx1 + 1</code> y un clic en las líneas 1 y 7, Gmsh escribe</p>
+<pre class="code"><code>Transfinite Curve {1, 7} = nx1 + 1 Using Progression 1;</code></pre>
+<p>y la malla sigue al tamaño de celda: con <code>-setnumber d</code> igual a 0.02, 0.01 y 0.005, esas líneas reciben 51, 101 y 201 nodos. Se repite con <code>nx2 + 1</code> para las líneas 2 y 6, <code>nx3 + 1</code> para la 3 y la 5, y <code>ny + 1</code> para las cuatro verticales; luego <code>Transfinite Surface</code> y <code>Recombine</code> con un clic en cada bloque. El vídeo de este tutorial lo hace así, y la malla sale igual que con el archivo: 30 000 hexaedros con d = 0.01 m.</p>
+
+    </section>
+    <section id="quality-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>Predecir lo que dirá checkMesh</h2>
+
+<div class="example">
+  <p><strong>Enunciado.</strong> Antes de convertir la malla, predecir lo que <code>checkMesh</code> dirá del número de celdas y de la no ortogonalidad para rampas de 5°, 10° y 15° con d = 0.02 m, y comprobarlo.</p>
+  <p><strong>Condiciones.</strong> El archivo <code>rampa.geo</code> con sus valores por omisión, salvo el ángulo y el tamaño de celda; una capa de celdas; <code>gmshToFoam</code> y <code>checkMesh</code> de OpenFOAM 13.</p>
+</div>
+<p><strong>Número de celdas.</strong> Con d = 0.02 m, <span>\(n_1 = n_3 = n_y = 50\)</span> y <span>\(n_2 = \mathrm{Round}(50\cos\theta)\)</span>: 50, 49 y 48 para 5°, 10° y 15°. La fórmula da 7 500, 7 450 y 7 400 celdas.</p>
+<p><strong>No ortogonalidad.</strong> <code>checkMesh</code> mide, en cada cara interior, el ángulo entre la normal a la cara y la recta que une los centros de las dos celdas que la comparten. En la placa y en la meseta las celdas son rectángulos y ese ángulo es cero. En el bloque de la rampa, <code>Transfinite</code> interpola entre la pared, inclinada θ, y el techo, horizontal: la línea de nodos número j, contada desde la pared, tiene pendiente <span>\((1 - j/n_y)\tan\theta\)</span>. Las caras verticales siguen siendo verticales —su normal es horizontal—, pero separan dos celdas vecinas de una misma fila, cuyos centros están a distinta altura. En la fila junto a la pared, los centros están a media celda de ella y la recta que los une tiene pendiente <span>\((1 - \tfrac{1}{2n_y})\tan\theta\)</span>. Ahí está el máximo:</p>
+<div class="equation-card">\[ \text{no ortogonalidad máxima} = \arctan\left[\left(1 - \frac{1}{2n_y}\right)\tan\theta\right] \approx \theta. \]</div>
+<p><strong>Comprobación.</strong> Las tres mallas se hicieron con <code>gmsh rampa.geo -setnumber th 10 -setnumber d 0.02 -3</code> (y lo mismo con 5 y 15), se convirtieron con <code>gmshToFoam</code> y se revisaron con <code>checkMesh</code> (tabla 6).</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>θ</th><th>Celdas predichas</th><th>Celdas checkMesh</th><th>No ortogonalidad predicha</th><th>No ortogonalidad checkMesh</th><th>Oblicuidad máxima</th></tr></thead>
+    <tbody>
+      <tr><td>5°</td><td>7 500</td><td>7 500</td><td>4.9502°</td><td>4.9503°</td><td>0.087</td></tr>
+      <tr><td>10°</td><td>7 450</td><td>7 450</td><td>9.9020°</td><td>9.9020°</td><td>0.169</td></tr>
+      <tr><td>15°</td><td>7 400</td><td>7 400</td><td>14.8567°</td><td>14.8567°</td><td>0.247</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 6.</b> <b class="fig-title">Lo que se predijo y lo que dijo checkMesh.</b> Mallas de d = 0.02 m (n<sub>y</sub> = 50) hechas con <code>-setnumber th</code>, convertidas con <code>gmshToFoam</code> y revisadas con <code>checkMesh</code> de OpenFOAM 13. Todas dan <code>Mesh OK</code>. La predicción de celdas es (n₁ + n₂ + n₃)·n<sub>y</sub>; la de no ortogonalidad, la ecuación del texto.</caption>
+  </table>
+</div>
+<p>Las celdas coinciden exactamente, y la no ortogonalidad hasta la cuarta cifra decimal. Al afinar la malla, n<sub>y</sub> crece y el máximo se acerca a θ: en OpenFOAM 12, las tres mallas de θ = 5° de la guía de OpenFOAM dan 4.950°, 4.975° y 4.988° con d = 0.02, 0.01 y 0.005 m; la fórmula da 4.950°, 4.975° y 4.988°.</p>
+<p><strong>Preguntas.</strong></p>
+<ol>
+  <li>¿Cuántas celdas tendrá la malla de θ = 10° con d = 0.01 m? <em>Respuesta:</em> <span>\(n_2 = \mathrm{Round}(100\cos 10°) = 98\)</span>, así que (100 + 98 + 100) × 100 = 29 800.</li>
+  <li><code>checkMesh</code> reporta además un aspecto máximo de 2.0 con d = 0.02 m y de 1.10 con 0.01 m. ¿De dónde sale el 2? <em>Respuesta:</em> del espesor de la extrusión, e = 0.01 m: las celdas miden 0.02 × 0.02 × 0.01 m. Con una capa y caras <code>empty</code>, esa dirección no interviene en el cálculo.</li>
+  <li>¿Qué no ortogonalidad máxima dará la rampa de 10° con d = 0.005 m? <em>Respuesta:</em> con n<sub>y</sub> = 200, <span>\(\arctan(0.9975\tan 10°) = 9.98°\)</span>. <code>checkMesh</code> sólo marca una cara como mala cuando pasa de 70°: con este diseño de bloques, la no ortogonalidad crece uno a uno con el ángulo de la rampa.</li>
+</ol>
+
+    </section>
+    <section id="files-es">
+      <p class="section-label">Archivo</p>
+      <h2>rampa.geo, completo</h2>
+
+<p>Los cuatro pasos juntos en un solo archivo. Es el mismo <code>rampa.geo</code> que descarga la guía de OpenFOAM, con el panel de parámetros agregado: las mallas que producen los dos son idénticas byte por byte con d = 0.02, 0.01 y 0.005 m.</p>
+<p class="code-name"><code>rampa.geo</code></p>
+<pre class="code"><code>// Rampa de compresión y expansión para OpenFOAM: malla 2.5D estructurada, en un solo archivo.
+// Es lo mismo que rampa_1 … rampa_4 juntos. Cualquier parámetro se cambia en el panel «Rampa»
+// de la interfaz o desde la terminal: gmsh rampa.geo -setnumber d 0.005 -3 -o rampa.msh
+
+// Paso 1: parámetros y puntos. Name muestra cada parámetro en el panel «Rampa»; el número inicial sólo fija el orden.
+
+DefineConstant[ th = {5,    Name &quot;Rampa/1Ángulo θ (grados)&quot;} ];
+DefineConstant[ L1 = {1,    Name &quot;Rampa/2Placa L1 (m)&quot;} ];
+DefineConstant[ Lr = {1,    Name &quot;Rampa/3Rampa Lr (m)&quot;} ];
+DefineConstant[ L3 = {1,    Name &quot;Rampa/4Meseta L3 (m)&quot;} ];
+DefineConstant[ H  = {1,    Name &quot;Rampa/5Altura H (m)&quot;} ];
+DefineConstant[ d  = {0.01, Name &quot;Rampa/6Celda d (m)&quot;} ];
+
+t  = th*Pi/180;                         // Cos y Sin trabajan en radianes
+x2 = L1 + Lr*Cos(t);  y2 = Lr*Sin(t);   // esquina de expansión
+x3 = x2 + L3;                           // salida
+
+Point(1) = {0,  0,  0};
+Point(2) = {L1, 0,  0};       // esquina de compresión
+Point(3) = {x2, y2, 0};       // esquina de expansión
+Point(4) = {x3, y2, 0};
+Point(5) = {x3, H,  0};
+Point(6) = {x2, H,  0};
+Point(7) = {L1, H,  0};
+Point(8) = {0,  H,  0};
+// paso 2: líneas y tres bloques de cuatro lados
+
+Line(1) = {1, 2};  Line(2) = {2, 3};  Line(3) = {3, 4};    // pared
+Line(4) = {4, 5};                                          // salida
+Line(5) = {5, 6};  Line(6) = {6, 7};  Line(7) = {7, 8};    // techo
+Line(8) = {8, 1};                                          // entrada
+Line(9) = {2, 7};  Line(10) = {3, 6};                      // divisiones entre bloques
+
+Curve Loop(1) = {1, 9, 7, 8};    Plane Surface(1) = {1};   // bloque de la placa
+Curve Loop(2) = {2, 10, 6, -9};  Plane Surface(2) = {2};   // bloque de la rampa
+Curve Loop(3) = {3, 4, 5, -10};  Plane Surface(3) = {3};   // bloque de la meseta
+// paso 3: malla estructurada de cuadriláteros de lado d
+
+nx1 = Round(L1/d);  nx2 = Round((x2 - L1)/d);  nx3 = Round(L3/d);  ny = Round(H/d);
+Transfinite Curve{1, 7} = nx1 + 1;          // lados opuestos: mismo número de nodos
+Transfinite Curve{2, 6} = nx2 + 1;
+Transfinite Curve{3, 5} = nx3 + 1;
+Transfinite Curve{8, 9, 10, 4} = ny + 1;    // las cuatro verticales, compartidas
+Transfinite Surface{1, 2, 3};
+Recombine Surface{1, 2, 3};
+// paso 4: extrusión de una capa, grupos físicos y formato para OpenFOAM
+
+e = 0.01;                     // espesor de la extrusión (una sola celda)
+ext[] = Extrude {0, 0, e} { Surface{1, 2, 3}; Layers{1}; Recombine; };
+// ext[]: seis entradas por superficie, [tapa, volumen, cara sobre la 1.ª curva, 2.ª, 3.ª, 4.ª]
+Physical Surface(&quot;inlet&quot;)        = {ext[5]};
+Physical Surface(&quot;outlet&quot;)       = {ext[15]};
+Physical Surface(&quot;walls&quot;)        = {ext[2], ext[8], ext[14]};
+Physical Surface(&quot;top&quot;)          = {ext[4], ext[10], ext[16]};
+Physical Surface(&quot;frontAndBack&quot;) = {1, 2, 3, ext[0], ext[6], ext[12]};
+Physical Volume(&quot;fluid&quot;)         = {ext[1], ext[7], ext[13]};
+
+Mesh.MshFileVersion = 2.2;    // gmshToFoam lee el formato 2</code></pre>
+    </section>
+    <section id="example-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>Tres mallas que cambian un número cada una</h2>
+
+<p>Cada práctica cambia un número y predice el resultado antes de verlo.</p>
+<ol>
+  <li><strong>Una rampa de 10°.</strong> Mallar con <code>gmsh rampa.geo -setnumber th 10 -setnumber d 0.01 -3 -o rampa10.msh</code>. Predecir con las fórmulas de este tutorial el número de celdas y la no ortogonalidad, y comprobarlos con <code>checkMesh</code>. Con β = 19.38° (la <a href="../openfoam-compresible/rampa-compresion-expansion.html">guía de OpenFOAM</a> la calcula), estimar el espesor de la capa al final de la rampa y cuántas celdas caben en ella.</li>
+  <li><strong>La malla que motivó este tutorial.</strong> Un dominio alto con celdas grandes: <code>-setnumber H 3 -setnumber d 0.06</code>. Contar las celdas totales y las que caben en la capa de choque, y comparar con la tabla 1. Si se corre con el caso de OpenFOAM, medir el ángulo del flujo sobre la rampa.</li>
+  <li><strong>Un parámetro hecho con los botones.</strong> En un archivo vacío, crear <code>L1</code> con <code>Add ▸ Parameter</code> (si en la misma sesión se abrió antes <code>rampa.geo</code>, limpiar primero el panel con <code>Reset database</code>). Comprobar en la terminal que <code>gmsh archivo.geo -setnumber L1 2 -0</code> no lo cambia y que con el nombre completo sí; después, cambiar la línea a la forma <code>DefineConstant</code> con <code>Edit script</code> y repetir la prueba.</li>
+</ol>
+
+    </section>
+    <section id="summary-es">
+      <p class="section-label">Puntos clave</p>
+      <h2>Lo que hay que retener</h2>
+
+<ul>
+  <li>El tamaño de celda se elige con la zona que la física obliga a resolver: aquí, al menos diez celdas entre la pared y el choque, que están separados δ = L<sub>r</sub> cos θ (tan β − tan θ).</li>
+  <li>Un dominio más alto no mejora nada si el choque ya sale por la frontera de salida: sólo agrega celdas en la corriente libre.</li>
+  <li><code>DefineConstant</code> con <code>Name</code> pone el parámetro en el panel de la interfaz y sigue obedeciendo a <code>-setnumber</code>; <code>DefineNumber</code>, que es lo que escribe el botón, sólo responde al nombre completo.</li>
+  <li>Cambiar un valor en el panel no modifica el archivo, pero Gmsh lo recuerda en la sesión, aun con otro archivo abierto, hasta <code>Reset database</code>; y borra la malla, que hay que volver a hacer.</li>
+  <li>Los diálogos aceptan expresiones: <code>Add ▸ Point</code> en las coordenadas y <code>Transfinite Curve</code> en el número de puntos, así que una malla hecha con los botones también puede seguir al tamaño de celda.</li>
+  <li>Todos los números de nodos salen de <code>d</code>, con lados opuestos iguales en cada bloque; el número de celdas es (n₁ + n₂ + n₃)·n<sub>y</sub>.</li>
+  <li>Con las líneas verticales en el bloque de la rampa, la no ortogonalidad máxima es arctan[(1 − 1/(2n<sub>y</sub>)) tan θ], casi igual al ángulo de la rampa.</li>
+</ul>
+
+    </section>
+    <section id="mistakes-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Lo que falla y lo que responde Gmsh</h2>
+
+<h3>«Curve loop 2 is wrong»</h3>
+<p>Falta el signo menos de una línea compartida en el lazo del segundo bloque. Gmsh sigue leyendo y los errores que vienen después («Something wrong in boundary mesh of transfinite surface 2») son consecuencia del primero.</p>
+<h3>El ángulo regresa a 5 al abrir el archivo</h3>
+<p>El valor se cambió en el panel y el panel no guarda. Hay que editar el <code>DefineConstant</code> o usar <code>-setnumber</code>.</p>
+<h3>El panel muestra parámetros de otro archivo</h3>
+<p>Gmsh conserva los parámetros de la sesión al hacer <code>File ▸ New</code> o <code>Reload script</code>. Se borran con el menú del engrane, junto a <code>Run</code>: <code>Reset database</code>.</p>
+<h3>La malla desapareció</h3>
+<p>Se cambió un valor en el panel: Gmsh vuelve a leer el archivo con el valor nuevo y descarta la malla anterior. Hay que hacer otra vez <code>Mesh ▸ 2D</code> o <code>3D</code>.</p>
+<h3><code>-setnumber</code> no cambia nada</h3>
+<p>El parámetro se creó con <code>Add ▸ Parameter</code> y quedó como <code>DefineNumber</code>: responde sólo al nombre completo. También pasa con una asignación simple, <code>th = 5;</code>, como se vio en el tutorial 1.1.</p>
+<h3>Una malla fina en la corriente libre y gruesa en el choque</h3>
+<p>Un dominio de 3 m de alto con 49 celdas en vertical parece razonable y <code>checkMesh</code> dice <code>Mesh OK</code>, pero deja tres celdas en la capa de choque. <code>checkMesh</code> revisa la geometría de las celdas, no si resuelven el flujo: eso sólo lo dice la comparación con la teoría.</p>
+<h3>Un bloque sin estructura</h3>
+<p>Dos lados opuestos de un bloque recibieron números de nodos distintos: <code>Transfinite</code> no puede tender la malla y Gmsh malla ese bloque sin estructura, con sólo un aviso (tutorial 1.1).</p>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ol>
+  <li>C. Geuzaine y J.-F. Remacle. <em>Gmsh Reference Manual</em>, versión 4.15: secciones sobre <code>DefineConstant</code>, <code>DefineNumber</code> y los parámetros ONELAB. <a href="https://gmsh.info/doc/texinfo/gmsh.html" target="_blank" rel="noopener">gmsh.info/doc/texinfo/gmsh.html</a>.</li>
+  <li>J. D. Anderson. <em>Modern Compressible Flow: With Historical Perspective</em>, 3.ª ed. McGraw-Hill, 2003. Capítulo 4: choques oblicuos y ondas de expansión.</li>
+  <li>The OpenFOAM Foundation. <em>OpenFOAM User Guide</em>, versión 13: <code>gmshToFoam</code> y <code>checkMesh</code>. <a href="https://doc.cfd.direct/openfoam/user-guide-v13/" target="_blank" rel="noopener">doc.cfd.direct/openfoam/user-guide-v13</a>.</li>
+  <li>OpenFOAM · Flujo compresible, tutorial 1.1: <a href="../openfoam-compresible/rampa-compresion-expansion.html">La rampa de compresión y expansión</a>. La simulación y la validación con esta malla.</li>
+</ol>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="cavidad-cuadrada.html?v=13"><span>Tutorial anterior</span>← Tutorial 1.1 · La cavidad cuadrada</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Serie de tutoriales</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Das strukturierte Netz einer Kompressions- und Expansionsrampe bei Mach 5 bauen, per Datei und per Oberfläche: sechs Parameter, die als Felder im Gmsh-Fenster erscheinen, drei Blöcke mit gemeinsamen Kanten, quadratische Zellen der Kantenlänge d, eine Extrusion um eine Zelle und die physikalischen Gruppen, die OpenFOAM erwartet.</p>
+    </section>
+    <section id="physics-de">
+      <p class="section-label">Die Idee</p>
+      <h2>Die Zellen zwischen Wand und Stoß zählen</h2>
+<p>Der schiefe Stoß verlässt die Kompressionsecke unter beta = 15,07 Grad. Am Rampenende ist die Schicht zwischen Wand und Stoß etwa 0,18 m dick, und die Güte des Ergebnisses hängt davon ab, wie viele Zellen hineinpassen: drei in einem 3 m hohen Gebiet mit 49 Zellen, neun mit d = 0,02 m und sechsunddreißig mit d = 0,005 m.</p>
+    </section>
+    <section id="recipe-de">
+      <p class="section-label">Ablauf</p>
+      <h2>Von den Parametern zur .msh in acht Schritten</h2>
+<p>Acht Schritte von den Parametern zur .msh-Datei, jeweils mit der Antwort von Gmsh.</p>
+    </section>
+    <section id="params-de">
+      <p class="section-label">Schritt 1</p>
+      <h2>Sechs Parameter und acht Punkte</h2>
+<p>DefineConstant mit Name setzt jeden Parameter in ein Feld der Oberfläche und gehorcht weiterhin -setnumber vom Terminal. Die acht Punkte folgen aus dem Winkel über Cos und Sin im Bogenmaß.</p>
+    </section>
+    <section id="blocks-de">
+      <p class="section-label">Schritt 2</p>
+      <h2>Zehn Linien und drei Blöcke, die sich zwei teilen</h2>
+<p>Zehn Linien und drei Curve Loops. Die beiden senkrechten Trennlinien gehören zu je zwei Blöcken und stehen im zweiten Loop mit Minuszeichen; ohne es meldet Gmsh «Curve loop 2 is wrong».</p>
+    </section>
+    <section id="mesh-de">
+      <p class="section-label">Schritt 3</p>
+      <h2>Quadratische Zellen der Kantenlänge d</h2>
+<p>Die Knotenzahlen folgen aus d über Round; gegenüberliegende Seiten eines Blocks erhalten dieselbe Zahl, die vier senkrechten Linien eine gemeinsame. Die Zellzahl ist (n1 + n2 + n3) ny.</p>
+    </section>
+    <section id="openfoam-de">
+      <p class="section-label">Schritt 4</p>
+      <h2>Extrusion, physikalische Gruppen und Dateiformat</h2>
+<p>Die Extrusion dreier Flächen liefert sechs Einträge je Fläche; die physikalischen Gruppen wählen die Seitenflächen nach ihrer Position in dieser Liste. Die Datei wird im Format MSH 2.2 geschrieben, das gmshToFoam liest.</p>
+    </section>
+    <section id="gui-de">
+      <p class="section-label">Die Oberfläche</p>
+      <h2>Das Parameterfeld</h2>
+<p>Die Parameter erscheinen in einem Feld namens Rampa. Eine Änderung zeichnet die Geometrie sofort neu, verändert aber die Datei nicht. Mit Add > Parameter erzeugte Parameter werden als DefineNumber geschrieben, das -setnumber mit dem kurzen Namen ignoriert.</p>
+    </section>
+    <section id="quality-de">
+      <p class="section-label">Durchgerechnetes Beispiel</p>
+      <h2>Vorhersagen, was checkMesh meldet</h2>
+<p>Die Zellzahl stimmt genau mit der Formel überein, und die maximale Nichtorthogonalität gleicht dem Rampenwinkel: 4,95, 9,90 und 14,86 Grad für Rampen von 5, 10 und 15 Grad.</p>
+    </section>
+    <section id="files-de">
+      <p class="section-label">Datei</p>
+      <h2>rampa.geo, vollständig</h2>
+<p>Die einzelne Datei, die das OpenFOAM-Tutorial herunterlädt, mit dem Parameterfeld.</p>
+    </section>
+    <section id="example-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Drei Netze, die je eine Zahl ändern</h2>
+<p>Eine 10-Grad-Rampe, das grobe hohe Netz, das versagt, und ein per Schaltfläche erzeugter Parameter.</p>
+    </section>
+    <section id="summary-de">
+      <p class="section-label">Kernpunkte</p>
+      <h2>Was man behalten sollte</h2>
+<p>d aus der Schicht wählen, die aufgelöst werden muss; jede Knotenzahl aus d schreiben; eine Nichtorthogonalität gleich dem Rampenwinkel erwarten.</p>
+    </section>
+    <section id="mistakes-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Was schiefgeht und was Gmsh meldet</h2>
+<p>Ein fehlendes Minuszeichen im Curve Loop, eine nie gespeicherte Änderung im Feld, ein Oberflächen-Parameter, der -setnumber ignoriert, und ein hohes Gebiet mit wenigen Zellen.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>Gmsh-Referenzhandbuch (ONELAB-Parameter); Anderson, Modern Compressible Flow; OpenFOAM-13-Handbuch; das Tutorial 1.1 der Reihe OpenFOAM · Kompressible Strömung.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="cavidad-cuadrada.html?v=13"><span>Vorheriges Tutorial</span>← Tutorial 1.1 · Die Nischenströmung</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Tutorialreihe</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>
