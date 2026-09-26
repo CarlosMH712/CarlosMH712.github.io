@@ -141,7 +141,7 @@
       <p class="section-label">Objetivos de aprendizaje</p>
       <h2>Qué se debe poder hacer al terminar</h2>
 
-<p class="lead">La tubería es la geometría con la que empiezan casi todos los cursos de flujo interno: tiene solución exacta en régimen laminar y correlaciones bien conocidas en régimen turbulento. Su malla, en cambio, no es trivial: una sección circular no se deja partir en un solo bloque de cuatro lados, y cerca de la pared hacen falta celdas mucho más delgadas que en el centro. Este tutorial la construye sólo con los botones de la interfaz; el <a href="#files">archivo</a> que resulta queda listo para convertir sus números en parámetros en el tutorial 3.1.2.</p>
+<p class="lead">La tubería es la geometría con la que empiezan casi todos los cursos de flujo interno: tiene solución exacta en régimen laminar y correlaciones bien conocidas en régimen turbulento. Su malla, en cambio, no es trivial: una sección circular no se deja partir en un solo bloque de cuatro lados, y cerca de la pared hacen falta celdas mucho más delgadas que en el centro. Este tutorial la construye sólo con los botones de la interfaz; el <a href="#files">archivo</a> que resulta queda listo para convertir sus números en parámetros en el <a href="tuberia-parametrizada.html">tutorial 3.1.2</a>.</p>
 <ul>
   <li>Partir una sección circular en nueve bloques de cuatro lados (una sección «en O») y explicar por qué no conviene una malla polar.</li>
   <li>Refinar hacia la pared con una progresión geométrica y predecir la altura de la celda junto a la pared antes de mallar.</li>
@@ -251,7 +251,7 @@
 <h3>Qué tan larga</h3>
 <p>El flujo entra con velocidad uniforme y necesita una longitud de entrada para desarrollar el perfil parabólico. En régimen laminar esa longitud crece con el número de Reynolds; la correlación de Durst et al. (2005) da, para Re = 100,</p>
 <div class="equation-card">\[ \frac{L_e}{D} = \left[0.619^{1.6} + (0.0567\,\mathrm{Re})^{1.6}\right]^{1/1.6} = 5.8. \]</div>
-<p>Por eso la tubería de este tutorial mide 10 D: el flujo está desarrollado en su segunda mitad, que es donde se compara con la teoría. Con Re = 2000 harían falta más de 110 D; en régimen turbulento la longitud de entrada es de 20 a 40 D. Elegir la longitud a partir de Re es uno de los temas del tutorial 3.1.2.</p>
+<p>Por eso la tubería de este tutorial mide 10 D: el flujo está desarrollado en su segunda mitad, que es donde se compara con la teoría. Con Re = 2000 harían falta más de 110 D; en régimen turbulento la longitud de entrada es de 20 a 40 D. Elegir la longitud a partir de Re es uno de los temas del <a href="tuberia-parametrizada.html">tutorial 3.1.2</a>.</p>
 
     </section>
     <section id="recipe-es">
@@ -540,7 +540,7 @@
       <p class="section-label">Archivo</p>
       <h2>tuberia_recta.geo</h2>
 
-<p>Lo que escribe la interfaz siguiendo este tutorial, ordenado y comentado. Los números de las entidades son los mismos y la malla es idéntica. La diferencia está en la extrusión: aquí se guarda la lista <code>ext[]</code> y los grupos se escriben con sus posiciones, igual que en el <a href="rampa-compresion-expansion.html">2.1</a>. En el tutorial 3.1.2 cada número fijo de este archivo se convierte en un parámetro.</p>
+<p>Lo que escribe la interfaz siguiendo este tutorial, ordenado y comentado. Los números de las entidades son los mismos y la malla es idéntica. La diferencia está en la extrusión: aquí se guarda la lista <code>ext[]</code> y los grupos se escriben con sus posiciones, igual que en el <a href="rampa-compresion-expansion.html">2.1</a>. En el <a href="tuberia-parametrizada.html">tutorial 3.1.2</a> cada número fijo de este archivo se convierte en un parámetro.</p>
 <p class="code-name"><code>tuberia_recta.geo</code></p>
 <pre class="code"><code>// Tubería recta con sección en O de 9 bloques y capa límite (tutorial 3.1.1). Unidades: metros.
 // Diámetro D = 1 (R = 0.5) y longitud 10 D. Es lo que escribe la interfaz siguiendo la guía, ordenado y
@@ -630,7 +630,7 @@ Mesh.MshFileVersion = 2.2;    // gmshToFoam lee el formato 2</code></pre>
 <h3>El grupo <code>inlet</code> tiene 29 caras</h3>
 <p>Se hizo con un recuadro, que en <code>Physical Surface</code> toma también las caras laterales. Hacerlo con nueve clics desde la vista trasera.</p>
 <h3>La pared queda como <code>patch</code></h3>
-<p><code>gmshToFoam</code> deja todos los parches como <code>patch</code>. La pared se cambia a <code>wall</code> con <code>foamDictionary</code> (sección «Comprobación en OpenFOAM»): las funciones que trabajan sobre paredes, como el esfuerzo cortante y la distancia a la pared de los modelos de turbulencia del tutorial 3.1.2, sólo toman en cuenta los parches de tipo <code>wall</code>.</p>
+<p><code>gmshToFoam</code> deja todos los parches como <code>patch</code>. La pared se cambia a <code>wall</code> con <code>foamDictionary</code> (sección «Comprobación en OpenFOAM»): las funciones que trabajan sobre paredes, como el esfuerzo cortante y la distancia a la pared de los modelos de turbulencia del <a href="tuberia-parametrizada.html">tutorial 3.1.2</a>, sólo toman en cuenta los parches de tipo <code>wall</code>.</p>
 
     </section>
     <section id="references-es" class="references">

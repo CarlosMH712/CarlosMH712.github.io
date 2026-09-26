@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Gmsh tutorial: the O-grid pipe of tutorial 3.1.1 driven by eight parameters in the interface panel and the command line; first-cell height from a target y+ for laminar and turbulent flow, a boundary-layer ring from a growth ratio, pipe length from the entrance length, checked in OpenFOAM." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>The Parametric Pipe: First Cell from y⁺ and Length from Re | Gmsh Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">Gmsh · Tutorial 3.1.2</p><h1>The Parametric Pipe: First Cell from y⁺ and Length from Re</h1><p class="hero-copy">The pipe of tutorial 3.1.1, now controlled by eight parameters from the Gmsh panel or the terminal. The file computes the wall cell from the y⁺ you ask for and the length from the Reynolds number, and OpenFOAM measures back the y⁺ that was requested.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">Gmsh · Tutorial 3.1.2</p><h1>La tubería parametrizada: primera celda desde y⁺ y longitud desde Re</h1><p class="hero-copy">La tubería del tutorial 3.1.1, ahora controlada por ocho parámetros desde el panel de Gmsh o desde la terminal. El archivo calcula la celda de la pared a partir del y⁺ que se pide y la longitud a partir del número de Reynolds, y OpenFOAM mide de vuelta el y⁺ que se pidió.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">Gmsh · Tutorial 3.1.2</p><h1>Das parametrische Rohr: erste Zelle aus y⁺ und Länge aus Re</h1><p class="hero-copy">Das Rohr aus Tutorial 3.1.1, jetzt über acht Parameter im Gmsh-Feld oder im Terminal gesteuert. Die Datei berechnet die Wandzelle aus dem gewünschten y⁺ und die Länge aus der Reynolds-Zahl, und OpenFOAM misst das verlangte y⁺ nach.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 40 min</span><span data-language="es" hidden>Lectura estimada: 40 min</span><span data-language="de" hidden>Lesedauer: ca. 40 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on Gmsh 4.15.2 and OpenFOAM 13</span><span data-language="es" hidden>Verificado en Gmsh 4.15.2 y OpenFOAM 13</span><span data-language="de" hidden>Geprüft mit Gmsh 4.15.2 und OpenFOAM 13</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="tuberia-recta.html?v=13">← <span>3.1.1</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/LEiC2YLZFyQ" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Watch the video</span><span data-language="es" hidden>Ver el vídeo</span><span data-language="de" hidden>Video ansehen</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#physics">From the flow to the mesh</a><a href="#recipe">Recipe</a><a href="#params">Parameters</a><a href="#wall">The wall cell</a><a href="#ring">The ring</a><a href="#length">The length</a><a href="#mesh">Numbers into expressions</a><a href="#gui">The panel</a><a href="#terminal">The terminal</a><a href="#quality">Worked example</a><a href="#openfoam">OpenFOAM check</a><a href="#files">The file</a><a href="#example">Suggested practice</a><a href="#summary">Key points</a><a href="#mistakes">Common mistakes</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#physics-es">Del flujo a la malla</a><a href="#recipe-es">Receta</a><a href="#params-es">Parámetros</a><a href="#wall-es">La celda de la pared</a><a href="#ring-es">El anillo</a><a href="#length-es">La longitud</a><a href="#mesh-es">Números a expresiones</a><a href="#gui-es">El panel</a><a href="#terminal-es">La terminal</a><a href="#quality-es">Ejemplo resuelto</a><a href="#openfoam-es">Comprobación</a><a href="#files-es">El archivo</a><a href="#example-es">Práctica sugerida</a><a href="#summary-es">Puntos clave</a><a href="#mistakes-es">Errores frecuentes</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#physics-de">Von der Strömung zum Netz</a><a href="#recipe-de">Ablauf</a><a href="#params-de">Parameter</a><a href="#wall-de">Die Wandzelle</a><a href="#ring-de">Der Ring</a><a href="#length-de">Die Länge</a><a href="#mesh-de">Zahlen zu Ausdrücken</a><a href="#gui-de">Das Feld</a><a href="#terminal-de">Das Terminal</a><a href="#quality-de">Beispiel</a><a href="#openfoam-de">Prüfung</a><a href="#files-de">Die Datei</a><a href="#example-de">Übung</a><a href="#summary-de">Kernpunkte</a><a href="#mistakes-de">Häufige Fehler</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Turn the fixed numbers of the straight-pipe file into parameters that the Gmsh panel and the command line can change; compute the first-cell height from a target y⁺, the boundary-layer ring from a growth ratio and the length from the entrance length; check in OpenFOAM that the requested y⁺ is the measured one.</p>
+    </section>
+    <section id="physics">
+      <p class="section-label">The idea</p>
+      <h2>Three numbers the flow decides</h2>
+<p>The wall cell follows from y⁺ and the friction factor, h = 2 y⁺ D / (Re √(f/8)); the number of layers follows from a maximum growth ratio; the length follows from the entrance length, laminar or turbulent.</p>
+    </section>
+    <section id="recipe">
+      <p class="section-label">Recipe</p>
+      <h2>From the 3.1.1 file to the parametric file in seven steps</h2>
+<p>Seven steps from the 3.1.1 file to the parametric one.</p>
+    </section>
+    <section id="params">
+      <p class="section-label">Step 1</p>
+      <h2>Eight parameters and a drop-down list</h2>
+<p>DefineConstant with Name and, for the flow regime, Choices, which the panel shows as a drop-down list. A slash inside a label splits it into a new branch of the panel.</p>
+    </section>
+    <section id="wall">
+      <p class="section-label">Step 2</p>
+      <h2>From y⁺ to metres</h2>
+<p>The friction factor (64/Re or Petukhov) gives the viscous length ν/u_τ = D/(Re √(f/8)); y⁺ is measured at the cell centre, so the cell height is twice y⁺ times that length.</p>
+    </section>
+    <section id="ring">
+      <p class="section-label">Step 3</p>
+      <h2>How many layers, and with what ratio</h2>
+<p>The number of layers is the smallest that keeps the growth below the maximum ratio; a bisection macro finds the exact ratio for that whole number.</p>
+    </section>
+    <section id="length">
+      <p class="section-label">Step 4</p>
+      <h2>The entrance length decides</h2>
+<p>Laminar entrance length from Durst et al., turbulent from 4.4 Re^(1/6); ten diameters are added.</p>
+    </section>
+    <section id="mesh">
+      <p class="section-label">Step 5</p>
+      <h2>The same geometry, with no fixed number</h2>
+<p>Points, Transfinite and Extrude take expressions; the ring lines use Progression 1/g toward the wall.</p>
+    </section>
+    <section id="gui">
+      <p class="section-label">Step 6</p>
+      <h2>Changing the flow from the interface</h2>
+<p>Changing a field re-reads the file, recomputes everything and deletes the mesh; the Printf lines appear in Tools > Message Console, which has a search field.</p>
+    </section>
+    <section id="terminal">
+      <p class="section-label">Step 7</p>
+      <h2>Three meshes from one file</h2>
+<p>-setnumber with the variable name builds each case without opening the interface.</p>
+    </section>
+    <section id="quality">
+      <p class="section-label">Worked example</p>
+      <h2>The turbulent mesh, predicted by hand</h2>
+<p>The turbulent case at Re = 50 000 and y⁺ = 1, computed by hand and compared with the file.</p>
+    </section>
+    <section id="openfoam">
+      <p class="section-label">OpenFOAM check</p>
+      <h2>Is the y⁺ that was asked for the y⁺ that comes out?</h2>
+<p>Laminar: the measured y⁺ is 0.1996 for 0.2 requested. Turbulent (k-ω SST): 0.958 for 1, because the model gives a friction factor below the correlation; the ratio of the two explains the difference.</p>
+    </section>
+    <section id="files">
+      <p class="section-label">File</p>
+      <h2>tuberia.geo, complete</h2>
+<p>The whole parametric file.</p>
+    </section>
+    <section id="example">
+      <p class="section-label">Suggested practice</p>
+      <h2>Three meshes for the course activity</h2>
+<p>The three meshes of the course activity: laminar, turbulent resolved and with wall functions.</p>
+    </section>
+    <section id="summary">
+      <p class="section-label">Key points</p>
+      <h2>What to keep from this guide</h2>
+<p>Parameters for what the flow decides; everything else computed.</p>
+    </section>
+    <section id="mistakes">
+      <p class="section-label">Common mistakes</p>
+      <h2>What goes wrong and what Gmsh does</h2>
+<p>A slash in a label, a y⁺ that is half the requested one, a ring with too few layers.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>Gmsh manual; White; Petukhov; Durst et al.; OpenFOAM 13 user guide.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="tuberia-recta.html?v=13"><span>Previous tutorial</span>← Tutorial 3.1.1 · The straight pipe</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Tutorial series</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">En el <a href="tuberia-recta.html">3.1.1</a> la tubería se construyó con los botones y quedó un archivo con números fijos: 11 nodos por cuarto de vuelta, una razón de 0.85, 10 m de largo. Esos números estaban bien para un flujo laminar con Re = 100 y para ningún otro. Aquí el archivo se reescribe para que los números salgan del flujo: se pide el régimen, el número de Reynolds y el y⁺ de la primera celda, y el archivo calcula la altura de esa celda, cuántas capas caben junto a la pared y qué tan larga debe ser la tubería.</p>
+<ul>
+  <li>Declarar parámetros que aparezcan en el panel de la interfaz, incluido un desplegable con <code>Choices</code>, y que también obedezcan a <code>-setnumber</code> en la terminal.</li>
+  <li>Calcular la altura de la primera celda a partir de un y⁺ buscado, en régimen laminar y turbulento.</li>
+  <li>Llenar el anillo de la pared con una progresión cuya razón no pase de un máximo, usando una macro con bisección.</li>
+  <li>Elegir la longitud de la tubería a partir de la longitud de entrada.</li>
+  <li>Comprobar en OpenFOAM que el y⁺ que se pidió es el que se mide.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> Gmsh 4.15.2 y OpenFOAM (<a href="https://openfoam.org" target="_blank" rel="noopener">openfoam.org</a>). Se supone el <a href="tuberia-recta.html">3.1.1</a>, cuyo archivo es el punto de partida, y el uso de <code>DefineConstant</code> con <code>Name</code> del <a href="rampa-compresion-expansion.html">2.1</a>. La macro de bisección viene del <a href="perfil-c-parametrico.html">2.2.2</a>.</p>
+</div>
+
+    </section>
+    <section id="physics-es">
+      <p class="section-label">La idea</p>
+      <h2>Tres números que decide el flujo</h2>
+
+<p>De todo lo que tiene la malla de una tubería, tres cosas dependen del flujo y no de la geometría: la altura de la celda junto a la pared, cuántas celdas hay en la zona donde la velocidad cambia rápido y qué tan larga es la tubería. Las tres se pueden calcular antes de mallar.</p>
+<h3>La celda de la pared</h3>
+<p>Cerca de la pared, las distancias se miden en longitudes viscosas, ν/u<sub>τ</sub>, donde u<sub>τ</sub> = √(τ<sub>w</sub>/ρ) es la velocidad de fricción. La distancia adimensional y⁺ = y u<sub>τ</sub>/ν es la que usan los modelos de turbulencia para decidir cómo tratar la pared: con y⁺ ≈ 1 resuelven la subcapa viscosa, con y⁺ entre 30 y 100 usan funciones de pared. En una tubería, el esfuerzo en la pared sale del factor de fricción de Darcy, τ<sub>w</sub> = f ρU²/8, de modo que</p>
+<div class="equation-card">\[ \frac{\nu}{u_\tau} = \frac{D}{\mathrm{Re}\,\sqrt{f/8}}, \qquad h_1 = 2\,y^+\,\frac{\nu}{u_\tau}. \]</div>
+<p>El factor 2 viene de que y⁺ mide la distancia del <em>centro</em> de la primera celda a la pared, no la de su cara exterior (tutorial 2.2.2). El factor de fricción es 64/Re en laminar; en turbulento, con tubo liso, la correlación de Petukhov, f = (0.790 ln Re − 1.64)<sup>−2</sup>, válida de 3000 a 5·10<sup>6</sup>.</p>
+<h3>La longitud</h3>
+<p>El perfil de velocidad necesita una longitud de entrada L<sub>e</sub> para desarrollarse. En laminar crece con Re (Durst et al., 2005); en turbulento crece muy poco:</p>
+<div class="equation-card">\[ \frac{L_e}{D} = \left[0.619^{1.6} + (0.0567\,\mathrm{Re})^{1.6}\right]^{1/1.6} \ \text{(laminar)}, \qquad \frac{L_e}{D} = 4.4\,\mathrm{Re}^{1/6} \ \text{(turbulento)}. \]</div>
+<p>Con Re = 500 dan 28.4 D; con Re = 50 000, 26.7 D. La tubería mide L<sub>e</sub> más un tramo desarrollado donde se toman las medidas.</p>
+
+    </section>
+    <section id="recipe-es">
+      <p class="section-label">Receta</p>
+      <h2>Del archivo del 3.1.1 al archivo paramétrico en siete pasos</h2>
+
+<p>Se parte de <code>tuberia_recta.geo</code>, el archivo del 3.1.1. Los pasos 1 a 5 reescriben el archivo; los 6 y 7 lo usan.</p>
+<ol>
+  <li><strong>Parámetros.</strong> Un bloque <code>DefineConstant</code> con los ocho parámetros de la tabla 1, cada uno con <code>Name "Tubería/…"</code>; el régimen, con <code>Choices</code>.</li>
+  <li><strong>La celda de la pared.</strong> Con <code>If (regimen == 0)</code>, el factor de fricción; después ν/u<sub>τ</sub> y h<sub>1</sub>.</li>
+  <li><strong>El anillo.</strong> El número de capas con <code>Ceil</code> y la razón exacta con la macro <code>Razon</code>.</li>
+  <li><strong>La longitud.</strong> L<sub>e</sub> con otro <code>If</code>, y L = L<sub>e</sub> + Ldes·D.</li>
+  <li><strong>Números a expresiones.</strong> Las coordenadas con R, rm y a; <code>Transfinite</code> con nq, nr, nb y g; <code>Layers{nz}</code>. Unos <code>Printf</code> con lo calculado.</li>
+  <li><strong>El panel.</strong> Abrir el archivo en Gmsh: aparece la rama <code>Tubería</code> (figura 1). Cambiar un campo, <code>Mesh ▸ 3D</code>, y leer en <code>Tools ▸ Message Console</code> lo que se calculó.</li>
+  <li><strong>La terminal.</strong> <code>gmsh tuberia.geo -3 -setnumber regimen 1 -setnumber Re 50000 -setnumber yplus 1 -o tuberia.msh</code>; responde, entre otras líneas, <code>anillo: 18 celdas con razón 1.19988…</code> y <code>celdas previstas: 149940</code>.</li>
+</ol>
+
+    </section>
+    <section id="params-es">
+      <p class="section-label">Paso 1</p>
+      <h2>Ocho parámetros y un desplegable</h2>
+
+<pre class="code"><code>DefineConstant[
+  regimen = {0,     Choices{0 = &quot;Laminar&quot;, 1 = &quot;Turbulento&quot;}, Name &quot;Tubería/1Régimen&quot;},
+  Re      = {500,   Name &quot;Tubería/2Número de Reynolds&quot;},
+  D       = {1,     Name &quot;Tubería/3Diámetro D (m)&quot;},
+  yplus   = {0.2,   Name &quot;Tubería/4y+ de la primera celda&quot;},
+  gmax    = {1.2,   Name &quot;Tubería/5Razón de crecimiento&quot;},
+  Ldes    = {10,    Name &quot;Tubería/6Tramo tras la entrada (D)&quot;},
+  nq      = {10,    Name &quot;Tubería/7Celdas por cuarto&quot;},
+  dz      = {0.25,  Name &quot;Tubería/8Celda axial Δz (D)&quot;}
+];</code></pre>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Variable</th><th>Rótulo en el panel</th><th>Por omisión</th><th>Qué controla</th></tr></thead>
+    <tbody>
+      <tr><td><code>regimen</code></td><td>Régimen</td><td>0 (Laminar)</td><td>el factor de fricción y la longitud de entrada; es un desplegable</td></tr>
+      <tr><td><code>Re</code></td><td>Número de Reynolds</td><td>500</td><td>Re = UD/ν, con la velocidad media</td></tr>
+      <tr><td><code>D</code></td><td>Diámetro D (m)</td><td>1</td><td>la escala de todo</td></tr>
+      <tr><td><code>yplus</code></td><td>y+ de la primera celda</td><td>0.2</td><td>la altura de la celda junto a la pared</td></tr>
+      <tr><td><code>gmax</code></td><td>Razón de crecimiento</td><td>1.2</td><td>cuánto crece cada celda del anillo sobre la anterior, como máximo</td></tr>
+      <tr><td><code>Ldes</code></td><td>Tramo tras la entrada (D)</td><td>10</td><td>la longitud que se agrega a la de entrada</td></tr>
+      <tr><td><code>nq</code></td><td>Celdas por cuarto</td><td>10</td><td>la resolución de la sección (cuadro, arcos y banda)</td></tr>
+      <tr><td><code>dz</code></td><td>Celda axial Δz (D)</td><td>0.25</td><td>el largo de los hexaedros</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Los ocho parámetros del panel «Tubería».</b> El número al principio del rótulo sólo fija el orden en el panel (tutorial 2.1). Todos se pueden dar desde la terminal con <code>-setnumber</code> y el nombre de la variable.</caption>
+  </table>
+</div>
+<p>Todos llevan <code>Name</code>, así que aparecen en el panel (figura 1) y siguen obedeciendo a <code>-setnumber</code> con el nombre de la variable, como en el 2.1. El régimen agrega <code>Choices{0 = "Laminar", 1 = "Turbulento"}</code>: en el panel se ve como un desplegable con esos dos rótulos (figura 2), y en el archivo la variable vale 0 o 1.</p>
+<figure class="diagram narrow">
+  <img src="imagenes/t312-01_panel.png" alt="El panel Tubería con sus ocho campos" loading="lazy">
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">El panel «Tubería».</b> Al abrir <code>tuberia.geo</code> aparece la rama <code>Tubería</code> debajo de <code>Modules</code>. El primer campo es un desplegable porque su <code>DefineConstant</code> lleva <code>Choices</code>; los demás son campos numéricos. La columna se ensanchó arrastrando su borde derecho.</figcaption>
+</figure>
+<figure class="diagram narrow">
+  <img src="imagenes/t312-02_desplegable.png" alt="El desplegable del régimen abierto" loading="lazy">
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">El desplegable del régimen.</b> Muestra los rótulos de <code>Choices</code>, «Laminar» y «Turbulento»; al elegir uno, la variable <code>regimen</code> toma el número asociado, 0 o 1.</figcaption>
+</figure>
+<div class="callout warning">
+  <p><strong>Ninguna diagonal en los rótulos.</strong> Gmsh usa la diagonal para separar ramas del panel. Un rótulo «Número de Reynolds U D/ν» creó una subrama «Número de Reynolds U D» con un campo llamado «ν». Los rótulos largos, además, se cortan a la derecha de la columna: conviene que sean breves.</p>
+</div>
+<p>Los parámetros son las decisiones de quien hace la simulación. Lo que se puede deducir de ellos —el factor de fricción, la altura de la celda, el número de capas, la longitud— no se pone en el panel: se calcula.</p>
+
+    </section>
+    <section id="wall-es">
+      <p class="section-label">Paso 2</p>
+      <h2>De y⁺ a metros</h2>
+
+<pre class="code"><code>// ------------------------------------------------ factor de fricción y velocidad de fricción
+// Laminar: Hagen-Poiseuille. Turbulento (tubo liso): Petukhov, válido de 3000 a 5·10^6.
+If (regimen == 0)
+  f = 64 / Re;
+Else
+  f = 1 / (0.790 * Log(Re) - 1.64)^2;
+EndIf
+// u_tau / U = Sqrt(f/8); en longitudes: nu / u_tau = D / (Re Sqrt(f/8))
+lv = D / (Re * Sqrt(f / 8));          // longitud viscosa nu/u_tau (m)
+
+// y+ mide la distancia del CENTRO de la primera celda a la pared: la altura es el doble.
+h1 = 2 * yplus * lv;</code></pre>
+<p><code>If</code>, <code>Else</code> y <code>EndIf</code> eligen la fórmula según el régimen; <code>Log</code> es el logaritmo natural. La variable <code>lv</code> es la longitud viscosa ν/u<sub>τ</sub> escrita sólo con D, Re y f, así que la tubería no necesita la velocidad ni la viscosidad: basta el número de Reynolds.</p>
+<p>Con Re = 50 000, Petukhov da f = 0.0210, ν/u<sub>τ</sub> = 0.391 mm y, para y⁺ = 1, h<sub>1</sub> = 0.782 mm. Con Re = 500 laminar, f = 64/500 = 0.128, ν/u<sub>τ</sub> = 15.81 mm y, para y⁺ = 0.2, h<sub>1</sub> = 6.32 mm (tabla 2).</p>
+<div class="callout">
+  <p><strong>¿Y⁺ en flujo laminar?</strong> En laminar no hay modelo de pared que satisfacer, pero y⁺ sigue siendo una medida de la celda de la pared en longitudes viscosas, y el archivo la trata igual. Con y⁺ = 0.2 y Re = 500 la celda mide 6.32 mm; la del 3.1.1, que reprodujo Hagen-Poiseuille con un error del 1 %, medía 6.61 mm con Re = 100, que equivale a y⁺ = 0.09. En laminar basta un y⁺ entre 0.1 y 0.5.</p>
+</div>
+
+    </section>
+    <section id="ring-es">
+      <p class="section-label">Paso 3</p>
+      <h2>Cuántas capas y con qué razón</h2>
+
+<p>El anillo va del círculo intermedio (r = 0.8 R) a la pared: un espesor t = 0.1 D. Sus celdas empiezan en h<sub>1</sub> junto a la pared y crecen hacia adentro. Una progresión de n celdas con razón g llena</p>
+<div class="equation-card">\[ t = h_1\,\frac{g^{\,n}-1}{g-1} \quad\Longrightarrow\quad n = \left\lceil \frac{\ln\left[1 + t\,(g_{\max}-1)/h_1\right]}{\ln g_{\max}} \right\rceil . \]</div>
+<p>Con la razón máxima permitida, g<sub>máx</sub> = 1.2 por omisión, se despeja n y se redondea hacia arriba (<code>Ceil</code>): con un número entero de celdas la progresión ya no cabe exacta, y la razón se vuelve a buscar, un poco menor, con la macro <code>Razon</code> del 2.2.2, que la encuentra por bisección.</p>
+<pre class="code"><code>Macro Razon
+  rA = 1.0 + 1.e-9;  rB = 3.0;
+  For iter In {1:80}
+    rM = 0.5 * (rA + rB);
+    sM = eh1 * (rM^(eN - 1) - 1.0) / (rM - 1.0);
+    If (sM &lt; eL)
+      rA = rM;
+    Else
+      rB = rM;
+    EndIf
+  EndFor
+  eR = 0.5 * (rA + rB);
+Return
+
+eL = R - rm;  eh1 = h1;
+eN = 1 + Ceil(Log(1 + eL * (gmax - 1) / h1) / Log(gmax));
+Call Razon;
+nb = eN;  g = eR;                        // nodos del anillo y razón de crecimiento desde la pared
+hN = h1 * g^(nb - 2);                    // la celda del anillo junto al círculo intermedio
+hb = (rm - a) / nr;                      // la celda de la banda, a media altura del cuadro</code></pre>
+<p>En turbulento, con y⁺ = 1, salen 18 celdas con razón 1.200; la última, junto al círculo intermedio, mide 17.3 mm. En laminar salen 8 con razón 1.188. Con y⁺ = 30 la celda de la pared ya mide 23.4 mm y el anillo tiene sólo 4 (figura 3).</p>
+<div class="callout warning">
+  <p><strong>Por qué no se fijan los dos extremos.</strong> La primera versión de este archivo fijaba la celda de la pared y la del otro extremo, igual a la de la banda (0.04 D), como la macro <code>Empalme</code> del 2.2.2. Con esos dos datos la razón queda determinada: g = (t − h<sub>1</sub>)/(t − h<sub>N</sub>), que con t = 0.1 D y h<sub>N</sub> = 0.04 D queda entre 1.5 y 1.67 para cualquier celda de pared menor de 1 cm. Salían cinco celdas con razón 1.6 en laminar. Fijar la razón máxima deja un salto de tamaño entre el anillo y la banda (de 17.3 a 40 mm en turbulento), que se reduce con más celdas por cuarto.</p>
+</div>
+<figure class="diagram">
+  <img src="imagenes/t312-10_secciones.png" alt="Tres secciones de la tubería con distinta capa límite" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">Tres mallas de un mismo archivo.</b> La sección de entrada de las mallas de la tabla 2, trazada desde los <code>.msh</code>; abajo, el recuadro rojo de cerca. Sólo cambian el régimen, Re e y⁺: el cuadro central y la banda son iguales en las tres, y el anillo junto a la pared pasa de 8 a 18 celdas y de nuevo a 4.</figcaption>
+</figure>
+
+    </section>
+    <section id="length-es">
+      <p class="section-label">Paso 4</p>
+      <h2>La longitud de entrada decide</h2>
+
+<pre class="code"><code>// ------------------------------------------------ longitud: entrada más tramo desarrollado
+If (regimen == 0)
+  Le = D * (0.619^1.6 + (0.0567 * Re)^1.6)^(1 / 1.6);   // Durst et al. (2005)
+Else
+  Le = D * 4.4 * Re^(1 / 6);                              // White, Fluid Mechanics
+EndIf
+L = Le + Ldes * D;</code></pre>
+<p><code>Ldes</code>, 10 diámetros por omisión, es el tramo que se agrega después de la longitud de entrada; ahí se mide. La tubería laminar de Re = 500 queda de 38.4 D y la turbulenta de Re = 50 000, de 36.7 D. Con Re = 2000 laminar, la entrada sola mide 113 D y la tubería 123 D, con 365 560 celdas: es el caso que más celdas pide.</p>
+
+    </section>
+    <section id="mesh-es">
+      <p class="section-label">Paso 5</p>
+      <h2>La misma geometría, sin ningún número fijo</h2>
+
+<p>El resto del archivo es el del 3.1.1 con cada número sustituido: las coordenadas se escriben con <code>R</code>, <code>rm</code> y <code>a</code>; los nodos con <code>nq</code>, <code>nr</code> y <code>nb</code>; la extrusión con <code>L</code> y <code>nz</code>.</p>
+<pre class="code"><code>// ------------------------------------------------ malla: todos los números salen de los parámetros
+Transfinite Curve {1:4, 13:20} = nq + 1;
+Transfinite Curve {5:8} = nr + 1;
+Transfinite Curve {9:12} = nb Using Progression 1 / g;   // las líneas van hacia la pared: cada celda 1/g de la anterior
+Transfinite Surface {1:9};
+Recombine Surface {1:9};</code></pre>
+<p>Las líneas 9 a 12 van del círculo intermedio hacia la pared, y <code>Progression</code> multiplica cada celda por la razón en el sentido de la curva. Como las celdas deben <em>adelgazarse</em> hacia la pared, la razón que se escribe es 1/g. Midiendo los nodos de la línea 9 en las mallas, la celda de la pared mide exactamente h<sub>1</sub>: 6.325 mm en laminar y 0.782 mm en turbulento.</p>
+<p>El número de celdas se predice con los bloques del 3.1.1: nq² en el cuadro, 4·nq·nr en la banda y 4·nq·n en el anillo, por nz capas. El archivo lo escribe como «celdas previstas».</p>
+
+    </section>
+    <section id="gui-es">
+      <p class="section-label">Paso 6</p>
+      <h2>Cambiar el flujo desde la interfaz</h2>
+
+<ol>
+  <li><code>File ▸ Open</code> y <code>tuberia.geo</code>. Aparece la rama <code>Tubería</code>; ensanchar la columna arrastrando su borde derecho.</li>
+  <li>En <code>Régimen</code>, elegir «Turbulento»; en <code>Número de Reynolds</code>, 50000 e Intro; en <code>y+ de la primera celda</code>, 1 e Intro. Cada cambio vuelve a leer el archivo con el valor nuevo.</li>
+  <li><code>Mesh ▸ 2D</code> (o <code>3D</code>): el anillo tiene ahora 18 celdas (figura 4).</li>
+  <li><code>Tools ▸ Message Console</code> y, en el buscador de la consola, «celda»: quedan sólo las líneas de los <code>Printf</code>, una tanda por cada vez que se leyó el archivo (figura 5).</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t312-04_malla_turbulenta.png" alt="La malla turbulenta en la interfaz, con el panel" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">El caso turbulento, desde el panel.</b> Régimen «Turbulento», Re = 50 000 e y⁺ = 1 escritos en el panel y <code>Mesh ▸ 2D</code>. Las 18 celdas del anillo forman la franja oscura junto a la pared.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t312-06_consola.png" alt="La consola de mensajes filtrada con la palabra celda" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">Lo que el archivo recalcula en cada cambio.</b> <code>Tools ▸ Message Console</code>, con «celda» en el buscador. Cada cambio en el panel vuelve a leer el archivo y repite los <code>Printf</code>: de arriba abajo, el caso laminar, el régimen cambiado a turbulento con Re = 500, Re = 50 000 con y⁺ = 0.2, e y⁺ = 1.</figcaption>
+</figure>
+<div class="callout warning">
+  <p><strong>Cada cambio borra la malla.</strong> Al volver a leer el archivo, Gmsh descarta la malla anterior: hay que mallar otra vez. Y el panel no escribe en el archivo, pero recuerda los valores durante la sesión, también al abrir otro archivo; se limpian con el engrane, junto a <code>Run</code>, ▸ <code>Reset database</code> (tutorial 2.1).</p>
+</div>
+
+    </section>
+    <section id="terminal-es">
+      <p class="section-label">Paso 7</p>
+      <h2>Tres mallas de un solo archivo</h2>
+
+<p>Desde la terminal no hace falta abrir la interfaz: cada <code>-setnumber</code> cambia un parámetro por su nombre de variable. Las tres mallas de la tabla 2 salen de un solo archivo:</p>
+<pre class="code"><code>gmsh tuberia.geo -3 -o laminar.msh
+gmsh tuberia.geo -3 -setnumber regimen 1 -setnumber Re 50000 -setnumber yplus 1 -o turb_y1.msh
+gmsh tuberia.geo -3 -setnumber regimen 1 -setnumber Re 50000 -setnumber yplus 30 -o turb_y30.msh</code></pre>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Caso</th><th>f</th><th>ν/u<sub>τ</sub> (mm)</th><th>h<sub>1</sub> (mm)</th><th>Celdas del anillo</th><th>Razón</th><th>L<sub>e</sub> (D)</th><th>L (D)</th><th>Celdas</th></tr></thead>
+    <tbody>
+      <tr><td>Laminar, Re = 500, y⁺ = 0.2</td><td>0.1280</td><td>15.811</td><td>6.325</td><td>8</td><td>1.188</td><td>28.4</td><td>38.4</td><td>95 480</td></tr>
+      <tr><td>Turbulento, Re = 50 000, y⁺ = 1</td><td>0.0210</td><td>0.391</td><td>0.782</td><td>18</td><td>1.200</td><td>26.7</td><td>36.7</td><td>149 940</td></tr>
+      <tr><td>Turbulento, Re = 50 000, y⁺ = 30</td><td>0.0210</td><td>0.391</td><td>23.445</td><td>4</td><td>1.043</td><td>26.7</td><td>36.7</td><td>67 620</td></tr>
+      <tr><td>Turbulento, malla fina</td><td>0.0210</td><td>0.391</td><td>0.782</td><td>22</td><td>1.145</td><td>26.7</td><td>36.7</td><td>400 384</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Lo que calcula el archivo en cada caso.</b> Con D = 1 m y los demás parámetros por omisión, salvo en la malla fina (16 celdas por cuarto, razón 1.15, Δz = 0.2 D). Son las líneas que el archivo escribe con <code>Printf</code>; ν/u<sub>τ</sub> es la longitud viscosa y h<sub>1</sub> la altura de la primera celda.</caption>
+  </table>
+</div>
+<p>El número de celdas que predice el archivo es exactamente el que cuenta <code>checkMesh</code>: 95 480 en laminar y 149 940 en turbulento con y⁺ = 1.</p>
+<p>Para ver lo que calcula el archivo sin mallar, basta <code>-0</code> en lugar de <code>-3</code>: <code>gmsh tuberia.geo -0 -setnumber regimen 1 -setnumber Re 50000 -setnumber yplus 30</code> escribe las líneas de los <code>Printf</code> (con y⁺ = 30, «anillo: 4 celdas con razón 1.04297…») y termina en un instante. De paso deja un archivo <code>tuberia.geo_unrolled</code>, que es el <code>.geo</code> ya evaluado y se puede borrar.</p>
+
+    </section>
+    <section id="quality-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>La malla turbulenta, predicha a mano</h2>
+
+<div class="example">
+  <p><strong>Enunciado.</strong> Para una tubería de D = 1 m con Re = 50 000 y un modelo k-ω SST que pide y⁺ ≈ 1, calcular a mano la altura de la primera celda, el número de celdas del anillo con g<sub>máx</sub> = 1.2 y la longitud; comparar con lo que escribe el archivo.</p>
+  <p><strong>Condiciones.</strong> Tubo liso; anillo de 0.1 D; tramo desarrollado de 10 D.</p>
+</div>
+<p><strong>Factor de fricción.</strong> ln 50 000 = 10.82, así que f = (0.790 × 10.82 − 1.64)<sup>−2</sup> = 0.0210. Para comparar, Blasius, f = 0.316 Re<sup>−1/4</sup>, da 0.0211.</p>
+<p><strong>Longitud viscosa y celda.</strong> √(f/8) = 0.0512, ν/u<sub>τ</sub> = 1/(50 000 × 0.0512) = 0.391 mm y h<sub>1</sub> = 2 × 1 × 0.391 = 0.782 mm.</p>
+<p><strong>Capas.</strong> n = ⌈ln(1 + 0.1 × 0.2/0.000782)/ln 1.2⌉ = ⌈17.99⌉ = 18; la razón exacta para 18 celdas es 1.1999.</p>
+<p><strong>Longitud.</strong> L<sub>e</sub> = 4.4 × 50 000<sup>1/6</sup> = 26.7 D y L = 36.7 D.</p>
+<p>El archivo escribe los mismos valores (tabla 2).</p>
+<p><strong>Preguntas.</strong></p>
+<ol>
+  <li>¿Qué pasa con la celda de la pared si se duplica el número de Reynolds? <em>Respuesta:</em> ν/u<sub>τ</sub> ∝ 1/(Re √f), y f baja poco; la celda se reduce a algo más de la mitad. Con Re = 100 000 el archivo da h<sub>1</sub> = 0.42 mm, contra 0.78 mm con Re = 50 000.</li>
+  <li>¿Por qué el anillo turbulento con y⁺ = 30 tiene sólo cuatro celdas? <em>Respuesta:</em> la celda de la pared ya mide 23.4 mm, casi un cuarto del anillo; con funciones de pared no se resuelve la subcapa viscosa, así que no hacen falta más.</li>
+  <li>¿Qué parámetro hay que cambiar para que el salto entre el anillo y la banda sea menor? <em>Respuesta:</em> las celdas por cuarto: con 16, la banda baja de 40 a 25 mm (malla fina de la tabla 2).</li>
+</ol>
+
+    </section>
+    <section id="openfoam-es">
+      <p class="section-label">Comprobación en OpenFOAM</p>
+      <h2>¿Sale el y⁺ que se pidió?</h2>
+
+<p>La prueba de este archivo no es otra vez Hagen-Poiseuille (ya se hizo en el 3.1.1) sino la parametrización misma: si se pide y⁺ = 1, ¿OpenFOAM mide y⁺ = 1 en la pared?</p>
+<h3>Los casos</h3>
+<ul>
+  <li><strong>Laminar</strong>, Re = 500: U = 1 m/s y ν = 0.002 m²/s; <code>simulationType laminar</code>.</li>
+  <li><strong>Turbulento</strong>, Re = 50 000: ν = 2·10<sup>−5</sup> m²/s; k-ω SST con k = 0 en la pared, <code>omegaWallFunction</code> y <code>nutLowReWallFunction</code>, que es lo que corresponde a y⁺ ≈ 1; intensidad de turbulencia del 5 % en la entrada.</li>
+</ul>
+<p>En los dos, velocidad uniforme en la entrada, presión 0 en la salida y la pared cambiada a tipo <code>wall</code> después de <code>gmshToFoam</code>. El y⁺ se calcula con <code>foamPostProcess -solver incompressibleFluid -func yPlus</code> y el esfuerzo en la pared con <code>-func wallShearStress</code>; se promedian en el tramo desarrollado, de L − 8 D a L − 2 D.</p>
+<figure class="diagram">
+  <img src="imagenes/t312-20_yplus.png" alt="El y más medido en la pared a lo largo de la tubería" loading="lazy">
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">El y⁺ medido en la pared.</b> Un punto por cara de la pared, de la entrada (z = 0) a la salida. Cerca de la entrada la capa límite es delgada y el esfuerzo cortante, mayor, así que y⁺ crece; en la zona desarrollada (sombreada) se estabiliza. En laminar coincide con lo pedido; en turbulento queda un 4 % abajo (sección «Comprobación en OpenFOAM»).</figcaption>
+</figure>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Caso</th><th>Celdas</th><th>y⁺ pedido</th><th>y⁺ medido</th><th>f de referencia</th><th>f medido</th><th>Diferencia en f</th></tr></thead>
+    <tbody>
+      <tr><td>Laminar, Re = 500, y⁺ = 0.2</td><td>95 480</td><td>0.20</td><td>0.200</td><td>0.1280</td><td>0.1289</td><td>0.7 %</td></tr>
+      <tr><td>Turbulento, Re = 50 000, y⁺ = 1</td><td>149 940</td><td>1.00</td><td>0.958</td><td>0.0210</td><td>0.0194</td><td>−7.6 %</td></tr>
+      <tr><td>Turbulento, malla fina</td><td>400 384</td><td>1.00</td><td>0.962</td><td>0.0210</td><td>0.0195</td><td>−7.1 %</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">Lo que pidió el archivo y lo que midió OpenFOAM.</b> OpenFOAM 13, estacionario; laminar con Re = 500 (ν = 0.002 m²/s) y turbulento con k-ω SST y Re = 50 000 (ν = 2·10⁻⁵ m²/s), U = 1 m/s. El y⁺ medido es el promedio sobre la pared entre L − 8 D y L − 2 D; el factor de fricción medido sale del esfuerzo cortante en la misma zona, f = 8τ<sub>w</sub>/(ρU²). La referencia es 64/Re en laminar y Petukhov en turbulento.</caption>
+  </table>
+</div>
+<h3>Laminar</h3>
+<p>Se pidió y⁺ = 0.2 y se mide 0.1996. El factor de fricción medido, 0.1289, difiere del teórico, 64/Re = 0.128, en 0.7 %.</p>
+<h3>Turbulento</h3>
+<p>Se pidió y⁺ = 1 y se mide 0.958, un 4 % menos. No es un error del archivo: el y⁺ que mide OpenFOAM usa la velocidad de fricción de la propia simulación, y el modelo k-ω SST da un factor de fricción de 0.0194, un 7.6 % por debajo de Petukhov. Como u<sub>τ</sub> ∝ √f, el y⁺ medido debe ser el pedido por √(f<sub>medido</sub>/f<sub>Petukhov</sub>) = 0.961, que es lo que se mide. La malla fina, con 16 celdas por cuarto, razón 1.15 y Δz = 0.2 D (400 384 celdas), da y⁺ = 0.962 y f = 0.0195, un 0.5 % más que la malla gruesa: la diferencia con Petukhov no es de resolución de la malla sino del modelo.</p>
+<div class="callout">
+  <p><strong>Qué garantiza el cálculo.</strong> El archivo acierta la altura de la celda con la precisión de la correlación de fricción. Si el modelo de turbulencia da otra fricción, el y⁺ cambia en la raíz de esa diferencia: un 8 % en f son un 4 % en y⁺. Para y⁺ ≈ 1 o y⁺ ≈ 30, ese margen no importa.</p>
+</div>
+
+    </section>
+    <section id="files-es">
+      <p class="section-label">Archivo</p>
+      <h2>tuberia.geo, completo</h2>
+<p class="code-name"><code>tuberia.geo</code></p>
+<pre class="code"><code>// Tubería recta parametrizada (tutorial 3.1.2): la sección en O de 9 bloques del 3.1.1, con la primera celda
+// calculada desde y+ y la longitud desde el número de Reynolds. Unidades: metros.
+// Cada parámetro se cambia en el panel «Tubería» de la interfaz o desde la terminal. En los rótulos no puede ir
+// una diagonal: Gmsh la toma como separador de ramas del panel.
+//   gmsh tuberia.geo -3 -setnumber regimen 1 -setnumber Re 50000 -o tuberia.msh
+
+SetFactory(&quot;Built-in&quot;);
+
+DefineConstant[
+  regimen = {0,     Choices{0 = &quot;Laminar&quot;, 1 = &quot;Turbulento&quot;}, Name &quot;Tubería/1Régimen&quot;},
+  Re      = {500,   Name &quot;Tubería/2Número de Reynolds&quot;},
+  D       = {1,     Name &quot;Tubería/3Diámetro D (m)&quot;},
+  yplus   = {0.2,   Name &quot;Tubería/4y+ de la primera celda&quot;},
+  gmax    = {1.2,   Name &quot;Tubería/5Razón de crecimiento&quot;},
+  Ldes    = {10,    Name &quot;Tubería/6Tramo tras la entrada (D)&quot;},
+  nq      = {10,    Name &quot;Tubería/7Celdas por cuarto&quot;},
+  dz      = {0.25,  Name &quot;Tubería/8Celda axial Δz (D)&quot;}
+];
+
+// ------------------------------------------------ geometría de la sección (proporciones del 3.1.1)
+R  = D / 2;
+rm = 0.8 * R;          // círculo intermedio: el anillo de la capa límite ocupa el 20 % exterior del radio
+a  = 0.4 * R;          // semilado del cuadro central
+
+// ------------------------------------------------ factor de fricción y velocidad de fricción
+// Laminar: Hagen-Poiseuille. Turbulento (tubo liso): Petukhov, válido de 3000 a 5·10^6.
+If (regimen == 0)
+  f = 64 / Re;
+Else
+  f = 1 / (0.790 * Log(Re) - 1.64)^2;
+EndIf
+// u_tau / U = Sqrt(f/8); en longitudes: nu / u_tau = D / (Re Sqrt(f/8))
+lv = D / (Re * Sqrt(f / 8));          // longitud viscosa nu/u_tau (m)
+
+// y+ mide la distancia del CENTRO de la primera celda a la pared: la altura es el doble.
+h1 = 2 * yplus * lv;
+
+// ------------------------------------------------ longitud: entrada más tramo desarrollado
+If (regimen == 0)
+  Le = D * (0.619^1.6 + (0.0567 * Re)^1.6)^(1 / 1.6);   // Durst et al. (2005)
+Else
+  Le = D * 4.4 * Re^(1 / 6);                              // White, Fluid Mechanics
+EndIf
+L = Le + Ldes * D;
+
+// ------------------------------------------------ nodos de la sección
+hs  = 2 * a / nq;                        // lado de las celdas del cuadro central
+nr  = Round((rm - a) / hs);              // celdas de la banda, del cuadro al círculo intermedio
+
+// El anillo va de h1 en la pared hacia el círculo intermedio, creciendo a lo más gmax por celda. La suma de la
+// progresión, h1 (g^n − 1)/(g − 1) = t, da el número de celdas n; se redondea hacia arriba y la macro Razon (la del
+// 2.2.2) busca por bisección la razón exacta que llena el anillo con esas n celdas.
+Macro Razon
+  rA = 1.0 + 1.e-9;  rB = 3.0;
+  For iter In {1:80}
+    rM = 0.5 * (rA + rB);
+    sM = eh1 * (rM^(eN - 1) - 1.0) / (rM - 1.0);
+    If (sM &lt; eL)
+      rA = rM;
+    Else
+      rB = rM;
+    EndIf
+  EndFor
+  eR = 0.5 * (rA + rB);
+Return
+
+eL = R - rm;  eh1 = h1;
+eN = 1 + Ceil(Log(1 + eL * (gmax - 1) / h1) / Log(gmax));
+Call Razon;
+nb = eN;  g = eR;                        // nodos del anillo y razón de crecimiento desde la pared
+hN = h1 * g^(nb - 2);                    // la celda del anillo junto al círculo intermedio
+hb = (rm - a) / nr;                      // la celda de la banda, a media altura del cuadro
+
+nz = Round(L / (dz * D));                // capas a lo largo del eje
+N3 = (nq^2 + 4 * nq * nr + 4 * nq * (nb - 1)) * nz;
+
+Printf(&quot;Re = %g   f = %g   nu/u_tau = %g m&quot;, Re, f, lv);
+Printf(&quot;y+ = %g  -&gt;  primera celda h1 = %g m (%g D)&quot;, yplus, h1, h1 / D);
+Printf(&quot;anillo: %g celdas con razón %g, de %g m a %g m (la banda sigue con %g m)&quot;, nb - 1, g, h1, hN, hb);
+Printf(&quot;longitud de entrada Le = %g D; tubería L = %g D en %g capas&quot;, Le / D, L / D, nz);
+Printf(&quot;celdas previstas: %g&quot;, N3);
+
+// ------------------------------------------------ puntos, curvas y superficies (como el 3.1.1)
+Point(1)  = {0, 0, 0};
+Point(2)  = {a, a, 0};   Point(3) = {-a, a, 0};   Point(4) = {-a, -a, 0};   Point(5) = {a, -a, 0};
+Point(6)  = {rm*Cos(Pi/4), rm*Sin(Pi/4), 0};    Point(7)  = {-rm*Cos(Pi/4), rm*Sin(Pi/4), 0};
+Point(8)  = {-rm*Cos(Pi/4), -rm*Sin(Pi/4), 0};  Point(9)  = {rm*Cos(Pi/4), -rm*Sin(Pi/4), 0};
+Point(10) = {R*Cos(Pi/4), R*Sin(Pi/4), 0};      Point(11) = {-R*Cos(Pi/4), R*Sin(Pi/4), 0};
+Point(12) = {-R*Cos(Pi/4), -R*Sin(Pi/4), 0};    Point(13) = {R*Cos(Pi/4), -R*Sin(Pi/4), 0};
+
+Line(1) = {2, 3};  Line(2) = {3, 4};  Line(3) = {4, 5};  Line(4) = {5, 2};          // cuadro central
+Line(5) = {2, 6};  Line(6) = {3, 7};  Line(7) = {4, 8};  Line(8) = {5, 9};          // cuadro → círculo intermedio
+Line(9) = {6, 10}; Line(10) = {7, 11}; Line(11) = {8, 12}; Line(12) = {9, 13};      // círculo intermedio → pared
+Circle(13) = {6, 1, 7};   Circle(14) = {7, 1, 8};   Circle(15) = {8, 1, 9};   Circle(16) = {9, 1, 6};
+Circle(17) = {10, 1, 11}; Circle(18) = {11, 1, 12}; Circle(19) = {12, 1, 13}; Circle(20) = {13, 1, 10};
+
+Curve Loop(1) = {1, 2, 3, 4};         Plane Surface(1) = {1};
+Curve Loop(2) = {1, 6, -13, -5};      Plane Surface(2) = {2};
+Curve Loop(3) = {2, 7, -14, -6};      Plane Surface(3) = {3};
+Curve Loop(4) = {3, 8, -15, -7};      Plane Surface(4) = {4};
+Curve Loop(5) = {4, 5, -16, -8};      Plane Surface(5) = {5};
+Curve Loop(6) = {13, 10, -17, -9};    Plane Surface(6) = {6};
+Curve Loop(7) = {14, 11, -18, -10};   Plane Surface(7) = {7};
+Curve Loop(8) = {15, 12, -19, -11};   Plane Surface(8) = {8};
+Curve Loop(9) = {16, 9, -20, -12};    Plane Surface(9) = {9};
+
+// ------------------------------------------------ malla: todos los números salen de los parámetros
+Transfinite Curve {1:4, 13:20} = nq + 1;
+Transfinite Curve {5:8} = nr + 1;
+Transfinite Curve {9:12} = nb Using Progression 1 / g;   // las líneas van hacia la pared: cada celda 1/g de la anterior
+Transfinite Surface {1:9};
+Recombine Surface {1:9};
+
+ext[] = Extrude {0, 0, L} { Surface{1:9}; Layers{nz}; Recombine; };
+Physical Surface(&quot;inlet&quot;)  = {1:9};
+Physical Surface(&quot;outlet&quot;) = {ext[0], ext[6], ext[12], ext[18], ext[24], ext[30], ext[36], ext[42], ext[48]};
+Physical Surface(&quot;walls&quot;)  = {ext[34], ext[40], ext[46], ext[52]};
+Physical Volume(&quot;fluid&quot;)   = {ext[1], ext[7], ext[13], ext[19], ext[25], ext[31], ext[37], ext[43], ext[49]};
+Mesh.MshFileVersion = 2.2;</code></pre>
+    </section>
+    <section id="example-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>Tres mallas para la actividad del curso</h2>
+
+<p>La actividad del curso pide una tubería con flujo desarrollado en régimen laminar y turbulento. Estas tres mallas son su punto de partida; en cada una, predecir con las fórmulas lo que escribirá el archivo antes de correrlo.</p>
+<ol>
+  <li><strong>Laminar con Re = 1500.</strong> Calcular la longitud de entrada y el número de celdas. ¿Cuántas capas axiales hacen falta con Δz = 0.25 D? Comprobar en OpenFOAM el factor de fricción 64/Re en el último tramo.</li>
+  <li><strong>Turbulento resuelto, Re = 100 000 e y⁺ = 1.</strong> Calcular h<sub>1</sub> y las capas del anillo; comparar el y⁺ medido con el pedido y explicar la diferencia con el factor de fricción, como en la sección «Comprobación en OpenFOAM».</li>
+  <li><strong>Turbulento con funciones de pared, y⁺ = 30.</strong> Cambiar en el caso <code>nutLowReWallFunction</code> por <code>nutkWallFunction</code> y la k de la pared por <code>kqRWallFunction</code>. Comparar el factor de fricción con el de y⁺ = 1 y el número de celdas de las dos mallas.</li>
+</ol>
+
+    </section>
+    <section id="summary-es">
+      <p class="section-label">Puntos clave</p>
+      <h2>Lo que hay que retener</h2>
+
+<ul>
+  <li>Los parámetros son las decisiones de la simulación (régimen, Re, y⁺, resolución); lo que se deduce de ellos se calcula en el archivo.</li>
+  <li><code>DefineConstant</code> con <code>Choices</code> da un desplegable en el panel; una diagonal en el rótulo crea una rama nueva.</li>
+  <li>La celda de la pared es h<sub>1</sub> = 2 y⁺ D/(Re √(f/8)), con f = 64/Re en laminar y la correlación de Petukhov en turbulento.</li>
+  <li>El número de capas sale de una razón máxima; la razón exacta, de una bisección.</li>
+  <li>La longitud es la de entrada más un tramo desarrollado; en laminar crece con Re, en turbulento casi no.</li>
+  <li>OpenFOAM mide el y⁺ pedido; en turbulento, corregido por la raíz del cociente entre la fricción del modelo y la de la correlación.</li>
+</ul>
+
+    </section>
+    <section id="mistakes-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Lo que falla y lo que hace Gmsh</h2>
+
+<h3>El panel tiene una rama que nadie escribió</h3>
+<p>Un rótulo con una diagonal, como «U D/ν»: Gmsh la toma como separador. Quitar la diagonal.</p>
+<h3>El y⁺ medido es la mitad del pedido</h3>
+<p>Se calculó la altura de la celda como y⁺ ν/u<sub>τ</sub>, sin el factor 2: esa es la distancia al centro de la celda, no su altura.</p>
+<h3>El anillo tiene pocas celdas con una razón muy grande</h3>
+<p>Se fijaron las dos celdas extremas del anillo; la razón queda entonces impuesta por el espesor del anillo y no por la física. Fijar la razón máxima y despejar el número de celdas.</p>
+<h3>Las celdas se hacen más gruesas hacia la pared</h3>
+<p>Se escribió <code>Using Progression g</code> en lugar de <code>1 / g</code>: las líneas del anillo van del círculo intermedio hacia la pared.</p>
+<h3>La malla no cambia al cambiar un valor en el panel</h3>
+<p>Cambiar un valor borra la malla, pero no la vuelve a hacer: hay que mallar otra vez.</p>
+<h3><code>-setnumber</code> no cambia nada</h3>
+<p>El parámetro se escribió como asignación simple (<code>Re = 500;</code>) o como <code>DefineNumber</code>; sólo <code>DefineConstant</code> obedece al nombre corto (tutoriales 1.1 y 2.1).</p>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ol>
+  <li>C. Geuzaine y J.-F. Remacle. <em>Gmsh Reference Manual</em>, versión 4.15: <code>DefineConstant</code>, <code>Choices</code>, <code>If</code>, <code>Macro</code> y <code>Printf</code>. <a href="https://gmsh.info/doc/texinfo/gmsh.html" target="_blank" rel="noopener">gmsh.info/doc/texinfo/gmsh.html</a>.</li>
+  <li>F. M. White. <em>Fluid Mechanics</em>, 8.ª ed. McGraw-Hill, 2016. Capítulo 6: factor de fricción, longitud de entrada y variables de pared.</li>
+  <li>B. S. Petukhov. «Heat transfer and friction in turbulent pipe flow with variable physical properties». <em>Advances in Heat Transfer</em> 6 (1970): 503-564.</li>
+  <li>F. Durst, S. Ray, B. Ünsal y O. A. Bayoumi. «The development lengths of laminar pipe and channel flows». <em>Journal of Fluids Engineering</em> 127 (2005): 1154-1160.</li>
+  <li>The OpenFOAM Foundation. <em>OpenFOAM User Guide</em>, versión 13: <code>kOmegaSST</code>, <code>yPlus</code> y <code>wallShearStress</code>. <a href="https://doc.cfd.direct/openfoam/user-guide-v13/" target="_blank" rel="noopener">doc.cfd.direct/openfoam/user-guide-v13</a>.</li>
+</ol>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="tuberia-recta.html?v=13"><span>Tutorial anterior</span>← Tutorial 3.1.1 · La tubería recta</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Serie de tutoriales</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Die festen Zahlen der Rohrdatei in Parameter umwandeln, die das Gmsh-Feld und das Terminal ändern können; die Höhe der ersten Zelle aus einem Ziel-y⁺, den Grenzschichtring aus einem Wachstumsverhältnis und die Länge aus der Einlauflänge berechnen; in OpenFOAM prüfen, dass das verlangte y⁺ gemessen wird.</p>
+    </section>
+    <section id="physics-de">
+      <p class="section-label">Die Idee</p>
+      <h2>Drei Zahlen, die die Strömung bestimmt</h2>
+<p>Die Wandzelle folgt aus y⁺ und dem Reibungsbeiwert, h = 2 y⁺ D / (Re √(f/8)); die Schichtzahl aus einem maximalen Wachstumsverhältnis; die Länge aus der laminaren oder turbulenten Einlauflänge.</p>
+    </section>
+    <section id="recipe-de">
+      <p class="section-label">Ablauf</p>
+      <h2>Von der Datei aus 3.1.1 zur parametrischen Datei in sieben Schritten</h2>
+<p>Sieben Schritte von der Datei aus 3.1.1 zur parametrischen.</p>
+    </section>
+    <section id="params-de">
+      <p class="section-label">Schritt 1</p>
+      <h2>Acht Parameter und eine Auswahlliste</h2>
+<p>DefineConstant mit Name und, für das Regime, Choices, das im Feld als Auswahlliste erscheint. Ein Schrägstrich im Etikett erzeugt einen neuen Zweig.</p>
+    </section>
+    <section id="wall-de">
+      <p class="section-label">Schritt 2</p>
+      <h2>Von y⁺ zu Metern</h2>
+<p>Der Reibungsbeiwert (64/Re oder Petukhov) ergibt die viskose Länge ν/u_τ = D/(Re √(f/8)); y⁺ gilt für den Zellmittelpunkt, daher ist die Zellhöhe das Doppelte von y⁺ mal dieser Länge.</p>
+    </section>
+    <section id="ring-de">
+      <p class="section-label">Schritt 3</p>
+      <h2>Wie viele Schichten und mit welchem Verhältnis</h2>
+<p>Die Schichtzahl ist die kleinste, die das Wachstum unter dem Höchstverhältnis hält; ein Bisektionsmakro findet das genaue Verhältnis für diese ganze Zahl.</p>
+    </section>
+    <section id="length-de">
+      <p class="section-label">Schritt 4</p>
+      <h2>Die Einlauflänge entscheidet</h2>
+<p>Laminare Einlauflänge nach Durst et al., turbulente aus 4,4 Re^(1/6); zehn Durchmesser kommen hinzu.</p>
+    </section>
+    <section id="mesh-de">
+      <p class="section-label">Schritt 5</p>
+      <h2>Dieselbe Geometrie ohne feste Zahl</h2>
+<p>Punkte, Transfinite und Extrude nehmen Ausdrücke; die Ringlinien nutzen Progression 1/g zur Wand.</p>
+    </section>
+    <section id="gui-de">
+      <p class="section-label">Schritt 6</p>
+      <h2>Die Strömung über die Oberfläche ändern</h2>
+<p>Eine Feldänderung liest die Datei neu, berechnet alles und löscht das Netz; die Printf-Zeilen erscheinen in Tools > Message Console mit Suchfeld.</p>
+    </section>
+    <section id="terminal-de">
+      <p class="section-label">Schritt 7</p>
+      <h2>Drei Netze aus einer Datei</h2>
+<p>-setnumber mit dem Variablennamen erzeugt jeden Fall ohne Oberfläche.</p>
+    </section>
+    <section id="quality-de">
+      <p class="section-label">Durchgerechnetes Beispiel</p>
+      <h2>Das turbulente Netz, von Hand vorhergesagt</h2>
+<p>Der turbulente Fall bei Re = 50 000 und y⁺ = 1, von Hand berechnet und mit der Datei verglichen.</p>
+    </section>
+    <section id="openfoam-de">
+      <p class="section-label">Prüfung in OpenFOAM</p>
+      <h2>Kommt das verlangte y⁺ heraus?</h2>
+<p>Laminar: gemessenes y⁺ 0,1996 bei verlangten 0,2. Turbulent (k-ω SST): 0,958 bei 1, weil das Modell einen kleineren Reibungsbeiwert liefert; ihr Verhältnis erklärt den Unterschied.</p>
+    </section>
+    <section id="files-de">
+      <p class="section-label">Datei</p>
+      <h2>tuberia.geo, vollständig</h2>
+<p>Die vollständige parametrische Datei.</p>
+    </section>
+    <section id="example-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Drei Netze für die Kursaufgabe</h2>
+<p>Die drei Netze der Kursaufgabe: laminar, turbulent aufgelöst und mit Wandfunktionen.</p>
+    </section>
+    <section id="summary-de">
+      <p class="section-label">Kernpunkte</p>
+      <h2>Was man behalten sollte</h2>
+<p>Parameter für das, was die Strömung bestimmt; alles andere berechnet.</p>
+    </section>
+    <section id="mistakes-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Was schiefgeht und was Gmsh tut</h2>
+<p>Ein Schrägstrich im Etikett, ein halb so großes y⁺, ein Ring mit zu wenigen Schichten.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>Gmsh-Handbuch; White; Petukhov; Durst et al.; OpenFOAM-13-Handbuch.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="tuberia-recta.html?v=13"><span>Vorheriges Tutorial</span>← Tutorial 3.1.1 · Das gerade Rohr</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Tutorialreihe</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>
