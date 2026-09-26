@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Gmsh tutorial: a pipe elbow built with Extrude > Rotate from the O-grid of tutorial 3.1.1, a conical Venturi made of transfinite volumes between scaled sections, physical groups for any assembly with CombinedBoundary, and an OpenFOAM check of the Venturi discharge coefficient." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>The Elbow and the Venturi: Rotated Extrusion and Blocks between Sections | Gmsh Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">Gmsh · Tutorial 3.1.3</p><h1>The Elbow and the Venturi: Rotated Extrusion and Blocks between Sections</h1><p class="hero-copy">Two pieces for the pipe of tutorials 3.1.1 and 3.1.2. The elbow is an extrusion around an axis, done with the buttons; the conical Venturi joins copies of the O-grid of different size with transfinite volumes, written in a script. Each piece grows from the faces of the previous one, so the mesh stays continuous without any extra step.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">Gmsh · Tutorial 3.1.3</p><h1>El codo y el Venturi: extrusión con rotación y bloques entre secciones</h1><p class="hero-copy">Dos piezas para la tubería de los tutoriales 3.1.1 y 3.1.2. El codo es una extrusión alrededor de un eje, hecha con los botones; el Venturi cónico une copias de la sección en O de distinto tamaño con volúmenes transfinitos, escritos en el archivo. Cada pieza nace de las caras de la anterior, así que la malla queda continua sin ningún paso adicional.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">Gmsh · Tutorial 3.1.3</p><h1>Krümmer und Venturi: gedrehte Extrusion und Blöcke zwischen Querschnitten</h1><p class="hero-copy">Zwei Teile für das Rohr aus den Tutorials 3.1.1 und 3.1.2. Der Krümmer ist eine Extrusion um eine Achse, über die Schaltflächen; das konische Venturi verbindet verschieden große Kopien des O-Gitters mit transfiniten Volumen, in der Datei geschrieben. Jedes Teil wächst aus den Flächen des vorigen, sodass das Netz ohne weiteren Schritt zusammenhängt.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 40 min</span><span data-language="es" hidden>Lectura estimada: 40 min</span><span data-language="de" hidden>Lesedauer: ca. 40 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on Gmsh 4.15.2 and OpenFOAM 13</span><span data-language="es" hidden>Verificado en Gmsh 4.15.2 y OpenFOAM 13</span><span data-language="de" hidden>Geprüft mit Gmsh 4.15.2 und OpenFOAM 13</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="tuberia-parametrizada.html?v=13">← <span>3.1.2</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/TttGRFAd7zU" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Video · part 1</span><span data-language="es" hidden>Vídeo · parte 1</span><span data-language="de" hidden>Video · Teil 1</span></a><a class="button secondary" href="https://youtu.be/psnV9e2hJCw" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Video · part 2</span><span data-language="es" hidden>Vídeo · parte 2</span><span data-language="de" hidden>Video · Teil 2</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#physics">Joining pieces</a><a href="#recipe">Recipe</a><a href="#elbow">The elbow</a><a href="#groups">Physical groups</a><a href="#venturi">The Venturi</a><a href="#quality">Worked example</a><a href="#openfoam">OpenFOAM check</a><a href="#files">The files</a><a href="#example">Suggested practice</a><a href="#summary">Key points</a><a href="#mistakes">Common mistakes</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#physics-es">Unir piezas</a><a href="#recipe-es">Receta</a><a href="#elbow-es">El codo</a><a href="#groups-es">Grupos físicos</a><a href="#venturi-es">El Venturi</a><a href="#quality-es">Ejemplo resuelto</a><a href="#openfoam-es">Comprobación</a><a href="#files-es">Los archivos</a><a href="#example-es">Práctica sugerida</a><a href="#summary-es">Puntos clave</a><a href="#mistakes-es">Errores frecuentes</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#physics-de">Teile verbinden</a><a href="#recipe-de">Ablauf</a><a href="#elbow-de">Der Krümmer</a><a href="#groups-de">Physikalische Gruppen</a><a href="#venturi-de">Das Venturi</a><a href="#quality-de">Beispiel</a><a href="#openfoam-de">Prüfung</a><a href="#files-de">Die Dateien</a><a href="#example-de">Übung</a><a href="#summary-de">Kernpunkte</a><a href="#mistakes-de">Häufige Fehler</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Build an elbow with Extrude > Rotate, extrude a straight outlet from its end faces, write physical groups that work for any assembly, and build a conical Venturi from scaled O-grid sections joined by transfinite volumes; check both meshes in OpenFOAM.</p>
+    </section>
+    <section id="physics">
+      <p class="section-label">The idea</p>
+      <h2>Each piece grows from the faces of the previous one</h2>
+<p>An extrusion reuses the faces it starts from, so pieces extruded one from another share nodes and the mesh is conformal with no merging step. A section that changes size cannot be extruded; it is joined to the next by volumes of six faces.</p>
+    </section>
+    <section id="recipe">
+      <p class="section-label">Recipe</p>
+      <h2>The elbow in five steps, the Venturi in four</h2>
+<p>Five steps for the elbow with the buttons and four for the Venturi in the file.</p>
+    </section>
+    <section id="elbow">
+      <p class="section-label">Steps 1 to 3</p>
+      <h2>Extrude ▸ Rotate</h2>
+<p>Extrude > Rotate asks for a point on the axis, its direction and the angle. The nine end faces are chosen from the front view, and the outlet piece from the view along +x.</p>
+    </section>
+    <section id="groups">
+      <p class="section-label">Steps 4 and 5</p>
+      <h2>Groups for any assembly, without choosing faces</h2>
+<p>Inlet and outlet by bounding box; the wall is the combined boundary of all volumes minus those two lists. The same six lines work for the elbow, the Venturi and any assembly.</p>
+    </section>
+    <section id="venturi">
+      <p class="section-label">Steps 6 to 9</p>
+      <h2>Four sections and the blocks between them</h2>
+<p>Four copies of the O-grid at the inlet, the throat ends and the outlet, joined by straight lines, ruled side faces and transfinite volumes; the straight pipes are extruded from the end sections. ISO 5167-4 proportions: 21 degrees converging, 7 to 15 degrees diverging, throat one diameter long.</p>
+    </section>
+    <section id="quality">
+      <p class="section-label">Worked example</p>
+      <h2>The two meshes, predicted</h2>
+<p>The cell counts and the cell lengths along the elbow, predicted and compared with Gmsh.</p>
+    </section>
+    <section id="openfoam">
+      <p class="section-label">OpenFOAM check</p>
+      <h2>checkMesh and the discharge coefficient</h2>
+<p>The elbow mesh passes checkMesh like the straight pipe. The Venturi, with k-omega SST at Re = 200 000, gives a discharge coefficient close to the ISO value for a machined Venturi.</p>
+    </section>
+    <section id="files">
+      <p class="section-label">Files</p>
+      <h2>codo_grupos.geo and venturi.geo</h2>
+<p>The group block for the elbow and the whole Venturi file.</p>
+    </section>
+    <section id="example">
+      <p class="section-label">Suggested practice</p>
+      <h2>Toward the course activity</h2>
+<p>Steps toward the course activity: a long pipe, an elbow and a Venturi in one mesh.</p>
+    </section>
+    <section id="summary">
+      <p class="section-label">Key points</p>
+      <h2>What to keep from this guide</h2>
+<p>Extrude from faces to join; transfinite volumes where the section changes; groups by position.</p>
+    </section>
+    <section id="mistakes">
+      <p class="section-label">Common mistakes</p>
+      <h2>What goes wrong and what Gmsh does</h2>
+<p>Faces chosen from the wrong view, a Rotate axis through the pipe, a wall group with the inlet.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>Gmsh manual; ISO 5167-4; White; OpenFOAM 13 user guide.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="tuberia-parametrizada.html?v=13"><span>Previous tutorial</span>← Tutorial 3.1.2 · The parametric pipe</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Tutorial series</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">La actividad del curso pide una tubería lo bastante larga para que el flujo se desarrolle, un codo y una sección convergente-divergente. Los tutoriales <a href="tuberia-recta.html">3.1.1</a> y <a href="tuberia-parametrizada.html">3.1.2</a> resolvieron el tramo recto; éste agrega las otras dos piezas y la regla para unirlas. El ensamble completo queda para la actividad.</p>
+<ul>
+  <li>Construir un codo con <code>Extrude ▸ Rotate</code> a partir de la sección en O, con los botones.</li>
+  <li>Extruir cada pieza desde las caras del extremo de la anterior, eligiéndolas desde la vista en que quedan delante.</li>
+  <li>Escribir grupos físicos que funcionen para cualquier ensamble, sin elegir caras una por una.</li>
+  <li>Construir un Venturi cónico uniendo copias de la sección en O de distinto tamaño con volúmenes transfinitos.</li>
+  <li>Comprobar las dos mallas en OpenFOAM: <code>checkMesh</code> y el coeficiente de descarga del Venturi.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> Gmsh 4.15.2 y OpenFOAM (<a href="https://openfoam.org" target="_blank" rel="noopener">openfoam.org</a>). Se suponen el <a href="tuberia-recta.html">3.1.1</a> (la sección en O, el recuadro, el <code>Manipulator</code>) y el <a href="tuberia-parametrizada.html">3.1.2</a> (la primera celda desde y⁺).</p>
+</div>
+
+    </section>
+    <section id="physics-es">
+      <p class="section-label">La idea</p>
+      <h2>Cada pieza nace de las caras de la anterior</h2>
+
+<p>Una extrusión no copia las caras de las que parte: las reutiliza como una de las caras de los volúmenes nuevos. Si una pieza se extruye desde las caras del extremo de otra, las dos comparten esas caras, sus nodos y sus aristas, y la malla es continua —conforme— sin ningún paso para pegarlas. Esa es toda la regla para ensamblar una tubería: el tramo recto nace de la sección, el codo nace de las caras del final del tramo, el tramo de salida nace de las caras del final del codo.</p>
+<p>La regla tiene un límite: una extrusión mantiene la sección igual. Traslada (<code>Translate</code>) o gira (<code>Rotate</code>) una copia exacta. Un Venturi cambia de diámetro, así que no se puede extruir: se construyen copias de la sección a otra escala y se unen con volúmenes de seis caras, cada uno con <code>Transfinite Volume</code>. Los tramos rectos de antes y de después sí se extruyen, desde la primera y la última copia.</p>
+<h3>El codo</h3>
+<p>En <code>Rotate</code>, cada punto de la sección describe un arco alrededor del eje. El radio de curvatura del codo es la distancia del eje al centro de la tubería: con el eje por x = 1.5 m y la tubería centrada en x = 0, R<sub>c</sub> = 1.5 D. El eje debe quedar fuera de la tubería (R<sub>c</sub> &gt; R): si la atravesara, los arcos de un lado se cruzarían con los del otro.</p>
+<h3>El Venturi</h3>
+<p>Las proporciones son las de un Venturi clásico de la norma ISO 5167-4: un convergente de 21° de ángulo total, una garganta de largo igual a su diámetro y un divergente de entre 7° y 15°. Con la razón de diámetros β = d/D, los largos son</p>
+<div class="equation-card">\[ L_c = \frac{(1-\beta)\,R}{\tan(\alpha_c/2)}, \qquad L_t = \beta D, \qquad L_d = \frac{(1-\beta)\,R}{\tan(\alpha_d/2)}. \]</div>
+<p>Con β = 0.5, 21° y 14°: L<sub>c</sub> = 1.349 D, L<sub>t</sub> = 0.5 D y L<sub>d</sub> = 2.036 D.</p>
+
+    </section>
+    <section id="recipe-es">
+      <p class="section-label">Receta</p>
+      <h2>El codo en cinco pasos, el Venturi en cuatro</h2>
+
+<p>El codo se hace con los botones, a partir de la sección del 3.1.1 sin extruir (el archivo <code>tuberia_recta.geo</code> hasta la línea de <code>Recombine</code>).</p>
+<ol>
+  <li><strong>Tramo recto.</strong> <code>Geometry ▸ Elementary entities ▸ Extrude ▸ Translate</code>: DZ = 3, <code>Extrude mesh</code> con 15 capas, <code>Selection mode</code> en <code>Surfaces</code>, un recuadro sobre la sección y <code>e</code>.</li>
+  <li><strong>Codo.</strong> <code>Extrude ▸ Rotate</code>: <code>Axis point</code> (1.5, 0, 3), <code>Axis direction</code> (0, 1, 0), <code>Angle</code> = <code>Pi/2</code>, 20 capas. Vista de frente con el <code>Manipulator</code>, un clic en el centro de cada bloque y <code>e</code> (<code>Extrude {{0, 1, 0}, {1.5, 0, 3}, Pi/2} {…}</code>).</li>
+  <li><strong>Tramo de salida.</strong> <code>Extrude ▸ Translate</code>: DX = 3, DZ = 0, 15 capas. Vista desde +x (rotación 0, −90, 0; escala 0.5), un clic en cada bloque del final del codo y <code>e</code>.</li>
+  <li><strong>Grupos físicos.</strong> Con <code>Edit script</code>, pegar al final del archivo el bloque de la sección «Grupos físicos» y <code>Reload script</code>.</li>
+  <li><strong>Malla.</strong> <code>Mesh ▸ 3D</code>: 31 000 hexaedros.</li>
+</ol>
+<p>El Venturi se escribe en el archivo <code>venturi.geo</code> (sección «Archivos»):</p>
+<ol start="6">
+  <li><strong>Cuatro secciones</strong> a las alturas z = 0, L<sub>c</sub>, L<sub>c</sub> + L<sub>t</sub> y L<sub>c</sub> + L<sub>t</sub> + L<sub>d</sub>, con el radio multiplicado por 1, β, β y 1.</li>
+  <li><strong>Bloques entre secciones.</strong> Una línea recta por cada punto de la sección, una cara lateral por cada curva y un volumen de seis caras por cada bloque; todo transfinito.</li>
+  <li><strong>Tramos rectos,</strong> extruidos desde la primera y la última sección.</li>
+  <li><strong>Grupos físicos,</strong> con el mismo bloque del codo, y <code>Mesh ▸ 3D</code>: 179 400 hexaedros.</li>
+</ol>
+
+    </section>
+    <section id="elbow-es">
+      <p class="section-label">Pasos 1 a 3</p>
+      <h2>Extrude ▸ Rotate</h2>
+
+<p>El tramo recto se extruye como en el 3.1.1: <code>Translate</code>, DZ = 3 m, 15 capas y las nueve superficies con un recuadro. Queda un tubo de 3 D cuyas caras del extremo, en z = 3, tienen los números 42, 64, …, 218.</p>
+<h3>Extrude ▸ Rotate</h3>
+<p>El diálogo es el mismo <code>Elementary Operation Context</code> de <code>Translate</code>, en su pestaña <code>Rotate</code> (figura 1). Pide un punto por el que pasa el eje, la dirección del eje y el ángulo:</p>
+<ul>
+  <li><code>Axis point</code> = (1.5, 0, 3): el eje pasa a 1.5 m del centro de la tubería, a la altura de su extremo.</li>
+  <li><code>Axis direction</code> = (0, 1, 0): paralelo a y, así que el codo gira en el plano x–z.</li>
+  <li><code>Angle</code> = <code>Pi/2</code>: un cuarto de vuelta. El signo decide el sentido; con π/2 positivo y el eje por x = 1.5, el tubo dobla hacia +x.</li>
+  <li><code>Extrude mesh</code> con 20 capas y <code>Recombine</code>.</li>
+</ul>
+<figure class="diagram narrow">
+  <img src="imagenes/t313-01_dialogo_rotate.png" alt="El diálogo de Extrude Rotate" loading="lazy">
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title"><code>Extrude ▸ Rotate</code>, antes de llenarlo.</b> El eje de giro se da con un punto (<code>Axis point</code>) y una dirección (<code>Axis direction</code>); <code>Angle</code> acepta expresiones como <code>Pi/2</code>. Por omisión el eje es el y que pasa por el origen y el ángulo es π/4. Las casillas de abajo son las mismas de <code>Translate</code>.</figcaption>
+</figure>
+<p>Las caras de partida son las del extremo del tramo recto. Con la vista de frente (<code>Tools ▸ Manipulator</code>, rotación 0, 0, 0; escala 0.7) quedan delante de las de z = 0, y un clic en el centro de cada bloque las elige (figura 2). El recuadro no conviene aquí: en esta vista las caras de la entrada quedan exactamente detrás de las del extremo, y el recuadro toma todo lo que encierra (en el 3.1.1, uno alrededor de la entrada tomó también las caras laterales). Con <code>e</code>, Gmsh escribe</p>
+<pre class="code"><code>Extrude {{0, 1, 0}, {1.5, 0, 3}, Pi/2} {
+  Surface{42}; Surface{64}; Surface{86}; Surface{108}; Surface{130}; Surface{152}; Surface{174}; Surface{196}; Surface{218}; Layers{20}; Recombine;
+}</code></pre>
+<figure class="diagram">
+  <img src="imagenes/t313-02_caras_extremo.png" alt="Las nueve caras del extremo del tramo recto, seleccionadas" loading="lazy">
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">Las nueve caras del extremo, desde el frente.</b> Con la vista de frente (rotación 0, 0, 0 en el <code>Manipulator</code>) las caras de z = 3 quedan delante de las de z = 0: un clic en el centro de cada bloque las elige. La etiqueta amarilla confirma el número de la última, 218. El diálogo ya tiene el eje por (1.5, 0, 3), el ángulo π/2 y 20 capas.</figcaption>
+</figure>
+<h3>El tramo de salida</h3>
+<p>El codo termina en x = 1.5, con la sección vertical mirando hacia +x. Para verla de frente, el <code>Manipulator</code> con rotación (0, −90, 0) y escala 0.5 (figura 3): la sección queda a la izquierda de la vista y el eje x apunta hacia quien mira. Sin esa rotación, la sección se ve de canto y sus caras no se pueden elegir. <code>Translate</code> con DX = 3 y DZ = 0, 15 capas, un clic en cada bloque y <code>e</code>. La tabla 1 resume las tres extrusiones.</p>
+<figure class="diagram">
+  <img src="imagenes/t313-03_caras_fin.png" alt="Las caras del final del codo vistas desde más x" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">El final del codo, visto desde +x.</b> Rotación (0, −90, 0) y escala 0.5: se mira a lo largo del eje x, y la sección con la que termina el codo queda a la izquierda, al frente, sin reflejarse. La etiqueta de la última cara elegida dice «Plane 416».</figcaption>
+</figure>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Pieza</th><th>Diálogo</th><th>Datos</th><th>Capas</th><th>Caras de partida</th><th>Cómo se eligen</th></tr></thead>
+    <tbody>
+      <tr><td>Tramo recto</td><td><code>Translate</code></td><td>DZ = 3</td><td>15</td><td>1 a 9 (z = 0)</td><td>un recuadro, con <code>Selection mode</code> en <code>Surfaces</code></td></tr>
+      <tr><td>Codo</td><td><code>Rotate</code></td><td>eje por (1.5, 0, 3), dirección (0, 1, 0), ángulo <code>Pi/2</code></td><td>20</td><td>42, 64, …, 218 (z = 3)</td><td>un clic en cada bloque, vista de frente</td></tr>
+      <tr><td>Tramo de salida</td><td><code>Translate</code></td><td>DX = 3, DZ = 0</td><td>15</td><td>240, 262, …, 416 (x = 1.5)</td><td>un clic en cada bloque, vista desde +x</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Las tres extrusiones del codo.</b> Todas con <code>Extrude mesh</code> y <code>Recombine</code>. El número de las caras de partida es el que les dio Gmsh en la extrusión anterior; no hace falta conocerlo, porque se eligen con el ratón.</caption>
+  </table>
+</div>
+<figure class="diagram">
+  <img src="imagenes/t313-04_tres_piezas.png" alt="El tramo recto, el codo y el tramo de salida" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">Las tres piezas.</b> Vista desde +y (rotación 90, 0, 0): el tramo recto sube por z, el codo gira 90° alrededor del eje que pasa por (1.5, 0, 3), y el tramo de salida sigue por x. El punto suelto es el centro de la sección, que Gmsh no extruye.</figcaption>
+</figure>
+
+    </section>
+    <section id="groups-es">
+      <p class="section-label">Pasos 4 y 5</p>
+      <h2>Grupos para cualquier ensamble, sin elegir caras</h2>
+
+<p>En el 3.1.1, los grupos físicos se eligieron cara por cara desde tres vistas distintas. Con un ensamble eso se vuelve impráctico: el codo tiene 12 caras de pared y el Venturi 20, y cada pieza nueva agrega más. La alternativa es describir los grupos por lo que son, no por sus números:</p>
+<p class="code-name"><code>codo_grupos.geo</code></p>
+<pre class="code"><code>// Grupos físicos del ensamble, sin elegir caras: la entrada y la salida por su posición,
+// la pared como todo el borde exterior de los volúmenes menos esas dos.
+eps = 1e-6;
+entrada[] = Surface In BoundingBox {-1, -1, -eps, 1, 1, eps};
+salida[]  = Surface In BoundingBox {4.5 - eps, -1, 3.9, 4.5 + eps, 1, 5.1};
+pared[]   = Abs(CombinedBoundary{ Volume{:}; });
+pared[]  -= entrada[];
+pared[]  -= salida[];
+Physical Surface(&quot;inlet&quot;)  = {entrada[]};
+Physical Surface(&quot;outlet&quot;) = {salida[]};
+Physical Surface(&quot;walls&quot;)  = {pared[]};
+Physical Volume(&quot;fluid&quot;)   = {Volume{:}};
+Mesh.MshFileVersion = 2.2;</code></pre>
+<ul>
+  <li><code>Surface In BoundingBox</code> devuelve las superficies que caben enteras en una caja. Una caja delgada en z = 0 encierra las nueve caras de la entrada; otra en x = 4.5, las de la salida.</li>
+  <li><code>CombinedBoundary{ Volume{:}; }</code> devuelve el borde exterior del conjunto de todos los volúmenes: las caras que pertenecen a un solo volumen. Las caras compartidas entre bloques, y entre piezas, quedan fuera. <code>Abs</code> quita los signos de orientación que puede traer la lista.</li>
+  <li><code>pared[] -= entrada[];</code> quita de la lista los elementos de otra. La pared es todo el borde menos la entrada y la salida.</li>
+</ul>
+<p>Pegado al final de <code>codo.geo</code> con <code>Edit script</code> (figura 5) y releído con <code>Reload script</code>, da <code>inlet</code> con 9 caras, <code>outlet</code> con 9, <code>walls</code> con 12 y <code>fluid</code> con los 27 volúmenes. En el Venturi sólo cambian las coordenadas de las dos cajas.</p>
+<figure class="diagram">
+  <img src="imagenes/t313-05_grupos.png" alt="El bloque de grupos físicos pegado al final del archivo" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">Los grupos del ensamble, al final del archivo.</b> Arriba, las tres extrusiones que escribió la interfaz; abajo, el bloque pegado con <code>Edit script</code>. No menciona ningún número de cara.</figcaption>
+</figure>
+<p><code>Mesh ▸ 3D</code>: 31 000 hexaedros, los 620 cuadriláteros de la sección por 15 + 20 + 15 capas (figura 6).</p>
+<figure class="diagram">
+  <img src="imagenes/t313-06_codo_malla.png" alt="La malla del codo, de lado" loading="lazy">
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">La malla del codo.</b> Después de <code>Mesh ▸ 3D</code>: 31 000 hexaedros, 620 por sección en 15 + 20 + 15 capas. En el codo, las capas se abren en abanico: las celdas del lado de adentro son más cortas que las de afuera.</figcaption>
+</figure>
+
+    </section>
+    <section id="venturi-es">
+      <p class="section-label">Pasos 6 a 9</p>
+      <h2>Cuatro secciones y los bloques entre ellas</h2>
+
+<p>El Venturi se escribe en un archivo con su propio panel, «Venturi» (figura 7): la razón de diámetros, los dos ángulos, el número de Reynolds y el y⁺ para la capa de la pared (el cálculo del 3.1.2), los dos tramos rectos y el tamaño de las celdas a lo largo del eje.</p>
+<figure class="diagram">
+  <img src="imagenes/t313-07_panel_venturi.png" alt="El panel Venturi y la geometría de lado" loading="lazy">
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title"><code>venturi.geo</code> abierto.</b> El panel «Venturi» con sus nueve parámetros y, a la derecha, la geometría de lado: las cuatro estaciones son las líneas verticales; los tramos rectos se extienden fuera de la vista.</figcaption>
+</figure>
+<h3>Las cuatro secciones</h3>
+<pre class="code"><code>// ------------------------------------------------ las cuatro estaciones
+Lc = (1 - beta) * R / Tan(angC / 2 * Pi / 180);     // largo del convergente
+Lt = beta * D;                                     // garganta: tan larga como su diámetro
+Lv = (1 - beta) * R / Tan(angD / 2 * Pi / 180);     // largo del divergente
+zs[] = {0, Lc, Lc + Lt, Lc + Lt + Lv};
+ss[] = {1, beta, beta, 1};                         // escala del radio en cada estación
+nz[] = {Round(Lc / (dzv * D)), Round(Lt / (dzv * D)), Round(Lv / (dzv * D))};</code></pre>
+<p>Cada sección es la del 3.1.1 con todas sus coordenadas multiplicadas por la escala del radio en esa estación. Para no repetir cuatro veces 13 puntos, 20 curvas y 9 superficies, el archivo las crea en un <code>For</code> y numera la estación k sumando 100 k: la sección de la garganta tiene los puntos 101 a 113, las curvas 101 a 120 y las superficies 101 a 109. Las listas <code>I[]</code> y <code>F[]</code> guardan los puntos inicial y final de cada curva, y <code>LZ[]</code> los lazos de los nueve bloques.</p>
+<pre class="code"><code>// ------------------------------------------------ una sección en cada estación
+// Numeración local de la sección (la del 3.1.1): puntos 1 a 13, líneas 1 a 12, arcos 13 a 20, superficies 1 a 9.
+// La estación k suma 100 k a todos los números.
+I[] = {2,3,4,5, 2,3,4,5, 6,7,8,9, 6,7,8,9, 10,11,12,13};    // punto inicial de las curvas 1 a 20
+F[] = {3,4,5,2, 6,7,8,9, 10,11,12,13, 7,8,9,6, 11,12,13,10}; // punto final
+LZ[] = {1,2,3,4,  1,6,-13,-5,  2,7,-14,-6,  3,8,-15,-7,  4,5,-16,-8,
+        13,10,-17,-9,  14,11,-18,-10,  15,12,-19,-11,  16,9,-20,-12};    // lazos de las 9 superficies
+c45 = Cos(Pi / 4);
+For k In {0:3}
+  z = zs[k];  s = ss[k];  p = 100 * k;
+  Point(p+1) = {0, 0, z};
+  Point(p+2) = {s*a, s*a, z};  Point(p+3) = {-s*a, s*a, z};  Point(p+4) = {-s*a, -s*a, z};  Point(p+5) = {s*a, -s*a, z};
+  Point(p+6) = {s*rm*c45, s*rm*c45, z};   Point(p+7) = {-s*rm*c45, s*rm*c45, z};
+  Point(p+8) = {-s*rm*c45, -s*rm*c45, z}; Point(p+9) = {s*rm*c45, -s*rm*c45, z};
+  Point(p+10) = {s*R*c45, s*R*c45, z};    Point(p+11) = {-s*R*c45, s*R*c45, z};
+  Point(p+12) = {-s*R*c45, -s*R*c45, z};  Point(p+13) = {s*R*c45, -s*R*c45, z};
+  For cu In {1:12}
+    Line(p+cu) = {p+I[cu-1], p+F[cu-1]};
+  EndFor
+  For cu In {13:20}
+    Circle(p+cu) = {p+I[cu-1], p+1, p+F[cu-1]};
+  EndFor
+  For b In {0:8}
+    Curve Loop(p+b+1) = {(LZ[4*b]/Fabs(LZ[4*b]))*(p+Fabs(LZ[4*b])), (LZ[4*b+1]/Fabs(LZ[4*b+1]))*(p+Fabs(LZ[4*b+1])),
+                         (LZ[4*b+2]/Fabs(LZ[4*b+2]))*(p+Fabs(LZ[4*b+2])), (LZ[4*b+3]/Fabs(LZ[4*b+3]))*(p+Fabs(LZ[4*b+3]))};
+    Plane Surface(p+b+1) = {p+b+1};
+  EndFor
+  Transfinite Curve{p+1:p+4, p+13:p+20} = nq + 1;
+  Transfinite Curve{p+5:p+8} = nr + 1;
+  Transfinite Curve{p+9:p+12} = nb Using Progression 1 / g;
+EndFor</code></pre>
+<p>El número de nodos es el mismo en las cuatro secciones: sólo cambia el tamaño. Así, el anillo de la pared tiene las mismas 25 celdas en todas, y la celda de la pared es β veces más delgada en la garganta.</p>
+<h3>Los bloques entre secciones</h3>
+<pre class="code"><code>// ------------------------------------------------ bloques entre estaciones
+// Entre las estaciones k y k+1: una línea recta por cada punto (2 a 13), una cara lateral por cada curva y un
+// volumen de seis caras por cada bloque de la sección.
+For k In {0:2}
+  p = 100 * k;  q = 100 * (k + 1);  L0 = 1000 * (k + 1);
+  For j In {2:13}
+    Line(L0 + j) = {p + j, q + j};
+    Transfinite Curve{L0 + j} = nz[k] + 1;
+  EndFor
+  For cu In {1:20}
+    Curve Loop(L0 + 100 + cu) = {p + cu, L0 + F[cu-1], -(q + cu), -(L0 + I[cu-1])};
+    Surface(L0 + 100 + cu) = {L0 + 100 + cu};
+  EndFor
+  For b In {0:8}
+    lat[] = {};
+    For m In {0:3}
+      lat[] += L0 + 100 + Fabs(LZ[4*b+m]);
+    EndFor
+    Surface Loop(L0 + b + 1) = {p + b + 1, q + b + 1, lat[]};
+    Volume(L0 + b + 1) = {L0 + b + 1};
+  EndFor
+EndFor
+Transfinite Surface{:};
+Recombine Surface{:};
+Transfinite Volume{:};</code></pre>
+<p>Entre dos secciones consecutivas, cada punto se une con su homólogo por una línea recta, que es una generatriz del cono. Cada curva de la sección barre así una cara lateral de cuatro lados —la curva de abajo, la de arriba y dos líneas—, que se define con <code>Surface</code> (una superficie reglada, no plana). Cada bloque de la sección da un volumen de seis caras: su superficie en la estación de abajo, la de arriba y las cuatro laterales. Con <code>Transfinite Volume</code>, Gmsh lo malla con hexaedros alineados, igual que <code>Transfinite Surface</code> hace con cuadriláteros.</p>
+<h3>Los tramos rectos y la malla</h3>
+<pre class="code"><code>// ------------------------------------------------ los tramos rectos, extruidos desde las estaciones extremas
+antes[]   = Extrude {0, 0, -Lu * D} { Surface{1:9}; Layers{Round(Lu / dzt)}; Recombine; };
+despues[] = Extrude {0, 0, Ld * D} { Surface{301:309}; Layers{Round(Ld / dzt)}; Recombine; };</code></pre>
+<p>Los tramos rectos se extruyen desde las superficies 1 a 9 (la primera estación, hacia −z) y 301 a 309 (la última, hacia +z): la regla de la sección «La idea». Los grupos físicos son los del codo con otras cajas. <code>Mesh ▸ 3D</code> da 179 400 hexaedros (figura 8).</p>
+<figure class="diagram">
+  <img src="imagenes/t313-08_venturi_malla.png" alt="La malla del Venturi y la ventana Statistics" loading="lazy">
+  <figcaption><b class="fig-num">Figura 8.</b> <b class="fig-title">La malla del Venturi: 179 400 hexaedros.</b> <code>Mesh ▸ 3D</code> y <code>Tools ▸ Statistics</code>: todos hexaedros. La franja oscura junto a la pared es el anillo de 25 celdas de la capa límite.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t313-09_garganta.png" alt="La garganta del Venturi de cerca" loading="lazy">
+  <figcaption><b class="fig-num">Figura 9.</b> <b class="fig-title">La garganta, de cerca.</b> Con la rueda del ratón sobre la pared de la garganta. Cada estación es la sección en O a escala, así que el anillo de la pared tiene las mismas 25 celdas en todo el Venturi, más delgadas en la garganta en proporción β.</figcaption>
+</figure>
+<p>Al cambiar β en el panel, el archivo recalcula los largos con los mismos ángulos y el número de capas de cada tramo (tabla 2, figura 10).</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>β</th><th>Convergente (D)</th><th>Garganta (D)</th><th>Divergente (D)</th><th>Capas (conv., garg., div.)</th><th>Celdas del anillo</th></tr></thead>
+    <tbody>
+      <tr><td>0.5</td><td>1.349</td><td>0.50</td><td>2.036</td><td>13, 5, 20</td><td>25</td></tr>
+      <tr><td>0.6</td><td>1.079</td><td>0.60</td><td>1.629</td><td>11, 6, 16</td><td>25</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Lo que calcula venturi.geo.</b> Con D = 1 m y los valores por omisión del panel: β = 0.5, convergente de 21°, divergente de 14°, Re = 200 000, y⁺ = 1; y con β = 0.6. Los largos salen de L = (1 − β) R / tan(α/2); la garganta mide un diámetro de garganta.</caption>
+  </table>
+</div>
+<figure class="diagram">
+  <img src="imagenes/t313-10_beta06.png" alt="El Venturi con beta igual a 0.6" loading="lazy">
+  <figcaption><b class="fig-num">Figura 10.</b> <b class="fig-title">β = 0.6 desde el panel.</b> Al cambiar la razón de diámetros, el archivo recalcula los largos del convergente y del divergente con los mismos ángulos y el número de capas de cada tramo; se vuelve a mallar.</figcaption>
+</figure>
+
+    </section>
+    <section id="quality-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>Las dos mallas, predichas</h2>
+
+<div class="example">
+  <p><strong>Enunciado.</strong> Antes de mallar, predecir el número de hexaedros del codo y del Venturi, y el largo de las celdas del codo por el lado de adentro, por el eje y por el lado de afuera.</p>
+  <p><strong>Condiciones.</strong> Las de las tablas 1 y 2.</p>
+</div>
+<p><strong>Codo.</strong> La sección tiene 620 cuadriláteros (3.1.1) y las tres piezas 15 + 20 + 15 = 50 capas: 620 × 50 = 31 000 hexaedros. <code>checkMesh</code> cuenta 31 000.</p>
+<p><strong>Largo de las celdas del codo.</strong> Cada capa gira π/40 radianes. Por el eje, a R<sub>c</sub> = 1.5 m, la celda mide 1.5 × π/40 = 0.118 m; por dentro, en la pared a 1.0 m del eje, 0.079 m; por fuera, a 2.0 m, 0.157 m. El lado de afuera tiene celdas del doble de largo que el de adentro. Para compararlas, las del tramo recto miden 3/15 = 0.2 m.</p>
+<p><strong>Venturi.</strong> La sección tiene 10² + 4·10·5 + 4·10·25 = 1 300 cuadriláteros, con las 25 celdas del anillo. Las capas son 13 + 5 + 20 en el Venturi y 50 + 50 en los tramos rectos (10 D con Δz = 0.2 D): 138 capas y 179 400 hexaedros. <code>checkMesh</code> cuenta 179 400.</p>
+<p><strong>Preguntas.</strong></p>
+<ol>
+  <li>¿Qué pasa si el eje del codo pasa por x = 0.5? <em>Respuesta:</em> el eje queda sobre la pared, R<sub>c</sub> = R: las celdas del lado de adentro se reducen a un punto y la malla degenera. Con R<sub>c</sub> menor que R, se cruzan.</li>
+  <li>¿Por qué no se usa el recuadro para elegir las caras del extremo del tramo recto? <em>Respuesta:</em> en la vista de frente, las caras de z = 0 y de z = 3 se superponen, y el recuadro toma todas las superficies que encierra; un clic, en cambio, toma sólo la de adelante.</li>
+  <li>¿Por qué el Venturi no se hace con <code>Extrude</code> y una escala? <em>Respuesta:</em> <code>Extrude</code> sólo traslada, gira o combina las dos; no cambia el tamaño de la sección.</li>
+</ol>
+
+    </section>
+    <section id="openfoam-es">
+      <p class="section-label">Comprobación en OpenFOAM</p>
+      <h2>checkMesh y el coeficiente de descarga</h2>
+
+<h3>El codo</h3>
+<p>La malla que escribió la interfaz se convierte con <code>gmshToFoam</code> y pasa <code>checkMesh</code> sin avisos: 31 000 celdas, no ortogonalidad máxima de 26.4° (la del tubo recto del 3.1.1 era de 26.3°) y razón de aspecto máxima de 30.5. El codo no empeora la malla: sus celdas se abren en abanico, pero siguen siendo casi ortogonales porque el giro de cada capa es pequeño, π/40.</p>
+
+<h3>El Venturi</h3>
+<p>Con k-ω SST a Re = 200 000 (U = 1 m/s, ν = 5·10<sup>−6</sup> m²/s), las mismas condiciones del 3.1.2 para y⁺ ≈ 1. La presión en la pared (figura 11) cae en el convergente, es mínima en la garganta y se recupera en parte en el divergente. El coeficiente de descarga se calcula con las tomas de presión de la norma:</p>
+<div class="equation-card">\[ C = \frac{Q}{A_t\sqrt{2\,\Delta p/(1-\beta^4)}} = 0.9833, \]</div>
+<p>contra 0.995 que da la norma para un Venturi con el convergente maquinado (tabla 3). Los dos picos de la figura, al principio y al final de la garganta, son las esquinas vivas entre los conos y el cilindro: el flujo se acelera al rodearlas. La norma pide redondear esas uniones con un radio; este Venturi, hecho sólo con líneas rectas, no lo tiene, y es su diferencia de geometría más clara con uno de la norma. Suavizar esas uniones es el tema de un tutorial posterior. El Δp medido, 7.757, es mayor que el de Bernoulli sin pérdidas, 7.500: la diferencia es la fricción y el perfil de velocidad no uniforme. La pérdida permanente —la presión que no se recupera seis diámetros después del divergente— es el 24 % de Δp, algo por encima del 5 al 20 % que se cita para un Venturi clásico; a esa distancia la presión todavía sube (0.042 m/s² por metro), así que parte de esa pérdida se recupera más adelante.</p>
+<figure class="diagram">
+  <img src="imagenes/t313-20_presion.png" alt="La presión en la pared a lo largo del Venturi" loading="lazy">
+  <figcaption><b class="fig-num">Figura 11.</b> <b class="fig-title">La presión en la pared.</b> k-ω SST con Re = 200 000, U = 1 m/s. La presión cae en el convergente, es mínima en la garganta y se recupera en parte en el divergente; los puntos rojos son las tomas de la norma, a 0.5 D antes del convergente y a media garganta.</figcaption>
+</figure>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Magnitud</th><th>Valor</th></tr></thead>
+    <tbody>
+      <tr><td>Presión a 0.5 D antes del convergente</td><td>1.857</td></tr>
+      <tr><td>Presión a media garganta</td><td>−5.899</td></tr>
+      <tr><td>Δp medido</td><td>7.757</td></tr>
+      <tr><td>Δp de Bernoulli, ½U²(1/β⁴ − 1)</td><td>7.500</td></tr>
+      <tr><td>Coeficiente de descarga C</td><td>0.9833</td></tr>
+      <tr><td>C de la norma (maquinado)</td><td>0.995</td></tr>
+      <tr><td>Pérdida permanente (fracción de Δp)</td><td>0.242</td></tr>
+      <tr><td>y⁺ medio en la garganta; en el tubo</td><td>1.99; 1.01</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">El Venturi en OpenFOAM.</b> k-ω SST, estacionario, U = 1 m/s, ν = 5·10⁻⁶ m²/s (Re = 200 000); presión cinemática. Las tomas promedian el anillo de caras de la pared más cercano a cada posición. El coeficiente de descarga es C = Q / [A<sub>t</sub> √(2Δp/(1 − β⁴))]; la norma da 0.995 para un Venturi con el convergente maquinado.</caption>
+  </table>
+</div>
+<div class="callout warning">
+  <p><strong>El y⁺ de la garganta es el doble.</strong> El archivo calcula la primera celda con el número de Reynolds del tubo, y en el tubo se mide y⁺ = 1.01. En la garganta la celda es β veces más delgada, pero la velocidad es 1/β² veces mayor y la velocidad de fricción crece con ella: se mide y⁺ = 1.99. Para que la garganta tenga y⁺ ≈ 1, hay que pedir la mitad en el panel, o calcular la celda con las condiciones de la garganta.</p>
+</div>
+
+    </section>
+    <section id="files-es">
+      <p class="section-label">Archivos</p>
+      <h2>codo_grupos.geo y venturi.geo</h2>
+
+<p>El bloque de grupos físicos que se pega al final del archivo del codo:</p>
+<p class="code-name"><code>codo_grupos.geo</code></p>
+<pre class="code"><code>// Grupos físicos del ensamble, sin elegir caras: la entrada y la salida por su posición,
+// la pared como todo el borde exterior de los volúmenes menos esas dos.
+eps = 1e-6;
+entrada[] = Surface In BoundingBox {-1, -1, -eps, 1, 1, eps};
+salida[]  = Surface In BoundingBox {4.5 - eps, -1, 3.9, 4.5 + eps, 1, 5.1};
+pared[]   = Abs(CombinedBoundary{ Volume{:}; });
+pared[]  -= entrada[];
+pared[]  -= salida[];
+Physical Surface(&quot;inlet&quot;)  = {entrada[]};
+Physical Surface(&quot;outlet&quot;) = {salida[]};
+Physical Surface(&quot;walls&quot;)  = {pared[]};
+Physical Volume(&quot;fluid&quot;)   = {Volume{:}};
+Mesh.MshFileVersion = 2.2;</code></pre>
+<p>El Venturi completo:</p>
+<p class="code-name"><code>venturi.geo</code></p>
+<pre class="code"><code>// Venturi cónico entre dos tramos rectos (tutorial 3.1.3). Unidades: metros.
+// La sección en O del 3.1.1 se repite en cuatro estaciones —entrada del convergente, inicio y fin de la garganta,
+// salida del divergente— a escala del radio local; entre estaciones consecutivas, 9 volúmenes transfinitos de seis
+// caras. Los tramos rectos se extruyen desde las caras de la primera y la última estación. La capa de la pared se
+// calcula desde y+, como en el 3.1.2 (turbulento, Petukhov). Proporciones de un Venturi clásico (ISO 5167-4).
+//   gmsh venturi.geo -3 -setnumber beta 0.6 -o venturi.msh
+
+SetFactory(&quot;Built-in&quot;);
+
+DefineConstant[
+  beta  = {0.5,    Name &quot;Venturi/1Razón de diámetros β&quot;},
+  angC  = {21,     Name &quot;Venturi/2Convergente (grados)&quot;},
+  angD  = {14,     Name &quot;Venturi/3Divergente (grados)&quot;},
+  Re    = {200000, Name &quot;Venturi/4Número de Reynolds&quot;},
+  yplus = {1,      Name &quot;Venturi/5y+ de la primera celda&quot;},
+  Lu    = {10,     Name &quot;Venturi/6Tramo antes (D)&quot;},
+  Ld    = {10,     Name &quot;Venturi/7Tramo después (D)&quot;},
+  dzv   = {0.1,    Name &quot;Venturi/8Δz en el Venturi (D)&quot;},
+  dzt   = {0.2,    Name &quot;Venturi/9Δz en los tramos (D)&quot;}
+];
+
+D = 1;  R = D / 2;  rm = 0.8 * R;  a = 0.4 * R;  nq = 10;  gmax = 1.2;
+
+// ------------------------------------------------ las cuatro estaciones
+Lc = (1 - beta) * R / Tan(angC / 2 * Pi / 180);     // largo del convergente
+Lt = beta * D;                                     // garganta: tan larga como su diámetro
+Lv = (1 - beta) * R / Tan(angD / 2 * Pi / 180);     // largo del divergente
+zs[] = {0, Lc, Lc + Lt, Lc + Lt + Lv};
+ss[] = {1, beta, beta, 1};                         // escala del radio en cada estación
+nz[] = {Round(Lc / (dzv * D)), Round(Lt / (dzv * D)), Round(Lv / (dzv * D))};
+
+// ------------------------------------------------ la capa de la pared, desde y+ (como el 3.1.2)
+f  = 1 / (0.790 * Log(Re) - 1.64)^2;
+h1 = 2 * yplus * D / (Re * Sqrt(f / 8));
+Macro Razon
+  rA = 1.0 + 1.e-9;  rB = 3.0;
+  For iter In {1:80}
+    rM = 0.5 * (rA + rB);
+    sM = eh1 * (rM^(eN - 1) - 1.0) / (rM - 1.0);
+    If (sM &lt; eL)
+      rA = rM;
+    Else
+      rB = rM;
+    EndIf
+  EndFor
+  eR = 0.5 * (rA + rB);
+Return
+eL = R - rm;  eh1 = h1;
+eN = 1 + Ceil(Log(1 + eL * (gmax - 1) / h1) / Log(gmax));
+Call Razon;
+nb = eN;  g = eR;
+nr = Round((rm - a) / (2 * a / nq));
+
+Printf(&quot;convergente %g D, garganta %g D, divergente %g D; capas %g, %g y %g&quot;, Lc, Lt, Lv, nz[0], nz[1], nz[2]);
+Printf(&quot;y+ = %g -&gt; primera celda h1 = %g m; anillo de %g celdas con razón %g&quot;, yplus, h1, nb - 1, g);
+
+// ------------------------------------------------ una sección en cada estación
+// Numeración local de la sección (la del 3.1.1): puntos 1 a 13, líneas 1 a 12, arcos 13 a 20, superficies 1 a 9.
+// La estación k suma 100 k a todos los números.
+I[] = {2,3,4,5, 2,3,4,5, 6,7,8,9, 6,7,8,9, 10,11,12,13};    // punto inicial de las curvas 1 a 20
+F[] = {3,4,5,2, 6,7,8,9, 10,11,12,13, 7,8,9,6, 11,12,13,10}; // punto final
+LZ[] = {1,2,3,4,  1,6,-13,-5,  2,7,-14,-6,  3,8,-15,-7,  4,5,-16,-8,
+        13,10,-17,-9,  14,11,-18,-10,  15,12,-19,-11,  16,9,-20,-12};    // lazos de las 9 superficies
+c45 = Cos(Pi / 4);
+For k In {0:3}
+  z = zs[k];  s = ss[k];  p = 100 * k;
+  Point(p+1) = {0, 0, z};
+  Point(p+2) = {s*a, s*a, z};  Point(p+3) = {-s*a, s*a, z};  Point(p+4) = {-s*a, -s*a, z};  Point(p+5) = {s*a, -s*a, z};
+  Point(p+6) = {s*rm*c45, s*rm*c45, z};   Point(p+7) = {-s*rm*c45, s*rm*c45, z};
+  Point(p+8) = {-s*rm*c45, -s*rm*c45, z}; Point(p+9) = {s*rm*c45, -s*rm*c45, z};
+  Point(p+10) = {s*R*c45, s*R*c45, z};    Point(p+11) = {-s*R*c45, s*R*c45, z};
+  Point(p+12) = {-s*R*c45, -s*R*c45, z};  Point(p+13) = {s*R*c45, -s*R*c45, z};
+  For cu In {1:12}
+    Line(p+cu) = {p+I[cu-1], p+F[cu-1]};
+  EndFor
+  For cu In {13:20}
+    Circle(p+cu) = {p+I[cu-1], p+1, p+F[cu-1]};
+  EndFor
+  For b In {0:8}
+    Curve Loop(p+b+1) = {(LZ[4*b]/Fabs(LZ[4*b]))*(p+Fabs(LZ[4*b])), (LZ[4*b+1]/Fabs(LZ[4*b+1]))*(p+Fabs(LZ[4*b+1])),
+                         (LZ[4*b+2]/Fabs(LZ[4*b+2]))*(p+Fabs(LZ[4*b+2])), (LZ[4*b+3]/Fabs(LZ[4*b+3]))*(p+Fabs(LZ[4*b+3]))};
+    Plane Surface(p+b+1) = {p+b+1};
+  EndFor
+  Transfinite Curve{p+1:p+4, p+13:p+20} = nq + 1;
+  Transfinite Curve{p+5:p+8} = nr + 1;
+  Transfinite Curve{p+9:p+12} = nb Using Progression 1 / g;
+EndFor
+
+// ------------------------------------------------ bloques entre estaciones
+// Entre las estaciones k y k+1: una línea recta por cada punto (2 a 13), una cara lateral por cada curva y un
+// volumen de seis caras por cada bloque de la sección.
+For k In {0:2}
+  p = 100 * k;  q = 100 * (k + 1);  L0 = 1000 * (k + 1);
+  For j In {2:13}
+    Line(L0 + j) = {p + j, q + j};
+    Transfinite Curve{L0 + j} = nz[k] + 1;
+  EndFor
+  For cu In {1:20}
+    Curve Loop(L0 + 100 + cu) = {p + cu, L0 + F[cu-1], -(q + cu), -(L0 + I[cu-1])};
+    Surface(L0 + 100 + cu) = {L0 + 100 + cu};
+  EndFor
+  For b In {0:8}
+    lat[] = {};
+    For m In {0:3}
+      lat[] += L0 + 100 + Fabs(LZ[4*b+m]);
+    EndFor
+    Surface Loop(L0 + b + 1) = {p + b + 1, q + b + 1, lat[]};
+    Volume(L0 + b + 1) = {L0 + b + 1};
+  EndFor
+EndFor
+Transfinite Surface{:};
+Recombine Surface{:};
+Transfinite Volume{:};
+
+// ------------------------------------------------ los tramos rectos, extruidos desde las estaciones extremas
+antes[]   = Extrude {0, 0, -Lu * D} { Surface{1:9}; Layers{Round(Lu / dzt)}; Recombine; };
+despues[] = Extrude {0, 0, Ld * D} { Surface{301:309}; Layers{Round(Ld / dzt)}; Recombine; };
+
+// ------------------------------------------------ grupos físicos del ensamble, sin elegir caras
+zfin = zs[3] + Ld * D;  eps = 1e-6;
+entrada[] = Surface In BoundingBox {-1, -1, -Lu * D - eps, 1, 1, -Lu * D + eps};
+salida[]  = Surface In BoundingBox {-1, -1, zfin - eps, 1, 1, zfin + eps};
+pared[]   = Abs(CombinedBoundary{ Volume{:}; });     // todo el borde exterior del conjunto de volúmenes…
+pared[]  -= entrada[];                                // …menos la entrada…
+pared[]  -= salida[];                                 // …y la salida
+Physical Surface(&quot;inlet&quot;)  = {entrada[]};
+Physical Surface(&quot;outlet&quot;) = {salida[]};
+Physical Surface(&quot;walls&quot;)  = {pared[]};
+Physical Volume(&quot;fluid&quot;)   = {Volume{:}};
+Mesh.MshFileVersion = 2.2;</code></pre>
+    </section>
+    <section id="example-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>Hacia la actividad del curso</h2>
+
+<p>Cada práctica es un paso hacia la actividad del curso: una tubería larga, un codo y un Venturi en una sola malla.</p>
+<ol>
+  <li><strong>Un codo más cerrado.</strong> Repetir el codo con el eje por x = 1.0 (R<sub>c</sub> = D). Predecir el largo de las celdas del lado de adentro y comprobar con <code>checkMesh</code> cómo cambian la no ortogonalidad y la razón de aspecto.</li>
+  <li><strong>El codo en el archivo.</strong> Escribir el codo en un <code>.geo</code> parametrizado, a continuación de la tubería del 3.1.2: guardar la lista que devuelve cada <code>Extrude</code>, con <code>ext[] = Extrude …</code>, y extruir el codo desde las tapas <code>ext[0]</code>, <code>ext[6]</code>, … <code>ext[48]</code>.</li>
+  <li><strong>El ensamble.</strong> Unir en un solo archivo la tubería larga, el codo y el Venturi, cada pieza extruida desde la anterior. Los grupos físicos son el bloque de este tutorial con las dos cajas en la entrada y la salida del ensamble.</li>
+</ol>
+
+    </section>
+    <section id="summary-es">
+      <p class="section-label">Puntos clave</p>
+      <h2>Lo que hay que retener</h2>
+
+<ul>
+  <li>Una pieza extruida desde las caras de otra comparte con ella esas caras: la malla del ensamble es continua sin pegar nada.</li>
+  <li><code>Extrude ▸ Rotate</code> pide un punto del eje, su dirección y el ángulo; el eje va fuera de la tubería, a la distancia del radio de curvatura.</li>
+  <li>Las caras de partida se eligen desde la vista en que quedan delante: de frente para z = 3, desde +x para el final del codo.</li>
+  <li>Grupos para cualquier ensamble: entrada y salida con <code>Surface In BoundingBox</code>, la pared con <code>CombinedBoundary</code> menos esas dos.</li>
+  <li>Donde la sección cambia de tamaño, copias a escala unidas por volúmenes transfinitos de seis caras.</li>
+</ul>
+
+    </section>
+    <section id="mistakes-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Lo que falla y lo que hace Gmsh</h2>
+
+<h3>La extrusión toma caras de más</h3>
+<p>Se usó un recuadro con caras superpuestas en la vista (la entrada detrás del extremo). Elegir con un clic en cada bloque, que toma sólo la cara de adelante.</p>
+<h3>El codo dobla hacia el otro lado</h3>
+<p>El signo del ángulo o de la dirección del eje. Con el eje (0, 1, 0) por x = 1.5 y π/2, el tubo dobla hacia arriba y hacia +x (hasta z = 4.85); con −π/2 gira hacia abajo, entre z = 1.0 y 3.0, y se mete dentro del tramo recto. Gmsh no avisa: hay que mirar la geometría antes de mallar.</p>
+<h3>Las caras del final del codo no se pueden elegir</h3>
+<p>Se ven de canto. Girar la vista para mirarlas de frente, con el <code>Manipulator</code>.</p>
+<h3>El grupo de la pared incluye la entrada</h3>
+<p>La caja de <code>Surface In BoundingBox</code> no encerró entera ninguna cara, porque su espesor era cero o quedó fuera de la sección: la lista de la entrada está vacía y no se resta nada. Revisar con <code>Printf</code> cuántas caras tiene cada lista.</p>
+<h3><code>gmshToFoam</code> reporta un parche <code>defaultFaces</code></h3>
+<p>Quedó una cara del borde fuera de todos los grupos (tutorial 1.1). Con <code>CombinedBoundary</code> no pasa, porque la pared toma todo lo que no es entrada ni salida.</p>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ol>
+  <li>C. Geuzaine y J.-F. Remacle. <em>Gmsh Reference Manual</em>, versión 4.15: <code>Extrude</code> con rotación, <code>Transfinite Volume</code>, <code>Surface In BoundingBox</code> y <code>CombinedBoundary</code>. <a href="https://gmsh.info/doc/texinfo/gmsh.html" target="_blank" rel="noopener">gmsh.info/doc/texinfo/gmsh.html</a>.</li>
+  <li>ISO 5167-4:2022. <em>Measurement of fluid flow by means of pressure differential devices inserted in circular cross-section conduits running full — Part 4: Venturi tubes</em>.</li>
+  <li>F. M. White. <em>Fluid Mechanics</em>, 8.ª ed. McGraw-Hill, 2016. Capítulo 6: medidores de flujo por obstrucción.</li>
+  <li>The OpenFOAM Foundation. <em>OpenFOAM User Guide</em>, versión 13. <a href="https://doc.cfd.direct/openfoam/user-guide-v13/" target="_blank" rel="noopener">doc.cfd.direct/openfoam/user-guide-v13</a>.</li>
+</ol>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="tuberia-parametrizada.html?v=13"><span>Tutorial anterior</span>← Tutorial 3.1.2 · La tubería parametrizada</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Serie de tutoriales</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Einen Krümmer mit Extrude > Rotate bauen, einen geraden Auslass aus seinen Endflächen extrudieren, physikalische Gruppen für jede Baugruppe schreiben und ein konisches Venturi aus skalierten O-Gitter-Querschnitten mit transfiniten Volumen bauen; beide Netze in OpenFOAM prüfen.</p>
+    </section>
+    <section id="physics-de">
+      <p class="section-label">Die Idee</p>
+      <h2>Jedes Teil wächst aus den Flächen des vorigen</h2>
+<p>Eine Extrusion verwendet die Ausgangsflächen weiter; auseinander extrudierte Teile teilen Knoten, das Netz ist ohne Zusammenfügen konform. Ein Querschnitt, der seine Größe ändert, wird durch Volumen mit sechs Flächen mit dem nächsten verbunden.</p>
+    </section>
+    <section id="recipe-de">
+      <p class="section-label">Ablauf</p>
+      <h2>Der Krümmer in fünf, das Venturi in vier Schritten</h2>
+<p>Fünf Schritte für den Krümmer mit den Schaltflächen und vier für das Venturi in der Datei.</p>
+    </section>
+    <section id="elbow-de">
+      <p class="section-label">Schritte 1 bis 3</p>
+      <h2>Extrude ▸ Rotate</h2>
+<p>Extrude > Rotate verlangt einen Achsenpunkt, die Richtung und den Winkel. Die neun Endflächen werden aus der Vorderansicht gewählt, das Auslassstück aus der Ansicht entlang +x.</p>
+    </section>
+    <section id="groups-de">
+      <p class="section-label">Schritte 4 und 5</p>
+      <h2>Gruppen für jede Baugruppe, ohne Flächen zu wählen</h2>
+<p>Einlass und Auslass per Bounding Box; die Wand ist der kombinierte Rand aller Volumen ohne diese zwei Listen. Dieselben sechs Zeilen gelten für Krümmer, Venturi und jede Baugruppe.</p>
+    </section>
+    <section id="venturi-de">
+      <p class="section-label">Schritte 6 bis 9</p>
+      <h2>Vier Querschnitte und die Blöcke dazwischen</h2>
+<p>Vier Kopien des O-Gitters am Einlass, an den Halsenden und am Auslass, verbunden durch Geraden, Regelflächen und transfinite Volumen; die geraden Rohre werden aus den Endquerschnitten extrudiert.</p>
+    </section>
+    <section id="quality-de">
+      <p class="section-label">Durchgerechnetes Beispiel</p>
+      <h2>Die zwei Netze, vorhergesagt</h2>
+<p>Zellzahlen und Zelllängen entlang des Krümmers, vorhergesagt und mit Gmsh verglichen.</p>
+    </section>
+    <section id="openfoam-de">
+      <p class="section-label">Prüfung in OpenFOAM</p>
+      <h2>checkMesh und der Durchflusskoeffizient</h2>
+<p>Das Krümmernetz besteht checkMesh wie das gerade Rohr. Das Venturi ergibt mit k-omega SST bei Re = 200 000 einen Durchflusskoeffizienten nahe am ISO-Wert für ein bearbeitetes Venturi.</p>
+    </section>
+    <section id="files-de">
+      <p class="section-label">Dateien</p>
+      <h2>codo_grupos.geo und venturi.geo</h2>
+<p>Der Gruppenblock für den Krümmer und die vollständige Venturi-Datei.</p>
+    </section>
+    <section id="example-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Auf dem Weg zur Kursaufgabe</h2>
+<p>Schritte zur Kursaufgabe: ein langes Rohr, ein Krümmer und ein Venturi in einem Netz.</p>
+    </section>
+    <section id="summary-de">
+      <p class="section-label">Kernpunkte</p>
+      <h2>Was man behalten sollte</h2>
+<p>Aus Flächen extrudieren, um zu verbinden; transfinite Volumen, wo sich der Querschnitt ändert.</p>
+    </section>
+    <section id="mistakes-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Was schiefgeht und was Gmsh tut</h2>
+<p>Flächen aus der falschen Ansicht, eine Drehachse durch das Rohr, eine Wandgruppe mit dem Einlass.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>Gmsh-Handbuch; ISO 5167-4; White; OpenFOAM-13-Handbuch.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="tuberia-parametrizada.html?v=13"><span>Vorheriges Tutorial</span>← Tutorial 3.1.2 · Das parametrische Rohr</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Tutorialreihe</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>
