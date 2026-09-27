@@ -32,7 +32,7 @@
     <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
     <span data-language="en">Verified on Gmsh 4.15.2 and OpenFOAM 13</span><span data-language="es" hidden>Verificado en Gmsh 4.15.2 y OpenFOAM 13</span><span data-language="de" hidden>Geprüft mit Gmsh 4.15.2 und OpenFOAM 13</span>
   </div>
-  <div class="button-row"><a class="button secondary" href="perfil-c-parametrico.html?v=13">← <span>2.2.2</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/2i7Qjp-IwZI" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Watch the video</span><span data-language="es" hidden>Ver el vídeo</span><span data-language="de" hidden>Video ansehen</span></a></div>
+  <div class="button-row"><a class="button secondary" href="tobera-convergente-divergente.html?v=13">← <span>2.3.1</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/2i7Qjp-IwZI" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Watch the video</span><span data-language="es" hidden>Ver el vídeo</span><span data-language="de" hidden>Video ansehen</span></a></div>
 </div></section>
 
 <main><div class="container lecture-shell">
@@ -137,7 +137,7 @@
 <p>Gmsh manual; Anderson; OpenFOAM 13 user guide.</p>
     </section>
     <nav class="next-nav">
-      <a class="next-link" href="perfil-c-parametrico.html?v=13"><span>Previous tutorial</span>← Tutorial 2.2.2 · The C-domain airfoil, parametrised</a>
+      <a class="next-link" href="tobera-convergente-divergente.html?v=13"><span>Previous tutorial</span>← Tutorial 2.3.1 · The nozzle with the buttons</a>
       <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Tutorial series</a>
     </nav>
   </article>
@@ -158,7 +158,7 @@
   <p><strong>Qué hace falta.</strong> Gmsh 4.15.2 y, para la comprobación, OpenFOAM 13 (<a href="https://openfoam.org" target="_blank" rel="noopener">openfoam.org</a>). Se suponen los bloques con <code>Transfinite</code> del <a href="perfil-dominio-c.html">2.2.1</a> y los parámetros con <code>DefineConstant</code>, la macro <code>Empalme</code> y el panel del <a href="perfil-c-parametrico.html">2.2.2</a>. El archivo se reproduce completo al final.</p>
 </div>
 <div class="callout">
-  <p><strong>Antes, con los botones.</strong> El 2.3.1, en preparación, construye una tobera parecida con la interfaz de Gmsh —media tobera con el eje como plano de simetría— para ver qué hace cada paso. Éste parte del archivo y lo parametriza; se puede seguir sin el 2.3.1.</p>
+  <p><strong>Antes, con los botones.</strong> El <a href="tobera-convergente-divergente.html">2.3.1</a> construye la mitad de esta misma tobera con la interfaz de Gmsh —con el eje como plano de simetría— para ver qué hace cada paso. Éste parte del archivo y lo parametriza; se puede seguir sin el 2.3.1.</p>
 </div>
 <div class="callout">
   <p><strong>De dónde sale este tutorial.</strong> El punto de partida es <code>CDNozzlev2.geo</code>, una tobera plana con dominio externo y parámetros en el panel. Funciona, pero su malla tiene saltos de tamaño en la garganta y en la salida, un suavizado que mueve los nodos que <code>Transfinite</code> acaba de colocar, una garganta falsa y un <code>.msh</code> que <code>gmshToFoam</code> no puede leer. La sección «La malla de partida» los enumera, medidos.</p>
@@ -904,7 +904,7 @@ Mesh.Binary = 0;</code></pre>
 
     </section>
     <nav class="next-nav">
-      <a class="next-link" href="perfil-c-parametrico.html?v=13"><span>Tutorial anterior</span>← Tutorial 2.2.2 · El perfil en C paramétrico</a>
+      <a class="next-link" href="tobera-convergente-divergente.html?v=13"><span>Tutorial anterior</span>← Tutorial 2.3.1 · La tobera con los botones</a>
       <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Serie de tutoriales</a>
     </nav>
   </article>
@@ -996,7 +996,7 @@ Mesh.Binary = 0;</code></pre>
 <p>Gmsh-Handbuch; Anderson; OpenFOAM-13-Handbuch.</p>
     </section>
     <nav class="next-nav">
-      <a class="next-link" href="perfil-c-parametrico.html?v=13"><span>Vorheriges Tutorial</span>← Tutorial 2.2.2 · Das C-Netz mit Parametern</a>
+      <a class="next-link" href="tobera-convergente-divergente.html?v=13"><span>Vorheriges Tutorial</span>← Tutorial 2.3.1 · Die Düse mit den Schaltflächen</a>
       <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Tutorialreihe</a>
     </nav>
   </article>

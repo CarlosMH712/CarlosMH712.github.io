@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Gmsh tutorial: a converging-diverging nozzle with its exhaust jet built with the graphical interface: the wall pasted as a loop, then points with expressions, lines, surfaces, Transfinite, Recombine, extrusion and physical groups with the buttons; the axis becomes a symmetry plane in OpenFOAM and the half nozzle reproduces the full one." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>The Converging-Diverging Nozzle with the Buttons: Half a Nozzle and a Symmetry Plane | Gmsh Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">Gmsh · Tutorial 2.3.1</p><h1>The Converging-Diverging Nozzle with the Buttons: Half a Nozzle and a Symmetry Plane</h1><p class="hero-copy">Paste the wall of the nozzle, then build everything else with the interface: seven points, eleven lines, four blocks, the node distribution, the extrusion and the physical groups. Only the upper half is meshed; in OpenFOAM the axis is a symmetry plane, and the half gives the same Mach number as the full nozzle.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">Gmsh · Tutorial 2.3.1</p><h1>La tobera convergente-divergente con los botones: media tobera y plano de simetría</h1><p class="hero-copy">Se pega la pared de la tobera y todo lo demás se hace con la interfaz: siete puntos, once líneas, cuatro bloques, el reparto de nodos, la extrusión y los grupos físicos. Se malla sólo la mitad de arriba; en OpenFOAM el eje es un plano de simetría, y la mitad da el mismo Mach que la tobera completa.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">Gmsh · Tutorial 2.3.1</p><h1>Die Laval-Düse mit den Schaltflächen: halbe Düse und Symmetrieebene</h1><p class="hero-copy">Die Düsenwand wird eingefügt, alles Übrige entsteht über die Oberfläche: sieben Punkte, elf Linien, vier Blöcke, die Knotenverteilung, die Extrusion und die physikalischen Gruppen. Vernetzt wird nur die obere Hälfte; in OpenFOAM ist die Achse eine Symmetrieebene, und die Hälfte liefert dieselbe Machzahl wie die ganze Düse.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 35 min</span><span data-language="es" hidden>Lectura estimada: 35 min</span><span data-language="de" hidden>Lesedauer: ca. 35 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on Gmsh 4.15.2 and OpenFOAM 13</span><span data-language="es" hidden>Verificado en Gmsh 4.15.2 y OpenFOAM 13</span><span data-language="de" hidden>Geprüft mit Gmsh 4.15.2 und OpenFOAM 13</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="perfil-c-parametrico.html?v=13">← <span>2.2.2</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/nnedgOzquUc" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Video · part 1</span><span data-language="es" hidden>Vídeo · parte 1</span><span data-language="de" hidden>Video · Teil 1</span></a><a class="button secondary" href="https://youtu.be/QIGU6JnZGwY" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Video · part 2</span><span data-language="es" hidden>Vídeo · parte 2</span><span data-language="de" hidden>Video · Teil 2</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#idea">Half a nozzle</a><a href="#recipe">Recipe</a><a href="#contour">The wall</a><a href="#points">Points</a><a href="#lines">Lines</a><a href="#surfaces">Surfaces</a><a href="#transfinite">Nodes</a><a href="#worked">Worked example</a><a href="#extrude">Extrusion</a><a href="#groups">Physical groups</a><a href="#export">3D mesh and export</a><a href="#openfoam">OpenFOAM check</a><a href="#files">The file</a><a href="#example">Suggested practice</a><a href="#summary">Key points</a><a href="#mistakes">Common mistakes</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#idea-es">Media tobera</a><a href="#recipe-es">Receta</a><a href="#contour-es">La pared</a><a href="#points-es">Puntos</a><a href="#lines-es">Líneas</a><a href="#surfaces-es">Superficies</a><a href="#transfinite-es">Nodos</a><a href="#worked-es">Ejemplo resuelto</a><a href="#extrude-es">Extrusión</a><a href="#groups-es">Grupos físicos</a><a href="#export-es">Malla 3D y exportar</a><a href="#openfoam-es">Comprobación</a><a href="#files-es">El archivo</a><a href="#example-es">Práctica sugerida</a><a href="#summary-es">Puntos clave</a><a href="#mistakes-es">Errores frecuentes</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#idea-de">Halbe Düse</a><a href="#recipe-de">Ablauf</a><a href="#contour-de">Die Wand</a><a href="#points-de">Punkte</a><a href="#lines-de">Linien</a><a href="#surfaces-de">Flächen</a><a href="#transfinite-de">Knoten</a><a href="#worked-de">Beispiel</a><a href="#extrude-de">Extrusion</a><a href="#groups-de">Physikalische Gruppen</a><a href="#export-de">3D-Netz und Export</a><a href="#openfoam-de">Prüfung</a><a href="#files-de">Die Datei</a><a href="#example-de">Übung</a><a href="#summary-de">Kernpunkte</a><a href="#mistakes-de">Häufige Fehler</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Build a converging-diverging nozzle with its exhaust region using the Gmsh interface; add points with expressions, lines, surfaces, Transfinite and Recombine with the buttons; extrude and define physical groups by clicking; export in MSH 2; use the axis as a symmetry plane in OpenFOAM.</p>
+    </section>
+    <section id="idea">
+      <p class="section-label">The idea</p>
+      <h2>Mesh the upper half, and let the axis be a symmetry plane</h2>
+<p>The planar nozzle is symmetric about its axis, so only the upper half is meshed: half the cells and half the clicks. The axis becomes a symmetryPlane patch.</p>
+    </section>
+    <section id="recipe">
+      <p class="section-label">Recipe</p>
+      <h2>From an empty file to the OpenFOAM mesh in nine steps</h2>
+<p>Nine steps, each with what Gmsh writes or answers.</p>
+    </section>
+    <section id="contour">
+      <p class="section-label">Step 1</p>
+      <h2>The only thing that is pasted</h2>
+<p>The cosine wall with 200 points per segment is pasted with a For loop, two Splines and Hide; everything else is done with the buttons.</p>
+    </section>
+    <section id="points">
+      <p class="section-label">Step 2</p>
+      <h2>Seven points, with expressions</h2>
+<p>Seven points; the dialog fields accept expressions such as Lc + Ld.</p>
+    </section>
+    <section id="lines">
+      <p class="section-label">Step 3</p>
+      <h2>Eleven lines, and why their direction matters</h2>
+<p>Eleven lines; axial lines start at the throat so that every progression is larger than one.</p>
+    </section>
+    <section id="surfaces">
+      <p class="section-label">Step 4</p>
+      <h2>Four blocks, curve by curve</h2>
+<p>Four plane surfaces, clicking the four curves of each block in order.</p>
+    </section>
+    <section id="transfinite">
+      <p class="section-label">Step 5</p>
+      <h2>Transfinite, Recombine and the 2D mesh</h2>
+<p>Five groups of Transfinite Curve, Transfinite Surface on each block, Recombine, and Mesh 2D: 16 166 quadrilaterals.</p>
+    </section>
+    <section id="worked">
+      <p class="section-label">Worked example</p>
+      <h2>Where 121 nodes and 1.01356 come from</h2>
+<p>The convergent distribution computed by hand from square cells at the throat and at the exit.</p>
+    </section>
+    <section id="extrude">
+      <p class="section-label">Step 6</p>
+      <h2>One layer, the four surfaces with a box</h2>
+<p>Extrude ▸ Translate with DZ = 0.1, one layer and Recombine; a box selects the four surfaces.</p>
+    </section>
+    <section id="groups">
+      <p class="section-label">Steps 7 and 8</p>
+      <h2>A click on the line of each side face</h2>
+<p>The box selects everything it touches, so each side face is picked by clicking on its line in the top view; front and back faces are clicked from the front and, with the view rotated 180°, from behind.</p>
+    </section>
+    <section id="export">
+      <p class="section-label">Step 9</p>
+      <h2>16 166 hexahedra in MSH 2 ASCII</h2>
+<p>Mesh 3D gives 16 166 hexahedra; File ▸ Export in MSH 2 ASCII.</p>
+    </section>
+    <section id="openfoam">
+      <p class="section-label">OpenFOAM check</p>
+      <h2>Does half a nozzle give the whole one?</h2>
+<p>With the axis as a symmetry plane, the section-averaged Mach number of the half nozzle matches the full nozzle of tutorial 2.3.2 within 0.05 %, at design and with a normal shock.</p>
+    </section>
+    <section id="files">
+      <p class="section-label">File</p>
+      <h2>What the interface wrote</h2>
+<p>The file written by the interface, in the order of the steps.</p>
+    </section>
+    <section id="example">
+      <p class="section-label">Suggested practice</p>
+      <h2>Three changes by hand</h2>
+<p>A longer divergent, a finer mesh and the full nozzle with the buttons.</p>
+    </section>
+    <section id="summary">
+      <p class="section-label">Key points</p>
+      <h2>What to keep from this guide</h2>
+<p>Paste what is tedious to click; click the rest; mesh half when the flow is symmetric.</p>
+    </section>
+    <section id="mistakes">
+      <p class="section-label">Common mistakes</p>
+      <h2>What goes wrong and what Gmsh does</h2>
+<p>Box selection for side faces, lines drawn the wrong way, a wall patch named wall.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>Gmsh manual; Anderson; OpenFOAM 13 user guide.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="perfil-c-parametrico.html?v=13"><span>Previous tutorial</span>← Tutorial 2.2.2 · The C-domain airfoil, parametrised</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Tutorial series</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">Una tobera convergente-divergente lleva un gas del reposo a velocidad supersónica: el área se reduce hasta la garganta, donde el flujo alcanza Mach 1, y vuelve a crecer en el divergente, donde el flujo sigue acelerando. Este tutorial construye su malla, con la región donde descarga el chorro, casi toda con los botones de la interfaz; el <a href="tobera-parametrizada.html">2.3.2</a> toma después la misma malla y la convierte en un archivo con parámetros.</p>
+<ul>
+  <li>Pegar sólo lo que sería tedioso hacer con clics —los 400 puntos de una pared curva— y hacer todo lo demás con la interfaz.</li>
+  <li>Agregar puntos con expresiones, líneas en el sentido correcto y superficies de cuatro lados.</li>
+  <li>Repartir los nodos con <code>Transfinite</code> y <code>Recombine</code>, y saber de dónde salen los números.</li>
+  <li>Extruir una capa y elegir, con clics, las caras de cada grupo físico, incluidas las de atrás.</li>
+  <li>Mallar sólo la mitad de una geometría simétrica y comprobar en OpenFOAM que el plano de simetría da lo mismo que la geometría completa.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> Gmsh 4.15.2 y, para la comprobación, OpenFOAM 13 (<a href="https://openfoam.org" target="_blank" rel="noopener">openfoam.org</a>). Se suponen el <a href="cavidad-cuadrada.html">1.1</a> (la extrusión, los grupos físicos y el formato MSH 2) y el <a href="perfil-dominio-c.html">2.2.1</a> (bloques de cuatro lados hechos con los botones). La tobera es la del <a href="tobera-parametrizada.html">2.3.2</a>, con los mismos números; allí está la teoría.</p>
+</div>
+
+    </section>
+    <section id="idea-es">
+      <p class="section-label">La idea</p>
+      <h2>Mallar la mitad de arriba y que el eje sea un plano de simetría</h2>
+
+<p>La tobera de este tutorial es plana: la pared de arriba y la de abajo son espejo una de otra, y el flujo también, siempre que sea simétrico, como lo es en una tobera que descarga a un ambiente en reposo. Entonces basta resolver la mitad de arriba, del eje a la pared, y decirle al solver que el eje es un <strong>plano de simetría</strong>: una frontera donde la velocidad normal es cero y las demás variables no cambian al cruzarla. Se tienen la mitad de celdas y, en la interfaz, la mitad de clics.</p>
+<p>La media tobera se parte en cuatro bloques de cuatro lados (figura 1): el convergente (S1), el divergente (S2), el núcleo del chorro (S3), que sigue a la tobera hasta la salida del dominio, y el ambiente (S4), por encima del chorro. La razón de áreas es 5: la salida mide 1 m de semialtura y la garganta 0.2 m; el convergente mide 2 m, el divergente 4 m y el dominio llega a x = 22 m y a y = 6 m.</p>
+<figure class="diagram">
+  <img src="imagenes/t231-01_numeracion.png" alt="Los puntos y las curvas de la media tobera con sus números" loading="lazy">
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">El mapa de la numeración.</b> Los números en rojo son puntos; los negros, curvas, con la flecha en su sentido; S1 a S4, las superficies. A la izquierda la tobera, con la altura ampliada para que se lean los números; a la derecha el dominio completo, a escala. Las curvas 1 y 2 y los puntos 1, 2 y 3 vienen del contorno pegado; lo demás se agrega con los botones.</figcaption>
+</figure>
+<div class="callout">
+  <p><strong>Por qué la pared se pega.</strong> La pared es una curva de coseno, <span>\(H = H_t + (H_e - H_t)(1-\cos \pi s)/2\)</span>, con pendiente cero en la garganta, en la entrada y en la salida. Para que una <code>Spline</code> la siga, incluida la pendiente en la garganta, hacen falta muchos puntos: 200 por tramo (el <a href="tobera-parametrizada.html">2.3.2</a> mide por qué). Escribirlos con el diálogo sería absurdo; un bucle <code>For</code> los crea en un segundo, como el contorno del perfil en el 2.2.1.</p>
+</div>
+
+    </section>
+    <section id="recipe-es">
+      <p class="section-label">Receta</p>
+      <h2>Del archivo vacío a la malla para OpenFOAM en nueve pasos</h2>
+
+<p>Todo se hace desde un archivo nuevo. Cada paso deja líneas en el archivo; entre paréntesis, lo que responde Gmsh.</p>
+<ol>
+  <li><strong>La pared.</strong> <code>File ▸ New</code>, <code>tobera.geo</code>, núcleo <code>Built-in</code>. <code>Geometry ▸ Edit script</code>, pegar el contorno, guardar y <code>Geometry ▸ Reload script</code> (se ven las dos <code>Spline</code> y tres puntos).</li>
+  <li><strong>Puntos.</strong> <code>Geometry ▸ Elementary entities ▸ Add ▸ Point</code>: los siete de la tabla 1, con <code>Add</code> después de cada uno (<code>Point(600) = {0, 0, 0, 1.0};</code> … <code>Point(606) = {22, 6, 0, 1.0};</code>).</li>
+  <li><strong>Líneas.</strong> <code>Add ▸ Line</code>: las once de la tabla 2, con dos clics cada una (<code>Line(3) = {601, 600};</code>).</li>
+  <li><strong>Superficies.</strong> <code>Add ▸ Plane surface</code>: un clic en cada curva de un bloque, en orden, y <code>e</code>; cuatro veces (<code>Plane Surface(1) = {1};</code>).</li>
+  <li><strong>Nodos y malla 2D.</strong> <code>Mesh ▸ Define ▸ Transfinite ▸ Curve</code> en los cinco grupos de la tabla 4; <code>Transfinite ▸ Surface</code> en cada bloque; <code>Recombine</code> en los cuatro; <code>Mesh ▸ 2D</code> (<code>Done meshing 2D</code>; 16 166 cuadriláteros).</li>
+  <li><strong>Extrusión.</strong> <code>Geometry ▸ Elementary entities ▸ Extrude ▸ Translate</code>: <code>DZ</code> = 0.1, <code>Extrude mesh</code> con una capa y <code>Recombine</code>, <code>Selection mode</code> en <code>Surfaces</code>; un recuadro sobre todo y <code>e</code>.</li>
+  <li><strong>Las caras laterales.</strong> <code>Geometry ▸ Physical groups ▸ Add ▸ Surface</code>: <code>inlet</code>, <code>nozzleWall</code>, <code>axis</code>, <code>outlet</code> y <code>farField</code>, cada uno con un clic sobre la línea de sus caras en la vista de arriba (tabla 5).</li>
+  <li><strong>Adelante, atrás y el volumen.</strong> <code>frontAndBack</code>: clic en la cruz de cada bloque, girar la vista 180° con <code>Tools ▸ Manipulator</code> y otro clic en cada cruz; <code>Add ▸ Volume</code>: <code>fluid</code> con un recuadro.</li>
+  <li><strong>Malla 3D y exportación.</strong> <code>Mesh ▸ 3D</code> (<code>Tools ▸ Statistics</code>: 16 166 hexaedros); <code>File ▸ Export</code>, <code>tobera.msh</code>, formato <code>Version 2 ASCII</code>.</li>
+</ol>
+
+    </section>
+    <section id="contour-es">
+      <p class="section-label">Paso 1</p>
+      <h2>Lo único que se pega</h2>
+
+<p><code>File ▸ New</code> pide el nombre del archivo y después el núcleo geométrico: se elige <code>Built-in</code>, como en el 2.2.1, porque las <code>Spline</code> y el bucle son del núcleo propio de Gmsh. Con <code>Geometry ▸ Edit script</code> el archivo se abre en el editor; se reemplaza su contenido por el contorno, se guarda y se vuelve a leer con <code>Geometry ▸ Reload script</code>.</p>
+<p class="code-name"><code>tobera_1_contorno.geo</code></p>
+<pre class="code"><code>// Tobera convergente-divergente · paso 1: el contorno de la pared (se pega; lo demás se hace con los botones)
+// Pared de coseno: H(s) = Ht + (He − Ht)(1 − cos πs)/2, con s de 0 en la garganta a 1 en la entrada o la salida.
+
+He = 1;      // semialtura de la salida (m)
+Ht = 0.2;    // semialtura de la garganta (m): razón de áreas 5
+Lc = 2;      // largo del convergente (m)
+Ld = 4;      // largo del divergente (m)
+n  = 200;    // intervalos de la pared en cada tramo
+
+Point(1) = {0, He, 0};          // entrada
+Point(2) = {Lc, Ht, 0};         // garganta
+Point(3) = {Lc + Ld, He, 0};    // salida de la tobera (el labio)
+
+For i In {1 : n - 1}
+  s = i / n;
+  H = Ht + (He - Ht) * (1 - Cos(Pi * s)) / 2;
+  Point(100 + i) = {Lc - Lc * s, H, 0};    // convergente: 101 a 299
+  Point(400 + i) = {Lc + Ld * s, H, 0};    // divergente: 401 a 599
+EndFor
+
+Spline(1) = {2, 101 : 100 + n - 1, 1};    // convergente, de la garganta a la entrada
+Spline(2) = {2, 401 : 400 + n - 1, 3};    // divergente, de la garganta a la salida
+
+// Sólo quedan visibles, y seleccionables en la interfaz, los tres puntos de los extremos.
+Hide { Point{101 : 100 + n - 1, 401 : 400 + n - 1}; }</code></pre>
+<p>Las cinco primeras variables son la geometría de la tobera; quedan disponibles para los diálogos de los pasos siguientes. Los puntos de la pared se numeran del 101 al 299 (convergente) y del 401 al 599 (divergente), y cada <code>Spline</code> empieza en la garganta y termina en la entrada o en la salida. La última línea oculta todos los puntos intermedios: en la interfaz sólo quedan la entrada (1), la garganta (2) y el labio (3), que son los que se usan (figura 2).</p>
+<figure class="diagram">
+  <img src="imagenes/t231-02_contorno.png" alt="La pared de la tobera recién pegada, con sus tres puntos visibles" loading="lazy">
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">El contorno pegado.</b> Después de <code>Reload script</code>: las dos <code>Spline</code> de la pared y sólo tres puntos, la entrada, la garganta y el labio. Los otros 398 puntos de la pared existen, pero <code>Hide</code> los oculta y así no se pueden tocar por error al hacer clic.</figcaption>
+</figure>
+
+    </section>
+    <section id="points-es">
+      <p class="section-label">Paso 2</p>
+      <h2>Siete puntos, con expresiones</h2>
+
+<p>Con <code>Add ▸ Point</code> se abre el diálogo <code>Elementary Entity Context</code>. Se escriben X e Y, se deja Z = 0 y se hace clic en <code>Add</code>; el punto aparece y el diálogo queda listo para el siguiente.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Punto</th><th>X</th><th>Y</th><th>Dónde está</th></tr></thead>
+    <tbody>
+      <tr><td>600</td><td><code>0</code></td><td><code>0</code></td><td>eje, en la entrada</td></tr>
+      <tr><td>601</td><td><code>Lc</code></td><td><code>0</code></td><td>eje, bajo la garganta</td></tr>
+      <tr><td>602</td><td><code>Lc + Ld</code></td><td><code>0</code></td><td>eje, bajo la salida de la tobera</td></tr>
+      <tr><td>603</td><td><code>22</code></td><td><code>0</code></td><td>eje, en la salida del dominio</td></tr>
+      <tr><td>604</td><td><code>22</code></td><td><code>He</code></td><td>salida del dominio, a la altura del labio</td></tr>
+      <tr><td>605</td><td><code>Lc + Ld</code></td><td><code>6</code></td><td>campo lejano, sobre el labio</td></tr>
+      <tr><td>606</td><td><code>22</code></td><td><code>6</code></td><td>esquina de arriba del dominio</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Los siete puntos que se agregan.</b> Lo que se escribe en los campos X e Y del diálogo <code>Add ▸ Point</code>; Z = 0. Los campos aceptan expresiones con las variables del contorno pegado, y el archivo guarda la expresión, no el número. La interfaz numera a partir del mayor punto que ya existe, el 599 de la pared.</caption>
+  </table>
+</div>
+<p><strong>Los campos aceptan expresiones</strong> con las variables del archivo: <code>Lc + Ld</code> es la salida de la tobera, x = 6, y <code>He</code> es la altura del labio. El archivo guarda la expresión, no el número, de modo que si después se cambia <code>Ld</code> en el contorno, los puntos se mueven con él. La interfaz numera a partir del mayor punto existente: como la pared llega al 599, el primero que se agrega es el 600.</p>
+<figure class="diagram">
+  <img src="imagenes/t231-03_punto.png" alt="El diálogo Add Point con una expresión en el campo X" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">Un punto con una expresión.</b> <code>Geometry ▸ Elementary entities ▸ Add ▸ Point</code> con el último punto, el 606, escrito: X = 22 e Y = 6. Antes se escribieron <code>Lc</code>, <code>Lc + Ld</code> y <code>He</code>, que el diálogo acepta porque son variables del contorno pegado. Con los puntos del eje y de las esquinas, Gmsh dibuja además unos ejes con las coordenadas del dominio.</figcaption>
+</figure>
+
+    </section>
+    <section id="lines-es">
+      <p class="section-label">Paso 3</p>
+      <h2>Once líneas, y por qué importa su sentido</h2>
+
+<p>Con <code>Add ▸ Line</code>, cada línea son dos clics: el punto de inicio y el final. Después de la última, <code>q</code> termina.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Línea</th><th>Clic en</th><th>Qué es</th></tr></thead>
+    <tbody>
+      <tr><td>3</td><td>601 → 600</td><td>eje del convergente</td></tr>
+      <tr><td>4</td><td>601 → 602</td><td>eje del divergente</td></tr>
+      <tr><td>5</td><td>602 → 603</td><td>eje del chorro</td></tr>
+      <tr><td>6</td><td>600 → 1</td><td>entrada</td></tr>
+      <tr><td>7</td><td>601 → 2</td><td>garganta</td></tr>
+      <tr><td>8</td><td>602 → 3</td><td>salida de la tobera</td></tr>
+      <tr><td>9</td><td>603 → 604</td><td>salida del dominio, junto al eje</td></tr>
+      <tr><td>10</td><td>3 → 604</td><td>borde del chorro</td></tr>
+      <tr><td>11</td><td>3 → 605</td><td>campo lejano, sobre el labio</td></tr>
+      <tr><td>12</td><td>604 → 606</td><td>salida del dominio, arriba</td></tr>
+      <tr><td>13</td><td>605 → 606</td><td>campo lejano, arriba</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Las once líneas, en el orden en que se hacen.</b> Cada línea va del primer punto en que se hace clic al segundo, y ese sentido decide hacia dónde crece la progresión del paso 5. Las axiales salen de la garganta; las verticales, de abajo hacia arriba.</caption>
+  </table>
+</div>
+<p><strong>El sentido importa.</strong> La progresión de <code>Transfinite</code> hace crecer las celdas en el sentido de la curva: con una razón mayor que uno, la primera celda es la más pequeña. Las celdas finas se quieren en la garganta, así que las tres líneas del eje se trazan desde la garganta hacia afuera, igual que las dos <code>Spline</code> de la pared. Las verticales se trazan de abajo hacia arriba: las cuatro que cruzan la tobera y el chorro (6 a 9) llevan celdas iguales, y las dos del ambiente (11 y 12) crecen desde el borde del chorro hacia el campo lejano.</p>
+
+    </section>
+    <section id="surfaces-es">
+      <p class="section-label">Paso 4</p>
+      <h2>Cuatro bloques, curva por curva</h2>
+
+<p>Con <code>Add ▸ Plane surface</code> se hace clic en las cuatro curvas de un bloque, una tras otra alrededor del bloque, y <code>e</code>. Como los bloques comparten curvas, un solo clic no basta para que Gmsh encuentre el lazo, igual que en el 2.2.1.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Superficie</th><th>Clic en las curvas</th><th>Lazo que escribe la interfaz</th><th>Bloque</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>7, 1, 6, 3</td><td><code>{7, 1, −6, −3}</code></td><td>convergente</td></tr>
+      <tr><td>2</td><td>4, 8, 2, 7</td><td><code>{4, 8, −2, −7}</code></td><td>divergente</td></tr>
+      <tr><td>3</td><td>5, 9, 10, 8</td><td><code>{5, 9, −10, −8}</code></td><td>núcleo del chorro</td></tr>
+      <tr><td>4</td><td>10, 12, 13, 11</td><td><code>{10, 12, −13, −11}</code></td><td>ambiente</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">Las cuatro superficies.</b> Con <code>Add ▸ Plane surface</code>, un clic en cada curva, en este orden, y <code>e</code>. El lazo que escribe la interfaz empieza en la primera curva tocada; el signo menos indica que la curva se recorre al revés.</caption>
+  </table>
+</div>
+<figure class="diagram">
+  <img src="imagenes/t231-04_superficies.png" alt="Las cuatro superficies con sus cruces punteadas" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">Las cuatro superficies.</b> Cada superficie se dibuja como una cruz punteada; su trazo vertical cae en x = 1 y x = 4 en la tobera y en x = 14 en el chorro y el ambiente. Esas cruces son las que se tocan con <code>Transfinite Surface</code>, <code>Recombine</code> y, más adelante, en el grupo de las caras de adelante y de atrás.</figcaption>
+</figure>
+
+    </section>
+    <section id="transfinite-es">
+      <p class="section-label">Paso 5</p>
+      <h2>Transfinite, Recombine y la malla 2D</h2>
+
+<p><code>Mesh ▸ Define ▸ Transfinite ▸ Curve</code> abre el diálogo <code>Mesh Context</code> (figura 5). Para cada grupo se escriben el número de nodos y la progresión, se hace clic en las curvas y <code>e</code>.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Curvas</th><th>Nodos</th><th>Progresión</th><th>Qué reparten</th></tr></thead>
+    <tbody>
+      <tr><td>1, 3</td><td>121</td><td>1.01356</td><td>el convergente: pared y eje</td></tr>
+      <tr><td>2, 4</td><td>242</td><td>1.00672</td><td>el divergente: pared y eje</td></tr>
+      <tr><td>5, 10, 13</td><td>93</td><td>1.03011</td><td>el chorro: eje, borde y campo lejano</td></tr>
+      <tr><td>6, 7, 8, 9</td><td>31</td><td>1</td><td>las cuatro verticales</td></tr>
+      <tr><td>11, 12</td><td>29</td><td>1.1037</td><td>el ambiente, del chorro hacia arriba</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">Los cinco grupos de Transfinite Curve.</b> En el diálogo <code>Mesh ▸ Define ▸ Transfinite ▸ Curve</code>: <code>Number of points</code>, <code>Type</code> = <code>Progression</code> y <code>Parameter</code>. Las curvas de un mismo grupo son lados opuestos de un bloque, así que llevan los mismos nodos y, como van en el mismo sentido, la misma progresión.</caption>
+  </table>
+</div>
+<figure class="diagram narrow">
+  <img src="imagenes/t231-05_mesh_context.png" alt="El diálogo Mesh Context con 29 nodos y progresión 1.1037" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">El diálogo de Transfinite Curve.</b> Con el último grupo escrito: 29 nodos, <code>Progression</code>, parámetro 1.1037. Los valores se escriben antes de hacer clic en las curvas, y el diálogo los conserva entre un grupo y el siguiente.</figcaption>
+</figure>
+<p>Después, <code>Transfinite ▸ Surface</code>: un clic en la cruz de cada bloque y <code>e</code>, cuatro veces; y <code>Recombine</code>: un clic en las cuatro cruces y <code>e</code>, para que la malla sea de cuadriláteros. <code>Mesh ▸ 2D</code> responde <code>Done meshing 2D</code>, y <code>Tools ▸ Statistics</code> cuenta 16 166 cuadriláteros (figura 6).</p>
+<figure class="diagram">
+  <img src="imagenes/t231-06_malla2d.png" alt="La malla 2D de la media tobera y su chorro" loading="lazy">
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">La malla 2D.</b> <code>Mesh ▸ 2D</code>: 16 166 cuadriláteros. Los cuatro bloques con sus colores; las celdas son finas en la tobera y crecen hacia la salida del dominio y hacia arriba.</figcaption>
+</figure>
+<p>La rueda del ratón acerca la vista alrededor del puntero: con el puntero sobre la garganta se ven las celdas casi cuadradas que se pidieron (figura 7).</p>
+<figure class="diagram">
+  <img src="imagenes/t231-07_garganta.png" alt="La malla alrededor de la garganta, de cerca" loading="lazy">
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">La garganta de cerca.</b> Acercada con la rueda del ratón sobre la garganta. La línea vertical es la curva 7: a su izquierda el convergente, a su derecha el divergente, cada uno con su color. Junto a ella las celdas son casi cuadradas (30 en la semialtura de 0.2 m y 0.0067 m a lo largo del eje) y crecen poco a poco hacia la entrada y hacia la salida.</figcaption>
+</figure>
+
+    </section>
+    <section id="worked-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>De dónde salen 121 nodos y 1.01356</h2>
+
+<div class="example">
+  <p><strong>Enunciado.</strong> Explicar de dónde salen los 121 nodos y la progresión 1.01356 del convergente.</p>
+  <p><strong>Condiciones.</strong> Se quieren celdas cuadradas en la garganta y en la entrada: 30 celdas en la semialtura en las dos estaciones, y el mismo largo a lo largo del eje.</p>
+</div>
+<p><strong>Los dos tamaños.</strong> En la garganta la semialtura es 0.2 m, así que la celda mide h<sub>1</sub> = 0.2/30 = 0.00667 m. En la entrada, 1 m, y la celda mide h<sub>N</sub> = 1/30 = 0.03333 m.</p>
+<p><strong>La progresión.</strong> En una progresión geométrica de razón r, la suma de las celdas es L = (r·h<sub>N</sub> − h<sub>1</sub>)/(r − 1), y la última celda es h<sub>N</sub> = h<sub>1</sub>·r<sup>N−2</sup>. De ahí salen las dos fórmulas:</p>
+<div class="equation-card">\[ r = \frac{L - h_1}{L - h_N}, \qquad N = 2 + \frac{\ln(h_N/h_1)}{\ln r} \]</div>
+<p>Con L = 2 m, r = (2 − 0.00667)/(2 − 0.03333) = 1.01356.</p>
+<p><strong>Los nodos.</strong> N − 2 = ln(h<sub>N</sub>/h<sub>1</sub>)/ln r = ln 5/ln 1.01356 = 119.499, que se redondea a 119: N = 121.</p>
+<p>Son las fórmulas de la macro <code>Empalme</code> del <a href="perfil-c-parametrico.html">2.2.2</a>. Con los tamaños de la salida (1/30 m) y la longitud del divergente (4 m) salen, del mismo modo, los 242 nodos y la razón 1.00672; y con la salida y una celda de 0.5 m en el campo lejano, los del chorro y el ambiente. El <a href="tobera-parametrizada.html">2.3.2</a> escribe estas cuentas dentro del archivo, para que cambien solas con la geometría.</p>
+<p><strong>Preguntas.</strong></p>
+<ol>
+  <li>¿Qué pasaría si al convergente se le dieran 45 nodos con razón 1.06, como en otros archivos de tobera? <em>Respuesta:</em> la última celda del convergente mediría 0.011 m y la primera del divergente seguiría otro reparto: un salto de tamaño justo en la garganta, donde el flujo es sónico. El 2.3.2 lo mide en la malla de la que parte.</li>
+  <li>¿Por qué la curva 7 (la garganta) lleva los mismos 31 nodos que la 6 y la 8? <em>Respuesta:</em> las tres son lados de bloques que se tocan; en una malla estructurada los lados opuestos de un bloque tienen el mismo número de nodos, y los bloques vecinos comparten sus lados.</li>
+</ol>
+
+    </section>
+    <section id="extrude-es">
+      <p class="section-label">Paso 6</p>
+      <h2>Una capa, las cuatro superficies con un recuadro</h2>
+
+<p><code>Geometry ▸ Elementary entities ▸ Extrude ▸ Translate</code> abre el diálogo <code>Elementary Operation Context</code>. Se escribe DZ = 0.1, se marca <code>Extrude mesh</code> con una capa (<code>Mesh layers</code> = 1) y <code>Recombine</code>, y en <code>Selection mode</code> se elige <code>Surfaces</code>, para que sólo se puedan tomar superficies (figura 8). Un recuadro sobre todo el dominio —<code>Ctrl</code> + clic en una esquina, mover y clic en la opuesta— toma las cuatro, y <code>e</code> extruye.</p>
+<figure class="diagram">
+  <img src="imagenes/t231-08_extrude.png" alt="El diálogo de Extrude Translate con DZ = 0.1 y una capa" loading="lazy">
+  <figcaption><b class="fig-num">Figura 8.</b> <b class="fig-title">La extrusión, lista para elegir las superficies.</b> <code>Extrude ▸ Translate</code> con DZ = 0.1, <code>Extrude mesh</code> marcado, una capa, <code>Recombine</code> y <code>Selection mode</code> en <code>Surfaces</code>. El diálogo se acomodó arriba a la derecha para que no tape el dominio; falta el recuadro sobre las cuatro superficies.</figcaption>
+</figure>
+<pre class="code"><code>Extrude {0, 0, 0.1} {
+  Surface{1}; Surface{2}; Surface{3}; Surface{4}; Layers {1}; Recombine;
+}</code></pre>
+<p>El espesor no importa para OpenFOAM, que trata el caso como 2D con las caras de adelante y de atrás de tipo <code>empty</code>; lo que importa es que haya una sola capa de celdas.</p>
+
+    </section>
+    <section id="groups-es">
+      <p class="section-label">Pasos 7 y 8</p>
+      <h2>Un clic sobre la línea de cada cara lateral</h2>
+
+<p>La extrusión creó, además de los cuatro volúmenes, una cara lateral por cada curva y una cara de adelante por cada superficie. Los grupos físicos las reúnen en las fronteras que usará OpenFOAM (tabla 5).</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Grupo</th><th>Caras</th><th>Clic en</th><th>En OpenFOAM</th></tr></thead>
+    <tbody>
+      <tr><td><code>inlet</code></td><td>30</td><td>la línea 6 (x = 0)</td><td><code>totalPressure</code></td></tr>
+      <tr><td><code>nozzleWall</code></td><td>26, 52</td><td>las dos paredes</td><td><code>wall</code> (<code>slip</code>)</td></tr>
+      <tr><td><code>axis</code></td><td>34, 44, 66</td><td>el eje, en los tres tramos</td><td><code>symmetryPlane</code></td></tr>
+      <tr><td><code>outlet</code></td><td>70, 92</td><td>la línea 9 y la 12 (x = 22)</td><td><code>waveTransmissive</code></td></tr>
+      <tr><td><code>farField</code></td><td>96, 100</td><td>la línea 13 y la 11</td><td><code>totalPressure</code></td></tr>
+      <tr><td><code>frontAndBack</code></td><td>35, 57, 79, 101, 1, 2, 3, 4</td><td>la cruz de cada bloque, de frente y desde atrás</td><td><code>empty</code></td></tr>
+      <tr><td><code>fluid</code></td><td>1, 2, 3, 4</td><td>un recuadro sobre todo</td><td>—</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 5.</b> <b class="fig-title">Los grupos físicos.</b> <code>Physical groups ▸ Add ▸ Surface</code> (o <code>Volume</code>) con el nombre escrito en el campo <code>Name</code>, los clics de la tercera columna y <code>e</code>. Los números de las caras son los que escribió la interfaz; la última columna es el tipo del parche en OpenFOAM.</caption>
+  </table>
+</div>
+<h3>Las caras laterales: un clic sobre su línea</h3>
+<p>En la vista de arriba, cada cara lateral se ve de canto, sobre la curva que la generó, y su cruz punteada cae sobre esa línea. Con <code>Physical groups ▸ Add ▸ Surface</code> y el nombre escrito, un clic sobre la línea toma la cara: sobre la entrada, la cara 30; sobre cada tramo de la pared, las caras 26 y 52 (figura 9). Los clics se hacen lejos de las cruces de las caras de adelante —los trazos verticales en x = 1, 4 y 14 y los horizontales a media altura—, que también se podrían tomar.</p>
+<figure class="diagram">
+  <img src="imagenes/t231-09_pared.png" alt="La pared de la tobera elegida para el grupo nozzleWall" loading="lazy">
+  <figcaption><b class="fig-num">Figura 9.</b> <b class="fig-title">Una cara lateral, con un clic sobre su línea.</b> El grupo <code>nozzleWall</code>: las dos caras de la pared quedan resaltadas después de un clic sobre cada tramo de la pared, en la vista de arriba. La etiqueta amarilla confirma lo que hay bajo el puntero: la superficie 52, extruida desde la curva 2.</figcaption>
+</figure>
+<div class="callout warn">
+  <p><strong>El recuadro toma todo lo que toca.</strong> Para la extrusión funcionó porque se querían las cuatro superficies. Para un grupo, no: un recuadro angosto alrededor de la entrada tomó las caras 1, 26, 30, 34 y 35 —la entrada, pero también la pared, el eje y las caras de adelante y de atrás del convergente, que sólo tocan el recuadro—. Se comprobó leyendo la línea que escribió la interfaz.</p>
+</div>
+<h3>Las caras de adelante y de atrás</h3>
+<p>En la vista de arriba las caras de z = 0.1 tapan a las de z = 0: un clic en la cruz de cada bloque toma las de adelante (35, 57, 79 y 101). Sin cerrar la selección, <code>Tools ▸ Manipulator</code> con rotación (0, 180, 0) gira la vista: el eje x queda al revés y las caras de z = 0 quedan adelante; otro clic en cada cruz las agrega (figura 10). Con <code>e</code> se cierra el grupo <code>frontAndBack</code>, con las ocho.</p>
+<figure class="diagram">
+  <img src="imagenes/t231-10_atras.png" alt="La vista desde atrás con las caras de atrás elegidas" loading="lazy">
+  <figcaption><b class="fig-num">Figura 10.</b> <b class="fig-title">Las caras de atrás.</b> Con la vista girada 180° en <code>Tools ▸ Manipulator</code>, el eje x queda al revés (22 a la izquierda) y las caras de z = 0 quedan adelante: un clic en la cruz de cada bloque las agrega a <code>frontAndBack</code>, que ya tenía las de z = 0.1.</figcaption>
+</figure>
+<p>El volumen se toma con <code>Add ▸ Volume</code> y un recuadro sobre todo: aquí sí conviene, porque se quieren los cuatro.</p>
+<div class="callout">
+  <p><strong>Una etiqueta amarilla confirma qué hay bajo el puntero.</strong> Al detener el puntero sobre una entidad, Gmsh muestra su número, sus curvas y los volúmenes que toca (en la figura 9, «Surface 52 … On boundary of volumes: 2»). Es la forma más rápida de saber qué va a tomar el siguiente clic.</p>
+</div>
+
+    </section>
+    <section id="export-es">
+      <p class="section-label">Paso 9</p>
+      <h2>16 166 hexaedros en MSH 2 ASCII</h2>
+
+<p><code>Mesh ▸ 3D</code> extruye la malla: <code>Tools ▸ Statistics</code> cuenta 16 166 hexaedros, uno por cuadrilátero. Para OpenFOAM, <code>File ▸ Export</code>, el nombre <code>tobera.msh</code> y, en <code>MSH Options</code>, el formato <code>Version 2 ASCII</code> (figura 11), porque <code>gmshToFoam</code> no lee el formato 4.1 que Gmsh propone de fábrica.</p>
+<figure class="diagram">
+  <img src="imagenes/t231-11_msh2.png" alt="El diálogo MSH Options con el formato Version 2 ASCII" loading="lazy">
+  <figcaption><b class="fig-num">Figura 11.</b> <b class="fig-title">El formato para OpenFOAM.</b> <code>File ▸ Export</code>, nombre <code>tobera.msh</code>: en <code>MSH Options</code>, el formato <code>Version 2 ASCII</code>, el único que lee <code>gmshToFoam</code>. Como en el 1.1, el desplegable se abre detrás del diálogo y se elige con dos flechas hacia arriba e Intro.</figcaption>
+</figure>
+<p>El archivo que resulta es idéntico al que escribe el <code>.geo</code> de la sección «Archivo» corrido desde la terminal: los 33 356 nodos coinciden a distancia cero. Y la malla es la mitad de arriba de la tobera plana del 2.3.2: sus celdas coinciden con las de aquélla a menos de 0.4 mm, la diferencia que dejan las progresiones escritas con seis cifras.</p>
+
+    </section>
+    <section id="openfoam-es">
+      <p class="section-label">Comprobación en OpenFOAM</p>
+      <h2>¿Da la mitad lo mismo que la tobera completa?</h2>
+
+<p>El caso es el del <a href="tobera-parametrizada.html">2.3.2</a> (<code>datos-t231/openfoam/caso</code>): flujo no viscoso con <code>shockFluid</code>, p<sub>0</sub> = 1 y T<sub>0</sub> = 1 en la entrada, paredes <code>slip</code> y la presión de descarga en la salida y el campo lejano, con dos valores: el de diseño, p<sub>b</sub>/p<sub>0</sub> = 0.0210, y uno que pone un choque normal en el divergente, 0.504. La única diferencia es el parche del eje, que <code>gmshToFoam</code> deja como <code>patch</code> y hay que cambiar:</p>
+<pre class="code"><code>gmshToFoam tobera.msh
+foamDictionary constant/polyMesh/boundary -entry entry0/axis/type -set symmetryPlane
+foamDictionary constant/polyMesh/boundary -entry entry0/nozzleWall/type -set wall
+foamDictionary constant/polyMesh/boundary -entry entry0/frontAndBack/type -set empty
+checkMesh</code></pre>
+<p><code>checkMesh</code> responde <code>Mesh OK</code> con 16 166 celdas y una no ortogonalidad máxima de 33.8°. En los archivos de <code>0/</code>, el parche <code>axis</code> lleva <code>type symmetryPlane;</code> en <code>p</code>, <code>U</code> y <code>T</code>.</p>
+<figure class="diagram">
+  <img src="imagenes/t231-12_mach.png" alt="Mach medio de la media tobera, la tobera completa y la teoría" loading="lazy">
+  <figcaption><b class="fig-num">Figura 12.</b> <b class="fig-title">La media tobera da lo mismo que la completa.</b> Mach medio de cada sección en la media tobera (círculos y cuadros), en la tobera completa del 2.3.2 (cruces) y en la teoría cuasi-unidimensional (líneas), en diseño y con el choque normal en el divergente. Hasta x = 3.5 m los dos casos coinciden y los cuadros tapan a los círculos.</figcaption>
+</figure>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Caso</th><th>Garganta: media · completa</th><th>Salida: media · completa</th><th>Diferencia máxima</th><th>Choque en el eje</th></tr></thead>
+    <tbody>
+      <tr><td>Diseño</td><td>0.9999 · 0.9998</td><td>3.1307 · 3.1307</td><td>0.01 %</td><td>—</td></tr>
+      <tr><td>Choque</td><td>0.9999 · 0.9997</td><td>0.2755 · 0.2756</td><td>0.05 %</td><td>3.687 m · 3.687 m</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 6.</b> <b class="fig-title">La media tobera contra la tobera completa.</b> El mismo caso de OpenFOAM 13 que el 2.3.2 (<code>shockFluid</code> sin viscosidad, campos promediados en el tiempo), con el eje como plano de simetría. «Media» es el Mach de la sección promediado con el gasto; «completa», el de la tobera plana del 2.3.2, con el doble de celdas.</caption>
+  </table>
+</div>
+<p>La media tobera da el mismo Mach medio que la tobera completa en cada sección: la mayor diferencia es del 0.01 % en diseño y del 0.05 % con el choque, y el choque queda en el mismo lugar del eje, x = 3.687 m (la teoría lo pone en 3.678 m). Y lo da con la mitad de celdas. La comparación con la teoría cuasi-unidimensional —por qué la media sigue a la teoría y el eje no— está en el 2.3.2.</p>
+
+    </section>
+    <section id="files-es">
+      <p class="section-label">Archivo</p>
+      <h2>Lo que escribió la interfaz</h2>
+
+<p>Lo que escribió la interfaz siguiendo este tutorial, sin las marcas <code>//+</code> que agrega después de cada orden. El principio es el contorno pegado; todo lo que sigue a <code>Hide</code> lo escribieron los botones. <code>proyecto/tobera_botones/tobera_botones.geo</code> es el mismo archivo con comentarios, y da la misma malla.</p>
+<p class="code-name"><code>tobera_interfaz.geo</code></p>
+<pre class="code"><code>// Tobera convergente-divergente · paso 1: el contorno de la pared (se pega; lo demás se hace con los botones)
+// Pared de coseno: H(s) = Ht + (He − Ht)(1 − cos πs)/2, con s de 0 en la garganta a 1 en la entrada o la salida.
+
+He = 1;      // semialtura de la salida (m)
+Ht = 0.2;    // semialtura de la garganta (m): razón de áreas 5
+Lc = 2;      // largo del convergente (m)
+Ld = 4;      // largo del divergente (m)
+n  = 200;    // intervalos de la pared en cada tramo
+
+Point(1) = {0, He, 0};          // entrada
+Point(2) = {Lc, Ht, 0};         // garganta
+Point(3) = {Lc + Ld, He, 0};    // salida de la tobera (el labio)
+
+For i In {1 : n - 1}
+  s = i / n;
+  H = Ht + (He - Ht) * (1 - Cos(Pi * s)) / 2;
+  Point(100 + i) = {Lc - Lc * s, H, 0};    // convergente: 101 a 299
+  Point(400 + i) = {Lc + Ld * s, H, 0};    // divergente: 401 a 599
+EndFor
+
+Spline(1) = {2, 101 : 100 + n - 1, 1};    // convergente, de la garganta a la entrada
+Spline(2) = {2, 401 : 400 + n - 1, 3};    // divergente, de la garganta a la salida
+
+// Sólo quedan visibles, y seleccionables en la interfaz, los tres puntos de los extremos.
+Hide { Point{101 : 100 + n - 1, 401 : 400 + n - 1}; }
+Point(600) = {0, 0, 0, 1.0};
+Point(601) = {Lc, 0, 0, 1.0};
+Point(602) = {Lc + Ld, 0, 0, 1.0};
+Point(603) = {22, 0, 0, 1.0};
+Point(604) = {22, He, 0, 1.0};
+Point(605) = {Lc + Ld, 6, 0, 1.0};
+Point(606) = {22, 6, 0, 1.0};
+Line(3) = {601, 600};
+Line(4) = {601, 602};
+Line(5) = {602, 603};
+Line(6) = {600, 1};
+Line(7) = {601, 2};
+Line(8) = {602, 3};
+Line(9) = {603, 604};
+Line(10) = {3, 604};
+Line(11) = {3, 605};
+Line(12) = {604, 606};
+Line(13) = {605, 606};
+Curve Loop(1) = {7, 1, -6, -3};
+Plane Surface(1) = {1};
+Curve Loop(2) = {4, 8, -2, -7};
+Plane Surface(2) = {2};
+Curve Loop(3) = {5, 9, -10, -8};
+Plane Surface(3) = {3};
+Curve Loop(4) = {10, 12, -13, -11};
+Plane Surface(4) = {4};
+Transfinite Curve {1, 3} = 121 Using Progression 1.01356;
+Transfinite Curve {2, 4} = 242 Using Progression 1.00672;
+Transfinite Curve {5, 10, 13} = 93 Using Progression 1.03011;
+Transfinite Curve {6, 7, 8, 9} = 31 Using Progression 1;
+Transfinite Curve {11, 12} = 29 Using Progression 1.1037;
+Transfinite Surface {1};
+Transfinite Surface {2};
+Transfinite Surface {3};
+Transfinite Surface {4};
+Recombine Surface {1, 2, 3, 4};
+Extrude {0, 0, 0.1} {
+  Surface{1}; Surface{2}; Surface{3}; Surface{4}; Layers {1}; Recombine;
+}
+Physical Surface(&quot;inlet&quot;, 102) = {30};
+Physical Surface(&quot;nozzleWall&quot;, 103) = {26, 52};
+Physical Surface(&quot;axis&quot;, 104) = {34, 44, 66};
+Physical Surface(&quot;outlet&quot;, 105) = {70, 92};
+Physical Surface(&quot;farField&quot;, 106) = {96, 100};
+Physical Surface(&quot;frontAndBack&quot;, 107) = {35, 57, 79, 101, 1, 2, 3, 4};
+Physical Volume(&quot;fluid&quot;, 108) = {1, 2, 3, 4};</code></pre>
+
+    </section>
+    <section id="example-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>Tres cambios a mano</h2>
+
+<p>Tres cambios, todos con la interfaz. En cada uno, predecir primero y comprobar después con <code>Tools ▸ Statistics</code>.</p>
+<h3>1. Un divergente más largo</h3>
+<ol>
+  <li>En el contorno pegado, cambiar <code>Ld = 4</code> por <code>Ld = 6</code>, guardar y <code>Reload script</code>. ¿Qué puntos se mueven y por qué?</li>
+  <li>Con la fórmula del ejemplo resuelto, calcular los nodos y la razón del divergente para celdas de 1/150 m en la garganta y de 1/30 m en la salida, y corregir el grupo de <code>Transfinite Curve</code> de las curvas 2 y 4.</li>
+</ol>
+<h3>2. Una malla el doble de fina</h3>
+<ol>
+  <li>Con 60 celdas en la semialtura, ¿cuánto miden las celdas de la garganta y de la salida? ¿Cuántos nodos y qué razón lleva el convergente?</li>
+  <li>¿Cuántas celdas tendrá la malla? Comprobarlo con <code>Statistics</code>.</li>
+</ol>
+<h3>3. La tobera completa con los botones</h3>
+<ol>
+  <li>Agregar la mitad de abajo: la pared de abajo en el contorno pegado (con <code>-H</code>), los puntos, las líneas y las superficies que faltan.</li>
+  <li>¿Qué grupo desaparece y cuáles cambian? ¿Cuántas caras tiene ahora <code>frontAndBack</code>?</li>
+  <li>Comparar el tiempo de cálculo con el de la media tobera, con el mismo caso de OpenFOAM.</li>
+</ol>
+
+    </section>
+    <section id="summary-es">
+      <p class="section-label">Puntos clave</p>
+      <h2>Lo que hay que retener</h2>
+
+<ul>
+  <li>Se pega lo que sería tedioso con clics —una pared de 400 puntos— y lo demás se hace con los botones; la interfaz escribe cada orden en el archivo.</li>
+  <li>Los campos de los diálogos aceptan expresiones con las variables del archivo, y el archivo guarda la expresión.</li>
+  <li>El sentido de cada línea decide hacia dónde crece la progresión: las axiales, desde la garganta hacia afuera.</li>
+  <li>Los nodos salen de pedir tamaños de celda: r = (L − h<sub>1</sub>)/(L − h<sub>N</sub>) y N = 2 + ln(h<sub>N</sub>/h<sub>1</sub>)/ln r.</li>
+  <li>En los grupos físicos, cada cara lateral se toma con un clic sobre su línea en la vista de arriba; el recuadro toma todo lo que toca. Las caras de atrás, con la vista girada 180°.</li>
+  <li>Si la geometría y el flujo son simétricos, se malla la mitad y el eje es un <code>symmetryPlane</code>: mismo resultado, mitad de celdas.</li>
+</ul>
+
+    </section>
+    <section id="mistakes-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Lo que falla y lo que hace Gmsh</h2>
+
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Lo que pasa</th><th>La causa</th><th>Qué hacer</th></tr></thead>
+    <tbody>
+      <tr><td>Un grupo físico tiene caras de más</td><td>Se eligió con un recuadro: toma todo lo que toca</td><td>Un clic sobre la línea de cada cara lateral; <code>u</code> deshace el último</td></tr>
+      <tr><td>Las celdas finas quedan en la entrada y no en la garganta</td><td>La línea del eje se trazó de la entrada a la garganta</td><td>Trazar las axiales desde la garganta, o usar la razón inversa (1/1.01356)</td></tr>
+      <tr><td><code>Plane surface</code> no cierra el lazo</td><td>Un solo clic en un bloque que comparte curvas</td><td>Clic en las cuatro curvas, una tras otra alrededor del bloque</td></tr>
+      <tr><td>El clic en la pared toma un punto de la <code>Spline</code></td><td>Falta el <code>Hide</code> del contorno</td><td>Pegar el contorno completo, con su última línea</td></tr>
+      <tr><td><code>frontAndBack</code> queda con cuatro caras</td><td>Sólo se tomaron las de adelante</td><td>Girar la vista 180° con el <code>Manipulator</code> antes de cerrar la selección</td></tr>
+      <tr><td><code>gmshToFoam</code>: <code>Attempt to get back from bad stream</code></td><td>Exportado en MSH 4.1</td><td><code>Version 2 ASCII</code> en <code>MSH Options</code></td></tr>
+      <tr><td>OpenFOAM avisa <code>Removing patchGroup 'wall'</code></td><td>Un grupo llamado <code>wall</code></td><td>Otro nombre, como <code>nozzleWall</code> (el hallazgo del 2.2.1)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ol>
+  <li>C. Geuzaine y J.-F. Remacle. <em>Gmsh Reference Manual</em>, versión 4.15: la interfaz gráfica, <code>Transfinite</code>, <code>Extrude</code> y los grupos físicos. <a href="https://gmsh.info/doc/texinfo/gmsh.html" target="_blank" rel="noopener">gmsh.info/doc/texinfo/gmsh.html</a>.</li>
+  <li>J. D. Anderson. <em>Modern Compressible Flow</em>, 3.ª ed. McGraw-Hill, 2003. Capítulo 5: flujo cuasi-unidimensional en toberas.</li>
+  <li>The OpenFOAM Foundation. <em>OpenFOAM User Guide</em>, versión 13: <code>gmshToFoam</code>, <code>symmetryPlane</code> y <code>shockFluid</code>. <a href="https://doc.cfd.direct/openfoam/user-guide-v13/" target="_blank" rel="noopener">doc.cfd.direct/openfoam/user-guide-v13</a>.</li>
+</ol>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="perfil-c-parametrico.html?v=13"><span>Tutorial anterior</span>← Tutorial 2.2.2 · El perfil en C paramétrico</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Serie de tutoriales</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Eine Laval-Düse mit Abströmgebiet über die Gmsh-Oberfläche aufbauen; Punkte mit Ausdrücken, Linien, Flächen, Transfinite und Recombine mit den Schaltflächen; extrudieren und physikalische Gruppen per Klick festlegen; in MSH 2 exportieren; die Achse in OpenFOAM als Symmetrieebene nutzen.</p>
+    </section>
+    <section id="idea-de">
+      <p class="section-label">Die Idee</p>
+      <h2>Die obere Hälfte vernetzen und die Achse zur Symmetrieebene machen</h2>
+<p>Die ebene Düse ist symmetrisch zur Achse; vernetzt wird nur die obere Hälfte: halb so viele Zellen und Klicks. Die Achse wird zum Patch symmetryPlane.</p>
+    </section>
+    <section id="recipe-de">
+      <p class="section-label">Ablauf</p>
+      <h2>Von der leeren Datei zum OpenFOAM-Netz in neun Schritten</h2>
+<p>Neun Schritte, jeweils mit dem, was Gmsh schreibt oder antwortet.</p>
+    </section>
+    <section id="contour-de">
+      <p class="section-label">Schritt 1</p>
+      <h2>Das Einzige, was eingefügt wird</h2>
+<p>Die Kosinuswand mit 200 Punkten je Abschnitt wird per For-Schleife, zwei Splines und Hide eingefügt; alles Übrige geschieht über die Schaltflächen.</p>
+    </section>
+    <section id="points-de">
+      <p class="section-label">Schritt 2</p>
+      <h2>Sieben Punkte mit Ausdrücken</h2>
+<p>Sieben Punkte; die Dialogfelder nehmen Ausdrücke wie Lc + Ld an.</p>
+    </section>
+    <section id="lines-de">
+      <p class="section-label">Schritt 3</p>
+      <h2>Elf Linien und warum ihre Richtung zählt</h2>
+<p>Elf Linien; die axialen beginnen am Hals, damit jede Progression größer als eins ist.</p>
+    </section>
+    <section id="surfaces-de">
+      <p class="section-label">Schritt 4</p>
+      <h2>Vier Blöcke, Kurve für Kurve</h2>
+<p>Vier ebene Flächen, die vier Kurven jedes Blocks der Reihe nach anklicken.</p>
+    </section>
+    <section id="transfinite-de">
+      <p class="section-label">Schritt 5</p>
+      <h2>Transfinite, Recombine und das 2D-Netz</h2>
+<p>Fünf Gruppen Transfinite Curve, Transfinite Surface je Block, Recombine und Mesh 2D: 16 166 Vierecke.</p>
+    </section>
+    <section id="worked-de">
+      <p class="section-label">Durchgerechnetes Beispiel</p>
+      <h2>Woher 121 Knoten und 1,01356 kommen</h2>
+<p>Die Verteilung im konvergenten Teil von Hand aus quadratischen Zellen in Hals und Austritt.</p>
+    </section>
+    <section id="extrude-de">
+      <p class="section-label">Schritt 6</p>
+      <h2>Eine Schicht, die vier Flächen mit einem Rahmen</h2>
+<p>Extrude ▸ Translate mit DZ = 0,1, einer Schicht und Recombine; ein Rahmen wählt die vier Flächen.</p>
+    </section>
+    <section id="groups-de">
+      <p class="section-label">Schritte 7 und 8</p>
+      <h2>Ein Klick auf die Linie jeder Seitenfläche</h2>
+<p>Der Rahmen wählt alles, was er berührt; jede Seitenfläche wird daher per Klick auf ihre Linie in der Draufsicht gewählt; Vorder- und Rückflächen von vorn und, bei um 180° gedrehter Ansicht, von hinten.</p>
+    </section>
+    <section id="export-de">
+      <p class="section-label">Schritt 9</p>
+      <h2>16 166 Hexaeder in MSH 2 ASCII</h2>
+<p>Mesh 3D ergibt 16 166 Hexaeder; File ▸ Export in MSH 2 ASCII.</p>
+    </section>
+    <section id="openfoam-de">
+      <p class="section-label">Prüfung in OpenFOAM</p>
+      <h2>Liefert die Hälfte dasselbe wie die ganze Düse?</h2>
+<p>Mit der Achse als Symmetrieebene stimmt die querschnittsgemittelte Machzahl der halben Düse bis auf 0,05 % mit der ganzen Düse aus Tutorial 2.3.2 überein, bei Auslegung und mit senkrechtem Stoß.</p>
+    </section>
+    <section id="files-de">
+      <p class="section-label">Datei</p>
+      <h2>Was die Oberfläche geschrieben hat</h2>
+<p>Die von der Oberfläche geschriebene Datei, in der Reihenfolge der Schritte.</p>
+    </section>
+    <section id="example-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Drei Änderungen von Hand</h2>
+<p>Ein längerer divergenter Teil, ein feineres Netz und die ganze Düse mit den Schaltflächen.</p>
+    </section>
+    <section id="summary-de">
+      <p class="section-label">Kernpunkte</p>
+      <h2>Was man behalten sollte</h2>
+<p>Einfügen, was mühsam zu klicken ist; den Rest klicken; die Hälfte vernetzen, wenn die Strömung symmetrisch ist.</p>
+    </section>
+    <section id="mistakes-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Was schiefgeht und was Gmsh tut</h2>
+<p>Rahmenauswahl für Seitenflächen, falsch gerichtete Linien, ein Wandpatch namens wall.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>Gmsh-Handbuch; Anderson; OpenFOAM-13-Handbuch.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="perfil-c-parametrico.html?v=13"><span>Vorheriges Tutorial</span>← Tutorial 2.2.2 · Das C-Netz mit Parametern</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Tutorialreihe</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>
