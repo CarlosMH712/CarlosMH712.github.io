@@ -32,7 +32,7 @@
     <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
     <span data-language="en">Verified on Gmsh 4.15.2 and OpenFOAM 13</span><span data-language="es" hidden>Verificado en Gmsh 4.15.2 y OpenFOAM 13</span><span data-language="de" hidden>Geprüft mit Gmsh 4.15.2 und OpenFOAM 13</span>
   </div>
-  <div class="button-row"><a class="button secondary" href="perfil-dominio-c.html?v=13">← <span>2.2.1</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a></div>
+  <div class="button-row"><a class="button secondary" href="perfil-dominio-c.html?v=13">← <span>2.2.1</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/tUgV5NPANvo" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Watch the video</span><span data-language="es" hidden>Ver el vídeo</span><span data-language="de" hidden>Video ansehen</span></a></div>
 </div></section>
 
 <main><div class="container lecture-shell">
@@ -264,30 +264,33 @@ gmsh perfil2_6_openfoam.geo -3 -setnumber R 50 -setnumber entrada 50 -setnumber 
     <thead><tr><th>Constante</th><th>Valor por omisión</th><th>Grupo</th><th>Qué es</th></tr></thead>
     <tbody>
       <tr><td><code>naca</code></td><td>12</td><td>Perfil</td><td>Código NACA de 4 dígitos</td></tr>
-      <tr><td><code>c</code></td><td>1.0</td><td>Perfil</td><td>Cuerda</td></tr>
-      <tr><td><code>n</code></td><td>120</td><td>Perfil</td><td>Intervalos por cara del contorno</td></tr>
-      <tr><td><code>xs</code></td><td>0.30</td><td>Perfil</td><td>Estación 1: espesor máximo (x/c)</td></tr>
-      <tr><td><code>xr1</code></td><td>0.55</td><td>Perfil</td><td>Estación 2 (x/c)</td></tr>
-      <tr><td><code>xr2</code></td><td>0.75</td><td>Perfil</td><td>Estación 3 (x/c)</td></tr>
-      <tr><td><code>hBA</code></td><td>0.0005</td><td>Perfil</td><td>Celda en el borde de ataque</td></tr>
-      <tr><td><code>hMed</code></td><td>0.015</td><td>Perfil</td><td>Celda a media cuerda</td></tr>
-      <tr><td><code>hBS</code></td><td>0.002</td><td>Perfil</td><td>Celda en el borde de salida</td></tr>
-      <tr><td><code>R</code></td><td>15.0</td><td>Dominio</td><td>Radio y semialtura (cuerdas)</td></tr>
-      <tr><td><code>entrada</code></td><td>15.0</td><td>Dominio</td><td>Entrada, desde el centro de la C (cuerdas)</td></tr>
-      <tr><td><code>L</code></td><td>20.0</td><td>Dominio</td><td>Estela hasta la salida (cuerdas)</td></tr>
-      <tr><td><code>hFar</code></td><td>1.5</td><td>Dominio</td><td>Celda en el campo lejano</td></tr>
-      <tr><td><code>hSalida</code></td><td>0.01</td><td>Dominio</td><td>Celda vertical en la salida, sobre la estela</td></tr>
-      <tr><td><code>rho</code></td><td>1.225</td><td>y+</td><td>rho [kg/m3]</td></tr>
-      <tr><td><code>mu</code></td><td>1.789e-5</td><td>y+</td><td>mu [Pa s]</td></tr>
-      <tr><td><code>Uinf</code></td><td>30.0</td><td>y+</td><td>U_inf [m/s]</td></tr>
+      <tr><td><code>c</code></td><td>1.0</td><td>Perfil</td><td>Cuerda c (m)</td></tr>
+      <tr><td><code>n</code></td><td>120</td><td>Perfil</td><td>Intervalos por cara</td></tr>
+      <tr><td><code>xs</code></td><td>0.30</td><td>Perfil</td><td>Estación 1, espesor máximo (c)</td></tr>
+      <tr><td><code>xr1</code></td><td>0.55</td><td>Perfil</td><td>Estación 2 (c)</td></tr>
+      <tr><td><code>xr2</code></td><td>0.75</td><td>Perfil</td><td>Estación 3 (c)</td></tr>
+      <tr><td><code>hBA</code></td><td>0.0005</td><td>Perfil</td><td>Celda en el borde de ataque (c)</td></tr>
+      <tr><td><code>hMed</code></td><td>0.015</td><td>Perfil</td><td>Celda a media cuerda (c)</td></tr>
+      <tr><td><code>hBS</code></td><td>0.002</td><td>Perfil</td><td>Celda en el borde de salida (c)</td></tr>
+      <tr><td><code>R</code></td><td>15.0</td><td>Dominio</td><td>Radio y semialtura (c)</td></tr>
+      <tr><td><code>entrada</code></td><td>15.0</td><td>Dominio</td><td>Entrada desde el centro (c)</td></tr>
+      <tr><td><code>L</code></td><td>20.0</td><td>Dominio</td><td>Estela hasta la salida (c)</td></tr>
+      <tr><td><code>hFar</code></td><td>1.5</td><td>Dominio</td><td>Celda en el campo lejano (c)</td></tr>
+      <tr><td><code>hSalida</code></td><td>0.01</td><td>Dominio</td><td>Celda vertical en la salida (c)</td></tr>
+      <tr><td><code>rho</code></td><td>1.225</td><td>y+</td><td>Densidad ρ (kg m⁻³)</td></tr>
+      <tr><td><code>mu</code></td><td>1.789e-5</td><td>y+</td><td>Viscosidad μ (Pa s)</td></tr>
+      <tr><td><code>Uinf</code></td><td>30.0</td><td>y+</td><td>Velocidad U∞ (m s⁻¹)</td></tr>
       <tr><td><code>yplus</code></td><td>1.0</td><td>y+</td><td>y+ buscado</td></tr>
-      <tr><td><code>e</code></td><td>0.01</td><td>OpenFOAM</td><td>Espesor de la extrusión</td></tr>
+      <tr><td><code>e</code></td><td>0.01</td><td>OpenFOAM</td><td>Espesor de la extrusión (m)</td></tr>
     </tbody>
     <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Los parámetros del archivo.</b> Se leen tal como están en el bloque <code>DefineConstant</code> de <code>perfil2_1_parametros.geo</code>. Cualquiera se cambia desde la terminal con <code>-setnumber</code>, sin tocar el archivo. Las longitudes están en cuerdas.</caption>
   </table>
 </div>
 <h3><code>DefineConstant</code> y la terminal</h3>
-<p><code>DefineConstant[ nombre = {valor, Name "Grupo/Etiqueta"} ]</code> declara una constante con su valor por omisión. En la interfaz gráfica aparecen todas en un árbol (<code>Tools ▸ Parameters</code>), agrupadas por lo que va antes de la diagonal; desde la terminal se cambian con <code>-setnumber</code>. La diferencia con una asignación normal es justamente esa: <strong><code>-setnumber</code> pisa un <code>DefineConstant</code>, pero no una asignación simple</strong>. Si un número se escribe como <code>R = 15;</code>, la terminal no puede cambiarlo.</p>
+<p><code>DefineConstant[ nombre = {valor, Name "Grupo/Etiqueta"} ]</code> declara una constante con su valor por omisión. En la interfaz gráfica aparecen como un panel en la columna de la izquierda, debajo de <code>Modules</code>, con una rama por grupo —lo que va antes de la diagonal— y un campo por constante; desde la terminal se cambian con <code>-setnumber</code>. La diferencia con una asignación normal es justamente esa: <strong><code>-setnumber</code> pisa un <code>DefineConstant</code>, pero no una asignación simple</strong>. Si un número se escribe como <code>R = 15;</code>, la terminal no puede cambiarlo.</p>
+<div class="callout">
+  <p><strong>El orden del panel y la diagonal.</strong> Sin más, Gmsh ordena las ramas y los campos alfabéticamente: «Celda a media cuerda» antes que «Código NACA». Un número al principio del grupo o del rótulo —<code>"1Perfil/1Código NACA de 4 dígitos"</code>— fija el orden y no se muestra. Y ninguna otra diagonal en el rótulo: Gmsh la toma como separador. En una primera versión de este archivo, «Estación 1 (x/c)» creó una subrama «Estación 1 (x» con un campo llamado «c)», y «U_inf [m/s]», otra igual; por eso las unidades se escriben aquí como «(c)» o «(m s⁻¹)».</p>
+</div>
 <h3>La primera celda, a partir del y⁺</h3>
 <p>La distancia adimensional a la pared es <span>\(y^+ = y\,u_\tau/\nu\)</span>, con <span>\(u_\tau=\sqrt{\tau_w/\rho}\)</span>. Para pedir un y⁺ hay que estimar <span>\(\tau_w\)</span> antes de calcular, y para eso sirve la correlación de placa plana turbulenta:</p>
 <div class="equation-card">\[ C_f = 0.074\,Re_c^{-1/5},\qquad u_\tau = U_\infty\sqrt{C_f/2},\qquad y_1 = \frac{y^+\,\nu}{u_\tau} \]</div>
@@ -362,31 +365,31 @@ SetFactory(&quot;Built-in&quot;);
 
 DefineConstant[
   // ---- perfil ----------------------------------------------------------
-  naca   = {12,     Name &quot;Perfil/Código NACA de 4 dígitos&quot;},
-  c      = {1.0,    Name &quot;Perfil/Cuerda&quot;},
-  n      = {120,    Name &quot;Perfil/Intervalos por cara del contorno&quot;},
-  xs     = {0.30,   Name &quot;Perfil/Estación 1: espesor máximo (x/c)&quot;},
-  xr1    = {0.55,   Name &quot;Perfil/Estación 2 (x/c)&quot;},
-  xr2    = {0.75,   Name &quot;Perfil/Estación 3 (x/c)&quot;},
-  hBA    = {0.0005, Name &quot;Perfil/Celda en el borde de ataque&quot;},
-  hMed   = {0.015,  Name &quot;Perfil/Celda a media cuerda&quot;},
-  hBS    = {0.002,  Name &quot;Perfil/Celda en el borde de salida&quot;},
+  naca   = {12,     Name &quot;1Perfil/1Código NACA de 4 dígitos&quot;},
+  c      = {1.0,    Name &quot;1Perfil/2Cuerda c (m)&quot;},
+  n      = {120,    Name &quot;1Perfil/3Intervalos por cara&quot;},
+  xs     = {0.30,   Name &quot;1Perfil/4Estación 1, espesor máximo (c)&quot;},
+  xr1    = {0.55,   Name &quot;1Perfil/5Estación 2 (c)&quot;},
+  xr2    = {0.75,   Name &quot;1Perfil/6Estación 3 (c)&quot;},
+  hBA    = {0.0005, Name &quot;1Perfil/7Celda en el borde de ataque (c)&quot;},
+  hMed   = {0.015,  Name &quot;1Perfil/8Celda a media cuerda (c)&quot;},
+  hBS    = {0.002,  Name &quot;1Perfil/9Celda en el borde de salida (c)&quot;},
 
   // ---- dominio ---------------------------------------------------------
-  R       = {15.0, Name &quot;Dominio/Radio y semialtura (cuerdas)&quot;},
-  entrada = {15.0, Name &quot;Dominio/Entrada, desde el centro de la C (cuerdas)&quot;},
-  L       = {20.0, Name &quot;Dominio/Estela hasta la salida (cuerdas)&quot;},
-  hFar    = {1.5,  Name &quot;Dominio/Celda en el campo lejano&quot;},
-  hSalida = {0.01, Name &quot;Dominio/Celda vertical en la salida, sobre la estela&quot;},
+  R       = {15.0, Name &quot;2Dominio/1Radio y semialtura (c)&quot;},
+  entrada = {15.0, Name &quot;2Dominio/2Entrada desde el centro (c)&quot;},
+  L       = {20.0, Name &quot;2Dominio/3Estela hasta la salida (c)&quot;},
+  hFar    = {1.5,  Name &quot;2Dominio/4Celda en el campo lejano (c)&quot;},
+  hSalida = {0.01, Name &quot;2Dominio/5Celda vertical en la salida (c)&quot;},
 
   // ---- la primera celda, a partir de y+ --------------------------------
-  rho    = {1.225,    Name &quot;y+/rho [kg/m3]&quot;},
-  mu     = {1.789e-5, Name &quot;y+/mu [Pa s]&quot;},
-  Uinf   = {30.0,     Name &quot;y+/U_inf [m/s]&quot;},
-  yplus  = {1.0,      Name &quot;y+/y+ buscado&quot;},
+  rho    = {1.225,    Name &quot;3y+/1Densidad ρ (kg m⁻³)&quot;},
+  mu     = {1.789e-5, Name &quot;3y+/2Viscosidad μ (Pa s)&quot;},
+  Uinf   = {30.0,     Name &quot;3y+/3Velocidad U∞ (m s⁻¹)&quot;},
+  yplus  = {1.0,      Name &quot;3y+/4y+ buscado&quot;},
 
   // ---- extrusión para OpenFOAM ----------------------------------------
-  e      = {0.01, Name &quot;OpenFOAM/Espesor de la extrusión&quot;}
+  e      = {0.01, Name &quot;4OpenFOAM/1Espesor de la extrusión (m)&quot;}
 ];
 
 // ---------------------------------------------------------------- perfil
@@ -945,7 +948,7 @@ foamRun</code></pre>
 <pre class="code"><code>gmsh perfil2_6_openfoam.geo -3 -o perfil_c2.msh          # la del tutorial
 gmsh perfil2_6_openfoam.geo -3 -setnumber naca 2412 -o naca2412.msh
 gmsh perfil2_5_malla.geo   -2 -o perfil_c2_2d.msh       # sólo la malla 2D, para mirarla</code></pre>
-<p>Y para ver los parámetros en la interfaz, con sus grupos: abrir <code>perfil2_6_openfoam.geo</code> y mirar el árbol de <code>Tools ▸ Parameters</code>; cada cambio vuelve a leer el archivo.</p>
+<p>Y para ver los parámetros en la interfaz, con sus grupos: abrir <code>perfil2_6_openfoam.geo</code> y mirar el panel de la columna de la izquierda. Cada cambio vuelve a leer el archivo y borra la malla: hay que volver a hacer <code>Mesh ▸ 2D</code> o <code>3D</code>. <code>Geometry ▸ Edit script</code> abre sólo el archivo principal; los incluidos se abren en el editor por separado.</p>
 
     </section>
     <section id="example-es">
