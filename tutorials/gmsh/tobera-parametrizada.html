@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Gmsh tutorial: a converging-diverging nozzle with its exhaust jet, built as half a nozzle that is mirrored for the planar case or rotated into a wedge for the axisymmetric one; throat from the area ratio, matched cell sizes at the throat and the exit, and an inviscid OpenFOAM check against quasi-one-dimensional theory, at design and with a normal shock." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>The Parametric Nozzle: Planar, with the Jet, and as a Wedge | Gmsh Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">Gmsh · Tutorial 2.3.2</p><h1>The Parametric Nozzle: Planar, with the Jet, and as a Wedge</h1><p class="hero-copy">A professor's nozzle file, rebuilt: half a nozzle, meshed once, becomes the planar nozzle with its mirror or the axisymmetric one when rotated into a wedge. The file computes the throat and the design Mach number from the area ratio, and an Euler run in OpenFOAM checks the Mach number against the theory.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">Gmsh · Tutorial 2.3.2</p><h1>La tobera parametrizada: plana, con el chorro, y en cuña</h1><p class="hero-copy">Una tobera escrita por un profesor, reconstruida: media tobera, mallada una vez, es la plana con su espejo o la axisimétrica al girarla en una cuña. El archivo calcula la garganta y el Mach de diseño a partir de la razón de áreas, y un cálculo de Euler en OpenFOAM comprueba el Mach contra la teoría.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">Gmsh · Tutorial 2.3.2</p><h1>Die parametrische Laval-Düse: eben, mit dem Strahl, und als Keil</h1><p class="hero-copy">Die Düsendatei eines Dozenten, neu aufgebaut: eine halbe Düse, einmal vernetzt, wird mit ihrem Spiegelbild zur ebenen Düse oder, zu einem Keil gedreht, zur achsensymmetrischen. Die Datei berechnet Hals und Auslegungs-Machzahl aus dem Flächenverhältnis; eine Euler-Rechnung in OpenFOAM prüft die Machzahl gegen die Theorie.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 45 min</span><span data-language="es" hidden>Lectura estimada: 45 min</span><span data-language="de" hidden>Lesedauer: ca. 45 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on Gmsh 4.15.2 and OpenFOAM 13</span><span data-language="es" hidden>Verificado en Gmsh 4.15.2 y OpenFOAM 13</span><span data-language="de" hidden>Geprüft mit Gmsh 4.15.2 und OpenFOAM 13</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="perfil-c-parametrico.html?v=13">← <span>2.2.2</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/2i7Qjp-IwZI" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Watch the video</span><span data-language="es" hidden>Ver el vídeo</span><span data-language="de" hidden>Video ansehen</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#idea">The idea</a><a href="#recipe">Recipe</a><a href="#throat">The throat</a><a href="#sizes">Cell sizes</a><a href="#wall">The wall</a><a href="#halves">The two halves</a><a href="#extrude">Planar or wedge</a><a href="#gui">Panel and terminal</a><a href="#worked">Worked example</a><a href="#openfoam">OpenFOAM check</a><a href="#start">The starting mesh</a><a href="#files">The file</a><a href="#example">Suggested practice</a><a href="#summary">Key points</a><a href="#mistakes">Common mistakes</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#idea-es">La idea</a><a href="#recipe-es">Receta</a><a href="#throat-es">La garganta</a><a href="#sizes-es">Los tamaños</a><a href="#wall-es">La pared</a><a href="#halves-es">Las dos mitades</a><a href="#extrude-es">Plana o cuña</a><a href="#gui-es">Panel y terminal</a><a href="#worked-es">Ejemplo resuelto</a><a href="#openfoam-es">Comprobación</a><a href="#start-es">La malla de partida</a><a href="#files-es">El archivo</a><a href="#example-es">Práctica sugerida</a><a href="#summary-es">Puntos clave</a><a href="#mistakes-es">Errores frecuentes</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#idea-de">Die Idee</a><a href="#recipe-de">Ablauf</a><a href="#throat-de">Der Hals</a><a href="#sizes-de">Zellgrößen</a><a href="#wall-de">Die Wand</a><a href="#halves-de">Die zwei Hälften</a><a href="#extrude-de">Eben oder Keil</a><a href="#gui-de">Feld und Terminal</a><a href="#worked-de">Beispiel</a><a href="#openfoam-de">Prüfung</a><a href="#start-de">Das Ausgangsnetz</a><a href="#files-de">Die Datei</a><a href="#example-de">Übung</a><a href="#summary-de">Kernpunkte</a><a href="#mistakes-de">Häufige Fehler</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Build a converging-diverging nozzle with its exhaust region from half a nozzle; compute the throat and the design Mach number from the area ratio; match cell sizes at the throat and the exit; obtain the planar mesh by writing the mirror half and the axisymmetric mesh by rotating the half into a wedge; check both with an inviscid OpenFOAM run against quasi-one-dimensional theory.</p>
+    </section>
+    <section id="idea">
+      <p class="section-label">The idea</p>
+      <h2>Half a nozzle, meshed once</h2>
+<p>Between the axis and the wall, the planar and the axisymmetric nozzle have the same shape; only the area differs (proportional to the half-height or to the radius squared). The same area ratio therefore asks for different throats.</p>
+    </section>
+    <section id="recipe">
+      <p class="section-label">Recipe</p>
+      <h2>From the file to the two meshes in six steps</h2>
+<p>Six steps, from the parameters to the two meshes.</p>
+    </section>
+    <section id="throat">
+      <p class="section-label">Step 1</p>
+      <h2>The panel, the throat and the design Mach number</h2>
+<p>DefineConstant with a drop-down list for the nozzle type; the design Mach number is found by bisection on the supersonic branch of the area-Mach relation.</p>
+    </section>
+    <section id="sizes">
+      <p class="section-label">Step 2</p>
+      <h2>Square cells at the throat and at the exit</h2>
+<p>Square cells at the throat, the inlet and the exit, and the Empalme macro of tutorial 2.2.2 for every progression; no size jump at the exit.</p>
+    </section>
+    <section id="wall">
+      <p class="section-label">Step 3</p>
+      <h2>A cosine contour, and how many points it needs</h2>
+<p>A cosine contour through 200 evenly spaced points: a Spline leaves each end with the slope of its first chord, and Transfinite follows the parametrisation, so clustered points break the requested progression.</p>
+    </section>
+    <section id="halves">
+      <p class="section-label">Step 4</p>
+      <h2>Four blocks, written once for each half</h2>
+<p>Four blocks per half; the lower half is written again with the sign of y reversed, because Symmetry with Duplicata does not copy Transfinite and Recombine.</p>
+    </section>
+    <section id="extrude">
+      <p class="section-label">Step 5</p>
+      <h2>One layer, or a rotation of five degrees</h2>
+<p>Planar: one layer. Axisymmetric: rotate the half by minus half the wedge angle and extrude by rotation; the axis faces vanish and the cells next to the axis become prisms. Physical groups by bounding box.</p>
+    </section>
+    <section id="gui">
+      <p class="section-label">Step 6</p>
+      <h2>Changing the nozzle from the interface and from the terminal</h2>
+<p>The panel, the message console and -setnumber.</p>
+    </section>
+    <section id="worked">
+      <p class="section-label">Worked example</p>
+      <h2>The wedge, predicted by hand</h2>
+<p>The axisymmetric nozzle computed by hand: throat, design Mach number, throat cell, nodes of the diverging part and total cells, compared with what the file prints.</p>
+    </section>
+    <section id="openfoam">
+      <p class="section-label">OpenFOAM check</p>
+      <h2>Does the Mach number follow the area?</h2>
+<p>Inviscid shockFluid runs at the design pressure ratio and with a normal shock in the diverging part; the mass-averaged Mach number of each section follows quasi-one-dimensional theory.</p>
+    </section>
+    <section id="start">
+      <p class="section-label">The starting mesh</p>
+      <h2>What changed, measured</h2>
+<p>The starting mesh: smoothing on transfinite blocks, size jumps at the throat and the exit, a five-point spline with a false throat, and an MSH 4.1 file that gmshToFoam cannot read.</p>
+    </section>
+    <section id="files">
+      <p class="section-label">File</p>
+      <h2>tobera.geo, complete</h2>
+<p>The whole file.</p>
+    </section>
+    <section id="example">
+      <p class="section-label">Suggested practice</p>
+      <h2>Three nozzles from the same file</h2>
+<p>A higher area ratio, a longer diverging part, and the wedge with a shock.</p>
+    </section>
+    <section id="summary">
+      <p class="section-label">Key points</p>
+      <h2>What to keep from this guide</h2>
+<p>Build half the domain; mirror or rotate it.</p>
+    </section>
+    <section id="mistakes">
+      <p class="section-label">Common mistakes</p>
+      <h2>What goes wrong and what Gmsh does</h2>
+<p>Duplicata without Transfinite, clustered spline points, index-based groups on a wedge.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>Gmsh manual; Anderson; OpenFOAM 13 user guide.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="perfil-c-parametrico.html?v=13"><span>Previous tutorial</span>← Tutorial 2.2.2 · The C-domain airfoil, parametrised</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Tutorial series</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">Una tobera convergente-divergente acelera un gas desde el reposo hasta velocidad supersónica: el área se reduce hasta la garganta, donde el flujo alcanza Mach 1, y vuelve a crecer en el divergente, donde el flujo sigue acelerando. Este tutorial construye su malla, con la región donde descarga el chorro, a partir del archivo que un profesor de la materia escribió para sus propios cálculos, y deja una versión que sirve para la tobera plana y para la axisimétrica.</p>
+<ul>
+  <li>Calcular la garganta y el Mach de diseño a partir de la razón de áreas, dentro del archivo.</li>
+  <li>Pedir tamaños de celda en la garganta y en la salida, en vez de conteos, para que la malla no tenga saltos de tamaño.</li>
+  <li>Describir la pared con una <code>Spline</code> y saber cuántos puntos necesita y cómo repartirlos.</li>
+  <li>Construir media tobera una sola vez y obtener de ella la tobera plana (con su espejo) y la axisimétrica (girándola en una cuña).</li>
+  <li>Escribir grupos físicos que sirvan para las dos, y comprobar la malla con un cálculo no viscoso en OpenFOAM contra la teoría cuasi-unidimensional.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> Gmsh 4.15.2 y, para la comprobación, OpenFOAM 13 (<a href="https://openfoam.org" target="_blank" rel="noopener">openfoam.org</a>). Se suponen los bloques con <code>Transfinite</code> del <a href="perfil-dominio-c.html">2.2.1</a> y los parámetros con <code>DefineConstant</code>, la macro <code>Empalme</code> y el panel del <a href="perfil-c-parametrico.html">2.2.2</a>. El archivo se reproduce completo al final.</p>
+</div>
+<div class="callout">
+  <p><strong>Antes, con los botones.</strong> El 2.3.1, en preparación, construye una tobera parecida con la interfaz de Gmsh —media tobera con el eje como plano de simetría— para ver qué hace cada paso. Éste parte del archivo y lo parametriza; se puede seguir sin el 2.3.1.</p>
+</div>
+<div class="callout">
+  <p><strong>De dónde sale este tutorial.</strong> El punto de partida es <code>CDNozzlev2.geo</code>, una tobera plana con dominio externo y parámetros en el panel. Funciona, pero su malla tiene saltos de tamaño en la garganta y en la salida, un suavizado que mueve los nodos que <code>Transfinite</code> acaba de colocar, una garganta falsa y un <code>.msh</code> que <code>gmshToFoam</code> no puede leer. La sección «La malla de partida» los enumera, medidos.</p>
+</div>
+
+    </section>
+    <section id="idea-es">
+      <p class="section-label">La idea</p>
+      <h2>Media tobera, mallada una vez</h2>
+
+<p>Entre el eje y la pared, la tobera plana y la axisimétrica tienen la misma forma: una pared que baja hasta la garganta y vuelve a subir. Lo que cambia es el área. En la plana, el espesor en z es constante y el área es proporcional a la semialtura H; en la axisimétrica, el área es la de un círculo y es proporcional a H². La razón de áreas, que es lo que decide el Mach de salida, vale</p>
+<div class="equation-card">\[ \frac{A_e}{A_t} = \frac{H_e}{H_t} \quad\text{(plana)}, \qquad \frac{A_e}{A_t} = \left(\frac{H_e}{H_t}\right)^2 \quad\text{(axisimétrica)} \]</div>
+<p>La misma razón de áreas, 5, pide una garganta de 0.200 m en la plana y de 0.447 m en la axisimétrica, con la misma salida de 1 m. Por eso el archivo no toma la garganta como parámetro: la calcula.</p>
+<p>La malla se construye para la mitad de arriba, del eje a la pared (figura 1). Son cuatro bloques de cuatro lados: el convergente, el divergente, el núcleo del chorro y el ambiente que lo rodea. En la tobera plana se escribe además la mitad de abajo, que es el espejo de la primera; en la axisimétrica, la mitad se gira alrededor del eje unos pocos grados y queda una cuña, que es como OpenFOAM representa un flujo con simetría de revolución.</p>
+<figure class="diagram">
+  <img src="imagenes/t232-03_bloques.png" alt="La media tobera con sus cuatro bloques y el eje" loading="lazy">
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">Media tobera, cuatro bloques.</b> Del eje (en rojo) a la pared: el convergente (1), el divergente (2), el núcleo del chorro (3) y el ambiente (4). Los bloques 1 y 2 se tocan en la garganta; el 3 y el 4, en el borde del chorro que sale del labio. La mitad de abajo, punteada, es el espejo que se escribe sólo para la tobera plana. A escala: la tobera mide 6 m y el dominio, 22 m por 12 m.</figcaption>
+</figure>
+<p>La teoría que sirve de referencia es la del flujo cuasi-unidimensional: un solo valor de Mach por sección, que depende sólo del área. En la rama supersónica,</p>
+<div class="equation-card">\[ \frac{A}{A^*} = \frac{1}{M}\left[\frac{2}{\gamma+1}\left(1+\frac{\gamma-1}{2}M^2\right)\right]^{\frac{\gamma+1}{2(\gamma-1)}}, \qquad \frac{p_0}{p} = \left(1+\frac{\gamma-1}{2}M^2\right)^{\frac{\gamma}{\gamma-1}} \]</div>
+<p>Con A<sub>e</sub>/A<sub>t</sub> = 5 y γ = 1.4 sale M<sub>e</sub> = 3.175 y p<sub>0</sub>/p<sub>e</sub> = 47.6: si la presión de descarga es la de diseño, p<sub>b</sub> = p<sub>0</sub>/47.6, el chorro sale sin ondas de choque ni de expansión en el labio.</p>
+
+    </section>
+    <section id="recipe-es">
+      <p class="section-label">Receta</p>
+      <h2>Del archivo a las dos mallas en seis pasos</h2>
+
+<p>El archivo es uno solo, <code>tobera.geo</code>; los pasos 1 a 5 lo explican por partes y el 6 lo usa.</p>
+<ol>
+  <li><strong>El panel y la garganta.</strong> Abrir <code>tobera.geo</code> en Gmsh: debajo de <code>Modules</code> aparecen cuatro ramas, <code>Tobera</code>, <code>Chorro</code>, <code>Malla</code> y <code>OpenFOAM</code> (figura 2). En <code>Tools ▸ Message Console</code>, el archivo escribe la garganta, el Mach de diseño y p<sub>0</sub>/p<sub>e</sub>.</li>
+  <li><strong>Los tamaños.</strong> Las celdas de la garganta y de la salida son cuadradas, y la macro <code>Empalme</code> calcula cuántos nodos y con qué progresión lleva cada tramo; la consola lo repite (tabla 2).</li>
+  <li><strong>La pared.</strong> Doscientos puntos por tramo, a pasos iguales, y una <code>Spline</code> por tramo.</li>
+  <li><strong>Las dos mitades.</strong> <code>Mesh ▸ 2D</code>: con el tipo «Plana», la barra de estado dice <code>Done meshing 2D</code> y la malla tiene 32 332 cuadriláteros; de cerca, la garganta y el labio no tienen saltos de tamaño (figuras 5 y 4).</li>
+  <li><strong>Plana o cuña.</strong> En el desplegable <code>Tipo</code>, elegir «Axisimétrica (cuña)» (figura 7); el archivo se vuelve a leer y la malla se borra. <code>Mesh ▸ 3D</code>: la cuña, con 13 196 celdas (figura 6).</li>
+  <li><strong>La terminal.</strong> <code>gmsh tobera.geo -3 -o plana.msh</code> y <code>gmsh tobera.geo -3 -setnumber tipo 1 -o cuna.msh</code>. Cada una escribe un <code>.msh</code> en formato 2.2, que <code>gmshToFoam</code> convierte sin quejarse.</li>
+</ol>
+
+    </section>
+    <section id="throat-es">
+      <p class="section-label">Paso 1</p>
+      <h2>El panel, la garganta y el Mach de diseño</h2>
+
+<pre class="code"><code>DefineConstant[
+  tipo  = {0,   Choices{0 = &quot;Plana&quot;, 1 = &quot;Axisimétrica (cuña)&quot;}, Name &quot;1Tobera/1Tipo&quot;},
+  AR    = {5,   Name &quot;1Tobera/2Razón de áreas Ae entre At&quot;},
+  He    = {1,   Name &quot;1Tobera/3Semialtura de salida He (m)&quot;},
+  Lc    = {2,   Name &quot;1Tobera/4Longitud del convergente (m)&quot;},
+  Ld    = {4,   Name &quot;1Tobera/5Longitud del divergente (m)&quot;},
+  gam   = {1.4, Name &quot;1Tobera/6Razón de calores γ&quot;},
+  fDown = {8,   Name &quot;2Chorro/1Longitud aguas abajo (diámetros)&quot;},
+  fFar  = {6,   Name &quot;2Chorro/2Semialtura del dominio (He)&quot;},
+  nR    = {30,  Name &quot;3Malla/1Celdas en la semialtura&quot;},
+  fLej  = {0.5, Name &quot;3Malla/2Celda del campo lejano (He)&quot;},
+  e     = {0.1, Name &quot;4OpenFOAM/1Espesor, tobera plana (m)&quot;},
+  cuna  = {5,   Name &quot;4OpenFOAM/2Ángulo de la cuña (grados)&quot;}
+];</code></pre>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Variable</th><th>Valor por omisión</th><th>Rama</th><th>Rótulo en el panel</th></tr></thead>
+    <tbody>
+      <tr><td><code>tipo</code></td><td>0</td><td>Tobera</td><td>Tipo</td></tr>
+      <tr><td><code>AR</code></td><td>5</td><td>Tobera</td><td>Razón de áreas Ae entre At</td></tr>
+      <tr><td><code>He</code></td><td>1</td><td>Tobera</td><td>Semialtura de salida He (m)</td></tr>
+      <tr><td><code>Lc</code></td><td>2</td><td>Tobera</td><td>Longitud del convergente (m)</td></tr>
+      <tr><td><code>Ld</code></td><td>4</td><td>Tobera</td><td>Longitud del divergente (m)</td></tr>
+      <tr><td><code>gam</code></td><td>1.4</td><td>Tobera</td><td>Razón de calores γ</td></tr>
+      <tr><td><code>fDown</code></td><td>8</td><td>Chorro</td><td>Longitud aguas abajo (diámetros)</td></tr>
+      <tr><td><code>fFar</code></td><td>6</td><td>Chorro</td><td>Semialtura del dominio (He)</td></tr>
+      <tr><td><code>nR</code></td><td>30</td><td>Malla</td><td>Celdas en la semialtura</td></tr>
+      <tr><td><code>fLej</code></td><td>0.5</td><td>Malla</td><td>Celda del campo lejano (He)</td></tr>
+      <tr><td><code>e</code></td><td>0.1</td><td>OpenFOAM</td><td>Espesor, tobera plana (m)</td></tr>
+      <tr><td><code>cuna</code></td><td>5</td><td>OpenFOAM</td><td>Ángulo de la cuña (grados)</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Los parámetros del archivo.</b> Tal como están en el bloque <code>DefineConstant</code> de <code>tobera.geo</code>. La rama y el rótulo son los que muestra el panel; el número con que empieza cada uno en el archivo sólo fija el orden y no se ve. <code>tipo</code> es un desplegable: 0 es la tobera plana y 1 la axisimétrica.</caption>
+  </table>
+</div>
+<p>Doce parámetros en cuatro ramas (figura 2). <code>tipo</code> lleva <code>Choices</code>, así que en el panel es un desplegable con dos rótulos, «Plana» y «Axisimétrica (cuña)», y en el archivo vale 0 o 1 (figura 7). Como en el <a href="perfil-c-parametrico.html">2.2.2</a>, cada rama y cada rótulo empiezan con un número que fija el orden y que el panel no muestra; en los rótulos no hay diagonales, porque Gmsh las toma como separadores de ramas.</p>
+<figure class="diagram">
+  <img src="imagenes/t232-01_panel.png" alt="El panel de la tobera con sus cuatro ramas y la malla completa" loading="lazy">
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">El panel y la malla completa.</b> Al abrir <code>tobera.geo</code> aparecen, debajo de <code>Modules</code>, las ramas <code>Tobera</code>, <code>Chorro</code>, <code>Malla</code> y <code>OpenFOAM</code>; la columna se ensanchó arrastrando su borde. A la derecha, la malla 2D de la tobera plana: la tobera es la franja estrecha de la izquierda y el resto es la región del chorro. El trazo grueso de la pared son sus 200 puntos por tramo.</figcaption>
+</figure>
+<p>La garganta sale de la razón de áreas, según el tipo, y el Mach de diseño se busca por bisección en la rama supersónica de la relación área-Mach, que crece con M:</p>
+<pre class="code"><code>// ---------------------------------------------------------------- la garganta sale de la razón de áreas
+// En la plana el área es proporcional a la semialtura; en la axisimétrica, al cuadrado del radio. La misma razón
+// de áreas pide gargantas distintas.
+If (tipo == 0)
+  Ht = He / AR;
+Else
+  Ht = He / Sqrt(AR);
+EndIf
+
+// Mach de diseño: la rama supersónica de A/A* = (1/M) [2/(γ+1) (1 + (γ−1)/2 M²)]^((γ+1)/(2(γ−1))), por bisección
+// (la razón de áreas crece con M en la rama supersónica).
+mA = 1.0;  mB = 50.0;
+For iter In {1:100}
+  mM = 0.5 * (mA + mB);
+  aM = (1 / mM) * ((2 / (gam + 1)) * (1 + 0.5 * (gam - 1) * mM^2))^((gam + 1) / (2 * (gam - 1)));
+  If (aM &lt; AR)
+    mA = mM;
+  Else
+    mB = mM;
+  EndIf
+EndFor
+Me = 0.5 * (mA + mB);
+p0pe = (1 + 0.5 * (gam - 1) * Me^2)^(gam / (gam - 1));   // presión de remanso entre presión de salida, en diseño</code></pre>
+<p>Cien bisecciones sobre [1, 50] dejan el Mach con más cifras de las que hacen falta. La presión de diseño, p<sub>0</sub>/p<sub>e</sub>, es la que hay que imponer en la descarga para que la tobera trabaje sin choques; la comprobación en OpenFOAM la usa tal cual. Estos valores no se escriben en ningún lado: aparecen en la consola cada vez que el archivo se lee (figura 3).</p>
+<figure class="diagram">
+  <img src="imagenes/t232-06_consola.png" alt="La consola de mensajes filtrada con la palabra garganta" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">Lo que el archivo calcula, en la consola.</b> <code>Tools ▸ Message Console</code> con «garganta» en el buscador. Los dos primeros renglones son de la tobera plana (H<sub>t</sub> = 0.2 m) y los dos últimos, de la axisimétrica, después de cambiar el tipo en el panel (H<sub>t</sub> = 0.447 m): el Mach de diseño y p<sub>0</sub>/p<sub>e</sub> no cambian.</figcaption>
+</figure>
+
+    </section>
+    <section id="sizes-es">
+      <p class="section-label">Paso 2</p>
+      <h2>Celdas cuadradas en la garganta y en la salida</h2>
+
+<p>En el archivo de partida, cada tramo tenía un número de nodos y una progresión escritos a mano: 45 nodos con razón 1.06 en el convergente, 75 con 1.06 en el divergente, 95 con 1.03 en el chorro. Los tres se eligieron por separado, y donde dos tramos se encuentran las celdas no casan: en la garganta, la última celda del convergente mide 0.0110 m y la primera del divergente 0.0034 m, 3.3 veces menos; en la salida de la tobera, la última celda del divergente mide 0.236 m y la primera del chorro 0.0318 m, 7.4 veces menos (figura 4).</p>
+<figure class="diagram">
+  <img src="imagenes/t232-05_labio.png" alt="La salida de la tobera en la malla de partida y en la del tutorial" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">La salida de la tobera, en las dos mallas.</b> La misma ventana, alrededor del labio superior, trazada desde las mallas 2D. A la izquierda, la malla de partida: las celdas del divergente llegan a la salida con 0.24 m de largo y las del chorro arrancan con 0.032 m, 7.4 veces menos; el suavizado, además, dobla las líneas. A la derecha, la del tutorial: las dos celdas que se tocan en la salida miden lo mismo.</figcaption>
+</figure>
+<p>Aquí mandan dos tamaños: la celda de la garganta y la de la salida, las dos cuadradas. Con nR celdas en la semialtura,</p>
+<div class="equation-card">\[ h_T = \frac{H_t}{n_R}, \qquad h_E = \frac{H_e}{n_R} \]</div>
+<p>y cada tramo empalma los dos tamaños que tiene en sus extremos con la macro <code>Empalme</code> del 2.2.2: dada la longitud del tramo y las celdas de sus extremos, la progresión geométrica queda determinada y el número de nodos también.</p>
+<pre class="code"><code>// ---------------------------------------------------------------- tamaños de celda: mandan, no los conteos
+// Celdas cuadradas en la garganta y en la salida: nR celdas en la semialtura y el mismo largo a lo largo del eje.
+hT = Ht / nR;
+hE = He / nR;
+hF = fLej * He;
+
+// La progresión que empalma dos tamaños (la macro del 2.2.2): reparte eL en celdas que van de eh1 a ehN.
+Macro Empalme
+  eR = (eL - eh1) / (eL - ehN);
+  eN = 2 + Floor(Log(ehN / eh1) / Log(eR) + 0.5);
+Return
+
+eL = Lc;            eh1 = hT;  ehN = hE;  Call Empalme;
+nC = eN;  rC = eR;                                    // convergente, de la garganta a la entrada
+eL = Ld;            eh1 = hT;  ehN = hE;  Call Empalme;
+nD = eN;  rD = eR;                                    // divergente, de la garganta a la salida
+eL = xo - xe;       eh1 = hE;  ehN = hF;  Call Empalme;
+nJ = eN;  rJ = eR;                                    // chorro, de la salida al final del dominio
+eL = Hf - He;       eh1 = hE;  ehN = hF;  Call Empalme;
+nA = eN;  rA = eR;                                    // ambiente, del labio de la tobera hacia arriba
+
+mitad = nR * (nC - 1 + nD - 1 + nJ - 1) + (nA - 1) * (nJ - 1);
+If (tipo == 0)
+  celdas = 2 * mitad;
+Else
+  celdas = mitad;
+EndIf</code></pre>
+<p>El convergente y el divergente arrancan los dos en la garganta, con h<sub>T</sub>; el divergente llega a la salida con h<sub>E</sub>, y el chorro arranca con h<sub>E</sub>. El ambiente arranca en el labio con h<sub>E</sub>, que es también la altura de la última celda del núcleo del chorro. Así no hay salto en ninguna unión (tabla 2). Las curvas axiales se dibujan desde la garganta hacia afuera, para que todas las progresiones sean mayores que uno.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Cantidad</th><th>Plana</th><th>Axisimétrica (cuña)</th></tr></thead>
+    <tbody>
+      <tr><td>Semialtura o radio de la garganta H<sub>t</sub> (m)</td><td>0.2000</td><td>0.4472</td></tr>
+      <tr><td>Mach de diseño M<sub>e</sub></td><td>3.1748</td><td>3.1748</td></tr>
+      <tr><td>p<sub>0</sub>/p<sub>e</sub> de diseño</td><td>47.64</td><td>47.64</td></tr>
+      <tr><td>Celda en la garganta, H<sub>t</sub>/nR (m)</td><td>0.00667</td><td>0.01491</td></tr>
+      <tr><td>Celda en la salida, H<sub>e</sub>/nR (m)</td><td>0.03333</td><td>0.03333</td></tr>
+      <tr><td>Convergente: nodos y progresión</td><td>121 · 1.01356</td><td>88 · 1.00937</td></tr>
+      <tr><td>Divergente: nodos y progresión</td><td>242 · 1.00672</td><td>176 · 1.00465</td></tr>
+      <tr><td>Chorro: nodos y progresión</td><td>93 · 1.03011</td><td>93 · 1.03011</td></tr>
+      <tr><td>Ambiente: nodos y progresión</td><td>29 · 1.10370</td><td>29 · 1.10370</td></tr>
+      <tr><td>Celdas</td><td>32 332</td><td>13 196</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Lo que el archivo calcula, en los dos tipos.</b> Cifras de los <code>Printf</code> que escribe <code>gmsh tobera.geo -0 -setnumber tipo 0</code> (o 1) con los demás valores por omisión. La razón de áreas es la misma, así que el Mach de diseño también; lo que cambia es la garganta, y con ella todos los repartos del convergente y del divergente.</caption>
+  </table>
+</div>
+<div class="callout">
+  <p><strong>Por qué cuadradas en la garganta.</strong> En la garganta el flujo pasa por Mach 1 y la línea sónica es curva: el Mach cambia tanto a lo largo como a lo ancho. Una celda muy alargada en cualquiera de las dos direcciones pierde uno de los dos gradientes.</p>
+</div>
+
+    </section>
+    <section id="wall-es">
+      <p class="section-label">Paso 3</p>
+      <h2>Una pared de coseno y cuántos puntos necesita</h2>
+
+<p>La pared es la del archivo de partida: una curva de coseno que baja de la entrada a la garganta y sube de la garganta a la salida, con pendiente cero en los tres puntos,</p>
+<div class="equation-card">\[ H(s) = H_t + \left(H_e - H_t\right)\frac{1-\cos \pi s}{2}, \qquad s = \frac{x_t - x}{L_c} \text{ en el convergente}, \quad s = \frac{x - x_t}{L_d} \text{ en el divergente} \]</div>
+<pre class="code"><code>// La pared: H = Ht + (He − Ht)(1 − cos πs)/2, con s de 0 en la garganta a 1 en la entrada o en la salida. La
+// pendiente es cero en la garganta, pero la Spline sale de cada extremo con la pendiente de su primera cuerda: con
+// 5 puntos el quiebre en la garganta pasa de un grado; con 200, un tercio. Los puntos van a pasos iguales en s:
+// Transfinite sigue la parametrización de la Spline, y con los puntos apiñados en los extremos las celdas de la
+// pared dejan de crecer con la razón pedida.
+nP = 200;
+sup[] = {};
+For lado In {0 : nLados - 1}
+  sg = 1 - 2 * lado;
+  o = 20 * lado;
+  w = 2000 * lado;                                    // puntos de la pared: 1000s y 2000s arriba, 3000s y 4000s abajo
+  Point(5 + o) = {0,  sg * He, 0};   Point(6 + o) = {xt, sg * Ht, 0};
+  Point(7 + o) = {xe, sg * He, 0};   Point(8 + o) = {xo, sg * He, 0};
+  Point(9 + o) = {xe, sg * Hf, 0};   Point(10 + o) = {xo, sg * Hf, 0};
+  For i In {1 : nP - 1}
+    s = i / nP;
+    Hs = Ht + (He - Ht) * 0.5 * (1 - Cos(Pi * s));
+    Point(w + 1000 + i) = {xt - Lc * s, sg * Hs, 0};  // convergente
+    Point(w + 2000 + i) = {xt + Ld * s, sg * Hs, 0};  // divergente
+  EndFor
+  Hide { Point{w + 1001 : w + 1000 + nP - 1, w + 2001 : w + 2000 + nP - 1}; }</code></pre>
+<p>Dos detalles, los dos medidos:</p>
+<ul>
+  <li><strong>Una <code>Spline</code> sale de cada extremo con la pendiente de su primera cuerda.</strong> Con los cinco puntos del archivo de partida, la pared del convergente llega a la garganta con una pendiente de 1.3° y la del divergente sale todavía bajando: su punto más bajo está 0.038 m aguas abajo de la garganta y 0.10 % más estrecho. Con 200 puntos, el quiebre en la garganta es de 0.33°.</li>
+  <li><strong><code>Transfinite</code> sigue la parametrización de la <code>Spline</code>.</strong> La tentación es apiñar los puntos cerca de la garganta, con espaciado coseno. Así la pendiente queda casi exacta, pero las celdas de la pared dejan de crecer con la razón pedida: junto a la garganta pasan de una a la siguiente con razón 1.056 en vez de 1.0067, los nodos de la pared se corren hasta 0.25 m respecto de los del eje y la no ortogonalidad sube a 47°. Con los puntos a pasos iguales, las razones de la pared quedan entre 1.0065 y 1.0069.</li>
+</ul>
+<figure class="diagram">
+  <img src="imagenes/t232-04_garganta.png" alt="La malla alrededor de la garganta, de cerca" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">La garganta de cerca.</b> Recuadro de Gmsh (Ctrl + clic, mover, clic) alrededor de la garganta de la tobera plana. Las celdas son cuadradas en la garganta y crecen poco a poco hacia los dos lados; la línea vertical es la frontera entre el convergente y el divergente, y la horizontal, el eje, donde se tocan las dos mitades. Los cuadros grises sobre la pared son los puntos de la <code>Spline</code>.</figcaption>
+</figure>
+
+    </section>
+    <section id="halves-es">
+      <p class="section-label">Paso 4</p>
+      <h2>Cuatro bloques, escritos una vez por mitad</h2>
+
+<p>La tobera plana necesita la mitad de abajo. La forma natural de pedirla en Gmsh es el espejo, <code>Symmetry {0, 1, 0, 0} { Duplicata { Surface{1:4}; } }</code>, y funciona para la geometría: la mitad de abajo aparece. Pero la copia <strong>no hereda <code>Transfinite</code> ni <code>Recombine</code></strong>, y Gmsh la malla con triángulos del tamaño por omisión: en la primera versión de este archivo, la mitad de abajo quedó en 592 prismas en lugar de 16 166 hexaedros.</p>
+<p>Por eso cada mitad se escribe entera dentro de un <code>For</code>, con el signo de y como variable (<code>sg</code>) y un desplazamiento de los números de las entidades (<code>o</code>): 0 arriba y 20 abajo. Los puntos y las líneas del eje son de las dos mitades.</p>
+<pre class="code"><code>// ---------------------------------------------------------------- las mitades
+// La plana lleva dos mitades, la de arriba (sg = 1) y su espejo (sg = −1); la cuña, sólo la de arriba. El espejo no
+// se hace con Symmetry { Duplicata {...} }: la copia no hereda Transfinite ni Recombine, y la mitad de abajo se
+// mallaría con triángulos. Cada mitad se escribe entera, con sus propios números: o = 0 arriba, o = 20 abajo.
+If (tipo == 0)
+  nLados = 2;
+Else
+  nLados = 1;
+EndIf
+
+// Los puntos del eje y las tres líneas del eje son de las dos mitades.
+Point(1) = {0, 0, 0};    Point(2) = {xt, 0, 0};    Point(3) = {xe, 0, 0};    Point(4) = {xo, 0, 0};
+Line(1) = {2, 1};                                     // eje del convergente (las axiales parten de la garganta)
+Line(2) = {2, 3};                                     // eje del divergente
+Line(3) = {3, 4};                                     // eje del chorro
+
+// La pared: H = Ht + (He − Ht)(1 − cos πs)/2, con s de 0 en la garganta a 1 en la entrada o en la salida. La
+// pendiente es cero en la garganta, pero la Spline sale de cada extremo con la pendiente de su primera cuerda: con
+// 5 puntos el quiebre en la garganta pasa de un grado; con 200, un tercio. Los puntos van a pasos iguales en s:
+// Transfinite sigue la parametrización de la Spline, y con los puntos apiñados en los extremos las celdas de la
+// pared dejan de crecer con la razón pedida.
+nP = 200;
+sup[] = {};
+For lado In {0 : nLados - 1}
+  sg = 1 - 2 * lado;
+  o = 20 * lado;
+  w = 2000 * lado;                                    // puntos de la pared: 1000s y 2000s arriba, 3000s y 4000s abajo
+  Point(5 + o) = {0,  sg * He, 0};   Point(6 + o) = {xt, sg * Ht, 0};
+  Point(7 + o) = {xe, sg * He, 0};   Point(8 + o) = {xo, sg * He, 0};
+  Point(9 + o) = {xe, sg * Hf, 0};   Point(10 + o) = {xo, sg * Hf, 0};
+  For i In {1 : nP - 1}
+    s = i / nP;
+    Hs = Ht + (He - Ht) * 0.5 * (1 - Cos(Pi * s));
+    Point(w + 1000 + i) = {xt - Lc * s, sg * Hs, 0};  // convergente
+    Point(w + 2000 + i) = {xt + Ld * s, sg * Hs, 0};  // divergente
+  EndFor
+  Hide { Point{w + 1001 : w + 1000 + nP - 1, w + 2001 : w + 2000 + nP - 1}; }
+
+  Spline(4 + o) = {6 + o, w + 1001 : w + 1000 + nP - 1, 5 + o};    // pared del convergente
+  Spline(5 + o) = {6 + o, w + 2001 : w + 2000 + nP - 1, 7 + o};    // pared del divergente
+  Line(6 + o) = {1, 5 + o};   Line(7 + o) = {2, 6 + o};              // entrada, garganta
+  Line(8 + o) = {3, 7 + o};   Line(9 + o) = {4, 8 + o};              // salida de la tobera, final del dominio
+  Line(10 + o) = {7 + o, 8 + o};                                     // borde del chorro, desde el labio
+  Line(11 + o) = {7 + o, 9 + o};  Line(12 + o) = {8 + o, 10 + o};  Line(13 + o) = {9 + o, 10 + o};   // ambiente
+
+  // Cuatro bloques. Abajo el espejo invierte el sentido de cada lazo: se recorren al revés para que todos
+  // giren contra las manecillas del reloj.
+  If (sg &gt; 0)
+    Curve Loop(1) = {7, 4, -6, -1};      Plane Surface(1) = {1};      // convergente
+    Curve Loop(2) = {2, 8, -5, -7};      Plane Surface(2) = {2};      // divergente
+    Curve Loop(3) = {3, 9, -10, -8};     Plane Surface(3) = {3};      // núcleo del chorro
+    Curve Loop(4) = {10, 12, -13, -11};  Plane Surface(4) = {4};      // ambiente
+  Else
+    Curve Loop(21) = {1, 26, -24, -27};  Plane Surface(21) = {21};
+    Curve Loop(22) = {27, 25, -28, -2};  Plane Surface(22) = {22};
+    Curve Loop(23) = {28, 30, -29, -3};  Plane Surface(23) = {23};
+    Curve Loop(24) = {31, 33, -32, -30}; Plane Surface(24) = {24};
+  EndIf
+
+  Transfinite Curve {4 + o} = nC Using Progression rC;
+  Transfinite Curve {5 + o} = nD Using Progression rD;
+  Transfinite Curve {10 + o, 13 + o} = nJ Using Progression rJ;
+  Transfinite Curve {6 + o, 7 + o, 8 + o, 9 + o} = nR + 1;
+  Transfinite Curve {11 + o, 12 + o} = nA Using Progression rA;
+  sup[] += {1 + o : 4 + o};
+EndFor</code></pre>
+<p>El espejo invierte el sentido de recorrido de cada lazo: el lazo que arriba gira contra las manecillas del reloj, abajo gira a favor. Los lazos de abajo se escriben en orden inverso y con los signos cambiados, para que todas las superficies tengan la misma orientación y los hexaedros de la extrusión salgan con volumen positivo.</p>
+
+    </section>
+    <section id="extrude-es">
+      <p class="section-label">Paso 5</p>
+      <h2>Una capa, o un giro de cinco grados</h2>
+
+<pre class="code"><code>// ---------------------------------------------------------------- la extrusión: una capa, o la cuña
+If (tipo == 0)
+  ext[] = Extrude {0, 0, e} { Surface{sup[]}; Layers{1}; Recombine; };
+Else
+  // La cuña queda simétrica respecto del plano z = 0: se gira media cuña hacia atrás y se extruye la cuña entera.
+  Rotate {{1, 0, 0}, {0, 0, 0}, -cuna / 2 * Pi / 180} { Surface{sup[]}; }
+  ext[] = Extrude {{1, 0, 0}, {0, 0, 0}, cuna * Pi / 180} { Surface{sup[]}; Layers{1}; Recombine; };
+EndIf</code></pre>
+<p>La tobera plana es la del <a href="cavidad-cuadrada.html">1.1</a>: una capa en z, con las caras de adelante y de atrás de tipo <code>empty</code> en OpenFOAM. La axisimétrica se extruye por rotación alrededor del eje x, con <code>Layers{1}</code>: una sola celda en la dirección angular. Antes se gira media cuña hacia atrás, para que la cuña quede simétrica respecto del plano z = 0, que es lo que OpenFOAM espera de los parches <code>wedge</code>.</p>
+<p>Las curvas que están sobre el eje no barren ninguna superficie al girar: degeneran en una línea. Gmsh lo resuelve solo: las celdas junto al eje son prismas en vez de hexaedros (354 de las 13 196 celdas) y no hay parche en el eje.</p>
+<figure class="diagram">
+  <img src="imagenes/t232-08_cuna.png" alt="La cuña axisimétrica vista por el eje y en perspectiva" loading="lazy">
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">La cuña.</b> La misma media tobera, girada 5° alrededor del eje x. A la izquierda, vista por el eje desde la salida: la cuña es un sector de 5° que se abre desde el eje hasta la frontera del dominio. A la derecha, en perspectiva: la tobera, el chorro y el ambiente, con una sola celda en la dirección angular.</figcaption>
+</figure>
+<h3>Los grupos físicos, por caja</h3>
+<p>Como las caras del eje desaparecen, <code>Extrude</code> devuelve listas distintas en los dos tipos: 48 entradas en la plana y 21 en la cuña. Unos grupos escritos con índices de esa lista —como en el <a href="perfil-c-parametrico.html">2.2.2</a>— servirían para un tipo y no para el otro. El archivo de partida ya usaba otra técnica, que aquí se conserva: <code>Surface In BoundingBox</code> devuelve las superficies que caben enteras en una caja, y las cajas se escriben con las posiciones de la tobera.</p>
+<pre class="code"><code>eps = 1e-6;
+c2 = Cos(cuna / 2 * Pi / 180);
+Z = Hf;                                               // cualquier z: la plana y la cuña caben en ±Hf
+
+entrada[] = Surface In BoundingBox {-eps, -He - eps, -Z, eps, He + eps, Z};
+paredArr[] = Surface In BoundingBox {-eps, Ht * c2 - eps, -Z, xe + eps, He + eps, Z};
+paredAba[] = Surface In BoundingBox {-eps, -He - eps, -Z, xe + eps, -Ht + eps, Z};
+salida[] = Surface In BoundingBox {xo - eps, -Hf - eps, -Z, xo + eps, Hf + eps, Z};
+techo[] = Surface In BoundingBox {xe - eps, Hf * c2 - eps, -Z, xo + eps, Hf + eps, Z};
+piso[] = Surface In BoundingBox {xe - eps, -Hf - eps, -Z, xo + eps, -Hf + eps, Z};
+labioArr[] = Surface In BoundingBox {xe - eps, He * c2 - eps, -Z, xe + eps, Hf + eps, Z};
+labioAba[] = Surface In BoundingBox {xe - eps, -Hf - eps, -Z, xe + eps, -He + eps, Z};
+
+Physical Surface(&quot;inlet&quot;)      = {entrada[]};
+Physical Surface(&quot;nozzleWall&quot;) = {paredArr[], paredAba[]};
+Physical Surface(&quot;outlet&quot;)     = {salida[]};
+Physical Surface(&quot;farField&quot;)   = {techo[], piso[], labioArr[], labioAba[]};
+
+If (tipo == 0)
+  frente[] = Surface In BoundingBox {-eps, -Hf - eps, -eps, xo + eps, Hf + eps, eps};
+  atras[] = Surface In BoundingBox {-eps, -Hf - eps, e - eps, xo + eps, Hf + eps, e + eps};
+  Physical Surface(&quot;frontAndBack&quot;) = {frente[], atras[]};
+Else
+  sz = Hf * Sin(cuna / 2 * Pi / 180);
+  frente[] = Surface In BoundingBox {-eps, -eps, -sz - eps, xo + eps, Hf + eps, eps};
+  atras[] = Surface In BoundingBox {-eps, -eps, -eps, xo + eps, Hf + eps, sz + eps};
+  Physical Surface(&quot;wedgeFront&quot;) = {frente[]};
+  Physical Surface(&quot;wedgeBack&quot;)  = {atras[]};
+EndIf
+Physical Volume(&quot;fluid&quot;) = Volume In BoundingBox {-eps, -Hf - eps, -Z, xo + eps, Hf + eps, Z};</code></pre>
+<p>Para la cuña, la caja de la pared baja hasta y = H<sub>t</sub> cos(cuña/2): girada, la pared ya no está toda a la altura de la garganta. El último <code>Printf</code> cuenta las caras de cada grupo: en la plana, «entrada 2, pared 4, salida 4, campo lejano 4, frente 8, atrás 8»; en la cuña, la mitad. Si una caja estuviera mal escrita, un número saldría en cero antes de mallar.</p>
+<div class="callout warn">
+  <p><strong>En OpenFOAM, los parches de la cuña son de tipo <code>wedge</code>.</strong> <code>gmshToFoam</code> deja todos los parches como <code>patch</code>; hay que cambiar <code>wedgeFront</code> y <code>wedgeBack</code> a <code>wedge</code>, <code>nozzleWall</code> a <code>wall</code> y, en la plana, <code>frontAndBack</code> a <code>empty</code>. Con <code>foamDictionary</code>, como en el 2.1.</p>
+</div>
+
+    </section>
+    <section id="gui-es">
+      <p class="section-label">Paso 6</p>
+      <h2>Cambiar la tobera desde la interfaz y desde la terminal</h2>
+
+<p>Cada cambio en el panel vuelve a leer el archivo, repite los <code>Printf</code> y borra la malla: hay que volver a hacer <code>Mesh ▸ 2D</code> o <code>3D</code>. Al elegir «Axisimétrica (cuña)» en el desplegable, la consola escribe la nueva garganta, 0.4472 m, y el mismo Mach de diseño (figura 3): la razón de áreas no cambió, cambió cómo se traduce en alturas.</p>
+<figure class="diagram narrow">
+  <img src="imagenes/t232-02_desplegable.png" alt="El desplegable Tipo abierto, con Plana y Axisimétrica (cuña)" loading="lazy">
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">El desplegable del tipo.</b> Los dos rótulos de <code>Choices</code>. Al elegir «Axisimétrica (cuña)», <code>tipo</code> vale 1, el archivo se vuelve a leer con la garganta nueva y la malla anterior se borra.</figcaption>
+</figure>
+<p>Desde la terminal, cualquier parámetro se cambia con <code>-setnumber</code> y el nombre de la variable:</p>
+<pre class="code"><code>gmsh tobera.geo -0                                    # sólo los cálculos: garganta, Mach, nodos
+gmsh tobera.geo -3 -o plana.msh                       # la tobera plana
+gmsh tobera.geo -3 -setnumber tipo 1 -o cuna.msh      # la axisimétrica
+gmsh tobera.geo -3 -setnumber AR 10 -o ar10.msh       # otra razón de áreas</code></pre>
+<p>Con <code>-0</code> Gmsh lee el archivo y escribe los <code>Printf</code> sin mallar: sirve para saber cuántas celdas tendrá una malla antes de generarla.</p>
+
+    </section>
+    <section id="worked-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>La cuña, predicha a mano</h2>
+
+<div class="example">
+  <p><strong>Enunciado.</strong> Con los valores por omisión y el tipo «Axisimétrica (cuña)», calcular a mano la garganta, el Mach de diseño, la presión de descarga de diseño, la celda de la garganta, el número de nodos del divergente y el número de celdas; comparar con lo que escribe <code>gmsh tobera.geo -0 -setnumber tipo 1</code>.</p>
+  <p><strong>Condiciones.</strong> A<sub>e</sub>/A<sub>t</sub> = 5, H<sub>e</sub> = 1 m, L<sub>c</sub> = 2 m, L<sub>d</sub> = 4 m, γ = 1.4, nR = 30.</p>
+</div>
+<p><strong>Garganta.</strong> En la axisimétrica el área va con el cuadrado del radio: H<sub>t</sub> = 1/√5 = 0.4472 m.</p>
+<p><strong>Mach y presión de diseño.</strong> La relación área-Mach con A/A* = 5, en la rama supersónica (en una tabla de flujo isentrópico, entre M = 3.1 y 3.2), da M<sub>e</sub> = 3.175, y p<sub>0</sub>/p<sub>e</sub> = (1 + 0.2 × 3.175²)<sup>3.5</sup> = 47.6. Son los mismos que en la plana: dependen de la razón de áreas, no de la forma.</p>
+<p><strong>Celdas de la garganta y de la salida.</strong> h<sub>T</sub> = 0.4472/30 = 0.01491 m y h<sub>E</sub> = 1/30 = 0.03333 m.</p>
+<p><strong>Nodos del divergente.</strong> Con la macro <code>Empalme</code>: r = (4 − 0.01491)/(4 − 0.03333) = 1.00465 y N = 2 + ln(2.2361)/ln(1.00465) = 2 + 173.64, que se redondea a 176.</p>
+<p><strong>Celdas.</strong> nR(n<sub>C</sub> − 1 + n<sub>D</sub> − 1 + n<sub>J</sub> − 1) + (n<sub>A</sub> − 1)(n<sub>J</sub> − 1) = 30 × (87 + 175 + 92) + 28 × 92 = 13 196.</p>
+<p>El archivo escribe los mismos valores (tabla 2).</p>
+<p><strong>Preguntas.</strong></p>
+<ol>
+  <li>¿Por qué la cuña tiene menos celdas que una mitad de la plana (13 196 contra 16 166)? <em>Respuesta:</em> su garganta es más ancha, así que su celda es más grande (0.0149 m contra 0.0067 m) y el empalme hasta la salida necesita menos nodos: 88 y 176 contra 121 y 242.</li>
+  <li>¿Qué pasaría si en la cuña se calculara la garganta como en la plana, H<sub>t</sub> = H<sub>e</sub>/5? <em>Respuesta:</em> la razón de áreas real sería 25 y el Mach de diseño, 5.00 en lugar de 3.17; con la presión de descarga calculada para 3.17, la tobera quedaría muy sobreexpandida.</li>
+  <li>¿Cuántos prismas tiene la cuña? <em>Respuesta:</em> uno por cada celda que toca el eje: 87 + 175 + 92 = 354, los que cuenta Gmsh.</li>
+</ol>
+
+    </section>
+    <section id="openfoam-es">
+      <p class="section-label">Comprobación en OpenFOAM</p>
+      <h2>¿Sigue el Mach a la sección?</h2>
+
+<p>La comprobación usa el mismo gas adimensional que el tutorial 1.1 de la serie «OpenFOAM · Flujo compresible»: γ = 1.4 y una constante del gas tal que, con T<sub>0</sub> = 1, la velocidad del sonido de remanso vale 1. El cálculo es <strong>no viscoso</strong> (ecuaciones de Euler, <code>shockFluid</code>, paredes <code>slip</code>), porque la teoría cuasi-unidimensional tampoco tiene viscosidad. En la entrada se imponen p<sub>0</sub> = 1 y T<sub>0</sub> = 1; en la salida y en el campo lejano, la presión de descarga p<sub>b</sub>. Con dos valores:</p>
+<ul>
+  <li><strong>Diseño,</strong> p<sub>b</sub>/p<sub>0</sub> = 0.0210: la tobera es supersónica hasta la salida y el chorro sale con la presión del ambiente.</li>
+  <li><strong>Choque,</strong> p<sub>b</sub>/p<sub>0</sub> = 0.5036: la teoría pone un choque normal donde A/A<sub>t</sub> = 2.5, en x = 3.678 m en la plana y 3.924 m en la axisimétrica. Antes del choque M = 2.443; después, 0.519, y el resto del divergente es subsónico.</li>
+</ul>
+<p>El caso completo está en <code>datos-t23/openfoam/caso</code>; su <code>Allrun</code> convierte la malla, cambia los tipos de los parches y corre en tres etapas, por la razón que explica el recuadro de abajo.</p>
+<figure class="diagram">
+  <img src="imagenes/t232-09_mach.png" alt="El Mach a lo largo de la tobera contra la teoría cuasi-unidimensional" loading="lazy">
+  <figcaption><b class="fig-num">Figura 8.</b> <b class="fig-title">El Mach a lo largo de la tobera.</b> Líneas gruesas: la teoría cuasi-1D, en diseño (continua) y con el choque normal en A/A<sub>t</sub> = 2.5 (discontinua). Puntos: el Mach medio de cada sección, calculado por OpenFOAM con los campos promediados en el tiempo. Líneas delgadas: el Mach sobre el eje, que en la salida del caso de diseño supera al medio. La línea vertical punteada es la garganta.</figcaption>
+</figure>
+<h3>El Mach medio de cada sección sigue a la teoría</h3>
+<p>La teoría cuasi-1D predice un solo Mach por sección; el cálculo 2D tiene uno distinto en cada punto. Lo que se compara es el Mach de la sección promediado con el gasto, ρu, como peso (en la cuña, con ρu·r, porque el área crece con el radio). En el caso de diseño, del principio del divergente a la salida, la diferencia con la teoría no pasa del 0.9 % en la plana ni del 0.5 % en la cuña (figura 8 y tabla 3). En la garganta geométrica el Mach medio es 1.000 en la plana y 0.999 en la cuña. En el convergente, en cambio, la media se aparta de la teoría hasta un 6 % en la plana y un 4 % en la cuña: la pared baja con pendientes de hasta 32° (23° en la cuña) y el flujo no es paralelo al eje, que es lo que la teoría cuasi-1D supone.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Malla</th><th>Garganta, media (teoría 1)</th><th>Salida, media (teoría)</th><th>Salida, eje</th><th>Oscilación de p</th></tr></thead>
+    <tbody>
+      <tr><td>Tutorial, plana</td><td>1.000</td><td>3.131 (3.175)</td><td>3.381</td><td>±0.5 % · ±4.1 %</td></tr>
+      <tr><td>Tutorial, cuña</td><td>0.999</td><td>3.142 (3.175)</td><td>3.526</td><td>±0.1 % · ±0.1 %</td></tr>
+      <tr><td>Malla de partida (v2)</td><td>0.965</td><td>3.127 (3.175)</td><td>3.348</td><td>±0.0 % · ±0.0 %</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">Mach en la garganta y en la salida, contra la teoría.</b> Corridas de <code>shockFluid</code> (OpenFOAM 13) sin viscosidad, con p<sub>0</sub>/p<sub>b</sub> de diseño, sobre los campos promediados en el tiempo. «Media» es el Mach de la sección promediado con el gasto ρu como peso, que es lo que predice la teoría cuasi-1D (entre paréntesis); «eje» es el valor sobre el eje. La última columna es la oscilación de la presión en el eje durante el promedio, justo antes y justo después de la garganta (x = 1.9 y 2.3 m).</caption>
+  </table>
+</div>
+<p>En el eje el Mach no es el medio: en la salida vale 3.38 en la plana, contra 3.13 de media. La razón está en la pared: la segunda mitad del divergente de coseno es cóncava, y sus ondas de compresión se juntan cerca del labio; el Mach baja junto a la pared (hasta 1.93 en la sección de salida) y el núcleo sale más rápido (figura 9). Una tobera cuyo divergente se diseña por el método de las características no tiene esas ondas; ésta, con una pared de coseno, sí, y la malla las resuelve.</p>
+<figure class="diagram">
+  <img src="imagenes/t232-07_campo_mach.png" alt="El campo de Mach de la tobera plana en diseño y con choque" loading="lazy">
+  <figcaption><b class="fig-num">Figura 9.</b> <b class="fig-title">El campo de Mach en la tobera plana.</b> Campos promediados en el tiempo, trazados desde los centros de las celdas. Arriba, en diseño: el chorro sale supersónico y se ven los rombos que forman las ondas que nacen junto al labio. Abajo, con p<sub>b</sub>/p<sub>0</sub> = 0.504: el choque, curvo, cruza el divergente cerca de x = 3.69 m y lo que sigue es subsónico.</figcaption>
+</figure>
+<h3>El choque</h3>
+<p>Con p<sub>b</sub>/p<sub>0</sub> = 0.504, el choque queda en el eje en x = 3.687 m en la plana (teoría 3.678 m) y en x = 3.967 m en la cuña (teoría 3.924 m): el Mach cae de 2.36 a 0.55 en unas pocas celdas. Aguas abajo del choque el flujo deja de ser uniforme en cada sección y la teoría cuasi-1D, que supone un solo Mach por sección, se aleja: en la salida de la plana el Mach medio es 0.276 contra 0.229; en la cuña, 0.241 contra 0.229.</p>
+<div class="callout warn">
+  <p><strong>La malla fina deja ver una oscilación que la gruesa amortigua.</strong> Con segundo orden desde el arranque, la presión en la garganta de la malla del tutorial oscila unos ±3 % sin apagarse; en la malla de partida, más gruesa, queda quieta. Se probó con otro paso de tiempo, otra condición de entrada, otro esquema de flujo (Tadmor), un arranque suave y otro limitador (Minmod): es energía acústica atrapada en el convergente, que en un cálculo sin viscosidad sólo se disipa por el esquema numérico, más una oscilación pequeña que nace en la zona transónica. El <code>Allrun</code> corre primero con primer orden, que la apaga en el convergente, luego con segundo orden (van Leer) y compara con los campos <strong>promediados en el tiempo</strong> (<code>fieldAverage</code>). Así, la cuña queda quieta (±0.3 % de presión en el eje) y la plana conserva ±4.1 % justo después de la garganta, que el promedio quita (última columna de la tabla 3). Las pruebas están en <code>datos-t23/LEEME.md</code>.</p>
+</div>
+
+    </section>
+    <section id="start-es">
+      <p class="section-label">La malla de partida</p>
+      <h2>Lo que cambió, medido</h2>
+
+<p>La malla de partida, <code>CDNozzlev2.geo</code>, es una tobera plana con la misma forma y el mismo dominio. Tiene parámetros en el panel y grupos físicos por caja, que aquí se conservaron. Lo que cambió, medido con <code>datos-t23/medir.py</code>, <code>hallazgos.py</code> y <code>checkMesh</code> (tabla 4):</p>
+<h3>1. Los saltos de tamaño en la garganta y en la salida</h3>
+<p>Cada tramo tenía su número de nodos y su progresión, elegidos por separado. En la garganta, la última celda del convergente es 3.3 veces la primera del divergente; en la salida de la tobera, la última celda del divergente es 7.4 veces la primera del chorro (figura 4). El salto mayor, entre celdas vecinas, es de 8.7 veces en área. Con los tamaños empalmados, 1.10.</p>
+<h3>2. El suavizado</h3>
+<p><code>Mesh.Smoothing = 20</code> mueve los nodos después de que <code>Transfinite</code> los colocó: hasta 0.26 m en esta malla, así que las progresiones que se pidieron dejan de ser las que hay. En una malla por bloques no hace falta; aquí se fija en cero.</p>
+<h3>3. La pared con cinco puntos</h3>
+<p>Una <code>Spline</code> de OpenCASCADE por cinco puntos de la curva de coseno se aparta de ella hasta 1.9 mm y, sobre todo, sale de la garganta todavía bajando: su punto más bajo está 0.038 m aguas abajo y es 0.10 % más estrecho que la garganta. Es una garganta falsa, pequeña, justo donde el flujo es sónico. En el cálculo, el Mach medio en la garganta geométrica sale 0.965 con la malla de partida y 1.000 con la del tutorial.</p>
+<h3>4. El formato del <code>.msh</code></h3>
+<p>El archivo no fija <code>Mesh.MshFileVersion</code>, así que Gmsh escribe MSH 4.1, y <code>gmshToFoam</code> de OpenFOAM 13 se detiene con <code>Attempt to get back from bad stream</code>, un mensaje que no menciona el formato. Es el mismo hallazgo del <a href="cavidad-cuadrada.html">1.1</a>.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Medida</th><th>Malla de partida (v2)</th><th>Tutorial</th></tr></thead>
+    <tbody>
+      <tr><td>Celdas (plana)</td><td>14 780</td><td>32 332</td></tr>
+      <tr><td>Salto de tamaño máximo</td><td>8.7×</td><td>1.10×</td></tr>
+      <tr><td>En la garganta: convergente / divergente</td><td>3.3×</td><td>1.07×</td></tr>
+      <tr><td>En la salida: divergente / chorro</td><td>7.4×</td><td>1.01×</td></tr>
+      <tr><td>Desplazamiento de nodos por el suavizado (m)</td><td>0.257</td><td>0</td></tr>
+      <tr><td>No ortogonalidad máxima (checkMesh)</td><td>28.8°</td><td>33.8°</td></tr>
+      <tr><td>Razón de aspecto máxima (checkMesh)</td><td>18.1</td><td>15.0</td></tr>
+      <tr><td>Formato del .msh que escribe</td><td>4.1 (gmshToFoam falla)</td><td>2.2 ASCII</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">La malla de partida y la del tutorial.</b> Medidas en la malla 2D (<code>datos-t23/medir.py</code>) y con <code>checkMesh</code> de OpenFOAM 13. El salto de tamaño es el mayor cociente de áreas entre celdas vecinas; en la garganta y en la salida se da el cociente de los largos de las dos celdas que se tocan allí, a lo largo del flujo.</caption>
+  </table>
+</div>
+<p>Con la presión de diseño, la malla de partida da un Mach medio en la salida de 3.127 (teoría 3.175), cerca del de la malla del tutorial: la tobera funciona. Lo que se gana es una malla sin saltos, con la garganta en su lugar, que se puede refinar cambiando un número y que sirve también para la cuña.</p>
+
+    </section>
+    <section id="files-es">
+      <p class="section-label">Archivo</p>
+      <h2>tobera.geo, completo</h2>
+
+<p>El archivo completo. Todos los números salen de los doce parámetros del bloque <code>DefineConstant</code>.</p>
+<p class="code-name"><code>tobera.geo</code></p>
+<pre class="code"><code>// Tobera convergente-divergente con el chorro (tutorial 2.3). Parte de CDNozzlev2.geo: la misma forma, en
+// bloques de cuatro lados, pero con los tamaños de celda empalmados, sin suavizado y con grupos que no dependen de
+// índices copiados. Se construye media tobera, del eje a la pared; la plana es esa mitad y su espejo, y la
+// axisimétrica es la misma mitad girada unos grados alrededor del eje (una cuña).
+//   gmsh tobera.geo -3 -o tobera.msh
+//   gmsh tobera.geo -3 -setnumber tipo 1 -o cuna.msh
+
+SetFactory(&quot;Built-in&quot;);
+
+DefineConstant[
+  tipo  = {0,   Choices{0 = &quot;Plana&quot;, 1 = &quot;Axisimétrica (cuña)&quot;}, Name &quot;1Tobera/1Tipo&quot;},
+  AR    = {5,   Name &quot;1Tobera/2Razón de áreas Ae entre At&quot;},
+  He    = {1,   Name &quot;1Tobera/3Semialtura de salida He (m)&quot;},
+  Lc    = {2,   Name &quot;1Tobera/4Longitud del convergente (m)&quot;},
+  Ld    = {4,   Name &quot;1Tobera/5Longitud del divergente (m)&quot;},
+  gam   = {1.4, Name &quot;1Tobera/6Razón de calores γ&quot;},
+  fDown = {8,   Name &quot;2Chorro/1Longitud aguas abajo (diámetros)&quot;},
+  fFar  = {6,   Name &quot;2Chorro/2Semialtura del dominio (He)&quot;},
+  nR    = {30,  Name &quot;3Malla/1Celdas en la semialtura&quot;},
+  fLej  = {0.5, Name &quot;3Malla/2Celda del campo lejano (He)&quot;},
+  e     = {0.1, Name &quot;4OpenFOAM/1Espesor, tobera plana (m)&quot;},
+  cuna  = {5,   Name &quot;4OpenFOAM/2Ángulo de la cuña (grados)&quot;}
+];
+
+// ---------------------------------------------------------------- la garganta sale de la razón de áreas
+// En la plana el área es proporcional a la semialtura; en la axisimétrica, al cuadrado del radio. La misma razón
+// de áreas pide gargantas distintas.
+If (tipo == 0)
+  Ht = He / AR;
+Else
+  Ht = He / Sqrt(AR);
+EndIf
+
+// Mach de diseño: la rama supersónica de A/A* = (1/M) [2/(γ+1) (1 + (γ−1)/2 M²)]^((γ+1)/(2(γ−1))), por bisección
+// (la razón de áreas crece con M en la rama supersónica).
+mA = 1.0;  mB = 50.0;
+For iter In {1:100}
+  mM = 0.5 * (mA + mB);
+  aM = (1 / mM) * ((2 / (gam + 1)) * (1 + 0.5 * (gam - 1) * mM^2))^((gam + 1) / (2 * (gam - 1)));
+  If (aM &lt; AR)
+    mA = mM;
+  Else
+    mB = mM;
+  EndIf
+EndFor
+Me = 0.5 * (mA + mB);
+p0pe = (1 + 0.5 * (gam - 1) * Me^2)^(gam / (gam - 1));   // presión de remanso entre presión de salida, en diseño
+
+// ---------------------------------------------------------------- posiciones
+xt = Lc;              // garganta
+xe = Lc + Ld;         // salida de la tobera
+xo = xe + fDown * 2 * He;
+Hf = fFar * He;
+
+// ---------------------------------------------------------------- tamaños de celda: mandan, no los conteos
+// Celdas cuadradas en la garganta y en la salida: nR celdas en la semialtura y el mismo largo a lo largo del eje.
+hT = Ht / nR;
+hE = He / nR;
+hF = fLej * He;
+
+// La progresión que empalma dos tamaños (la macro del 2.2.2): reparte eL en celdas que van de eh1 a ehN.
+Macro Empalme
+  eR = (eL - eh1) / (eL - ehN);
+  eN = 2 + Floor(Log(ehN / eh1) / Log(eR) + 0.5);
+Return
+
+eL = Lc;            eh1 = hT;  ehN = hE;  Call Empalme;
+nC = eN;  rC = eR;                                    // convergente, de la garganta a la entrada
+eL = Ld;            eh1 = hT;  ehN = hE;  Call Empalme;
+nD = eN;  rD = eR;                                    // divergente, de la garganta a la salida
+eL = xo - xe;       eh1 = hE;  ehN = hF;  Call Empalme;
+nJ = eN;  rJ = eR;                                    // chorro, de la salida al final del dominio
+eL = Hf - He;       eh1 = hE;  ehN = hF;  Call Empalme;
+nA = eN;  rA = eR;                                    // ambiente, del labio de la tobera hacia arriba
+
+mitad = nR * (nC - 1 + nD - 1 + nJ - 1) + (nA - 1) * (nJ - 1);
+If (tipo == 0)
+  celdas = 2 * mitad;
+Else
+  celdas = mitad;
+EndIf
+
+Printf(&quot;garganta Ht = %g m   Mach de diseño Me = %g   p0/pe de diseño = %g (pe/p0 = %g)&quot;, Ht, Me, p0pe, 1 / p0pe);
+Printf(&quot;celdas: garganta %g m, salida %g m, campo lejano %g m&quot;, hT, hE, hF);
+Printf(&quot;convergente: %g nodos, progresión %g   divergente: %g nodos, progresión %g&quot;, nC, rC, nD, rD);
+Printf(&quot;chorro: %g nodos, progresión %g   ambiente: %g nodos, progresión %g&quot;, nJ, rJ, nA, rA);
+Printf(&quot;celdas previstas: %g&quot;, celdas);
+
+// ---------------------------------------------------------------- las mitades
+// La plana lleva dos mitades, la de arriba (sg = 1) y su espejo (sg = −1); la cuña, sólo la de arriba. El espejo no
+// se hace con Symmetry { Duplicata {...} }: la copia no hereda Transfinite ni Recombine, y la mitad de abajo se
+// mallaría con triángulos. Cada mitad se escribe entera, con sus propios números: o = 0 arriba, o = 20 abajo.
+If (tipo == 0)
+  nLados = 2;
+Else
+  nLados = 1;
+EndIf
+
+// Los puntos del eje y las tres líneas del eje son de las dos mitades.
+Point(1) = {0, 0, 0};    Point(2) = {xt, 0, 0};    Point(3) = {xe, 0, 0};    Point(4) = {xo, 0, 0};
+Line(1) = {2, 1};                                     // eje del convergente (las axiales parten de la garganta)
+Line(2) = {2, 3};                                     // eje del divergente
+Line(3) = {3, 4};                                     // eje del chorro
+
+// La pared: H = Ht + (He − Ht)(1 − cos πs)/2, con s de 0 en la garganta a 1 en la entrada o en la salida. La
+// pendiente es cero en la garganta, pero la Spline sale de cada extremo con la pendiente de su primera cuerda: con
+// 5 puntos el quiebre en la garganta pasa de un grado; con 200, un tercio. Los puntos van a pasos iguales en s:
+// Transfinite sigue la parametrización de la Spline, y con los puntos apiñados en los extremos las celdas de la
+// pared dejan de crecer con la razón pedida.
+nP = 200;
+sup[] = {};
+For lado In {0 : nLados - 1}
+  sg = 1 - 2 * lado;
+  o = 20 * lado;
+  w = 2000 * lado;                                    // puntos de la pared: 1000s y 2000s arriba, 3000s y 4000s abajo
+  Point(5 + o) = {0,  sg * He, 0};   Point(6 + o) = {xt, sg * Ht, 0};
+  Point(7 + o) = {xe, sg * He, 0};   Point(8 + o) = {xo, sg * He, 0};
+  Point(9 + o) = {xe, sg * Hf, 0};   Point(10 + o) = {xo, sg * Hf, 0};
+  For i In {1 : nP - 1}
+    s = i / nP;
+    Hs = Ht + (He - Ht) * 0.5 * (1 - Cos(Pi * s));
+    Point(w + 1000 + i) = {xt - Lc * s, sg * Hs, 0};  // convergente
+    Point(w + 2000 + i) = {xt + Ld * s, sg * Hs, 0};  // divergente
+  EndFor
+  Hide { Point{w + 1001 : w + 1000 + nP - 1, w + 2001 : w + 2000 + nP - 1}; }
+
+  Spline(4 + o) = {6 + o, w + 1001 : w + 1000 + nP - 1, 5 + o};    // pared del convergente
+  Spline(5 + o) = {6 + o, w + 2001 : w + 2000 + nP - 1, 7 + o};    // pared del divergente
+  Line(6 + o) = {1, 5 + o};   Line(7 + o) = {2, 6 + o};              // entrada, garganta
+  Line(8 + o) = {3, 7 + o};   Line(9 + o) = {4, 8 + o};              // salida de la tobera, final del dominio
+  Line(10 + o) = {7 + o, 8 + o};                                     // borde del chorro, desde el labio
+  Line(11 + o) = {7 + o, 9 + o};  Line(12 + o) = {8 + o, 10 + o};  Line(13 + o) = {9 + o, 10 + o};   // ambiente
+
+  // Cuatro bloques. Abajo el espejo invierte el sentido de cada lazo: se recorren al revés para que todos
+  // giren contra las manecillas del reloj.
+  If (sg &gt; 0)
+    Curve Loop(1) = {7, 4, -6, -1};      Plane Surface(1) = {1};      // convergente
+    Curve Loop(2) = {2, 8, -5, -7};      Plane Surface(2) = {2};      // divergente
+    Curve Loop(3) = {3, 9, -10, -8};     Plane Surface(3) = {3};      // núcleo del chorro
+    Curve Loop(4) = {10, 12, -13, -11};  Plane Surface(4) = {4};      // ambiente
+  Else
+    Curve Loop(21) = {1, 26, -24, -27};  Plane Surface(21) = {21};
+    Curve Loop(22) = {27, 25, -28, -2};  Plane Surface(22) = {22};
+    Curve Loop(23) = {28, 30, -29, -3};  Plane Surface(23) = {23};
+    Curve Loop(24) = {31, 33, -32, -30}; Plane Surface(24) = {24};
+  EndIf
+
+  Transfinite Curve {4 + o} = nC Using Progression rC;
+  Transfinite Curve {5 + o} = nD Using Progression rD;
+  Transfinite Curve {10 + o, 13 + o} = nJ Using Progression rJ;
+  Transfinite Curve {6 + o, 7 + o, 8 + o, 9 + o} = nR + 1;
+  Transfinite Curve {11 + o, 12 + o} = nA Using Progression rA;
+  sup[] += {1 + o : 4 + o};
+EndFor
+Transfinite Curve {1} = nC Using Progression rC;
+Transfinite Curve {2} = nD Using Progression rD;
+Transfinite Curve {3} = nJ Using Progression rJ;
+Transfinite Surface {sup[]};
+Recombine Surface {sup[]};
+Mesh.Smoothing = 0;       // el suavizado mueve los nodos que Transfinite acaba de colocar
+
+// ---------------------------------------------------------------- la extrusión: una capa, o la cuña
+If (tipo == 0)
+  ext[] = Extrude {0, 0, e} { Surface{sup[]}; Layers{1}; Recombine; };
+Else
+  // La cuña queda simétrica respecto del plano z = 0: se gira media cuña hacia atrás y se extruye la cuña entera.
+  Rotate {{1, 0, 0}, {0, 0, 0}, -cuna / 2 * Pi / 180} { Surface{sup[]}; }
+  ext[] = Extrude {{1, 0, 0}, {0, 0, 0}, cuna * Pi / 180} { Surface{sup[]}; Layers{1}; Recombine; };
+EndIf
+
+// ---------------------------------------------------------------- grupos físicos: por posición, no por índice
+// Extrude no devuelve la misma lista en los dos casos: en la cuña, las caras del eje degeneran en una línea y
+// desaparecen de la lista. Se eligen las caras por la caja que las contiene (Surface In BoundingBox), con cajas
+// que sirven para la mitad de arriba, la de abajo y la cuña girada: en ésta, la pared baja hasta y = Ht cos(cuña/2).
+eps = 1e-6;
+c2 = Cos(cuna / 2 * Pi / 180);
+Z = Hf;                                               // cualquier z: la plana y la cuña caben en ±Hf
+
+entrada[] = Surface In BoundingBox {-eps, -He - eps, -Z, eps, He + eps, Z};
+paredArr[] = Surface In BoundingBox {-eps, Ht * c2 - eps, -Z, xe + eps, He + eps, Z};
+paredAba[] = Surface In BoundingBox {-eps, -He - eps, -Z, xe + eps, -Ht + eps, Z};
+salida[] = Surface In BoundingBox {xo - eps, -Hf - eps, -Z, xo + eps, Hf + eps, Z};
+techo[] = Surface In BoundingBox {xe - eps, Hf * c2 - eps, -Z, xo + eps, Hf + eps, Z};
+piso[] = Surface In BoundingBox {xe - eps, -Hf - eps, -Z, xo + eps, -Hf + eps, Z};
+labioArr[] = Surface In BoundingBox {xe - eps, He * c2 - eps, -Z, xe + eps, Hf + eps, Z};
+labioAba[] = Surface In BoundingBox {xe - eps, -Hf - eps, -Z, xe + eps, -He + eps, Z};
+
+Physical Surface(&quot;inlet&quot;)      = {entrada[]};
+Physical Surface(&quot;nozzleWall&quot;) = {paredArr[], paredAba[]};
+Physical Surface(&quot;outlet&quot;)     = {salida[]};
+Physical Surface(&quot;farField&quot;)   = {techo[], piso[], labioArr[], labioAba[]};
+
+If (tipo == 0)
+  frente[] = Surface In BoundingBox {-eps, -Hf - eps, -eps, xo + eps, Hf + eps, eps};
+  atras[] = Surface In BoundingBox {-eps, -Hf - eps, e - eps, xo + eps, Hf + eps, e + eps};
+  Physical Surface(&quot;frontAndBack&quot;) = {frente[], atras[]};
+Else
+  sz = Hf * Sin(cuna / 2 * Pi / 180);
+  frente[] = Surface In BoundingBox {-eps, -eps, -sz - eps, xo + eps, Hf + eps, eps};
+  atras[] = Surface In BoundingBox {-eps, -eps, -eps, xo + eps, Hf + eps, sz + eps};
+  Physical Surface(&quot;wedgeFront&quot;) = {frente[]};
+  Physical Surface(&quot;wedgeBack&quot;)  = {atras[]};
+EndIf
+Physical Volume(&quot;fluid&quot;) = Volume In BoundingBox {-eps, -Hf - eps, -Z, xo + eps, Hf + eps, Z};
+
+Printf(&quot;caras: entrada %g, pared %g, salida %g, campo lejano %g, frente %g, atrás %g&quot;, #entrada[],
+       #paredArr[] + #paredAba[], #salida[], #techo[] + #piso[] + #labioArr[] + #labioAba[], #frente[], #atras[]);
+
+Mesh.MshFileVersion = 2.2;   // gmshToFoam sólo lee MSH 2 ASCII
+Mesh.Binary = 0;</code></pre>
+
+    </section>
+    <section id="example-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>Tres toberas del mismo archivo</h2>
+
+<p>Tres toberas del mismo archivo. En cada una, predecir primero con las fórmulas de la sección «La idea» y después comprobar con <code>gmsh tobera.geo -0</code> y, si se tiene OpenFOAM, con el caso de <code>datos-t23/openfoam/caso</code>.</p>
+<h3>1. Una razón de áreas mayor</h3>
+<pre class="code"><code>gmsh tobera.geo -3 -setnumber AR 10 -o ar10.msh</code></pre>
+<ol>
+  <li>Predecir el Mach de diseño y p<sub>0</sub>/p<sub>e</sub> con la relación área-Mach. ¿Cuánto mide la garganta?</li>
+  <li>¿Cuántas celdas más tendrá el divergente, y por qué? (La celda de la garganta es H<sub>t</sub>/nR.)</li>
+  <li>Correr el caso de diseño con la nueva p<sub>b</sub> y comparar el Mach medio de la salida con el previsto.</li>
+</ol>
+<h3>2. Un divergente más largo</h3>
+<pre class="code"><code>gmsh tobera.geo -3 -setnumber Ld 8 -o larga.msh</code></pre>
+<ol>
+  <li>La pendiente máxima de la pared del divergente es π(H<sub>e</sub> − H<sub>t</sub>)/(2L<sub>d</sub>). ¿Cuánto vale con L<sub>d</sub> = 4 y con 8?</li>
+  <li>Correr las dos con la presión de diseño. ¿En cuál se parece más el Mach del eje al Mach medio de la sección? ¿Por qué?</li>
+</ol>
+<h3>3. La cuña con un choque</h3>
+<pre class="code"><code>gmsh tobera.geo -3 -setnumber tipo 1 -o cuna.msh</code></pre>
+<ol>
+  <li>Con la teoría cuasi-1D, calcular la presión de descarga que pone el choque normal donde A/A<sub>t</sub> = 3. ¿En qué x queda en la cuña?</li>
+  <li>Correr el caso y medir la posición del choque en el eje.</li>
+</ol>
+
+    </section>
+    <section id="summary-es">
+      <p class="section-label">Puntos clave</p>
+      <h2>Lo que hay que retener</h2>
+
+<ul>
+  <li>La tobera plana y la axisimétrica comparten la media tobera; sólo cambia cómo se traduce la razón de áreas en alturas: H<sub>t</sub> = H<sub>e</sub>/(A<sub>e</sub>/A<sub>t</sub>) o H<sub>e</sub>/√(A<sub>e</sub>/A<sub>t</sub>).</li>
+  <li>Mandan los tamaños: celdas cuadradas en la garganta y en la salida, y <code>Empalme</code> para cada tramo. Sin saltos en las uniones.</li>
+  <li>Una <code>Spline</code> necesita muchos puntos para respetar una pendiente en su extremo, y a pasos iguales, porque <code>Transfinite</code> sigue su parametrización.</li>
+  <li><code>Symmetry { Duplicata }</code> no copia <code>Transfinite</code> ni <code>Recombine</code>: la otra mitad se escribe entera.</li>
+  <li>La cuña es la media tobera girada con <code>Extrude {{1, 0, 0}, {0, 0, 0}, ángulo}</code>: las caras del eje desaparecen y las celdas junto a él son prismas.</li>
+  <li>Grupos físicos por caja, no por índice, cuando la lista de <code>Extrude</code> cambia de un caso a otro.</li>
+  <li><code>Mesh.MshFileVersion = 2.2</code> dentro del archivo, para que <code>gmshToFoam</code> lo lea.</li>
+</ul>
+
+    </section>
+    <section id="mistakes-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Lo que falla y lo que hace Gmsh</h2>
+
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Lo que pasa</th><th>La causa</th><th>Qué hacer</th></tr></thead>
+    <tbody>
+      <tr><td>La mitad de abajo sale con triángulos, y la extrusión, con prismas</td><td><code>Symmetry { Duplicata }</code> no copia <code>Transfinite</code> ni <code>Recombine</code></td><td>Escribir la mitad de abajo con un <code>For</code> sobre el signo de y</td></tr>
+      <tr><td>La tobera axisimétrica da un Mach de salida mucho mayor que el previsto</td><td>Garganta calculada con H<sub>e</sub>/(A<sub>e</sub>/A<sub>t</sub>), como en la plana: la razón de áreas real es su cuadrado</td><td>H<sub>t</sub> = H<sub>e</sub>/√(A<sub>e</sub>/A<sub>t</sub>)</td></tr>
+      <tr><td>Las celdas de la pared no crecen con la razón pedida</td><td>Puntos de la <code>Spline</code> apiñados: <code>Transfinite</code> sigue la parametrización</td><td>Puntos a pasos iguales, y más puntos si la pendiente del extremo importa</td></tr>
+      <tr><td>Un grupo físico vacío o con caras de otra frontera en la cuña</td><td>Índices de la lista de <code>Extrude</code> copiados de la tobera plana: en la cuña faltan las caras del eje</td><td><code>Surface In BoundingBox</code>, y un <code>Printf</code> con el número de caras de cada grupo</td></tr>
+      <tr><td><code>gmshToFoam</code>: <code>Attempt to get back from bad stream</code></td><td><code>.msh</code> en formato 4.1, el de fábrica</td><td><code>Mesh.MshFileVersion = 2.2;</code> en el archivo</td></tr>
+      <tr><td>OpenFOAM: <code>wedge</code> mal alineado o no simétrico</td><td>La cuña se extruyó desde el plano z = 0 hacia un solo lado</td><td>Girar media cuña hacia atrás antes de extruir</td></tr>
+    </tbody>
+  </table>
+</div>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ol>
+  <li>C. Geuzaine y J.-F. Remacle. <em>Gmsh Reference Manual</em>, versión 4.15: <code>Extrude</code> por rotación, <code>Symmetry</code>, <code>Duplicata</code>, <code>Surface In BoundingBox</code> y <code>Spline</code>. <a href="https://gmsh.info/doc/texinfo/gmsh.html" target="_blank" rel="noopener">gmsh.info/doc/texinfo/gmsh.html</a>.</li>
+  <li>J. D. Anderson. <em>Modern Compressible Flow</em>, 3.ª ed. McGraw-Hill, 2003. Capítulo 5: flujo cuasi-unidimensional, relación área-Mach y choque normal en el divergente.</li>
+  <li>A. Kurganov y E. Tadmor. «New high-resolution central schemes for nonlinear conservation laws and convection-diffusion equations». <em>Journal of Computational Physics</em> 160 (2000): 241-282.</li>
+  <li>The OpenFOAM Foundation. <em>OpenFOAM User Guide</em>, versión 13: <code>shockFluid</code>, parches <code>wedge</code> y <code>gmshToFoam</code>. <a href="https://doc.cfd.direct/openfoam/user-guide-v13/" target="_blank" rel="noopener">doc.cfd.direct/openfoam/user-guide-v13</a>.</li>
+</ol>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="perfil-c-parametrico.html?v=13"><span>Tutorial anterior</span>← Tutorial 2.2.2 · El perfil en C paramétrico</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Serie de tutoriales</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Eine Laval-Düse mit Abströmgebiet aus einer halben Düse aufbauen; Hals und Auslegungs-Machzahl aus dem Flächenverhältnis berechnen; Zellgrößen im Hals und am Austritt angleichen; das ebene Netz durch die gespiegelte Hälfte und das achsensymmetrische durch Drehen der Hälfte zu einem Keil erhalten; beide mit einer reibungsfreien OpenFOAM-Rechnung gegen die quasi-eindimensionale Theorie prüfen.</p>
+    </section>
+    <section id="idea-de">
+      <p class="section-label">Die Idee</p>
+      <h2>Eine halbe Düse, einmal vernetzt</h2>
+<p>Zwischen Achse und Wand haben ebene und achsensymmetrische Düse dieselbe Form; nur die Fläche unterscheidet sich (proportional zur halben Höhe oder zum Radiusquadrat). Dasselbe Flächenverhältnis verlangt daher verschiedene Hälse.</p>
+    </section>
+    <section id="recipe-de">
+      <p class="section-label">Ablauf</p>
+      <h2>Von der Datei zu beiden Netzen in sechs Schritten</h2>
+<p>Sechs Schritte, von den Parametern zu beiden Netzen.</p>
+    </section>
+    <section id="throat-de">
+      <p class="section-label">Schritt 1</p>
+      <h2>Das Feld, der Hals und die Auslegungs-Machzahl</h2>
+<p>DefineConstant mit Auswahlliste für den Düsentyp; die Auslegungs-Machzahl wird per Bisektion auf dem Überschallast der Flächen-Mach-Beziehung gefunden.</p>
+    </section>
+    <section id="sizes-de">
+      <p class="section-label">Schritt 2</p>
+      <h2>Quadratische Zellen im Hals und am Austritt</h2>
+<p>Quadratische Zellen im Hals, am Einlass und am Austritt, und das Empalme-Makro aus Tutorial 2.2.2 für jede Progression; kein Größensprung am Austritt.</p>
+    </section>
+    <section id="wall-de">
+      <p class="section-label">Schritt 3</p>
+      <h2>Eine Kosinuskontur und wie viele Punkte sie braucht</h2>
+<p>Eine Kosinuskontur durch 200 gleichmäßig verteilte Punkte: ein Spline verlässt jedes Ende mit der Steigung seiner ersten Sehne, und Transfinite folgt der Parametrisierung, gehäufte Punkte stören also die Progression.</p>
+    </section>
+    <section id="halves-de">
+      <p class="section-label">Schritt 4</p>
+      <h2>Vier Blöcke, einmal je Hälfte geschrieben</h2>
+<p>Vier Blöcke je Hälfte; die untere Hälfte wird mit umgekehrtem Vorzeichen von y neu geschrieben, weil Symmetry mit Duplicata Transfinite und Recombine nicht übernimmt.</p>
+    </section>
+    <section id="extrude-de">
+      <p class="section-label">Schritt 5</p>
+      <h2>Eine Schicht oder eine Drehung um fünf Grad</h2>
+<p>Eben: eine Schicht. Achsensymmetrisch: die Hälfte um den halben Keilwinkel zurückdrehen und per Rotation extrudieren; die Achsflächen entfallen und die Zellen an der Achse werden Prismen. Physikalische Gruppen per Bounding Box.</p>
+    </section>
+    <section id="gui-de">
+      <p class="section-label">Schritt 6</p>
+      <h2>Die Düse über die Oberfläche und im Terminal ändern</h2>
+<p>Das Feld, die Meldungskonsole und -setnumber.</p>
+    </section>
+    <section id="worked-de">
+      <p class="section-label">Durchgerechnetes Beispiel</p>
+      <h2>Der Keil, von Hand vorhergesagt</h2>
+<p>Die achsensymmetrische Düse von Hand: Hals, Auslegungs-Machzahl, Halszelle, Knoten des divergenten Teils und Zellzahl, verglichen mit der Ausgabe der Datei.</p>
+    </section>
+    <section id="openfoam-de">
+      <p class="section-label">Prüfung in OpenFOAM</p>
+      <h2>Folgt die Machzahl dem Querschnitt?</h2>
+<p>Reibungsfreie shockFluid-Rechnungen beim Auslegungsdruckverhältnis und mit einem senkrechten Stoß im divergenten Teil; die massengemittelte Machzahl jedes Querschnitts folgt der quasi-eindimensionalen Theorie.</p>
+    </section>
+    <section id="start-de">
+      <p class="section-label">Das Ausgangsnetz</p>
+      <h2>Was sich geändert hat, gemessen</h2>
+<p>Das Ausgangsnetz: Glättung auf transfiniten Blöcken, Größensprünge im Hals und am Austritt, ein Spline mit fünf Punkten und falschem Hals, und eine MSH-4.1-Datei, die gmshToFoam nicht liest.</p>
+    </section>
+    <section id="files-de">
+      <p class="section-label">Datei</p>
+      <h2>tobera.geo, vollständig</h2>
+<p>Die vollständige Datei.</p>
+    </section>
+    <section id="example-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Drei Düsen aus derselben Datei</h2>
+<p>Ein größeres Flächenverhältnis, ein längerer divergenter Teil und der Keil mit Stoß.</p>
+    </section>
+    <section id="summary-de">
+      <p class="section-label">Kernpunkte</p>
+      <h2>Was man behalten sollte</h2>
+<p>Das halbe Gebiet aufbauen; spiegeln oder drehen.</p>
+    </section>
+    <section id="mistakes-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Was schiefgeht und was Gmsh tut</h2>
+<p>Duplicata ohne Transfinite, gehäufte Splinepunkte, indexbasierte Gruppen am Keil.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>Gmsh-Handbuch; Anderson; OpenFOAM-13-Handbuch.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="perfil-c-parametrico.html?v=13"><span>Vorheriges Tutorial</span>← Tutorial 2.2.2 · Das C-Netz mit Parametern</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Tutorialreihe</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>
