@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="OpenFOAM tutorial: laminar flow in a straight pipe at Re = 500 with incompressibleFluid in blueCFD-Core (OpenFOAM 12) on a Gmsh mesh, validated against Hagen-Poiseuille: friction factor, centreline velocity, velocity profile and entrance length." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>The Laminar Pipe | OpenFOAM Incompressible-Flow Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">OpenFOAM · Incompressible flow · Tutorial 1.1</p><h1>The Laminar Pipe: Hagen-Poiseuille and the Entrance Length</h1><p class="hero-copy">A uniform stream enters a straight pipe at Re = 500 and develops into the Hagen-Poiseuille parabola. The case runs with incompressibleFluid on the O-grid mesh from Gmsh, and OpenFOAM itself writes the numbers that are checked against the exact solution.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">OpenFOAM · Flujo incompresible · Tutorial 1.1</p><h1>La tubería laminar: Hagen-Poiseuille y la longitud de entrada</h1><p class="hero-copy">Una corriente uniforme entra a una tubería recta a Re = 500 y se desarrolla hasta la parábola de Hagen-Poiseuille. El caso corre con <code>incompressibleFluid</code> sobre la malla en O de Gmsh, y OpenFOAM mismo escribe las cifras que se comparan con la solución exacta.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">OpenFOAM · Inkompressible Strömung · Tutorial 1.1</p><h1>Das laminare Rohr: Hagen-Poiseuille und die Einlauflänge</h1><p class="hero-copy">Eine gleichförmige Strömung tritt bei Re = 500 in ein gerades Rohr ein und entwickelt sich zur Hagen-Poiseuille-Parabel. Der Fall läuft mit incompressibleFluid auf dem O-Netz aus Gmsh, und OpenFOAM schreibt selbst die Zahlen, die mit der exakten Lösung verglichen werden.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 50 min</span><span data-language="es" hidden>Lectura estimada: 50 min</span><span data-language="de" hidden>Lesedauer: ca. 50 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on OpenFOAM 12 (blueCFD-Core 2024), Gmsh 4.15.2 and ParaView 5.11.2</span><span data-language="es" hidden>Verificado en OpenFOAM 12 (blueCFD-Core 2024), Gmsh 4.15.2 y ParaView 5.11.2</span><span data-language="de" hidden>Geprüft mit OpenFOAM 12 (blueCFD-Core 2024), Gmsh 4.15.2 und ParaView 5.11.2</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="index.html?v=13">← <span>Serie</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#problem">The problem</a><a href="#theory">Theory</a><a href="#recipe">Recipe</a><a href="#case">The case</a><a href="#results">ParaView</a><a href="#validation">Validation</a><a href="#errors">Common errors</a><a href="#practice">Suggested exercise</a><a href="#appendix">Appendix</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#problem-es">El problema</a><a href="#theory-es">Teoría</a><a href="#recipe-es">Receta</a><a href="#case-es">El caso</a><a href="#results-es">ParaView</a><a href="#validation-es">Validación</a><a href="#errors-es">Errores frecuentes</a><a href="#practice-es">Práctica sugerida</a><a href="#appendix-es">Apéndice</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#problem-de">Das Problem</a><a href="#theory-de">Theorie</a><a href="#recipe-de">Ablauf</a><a href="#case-de">Der Fall</a><a href="#results-de">ParaView</a><a href="#validation-de">Validierung</a><a href="#errors-de">Häufige Fehler</a><a href="#practice-de">Übungsvorschlag</a><a href="#appendix-de">Anhang</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Run a steady incompressible case (incompressibleFluid, SIMPLE) in OpenFOAM 12 on Windows from a Gmsh mesh; rotate the mesh with transformPoints and set the wall type by hand; read every file of the case; have OpenFOAM write the validation numbers (probes, lines, y⁺, wall shear stress); and compare them with Hagen-Poiseuille.</p>
+    </section>
+    <section id="problem">
+      <p class="section-label">The problem</p>
+      <h2>What is simulated</h2>
+<p>A straight pipe of D = 1 m and 38.39 D length, uniform inflow at 1 m/s, ν = 0.002 m²/s (Re = 500), zero pressure at the outlet. The mesh is the 9-block O-grid of Gmsh tutorial 3.1.2, 95,480 hexahedra.</p>
+    </section>
+    <section id="theory">
+      <p class="section-label">The theory</p>
+      <h2>The exact solution and the entrance length</h2>
+<p>The parabolic profile u = 2U(1 − r²/R²), the pressure gradient 32νU/D², the Darcy friction factor f = 64/Re = 0.128, the wall shear stress τ<sub>w</sub>/ρ = fU²/8, the entrance length of Durst et al. (28.4 D) and the definition of y⁺.</p>
+    </section>
+    <section id="recipe">
+      <p class="section-label">Step by step</p>
+      <h2>From the mesh to the results</h2>
+<p>In the blueCFD-Core terminal: add Gmsh to the PATH, copy the case to the run folder with the File Explorer, mesh with gmsh -log, convert with gmshToFoam, turn the pipe axis from z to x with transformPoints "Ry=90" (blueCFD-Core 2024 gets flows along z wrong), set walls to type wall in boundary with Notepad2, check with checkMesh, run foamRun (204 iterations, about two minutes) and open paraFoam. ./Allrun does all of it.</p>
+    </section>
+    <section id="case">
+      <p class="section-label">The case</p>
+      <h2>The case, file by file</h2>
+<p>Every file of the case in full: tuberia.geo, the constant viscosity, the laminar model, the boundary conditions, the SIMPLEC settings with residualControl, the linearUpwind scheme, and the functions of controlDict that write probes, axis and radial lines, y⁺ and the wall shear stress.</p>
+    </section>
+    <section id="results">
+      <p class="section-label">Results</p>
+      <h2>Looking at the flow in ParaView</h2>
+<p>paraFoam, Apply, Last Frame; a Slice with Z Normal coloured by U, seen from −Z and zoomed with Zoom to Box onto the entrance; and Plot Over Line across the pipe at x = 33 D with only U_X shown.</p>
+    </section>
+    <section id="validation">
+      <p class="section-label">Worked example</p>
+      <h2>The simulation against Hagen-Poiseuille</h2>
+<p>From the probes, f = 0.1295 against 0.128 (+1.2 %); from the wall shear stress, f = 0.1284. Centreline velocity 1.983 U against 2 U; the profile lies on the parabola within 0.028 m/s; y⁺ = 0.199 where 0.2 was asked; the centreline reaches 99 % of its final value at 25.6 D against 28.4 D from Durst et al.</p>
+    </section>
+    <section id="errors">
+      <p class="section-label">Common errors</p>
+      <h2>What goes wrong, and what OpenFOAM says</h2>
+<p>blueCFD-Core 2024 gets flows along z wrong (f 1.5 times too large) — hence transformPoints; forgetting the wall type; Gmsh missing from the PATH, or silent when redirected from cmd; the Open-with dialog; and Allrun refusing to rerun a program whose log exists.</p>
+    </section>
+    <section id="practice">
+      <p class="section-label">Suggested exercise</p>
+      <h2>Doubling the Reynolds number</h2>
+<p>Repeat the case at Re = 1000: change ν, remesh with -setnumber Re 1000 (the pipe grows because the entrance length grows) and move the probes. f should halve and the entrance length double.</p>
+    </section>
+    <section id="appendix">
+      <p class="section-label">Appendix</p>
+      <h2>Where Hagen-Poiseuille comes from</h2>
+<p>A force balance on a cylinder of fluid gives the shear stress, the parabolic profile, the mean velocity and f = 64/Re.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>White's Fluid Mechanics for Hagen-Poiseuille; Durst et al. (2005) for the entrance length; Van Doormaal and Raithby (1984) for SIMPLEC; the OpenFOAM 12 sources.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="index.html?v=13"><span>Series index</span>← OpenFOAM incompressible-flow tutorials</a>
+      <a class="next-link" href="tuberia-turbulenta.html?v=13"><span>Next tutorial</span>1.2 · The turbulent pipe →</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">En una tubería recta, lejos de la entrada, el flujo laminar tiene solución exacta: el perfil parabólico de Hagen-Poiseuille. Eso lo vuelve el primer caso ideal para aprender OpenFOAM, porque cada cifra que escribe la simulación —el factor de fricción, la velocidad en el eje, el perfil— se puede comparar con una fórmula. Cerca de la entrada, en cambio, no hay solución exacta: ahí la simulación enseña cómo se desarrolla el flujo.</p>
+<ul>
+  <li>Correr un caso incompresible y estacionario con <code>incompressibleFluid</code> en blueCFD-Core 2024 (OpenFOAM 12) en Windows.</li>
+  <li>Llevar a OpenFOAM la malla de la tubería hecha en Gmsh, girarla con <code>transformPoints</code> y corregir a mano el tipo de la pared.</li>
+  <li>Leer los archivos de un caso incompresible: el fluido, las condiciones de frontera, los esquemas y el control del algoritmo SIMPLE.</li>
+  <li>Hacer que OpenFOAM escriba en archivos las cifras de la validación: sondas, líneas, y⁺ y esfuerzo en la pared.</li>
+  <li>Comparar la simulación con Hagen-Poiseuille y con una correlación de la longitud de entrada, y juzgar cuándo llegó a la solución.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> blueCFD-Core 2024 (<a href="https://bluecfd.github.io/Core/" target="_blank" rel="noopener">bluecfd.github.io/Core</a>), que instala OpenFOAM 12 para Windows y trae ParaView 5.11.2 y el editor Notepad2; Gmsh 4.15.2 (<a href="https://gmsh.info" target="_blank" rel="noopener">gmsh.info</a>), el archivo comprimido para Windows, descomprimido en una carpeta cualquiera; y el caso, <a href="archivos/tuberia-laminar.zip"><code>tuberia-laminar.zip</code></a>, cuyos archivos se reproducen completos en la sección <a href="#case-es">«El caso, archivo por archivo»</a>. No hace falta programar.</p>
+</div>
+<div class="callout">
+  <p><strong>De dónde sale la malla.</strong> Es la del <a href="../gmsh/tuberia-parametrizada.html">tutorial 3.1.2 de Gmsh</a>: una sección en O de nueve bloques con la primera celda calculada desde y⁺ y la longitud calculada desde el número de Reynolds. Aquí se usa tal cual; lo nuevo es todo lo que pasa en OpenFOAM. El caso se validó en OpenFOAM 13 (openfoam.org, en Linux) y en OpenFOAM 12 (blueCFD-Core, en Windows) con las mismas cifras en cinco dígitos. Todas las cifras y capturas de esta guía son de OpenFOAM 12, que es lo que usan los alumnos.</p>
+</div>
+
+    </section>
+    <section id="problem-es">
+      <p class="section-label">El problema</p>
+      <h2>Qué se va a simular</h2>
+
+<p>Una tubería recta de sección circular, de diámetro D = 1 m. Por la entrada llega un fluido con velocidad uniforme de 1 m/s; por la salida sale a presión cero. La viscosidad cinemática, 0.002 m²/s, da un número de Reynolds de 500: el flujo es laminar (figura 1).</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 300" role="img" aria-label="Esquema de la tubería con la entrada, la salida, las dos sondas, el perfil y la longitud de entrada">
+  <text class="svg-title" x="70" y="28">La tubería del caso: el eje en x, de la entrada a la salida</text>
+  <rect x="70" y="118" width="580" height="64" fill="var(--sky)" stroke="none"/>
+  <line x1="70" y1="118" x2="650" y2="118" stroke="var(--ink)" stroke-width="2.2"/>
+  <line x1="70" y1="182" x2="650" y2="182" stroke="var(--ink)" stroke-width="2.2"/>
+  <line x1="60" y1="150" x2="664" y2="150" stroke="var(--muted)" stroke-width="1" stroke-dasharray="8 4"/>
+  <line x1="26" y1="126.0" x2="64" y2="126.0" stroke="var(--blue)" stroke-width="1.4" marker-end="url(#fl)"/>
+  <line x1="26" y1="138.0" x2="64" y2="138.0" stroke="var(--blue)" stroke-width="1.4" marker-end="url(#fl)"/>
+  <line x1="26" y1="150.0" x2="64" y2="150.0" stroke="var(--blue)" stroke-width="1.4" marker-end="url(#fl)"/>
+  <line x1="26" y1="162.0" x2="64" y2="162.0" stroke="var(--blue)" stroke-width="1.4" marker-end="url(#fl)"/>
+  <line x1="26" y1="174.0" x2="64" y2="174.0" stroke="var(--blue)" stroke-width="1.4" marker-end="url(#fl)"/>
+  <defs><marker id="fl" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="var(--blue)"/></marker></defs>
+  <text class="svg-note-sm" x="50" y="204" text-anchor="middle">inlet: U = 1 m/s</text>
+  <text class="svg-note-sm" x="650" y="204" text-anchor="middle">outlet: p = 0</text>
+  <text class="svg-note-sm" x="331" y="110">walls</text>
+  <circle cx="523.3" cy="150" r="4.5" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="523.3" y="166" text-anchor="middle" fill="var(--accent-dark)">sonda 1</text>
+  <circle cx="613.9" cy="150" r="4.5" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="613.9" y="166" text-anchor="middle" fill="var(--accent-dark)">sonda 2</text>
+  <line x1="568.6" y1="150" x2="568.6" y2="118" stroke="var(--accent-dark)" stroke-width="1.6"/>
+  <text class="svg-note-sm" x="568.6" y="110" text-anchor="middle" fill="var(--accent-dark)">perfil</text>
+  <line x1="70" y1="232" x2="498.9" y2="232" stroke="var(--blue)" stroke-width="1.2"/>
+  <line x1="70.0" y1="227" x2="70.0" y2="237" stroke="var(--blue)" stroke-width="1.2"/>
+  <line x1="498.9" y1="227" x2="498.9" y2="237" stroke="var(--blue)" stroke-width="1.2"/>
+  <text class="svg-note-sm" x="284.5" y="224" text-anchor="middle" fill="var(--blue)">longitud de entrada (Durst): 28.4 D</text>
+  <text class="svg-tick" x="70.0" y="266" text-anchor="middle">x = 0</text>
+  <text class="svg-tick" x="523.3" y="266" text-anchor="middle">30 D</text>
+  <text class="svg-tick" x="613.9" y="266" text-anchor="middle">36 D</text>
+  <text class="svg-tick" x="650.0" y="284" text-anchor="end">L = 38.39 D</text>
+  <text class="svg-note-sm" x="710" y="154" text-anchor="end">D = 1 m</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">La tubería.</b> No está a escala: la tubería mide 38.39 D de largo. La malla se hizo con el eje en z y se giró al eje x con <code>transformPoints</code> (sección <a href='#recipe-es'>«Paso a paso»</a>). Las sondas y el perfil están en la zona desarrollada, pasada la longitud de entrada.</figcaption>
+</figure>
+<p>El flujo pasa por dos etapas:</p>
+<ul>
+  <li><strong>La región de entrada.</strong> En la pared la velocidad es cero; en la entrada, uniforme. Desde la pared crece una capa límite, y como el caudal no cambia, el núcleo central se acelera. El perfil pasa poco a poco de plano a parabólico.</li>
+  <li><strong>La región desarrollada.</strong> Pasada la longitud de entrada, el perfil ya no cambia a lo largo del eje. Ahí vale la solución de Hagen-Poiseuille, y la presión baja en línea recta.</li>
+</ul>
+<p>El <code>.geo</code> calcula la longitud de la tubería como la longitud de entrada de la correlación de Durst et al. (2005) más 10 D de tramo desarrollado: 38.389 D. Las dos sondas de presión y velocidad están en ese tramo final, en x = 30 D y x = 36 D, y el perfil de velocidad se mide en x = 33 D.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Dato</th><th>Valor</th><th>Dónde se fija</th></tr></thead>
+    <tbody>
+      <tr><td>Diámetro, \(D\)</td><td>1 m</td><td><code>tuberia.geo</code>: <code>D</code></td></tr>
+      <tr><td>Velocidad media, \(U\)</td><td>1 m/s, uniforme en la entrada</td><td><code>0/U</code></td></tr>
+      <tr><td>Viscosidad cinemática, \(\nu\)</td><td>0.002 m²/s</td><td><code>constant/physicalProperties</code></td></tr>
+      <tr><td>Número de Reynolds, \(UD/\nu\)</td><td>500</td><td><code>tuberia.geo</code>: <code>Re</code></td></tr>
+      <tr><td>Longitud de la tubería</td><td>38.389 D (longitud de entrada de Durst más 10 D)</td><td><code>tuberia.geo</code>: <code>Ldes</code></td></tr>
+      <tr><td>Primera celda junto a la pared</td><td>y⁺ = 0.2: altura 0.00632 m</td><td><code>tuberia.geo</code>: <code>yplus</code></td></tr>
+      <tr><td>Malla</td><td>95 480 hexaedros; 154 capas a lo largo del eje</td><td><code>tuberia.geo</code>: <code>nq</code>, <code>dz</code></td></tr>
+      <tr><td>Presión en la salida</td><td>0 (presión cinemática, p/ρ)</td><td><code>0/p</code></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Datos del caso.</b> Las dimensiones salen de <code>tuberia.geo</code> con sus valores por omisión; el fluido y las condiciones de frontera, de los archivos de <code>constant/</code> y <code>0/</code> (sección <a href='#case-es'>«El caso, archivo por archivo»</a>).</caption>
+  </table>
+</div>
+<p>A diferencia de la rampa de la serie compresible, esta malla es 3D: la sección en O se extruye a lo largo del eje. Por eso ninguna frontera es <code>empty</code>; hay sólo tres parches: <code>inlet</code>, <code>outlet</code> y <code>walls</code>.</p>
+
+    </section>
+    <section id="theory-es">
+      <p class="section-label">La teoría</p>
+      <h2>La solución exacta y la longitud de entrada</h2>
+
+<p>La validación compara la simulación con la solución de Hagen-Poiseuille <a href="#references-es">(White, 2011)</a>. Aquí están las fórmulas; de dónde salen está en el <a href="#appendix-es">apéndice</a>. OpenFOAM, en un caso incompresible, trabaja con la <strong>presión cinemática</strong>, \(p/\rho\), en m²/s²: todas las fórmulas se escriben así.</p>
+<h3>El flujo desarrollado</h3>
+<p>Con \(R = D/2\) y \(U\) la velocidad media, el perfil es una parábola, y la velocidad en el eje vale el doble de la media:</p>
+<div class="equation-card"><p class="equation-label">Perfil de Hagen-Poiseuille</p>\[ u(r) = 2U\left(1-\frac{r^2}{R^2}\right),\qquad u_c = 2U \tag{1} \]</div>
+<p>La presión baja con una pendiente constante:</p>
+<div class="equation-card">\[ -\frac{\mathrm{d}(p/\rho)}{\mathrm{d}x} = \frac{32\,\nu U}{D^2} \tag{2} \]</div>
+<p>El factor de fricción de Darcy mide esa caída en unidades de la presión dinámica. Con la presión cinemática,</p>
+<div class="equation-card"><p class="equation-label">Factor de fricción</p>\[ f = -\frac{2D}{U^2}\,\frac{\mathrm{d}(p/\rho)}{\mathrm{d}x} = \frac{64}{Re} \tag{3} \]</div>
+<p>y a Re = 500 vale 0.128. El mismo número sale del esfuerzo en la pared, que equilibra a la presión en un tramo de tubería:</p>
+<div class="equation-card">\[ \frac{\tau_w}{\rho} = \frac{f\,U^2}{8} \tag{4} \]</div>
+<h3>La longitud de entrada</h3>
+<p>No hay solución exacta para la región de entrada. La correlación de Durst et al. (2005), ajustada a simulaciones, da la distancia a la que la velocidad del eje llega al 99 % de su valor desarrollado:</p>
+<div class="equation-card"><p class="equation-label">Longitud de entrada laminar</p>\[ \frac{L_e}{D} = \left[0.619^{1.6} + (0.0567\,Re)^{1.6}\right]^{1/1.6} \tag{5} \]</div>
+<p>A Re = 500 da 28.39 D. Para Re grande, la ecuación (5) tiende a la regla conocida \(L_e \approx 0.057\,Re\,D\); el término 0.619 importa sólo con Re pequeño.</p>
+<h3>y⁺ y la primera celda</h3>
+<p>y⁺ es la distancia a la pared medida en «longitudes viscosas»:</p>
+<div class="equation-card">\[ y^+ = \frac{y\,u_\tau}{\nu},\qquad u_\tau = \sqrt{\tau_w/\rho} = U\sqrt{f/8} \tag{6} \]</div>
+<p>En un flujo laminar y⁺ no cambia la física; el <code>.geo</code> lo usa sólo para fijar la altura de la primera celda, y el mismo archivo sirve después para el caso turbulento del <a href="tuberia-turbulenta.html">tutorial 1.2</a>, donde sí importa. Con y⁺ = 0.2 y \(f = 64/Re\), la primera celda mide 0.00632 m (el y⁺ se refiere al centro de la celda, así que la altura es el doble de \(y\)).</p>
+
+    </section>
+    <section id="recipe-es">
+      <p class="section-label">Paso a paso</p>
+      <h2>De la malla a los resultados</h2>
+
+<p>Todo se hace en la terminal de blueCFD-Core y en el Explorador de archivos de Windows. Es la misma secuencia que sigue el vídeo del tutorial.</p>
+<ol>
+  <li><strong>Descomprimir el caso.</strong> Descomprimir <code>tuberia-laminar.zip</code> en la carpeta Descargas: queda una carpeta <code>tuberia-laminar</code> con <code>tuberia.geo</code>, <code>Allrun</code>, <code>Allrun.bat</code> y las carpetas <code>0</code>, <code>constant</code> y <code>system</code>.</li>
+  <li><strong>Abrir la terminal.</strong> En el menú Inicio, <code>blueCFD-Core 2024 ▸ blueCFD-Core terminal</code>. Es una terminal <code>bash</code>: las rutas se escriben con diagonales normales y la unidad como carpeta, de modo que <code>C:&#92;gmsh-4.15.2-Windows64</code> es <code>/c/gmsh-4.15.2-Windows64</code>.</li>
+  <li><strong>Agregar Gmsh a la ruta de búsqueda.</strong> La terminal arranca sin Gmsh: <code>gmsh --version</code> responde <code>bash: gmsh: command not found</code>. Si Gmsh se descomprimió en <code>C:&#92;gmsh-4.15.2-Windows64</code>:<pre class="code"><code>export PATH=&quot;$PATH:/c/gmsh-4.15.2-Windows64&quot;
+gmsh --version</code></pre>Ahora responde <code>4.15.2</code>. Hay que hacerlo cada vez que se abre la terminal.</li>
+  <li><strong>Copiar el caso a la carpeta de corridas.</strong> En el Explorador: hacer clic en la carpeta <code>tuberia-laminar</code>, Ctrl + C, escribir en la barra de direcciones la carpeta <code>run</code> de blueCFD (en la computadora de referencia, <code>D:&#92;blueCFD-Core&#92;2024&#92;ofuser-of12&#92;run</code>; depende de dónde se instaló) y Ctrl + V. Es la carpeta a la que apunta <code>$FOAM_RUN</code>, fuera de OneDrive y de las carpetas sincronizadas, que estorban a un programa que escribe cientos de archivos. En la terminal:<pre class="code"><code>cd $FOAM_RUN/tuberia-laminar</code></pre></li>
+  <li><strong>Hacer la malla.</strong> <code>-3</code> pide la malla 3D; <code>-o</code>, el archivo de salida; <code>-log</code>, que el registro se guarde además en un archivo:<pre class="code"><code>gmsh tuberia.geo -3 -o tuberia.msh -log log.gmsh</code></pre>Termina en menos de un segundo. En la terminal pasan las líneas <code>Info</code> del mallado; en <code>log.gmsh</code>, abierto con doble clic en el Explorador (figura 2), están arriba las cifras que calculó el <code>.geo</code>:<pre class="code"><code>Re = 500   f = 0.128   nu/u_tau = 0.0158114 m
+y+ = 0.2  -&gt;  primera celda h1 = 0.00632456 m (0.00632456 D)
+anillo: 8 celdas con razón 1.18845, de 0.00632456 m a 0.0211784 m (la banda sigue con 0.04 m)
+longitud de entrada Le = 28.389 D; tubería L = 38.389 D en 154 capas
+celdas previstas: 95480</code></pre></li>
+  <li><strong>Convertirla a OpenFOAM.</strong> <code>gmshToFoam tuberia.msh</code> escribe <code>constant/polyMesh</code>. Responde cuántas celdas leyó y qué nombre dio a cada parche:<pre class="code"><code>Cells:
+    total:95480
+    hex  :95480
+    prism:0
+    pyr  :0
+    tet  :0</code></pre><pre class="code"><code>Patch 0 gets name inlet
+Patch 1 gets name outlet
+Patch 2 gets name walls</code></pre></li>
+  <li><strong>Girar la malla.</strong> El <code>.geo</code> construye la tubería a lo largo de z. Con blueCFD-Core 2024 hay que girarla para que el eje quede en x (el porqué está en <a href="#errors-es">«Errores frecuentes»</a>): la rotación de 90° alrededor de y lleva z a x.<pre class="code"><code>transformPoints &quot;Ry=90&quot;</code></pre>Responde con la ruta de los puntos que reescribió y «End»:<pre class="code"><code>Writing points into directory &quot;D:/blueCFD-Core/2024/ofuser-of12/RUN/of12-tuberia-laminar/constant/polyMesh&quot;
+
+End</code></pre></li>
+  <li><strong>Cambiar el tipo de la pared.</strong> <code>gmshToFoam</code> declara los tres parches como <code>patch</code>, un tipo genérico; la pared debe ser <code>wall</code>. En el Explorador, entrar a <code>constant&#92;polyMesh</code> y abrir <code>boundary</code> con doble clic. Como no tiene extensión, Windows pregunta con qué abrirlo: elegir «Notepad2 x64» y «Just once» (figura 3). En el bloque de <code>walls</code>, cambiar <code>patch;</code> por <code>wall;</code> en el renglón de <code>type</code>, sin tocar <code>physicalType</code>, y guardar con Ctrl + S (figura 4).</li>
+  <li><strong>Revisar la malla.</strong> <code>checkMesh | tee log.checkMesh</code> (<code>tee</code> muestra la salida y a la vez la guarda). Lo importante está al final:<pre class="code"><code>    Overall domain bounding box (-3.0615159e-17 -0.5 -0.5) (38.388983 0.5 0.5)</code></pre><pre class="code"><code>    Mesh non-orthogonality Max: 26.317515 average: 4.0512123</code></pre><pre class="code"><code>Mesh OK.</code></pre>La caja del dominio confirma el giro: x va de 0 a 38.389, y y z de −0.5 a 0.5 (figura 5).</li>
+  <li><strong>Correr el solver.</strong> <code>foamRun | tee log.foamRun</code>. <code>foamRun</code> lee en <code>system/controlDict</code> el solver <code>incompressibleFluid</code> y hace iteraciones de SIMPLE hasta que los residuos bajan de los límites de <code>system/fvSolution</code>. En la computadora de referencia tardó 133 s y terminó con (figura 6):<pre class="code"><code>SIMPLE solution converged in 204 iterations
+
+End</code></pre></li>
+  <li><strong>Ver los resultados.</strong> <code>paraFoam</code> abre ParaView con el caso (sección <a href="#results-es">«Resultados»</a>); las cifras se leen de los archivos de <code>postProcessing</code> (sección <a href="#validation-es">«Ejemplo resuelto»</a>).</li>
+</ol>
+<figure class="diagram medium">
+  <img src="imagenes/t11-02_log_gmsh.png" alt="El archivo log.gmsh abierto en Notepad2, con las líneas que calcula tuberia.geo" loading="lazy">
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">El registro de Gmsh.</b> Renglones 4 a 8 de <code>log.gmsh</code>: lo que calculó <code>tuberia.geo</code> antes de mallar. La última cifra, 95 480 celdas, es la que confirma <code>checkMesh</code>.</figcaption>
+</figure>
+<figure class="diagram medium">
+  <img src="imagenes/t11-01_abrir_con.png" alt="Ventana de Windows para elegir con qué programa abrir el archivo boundary, con Notepad2 x64 señalado y el botón Just once" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">Abrir un archivo sin extensión.</b> Windows no sabe con qué abrir <code>boundary</code> y pregunta. Notepad2 viene con blueCFD-Core; «Just once» lo usa esta vez sin asociarlo al tipo de archivo.</figcaption>
+</figure>
+<figure class="diagram medium">
+  <img src="imagenes/t11-03_boundary.png" alt="El archivo constant/polyMesh/boundary en Notepad2, con walls cambiado a tipo wall" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">El tipo de la pared, a mano.</b> En <code>constant/polyMesh/boundary</code>, el parche <code>walls</code> pasa de <code>patch</code> a <code>wall</code>; <code>inlet</code> y <code>outlet</code> se quedan como <code>patch</code>. El asterisco del título indica que falta guardar (Ctrl + S).</figcaption>
+</figure>
+<figure class="diagram medium">
+  <img src="imagenes/t11-04_checkmesh.png" alt="Salida de checkMesh en la terminal de blueCFD, con la caja del dominio y Mesh OK" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">checkMesh, después del giro.</b> La caja del dominio va de x = 0 a 38.389 en x, y de −0.5 a 0.5 en y y en z: el eje de la tubería ya es x. No ortogonalidad máxima 26.3°; «Mesh OK».</figcaption>
+</figure>
+<figure class="diagram medium">
+  <img src="imagenes/t11-05_foamrun.png" alt="Final de la salida de foamRun: SIMPLE solution converged in 204 iterations" loading="lazy">
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">El final de foamRun.</b> Las últimas iteraciones y el aviso de convergencia. A la derecha, en el Explorador, aparecen la carpeta <code>204</code> con los campos finales y <code>postProcessing</code>.</figcaption>
+</figure>
+<h3>Lo que escribe <code>foamRun</code></h3>
+<p>Cada iteración deja un bloque como éste (la primera de la corrida):</p>
+<pre class="code"><code>Time = 1s
+
+smoothSolver:  Solving for Ux, Initial residual = 1, Final residual = 0.085115331, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.99999528, Final residual = 0.073667552, No Iterations 2
+smoothSolver:  Solving for Uz, Initial residual = 0.99995382, Final residual = 0.075523414, No Iterations 2
+GAMG:  Solving for p, Initial residual = 1, Final residual = 0.040222305, No Iterations 210
+time step continuity errors : sum local = 2.1822104e-05, global = -4.6766519e-06, cumulative = -4.6766519e-06
+ExecutionTime = 2.577 s  ClockTime = 3 s</code></pre>
+<ul>
+  <li><strong><code>Time = 1s</code></strong>: en un caso estacionario el «tiempo» es el número de iteración; <code>deltaT 1</code> en <code>controlDict</code>.</li>
+  <li><strong><code>smoothSolver: Solving for Ux, Uy, Uz</code></strong>: la ecuación de cantidad de movimiento, una por componente. <code>Initial residual</code> es el residuo antes de resolver en esa iteración; es el que se usa para juzgar la convergencia.</li>
+  <li><strong><code>GAMG: Solving for p</code></strong>: la ecuación de la presión, que corrige la velocidad para que se conserve la masa.</li>
+  <li><strong><code>time step continuity errors</code></strong>: cuánto falla la conservación de la masa después de la corrección; debe ser pequeño y no crecer.</li>
+</ul>
+<h3>Todo en un comando</h3>
+<p>Los pasos 5 a 10 están en <code>Allrun</code>, que en lugar de editar <code>boundary</code> a mano usa <code>foamDictionary</code>:</p>
+<pre class="code"><code>./Allrun</code></pre>
+<p>Deja la salida de cada programa en <code>log.gmsh</code>, <code>log.gmshToFoam</code>, <code>log.transformPoints</code>, <code>log.checkMesh</code> y <code>log.foamRun</code>. <code>./Allrun 4</code> corre en paralelo con cuatro procesos, cortando la tubería en cuatro rebanadas a lo largo del eje. <code>Allrun.bat</code> hace lo mismo, en serie, en la terminal <code>cmd</code> de blueCFD.</p>
+
+    </section>
+    <section id="case-es">
+      <p class="section-label">El caso</p>
+      <h2>El caso, archivo por archivo</h2>
+
+<p>Los diccionarios son los de las corridas que validaron la malla en el tutorial 3.1.2 de Gmsh, con tres cosas que OpenFOAM 12 pide y el 13 acepta: <code>application foamRun</code> en <code>controlDict</code>, <code>viscosityModel constant</code> en <code>physicalProperties</code> y <code>method</code> en <code>decomposeParDict</code>.</p>
+<h3><code>tuberia.geo</code>: la malla</h3>
+<p>El archivo del tutorial 3.1.2 de Gmsh, sin cambios. Los parámetros de <code>DefineConstant</code> —régimen, número de Reynolds, diámetro, y⁺ de la primera celda, razón de crecimiento, tramo desarrollado, celdas por cuarto y tamaño axial— se cambian desde la terminal con <code>-setnumber</code>. Cómo se construye está explicado paso a paso en <a href="../gmsh/tuberia-recta.html">el 3.1.1</a> y <a href="../gmsh/tuberia-parametrizada.html">el 3.1.2</a> de esa serie.</p>
+<p class="code-name"><code>tuberia.geo</code></p>
+<pre class="code"><code>// Tubería recta parametrizada (tutorial 3.1.2): la sección en O de 9 bloques del 3.1.1, con la primera celda
+// calculada desde y+ y la longitud desde el número de Reynolds. Unidades: metros.
+// Cada parámetro se cambia en el panel «Tubería» de la interfaz o desde la terminal. En los rótulos no puede ir
+// una diagonal: Gmsh la toma como separador de ramas del panel.
+//   gmsh tuberia.geo -3 -setnumber regimen 1 -setnumber Re 50000 -o tuberia.msh
+
+SetFactory(&quot;Built-in&quot;);
+
+DefineConstant[
+  regimen = {0,     Choices{0 = &quot;Laminar&quot;, 1 = &quot;Turbulento&quot;}, Name &quot;Tubería/1Régimen&quot;},
+  Re      = {500,   Name &quot;Tubería/2Número de Reynolds&quot;},
+  D       = {1,     Name &quot;Tubería/3Diámetro D (m)&quot;},
+  yplus   = {0.2,   Name &quot;Tubería/4y+ de la primera celda&quot;},
+  gmax    = {1.2,   Name &quot;Tubería/5Razón de crecimiento&quot;},
+  Ldes    = {10,    Name &quot;Tubería/6Tramo tras la entrada (D)&quot;},
+  nq      = {10,    Name &quot;Tubería/7Celdas por cuarto&quot;},
+  dz      = {0.25,  Name &quot;Tubería/8Celda axial Δz (D)&quot;}
+];
+
+// ------------------------------------------------ geometría de la sección (proporciones del 3.1.1)
+R  = D / 2;
+rm = 0.8 * R;          // círculo intermedio: el anillo de la capa límite ocupa el 20 % exterior del radio
+a  = 0.4 * R;          // semilado del cuadro central
+
+// ------------------------------------------------ factor de fricción y velocidad de fricción
+// Laminar: Hagen-Poiseuille. Turbulento (tubo liso): Petukhov, válido de 3000 a 5·10^6.
+If (regimen == 0)
+  f = 64 / Re;
+Else
+  f = 1 / (0.790 * Log(Re) - 1.64)^2;
+EndIf
+// u_tau / U = Sqrt(f/8); en longitudes: nu / u_tau = D / (Re Sqrt(f/8))
+lv = D / (Re * Sqrt(f / 8));          // longitud viscosa nu/u_tau (m)
+
+// y+ mide la distancia del CENTRO de la primera celda a la pared: la altura es el doble.
+h1 = 2 * yplus * lv;
+
+// ------------------------------------------------ longitud: entrada más tramo desarrollado
+If (regimen == 0)
+  Le = D * (0.619^1.6 + (0.0567 * Re)^1.6)^(1 / 1.6);   // Durst et al. (2005)
+Else
+  Le = D * 4.4 * Re^(1 / 6);                              // White, Fluid Mechanics
+EndIf
+L = Le + Ldes * D;
+
+// ------------------------------------------------ nodos de la sección
+hs  = 2 * a / nq;                        // lado de las celdas del cuadro central
+nr  = Round((rm - a) / hs);              // celdas de la banda, del cuadro al círculo intermedio
+
+// El anillo va de h1 en la pared hacia el círculo intermedio, creciendo a lo más gmax por celda. La suma de la
+// progresión, h1 (g^n − 1)/(g − 1) = t, da el número de celdas n; se redondea hacia arriba y la macro Razon (la del
+// 2.2.2) busca por bisección la razón exacta que llena el anillo con esas n celdas.
+Macro Razon
+  rA = 1.0 + 1.e-9;  rB = 3.0;
+  For iter In {1:80}
+    rM = 0.5 * (rA + rB);
+    sM = eh1 * (rM^(eN - 1) - 1.0) / (rM - 1.0);
+    If (sM &lt; eL)
+      rA = rM;
+    Else
+      rB = rM;
+    EndIf
+  EndFor
+  eR = 0.5 * (rA + rB);
+Return
+
+eL = R - rm;  eh1 = h1;
+eN = 1 + Ceil(Log(1 + eL * (gmax - 1) / h1) / Log(gmax));
+Call Razon;
+nb = eN;  g = eR;                        // nodos del anillo y razón de crecimiento desde la pared
+hN = h1 * g^(nb - 2);                    // la celda del anillo junto al círculo intermedio
+hb = (rm - a) / nr;                      // la celda de la banda, a media altura del cuadro
+
+nz = Round(L / (dz * D));                // capas a lo largo del eje
+N3 = (nq^2 + 4 * nq * nr + 4 * nq * (nb - 1)) * nz;
+
+Printf(&quot;Re = %g   f = %g   nu/u_tau = %g m&quot;, Re, f, lv);
+Printf(&quot;y+ = %g  -&gt;  primera celda h1 = %g m (%g D)&quot;, yplus, h1, h1 / D);
+Printf(&quot;anillo: %g celdas con razón %g, de %g m a %g m (la banda sigue con %g m)&quot;, nb - 1, g, h1, hN, hb);
+Printf(&quot;longitud de entrada Le = %g D; tubería L = %g D en %g capas&quot;, Le / D, L / D, nz);
+Printf(&quot;celdas previstas: %g&quot;, N3);
+
+// ------------------------------------------------ puntos, curvas y superficies (como el 3.1.1)
+Point(1)  = {0, 0, 0};
+Point(2)  = {a, a, 0};   Point(3) = {-a, a, 0};   Point(4) = {-a, -a, 0};   Point(5) = {a, -a, 0};
+Point(6)  = {rm*Cos(Pi/4), rm*Sin(Pi/4), 0};    Point(7)  = {-rm*Cos(Pi/4), rm*Sin(Pi/4), 0};
+Point(8)  = {-rm*Cos(Pi/4), -rm*Sin(Pi/4), 0};  Point(9)  = {rm*Cos(Pi/4), -rm*Sin(Pi/4), 0};
+Point(10) = {R*Cos(Pi/4), R*Sin(Pi/4), 0};      Point(11) = {-R*Cos(Pi/4), R*Sin(Pi/4), 0};
+Point(12) = {-R*Cos(Pi/4), -R*Sin(Pi/4), 0};    Point(13) = {R*Cos(Pi/4), -R*Sin(Pi/4), 0};
+
+Line(1) = {2, 3};  Line(2) = {3, 4};  Line(3) = {4, 5};  Line(4) = {5, 2};          // cuadro central
+Line(5) = {2, 6};  Line(6) = {3, 7};  Line(7) = {4, 8};  Line(8) = {5, 9};          // cuadro → círculo intermedio
+Line(9) = {6, 10}; Line(10) = {7, 11}; Line(11) = {8, 12}; Line(12) = {9, 13};      // círculo intermedio → pared
+Circle(13) = {6, 1, 7};   Circle(14) = {7, 1, 8};   Circle(15) = {8, 1, 9};   Circle(16) = {9, 1, 6};
+Circle(17) = {10, 1, 11}; Circle(18) = {11, 1, 12}; Circle(19) = {12, 1, 13}; Circle(20) = {13, 1, 10};
+
+Curve Loop(1) = {1, 2, 3, 4};         Plane Surface(1) = {1};
+Curve Loop(2) = {1, 6, -13, -5};      Plane Surface(2) = {2};
+Curve Loop(3) = {2, 7, -14, -6};      Plane Surface(3) = {3};
+Curve Loop(4) = {3, 8, -15, -7};      Plane Surface(4) = {4};
+Curve Loop(5) = {4, 5, -16, -8};      Plane Surface(5) = {5};
+Curve Loop(6) = {13, 10, -17, -9};    Plane Surface(6) = {6};
+Curve Loop(7) = {14, 11, -18, -10};   Plane Surface(7) = {7};
+Curve Loop(8) = {15, 12, -19, -11};   Plane Surface(8) = {8};
+Curve Loop(9) = {16, 9, -20, -12};    Plane Surface(9) = {9};
+
+// ------------------------------------------------ malla: todos los números salen de los parámetros
+Transfinite Curve {1:4, 13:20} = nq + 1;
+Transfinite Curve {5:8} = nr + 1;
+Transfinite Curve {9:12} = nb Using Progression 1 / g;   // las líneas van hacia la pared: cada celda 1/g de la anterior
+Transfinite Surface {1:9};
+Recombine Surface {1:9};
+
+ext[] = Extrude {0, 0, L} { Surface{1:9}; Layers{nz}; Recombine; };
+Physical Surface(&quot;inlet&quot;)  = {1:9};
+Physical Surface(&quot;outlet&quot;) = {ext[0], ext[6], ext[12], ext[18], ext[24], ext[30], ext[36], ext[42], ext[48]};
+Physical Surface(&quot;walls&quot;)  = {ext[34], ext[40], ext[46], ext[52]};
+Physical Volume(&quot;fluid&quot;)   = {ext[1], ext[7], ext[13], ext[19], ext[25], ext[31], ext[37], ext[43], ext[49]};
+Mesh.MshFileVersion = 2.2;</code></pre>
+<h3><code>constant/physicalProperties</code> y <code>constant/momentumTransport</code>: el fluido</h3>
+<p class="code-name"><code>constant/physicalProperties</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    &quot;constant&quot;;
+    object      physicalProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+viscosityModel  constant;
+
+nu              [0 2 -1 0 0 0 0] 0.002;     // Re = U D / nu = 500 con U = 1 m/s y D = 1 m
+
+// ************************************************************************* //</code></pre><p class="code-name"><code>constant/momentumTransport</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    &quot;constant&quot;;
+    object      momentumTransport;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+simulationType  laminar;
+
+// ************************************************************************* //</code></pre>
+<p><code>viscosityModel constant</code> con <code>nu</code> es un fluido newtoniano de viscosidad constante; como el caso es incompresible, no hace falta la densidad. <code>simulationType laminar</code> significa sin modelo de turbulencia: se resuelven las ecuaciones de Navier-Stokes tal cual.</p>
+<h3><code>0/U</code> y <code>0/p</code>: el estado inicial y las condiciones de frontera</h3>
+<p class="code-name"><code>0/U</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       volVectorField;
+    location    &quot;0&quot;;
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (1 0 0);            // a lo largo de x, el eje de la tubería
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;         // perfil uniforme: la tubería lo desarrolla
+        value           uniform (1 0 0);
+    }
+
+    outlet
+    {
+        type            zeroGradient;
+    }
+
+    walls
+    {
+        type            noSlip;
+    }
+}
+
+// ************************************************************************* //</code></pre><p class="code-name"><code>0/p</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       volScalarField;
+    location    &quot;0&quot;;
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];         // presión cinemática, p/rho
+
+internalField   uniform 0;
+
+boundaryField
+{
+    inlet
+    {
+        type            zeroGradient;
+    }
+
+    outlet
+    {
+        type            fixedValue;
+        value           uniform 0;
+    }
+
+    walls
+    {
+        type            zeroGradient;
+    }
+}
+
+// ************************************************************************* //</code></pre>
+<ul>
+  <li><strong>Entrada:</strong> velocidad fija, uniforme, (1 0 0) —el eje es x después del giro—; presión con gradiente cero, que la deja libre para ajustarse al flujo.</li>
+  <li><strong>Salida:</strong> presión fija en 0, que sirve de referencia (en un caso incompresible sólo importan las diferencias de presión); velocidad con gradiente cero.</li>
+  <li><strong>Pared:</strong> <code>noSlip</code>, velocidad cero; presión con gradiente cero.</li>
+</ul>
+<p>El campo inicial (1 0 0) en todo el dominio es sólo el punto de partida de las iteraciones; la solución final no depende de él.</p>
+<h3><code>system/controlDict</code>: la corrida y lo que se escribe</h3>
+<p class="code-name"><code>system/controlDict</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    &quot;system&quot;;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     foamRun;
+
+solver          incompressibleFluid;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         2000;                     // tope: SIMPLE se detiene antes, al cumplir residualControl
+
+deltaT          1;
+
+writeControl    timeStep;
+
+writeInterval   2000;                     // sólo se escribe la iteración final
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  8;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+functions
+{
+    // residuales de cada iteración: postProcessing/residuales/0/residuals.dat
+    #includeFunc residuals(name=residuales, p, U)
+
+    // p y U en el eje, en x = 30 D y x = 36 D (zona desarrollada), en cada iteración:
+    // postProcessing/sondas/0/p y postProcessing/sondas/0/U. De ahí salen dp/dx y el factor de fricción.
+    #includeFunc probes(name=sondas, points=((30 0 0) (36 0 0)), fields=(p U))
+
+    // p y U a lo largo del eje: postProcessing/eje/&lt;iteración final&gt;/line.xy
+    #includeFunc graphUniform(name=eje, start=(0.05 0 0), end=(38.3 0 0), nPoints=400, fields=(p U), axis=x)
+
+    // perfil de velocidad en x = 33 D, del eje a la pared: postProcessing/radial/&lt;iteración final&gt;/line.xy
+    #includeFunc graphUniform(name=radial, start=(33 0 0), end=(33 0.49999 0), nPoints=200, fields=(U), axis=y)
+
+    // campos wallShearStress y yPlus en la iteración final; su mínimo y máximo en la pared (y el promedio de
+    // y+) quedan en postProcessing/wallShearStress/0/wallShearStress.dat y postProcessing/yPlus/0/yPlus.dat
+    #includeFunc wallShearStress
+    #includeFunc yPlus
+}
+
+// ************************************************************************* //</code></pre>
+<ul>
+  <li><strong><code>solver incompressibleFluid</code></strong>: el solver de flujo incompresible de OpenFOAM 12; <code>foamRun</code> lo lee de aquí.</li>
+  <li><strong><code>endTime 2000</code></strong>: un tope que no se alcanza. La corrida termina antes, cuando se cumple <code>residualControl</code>.</li>
+  <li><strong><code>writeInterval 2000</code></strong>: con el tope tan alto, sólo se escribe la iteración final, la de la convergencia. Así la carpeta del caso no se llena de carpetas intermedias.</li>
+  <li><strong><code>functions</code></strong>: seis funciones que corren junto con el solver. <code>residuals</code> guarda los residuos de cada iteración; <code>probes</code>, p y U en dos puntos del eje en cada iteración; los dos <code>graphUniform</code>, p y U a lo largo del eje y del eje a la pared en x = 33 D; <code>wallShearStress</code> y <code>yPlus</code>, el esfuerzo en la pared y y⁺. Son las cifras de la validación.</li>
+</ul>
+<h3><code>system/fvSchemes</code>: los esquemas</h3>
+<p class="code-name"><code>system/fvSchemes</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    &quot;system&quot;;
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default         steadyState;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+divSchemes
+{
+    default         none;
+    div(phi,U)      bounded Gauss linearUpwind grad(U);
+    div((nuEff*dev2(T(grad(U))))) Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+wallDist
+{
+    method          meshWave;
+}
+
+// ************************************************************************* //</code></pre>
+<p><code>steadyState</code>: no hay término temporal. El término de convección usa <code>linearUpwind</code>, de segundo orden, con la corrección <code>bounded</code> que se recomienda en casos estacionarios. Los gradientes y las laplacianas son lineales, de segundo orden; <code>corrected</code> agrega la corrección por no ortogonalidad, que en esta malla llega a 26.3°. <code>wallDist</code> indica cómo calcular la distancia a la pared, que usa <code>yPlus</code>.</p>
+<h3><code>system/fvSolution</code>: los solvers y SIMPLE</h3>
+<p class="code-name"><code>system/fvSolution</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    &quot;system&quot;;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          GAMG;
+        smoother        GaussSeidel;
+        tolerance       1e-07;
+        relTol          0.05;
+    }
+
+    pcorr
+    {
+        solver          GAMG;
+        smoother        GaussSeidel;
+        tolerance       1e-07;
+        relTol          0;
+    }
+
+    U
+    {
+        solver          smoothSolver;
+        smoother        GaussSeidel;
+        nSweeps         2;
+        tolerance       1e-09;
+        relTol          0.1;
+    }
+}
+
+SIMPLE
+{
+    consistent      yes;
+
+    nNonOrthogonalCorrectors 0;
+
+    residualControl
+    {
+        p               1e-5;
+        U               1e-6;
+    }
+}
+
+relaxationFactors
+{
+    equations
+    {
+        U               0.9;
+        &quot;.*&quot;            0.7;
+    }
+}
+
+// ************************************************************************* //</code></pre>
+<ul>
+  <li><strong><code>GAMG</code> para p</strong>, un solver multimalla, el más rápido para la ecuación de presión; <strong><code>smoothSolver</code> para U</strong>.</li>
+  <li><strong><code>consistent yes</code></strong>: la variante SIMPLEC del algoritmo (Van Doormaal y Raithby, 1984), que permite relajar menos la presión y converge en menos iteraciones.</li>
+  <li><strong><code>residualControl</code></strong>: la corrida se detiene cuando el residuo inicial de p baja de 10<sup>−5</sup> y el de U de 10<sup>−6</sup>, a la vez.</li>
+  <li><strong><code>relaxationFactors</code></strong>: cada iteración avanza sólo 0.9 del cambio calculado para U; con SIMPLEC la presión no necesita relajación.</li>
+</ul>
+<h3><code>Allrun</code></h3>
+<p class="code-name"><code>Allrun</code></p>
+<pre class="code"><code>#!/bin/sh
+# Tubería laminar, Re = 500. OpenFOAM 12 (blueCFD-Core 2024) u OpenFOAM 13.
+# Uso, desde la carpeta del caso:   ./Allrun      en serie
+#                                   ./Allrun 4    en paralelo, con 4 procesos
+# Hace lo mismo que la receta paso a paso: malla con Gmsh, gmshToFoam, giro de la malla al eje x, tipo del
+# parche de la pared, checkMesh y foamRun. Gmsh tiene que estar en el PATH.
+cd ${0%/*} || exit 1
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+n=${1:-1}
+command -v gmsh &gt; /dev/null || {
+    echo &quot;No se encuentra gmsh: agregue su carpeta al PATH, por ejemplo&quot;
+    echo &#x27;    export PATH=&quot;$PATH:/c/gmsh-4.15.2-Windows64&quot;&#x27;
+    exit 1
+}
+gmsh tuberia.geo -3 -o tuberia.msh -log log.gmsh &gt; /dev/null 2&gt;&amp;1 || { echo &quot;Falló Gmsh: revise log.gmsh&quot;; exit 1; }
+runApplication gmshToFoam tuberia.msh
+# el eje de la tubería, de z a x: blueCFD-Core 2024 (OpenFOAM 12) resuelve mal los flujos a lo largo de z
+runApplication transformPoints &quot;Ry=90&quot;
+foamDictionary constant/polyMesh/boundary -entry entry0/walls/type -set wall
+runApplication checkMesh
+if [ &quot;$n&quot; -gt 1 ]; then
+    foamDictionary system/decomposeParDict -entry numberOfSubdomains -set $n
+    foamDictionary system/decomposeParDict -entry simpleCoeffs/n -set &quot;($n 1 1)&quot;
+    runApplication decomposePar
+    runParallel foamRun
+    runApplication reconstructPar -latestTime
+else
+    runApplication foamRun
+fi</code></pre>
+<p><code>runApplication</code>, de OpenFOAM, corre cada programa y guarda su salida en <code>log.&lt;programa&gt;</code>. <code>foamDictionary … -entry entry0/walls/type -set wall</code> hace lo mismo que el paso 8 de la receta: en el archivo <code>boundary</code>, que es una lista, <code>entry0</code> es la lista misma.</p>
+
+    </section>
+    <section id="results-es">
+      <p class="section-label">Resultados</p>
+      <h2>Ver el flujo en ParaView</h2>
+
+<p>ParaView sirve para ver el flujo y comprobar que tiene la forma esperada; las cifras se leen de los archivos (sección siguiente).</p>
+<h3>Un corte a lo largo del eje</h3>
+<ol>
+  <li>En la terminal, dentro de la carpeta del caso, <code>paraFoam</code>. Abre ParaView con <code>tuberia-laminar.foam</code> en el <em>Pipeline Browser</em>.</li>
+  <li><code>Apply</code>, y <code>Last Frame</code> (⏭) para pasar a la iteración final, 204.</li>
+  <li>El botón <code>Slice</code> de la barra de filtros comunes. En <code>Properties</code>: <code>Z Normal</code>, para que el corte sea el plano x-y, que contiene el eje; desmarcar <code>Show Plane</code>, para que el plano interactivo no tape la vista; <code>Apply</code>.</li>
+  <li>En el desplegable de variables de la barra de herramientas, elegir <code>U</code>.</li>
+  <li><code>-Z</code> en la barra de la cámara: la vista mira el plano x-y de frente, con la entrada a la izquierda. <code>Reset Camera</code> encuadra la tubería entera, que se ve como una tira delgada: mide 38.4 D de largo y 1 D de ancho.</li>
+  <li>Para ver la entrada: la casilla <code>Zoom to Box</code> de la barra de la vista, y un recuadro con el botón izquierdo sobre la primera mitad de la tira (figura 7).</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t11-06_corte.png" alt="ParaView: corte longitudinal de la tubería coloreado con la magnitud de la velocidad, acercado a la entrada" loading="lazy">
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">El corte longitudinal, cerca de la entrada.</b> <code>Slice</code> con <code>Z Normal</code>, coloreado con U y visto desde <code>-Z</code>; acercado con <code>Zoom to Box</code> a los primeros 15 D. El perfil uniforme de la entrada (izquierda) se convierte poco a poco en un núcleo rápido rodeado de capa límite.</figcaption>
+</figure>
+<p>Junto a la pared el fluido está quieto (azul); en la entrada el perfil es uniforme y, hacia la derecha, el núcleo se acelera hasta casi el doble de la velocidad media (rojo).</p>
+<h3>El perfil a lo ancho de la tubería</h3>
+<ol>
+  <li>Hacer clic en <code>tuberia-laminar.foam</code> en el <em>Pipeline Browser</em>: el filtro siguiente debe aplicarse al caso completo, no al corte.</li>
+  <li><code>Filters ▸ Data Analysis ▸ Plot Over Line</code>.</li>
+  <li><code>Point1</code> = (33, −0.49999, 0) y <code>Point2</code> = (33, 0.49999, 0): una recta que cruza la tubería en x = 33 D (figura 8). Los extremos quedan a 0.00001 m de la pared para que caigan dentro de la malla.</li>
+  <li><code>Apply</code>. La ventana se divide y a la derecha aparece una gráfica con todas las variables.</li>
+  <li>Para dejar sólo la componente axial: escribir <code>series</code> en el buscador de <code>Properties</code>, desmarcar la casilla del encabezado de la tabla de series (desmarca todas) y marcar <code>U_X</code> (figura 9).</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t11-07_plot_over_line.png" alt="ParaView: propiedades de Plot Over Line con Point1 y Point2 a lo ancho de la tubería en x = 33" loading="lazy">
+  <figcaption><b class="fig-num">Figura 8.</b> <b class="fig-title">Plot Over Line a lo ancho de la tubería.</b> Con <code>tuberia-laminar.foam</code> seleccionado en el <em>Pipeline Browser</em>: <code>Point1</code> = (33, −0.49999, 0) y <code>Point2</code> = (33, 0.49999, 0).</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t11-08_grafica.png" alt="ParaView: la gráfica de U_X a lo ancho de la tubería, una parábola" loading="lazy">
+  <figcaption><b class="fig-num">Figura 9.</b> <b class="fig-title">El perfil en ParaView.</b> Sólo <code>U_X</code> marcada en la tabla de series. El eje horizontal es la distancia a lo largo de la recta, de una pared a la otra.</figcaption>
+</figure>
+<p>La gráfica es la parábola de la ecuación (1): cero en las dos paredes y casi 2 en el centro.</p>
+
+    </section>
+    <section id="validation-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>La simulación contra Hagen-Poiseuille</h2>
+
+<div class="example">
+  <p><strong>Enunciado.</strong> Comprobar que la simulación reproduce la solución de Hagen-Poiseuille en la zona desarrollada, y comparar la longitud de entrada con la correlación de Durst et al. <strong>Condiciones:</strong> el caso sin cambios, Re = 500; los valores de la última iteración, 204.</p>
+</div>
+<h3>El factor de fricción, de las sondas</h3>
+<p>En <code>postProcessing/sondas/0/p</code> hay una fila por iteración con la presión en las dos sondas. Las primeras líneas dicen dónde está cada una; la última fila es la de la convergencia:</p>
+<pre class="code"><code># Probe 0 (30 0 0)
+# Probe 1 (36 0 0)
+# Time          0               1              
+204             0.54177395      0.15321883</code></pre>
+<p>La pendiente de la presión entre las dos sondas y, con la ecuación (3), el factor de fricción:</p>
+<div class="equation-card">\[ \frac{\Delta(p/\rho)}{\Delta x} = \frac{0.15322 - 0.54177}{36 - 30} = −0.06476\ \mathrm{m/s^2},\qquad f = -\frac{2 \cdot 1}{1^2}\,(−0.06476) = 0.1295 \]</div>
+<p>contra 64/Re = 0.1280: una diferencia de +1.2 %. La presión en el eje tiene justo la forma que se espera: curva cerca de la entrada, donde además de la fricción hay que acelerar el núcleo, y una recta en la zona desarrollada (figura 10).</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Presión cinemática en el eje de la tubería laminar">
+  <text class="svg-title" x="76" y="28">La presión en el eje: una recta en la zona desarrollada</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="666" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">0.0</text>
+  <line class="svg-grid" x1="76" y1="260.9" x2="666" y2="260.9"/>
+  <text class="svg-tick" x="70" y="264.9" text-anchor="end">0.5</text>
+  <line class="svg-grid" x1="76" y1="221.9" x2="666" y2="221.9"/>
+  <text class="svg-tick" x="70" y="225.9" text-anchor="end">1.0</text>
+  <line class="svg-grid" x1="76" y1="182.8" x2="666" y2="182.8"/>
+  <text class="svg-tick" x="70" y="186.8" text-anchor="end">1.5</text>
+  <line class="svg-grid" x1="76" y1="143.8" x2="666" y2="143.8"/>
+  <text class="svg-tick" x="70" y="147.8" text-anchor="end">2.0</text>
+  <line class="svg-grid" x1="76" y1="104.7" x2="666" y2="104.7"/>
+  <text class="svg-tick" x="70" y="108.7" text-anchor="end">2.5</text>
+  <line class="svg-grid" x1="76" y1="65.6" x2="666" y2="65.6"/>
+  <text class="svg-tick" x="70" y="69.6" text-anchor="end">3.0</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0</text>
+  <text class="svg-tick" x="149.8" y="318" text-anchor="middle">5</text>
+  <text class="svg-tick" x="223.5" y="318" text-anchor="middle">10</text>
+  <text class="svg-tick" x="297.2" y="318" text-anchor="middle">15</text>
+  <text class="svg-tick" x="371.0" y="318" text-anchor="middle">20</text>
+  <text class="svg-tick" x="444.8" y="318" text-anchor="middle">25</text>
+  <text class="svg-tick" x="518.5" y="318" text-anchor="middle">30</text>
+  <text class="svg-tick" x="592.2" y="318" text-anchor="middle">35</text>
+  <text class="svg-tick" x="666.0" y="318" text-anchor="middle">40</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">x / D</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">p / ρ (m²/s²)</text>
+  <polyline points="76.7,63.0 78.2,64.7 79.6,66.5 81.0,69.5 82.4,72.5 83.8,75.2 85.2,77.0 86.6,78.9 88.0,80.2 89.5,81.4 90.9,82.6 92.3,83.8 93.7,85.1 95.1,86.3 96.5,87.4 97.9,88.6 99.4,89.6 100.8,90.6 102.2,91.6 103.6,92.6 105.0,93.5 106.4,94.5 107.8,95.4 109.3,96.3 110.7,97.2 112.1,98.1 113.5,98.9 114.9,99.8 116.3,100.6 117.7,101.5 119.2,102.3 120.6,103.1 122.0,103.9 123.4,104.7 124.8,105.5 126.2,106.3 127.6,107.1 129.1,107.8 130.5,108.6 131.9,109.3 133.3,110.1 134.7,110.8 136.1,111.6 137.5,112.3 139.0,113.0 140.4,113.7 141.8,114.4 143.2,115.2 144.6,115.9 146.0,116.6 147.4,117.3 148.9,118.0 150.3,118.6 151.7,119.3 153.1,120.0 154.5,120.7 155.9,121.4 157.3,122.0 158.7,122.7 160.2,123.4 161.6,124.0 163.0,124.7 164.4,125.3 165.8,126.0 167.2,126.6 168.6,127.3 170.1,127.9 171.5,128.5 172.9,129.2 174.3,129.8 175.7,130.4 177.1,131.1 178.5,131.7 180.0,132.3 181.4,132.9 182.8,133.6 184.2,134.2 185.6,134.8 187.0,135.4 188.4,136.0 189.9,136.6 191.3,137.2 192.7,137.8 194.1,138.4 195.5,139.0 196.9,139.6 198.3,140.2 199.8,140.8 201.2,141.4 202.6,142.0 204.0,142.6 205.4,143.2 206.8,143.8 208.2,144.4 209.7,145.0 211.1,145.5 212.5,146.1 213.9,146.7 215.3,147.3 216.7,147.9 218.1,148.4 219.6,149.0 221.0,149.6 222.4,150.2 223.8,150.7 225.2,151.3 226.6,151.9 228.0,152.4 229.4,153.0 230.9,153.6 232.3,154.1 233.7,154.7 235.1,155.3 236.5,155.8 237.9,156.4 239.3,156.9 240.8,157.5 242.2,158.0 243.6,158.6 245.0,159.2 246.4,159.7 247.8,160.3 249.2,160.8 250.7,161.4 252.1,161.9 253.5,162.5 254.9,163.0 256.3,163.6 257.7,164.1 259.1,164.6 260.6,165.2 262.0,165.7 263.4,166.3 264.8,166.8 266.2,167.4 267.6,167.9 269.0,168.4 270.5,169.0 271.9,169.5 273.3,170.0 274.7,170.6 276.1,171.1 277.5,171.7 278.9,172.2 280.4,172.7 281.8,173.3 283.2,173.8 284.6,174.3 286.0,174.9 287.4,175.4 288.8,175.9 290.3,176.4 291.7,177.0 293.1,177.5 294.5,178.0 295.9,178.6 297.3,179.1 298.7,179.6 300.2,180.1 301.6,180.7 303.0,181.2 304.4,181.7 305.8,182.2 307.2,182.7 308.6,183.3 310.0,183.8 311.5,184.3 312.9,184.8 314.3,185.4 315.7,185.9 317.1,186.4 318.5,186.9 319.9,187.4 321.4,187.9 322.8,188.5 324.2,189.0 325.6,189.5 327.0,190.0 328.4,190.5 329.8,191.0 331.3,191.6 332.7,192.1 334.1,192.6 335.5,193.1 336.9,193.6 338.3,194.1 339.7,194.6 341.2,195.1 342.6,195.7 344.0,196.2 345.4,196.7 346.8,197.2 348.2,197.7 349.6,198.2 351.1,198.7 352.5,199.2 353.9,199.7 355.3,200.2 356.7,200.8 358.1,201.3 359.5,201.8 361.0,202.3 362.4,202.8 363.8,203.3 365.2,203.8 366.6,204.3 368.0,204.8 369.4,205.3 370.9,205.8 372.3,206.3 373.7,206.8 375.1,207.3 376.5,207.8 377.9,208.3 379.3,208.8 380.7,209.3 382.2,209.8 383.6,210.3 385.0,210.8 386.4,211.3 387.8,211.9 389.2,212.4 390.6,212.9 392.1,213.4 393.5,213.9 394.9,214.4 396.3,214.9 397.7,215.4 399.1,215.9 400.5,216.4 402.0,216.9 403.4,217.4 404.8,217.9 406.2,218.4 407.6,218.9 409.0,219.3 410.4,219.8 411.9,220.3 413.3,220.8 414.7,221.3 416.1,221.8 417.5,222.3 418.9,222.8 420.3,223.3 421.8,223.8 423.2,224.3 424.6,224.8 426.0,225.3 427.4,225.8 428.8,226.3 430.2,226.8 431.7,227.3 433.1,227.8 434.5,228.3 435.9,228.8 437.3,229.3 438.7,229.8 440.1,230.3 441.6,230.8 443.0,231.3 444.4,231.7 445.8,232.2 447.2,232.7 448.6,233.2 450.0,233.7 451.4,234.2 452.9,234.7 454.3,235.2 455.7,235.7 457.1,236.2 458.5,236.7 459.9,237.2 461.3,237.7 462.8,238.2 464.2,238.7 465.6,239.1 467.0,239.6 468.4,240.1 469.8,240.6 471.2,241.1 472.7,241.6 474.1,242.1 475.5,242.6 476.9,243.1 478.3,243.6 479.7,244.1 481.1,244.5 482.6,245.0 484.0,245.5 485.4,246.0 486.8,246.5 488.2,247.0 489.6,247.5 491.0,248.0 492.5,248.5 493.9,249.0 495.3,249.5 496.7,249.9 498.1,250.4 499.5,250.9 500.9,251.4 502.4,251.9 503.8,252.4 505.2,252.9 506.6,253.4 508.0,253.9 509.4,254.3 510.8,254.8 512.3,255.3 513.7,255.8 515.1,256.3 516.5,256.8 517.9,257.3 519.3,257.8 520.7,258.3 522.1,258.7 523.6,259.2 525.0,259.7 526.4,260.2 527.8,260.7 529.2,261.2 530.6,261.7 532.0,262.2 533.5,262.6 534.9,263.1 536.3,263.6 537.7,264.1 539.1,264.6 540.5,265.1 541.9,265.6 543.4,266.1 544.8,266.5 546.2,267.0 547.6,267.5 549.0,268.0 550.4,268.5 551.8,269.0 553.3,269.5 554.7,269.9 556.1,270.4 557.5,270.9 558.9,271.4 560.3,271.9 561.7,272.4 563.2,272.9 564.6,273.4 566.0,273.8 567.4,274.3 568.8,274.8 570.2,275.3 571.6,275.8 573.1,276.3 574.5,276.8 575.9,277.2 577.3,277.7 578.7,278.2 580.1,278.7 581.5,279.2 583.0,279.7 584.4,280.2 585.8,280.6 587.2,281.1 588.6,281.6 590.0,282.1 591.4,282.6 592.8,283.1 594.3,283.6 595.7,284.0 597.1,284.5 598.5,285.0 599.9,285.5 601.3,286.0 602.7,286.5 604.2,287.0 605.6,287.4 607.0,287.9 608.4,288.4 609.8,288.9 611.2,289.4 612.6,289.9 614.1,290.3 615.5,290.8 616.9,291.3 618.3,291.8 619.7,292.3 621.1,292.8 622.5,293.3 624.0,293.7 625.4,294.2 626.8,294.7 628.2,295.2 629.6,295.7 631.0,296.2 632.4,296.6 633.9,297.1 635.3,297.6 636.7,298.1 638.1,298.6 639.5,299.1 640.9,299.6" fill="none" stroke="var(--blue)" stroke-width="2.2"/>
+  <polyline points="76.0,105.9" fill="none" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="6 4"/>
+  <line x1="470" y1="80" x2="496" y2="80" stroke="var(--blue)" stroke-width="2.2"/>
+  <text class="svg-note-sm" x="502" y="84">simulación</text>
+  <line x1="470" y1="98" x2="496" y2="98" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="6 4"/>
+  <text class="svg-note-sm" x="502" y="102">recta por las dos sondas</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 10.</b> <b class="fig-title">La presión a lo largo del eje.</b> Archivo <code>postProcessing/eje/204/line.xy</code>, columna <code>p</code>. En la zona desarrollada la presión baja en línea recta, con la pendiente de Hagen-Poiseuille; cerca de la entrada baja más rápido, porque además de vencer la fricción tiene que acelerar el núcleo. La recta pasa por las dos sondas, en x = 30 y 36 D.</figcaption>
+</figure>
+<h3>El factor de fricción, de la pared</h3>
+<p><code>postProcessing/wallShearStress/0/wallShearStress.dat</code> da el mínimo y el máximo de cada componente del esfuerzo en la pared (en m²/s², dividido entre ρ):</p>
+<pre class="code"><code># Wall shear stress
+# Time          	patch           	min             	max             
+2.04000000e+02	walls	(-9.26508760e-02 -1.42105875e-02 -1.44055181e-02)	(-1.60554667e-02 1.42105875e-02 1.44055181e-02)</code></pre>
+<p>La componente x es negativa: el esfuerzo que el fluido recibe de la pared se opone al flujo. Su valor más pequeño en magnitud, 0.016055 m²/s², es el de la zona desarrollada; cerca de la entrada, donde la capa límite es delgada, es hasta seis veces mayor. Con la ecuación (4), \(f = 8\tau_w/(\rho U^2)\) = 0.1284 (+0.3 %). Las dos maneras de medir f coinciden con la teoría y entre sí.</p>
+<h3>La velocidad en el eje y la longitud de entrada</h3>
+<p>La última fila de <code>postProcessing/sondas/0/U</code>:</p>
+<pre class="code"><code># Probe 0 (30 0 0)
+# Probe 1 (36 0 0)
+# Time          0               1              
+204             (1.9748067 -2.5210415e-05 1.4658736e-05) (1.9828421 -1.1436623e-05 7.2027352e-06)</code></pre>
+<p>En la segunda sonda, \(u_c\) = 1.9828 U contra 2 U (−0.9 %); en la primera, 1.9748 U: la velocidad del eje todavía crece un poco entre las dos. La figura 11 la muestra a lo largo de toda la tubería, con los datos de <code>postProcessing/eje</code>. Llega al 99 % de su valor en la segunda sonda en x = 25.6 D; la ecuación (5) da 28.4 D.</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Velocidad en el eje de la tubería laminar contra la distancia a la entrada">
+  <text class="svg-title" x="76" y="28">La velocidad en el eje pasa de U a casi 2U a lo largo de la entrada</text>
+  <line class="svg-grid" x1="76" y1="280.8" x2="666" y2="280.8"/>
+  <text class="svg-tick" x="70" y="284.8" text-anchor="end">1.0</text>
+  <line class="svg-grid" x1="76" y1="242.3" x2="666" y2="242.3"/>
+  <text class="svg-tick" x="70" y="246.3" text-anchor="end">1.2</text>
+  <line class="svg-grid" x1="76" y1="203.8" x2="666" y2="203.8"/>
+  <text class="svg-tick" x="70" y="207.8" text-anchor="end">1.4</text>
+  <line class="svg-grid" x1="76" y1="165.4" x2="666" y2="165.4"/>
+  <text class="svg-tick" x="70" y="169.4" text-anchor="end">1.6</text>
+  <line class="svg-grid" x1="76" y1="126.9" x2="666" y2="126.9"/>
+  <text class="svg-tick" x="70" y="130.9" text-anchor="end">1.8</text>
+  <line class="svg-grid" x1="76" y1="88.5" x2="666" y2="88.5"/>
+  <text class="svg-tick" x="70" y="92.5" text-anchor="end">2.0</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0</text>
+  <text class="svg-tick" x="149.8" y="318" text-anchor="middle">5</text>
+  <text class="svg-tick" x="223.5" y="318" text-anchor="middle">10</text>
+  <text class="svg-tick" x="297.2" y="318" text-anchor="middle">15</text>
+  <text class="svg-tick" x="371.0" y="318" text-anchor="middle">20</text>
+  <text class="svg-tick" x="444.8" y="318" text-anchor="middle">25</text>
+  <text class="svg-tick" x="518.5" y="318" text-anchor="middle">30</text>
+  <text class="svg-tick" x="592.2" y="318" text-anchor="middle">35</text>
+  <text class="svg-tick" x="666.0" y="318" text-anchor="middle">40</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">x / D</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">u<tspan baseline-shift="sub" font-size="8">c</tspan> / U</text>
+  <polyline points="76.7,278.2 78.2,273.2 79.6,268.3 81.0,262.6 82.4,257.0 83.8,251.9 85.2,248.0 86.6,244.1 88.0,241.0 89.5,238.2 90.9,235.4 92.3,232.9 93.7,230.3 95.1,228.0 96.5,225.7 97.9,223.5 99.4,221.5 100.8,219.5 102.2,217.6 103.6,215.7 105.0,213.9 106.4,212.1 107.8,210.4 109.3,208.7 110.7,207.1 112.1,205.5 113.5,203.9 114.9,202.3 116.3,200.8 117.7,199.3 119.2,197.8 120.6,196.4 122.0,195.0 123.4,193.6 124.8,192.2 126.2,190.9 127.6,189.5 129.1,188.2 130.5,186.9 131.9,185.6 133.3,184.4 134.7,183.1 136.1,181.9 137.5,180.7 139.0,179.5 140.4,178.3 141.8,177.2 143.2,176.0 144.6,174.9 146.0,173.8 147.4,172.7 148.9,171.6 150.3,170.5 151.7,169.5 153.1,168.4 154.5,167.4 155.9,166.4 157.3,165.4 158.7,164.4 160.2,163.4 161.6,162.5 163.0,161.5 164.4,160.6 165.8,159.6 167.2,158.7 168.6,157.8 170.1,156.9 171.5,156.1 172.9,155.2 174.3,154.3 175.7,153.5 177.1,152.7 178.5,151.8 180.0,151.0 181.4,150.2 182.8,149.4 184.2,148.7 185.6,147.9 187.0,147.1 188.4,146.4 189.9,145.7 191.3,144.9 192.7,144.2 194.1,143.5 195.5,142.8 196.9,142.1 198.3,141.4 199.8,140.8 201.2,140.1 202.6,139.5 204.0,138.8 205.4,138.2 206.8,137.6 208.2,136.9 209.7,136.3 211.1,135.7 212.5,135.1 213.9,134.5 215.3,134.0 216.7,133.4 218.1,132.8 219.6,132.3 221.0,131.7 222.4,131.2 223.8,130.7 225.2,130.1 226.6,129.6 228.0,129.1 229.4,128.6 230.9,128.1 232.3,127.6 233.7,127.1 235.1,126.7 236.5,126.2 237.9,125.7 239.3,125.3 240.8,124.8 242.2,124.4 243.6,123.9 245.0,123.5 246.4,123.1 247.8,122.6 249.2,122.2 250.7,121.8 252.1,121.4 253.5,121.0 254.9,120.6 256.3,120.2 257.7,119.8 259.1,119.5 260.6,119.1 262.0,118.7 263.4,118.4 264.8,118.0 266.2,117.6 267.6,117.3 269.0,116.9 270.5,116.6 271.9,116.3 273.3,115.9 274.7,115.6 276.1,115.3 277.5,115.0 278.9,114.7 280.4,114.3 281.8,114.0 283.2,113.7 284.6,113.4 286.0,113.1 287.4,112.9 288.8,112.6 290.3,112.3 291.7,112.0 293.1,111.7 294.5,111.5 295.9,111.2 297.3,110.9 298.7,110.7 300.2,110.4 301.6,110.2 303.0,109.9 304.4,109.7 305.8,109.4 307.2,109.2 308.6,108.9 310.0,108.7 311.5,108.5 312.9,108.2 314.3,108.0 315.7,107.8 317.1,107.6 318.5,107.4 319.9,107.1 321.4,106.9 322.8,106.7 324.2,106.5 325.6,106.3 327.0,106.1 328.4,105.9 329.8,105.7 331.3,105.5 332.7,105.3 334.1,105.2 335.5,105.0 336.9,104.8 338.3,104.6 339.7,104.4 341.2,104.2 342.6,104.1 344.0,103.9 345.4,103.7 346.8,103.6 348.2,103.4 349.6,103.2 351.1,103.1 352.5,102.9 353.9,102.8 355.3,102.6 356.7,102.5 358.1,102.3 359.5,102.2 361.0,102.0 362.4,101.9 363.8,101.7 365.2,101.6 366.6,101.4 368.0,101.3 369.4,101.2 370.9,101.0 372.3,100.9 373.7,100.8 375.1,100.6 376.5,100.5 377.9,100.4 379.3,100.3 380.7,100.1 382.2,100.0 383.6,99.9 385.0,99.8 386.4,99.7 387.8,99.6 389.2,99.4 390.6,99.3 392.1,99.2 393.5,99.1 394.9,99.0 396.3,98.9 397.7,98.8 399.1,98.7 400.5,98.6 402.0,98.5 403.4,98.4 404.8,98.3 406.2,98.2 407.6,98.1 409.0,98.0 410.4,97.9 411.9,97.8 413.3,97.7 414.7,97.6 416.1,97.5 417.5,97.4 418.9,97.4 420.3,97.3 421.8,97.2 423.2,97.1 424.6,97.0 426.0,96.9 427.4,96.9 428.8,96.8 430.2,96.7 431.7,96.6 433.1,96.5 434.5,96.5 435.9,96.4 437.3,96.3 438.7,96.3 440.1,96.2 441.6,96.1 443.0,96.0 444.4,96.0 445.8,95.9 447.2,95.8 448.6,95.8 450.0,95.7 451.4,95.6 452.9,95.6 454.3,95.5 455.7,95.4 457.1,95.4 458.5,95.3 459.9,95.3 461.3,95.2 462.8,95.1 464.2,95.1 465.6,95.0 467.0,95.0 468.4,94.9 469.8,94.9 471.2,94.8 472.7,94.7 474.1,94.7 475.5,94.6 476.9,94.6 478.3,94.5 479.7,94.5 481.1,94.4 482.6,94.4 484.0,94.3 485.4,94.3 486.8,94.2 488.2,94.2 489.6,94.2 491.0,94.1 492.5,94.1 493.9,94.0 495.3,94.0 496.7,93.9 498.1,93.9 499.5,93.8 500.9,93.8 502.4,93.8 503.8,93.7 505.2,93.7 506.6,93.6 508.0,93.6 509.4,93.6 510.8,93.5 512.3,93.5 513.7,93.4 515.1,93.4 516.5,93.4 517.9,93.3 519.3,93.3 520.7,93.3 522.1,93.2 523.6,93.2 525.0,93.2 526.4,93.1 527.8,93.1 529.2,93.1 530.6,93.0 532.0,93.0 533.5,93.0 534.9,92.9 536.3,92.9 537.7,92.9 539.1,92.8 540.5,92.8 541.9,92.8 543.4,92.8 544.8,92.7 546.2,92.7 547.6,92.7 549.0,92.6 550.4,92.6 551.8,92.6 553.3,92.6 554.7,92.5 556.1,92.5 557.5,92.5 558.9,92.5 560.3,92.4 561.7,92.4 563.2,92.4 564.6,92.4 566.0,92.3 567.4,92.3 568.8,92.3 570.2,92.3 571.6,92.2 573.1,92.2 574.5,92.2 575.9,92.2 577.3,92.2 578.7,92.1 580.1,92.1 581.5,92.1 583.0,92.1 584.4,92.1 585.8,92.0 587.2,92.0 588.6,92.0 590.0,92.0 591.4,92.0 592.8,91.9 594.3,91.9 595.7,91.9 597.1,91.9 598.5,91.9 599.9,91.8 601.3,91.8 602.7,91.8 604.2,91.8 605.6,91.8 607.0,91.8 608.4,91.7 609.8,91.7 611.2,91.7 612.6,91.7 614.1,91.7 615.5,91.7 616.9,91.7 618.3,91.6 619.7,91.6 621.1,91.6 622.5,91.6 624.0,91.6 625.4,91.6 626.8,91.6 628.2,91.5 629.6,91.5 631.0,91.5 632.4,91.5 633.9,91.5 635.3,91.5 636.7,91.5 638.1,91.4 639.5,91.4 640.9,91.4" fill="none" stroke="var(--blue)" stroke-width="2.2"/>
+  <polyline points="76.0,88.5 642.2,88.5" fill="none" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="6 4"/>
+  <polyline points="452.9,300.0 452.9,69.2" fill="none" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <text class="svg-note-sm" x="458.8" y="213.5" text-anchor="start" fill="var(--accent-dark)">99 % de u<tspan baseline-shift="sub" font-size="8">c</tspan> en 25.6 D</text>
+  <text class="svg-note-sm" x="105.5" y="78.8" text-anchor="start" fill="var(--muted)">Hagen-Poiseuille: u<tspan baseline-shift="sub" font-size="8">c</tspan> = 2U</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 11.</b> <b class="fig-title">La velocidad en el eje.</b> El mismo archivo de la figura 10 (<code>postProcessing/eje/204/line.xy</code>), columna <code>U_x</code>. El perfil uniforme de la entrada se desarrolla: la capa límite crece desde la pared y el núcleo se acelera para conservar el caudal. La velocidad del eje llega al 99 % de su valor final en x = 25.6 D; la correlación de Durst et al. (2005) da 28.4 D.</figcaption>
+</figure>
+<p>La longitud de entrada es la comparación más floja de este ejemplo, por tres razones: la velocidad del eje se acerca a su valor final muy despacio, así que un error pequeño en ese valor mueve mucho el punto del 99 %; la malla tiene celdas de 0.25 D a lo largo del eje, gruesas para la región de entrada; y la ecuación (5) es un ajuste, no una solución exacta.</p>
+<h3>El perfil</h3>
+<p><code>postProcessing/radial/204/line.xy</code> tiene U del eje a la pared en x = 33 D. La simulación queda sobre la parábola de la ecuación (1), con una diferencia máxima de 0.028 m/s (figura 12).</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Perfil de velocidad de la simulación contra la parábola de Hagen-Poiseuille">
+  <text class="svg-title" x="76" y="28">El perfil de velocidad en x = 33 D: la parábola de Hagen-Poiseuille</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="666" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">0.0</text>
+  <line class="svg-grid" x1="76" y1="243.2" x2="666" y2="243.2"/>
+  <text class="svg-tick" x="70" y="247.2" text-anchor="end">0.5</text>
+  <line class="svg-grid" x1="76" y1="186.4" x2="666" y2="186.4"/>
+  <text class="svg-tick" x="70" y="190.4" text-anchor="end">1.0</text>
+  <line class="svg-grid" x1="76" y1="129.5" x2="666" y2="129.5"/>
+  <text class="svg-tick" x="70" y="133.5" text-anchor="end">1.5</text>
+  <line class="svg-grid" x1="76" y1="72.7" x2="666" y2="72.7"/>
+  <text class="svg-tick" x="70" y="76.7" text-anchor="end">2.0</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0.0</text>
+  <text class="svg-tick" x="194.0" y="318" text-anchor="middle">0.2</text>
+  <text class="svg-tick" x="312.0" y="318" text-anchor="middle">0.4</text>
+  <text class="svg-tick" x="430.0" y="318" text-anchor="middle">0.6</text>
+  <text class="svg-tick" x="548.0" y="318" text-anchor="middle">0.8</text>
+  <text class="svg-tick" x="666.0" y="318" text-anchor="middle">1.0</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">r / R</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">u / U</text>
+  <polyline points="76.0,72.7 81.9,72.8 87.8,72.8 93.7,72.9 99.6,73.1 105.5,73.3 111.4,73.5 117.3,73.8 123.2,74.2 129.1,74.6 135.0,75.0 140.9,75.5 146.8,76.0 152.7,76.6 158.6,77.2 164.5,77.8 170.4,78.5 176.3,79.3 182.2,80.1 188.1,80.9 194.0,81.8 199.9,82.8 205.8,83.7 211.7,84.8 217.6,85.8 223.5,86.9 229.4,88.1 235.3,89.3 241.2,90.5 247.1,91.8 253.0,93.2 258.9,94.6 264.8,96.0 270.7,97.5 276.6,99.0 282.5,100.6 288.4,102.2 294.3,103.8 300.2,105.5 306.1,107.3 312.0,109.1 317.9,110.9 323.8,112.8 329.7,114.8 335.6,116.7 341.5,118.8 347.4,120.8 353.3,122.9 359.2,125.1 365.1,127.3 371.0,129.5 376.9,131.8 382.8,134.2 388.7,136.6 394.6,139.0 400.5,141.5 406.4,144.0 412.3,146.6 418.2,149.2 424.1,151.8 430.0,154.5 435.9,157.3 441.8,160.1 447.7,162.9 453.6,165.8 459.5,168.8 465.4,171.7 471.3,174.8 477.2,177.8 483.1,180.9 489.0,184.1 494.9,187.3 500.8,190.5 506.7,193.8 512.6,197.2 518.5,200.6 524.4,204.0 530.3,207.5 536.2,211.0 542.1,214.6 548.0,218.2 553.9,221.8 559.8,225.5 565.7,229.3 571.6,233.1 577.5,236.9 583.4,240.8 589.3,244.8 595.2,248.7 601.1,252.8 607.0,256.8 612.9,260.9 618.8,265.1 624.7,269.3 630.6,273.5 636.5,277.8 642.4,282.2 648.3,286.6 654.2,291.0 660.1,295.5 666.0,300.0" fill="none" stroke="var(--ink)" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <polyline points="76.0,75.1 79.0,75.1 81.9,75.2 84.9,75.3 87.9,75.4 90.8,75.5 93.8,75.6 96.8,75.7 99.7,75.8 102.7,75.9 105.6,75.9 108.6,76.0 111.6,76.1 114.5,76.2 117.5,76.3 120.5,76.4 123.4,76.5 126.4,76.8 129.4,77.0 132.3,77.3 135.3,77.6 138.3,77.8 141.2,78.1 144.2,78.4 147.2,78.6 150.1,78.9 153.1,79.2 156.0,79.4 159.0,79.7 162.0,80.0 164.9,80.2 167.9,80.5 170.9,80.8 173.8,81.3 176.8,81.7 179.8,82.2 182.7,82.6 185.7,83.1 188.7,83.5 191.6,83.9 194.6,84.4 197.6,84.8 200.5,85.3 203.5,85.7 206.4,86.2 209.4,86.6 212.4,87.1 215.3,87.5 218.3,88.0 221.3,88.7 224.2,89.3 227.2,89.9 230.2,90.5 233.1,91.2 236.1,91.8 239.1,92.4 242.0,93.1 245.0,93.7 248.0,94.3 250.9,94.9 253.9,95.6 256.9,96.2 259.8,96.8 262.8,97.5 265.7,98.1 268.7,99.0 271.7,99.8 274.6,100.6 277.6,101.4 280.6,102.2 283.5,103.0 286.5,103.8 289.5,104.6 292.4,105.5 295.4,106.3 298.4,107.1 301.3,107.9 304.3,108.7 307.3,109.5 310.2,110.3 313.2,111.2 316.1,112.2 319.1,113.2 322.1,114.2 325.0,115.2 328.0,116.2 331.0,117.2 333.9,118.1 336.9,119.1 339.9,120.1 342.8,121.1 345.8,122.1 348.8,123.1 351.7,124.1 354.7,125.1 357.7,126.1 360.6,127.1 363.6,128.3 366.5,129.5 369.5,130.6 372.5,131.8 375.4,133.0 378.4,134.1 381.4,135.3 384.3,136.5 387.3,137.6 390.3,138.8 393.2,140.0 396.2,141.1 399.2,142.3 402.1,143.4 405.1,144.6 408.1,145.9 411.0,147.2 414.0,148.6 416.9,149.9 419.9,151.3 422.9,152.6 425.8,154.0 428.8,155.3 431.8,156.7 434.7,158.0 437.7,159.4 440.7,160.7 443.6,162.1 446.6,163.4 449.6,164.8 452.5,166.1 455.5,167.6 458.5,169.1 461.4,170.6 464.4,172.2 467.3,173.7 470.3,175.2 473.3,176.8 476.2,178.3 479.2,179.8 482.2,181.4 485.1,182.9 488.1,184.4 491.1,186.0 494.0,187.5 497.0,189.0 500.0,190.6 502.9,192.1 505.9,193.6 508.9,195.1 511.8,196.6 514.8,198.1 517.7,199.6 520.7,201.1 523.7,202.6 526.6,204.1 529.6,205.6 532.6,207.1 535.5,208.6 538.5,210.1 541.5,211.6 544.4,213.1 547.4,214.7 550.4,216.7 553.3,218.9 556.3,221.1 559.3,223.2 562.2,225.4 565.2,227.6 568.2,229.8 571.1,232.0 574.1,234.1 577.0,236.0 580.0,238.0 583.0,240.0 585.9,242.0 588.9,243.9 591.9,245.9 594.8,247.9 597.8,250.0 600.8,252.0 603.7,254.1 606.7,256.1 609.7,258.2 612.6,260.2 615.6,262.3 618.6,264.5 621.5,266.6 624.5,268.7 627.4,270.8 630.4,273.0 633.4,275.2 636.3,277.3 639.3,279.5 642.3,281.7 645.2,283.9 648.2,286.2 651.2,288.4 654.1,290.7 657.1,292.9 660.1,295.2 663.0,297.6 666.0,300.0" fill="none" stroke="var(--blue)" stroke-width="2.2"/>
+  <line x1="420" y1="80" x2="446" y2="80" stroke="var(--ink)" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <text class="svg-note-sm" x="452" y="84">teoría: u = 2U (1 − r²/R²)</text>
+  <line x1="420" y1="98" x2="446" y2="98" stroke="var(--blue)" stroke-width="2.2"/>
+  <text class="svg-note-sm" x="452" y="102">simulación</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 12.</b> <b class="fig-title">El perfil de velocidad.</b> Archivo <code>postProcessing/radial/204/line.xy</code>, del eje a la pared. La simulación queda sobre la parábola: la mayor diferencia es de 0.028 m/s.</figcaption>
+</figure>
+<h3>y⁺</h3>
+<pre class="code"><code># y+ ()         
+# Time          	patch           	min             	max             	average         
+204             	walls	1.99305102e-01	4.79372720e-01	2.09751468e-01</code></pre>
+<p>El mínimo, 0.1993, está en la zona desarrollada: prácticamente el 0.2 que se pidió al <code>.geo</code>. El máximo, 0.479, está junto a la entrada, donde el esfuerzo en la pared es mayor.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Magnitud</th><th>Teoría</th><th>Simulación</th><th>Diferencia</th></tr></thead>
+    <tbody>
+      <tr><td>Factor de fricción, de la caída de presión</td><td>0.1280 (64/Re)</td><td>0.1295</td><td>+1.2 %</td></tr>
+      <tr><td>Factor de fricción, del esfuerzo en la pared</td><td>0.1280</td><td>0.1284</td><td>+0.3 %</td></tr>
+      <tr><td>Velocidad en el eje, \(u_c/U\), en x = 36 D</td><td>2</td><td>1.9828</td><td>−0.9 %</td></tr>
+      <tr><td>Perfil en x = 33 D: mayor diferencia con la parábola</td><td>0</td><td>0.028 m/s</td><td>1.4 % de \(u_c\)</td></tr>
+      <tr><td>Longitud de entrada (99 % de \(u_c\))</td><td>28.4 D (Durst et al., 2005)</td><td>25.6 D</td><td>−10.0 %</td></tr>
+      <tr><td>y⁺ en la zona desarrollada (mínimo)</td><td>0.2 (pedido)</td><td>0.199</td><td>−0.3 %</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">La simulación contra la teoría.</b> Simulación: OpenFOAM 12 (blueCFD-Core 2024), 204 iteraciones. El factor de fricción se calcula de dos maneras: con la caída de presión entre las sondas y con el esfuerzo en la pared de la zona desarrollada.</caption>
+  </table>
+</div>
+<h3>¿Llegó a la solución?</h3>
+<p>Los residuos iniciales bajan de manera casi monótona hasta cumplir <code>residualControl</code> en la iteración 204 (figura 13). Pero un residuo pequeño no garantiza que las cifras que interesan ya no cambien; eso se comprueba en las sondas: entre las iteraciones 184 y 204, la presión de la primera sonda cambió 0.002 %.</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Residuos de p y Ux contra la iteración en escala logarítmica">
+  <text class="svg-title" x="76" y="28">Los residuos iniciales de cada iteración, hasta cumplir residualControl</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="666" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">10<tspan baseline-shift="super" font-size="8">−9</tspan></text>
+  <line class="svg-grid" x1="76" y1="244.4" x2="666" y2="244.4"/>
+  <text class="svg-tick" x="70" y="248.4" text-anchor="end">10<tspan baseline-shift="super" font-size="8">−7</tspan></text>
+  <line class="svg-grid" x1="76" y1="188.9" x2="666" y2="188.9"/>
+  <text class="svg-tick" x="70" y="192.9" text-anchor="end">10<tspan baseline-shift="super" font-size="8">−5</tspan></text>
+  <line class="svg-grid" x1="76" y1="133.3" x2="666" y2="133.3"/>
+  <text class="svg-tick" x="70" y="137.3" text-anchor="end">10<tspan baseline-shift="super" font-size="8">−3</tspan></text>
+  <line class="svg-grid" x1="76" y1="77.8" x2="666" y2="77.8"/>
+  <text class="svg-tick" x="70" y="81.8" text-anchor="end">10<tspan baseline-shift="super" font-size="8">−1</tspan></text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0</text>
+  <text class="svg-tick" x="210.1" y="318" text-anchor="middle">50</text>
+  <text class="svg-tick" x="344.2" y="318" text-anchor="middle">100</text>
+  <text class="svg-tick" x="478.3" y="318" text-anchor="middle">150</text>
+  <text class="svg-tick" x="612.4" y="318" text-anchor="middle">200</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">iteración</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">residuo inicial</text>
+  <polyline points="78.7,50.0 81.4,108.1 84.0,108.8 86.7,108.6 89.4,109.0 92.1,110.7 94.8,112.8 97.5,115.2 100.1,117.7 102.8,120.4 105.5,123.2 108.2,125.8 110.9,128.4 113.5,131.0 116.2,133.4 118.9,135.8 121.6,138.0 124.3,139.7 127.0,141.3 129.6,142.9 132.3,144.5 135.0,146.0 137.7,147.5 140.4,149.0 143.0,150.2 145.7,151.4 148.4,152.5 151.1,153.6 153.8,154.6 156.5,155.6 159.1,156.5 161.8,157.4 164.5,158.3 167.2,159.2 169.9,160.1 172.5,160.9 175.2,161.7 177.9,162.5 180.6,163.2 183.3,164.0 186.0,164.7 188.6,165.4 191.3,166.1 194.0,166.7 196.7,167.5 199.4,168.1 202.0,168.7 204.7,169.3 207.4,169.9 210.1,170.5 212.8,171.1 215.5,171.7 218.1,172.3 220.8,172.8 223.5,173.4 226.2,173.9 228.9,174.4 231.5,175.0 234.2,175.5 236.9,176.0 239.6,176.5 242.3,177.0 245.0,177.5 247.6,178.0 250.3,178.5 253.0,179.0 255.7,179.5 258.4,179.9 261.0,180.4 263.7,180.9 266.4,181.4 269.1,181.8 271.8,182.3 274.5,182.8 277.1,183.3 279.8,183.7 282.5,184.2 285.2,184.6 287.9,185.1 290.5,185.6 293.2,186.0 295.9,186.5 298.6,186.9 301.3,187.4 304.0,187.8 306.6,188.3 309.3,188.7 312.0,189.2 314.7,189.7 317.4,190.1 320.0,190.6 322.7,191.0 325.4,191.5 328.1,191.9 330.8,192.4 333.5,192.8 336.1,193.3 338.8,193.7 341.5,194.2 344.2,194.6 346.9,195.1 349.5,195.5 352.2,196.0 354.9,196.5 357.6,196.9 360.3,197.4 363.0,197.8 365.6,198.3 368.3,198.7 371.0,199.2 373.7,199.6 376.4,200.1 379.0,200.5 381.7,201.0 384.4,201.4 387.1,201.9 389.8,202.3 392.5,202.8 395.1,203.3 397.8,203.7 400.5,204.2 403.2,204.7 405.9,205.2 408.5,205.7 411.2,206.2 413.9,206.7 416.6,207.1 419.3,207.5 422.0,208.0 424.6,208.6 427.3,208.9 430.0,209.4 432.7,209.9 435.4,210.4 438.0,211.0 440.7,211.4 443.4,212.0 446.1,212.5 448.8,213.0 451.5,213.6 454.1,214.1 456.8,214.6 459.5,215.2 462.2,215.8 464.9,216.4 467.5,217.0 470.2,217.5 472.9,218.2 475.6,218.7 478.3,219.2 481.0,220.0 483.6,220.6 486.3,221.3 489.0,221.9 491.7,222.6 494.4,223.3 497.0,224.0 499.7,224.7 502.4,225.4 505.1,226.2 507.8,226.9 510.5,227.6 513.1,228.3 515.8,229.1 518.5,229.9 521.2,230.5 523.9,231.2 526.5,232.0 529.2,232.8 531.9,232.0 534.6,234.1 537.3,234.8 540.0,234.6 542.6,236.4 545.3,236.3 548.0,237.9 550.7,238.0 553.4,237.3 556.0,239.3 558.7,240.2 561.4,239.4 564.1,241.3 566.8,241.1 569.5,242.0 572.1,241.2 574.8,242.7 577.5,242.4 580.2,242.7 582.9,243.9 585.5,245.1 588.2,242.3 590.9,244.1 593.6,245.5 596.3,242.1 599.0,245.0 601.6,242.8 604.3,244.0 607.0,243.3 609.7,246.5 612.4,243.7 615.0,247.4 617.7,244.7 620.4,242.2 623.1,246.8" fill="none" stroke="var(--accent)" stroke-width="1.8"/>
+  <polyline points="78.7,50.0 81.4,69.6 84.0,78.6 86.7,84.7 89.4,89.0 92.1,92.3 94.8,94.9 97.5,97.1 100.1,99.1 102.8,100.8 105.5,102.3 108.2,103.8 110.9,105.1 113.5,106.4 116.2,107.7 118.9,108.9 121.6,110.0 124.3,111.1 127.0,112.1 129.6,113.1 132.3,114.1 135.0,115.0 137.7,116.0 140.4,116.9 143.0,117.8 145.7,118.7 148.4,119.5 151.1,120.4 153.8,121.2 156.5,122.0 159.1,122.8 161.8,123.6 164.5,124.3 167.2,125.1 169.9,125.8 172.5,126.6 175.2,127.3 177.9,128.0 180.6,128.8 183.3,129.5 186.0,130.2 188.6,130.9 191.3,131.6 194.0,132.2 196.7,132.9 199.4,133.6 202.0,134.3 204.7,134.9 207.4,135.6 210.1,136.3 212.8,136.9 215.5,137.6 218.1,138.2 220.8,138.9 223.5,139.5 226.2,140.2 228.9,140.8 231.5,141.4 234.2,142.1 236.9,142.7 239.6,143.3 242.3,144.0 245.0,144.6 247.6,145.2 250.3,145.9 253.0,146.5 255.7,147.1 258.4,147.7 261.0,148.4 263.7,149.0 266.4,149.6 269.1,150.2 271.8,150.9 274.5,151.5 277.1,152.1 279.8,152.8 282.5,153.4 285.2,154.0 287.9,154.6 290.5,155.3 293.2,155.9 295.9,156.5 298.6,157.2 301.3,157.8 304.0,158.4 306.6,159.1 309.3,159.7 312.0,160.4 314.7,161.0 317.4,161.6 320.0,162.3 322.7,162.9 325.4,163.6 328.1,164.2 330.8,164.9 333.5,165.5 336.1,166.2 338.8,166.8 341.5,167.5 344.2,168.2 346.9,168.8 349.5,169.5 352.2,170.2 354.9,170.8 357.6,171.5 360.3,172.2 363.0,172.9 365.6,173.6 368.3,174.3 371.0,175.0 373.7,175.7 376.4,176.4 379.0,177.1 381.7,177.8 384.4,178.5 387.1,179.2 389.8,180.0 392.5,180.7 395.1,181.4 397.8,182.2 400.5,182.9 403.2,183.7 405.9,184.4 408.5,185.2 411.2,186.0 413.9,186.8 416.6,187.5 419.3,188.3 422.0,189.1 424.6,189.9 427.3,190.8 430.0,191.6 432.7,192.4 435.4,193.2 438.0,194.1 440.7,194.9 443.4,195.8 446.1,196.6 448.8,197.5 451.5,198.3 454.1,199.2 456.8,200.1 459.5,201.0 462.2,201.9 464.9,202.8 467.5,203.7 470.2,204.6 472.9,205.5 475.6,206.4 478.3,207.3 481.0,208.3 483.6,209.2 486.3,210.1 489.0,211.0 491.7,212.0 494.4,212.9 497.0,213.8 499.7,214.7 502.4,215.7 505.1,216.6 507.8,217.5 510.5,218.4 513.1,219.4 515.8,220.3 518.5,221.2 521.2,222.1 523.9,223.0 526.5,223.9 529.2,224.8 531.9,225.7 534.6,226.6 537.3,227.5 540.0,228.3 542.6,229.2 545.3,230.0 548.0,230.9 550.7,231.7 553.4,232.6 556.0,233.4 558.7,234.3 561.4,235.1 564.1,235.9 566.8,236.7 569.5,237.5 572.1,238.3 574.8,239.1 577.5,239.9 580.2,240.7 582.9,241.5 585.5,242.3 588.2,243.1 590.9,243.9 593.6,244.7 596.3,245.5 599.0,246.3 601.6,247.1 604.3,247.9 607.0,248.7 609.7,249.5 612.4,250.3 615.0,251.1 617.7,251.9 620.4,252.7 623.1,253.5" fill="none" stroke="var(--blue)" stroke-width="1.8"/>
+  <polyline points="76.0,188.9 666.0,188.9" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="5 4"/>
+  <polyline points="76.0,216.7 666.0,216.7" fill="none" stroke="var(--blue)" stroke-width="1" stroke-dasharray="5 4"/>
+  <line x1="560" y1="70" x2="586" y2="70" stroke="var(--accent)" stroke-width="1.8"/>
+  <text class="svg-note-sm" x="592" y="74">p</text>
+  <line x1="560" y1="88" x2="586" y2="88" stroke="var(--blue)" stroke-width="1.8"/>
+  <text class="svg-note-sm" x="592" y="92">U<tspan baseline-shift="sub" font-size="8">x</tspan></text>
+</svg>
+  <figcaption><b class="fig-num">Figura 13.</b> <b class="fig-title">La convergencia.</b> Archivo <code>postProcessing/residuales/0/residuals.dat</code>. Las líneas punteadas son los límites de <code>residualControl</code> en <code>system/fvSolution</code>: 10<sup>−5</sup> para p y 10<sup>−6</sup> para U. La corrida se detiene en la iteración 204, la primera en que los dos se cumplen a la vez.</figcaption>
+</figure>
+<div class="result-box">
+  <p><strong>La malla y el caso reproducen Hagen-Poiseuille al 1 %.</strong> El factor de fricción, por dos caminos distintos, la velocidad del eje y el perfil quedan a menos de 1.2 % de la solución exacta. En el tutorial 3.1.2 de Gmsh, una malla 2.7 veces más fina cambió f sólo 0.5 %: lo que queda es el error de discretización de esta malla.</p>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>¿Por qué la presión en el eje cae más rápido cerca de la entrada que en la zona desarrollada, si la viscosidad es la misma en toda la tubería?</li>
+  <li>El esfuerzo en la pared cerca de la entrada es hasta seis veces el de la zona desarrollada. ¿Qué tiene que ver eso con el espesor de la capa límite?</li>
+  <li>Con la ecuación (6) y el esfuerzo en la pared medido, calcule el y⁺ del centro de la primera celda en la zona desarrollada. ¿Coincide con el mínimo de <code>yPlus.dat</code>?</li>
+  <li>¿Por qué la velocidad del eje en la segunda sonda es un poco menor que 2 U, si el perfil es parabólico?</li>
+</ol>
+
+    </section>
+    <section id="errors-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Qué sale mal y qué dice OpenFOAM</h2>
+
+<h3>blueCFD-Core 2024 calcula mal los flujos a lo largo de z</h3>
+<p>Sin el paso 7 de la receta, con la tubería a lo largo de z, OpenFOAM 12 de blueCFD-Core converge sin ningún aviso, con la misma malla y casi la misma velocidad, pero con un gradiente de presión 1.5 veces mayor: f = 0.1928 en lugar de 0.1295, y la velocidad del eje llega al 99 % en 20.2 D en lugar de 25.6 D. En OpenFOAM 13 el mismo caso, a lo largo de z, da las cifras correctas.</p>
+<p>No es la malla de Gmsh ni la no ortogonalidad: un conducto cuadrado hecho con <code>blockMesh</code>, de celdas ortogonales, da con el flujo en z un gradiente de presión 1.48 veces el teórico, y con el flujo en x o en y, 0.991. Tampoco cambia con otros esquemas de gradiente, de convección o de laplaciana. Es un defecto de esa compilación de OpenFOAM 12 para Windows, que no aparece en los casos 2D en el plano x-y, como la rampa de la serie compresible. <strong>En blueCFD-Core 2024, el flujo principal no debe ir a lo largo de z</strong>: se gira la malla con <code>transformPoints</code>, como aquí, o se construye la geometría a lo largo de x desde el principio. (Comprobado el 29 de septiembre de 2026; el defecto no estaba reportado en el rastreador de blueCFD-Core.)</p>
+<h3>La pared que se queda como <code>patch</code></h3>
+<p>Si se omite el paso 8, en este caso laminar <strong>no hay ningún error</strong>: <code>noSlip</code> funciona en cualquier parche y la solución es la misma. Pero las funciones <code>yPlus</code> y <code>wallShearStress</code> sólo trabajan en parches de tipo <code>wall</code>, y sus archivos quedan con el encabezado y sin ninguna fila. En el caso turbulento del tutorial 1.2, en cambio, <code>foamRun</code> se detiene al empezar: «Patch type for patch walls must be wall».</p>
+<h3>Gmsh no se encuentra, o no escribe nada</h3>
+<p>«bash: gmsh: command not found» significa que falta el paso 3: la terminal de blueCFD arranca con una ruta de búsqueda propia. Otra sorpresa: el <code>gmsh.exe</code> oficial de Windows es un programa de ventana, y <strong>desde la terminal <code>cmd</code> su salida redirigida a un archivo queda vacía</strong>; en la terminal <code>bash</code> de blueCFD sí escribe. Por eso <code>Allrun</code> y <code>Allrun.bat</code> usan <code>-log log.gmsh</code>, que guarda el registro en los dos casos.</p>
+<h3>Windows no sabe con qué abrir un archivo</h3>
+<p>Los archivos de OpenFOAM no tienen extensión, y <code>log.gmsh</code> o <code>yPlus.dat</code> tienen una que Windows no conoce: con doble clic aparece la ventana «Select an app to open…». «Just once» abre el archivo esta vez sin cambiar nada en Windows; «Always» asocia el tipo de archivo con el programa, lo que para archivos sin extensión cambia el comportamiento de todos. Cualquier editor de texto sirve; el Bloc de notas de Windows también.</p>
+<h3><code>Allrun</code> que no vuelve a correr</h3>
+<p><code>runApplication</code> no corre un programa si su <code>log</code> ya existe: sólo avisa «… already run on …: remove log file … to re-run». Para repetir el caso desde cero hay que borrar antes los <code>log.*</code>, o partir de una copia limpia del caso.</p>
+
+    </section>
+    <section id="practice-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>El doble del número de Reynolds</h2>
+
+<div class="example">
+  <p><strong>Enunciado.</strong> Repetir el caso con Re = 1000. Según la ecuación (3), el factor de fricción debe bajar a la mitad; según la (5), la longitud de entrada casi se duplica, así que la tubería tiene que ser más larga. <strong>Condiciones:</strong> el mismo caso, con ν = 0.001 m²/s; la malla, rehecha para Re = 1000.</p>
+</div>
+<h3>El procedimiento, en corto</h3>
+<ol>
+  <li>Copiar el caso a una carpeta nueva y cambiar <code>nu</code> en <code>constant/physicalProperties</code> a 0.001.</li>
+  <li>Hacer la malla con <code>gmsh tuberia.geo -3 -setnumber Re 1000 -o tuberia.msh -log log.gmsh</code>. En <code>log.gmsh</code>, anotar la nueva longitud de la tubería (66.73 D).</li>
+  <li>En <code>system/controlDict</code>, mover las sondas y las líneas a la nueva zona desarrollada: las sondas a L − 8 D y L − 2 D, el perfil a L − 5 D y el final de la línea del eje a L − 0.05 D.</li>
+  <li>Seguir los pasos 6 a 10 de la receta y leer los archivos como en el ejemplo resuelto.</li>
+</ol>
+<h3>Registro de resultados</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Re</th><th>ν (m²/s)</th><th>Celdas</th><th>Iteraciones</th><th>f</th><th>64/Re</th><th>Diferencia</th><th>\(u_c/U\)</th><th>\(L_e/D\) simulada</th><th>\(L_e/D\) Durst</th></tr></thead>
+    <tbody>
+      <tr><td>500</td><td>0.002</td><td>95 480</td><td>204</td><td>0.1295</td><td>0.1280</td><td>+1.2 %</td><td>1.983</td><td>25.6</td><td>28.4</td></tr>
+      <tr><td>1000</td><td>0.001</td><td>186 900</td><td>282</td><td>0.0651</td><td>0.0640</td><td>+1.8 %</td><td>1.978</td><td>48.6</td><td>56.7</td></tr>
+      <tr><td>250</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">Registro de resultados.</b> Las dos primeras filas son corridas de referencia en OpenFOAM 12 (blueCFD-Core 2024); la última es para llenarla. \(L_e\) simulada: donde la velocidad del eje llega al 99 % de su valor en la segunda sonda.</caption>
+  </table>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>¿Se cumple que \(f \cdot Re\) = 64 en las dos corridas? ¿La diferencia con la teoría cambia con Re?</li>
+  <li>¿Cuánto creció la longitud de entrada simulada al duplicar Re? ¿Y la de la ecuación (5)?</li>
+  <li>La malla de Re = 1000 tiene más celdas que la de 500. ¿De dónde salen: del largo de la tubería, de la primera celda o de las dos?</li>
+</ol>
+
+    </section>
+    <section id="appendix-es">
+      <p class="section-label">Apéndice</p>
+      <h2>De dónde sale Hagen-Poiseuille</h2>
+
+<h3>El equilibrio de un cilindro de fluido</h3>
+<p>En la zona desarrollada el fluido no se acelera. Sobre un cilindro de radio r y largo dx, la diferencia de presión entre sus caras empuja y el esfuerzo cortante en su superficie frena:</p>
+<div class="equation-card">\[ -\frac{\mathrm{d}p}{\mathrm{d}x}\,\pi r^2 = \tau(r)\,2\pi r\quad\Rightarrow\quad \tau(r) = -\frac{r}{2}\,\frac{\mathrm{d}p}{\mathrm{d}x} \]</div>
+<p>El esfuerzo crece linealmente del eje a la pared. Con la ley de Newton, \(\tau = -\mu\,\mathrm{d}u/\mathrm{d}r\), e integrando con \(u(R) = 0\):</p>
+<div class="equation-card">\[ u(r) = \frac{1}{4\mu}\left(-\frac{\mathrm{d}p}{\mathrm{d}x}\right)\left(R^2-r^2\right) \]</div>
+<p>La velocidad media es el caudal entre el área, \(U = \frac{1}{\pi R^2}\int_0^R u\,2\pi r\,\mathrm{d}r = \frac{R^2}{8\mu}\left(-\frac{\mathrm{d}p}{\mathrm{d}x}\right)\), de donde salen el perfil de la ecuación (1) y el gradiente de la (2) con \(D = 2R\). Con la definición de f de la ecuación (3), \(f = 64\,\mu/(\rho U D) = 64/Re\).</p>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ul>
+  <li>Durst, F., Ray, S., Ünsal, B. y Bayoumi, O. A. (2005). The development lengths of laminar pipe and channel flows. <em>Journal of Fluids Engineering</em>, 127(6), 1154–1160.</li>
+  <li>Van Doormaal, J. P. y Raithby, G. D. (1984). Enhancements of the SIMPLE method for predicting incompressible fluid flows. <em>Numerical Heat Transfer</em>, 7(2), 147–163.</li>
+  <li>White, F. M. (2011). <em>Fluid mechanics</em> (7.ª ed.). McGraw-Hill. Capítulo 6: flujo en conductos.</li>
+  <li>OpenFOAM 12: el solver <code>incompressibleFluid</code> y las funciones <code>probes</code>, <code>graphUniform</code>, <code>wallShearStress</code> y <code>yPlus</code> de <code>etc/caseDicts/functions</code>, tal como los instala blueCFD-Core 2024.</li>
+</ul>
+<p class="source-note">Todas las cifras de la simulación salen de corridas de OpenFOAM 12 (blueCFD-Core 2024) en una laptop con Windows 11, leídas de los archivos que escribe el propio caso; las de la teoría, de las ecuaciones (1) a (5). Las capturas son de la terminal de blueCFD-Core, Notepad2 y ParaView 5.11.2.</p>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="index.html?v=13"><span>Índice de la serie</span>← Tutoriales de OpenFOAM: flujo incompresible</a>
+      <a class="next-link" href="tuberia-turbulenta.html?v=13"><span>Tutorial siguiente</span>1.2 · La tubería turbulenta →</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Einen stationären inkompressiblen Fall (incompressibleFluid, SIMPLE) in OpenFOAM 12 unter Windows aus einem Gmsh-Netz rechnen; das Netz mit transformPoints drehen und den Wandtyp von Hand setzen; jede Datei des Falls lesen; OpenFOAM die Validierungszahlen schreiben lassen (Sonden, Linien, y⁺, Wandschubspannung) und sie mit Hagen-Poiseuille vergleichen.</p>
+    </section>
+    <section id="problem-de">
+      <p class="section-label">Das Problem</p>
+      <h2>Was simuliert wird</h2>
+<p>Ein gerades Rohr mit D = 1 m und 38,39 D Länge, gleichförmiger Einstrom mit 1 m/s, ν = 0,002 m²/s (Re = 500), Druck null am Auslass. Das Netz ist das O-Netz aus 9 Blöcken des Gmsh-Tutorials 3.1.2, 95.480 Hexaeder.</p>
+    </section>
+    <section id="theory-de">
+      <p class="section-label">Die Theorie</p>
+      <h2>Die exakte Lösung und die Einlauflänge</h2>
+<p>Das parabolische Profil u = 2U(1 − r²/R²), der Druckgradient 32νU/D², die Darcy-Rohrreibungszahl f = 64/Re = 0,128, die Wandschubspannung τ<sub>w</sub>/ρ = fU²/8, die Einlauflänge nach Durst et al. (28,4 D) und die Definition von y⁺.</p>
+    </section>
+    <section id="recipe-de">
+      <p class="section-label">Schritt für Schritt</p>
+      <h2>Vom Netz zu den Ergebnissen</h2>
+<p>Im blueCFD-Core-Terminal: Gmsh zum PATH hinzufügen, den Fall mit dem Explorer in den run-Ordner kopieren, mit gmsh -log vernetzen, mit gmshToFoam umwandeln, die Rohrachse mit transformPoints "Ry=90" von z nach x drehen (blueCFD-Core 2024 rechnet Strömungen entlang z falsch), walls in boundary mit Notepad2 auf den Typ wall setzen, mit checkMesh prüfen, foamRun starten (204 Iterationen, etwa zwei Minuten) und paraFoam öffnen. ./Allrun erledigt alles.</p>
+    </section>
+    <section id="case-de">
+      <p class="section-label">Der Fall</p>
+      <h2>Der Fall, Datei für Datei</h2>
+<p>Jede Datei des Falls vollständig: tuberia.geo, die konstante Viskosität, das laminare Modell, die Randbedingungen, die SIMPLEC-Einstellungen mit residualControl, das linearUpwind-Schema und die Funktionen in controlDict, die Sonden, Achsen- und Radiallinie, y⁺ und die Wandschubspannung schreiben.</p>
+    </section>
+    <section id="results-de">
+      <p class="section-label">Ergebnisse</p>
+      <h2>Die Strömung in ParaView</h2>
+<p>paraFoam, Apply, Last Frame; ein Slice mit Z Normal, nach U eingefärbt, von −Z gesehen und mit Zoom to Box auf den Einlauf vergrößert; und Plot Over Line quer durch das Rohr bei x = 33 D, nur mit U_X.</p>
+    </section>
+    <section id="validation-de">
+      <p class="section-label">Durchgerechnetes Beispiel</p>
+      <h2>Die Simulation gegen Hagen-Poiseuille</h2>
+<p>Aus den Sonden f = 0,1295 gegen 0,128 (+1,2 %); aus der Wandschubspannung f = 0,1284. Achsengeschwindigkeit 1,983 U gegen 2 U; das Profil liegt auf 0,028 m/s genau auf der Parabel; y⁺ = 0,199 bei geforderten 0,2; die Achse erreicht 99 % ihres Endwerts bei 25,6 D gegen 28,4 D nach Durst et al.</p>
+    </section>
+    <section id="errors-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Was schiefgeht und was OpenFOAM meldet</h2>
+<p>blueCFD-Core 2024 rechnet Strömungen entlang z falsch (f 1,5-mal zu groß) — daher transformPoints; der vergessene Wandtyp; Gmsh fehlt im PATH oder schweigt, wenn es aus cmd umgeleitet wird; das Öffnen-mit-Fenster; und Allrun, das ein Programm nicht erneut startet, dessen Log existiert.</p>
+    </section>
+    <section id="practice-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Die doppelte Reynolds-Zahl</h2>
+<p>Den Fall bei Re = 1000 wiederholen: ν ändern, mit -setnumber Re 1000 neu vernetzen (das Rohr wird länger, weil die Einlauflänge wächst) und die Sonden verschieben. f sollte sich halbieren, die Einlauflänge verdoppeln.</p>
+    </section>
+    <section id="appendix-de">
+      <p class="section-label">Anhang</p>
+      <h2>Woher Hagen-Poiseuille stammt</h2>
+<p>Ein Kräftegleichgewicht an einem Fluidzylinder liefert die Schubspannung, das parabolische Profil, die mittlere Geschwindigkeit und f = 64/Re.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>Whites Fluid Mechanics für Hagen-Poiseuille; Durst et al. (2005) für die Einlauflänge; Van Doormaal und Raithby (1984) für SIMPLEC; die Quellen von OpenFOAM 12.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="index.html?v=13"><span>Übersicht der Reihe</span>← OpenFOAM-Tutorials: inkompressible Strömung</a>
+      <a class="next-link" href="tuberia-turbulenta.html?v=13"><span>Nächstes Tutorial</span>1.2 · Das turbulente Rohr →</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>

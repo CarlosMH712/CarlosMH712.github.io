@@ -147,6 +147,13 @@ first tutorial, the compression–expansion ramp, ships the case as `archivos/ra
 downloadable file of the tutorials. Pages, index and zip are generated from
 `~/Documents/tutoriales/openfoam-compresible/generadores/` (`t11_build.py`, `indice_build.py`).
 
+`tutorials/openfoam-incompresible/` is the series «OpenFOAM · Incompressible flow» (added 2026-09-30, card 05 of
+the portal): the straight pipe, laminar (1.1) and turbulent (1.2), on the Gmsh 3.1.2 mesh, in blueCFD-Core 2024.
+**blueCFD-Core 2024 computes flows along z wrongly** (pressure gradient 1.5 times too large), so both cases rotate
+the mesh to the x axis with `transformPoints "Ry=90"`; the guides explain why. Pages, index and the two zips are
+generated from `~/Documents/tutoriales/openfoam-incompresible/generadores/` (`t11_build.py`, `t12_build.py`,
+`indice_build.py`, `imagenes.py`).
+
 ## Calculators
 
 Separate repositories, deployed on Streamlit Cloud, each with a landing page

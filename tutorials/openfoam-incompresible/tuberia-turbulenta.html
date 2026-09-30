@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="OpenFOAM tutorial: turbulent flow in a straight pipe at Re = 50 000 with the k-omega SST model in blueCFD-Core (OpenFOAM 12) on a Gmsh mesh with y+ = 1, validated against the Petukhov, Blasius and Colebrook friction factors and the 1/7 power law." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>The Turbulent Pipe | OpenFOAM Incompressible-Flow Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">OpenFOAM · Incompressible flow · Tutorial 1.2</p><h1>The Turbulent Pipe: k-ω SST, y⁺ and the Friction Factor</h1><p class="hero-copy">The pipe of Tutorial 1.1 at Re = 50 000. With the first cell at y⁺ ≈ 1 and the k-ω SST model, the friction factor is compared with three correlations, and the model's own error is told apart from the mesh's.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">OpenFOAM · Flujo incompresible · Tutorial 1.2</p><h1>La tubería turbulenta: k-ω SST, y⁺ y el factor de fricción</h1><p class="hero-copy">La tubería del tutorial 1.1 a Re = 50 000. Con la primera celda en y⁺ ≈ 1 y el modelo k-ω SST, el factor de fricción se compara con tres correlaciones, y el error propio del modelo se separa del de la malla.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">OpenFOAM · Inkompressible Strömung · Tutorial 1.2</p><h1>Das turbulente Rohr: k-ω SST, y⁺ und die Rohrreibungszahl</h1><p class="hero-copy">Das Rohr aus Tutorial 1.1 bei Re = 50 000. Mit der ersten Zelle bei y⁺ ≈ 1 und dem Modell k-ω SST wird die Rohrreibungszahl mit drei Korrelationen verglichen und der Fehler des Modells von dem des Netzes getrennt.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 45 min</span><span data-language="es" hidden>Lectura estimada: 45 min</span><span data-language="de" hidden>Lesedauer: ca. 45 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on OpenFOAM 12 (blueCFD-Core 2024), Gmsh 4.15.2 and ParaView 5.11.2</span><span data-language="es" hidden>Verificado en OpenFOAM 12 (blueCFD-Core 2024), Gmsh 4.15.2 y ParaView 5.11.2</span><span data-language="de" hidden>Geprüft mit OpenFOAM 12 (blueCFD-Core 2024), Gmsh 4.15.2 und ParaView 5.11.2</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="tuberia-laminar.html?v=13">← <span>1.1</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#problem">The problem</a><a href="#theory">Theory</a><a href="#recipe">Recipe</a><a href="#case">The case</a><a href="#results">ParaView</a><a href="#validation">Validation</a><a href="#errors">Common errors</a><a href="#practice">Suggested exercise</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#problem-es">El problema</a><a href="#theory-es">Teoría</a><a href="#recipe-es">Receta</a><a href="#case-es">El caso</a><a href="#results-es">ParaView</a><a href="#validation-es">Validación</a><a href="#errors-es">Errores frecuentes</a><a href="#practice-es">Práctica sugerida</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#problem-de">Das Problem</a><a href="#theory-de">Theorie</a><a href="#recipe-de">Ablauf</a><a href="#case-de">Der Fall</a><a href="#results-de">ParaView</a><a href="#validation-de">Validierung</a><a href="#errors-de">Häufige Fehler</a><a href="#practice-de">Übungsvorschlag</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Set up a RANS case with k-ω SST: the boundary conditions of k, ω and ν<sub>t</sub> and inlet values from the turbulence intensity; understand y⁺ and the wall treatment it calls for; compare the friction factor with three smooth-pipe correlations and separate model error from mesh error.</p>
+    </section>
+    <section id="problem">
+      <p class="section-label">The problem</p>
+      <h2>What is simulated</h2>
+<p>The same pipe and boundary conditions as Tutorial 1.1, with ν = 2·10⁻⁵ m²/s (Re = 50 000). The pipe is shorter (36.71 D) because the turbulent entrance region is shorter; the first cell is eight times thinner.</p>
+    </section>
+    <section id="theory">
+      <p class="section-label">The theory</p>
+      <h2>Correlations, y⁺ and the turbulence model</h2>
+<p>The Petukhov, Blasius and Colebrook correlations (0.0210, 0.0212 and 0.0209 at Re = 50 000); y⁺, the viscous sublayer and the two wall treatments; the k-ω SST model; the inlet k and ω from a 5 % intensity; the 1/7 power law.</p>
+    </section>
+    <section id="recipe">
+      <p class="section-label">Step by step</p>
+      <h2>What changes from Tutorial 1.1</h2>
+<p>The steps of Tutorial 1.1, with gmsh -setnumber regimen 1 -setnumber Re 50000 -setnumber yplus 1. Setting walls to type wall is mandatory here. foamRun converges in 307 iterations.</p>
+    </section>
+    <section id="case">
+      <p class="section-label">The case</p>
+      <h2>The turbulence files</h2>
+<p>momentumTransport with RAS and kOmegaSST; 0/k, 0/omega and 0/nut with fixed inlet values, inletOutlet at the outlet and low-Re wall conditions; upwind convection for k and ω; the solver settings for p.</p>
+    </section>
+    <section id="results">
+      <p class="section-label">Results</p>
+      <h2>The flow in ParaView</h2>
+<p>The same ParaView steps as in Tutorial 1.1: a much flatter profile, with nearly all of the velocity gradient in a thin layer at the wall.</p>
+    </section>
+    <section id="validation">
+      <p class="section-label">Worked example</p>
+      <h2>The model against the correlations</h2>
+<p>f = 0.0192, 8.6 % below Petukhov: the model, not the mesh. The measured y⁺ (0.950) is exactly the requested one times √(f/f<sub>Petukhov</sub>). The profile lies within 1 % of the 1/7 law away from the axis; the centreline velocity overshoots its final value in the entrance region.</p>
+    </section>
+    <section id="errors">
+      <p class="section-label">Common errors</p>
+      <h2>What goes wrong, and what OpenFOAM says</h2>
+<p>Leaving walls as patch stops foamRun (wall functions need a wall patch); flows along z in blueCFD-Core 2024; a first cell that does not match the wall conditions; a slow pressure solver.</p>
+    </section>
+    <section id="practice">
+      <p class="section-label">Suggested exercise</p>
+      <h2>Wall functions at y⁺ = 30</h2>
+<p>Remesh with y⁺ = 30 and switch to wall functions (kqRWallFunction, nutkWallFunction); compare cells, iterations and friction factor.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>Petukhov (1970), Blasius (1913) and Colebrook (1939) for the correlations; Menter et al. (2003) for k-ω SST; White's Fluid Mechanics; the OpenFOAM 12 sources.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="tuberia-laminar.html?v=13"><span>Previous tutorial</span>← 1.1 · The laminar pipe</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Incompressible flow</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">La misma tubería del <a href="tuberia-laminar.html">tutorial 1.1</a>, con cien veces menos viscosidad: a Re = 50 000 el flujo es turbulento. Ya no hay solución exacta; hay correlaciones medidas del factor de fricción y un modelo de turbulencia, k-ω SST, que las reproduce hasta donde puede. El tutorial enseña a preparar y juzgar un caso RANS, y a entender por qué la primera celda de la malla importa tanto.</p>
+<ul>
+  <li>Preparar un caso turbulento en OpenFOAM 12: el modelo k-ω SST, las condiciones de frontera de k, ω y ν<sub>t</sub>, y los valores de entrada a partir de la intensidad de turbulencia.</li>
+  <li>Entender qué es y⁺, cómo decide la altura de la primera celda y qué condiciones de pared corresponden a y⁺ ≈ 1.</li>
+  <li>Comparar el factor de fricción con tres correlaciones de tubo liso y separar el error del modelo del de la malla.</li>
+  <li>Leer en los resultados las diferencias entre un flujo laminar y uno turbulento: el perfil de velocidad y la región de entrada.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> Lo mismo que en el tutorial 1.1 —blueCFD-Core 2024 y Gmsh 4.15.2— y el caso, <a href="archivos/tuberia-turbulenta.zip"><code>tuberia-turbulenta.zip</code></a>. Conviene haber hecho antes el 1.1: aquí los pasos que son iguales se dicen en corto, y la guía se detiene en lo que cambia.</p>
+</div>
+
+    </section>
+    <section id="problem-es">
+      <p class="section-label">El problema</p>
+      <h2>Qué se va a simular</h2>
+
+<p>La geometría y las condiciones de frontera de velocidad y presión son las del caso laminar: diámetro de 1 m, velocidad uniforme de 1 m/s en la entrada y presión cero en la salida (figura 1). La viscosidad cinemática baja a 2·10<sup>−5</sup> m²/s, y con ella el número de Reynolds sube a 50 000.</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 300" role="img" aria-label="Esquema de la tubería turbulenta con la entrada, la salida, las dos sondas, el perfil y la longitud de entrada">
+  <text class="svg-title" x="70" y="28">La tubería del caso: el eje en x, de la entrada a la salida</text>
+  <rect x="70" y="118" width="580" height="64" fill="var(--sky)" stroke="none"/>
+  <line x1="70" y1="118" x2="650" y2="118" stroke="var(--ink)" stroke-width="2.2"/>
+  <line x1="70" y1="182" x2="650" y2="182" stroke="var(--ink)" stroke-width="2.2"/>
+  <line x1="60" y1="150" x2="664" y2="150" stroke="var(--muted)" stroke-width="1" stroke-dasharray="8 4"/>
+  <line x1="26" y1="126.0" x2="64" y2="126.0" stroke="var(--blue)" stroke-width="1.4" marker-end="url(#fl)"/>
+  <line x1="26" y1="138.0" x2="64" y2="138.0" stroke="var(--blue)" stroke-width="1.4" marker-end="url(#fl)"/>
+  <line x1="26" y1="150.0" x2="64" y2="150.0" stroke="var(--blue)" stroke-width="1.4" marker-end="url(#fl)"/>
+  <line x1="26" y1="162.0" x2="64" y2="162.0" stroke="var(--blue)" stroke-width="1.4" marker-end="url(#fl)"/>
+  <line x1="26" y1="174.0" x2="64" y2="174.0" stroke="var(--blue)" stroke-width="1.4" marker-end="url(#fl)"/>
+  <defs><marker id="fl" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="var(--blue)"/></marker></defs>
+  <text class="svg-note-sm" x="50" y="204" text-anchor="middle">inlet: U = 1 m/s</text>
+  <text class="svg-note-sm" x="650" y="204" text-anchor="middle">outlet: p = 0</text>
+  <text class="svg-note-sm" x="331" y="110">walls</text>
+  <circle cx="512.4" cy="150" r="4.5" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="512.4" y="166" text-anchor="middle" fill="var(--accent-dark)">sonda 1</text>
+  <circle cx="607.2" cy="150" r="4.5" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="607.2" y="166" text-anchor="middle" fill="var(--accent-dark)">sonda 2</text>
+  <line x1="559.8" y1="150" x2="559.8" y2="118" stroke="var(--accent-dark)" stroke-width="1.6"/>
+  <text class="svg-note-sm" x="559.8" y="110" text-anchor="middle" fill="var(--accent-dark)">perfil</text>
+  <line x1="70" y1="232" x2="492.0" y2="232" stroke="var(--blue)" stroke-width="1.2"/>
+  <line x1="70.0" y1="227" x2="70.0" y2="237" stroke="var(--blue)" stroke-width="1.2"/>
+  <line x1="492.0" y1="227" x2="492.0" y2="237" stroke="var(--blue)" stroke-width="1.2"/>
+  <text class="svg-note-sm" x="281.0" y="224" text-anchor="middle" fill="var(--blue)">longitud de entrada (White): 26.7 D</text>
+  <text class="svg-tick" x="70.0" y="266" text-anchor="middle">x = 0</text>
+  <text class="svg-tick" x="512.4" y="266" text-anchor="middle">28 D</text>
+  <text class="svg-tick" x="607.2" y="266" text-anchor="middle">34 D</text>
+  <text class="svg-tick" x="650.0" y="284" text-anchor="end">L = 36.71 D</text>
+  <text class="svg-note-sm" x="710" y="154" text-anchor="end">D = 1 m</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">La tubería.</b> No está a escala: la tubería mide 36.71 D de largo. Como en el tutorial 1.1, la malla se hizo con el eje en z y se giró al eje x con <code>transformPoints</code>.</figcaption>
+</figure>
+<p>La tubería es más corta que la laminar, 36.71 D, porque la región de entrada turbulenta es más corta: la mezcla turbulenta desarrolla el perfil más rápido. Las sondas están en x = 28 D y x = 34 D, y el perfil se mide en x = 31 D.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Dato</th><th>Valor</th><th>Dónde se fija</th></tr></thead>
+    <tbody>
+      <tr><td>Diámetro y velocidad media</td><td>D = 1 m, U = 1 m/s (uniforme en la entrada)</td><td><code>tuberia.geo</code>, <code>0/U</code></td></tr>
+      <tr><td>Viscosidad cinemática, \(\nu\)</td><td>2·10<sup>−5</sup> m²/s</td><td><code>constant/physicalProperties</code></td></tr>
+      <tr><td>Número de Reynolds</td><td>49 999</td><td><code>tuberia.geo</code>: <code>-setnumber Re 50000</code></td></tr>
+      <tr><td>Modelo de turbulencia</td><td>k-ω SST</td><td><code>constant/momentumTransport</code></td></tr>
+      <tr><td>Turbulencia en la entrada</td><td>intensidad de 5 %, escala 0.07 D</td><td><code>0/k</code>, <code>0/omega</code></td></tr>
+      <tr><td>Longitud de la tubería</td><td>36.706 D (longitud de entrada de White más 10 D)</td><td><code>tuberia.geo</code>: <code>-setnumber regimen 1</code></td></tr>
+      <tr><td>Primera celda junto a la pared</td><td>y⁺ = 1: altura 0.000782 m</td><td><code>-setnumber yplus 1</code></td></tr>
+      <tr><td>Malla</td><td>149 940 hexaedros; 18 celdas en el anillo de la pared, 147 capas a lo largo del eje</td><td><code>tuberia.geo</code></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Datos del caso.</b> Lo que cambia respecto al tutorial 1.1 es la viscosidad, el modelo de turbulencia y la malla; la geometría y las condiciones de frontera de U y p son las mismas.</caption>
+  </table>
+</div>
+<p>La malla sale del mismo <code>tuberia.geo</code>, con otros parámetros: la primera celda es ocho veces más delgada que en el caso laminar y el anillo de la pared tiene 18 celdas en lugar de 8. La sección siguiente explica por qué.</p>
+
+    </section>
+    <section id="theory-es">
+      <p class="section-label">La teoría</p>
+      <h2>Correlaciones, y⁺ y el modelo de turbulencia</h2>
+
+<h3>El factor de fricción</h3>
+<p>Se define igual que en el tutorial 1.1, con la presión cinemática:</p>
+<div class="equation-card">\[ f = -\frac{2D}{U^2}\,\frac{\mathrm{d}(p/\rho)}{\mathrm{d}x},\qquad \frac{\tau_w}{\rho} = \frac{f\,U^2}{8} \tag{1} \]</div>
+<p>En régimen turbulento no hay una fórmula exacta, sino correlaciones ajustadas a mediciones. Tres de las más usadas para tubo liso <a href="#references-es">(White, 2011)</a>:</p>
+<div class="equation-card"><p class="equation-label">Petukhov, Blasius y Colebrook</p>\[ f = \left(0.790\ln Re - 1.64\right)^{-2},\qquad f = 0.3164\,Re^{-1/4},\qquad \frac{1}{\sqrt f} = -2\log_{10}\frac{2.51}{Re\sqrt f} \tag{2} \]</div>
+<p>A Re = 50 000 dan 0.0210, 0.0212 y 0.0209: difieren entre sí alrededor de 1 %, que es lo que cabe esperar de una correlación. La de Blasius es válida sólo hasta Re ≈ 10<sup>5</sup>; la de Colebrook se resuelve probando valores, porque f está de los dos lados. El <code>.geo</code> usa la de Petukhov.</p>
+<h3>y⁺ y la primera celda</h3>
+<p>Junto a la pared, el perfil de velocidad turbulento tiene una forma universal si la distancia se mide en longitudes viscosas, \(\nu/u_\tau\):</p>
+<div class="equation-card">\[ y^+ = \frac{y\,u_\tau}{\nu},\qquad u_\tau = \sqrt{\tau_w/\rho} = U\sqrt{f/8} \tag{3} \]</div>
+<p>Hasta y⁺ ≈ 5 está la <strong>subcapa viscosa</strong>, donde la velocidad crece linealmente con y⁺; pasado y⁺ ≈ 30, la <strong>zona logarítmica</strong>. Hay dos maneras de tratar la pared en un modelo RANS:</p>
+<ul>
+  <li><strong>Resolver la subcapa viscosa</strong>: la primera celda en y⁺ ≈ 1 y el modelo integrado hasta la pared. Es lo que hace este tutorial.</li>
+  <li><strong>Funciones de pared</strong>: la primera celda en la zona logarítmica, y⁺ ≈ 30–100, y la ley de la pared en lugar de resolver la subcapa. Menos celdas, menos exactitud; es la <a href="#practice-es">práctica sugerida</a>.</li>
+</ul>
+<p>A Re = 50 000, la longitud viscosa \(\nu/u_\tau\) vale 0.000391 m. El y⁺ se refiere al centro de la celda, así que para y⁺ = 1 la primera celda mide el doble: 0.000782 m. En el caso laminar medía 0.00632 m, 8.1 veces más. De ahí salen las 18 celdas del anillo, que crecen de la pared hacia dentro con una razón de 1.200. En la zona de entrada, donde la capa límite es delgada y el esfuerzo en la pared es mayor, el y⁺ de la primera celda sube; lo importante es que en la zona desarrollada quede cerca de 1.</p>
+<h3>El modelo k-ω SST</h3>
+<p>Un modelo RANS resuelve el flujo promedio y representa el efecto de la turbulencia con una viscosidad turbulenta \(\nu_t\), que se suma a la molecular. k-ω SST <a href="#references-es">(Menter et al., 2003)</a> la calcula con dos ecuaciones de transporte más: la de la energía cinética turbulenta, k, y la de su tasa de disipación específica, ω. Cerca de la pared se comporta como el modelo k-ω, que funciona bien hasta y⁺ ≈ 1; lejos, como k-ε.</p>
+<h3>La turbulencia de la entrada</h3>
+<p>En la entrada hay que dar k y ω. Con una intensidad de turbulencia I y una escala de longitud ℓ:</p>
+<div class="equation-card">\[ k = \tfrac{3}{2}\,(I\,U)^2,\qquad \omega = \frac{\sqrt k}{C_\mu^{1/4}\,\ell},\qquad C_\mu = 0.09 \tag{4} \]</div>
+<p>Con I = 5 % y ℓ = 0.07 D, k = 0.00375 m²/s² y ω = 1.60 1/s. Son estimaciones razonables; en la zona desarrollada la turbulencia ya no depende de ellas.</p>
+<h3>El perfil y la velocidad del eje</h3>
+<p>Una aproximación empírica al perfil turbulento es la ley de potencia 1/7:</p>
+<div class="equation-card">\[ \frac{u}{u_c} = \left(1-\frac{r}{R}\right)^{1/7},\qquad \frac{u_c}{U} = \frac{(n+1)(2n+1)}{2n^2}\Big|_{n=7} = 1.2245 \tag{5} \]</div>
+<p>No es válida junto a la pared (su derivada ahí es infinita) y el exponente cambia con Re, pero sirve para ver la forma: mucho más plana que la parábola laminar.</p>
+<h3>La longitud de entrada</h3>
+<p>El <code>.geo</code> usa la estimación de White (2011) para régimen turbulento, \(L_e/D \approx 4.4\,Re^{1/6}\), que a Re = 50 000 da 26.7 D.</p>
+
+    </section>
+    <section id="recipe-es">
+      <p class="section-label">Paso a paso</p>
+      <h2>Lo que cambia respecto al tutorial 1.1</h2>
+
+<p>Los pasos son los del <a href="tuberia-laminar.html#recipe-es">tutorial 1.1</a>; sólo cambia el comando de Gmsh.</p>
+<ol>
+  <li><strong>Descomprimir</strong> <code>tuberia-turbulenta.zip</code> en Descargas, abrir la terminal de blueCFD-Core y <strong>agregar Gmsh a la ruta de búsqueda</strong>:<pre class="code"><code>export PATH=&quot;$PATH:/c/gmsh-4.15.2-Windows64&quot;</code></pre></li>
+  <li><strong>Copiar el caso</strong> a la carpeta <code>run</code> de blueCFD con el Explorador y entrar en él:<pre class="code"><code>cd $FOAM_RUN/tuberia-turbulenta</code></pre></li>
+  <li><strong>Hacer la malla</strong>, ahora con tres parámetros que cambian el régimen, el número de Reynolds y el y⁺ de la primera celda:<pre class="code"><code>gmsh tuberia.geo -3 -setnumber regimen 1 -setnumber Re 50000 -setnumber yplus 1 -o tuberia.msh -log log.gmsh</code></pre>En <code>log.gmsh</code> quedan las cifras que calculó el <code>.geo</code>:<pre class="code"><code>Re = 50000   f = 0.0209576   nu/u_tau = 0.000390754 m
+y+ = 1  -&gt;  primera celda h1 = 0.000781509 m (0.000781509 D)
+anillo: 18 celdas con razón 1.19988, de 0.000781509 m a 0.0173098 m (la banda sigue con 0.04 m)
+longitud de entrada Le = 26.7063 D; tubería L = 36.7063 D en 147 capas
+celdas previstas: 149940</code></pre></li>
+  <li><strong>Convertirla y girarla</strong>, como en el 1.1:<pre class="code"><code>gmshToFoam tuberia.msh
+transformPoints &quot;Ry=90&quot;</code></pre></li>
+  <li><strong>Cambiar el tipo de la pared</strong> en <code>constant/polyMesh/boundary</code>: <code>walls</code> de <code>patch</code> a <code>wall</code>, con Notepad2, y guardar. <strong>Aquí no es opcional</strong>: las condiciones de pared de k y ν<sub>t</sub> exigen el tipo <code>wall</code> (sección <a href="#errors-es">«Errores frecuentes»</a>).</li>
+  <li><strong>Revisar la malla</strong>: <code>checkMesh | tee log.checkMesh</code>.<pre class="code"><code>    cells:            149940</code></pre><pre class="code"><code>    Max aspect ratio = 319.76307 OK.</code></pre><pre class="code"><code>Mesh OK.</code></pre>La razón de aspecto máxima, 320, es la de las celdas de la pared: miden 0.000782 m de alto y 0.25 m a lo largo del eje. El flujo va paralelo a su lado largo, y <code>checkMesh</code> la da por buena.</li>
+  <li><strong>Correr el solver</strong>: <code>foamRun | tee log.foamRun</code>. En la computadora de referencia tardó 206 s (figura 2):<pre class="code"><code>SIMPLE solution converged in 307 iterations
+
+End</code></pre></li>
+  <li><strong>Ver los resultados</strong> con <code>paraFoam</code>.</li>
+</ol>
+<figure class="diagram medium">
+  <img src="imagenes/t12-02_foamrun.png" alt="Final de la salida de foamRun con las ecuaciones de k y omega y el aviso de convergencia" loading="lazy">
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">El final de foamRun.</b> Cada iteración resuelve también k y ω. Aviso de convergencia en la iteración 307.</figcaption>
+</figure>
+<h3>Lo que escribe <code>foamRun</code></h3>
+<p>Al empezar, <code>foamRun</code> dice qué modelo eligió y con qué coeficientes (<code>printCoeffs on</code>):</p>
+<pre class="code"><code>Selecting RAS turbulence model kOmegaSST
+RAS
+{
+    model           kOmegaSST;
+    turbulence      on;
+    printCoeffs     on;
+    alphaK1         0.85;
+    alphaK2         1;
+    alphaOmega1     0.5;
+    alphaOmega2     0.856;
+    gamma1          0.55555556;
+    gamma2          0.44;
+    beta1           0.075;
+    beta2           0.0828;
+    betaStar        0.09;
+    a1              0.31;
+    b1              1;
+    c1              10;
+    F3              false;</code></pre>
+<p>Cada iteración resuelve, además de U y p, las ecuaciones de ω y de k:</p>
+<pre class="code"><code>Time = 2s
+
+smoothSolver:  Solving for Ux, Initial residual = 0.61914087, Final residual = 0.056140682, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.41263622, Final residual = 0.030503569, No Iterations 4
+smoothSolver:  Solving for Uz, Initial residual = 0.41918411, Final residual = 0.03131311, No Iterations 4
+GAMG:  Solving for p, Initial residual = 0.22156556, Final residual = 0.18762319, No Iterations 30
+time step continuity errors : sum local = 0.00034468623, global = -2.6452128e-05, cumulative = -2.830663e-05
+smoothSolver:  Solving for omega, Initial residual = 0.033730923, Final residual = 0.00077628223, No Iterations 2
+smoothSolver:  Solving for k, Initial residual = 0.53329464, Final residual = 0.013072907, No Iterations 2
+ExecutionTime = 3.271 s  ClockTime = 3 s</code></pre>
+<p><code>./Allrun</code> hace todo en un comando, con el mismo comando de Gmsh.</p>
+
+    </section>
+    <section id="case-es">
+      <p class="section-label">El caso</p>
+      <h2>Los archivos de la turbulencia</h2>
+
+<p>Sólo se reproducen los archivos que cambian respecto al <a href="tuberia-laminar.html#case-es">tutorial 1.1</a>. <code>0/U</code>, <code>0/p</code>, <code>system/controlDict</code> y las funciones que escriben las cifras son iguales, salvo la posición de las sondas y del perfil.</p>
+<h3><code>constant/physicalProperties</code> y <code>constant/momentumTransport</code></h3>
+<p class="code-name"><code>constant/physicalProperties</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    &quot;constant&quot;;
+    object      physicalProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+viscosityModel  constant;
+
+nu              [0 2 -1 0 0 0 0] 2e-05;     // Re = U D / nu = 50000 con U = 1 m/s y D = 1 m
+
+// ************************************************************************* //</code></pre><p class="code-name"><code>constant/momentumTransport</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    &quot;constant&quot;;
+    object      momentumTransport;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+simulationType  RAS;
+
+RAS
+{
+    model           kOmegaSST;
+
+    turbulence      on;
+
+    printCoeffs     on;
+}
+
+// ************************************************************************* //</code></pre>
+<figure class="diagram medium">
+  <img src="imagenes/t12-01_momentum.png" alt="El archivo constant/momentumTransport en Notepad2, con RAS y kOmegaSST" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">El modelo de turbulencia.</b> <code>constant/momentumTransport</code> abierto con doble clic en el Explorador: <code>simulationType RAS</code> y <code>model kOmegaSST</code>.</figcaption>
+</figure>
+<p><code>simulationType RAS</code>: promedio de Reynolds, con un modelo para la viscosidad turbulenta; <code>model kOmegaSST</code>, el modelo; <code>printCoeffs on</code>, que escriba al empezar los coeficientes que usa (todos los de fábrica).</p>
+<h3><code>0/k</code>, <code>0/omega</code> y <code>0/nut</code>: la turbulencia</h3>
+<p class="code-name"><code>0/k</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       volScalarField;
+    location    &quot;0&quot;;
+    object      k;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -2 0 0 0 0];
+
+internalField   uniform 0.00375;          // intensidad del 5 %: k = 1.5 (0.05 U)^2
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           $internalField;
+    }
+
+    outlet
+    {
+        type            inletOutlet;
+        inletValue      $internalField;
+        value           $internalField;
+    }
+
+    walls
+    {
+        type            fixedValue;         // y+ ~ 1: k = 0 en la pared
+        value           uniform 1e-10;
+    }
+}
+
+// ************************************************************************* //</code></pre><p class="code-name"><code>0/omega</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       volScalarField;
+    location    &quot;0&quot;;
+    object      omega;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 -1 0 0 0 0];
+
+internalField   uniform 1.6;              // sqrt(k)/(Cmu^0.25 l) con l = 0.07 D
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           $internalField;
+    }
+
+    outlet
+    {
+        type            inletOutlet;
+        inletValue      $internalField;
+        value           $internalField;
+    }
+
+    walls
+    {
+        type            omegaWallFunction;
+        value           $internalField;
+    }
+}
+
+// ************************************************************************* //</code></pre><p class="code-name"><code>0/nut</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       volScalarField;
+    location    &quot;0&quot;;
+    object      nut;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 2 -1 0 0 0 0];
+
+internalField   uniform 0;
+
+boundaryField
+{
+    inlet
+    {
+        type            calculated;
+        value           $internalField;
+    }
+
+    outlet
+    {
+        type            calculated;
+        value           $internalField;
+    }
+
+    walls
+    {
+        type            nutLowReWallFunction;
+        value           uniform 0;
+    }
+}
+
+// ************************************************************************* //</code></pre>
+<ul>
+  <li><strong>Entrada:</strong> k y ω fijos, con los valores de la ecuación (4).</li>
+  <li><strong>Salida:</strong> <code>inletOutlet</code>, que funciona como gradiente cero mientras el flujo sale, y fija el valor si en algún momento entra por ahí.</li>
+  <li><strong>Pared, con y⁺ ≈ 1:</strong> k prácticamente cero (se fija en 10<sup>−10</sup>, que evita divisiones entre cero); <code>omegaWallFunction</code>, que da a ω el valor de la subcapa viscosa cuando y⁺ es pequeño y el de la zona logarítmica cuando es grande; y <code>nutLowReWallFunction</code>, que deja ν<sub>t</sub> = 0 en la pared y sirve para que OpenFOAM calcule y⁺.</li>
+  <li><strong><code>nut</code></strong> no se resuelve: lo calcula el modelo en cada iteración a partir de k y ω. Su archivo sólo da las condiciones de frontera (<code>calculated</code> en la entrada y la salida).</li>
+</ul>
+<h3><code>system/fvSchemes</code></h3>
+<p class="code-name"><code>system/fvSchemes</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    &quot;system&quot;;
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default         steadyState;
+}
+
+gradSchemes
+{
+    default         Gauss linear;
+}
+
+divSchemes
+{
+    default         none;
+    div(phi,U)      bounded Gauss linearUpwind grad(U);
+    div(phi,k)      bounded Gauss upwind;
+    div(phi,omega)  bounded Gauss upwind;
+    div((nuEff*dev2(T(grad(U))))) Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+wallDist
+{
+    method          meshWave;
+}
+
+// ************************************************************************* //</code></pre>
+<p>Dos entradas nuevas: la convección de k y de ω con <code>upwind</code>, de primer orden. Son variables que varían mucho junto a la pared y que no aparecen en las cifras de la validación; el primer orden las hace más robustas sin cambiar el resultado de U y p, que siguen con <code>linearUpwind</code>.</p>
+<h3><code>system/fvSolution</code></h3>
+<p class="code-name"><code>system/fvSolution</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    &quot;system&quot;;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          GAMG;
+        smoother        GaussSeidel;
+        tolerance       1e-07;
+        relTol          0.1;
+        maxIter         30;               // con relTol 0.05 GAMG llegaba a 150 iteraciones
+    }
+
+    pcorr
+    {
+        solver          GAMG;
+        smoother        GaussSeidel;
+        tolerance       1e-07;
+        relTol          0;
+    }
+
+    &quot;(U|k|omega)&quot;
+    {
+        solver          smoothSolver;
+        smoother        GaussSeidel;
+        nSweeps         2;
+        tolerance       1e-09;
+        relTol          0.1;
+    }
+}
+
+SIMPLE
+{
+    consistent      yes;
+
+    nNonOrthogonalCorrectors 0;
+
+    residualControl
+    {
+        p               1e-4;
+        U               1e-5;
+        &quot;(k|omega)&quot;     1e-5;
+    }
+}
+
+relaxationFactors
+{
+    equations
+    {
+        U               0.9;
+        &quot;.*&quot;            0.7;
+    }
+}
+
+// ************************************************************************* //</code></pre>
+<ul>
+  <li><strong><code>"(U|k|omega)"</code></strong>: una expresión regular que aplica el mismo solver a las tres variables.</li>
+  <li><strong><code>relTol 0.1</code> y <code>maxIter 30</code> para p</strong>: con celdas tan delgadas junto a la pared, GAMG tardaba más de cien iteraciones en cada paso; bastan pocas, porque SIMPLE corrige la presión en cada iteración de todas formas.</li>
+  <li><strong><code>residualControl</code></strong>: 10<sup>−4</sup> para p y 10<sup>−5</sup> para las demás, un orden de magnitud más holgado que en el caso laminar.</li>
+</ul>
+
+    </section>
+    <section id="results-es">
+      <p class="section-label">Resultados</p>
+      <h2>El flujo en ParaView</h2>
+
+<p>Los pasos en ParaView son los del <a href="tuberia-laminar.html#results-es">tutorial 1.1</a>: <code>Apply</code>, <code>Last Frame</code>, <code>Slice</code> con <code>Z Normal</code> y sin <code>Show Plane</code>, color por <code>U</code>, vista <code>-Z</code> y <code>Zoom to Box</code> sobre la entrada (figura 4); después, con <code>tuberia-turbulenta.foam</code> seleccionado, <code>Plot Over Line</code> de (31, −0.49999, 0) a (31, 0.49999, 0) con sólo <code>U_X</code> (figura 5).</p>
+<figure class="diagram">
+  <img src="imagenes/t12-03_corte.png" alt="ParaView: corte longitudinal de la tubería turbulenta coloreado con la magnitud de la velocidad, acercado a la entrada" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">El corte longitudinal, cerca de la entrada.</b> Los mismos pasos del tutorial 1.1. La capa de fluido lento junto a la pared es tan delgada que a esta escala apenas se distingue: el núcleo ocupa casi toda la sección.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t12-04_grafica.png" alt="ParaView: la gráfica de U_X a lo ancho de la tubería turbulenta, casi plana en el centro" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">El perfil en ParaView.</b> <code>Plot Over Line</code> de (31, −0.49999, 0) a (31, 0.49999, 0), con sólo <code>U_X</code>.</figcaption>
+</figure>
+<p>La diferencia con el caso laminar salta a la vista: el perfil es casi plano en el centro, con un máximo de apenas 1.18 veces la velocidad media, y cae a cero en una capa muy delgada junto a la pared.</p>
+
+    </section>
+    <section id="validation-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>El modelo contra las correlaciones</h2>
+
+<div class="example">
+  <p><strong>Enunciado.</strong> Comparar el factor de fricción de la simulación con las tres correlaciones de la ecuación (2), comprobar que la primera celda quedó en y⁺ ≈ 1 y comparar el perfil con la ley 1/7. <strong>Condiciones:</strong> el caso sin cambios, Re = 50 000; los valores de la última iteración, 307.</p>
+</div>
+<h3>El factor de fricción</h3>
+<p>La última fila de <code>postProcessing/sondas/0/p</code>:</p>
+<pre class="code"><code># Probe 0 (28 0 0)
+# Probe 1 (34 0 0)
+# Time          0               1              
+307             0.082805964     0.025341141</code></pre>
+<div class="equation-card">\[ \frac{\Delta(p/\rho)}{\Delta x} = \frac{0.025341 - 0.082806}{34 - 28} = −0.009577\ \mathrm{m/s^2},\qquad f = -2\,(−0.009577) = 0.01915 \]</div>
+<p>Y del esfuerzo en la pared (<code>wallShearStress.dat</code>), \(f = 8\tau_w/(\rho U^2)\) = 0.01903. La tabla 2 compara con las correlaciones.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th></th><th>f</th><th>Simulación (sondas) contra ella</th></tr></thead>
+    <tbody>
+      <tr><td>Simulación, de la caída de presión entre las sondas</td><td>0.01915</td><td>—</td></tr>
+      <tr><td>Simulación, del esfuerzo en la pared</td><td>0.01903</td><td>—</td></tr>
+      <tr><td>Petukhov (1970)</td><td>0.02096</td><td>−8.6 %</td></tr>
+      <tr><td>Blasius (1913)</td><td>0.02116</td><td>−9.5 %</td></tr>
+      <tr><td>Colebrook (1939), tubo liso</td><td>0.02089</td><td>−8.3 %</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">El factor de fricción contra tres correlaciones.</b> Las tres correlaciones son para tubo liso. Simulación: OpenFOAM 12 (blueCFD-Core 2024), k-ω SST, 307 iteraciones.</caption>
+  </table>
+</div>
+<p>La simulación da un factor de fricción 8.6 % menor que el de Petukhov. <strong>Es el modelo, no la malla</strong>: en el tutorial 3.1.2 de Gmsh, una malla 2.7 veces más fina cambió f sólo 0.5 %, y las correlaciones difieren entre sí en 1 %. La diferencia es propia de k-ω SST: el modelo, con sus coeficientes de fábrica, no reproduce exactamente la fricción de una tubería lisa.</p>
+<h3>y⁺</h3>
+<pre class="code"><code># y+ ()         
+# Time          	patch           	min             	max             	average         
+307             	walls	9.49794450e-01	1.76789685e+00	9.69897799e-01</code></pre>
+<p>El mínimo, 0.950, está en la zona desarrollada; se pidió 1. No es un error del <code>.geo</code>: el y⁺ que mide OpenFOAM usa la velocidad de fricción de la propia simulación, y como \(u_\tau \propto \sqrt f\) (ecuación 3), si el modelo da una f 8.6 % menor, el y⁺ debe salir \(\sqrt{f/f_{\text{Petukhov}}}\) = 0.956 del pedido. Es lo que sale. El máximo, 1.77, está junto a la entrada, donde el esfuerzo en la pared es mayor; sigue dentro de la subcapa viscosa.</p>
+<h3>La velocidad del eje y el perfil</h3>
+<pre class="code"><code># Probe 0 (28 0 0)
+# Probe 1 (34 0 0)
+# Time          0               1              
+307             (1.1832023 4.3550981e-06 -1.6809445e-05) (1.176673 8.0263135e-06 -1.1727992e-05)</code></pre>
+<p>En la segunda sonda, \(u_c\) = 1.177 U, contra 1.224 U de la ley 1/7 (−3.9 %). Fuera del eje, el perfil queda a 1 % de esa ley (figura 6 y tabla 3); en el eje, la ley 1/7 da un pico que el perfil real no tiene.</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Perfil de velocidad turbulento contra la ley de potencia 1/7 y el perfil laminar">
+  <text class="svg-title" x="76" y="28">El perfil turbulento es mucho más plano que el laminar</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="666" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">0.0</text>
+  <line class="svg-grid" x1="76" y1="240.5" x2="666" y2="240.5"/>
+  <text class="svg-tick" x="70" y="244.5" text-anchor="end">0.5</text>
+  <line class="svg-grid" x1="76" y1="181.0" x2="666" y2="181.0"/>
+  <text class="svg-tick" x="70" y="185.0" text-anchor="end">1.0</text>
+  <line class="svg-grid" x1="76" y1="121.4" x2="666" y2="121.4"/>
+  <text class="svg-tick" x="70" y="125.4" text-anchor="end">1.5</text>
+  <line class="svg-grid" x1="76" y1="61.9" x2="666" y2="61.9"/>
+  <text class="svg-tick" x="70" y="65.9" text-anchor="end">2.0</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0.0</text>
+  <text class="svg-tick" x="194.0" y="318" text-anchor="middle">0.2</text>
+  <text class="svg-tick" x="312.0" y="318" text-anchor="middle">0.4</text>
+  <text class="svg-tick" x="430.0" y="318" text-anchor="middle">0.6</text>
+  <text class="svg-tick" x="548.0" y="318" text-anchor="middle">0.8</text>
+  <text class="svg-tick" x="666.0" y="318" text-anchor="middle">1.0</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">r / R</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">u / U</text>
+  <polyline points="76.0,64.3 79.0,64.4 81.9,64.5 84.9,64.6 87.9,64.7 90.8,64.8 93.8,64.9 96.8,65.0 99.7,65.1 102.7,65.2 105.6,65.3 108.6,65.4 111.6,65.5 114.5,65.6 117.5,65.6 120.5,65.7 123.4,65.9 126.4,66.1 129.4,66.4 132.3,66.7 135.3,67.0 138.3,67.3 141.2,67.5 144.2,67.8 147.2,68.1 150.1,68.4 153.1,68.7 156.0,68.9 159.0,69.2 162.0,69.5 164.9,69.8 167.9,70.1 170.9,70.4 173.8,70.8 176.8,71.3 179.8,71.8 182.7,72.3 185.7,72.7 188.7,73.2 191.6,73.7 194.6,74.1 197.6,74.6 200.5,75.1 203.5,75.5 206.4,76.0 209.4,76.5 212.4,76.9 215.3,77.4 218.3,77.9 221.3,78.6 224.2,79.2 227.2,79.9 230.2,80.6 233.1,81.2 236.1,81.9 239.1,82.5 242.0,83.2 245.0,83.9 248.0,84.5 250.9,85.2 253.9,85.8 256.9,86.5 259.8,87.2 262.8,87.8 265.7,88.5 268.7,89.4 271.7,90.2 274.6,91.1 277.6,91.9 280.6,92.8 283.5,93.6 286.5,94.5 289.5,95.3 292.4,96.2 295.4,97.0 298.4,97.9 301.3,98.7 304.3,99.6 307.3,100.5 310.2,101.3 313.2,102.2 316.1,103.3 319.1,104.3 322.1,105.3 325.0,106.4 328.0,107.4 331.0,108.4 333.9,109.5 336.9,110.5 339.9,111.6 342.8,112.6 345.8,113.6 348.8,114.7 351.7,115.7 354.7,116.7 357.7,117.8 360.6,118.9 363.6,120.1 366.5,121.3 369.5,122.6 372.5,123.8 375.4,125.0 378.4,126.2 381.4,127.4 384.3,128.7 387.3,129.9 390.3,131.1 393.2,132.3 396.2,133.6 399.2,134.8 402.1,136.0 405.1,137.2 408.1,138.5 411.0,140.0 414.0,141.4 416.9,142.8 419.9,144.2 422.9,145.6 425.8,147.0 428.8,148.4 431.8,149.8 434.7,151.3 437.7,152.7 440.7,154.1 443.6,155.5 446.6,156.9 449.6,158.3 452.5,159.7 455.5,161.3 458.5,162.9 461.4,164.5 464.4,166.1 467.3,167.7 470.3,169.3 473.3,170.9 476.2,172.5 479.2,174.1 482.2,175.7 485.1,177.3 488.1,178.9 491.1,180.5 494.0,182.1 497.0,183.7 500.0,185.3 502.9,186.9 505.9,188.5 508.9,190.1 511.8,191.7 514.8,193.2 517.7,194.8 520.7,196.4 523.7,198.0 526.6,199.5 529.6,201.1 532.6,202.7 535.5,204.3 538.5,205.9 541.5,207.4 544.4,209.0 547.4,210.6 550.4,212.7 553.3,215.0 556.3,217.3 559.3,219.6 562.2,221.9 565.2,224.2 568.2,226.4 571.1,228.7 574.1,230.9 577.0,233.0 580.0,235.1 583.0,237.1 585.9,239.2 588.9,241.3 591.9,243.3 594.8,245.4 597.8,247.6 600.8,249.7 603.7,251.9 606.7,254.0 609.7,256.2 612.6,258.3 615.6,260.6 618.6,262.8 621.5,265.0 624.5,267.2 627.4,269.4 630.4,271.7 633.4,274.0 636.3,276.3 639.3,278.5 642.3,280.9 645.2,283.2 648.2,285.5 651.2,287.9 654.1,290.2 657.1,292.6 660.1,295.0 663.0,297.5 666.0,300.0" fill="none" stroke="var(--muted)" stroke-width="1.6"/>
+  <polyline points="76.0,154.2 79.0,154.3 81.9,154.4 84.8,154.5 87.8,154.6 90.8,154.8 93.7,154.9 96.7,155.0 99.6,155.1 102.5,155.2 105.5,155.3 108.5,155.4 111.4,155.5 114.3,155.6 117.3,155.7 120.2,155.8 123.2,156.0 126.2,156.1 129.1,156.2 132.1,156.3 135.0,156.4 137.9,156.5 140.9,156.6 143.9,156.7 146.8,156.9 149.8,157.0 152.7,157.1 155.7,157.2 158.6,157.3 161.6,157.5 164.5,157.6 167.4,157.7 170.4,157.8 173.4,157.9 176.3,158.1 179.2,158.2 182.2,158.3 185.2,158.4 188.1,158.6 191.1,158.7 194.0,158.8 196.9,158.9 199.9,159.1 202.8,159.2 205.8,159.3 208.8,159.4 211.7,159.6 214.7,159.7 217.6,159.8 220.6,160.0 223.5,160.1 226.4,160.2 229.4,160.4 232.3,160.5 235.3,160.6 238.2,160.8 241.2,160.9 244.1,161.0 247.1,161.2 250.0,161.3 253.0,161.5 255.9,161.6 258.9,161.8 261.9,161.9 264.8,162.0 267.8,162.2 270.7,162.3 273.6,162.5 276.6,162.6 279.5,162.8 282.5,162.9 285.4,163.1 288.4,163.2 291.4,163.4 294.3,163.5 297.2,163.7 300.2,163.9 303.1,164.0 306.1,164.2 309.1,164.3 312.0,164.5 315.0,164.6 317.9,164.8 320.9,165.0 323.8,165.1 326.8,165.3 329.7,165.5 332.6,165.6 335.6,165.8 338.6,166.0 341.5,166.2 344.4,166.3 347.4,166.5 350.4,166.7 353.3,166.9 356.2,167.0 359.2,167.2 362.1,167.4 365.1,167.6 368.1,167.8 371.0,168.0 373.9,168.2 376.9,168.4 379.9,168.5 382.8,168.7 385.8,168.9 388.7,169.1 391.7,169.3 394.6,169.5 397.6,169.7 400.5,169.9 403.5,170.2 406.4,170.4 409.3,170.6 412.3,170.8 415.2,171.0 418.2,171.2 421.1,171.4 424.1,171.7 427.1,171.9 430.0,172.1 432.9,172.3 435.9,172.6 438.9,172.8 441.8,173.0 444.8,173.3 447.7,173.5 450.6,173.8 453.6,174.0 456.6,174.3 459.5,174.5 462.4,174.8 465.4,175.0 468.4,175.3 471.3,175.6 474.2,175.9 477.2,176.1 480.2,176.4 483.1,176.7 486.0,177.0 489.0,177.3 491.9,177.6 494.9,177.9 497.8,178.2 500.8,178.5 503.8,178.8 506.7,179.1 509.6,179.4 512.6,179.7 515.5,180.1 518.5,180.4 521.5,180.8 524.4,181.1 527.4,181.5 530.3,181.8 533.2,182.2 536.2,182.6 539.2,183.0 542.1,183.4 545.0,183.8 548.0,184.2 551.0,184.6 553.9,185.0 556.8,185.5 559.8,185.9 562.8,186.4 565.7,186.8 568.6,187.3 571.6,187.8 574.5,188.3 577.5,188.8 580.5,189.4 583.4,189.9 586.4,190.5 589.3,191.1 592.2,191.7 595.2,192.3 598.1,193.0 601.1,193.7 604.0,194.4 607.0,195.1 610.0,195.9 612.9,196.7 615.9,197.5 618.8,198.4 621.8,199.3 624.7,200.3 627.6,201.4 630.6,202.5 633.5,203.7 636.5,205.0 639.4,206.4 642.4,208.0 645.4,209.7 648.3,211.7 651.2,213.9 654.2,216.6 657.1,220.0 660.1,224.5 663.0,231.6 666.0,300.0" fill="none" stroke="var(--ink)" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <polyline points="76.0,159.5 79.0,159.5 81.9,159.6 84.9,159.6 87.9,159.6 90.8,159.6 93.8,159.6 96.8,159.6 99.7,159.6 102.7,159.6 105.6,159.6 108.6,159.7 111.6,159.7 114.5,159.7 117.5,159.7 120.5,159.7 123.4,159.7 126.4,159.7 129.4,159.8 132.3,159.8 135.3,159.8 138.3,159.9 141.2,159.9 144.2,159.9 147.2,160.0 150.1,160.0 153.1,160.0 156.0,160.1 159.0,160.1 162.0,160.1 164.9,160.2 167.9,160.2 170.9,160.2 173.8,160.3 176.8,160.4 179.8,160.4 182.7,160.5 185.7,160.5 188.7,160.6 191.6,160.6 194.6,160.7 197.6,160.8 200.5,160.8 203.5,160.9 206.4,160.9 209.4,161.0 212.4,161.0 215.3,161.1 218.3,161.2 221.3,161.2 224.2,161.3 227.2,161.4 230.2,161.5 233.1,161.6 236.1,161.6 239.1,161.7 242.0,161.8 245.0,161.9 248.0,162.0 250.9,162.0 253.9,162.1 256.9,162.2 259.8,162.3 262.8,162.4 265.7,162.5 268.7,162.6 271.7,162.7 274.6,162.8 277.6,162.9 280.6,163.0 283.5,163.1 286.5,163.2 289.5,163.3 292.4,163.4 295.4,163.5 298.4,163.6 301.3,163.7 304.3,163.8 307.3,164.0 310.2,164.1 313.2,164.2 316.1,164.3 319.1,164.4 322.1,164.6 325.0,164.7 328.0,164.8 331.0,165.0 333.9,165.1 336.9,165.3 339.9,165.4 342.8,165.5 345.8,165.7 348.8,165.8 351.7,165.9 354.7,166.1 357.7,166.2 360.6,166.3 363.6,166.5 366.5,166.7 369.5,166.8 372.5,167.0 375.4,167.2 378.4,167.3 381.4,167.5 384.3,167.7 387.3,167.8 390.3,168.0 393.2,168.2 396.2,168.3 399.2,168.5 402.1,168.7 405.1,168.8 408.1,169.0 411.0,169.2 414.0,169.4 416.9,169.7 419.9,169.9 422.9,170.1 425.8,170.3 428.8,170.5 431.8,170.7 434.7,170.9 437.7,171.1 440.7,171.3 443.6,171.5 446.6,171.7 449.6,171.9 452.5,172.1 455.5,172.4 458.5,172.7 461.4,172.9 464.4,173.2 467.3,173.5 470.3,173.7 473.3,174.0 476.2,174.3 479.2,174.5 482.2,174.8 485.1,175.0 488.1,175.3 491.1,175.6 494.0,175.8 497.0,176.1 500.0,176.4 502.9,176.7 505.9,177.0 508.9,177.3 511.8,177.6 514.8,177.9 517.7,178.2 520.7,178.5 523.7,178.8 526.6,179.1 529.6,179.4 532.6,179.7 535.5,180.0 538.5,180.3 541.5,180.6 544.4,180.9 547.4,181.2 550.4,181.7 553.3,182.3 556.3,182.9 559.3,183.4 562.2,184.0 565.2,184.6 568.2,185.2 571.1,185.8 574.1,186.3 577.0,186.9 580.0,187.5 583.0,188.0 585.9,188.6 588.9,189.3 591.9,190.0 594.8,190.7 597.8,191.4 600.8,192.1 603.7,193.0 606.7,193.8 609.7,194.7 612.6,195.6 615.6,196.6 618.6,197.7 621.5,198.7 624.5,200.0 627.4,201.3 630.4,202.7 633.4,204.4 636.3,206.0 639.3,208.1 642.3,210.2 645.2,212.9 648.2,216.0 651.2,219.7 654.1,224.5 657.1,231.6 660.1,243.3 663.0,264.9 666.0,299.8" fill="none" stroke="var(--blue)" stroke-width="2.2"/>
+  <line x1="90" y1="226" x2="116" y2="226" stroke="var(--muted)" stroke-width="1.6"/>
+  <text class="svg-note-sm" x="122" y="230">laminar, Re = 500 (tutorial 1.1)</text>
+  <line x1="90" y1="244" x2="116" y2="244" stroke="var(--ink)" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <text class="svg-note-sm" x="122" y="248">ley de potencia 1/7</text>
+  <line x1="90" y1="262" x2="116" y2="262" stroke="var(--blue)" stroke-width="2.2"/>
+  <text class="svg-note-sm" x="122" y="266">turbulento, Re = 50 000</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">El perfil de velocidad.</b> Archivo <code>postProcessing/radial/307/line.xy</code>, del eje a la pared, en x = 31 D. Con la misma velocidad media, el perfil turbulento es casi plano en el centro y cae bruscamente junto a la pared, donde está casi todo el gradiente de velocidad: por eso la primera celda tiene que ser tan delgada.</figcaption>
+</figure>
+<h3>La región de entrada</h3>
+<p>La velocidad del eje se comporta distinto que en el caso laminar: sube por encima de su valor final, alcanza 1.186 U en x = 24.1 D, y después baja despacio (figura 7). Por eso no se puede medir la longitud de entrada con el criterio del 99 %: la velocidad del eje llega al 99 % de su valor en la segunda sonda en x = 16.0 D, pero todavía no está desarrollada. Entre las dos sondas, a 28 y 34 D, la velocidad del eje cambia todavía 0.6 %; para el factor de fricción basta, porque el gradiente de presión ya es prácticamente constante.</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Velocidad en el eje de la tubería turbulenta contra la distancia a la entrada">
+  <text class="svg-title" x="76" y="28">La velocidad en el eje sobrepasa su valor final antes de asentarse</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="666" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">1.00</text>
+  <line class="svg-grid" x1="76" y1="250.0" x2="666" y2="250.0"/>
+  <text class="svg-tick" x="70" y="254.0" text-anchor="end">1.05</text>
+  <line class="svg-grid" x1="76" y1="200.0" x2="666" y2="200.0"/>
+  <text class="svg-tick" x="70" y="204.0" text-anchor="end">1.10</text>
+  <line class="svg-grid" x1="76" y1="150.0" x2="666" y2="150.0"/>
+  <text class="svg-tick" x="70" y="154.0" text-anchor="end">1.15</text>
+  <line class="svg-grid" x1="76" y1="100.0" x2="666" y2="100.0"/>
+  <text class="svg-tick" x="70" y="104.0" text-anchor="end">1.20</text>
+  <line class="svg-grid" x1="76" y1="50.0" x2="666" y2="50.0"/>
+  <text class="svg-tick" x="70" y="54.0" text-anchor="end">1.25</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0</text>
+  <text class="svg-tick" x="153.6" y="318" text-anchor="middle">5</text>
+  <text class="svg-tick" x="231.3" y="318" text-anchor="middle">10</text>
+  <text class="svg-tick" x="308.9" y="318" text-anchor="middle">15</text>
+  <text class="svg-tick" x="386.5" y="318" text-anchor="middle">20</text>
+  <text class="svg-tick" x="464.2" y="318" text-anchor="middle">25</text>
+  <text class="svg-tick" x="541.8" y="318" text-anchor="middle">30</text>
+  <text class="svg-tick" x="619.4" y="318" text-anchor="middle">35</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">x / D</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">u<tspan baseline-shift="sub" font-size="8">c</tspan> / U</text>
+  <polyline points="76.8,298.6 78.2,296.1 79.6,293.6 81.0,290.9 82.5,288.2 83.9,285.6 85.3,283.8 86.7,282.1 88.2,280.4 89.6,279.0 91.0,277.6 92.4,276.2 93.8,274.7 95.3,273.3 96.7,271.9 98.1,270.5 99.5,269.1 101.0,267.8 102.4,266.5 103.8,265.2 105.2,263.9 106.6,262.6 108.1,261.3 109.5,260.1 110.9,258.8 112.3,257.6 113.8,256.4 115.2,255.2 116.6,254.0 118.0,252.8 119.4,251.6 120.9,250.4 122.3,249.3 123.7,248.1 125.1,247.0 126.6,245.8 128.0,244.7 129.4,243.6 130.8,242.4 132.2,241.3 133.7,240.2 135.1,239.1 136.5,238.0 137.9,236.9 139.4,235.8 140.8,234.8 142.2,233.7 143.6,232.6 145.0,231.6 146.5,230.5 147.9,229.5 149.3,228.4 150.7,227.4 152.2,226.3 153.6,225.3 155.0,224.3 156.4,223.3 157.8,222.2 159.3,221.2 160.7,220.2 162.1,219.2 163.5,218.2 165.0,217.2 166.4,216.3 167.8,215.3 169.2,214.3 170.6,213.3 172.1,212.4 173.5,211.4 174.9,210.4 176.3,209.5 177.8,208.5 179.2,207.6 180.6,206.6 182.0,205.7 183.4,204.8 184.9,203.8 186.3,202.9 187.7,202.0 189.1,201.1 190.6,200.2 192.0,199.3 193.4,198.4 194.8,197.5 196.2,196.6 197.7,195.7 199.1,194.8 200.5,193.9 201.9,193.1 203.4,192.2 204.8,191.3 206.2,190.5 207.6,189.6 209.0,188.8 210.5,187.9 211.9,187.1 213.3,186.2 214.7,185.4 216.2,184.6 217.6,183.7 219.0,182.9 220.4,182.1 221.8,181.3 223.3,180.5 224.7,179.7 226.1,178.9 227.5,178.1 229.0,177.3 230.4,176.5 231.8,175.7 233.2,174.9 234.6,174.2 236.1,173.4 237.5,172.6 238.9,171.9 240.3,171.1 241.8,170.4 243.2,169.6 244.6,168.9 246.0,168.1 247.4,167.4 248.9,166.7 250.3,166.0 251.7,165.2 253.1,164.5 254.6,163.8 256.0,163.1 257.4,162.4 258.8,161.7 260.2,161.0 261.7,160.3 263.1,159.7 264.5,159.0 265.9,158.3 267.4,157.6 268.8,157.0 270.2,156.3 271.6,155.7 273.0,155.0 274.5,154.4 275.9,153.7 277.3,153.1 278.7,152.5 280.2,151.8 281.6,151.2 283.0,150.6 284.4,150.0 285.9,149.4 287.3,148.8 288.7,148.2 290.1,147.6 291.5,147.0 293.0,146.4 294.4,145.8 295.8,145.3 297.2,144.7 298.7,144.1 300.1,143.6 301.5,143.0 302.9,142.5 304.3,141.9 305.8,141.4 307.2,140.9 308.6,140.3 310.0,139.8 311.5,139.3 312.9,138.8 314.3,138.2 315.7,137.7 317.1,137.2 318.6,136.7 320.0,136.2 321.4,135.8 322.8,135.3 324.3,134.8 325.7,134.3 327.1,133.9 328.5,133.4 329.9,132.9 331.4,132.5 332.8,132.0 334.2,131.6 335.6,131.2 337.1,130.7 338.5,130.3 339.9,129.9 341.3,129.5 342.7,129.1 344.2,128.7 345.6,128.3 347.0,127.9 348.4,127.5 349.9,127.1 351.3,126.7 352.7,126.3 354.1,126.0 355.5,125.6 357.0,125.2 358.4,124.9 359.8,124.5 361.2,124.2 362.7,123.9 364.1,123.5 365.5,123.2 366.9,122.9 368.3,122.6 369.8,122.3 371.2,122.0 372.6,121.7 374.0,121.4 375.5,121.1 376.9,120.8 378.3,120.6 379.7,120.3 381.1,120.0 382.6,119.8 384.0,119.5 385.4,119.3 386.8,119.0 388.3,118.8 389.7,118.6 391.1,118.4 392.5,118.2 393.9,118.0 395.4,117.8 396.8,117.6 398.2,117.4 399.6,117.2 401.1,117.0 402.5,116.8 403.9,116.7 405.3,116.5 406.7,116.4 408.2,116.2 409.6,116.1 411.0,115.9 412.4,115.8 413.9,115.7 415.3,115.6 416.7,115.4 418.1,115.3 419.5,115.2 421.0,115.1 422.4,115.0 423.8,115.0 425.2,114.9 426.7,114.8 428.1,114.7 429.5,114.7 430.9,114.6 432.3,114.5 433.8,114.5 435.2,114.4 436.6,114.4 438.0,114.4 439.5,114.3 440.9,114.3 442.3,114.3 443.7,114.3 445.1,114.2 446.6,114.2 448.0,114.2 449.4,114.2 450.8,114.2 452.3,114.2 453.7,114.2 455.1,114.2 456.5,114.3 457.9,114.3 459.4,114.3 460.8,114.3 462.2,114.3 463.6,114.4 465.1,114.4 466.5,114.5 467.9,114.5 469.3,114.5 470.7,114.6 472.2,114.6 473.6,114.7 475.0,114.7 476.4,114.8 477.9,114.9 479.3,114.9 480.7,115.0 482.1,115.0 483.5,115.1 485.0,115.2 486.4,115.2 487.8,115.3 489.2,115.4 490.7,115.5 492.1,115.6 493.5,115.6 494.9,115.7 496.3,115.8 497.8,115.9 499.2,116.0 500.6,116.1 502.0,116.1 503.5,116.2 504.9,116.3 506.3,116.4 507.7,116.5 509.1,116.6 510.6,116.7 512.0,116.8 513.4,116.9 514.8,117.0 516.3,117.1 517.7,117.2 519.1,117.3 520.5,117.4 521.9,117.5 523.4,117.6 524.8,117.7 526.2,117.8 527.6,117.9 529.1,118.0 530.5,118.1 531.9,118.2 533.3,118.3 534.7,118.4 536.2,118.5 537.6,118.6 539.0,118.7 540.4,118.8 541.9,118.9 543.3,119.0 544.7,119.1 546.1,119.2 547.5,119.3 549.0,119.4 550.4,119.5 551.8,119.6 553.2,119.7 554.7,119.8 556.1,120.0 557.5,120.1 558.9,120.2 560.3,120.3 561.8,120.4 563.2,120.5 564.6,120.6 566.0,120.7 567.5,120.8 568.9,120.9 570.3,121.0 571.7,121.1 573.1,121.2 574.6,121.3 576.0,121.4 577.4,121.5 578.8,121.6 580.3,121.7 581.7,121.8 583.1,121.9 584.5,122.0 585.9,122.1 587.4,122.2 588.8,122.3 590.2,122.4 591.6,122.4 593.1,122.5 594.5,122.6 595.9,122.7 597.3,122.8 598.8,122.9 600.2,123.0 601.6,123.1 603.0,123.2 604.4,123.3 605.9,123.4 607.3,123.5 608.7,123.5 610.1,123.6 611.6,123.7 613.0,123.8 614.4,123.9 615.8,124.0 617.2,124.1 618.7,124.1 620.1,124.2 621.5,124.3 622.9,124.4 624.4,124.5 625.8,124.6 627.2,124.6 628.6,124.7 630.0,124.8 631.5,124.9 632.9,124.9 634.3,125.0 635.7,125.1 637.2,125.2 638.6,125.2 640.0,125.3 641.4,125.4 642.8,125.5 644.3,125.6" fill="none" stroke="var(--blue)" stroke-width="2.2"/>
+  <polyline points="76.0,75.5 645.9,75.5" fill="none" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="6 4"/>
+  <text class="svg-note-sm" x="449.4" y="102.2" text-anchor="middle" fill="var(--accent-dark)">máximo: 1.186 en 24.1 D</text>
+  <text class="svg-note-sm" x="91.5" y="63.5" text-anchor="start" fill="var(--muted)">ley de potencia 1/7: u<tspan baseline-shift="sub" font-size="8">c</tspan> = 1.224 U</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">La velocidad en el eje.</b> Archivo <code>postProcessing/eje/307/line.xy</code>. A diferencia del caso laminar, la velocidad del eje sube por encima de su valor final (1.186 U en x = 24.1 D) y luego baja despacio: al final de la tubería vale 1.174 U. Por eso el criterio del 99 % no sirve para medir la longitud de entrada turbulenta.</figcaption>
+</figure>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Magnitud</th><th>Referencia</th><th>Simulación</th><th>Diferencia</th></tr></thead>
+    <tbody>
+      <tr><td>Factor de fricción</td><td>0.0210 (Petukhov)</td><td>0.0192</td><td>−8.6 %</td></tr>
+      <tr><td>Velocidad en el eje, \(u_c/U\), en x = 34 D</td><td>1.2245 (ley 1/7)</td><td>1.1767</td><td>−3.9 %</td></tr>
+      <tr><td>Perfil en r/R = 0.5</td><td>1.109 (ley 1/7)</td><td>1.118</td><td>+0.8 %</td></tr>
+      <tr><td>Perfil en r/R = 0.9</td><td>0.881 (ley 1/7)</td><td>0.891</td><td>+1.1 %</td></tr>
+      <tr><td>y⁺ en la zona desarrollada (mínimo)</td><td>1 (pedido) × √(f/f<sub>Petukhov</sub>) = 0.956</td><td>0.950</td><td>−0.7 %</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">La simulación contra la teoría.</b> La velocidad del eje y el perfil se comparan con la ley de potencia 1/7, una aproximación empírica; y⁺, con el valor pedido corregido por la fricción que da el modelo.</caption>
+  </table>
+</div>
+<h3>¿Llegó a la solución?</h3>
+<p>Los residuos bajan hasta cumplir <code>residualControl</code> en la iteración 307 (figura 8).</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Residuos de p, Ux, k y omega contra la iteración en escala logarítmica">
+  <text class="svg-title" x="76" y="28">Los residuos iniciales, hasta cumplir residualControl</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="666" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">10<tspan baseline-shift="super" font-size="8">−10</tspan></text>
+  <line class="svg-grid" x1="76" y1="250.0" x2="666" y2="250.0"/>
+  <text class="svg-tick" x="70" y="254.0" text-anchor="end">10<tspan baseline-shift="super" font-size="8">−8</tspan></text>
+  <line class="svg-grid" x1="76" y1="200.0" x2="666" y2="200.0"/>
+  <text class="svg-tick" x="70" y="204.0" text-anchor="end">10<tspan baseline-shift="super" font-size="8">−6</tspan></text>
+  <line class="svg-grid" x1="76" y1="150.0" x2="666" y2="150.0"/>
+  <text class="svg-tick" x="70" y="154.0" text-anchor="end">10<tspan baseline-shift="super" font-size="8">−4</tspan></text>
+  <line class="svg-grid" x1="76" y1="100.0" x2="666" y2="100.0"/>
+  <text class="svg-tick" x="70" y="104.0" text-anchor="end">10<tspan baseline-shift="super" font-size="8">−2</tspan></text>
+  <line class="svg-grid" x1="76" y1="50.0" x2="666" y2="50.0"/>
+  <text class="svg-tick" x="70" y="54.0" text-anchor="end">10<tspan baseline-shift="super" font-size="8">0</tspan></text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0</text>
+  <text class="svg-tick" x="168.2" y="318" text-anchor="middle">50</text>
+  <text class="svg-tick" x="260.4" y="318" text-anchor="middle">100</text>
+  <text class="svg-tick" x="352.6" y="318" text-anchor="middle">150</text>
+  <text class="svg-tick" x="444.8" y="318" text-anchor="middle">200</text>
+  <text class="svg-tick" x="536.9" y="318" text-anchor="middle">250</text>
+  <text class="svg-tick" x="629.1" y="318" text-anchor="middle">300</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">iteración</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">residuo inicial</text>
+  <polyline points="77.8,50.0 79.7,66.4 81.5,73.7 83.4,82.1 85.2,86.5 87.1,88.3 88.9,87.8 90.8,88.1 92.6,90.2 94.4,92.0 96.3,94.2 98.1,96.7 100.0,99.2 101.8,101.3 103.7,102.6 105.5,104.1 107.3,106.2 109.2,108.7 111.0,111.5 112.9,114.0 114.7,114.6 116.6,113.6 118.4,113.8 120.2,114.4 122.1,115.7 123.9,117.3 125.8,119.2 127.6,120.7 129.5,121.0 131.3,120.3 133.2,120.0 135.0,120.3 136.8,121.1 138.7,122.1 140.5,123.2 142.4,124.3 144.2,125.2 146.1,125.9 147.9,126.7 149.8,127.5 151.6,128.0 153.4,127.7 155.3,127.0 157.1,126.2 159.0,125.7 160.8,125.4 162.7,125.4 164.5,125.5 166.3,125.8 168.2,126.1 170.0,126.5 171.9,126.9 173.7,127.3 175.6,127.6 177.4,127.8 179.2,127.9 181.1,128.1 182.9,128.1 184.8,128.2 186.6,128.3 188.5,128.5 190.3,128.7 192.2,128.9 194.0,129.1 195.8,129.3 197.7,129.5 199.5,129.7 201.4,130.0 203.2,130.2 205.1,130.5 206.9,130.7 208.8,130.9 210.6,131.1 212.4,131.3 214.3,131.5 216.1,131.8 218.0,132.0 219.8,132.2 221.7,132.4 223.5,132.6 225.3,132.8 227.2,133.0 229.0,133.2 230.9,133.4 232.7,133.6 234.6,133.8 236.4,134.0 238.2,134.3 240.1,134.5 241.9,134.7 243.8,135.0 245.6,135.2 247.5,135.4 249.3,135.7 251.2,135.9 253.0,136.2 254.8,136.4 256.7,136.6 258.5,136.9 260.4,137.2 262.2,137.4 264.1,137.7 265.9,138.0 267.8,138.2 269.6,138.5 271.4,138.8 273.3,139.1 275.1,139.3 277.0,139.6 278.8,139.9 280.7,140.2 282.5,140.5 284.3,140.8 286.2,141.1 288.0,141.4 289.9,141.7 291.7,141.9 293.6,142.2 295.4,142.6 297.2,142.8 299.1,143.1 300.9,143.4 302.8,143.7 304.6,144.0 306.5,144.3 308.3,144.6 310.2,144.9 312.0,145.2 313.8,145.5 315.7,145.8 317.5,146.1 319.4,146.4 321.2,146.7 323.1,147.0 324.9,147.4 326.8,147.7 328.6,148.0 330.4,148.4 332.3,148.8 334.1,149.2 336.0,149.6 337.8,150.0 339.7,150.3 341.5,150.7 343.3,151.0 345.2,151.3 347.0,151.7 348.9,152.1 350.7,152.4 352.6,152.8 354.4,153.1 356.2,153.4 358.1,153.7 359.9,154.0 361.8,154.5 363.6,155.4 365.5,155.8 367.3,155.8 369.2,155.9 371.0,156.1 372.8,156.5 374.7,156.8 376.5,157.1 378.4,157.4 380.2,157.6 382.1,157.8 383.9,158.1 385.8,158.3 387.6,158.6 389.4,158.8 391.3,159.1 393.1,159.3 395.0,159.5 396.8,159.6 398.7,160.0 400.5,160.6 402.3,160.7 404.2,160.6 406.0,160.2 407.9,159.9 409.7,159.7 411.6,159.6 413.4,159.8 415.2,160.1 417.1,160.6 418.9,161.2 420.8,161.7 422.6,162.2 424.5,162.7 426.3,163.0 428.2,163.2 430.0,163.4 431.8,163.6 433.7,163.7 435.5,163.8 437.4,164.0 439.2,164.2 441.1,164.5 442.9,164.8 444.8,165.2 446.6,165.5 448.4,165.8 450.3,166.0 452.1,166.2 454.0,166.4 455.8,166.7 457.7,166.9 459.5,167.2 461.3,167.4 463.2,167.7 465.0,168.0 466.9,168.3 468.7,168.6 470.6,168.9 472.4,169.2 474.2,169.5 476.1,169.8 477.9,170.1 479.8,170.4 481.6,170.8 483.5,171.1 485.3,171.4 487.2,171.8 489.0,172.2 490.8,172.5 492.7,172.9 494.5,173.2 496.4,173.6 498.2,173.9 500.1,174.3 501.9,174.6 503.8,175.0 505.6,175.4 507.4,175.8 509.3,176.1 511.1,176.5 513.0,176.9 514.8,177.3 516.7,177.7 518.5,178.1 520.3,178.5 522.2,179.0 524.0,179.8 525.9,181.8 527.7,182.7 529.6,182.5 531.4,182.1 533.2,182.0 535.1,182.1 536.9,182.5 538.8,183.1 540.6,183.7 542.5,184.4 544.3,184.9 546.2,185.4 548.0,185.8 549.8,186.2 551.7,186.5 553.5,186.9 555.4,187.4 557.2,187.9 559.1,188.4 560.9,189.0 562.8,189.5 564.6,190.0 566.4,190.6 568.3,191.1 570.1,191.6 572.0,192.1 573.8,192.7 575.7,193.2 577.5,193.7 579.3,194.3 581.2,194.8 583.0,195.4 584.9,195.9 586.7,196.4 588.6,197.0 590.4,197.5 592.2,198.1 594.1,198.6 595.9,199.2 597.8,199.7 599.6,200.3 601.5,200.8 603.3,201.4 605.2,201.9 607.0,202.5 608.8,203.0 610.7,203.5 612.5,204.1 614.4,204.6 616.2,205.2 618.1,205.7 619.9,206.3 621.8,206.8 623.6,207.4 625.4,207.8 627.3,208.2 629.1,208.7 631.0,209.1 632.8,209.5 634.7,209.9 636.5,210.3 638.3,210.3 640.2,211.2 642.0,210.8" fill="none" stroke="var(--accent)" stroke-width="1.8"/>
+  <polyline points="77.8,50.0 79.7,55.2 81.5,79.8 83.4,87.3 85.2,92.0 87.1,95.0 88.9,97.7 90.8,100.0 92.6,101.4 94.4,102.6 96.3,103.6 98.1,104.3 100.0,104.8 101.8,105.2 103.7,105.5 105.5,105.7 107.3,105.9 109.2,106.1 111.0,106.3 112.9,106.5 114.7,106.7 116.6,107.0 118.4,107.3 120.2,107.6 122.1,107.8 123.9,108.0 125.8,108.2 127.6,108.5 129.5,108.7 131.3,108.9 133.2,109.0 135.0,109.2 136.8,109.4 138.7,109.5 140.5,109.7 142.4,109.9 144.2,110.2 146.1,110.4 147.9,110.6 149.8,110.8 151.6,111.0 153.4,111.2 155.3,111.5 157.1,111.7 159.0,111.9 160.8,112.1 162.7,112.3 164.5,112.5 166.3,112.8 168.2,113.0 170.0,113.2 171.9,113.5 173.7,113.7 175.6,114.0 177.4,114.3 179.2,114.5 181.1,114.8 182.9,115.0 184.8,115.3 186.6,115.5 188.5,115.8 190.3,116.1 192.2,116.3 194.0,116.6 195.8,116.8 197.7,117.1 199.5,117.4 201.4,117.7 203.2,117.9 205.1,118.2 206.9,118.5 208.8,118.8 210.6,119.1 212.4,119.4 214.3,119.7 216.1,120.0 218.0,120.3 219.8,120.6 221.7,120.9 223.5,121.2 225.3,121.5 227.2,121.8 229.0,122.2 230.9,122.5 232.7,122.8 234.6,123.2 236.4,123.5 238.2,123.9 240.1,124.2 241.9,124.6 243.8,125.0 245.6,125.3 247.5,125.7 249.3,126.1 251.2,126.5 253.0,126.9 254.8,127.3 256.7,127.7 258.5,128.1 260.4,128.5 262.2,129.0 264.1,129.4 265.9,129.9 267.8,130.3 269.6,130.8 271.4,131.3 273.3,131.8 275.1,132.3 277.0,132.8 278.8,133.3 280.7,133.8 282.5,134.4 284.3,134.9 286.2,135.5 288.0,136.0 289.9,136.6 291.7,137.2 293.6,137.9 295.4,138.5 297.2,139.1 299.1,139.8 300.9,140.5 302.8,141.2 304.6,141.9 306.5,142.6 308.3,143.4 310.2,144.1 312.0,144.9 313.8,145.7 315.7,146.5 317.5,147.2 319.4,148.0 321.2,148.7 323.1,149.5 324.9,150.1 326.8,150.7 328.6,151.2 330.4,151.7 332.3,152.1 334.1,152.3 336.0,152.4 337.8,152.4 339.7,152.4 341.5,152.2 343.3,152.1 345.2,152.0 347.0,151.9 348.9,151.8 350.7,151.6 352.6,151.5 354.4,151.5 356.2,151.4 358.1,151.3 359.9,151.3 361.8,151.2 363.6,151.2 365.5,151.2 367.3,151.2 369.2,151.2 371.0,151.2 372.8,151.2 374.7,151.2 376.5,151.3 378.4,151.4 380.2,151.4 382.1,151.5 383.9,151.6 385.8,151.7 387.6,151.8 389.4,151.9 391.3,152.1 393.1,152.2 395.0,152.3 396.8,152.5 398.7,152.6 400.5,152.8 402.3,152.9 404.2,153.1 406.0,153.3 407.9,153.5 409.7,153.7 411.6,153.8 413.4,154.0 415.2,154.2 417.1,154.4 418.9,154.7 420.8,154.9 422.6,155.1 424.5,155.3 426.3,155.6 428.2,155.8 430.0,156.1 431.8,156.4 433.7,156.6 435.5,156.9 437.4,157.2 439.2,157.5 441.1,157.7 442.9,158.0 444.8,158.3 446.6,158.7 448.4,159.0 450.3,159.3 452.1,159.6 454.0,160.0 455.8,160.3 457.7,160.6 459.5,161.0 461.3,161.3 463.2,161.7 465.0,162.1 466.9,162.4 468.7,162.8 470.6,163.2 472.4,163.6 474.2,164.0 476.1,164.4 477.9,164.8 479.8,165.2 481.6,165.6 483.5,166.0 485.3,166.5 487.2,166.9 489.0,167.3 490.8,167.8 492.7,168.2 494.5,168.7 496.4,169.2 498.2,169.6 500.1,170.1 501.9,170.6 503.8,171.1 505.6,171.5 507.4,172.0 509.3,172.5 511.1,173.0 513.0,173.6 514.8,174.1 516.7,174.6 518.5,175.1 520.3,175.7 522.2,176.2 524.0,176.7 525.9,177.3 527.7,177.8 529.6,178.3 531.4,178.9 533.2,179.5 535.1,180.0 536.9,180.6 538.8,181.2 540.6,181.7 542.5,182.3 544.3,182.9 546.2,183.5 548.0,184.1 549.8,184.7 551.7,185.3 553.5,185.9 555.4,186.5 557.2,187.2 559.1,187.8 560.9,188.4 562.8,189.1 564.6,189.7 566.4,190.3 568.3,191.0 570.1,191.6 572.0,192.2 573.8,192.9 575.7,193.5 577.5,194.1 579.3,194.7 581.2,195.3 583.0,195.9 584.9,196.5 586.7,197.0 588.6,197.6 590.4,198.2 592.2,198.7 594.1,199.3 595.9,199.8 597.8,200.3 599.6,200.8 601.5,201.3 603.3,201.8 605.2,202.3 607.0,202.8 608.8,203.2 610.7,203.7 612.5,204.1 614.4,204.6 616.2,205.0 618.1,205.4 619.9,205.8 621.8,206.2 623.6,206.6 625.4,207.0 627.3,207.4 629.1,207.8 631.0,208.2 632.8,208.5 634.7,208.9 636.5,209.3 638.3,209.6 640.2,210.0 642.0,210.3" fill="none" stroke="var(--blue)" stroke-width="1.8"/>
+  <polyline points="77.8,50.0 79.7,56.8 81.5,73.7 83.4,83.3 85.2,89.3 87.1,92.4 88.9,94.5 90.8,95.6 92.6,96.5 94.4,96.9 96.3,97.3 98.1,97.8 100.0,98.1 101.8,98.4 103.7,98.7 105.5,99.1 107.3,99.5 109.2,99.9 111.0,100.4 112.9,100.9 114.7,101.4 116.6,102.0 118.4,102.7 120.2,103.3 122.1,103.8 123.9,104.4 125.8,105.1 127.6,105.6 129.5,106.1 131.3,106.6 133.2,107.0 135.0,107.5 136.8,108.0 138.7,108.4 140.5,108.8 142.4,109.2 144.2,109.6 146.1,109.9 147.9,110.3 149.8,110.5 151.6,110.8 153.4,111.1 155.3,111.3 157.1,111.5 159.0,111.7 160.8,111.9 162.7,112.1 164.5,112.3 166.3,112.5 168.2,112.6 170.0,112.8 171.9,113.0 173.7,113.2 175.6,113.3 177.4,113.5 179.2,113.7 181.1,113.8 182.9,114.0 184.8,114.2 186.6,114.3 188.5,114.4 190.3,114.6 192.2,114.7 194.0,114.9 195.8,115.0 197.7,115.1 199.5,115.3 201.4,115.4 203.2,115.6 205.1,115.7 206.9,115.9 208.8,116.0 210.6,116.1 212.4,116.2 214.3,116.4 216.1,116.5 218.0,116.6 219.8,116.7 221.7,116.8 223.5,117.0 225.3,117.1 227.2,117.2 229.0,117.3 230.9,117.4 232.7,117.6 234.6,117.7 236.4,117.8 238.2,117.9 240.1,118.0 241.9,118.1 243.8,118.2 245.6,118.3 247.5,118.4 249.3,118.5 251.2,118.7 253.0,118.8 254.8,118.9 256.7,119.0 258.5,119.1 260.4,119.3 262.2,119.4 264.1,119.5 265.9,119.7 267.8,119.8 269.6,119.9 271.4,120.1 273.3,120.2 275.1,120.3 277.0,120.5 278.8,120.6 280.7,120.8 282.5,120.9 284.3,121.1 286.2,121.2 288.0,121.4 289.9,121.6 291.7,121.8 293.6,121.9 295.4,122.1 297.2,122.3 299.1,122.5 300.9,122.7 302.8,123.0 304.6,123.2 306.5,123.4 308.3,123.6 310.2,123.8 312.0,124.0 313.8,124.3 315.7,124.5 317.5,124.7 319.4,125.0 321.2,125.3 323.1,125.5 324.9,125.8 326.8,126.1 328.6,126.4 330.4,126.7 332.3,127.0 334.1,127.3 336.0,127.6 337.8,127.9 339.7,128.3 341.5,128.6 343.3,129.0 345.2,129.3 347.0,129.7 348.9,130.1 350.7,130.4 352.6,130.8 354.4,131.2 356.2,131.7 358.1,132.1 359.9,132.5 361.8,133.0 363.6,133.4 365.5,133.9 367.3,134.3 369.2,134.8 371.0,135.3 372.8,135.8 374.7,136.3 376.5,136.9 378.4,137.4 380.2,138.0 382.1,138.5 383.9,139.1 385.8,139.7 387.6,140.3 389.4,141.0 391.3,141.6 393.1,142.3 395.0,143.0 396.8,143.7 398.7,144.4 400.5,145.1 402.3,145.9 404.2,146.7 406.0,147.5 407.9,148.3 409.7,149.1 411.6,150.0 413.4,150.9 415.2,151.8 417.1,152.7 418.9,153.5 420.8,154.3 422.6,155.0 424.5,155.6 426.3,156.1 428.2,156.6 430.0,157.0 431.8,157.3 433.7,157.6 435.5,157.8 437.4,158.0 439.2,158.2 441.1,158.4 442.9,158.5 444.8,158.7 446.6,158.8 448.4,158.9 450.3,158.9 452.1,159.0 454.0,159.1 455.8,159.1 457.7,159.2 459.5,159.2 461.3,159.3 463.2,159.3 465.0,159.4 466.9,159.4 468.7,159.5 470.6,159.5 472.4,159.6 474.2,159.7 476.1,159.7 477.9,159.8 479.8,159.9 481.6,160.0 483.5,160.1 485.3,160.2 487.2,160.3 489.0,160.5 490.8,160.6 492.7,160.8 494.5,160.9 496.4,161.1 498.2,161.2 500.1,161.4 501.9,161.6 503.8,161.8 505.6,162.0 507.4,162.2 509.3,162.4 511.1,162.7 513.0,162.9 514.8,163.2 516.7,163.4 518.5,163.7 520.3,164.0 522.2,164.3 524.0,164.6 525.9,164.9 527.7,165.3 529.6,165.6 531.4,166.0 533.2,166.3 535.1,166.7 536.9,167.0 538.8,167.4 540.6,167.8 542.5,168.2 544.3,168.5 546.2,168.9 548.0,169.3 549.8,169.8 551.7,170.2 553.5,170.6 555.4,171.0 557.2,171.4 559.1,171.9 560.9,172.3 562.8,172.8 564.6,173.2 566.4,173.7 568.3,174.2 570.1,174.7 572.0,175.2 573.8,175.7 575.7,176.2 577.5,176.7 579.3,177.3 581.2,177.8 583.0,178.3 584.9,178.9 586.7,179.5 588.6,180.0 590.4,180.6 592.2,181.2 594.1,181.8 595.9,182.4 597.8,183.0 599.6,183.7 601.5,184.3 603.3,184.9 605.2,185.6 607.0,186.2 608.8,186.9 610.7,187.6 612.5,188.3 614.4,189.0 616.2,189.7 618.1,190.4 619.9,191.1 621.8,191.8 623.6,192.6 625.4,193.3 627.3,194.1 629.1,194.8 631.0,195.6 632.8,196.4 634.7,197.2 636.5,197.9 638.3,198.7 640.2,199.5 642.0,200.3" fill="none" stroke="var(--accent-dark)" stroke-width="1.4" stroke-dasharray="4 2"/>
+  <polyline points="77.8,71.4 79.7,86.8 81.5,119.9 83.4,126.7 85.2,131.3 87.1,133.5 88.9,135.2 90.8,137.1 92.6,139.4 94.4,140.8 96.3,142.4 98.1,144.1 100.0,145.5 101.8,146.7 103.7,148.0 105.5,149.3 107.3,150.5 109.2,151.5 111.0,152.5 112.9,153.5 114.7,154.5 116.6,155.5 118.4,156.3 120.2,157.1 122.1,157.9 123.9,158.7 125.8,159.5 127.6,160.3 129.5,161.0 131.3,161.7 133.2,162.4 135.0,163.1 136.8,163.8 138.7,164.5 140.5,165.1 142.4,165.7 144.2,166.3 146.1,166.8 147.9,167.4 149.8,168.0 151.6,168.5 153.4,169.1 155.3,169.6 157.1,170.1 159.0,170.6 160.8,171.1 162.7,171.6 164.5,172.1 166.3,172.6 168.2,173.0 170.0,173.5 171.9,174.0 173.7,174.4 175.6,174.9 177.4,175.4 179.2,175.8 181.1,176.3 182.9,176.7 184.8,177.2 186.6,177.6 188.5,178.0 190.3,178.5 192.2,178.9 194.0,179.3 195.8,179.8 197.7,180.2 199.5,180.6 201.4,181.1 203.2,181.5 205.1,181.9 206.9,182.4 208.8,182.8 210.6,183.2 212.4,183.6 214.3,184.1 216.1,184.5 218.0,184.9 219.8,185.4 221.7,185.8 223.5,186.2 225.3,186.7 227.2,187.1 229.0,187.6 230.9,188.0 232.7,188.4 234.6,188.9 236.4,189.3 238.2,189.8 240.1,190.2 241.9,190.7 243.8,191.2 245.6,191.6 247.5,192.1 249.3,192.5 251.2,193.0 253.0,193.5 254.8,194.0 256.7,194.4 258.5,194.9 260.4,195.4 262.2,195.9 264.1,196.4 265.9,196.8 267.8,197.3 269.6,197.8 271.4,198.3 273.3,198.8 275.1,199.3 277.0,199.8 278.8,200.8 280.7,201.1 282.5,201.9 284.3,202.2 286.2,203.0 288.0,203.7 289.9,203.9 291.7,204.6 293.6,205.2 295.4,205.8 297.2,205.9 299.1,206.4 300.9,206.5 302.8,206.6 304.6,206.8 306.5,207.0 308.3,207.2 310.2,207.4 312.0,207.6 313.8,207.8 315.7,208.0 317.5,208.1 319.4,208.3 321.2,208.4 323.1,208.6 324.9,208.7 326.8,208.9 328.6,209.0 330.4,209.2 332.3,209.3 334.1,209.4 336.0,209.5 337.8,209.6 339.7,209.7 341.5,209.8 343.3,209.9 345.2,210.0 347.0,210.1 348.9,210.2 350.7,210.4 352.6,210.5 354.4,210.6 356.2,210.8 358.1,210.9 359.9,211.1 361.8,211.2 363.6,211.4 365.5,211.5 367.3,211.7 369.2,211.8 371.0,211.9 372.8,212.1 374.7,212.2 376.5,212.3 378.4,212.5 380.2,212.6 382.1,212.7 383.9,212.9 385.8,213.0 387.6,213.2 389.4,213.3 391.3,213.5 393.1,213.7 395.0,213.8 396.8,214.0 398.7,214.2 400.5,214.4 402.3,214.6 404.2,214.8 406.0,215.0 407.9,215.2 409.7,215.5 411.6,215.7 413.4,216.0 415.2,216.2 417.1,216.5 418.9,216.7 420.8,217.0 422.6,217.2 424.5,217.5 426.3,217.8 428.2,218.1 430.0,218.4 431.8,218.7 433.7,219.0 435.5,219.3 437.4,219.6 439.2,220.0 441.1,220.3 442.9,220.6 444.8,221.0 446.6,221.3 448.4,221.7 450.3,222.1 452.1,222.4 454.0,222.8 455.8,223.2 457.7,223.6 459.5,224.0 461.3,224.4 463.2,224.8 465.0,225.2 466.9,225.6 468.7,226.0 470.6,226.4 472.4,226.9 474.2,227.3 476.1,227.8 477.9,228.2 479.8,228.7 481.6,229.1 483.5,229.6 485.3,230.1 487.2,230.6 489.0,231.1 490.8,231.6 492.7,232.1 494.5,232.6 496.4,233.1 498.2,233.6 500.1,234.1 501.9,234.7 503.8,235.2 505.6,235.7 507.4,236.3 509.3,236.8 511.1,237.4 513.0,238.0 514.8,238.6 516.7,239.1 518.5,239.7 520.3,240.3 522.2,240.9 524.0,242.0 525.9,242.8 527.7,243.6 529.6,244.3 531.4,244.9 533.2,245.5 535.1,246.1 536.9,246.7 538.8,247.3 540.6,247.8 542.5,248.3 544.3,248.9 546.2,249.4 548.0,249.8 549.8,250.2 551.7,250.7 553.5,250.6 555.4,250.8 557.2,251.1 559.1,251.4 560.9,251.8 562.8,252.2 564.6,252.6 566.4,253.0 568.3,253.4 570.1,253.8 572.0,254.2 573.8,254.5 575.7,254.9 577.5,255.3 579.3,255.7 581.2,256.0 583.0,256.4 584.9,256.8 586.7,257.2 588.6,257.5 590.4,257.9 592.2,258.3 594.1,258.6 595.9,259.0 597.8,259.4 599.6,259.7 601.5,260.1 603.3,260.5 605.2,260.9 607.0,261.3 608.8,261.7 610.7,262.1 612.5,262.5 614.4,262.9 616.2,263.3 618.1,263.7 619.9,264.1 621.8,264.5 623.6,265.0 625.4,265.4 627.3,265.8 629.1,266.3 631.0,266.7 632.8,267.1 634.7,267.6 636.5,268.0 638.3,268.5 640.2,268.9 642.0,269.3" fill="none" stroke="var(--muted)" stroke-width="1.4" stroke-dasharray="4 2"/>
+  <polyline points="76.0,150.0 666.0,150.0" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="5 4"/>
+  <polyline points="76.0,175.0 666.0,175.0" fill="none" stroke="var(--blue)" stroke-width="1" stroke-dasharray="5 4"/>
+  <line x1="560" y1="70" x2="586" y2="70" stroke="var(--accent)" stroke-width="1.8"/>
+  <text class="svg-note-sm" x="592" y="74">p</text>
+  <line x1="560" y1="88" x2="586" y2="88" stroke="var(--blue)" stroke-width="1.8"/>
+  <text class="svg-note-sm" x="592" y="92">U<tspan baseline-shift="sub" font-size="8">x</tspan></text>
+  <line x1="560" y1="106" x2="586" y2="106" stroke="var(--accent-dark)" stroke-width="1.4" stroke-dasharray="4 2"/>
+  <text class="svg-note-sm" x="592" y="110">k</text>
+  <line x1="560" y1="124" x2="586" y2="124" stroke="var(--muted)" stroke-width="1.4" stroke-dasharray="4 2"/>
+  <text class="svg-note-sm" x="592" y="128">ω</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 8.</b> <b class="fig-title">La convergencia.</b> Archivo <code>postProcessing/residuales/0/residuals.dat</code>. Las líneas punteadas son los límites de <code>residualControl</code>: 10<sup>−4</sup> para p y 10<sup>−5</sup> para U, k y ω. La corrida se detiene en la iteración 307, cuando se cumplen todos.</figcaption>
+</figure>
+<div class="result-box">
+  <p><strong>La malla está bien; el modelo tiene su propio error.</strong> y⁺ salió donde se pidió, con la corrección exacta que predice la fricción del modelo, y una malla 2.7 veces más fina cambia f sólo 0.5 %. Los 8.6 % de diferencia con Petukhov son de k-ω SST. Antes de culpar a la malla de una diferencia con una correlación, hay que medir las dos cosas por separado.</p>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>¿Por qué la primera celda del caso turbulento es ocho veces más delgada que la del laminar, si el diámetro y la velocidad son los mismos?</li>
+  <li>Con la ecuación (3) y el esfuerzo en la pared medido, calcule el y⁺ del centro de la primera celda. ¿Coincide con el de <code>yPlus.dat</code>?</li>
+  <li>El perfil turbulento tiene casi toda su variación en una capa delgada junto a la pared. ¿Qué dice eso sobre dónde se genera la pérdida de presión?</li>
+  <li>¿Por qué la velocidad del eje sobrepasa su valor final en el caso turbulento y no en el laminar? (Piense en cómo crece la capa límite turbulenta y en lo que le pasa al núcleo cuando las capas límite se encuentran en el centro.)</li>
+</ol>
+
+    </section>
+    <section id="errors-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Qué sale mal y qué dice OpenFOAM</h2>
+
+<h3>La pared que se queda como <code>patch</code></h3>
+<p>Si se omite el paso 5, <code>foamRun</code> se detiene en cuanto crea el modelo de turbulencia:</p>
+<pre class="code"><code>--&gt; FOAM FATAL ERROR:
+Invalid wall function specification
+    Patch type for patch walls must be wall
+    Current patch type is patch</code></pre>
+<p>Las funciones de pared (<code>nutLowReWallFunction</code>, <code>omegaWallFunction</code>) sólo se pueden usar en parches de tipo <code>wall</code>. En el caso laminar el mismo olvido no da error, pero deja vacíos los archivos de y⁺ y del esfuerzo en la pared.</p>
+<h3>blueCFD-Core 2024 y los flujos a lo largo de z</h3>
+<p>Sin <code>transformPoints</code>, con la tubería a lo largo de z, OpenFOAM 12 de blueCFD-Core da f = 0.0290 en lugar de 0.0192, 1.5 veces más, sin ningún aviso. Es el mismo defecto que se explica en el <a href="tuberia-laminar.html#errors-es">tutorial 1.1</a>: el flujo principal no debe ir a lo largo de z.</p>
+<h3>Una primera celda fuera de lugar</h3>
+<p>Las condiciones de pared de este caso están pensadas para y⁺ ≈ 1. Si se hace la malla con otro y⁺ y se dejan igual, el resultado cambia sin que OpenFOAM avise. Hay que revisar siempre <code>yPlus.dat</code> después de correr: en la zona desarrollada, y⁺ debe quedar cerca de lo que suponen las condiciones de pared —alrededor de 1 para este caso, entre 30 y 100 para funciones de pared (<a href="#practice-es">práctica sugerida</a>)—. Entre 5 y 30, en la zona de transición, ninguna de las dos es adecuada.</p>
+<h3>Una corrida que no llega a <code>residualControl</code></h3>
+<p>Con <code>relTol 0.05</code> para p, el valor del caso laminar, GAMG llegaba a 150 iteraciones internas en cada paso de SIMPLE (lo anota el comentario de <code>fvSolution</code>). Si una corrida turbulenta avanza muy despacio, conviene mirar cuántas iteraciones hace <code>GAMG: Solving for p</code> en cada paso antes de cambiar los esquemas.</p>
+
+    </section>
+    <section id="practice-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>Funciones de pared con y⁺ = 30</h2>
+
+<div class="example">
+  <p><strong>Enunciado.</strong> Repetir el caso con la primera celda en la zona logarítmica, y⁺ = 30, y funciones de pared en lugar de resolver la subcapa viscosa. Comparar el factor de fricción, el número de celdas y el tiempo de cómputo. <strong>Condiciones:</strong> Re = 50 000; la malla, rehecha con <code>-setnumber yplus 30</code>.</p>
+</div>
+<h3>El procedimiento, en corto</h3>
+<ol>
+  <li>Copiar el caso a una carpeta nueva.</li>
+  <li>Hacer la malla con <code>gmsh tuberia.geo -3 -setnumber regimen 1 -setnumber Re 50000 -setnumber yplus 30 -o tuberia.msh -log log.gmsh</code>. En <code>log.gmsh</code>, anotar la altura de la primera celda y las celdas del anillo.</li>
+  <li>Cambiar las condiciones de pared: en <code>0/k</code>, <code>walls</code> a <code>type kqRWallFunction; value $internalField;</code>; en <code>0/nut</code>, a <code>type nutkWallFunction; value uniform 0;</code>. <code>0/omega</code> se queda con <code>omegaWallFunction</code>, que sirve para los dos casos.</li>
+  <li>Seguir los pasos 4 a 8 de la receta y leer las sondas y <code>yPlus.dat</code> como en el ejemplo resuelto.</li>
+</ol>
+<h3>Registro de resultados</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>y⁺ pedido</th><th>Pared (k y nut)</th><th>Primera celda (m)</th><th>Celdas del anillo</th><th>Celdas</th><th>Iteraciones</th><th>f</th><th>Contra Petukhov</th><th>y⁺ medido (mínimo)</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>k = 0, <code>nutLowReWallFunction</code></td><td>0.000782</td><td>18</td><td>149 940</td><td>307</td><td>0.0192</td><td>−8.6 %</td><td>0.95</td></tr>
+      <tr><td>30</td><td><code>kqRWallFunction</code>, <code>nutkWallFunction</code></td><td>0.02345</td><td>4</td><td>67 620</td><td>168</td><td>0.0195</td><td>−7.1 %</td><td>28.6</td></tr>
+      <tr><td>5</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">Registro de resultados.</b> Las dos primeras filas son corridas de referencia en OpenFOAM 12 (blueCFD-Core 2024), a Re = 50 000; la última es para llenarla. y⁺ = 5 cae en la zona de transición, donde ninguna de las dos condiciones de pared es la adecuada.</caption>
+  </table>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>¿Cuántas celdas se ahorraron y cuánto cambió el factor de fricción? ¿Cuál de las dos corridas queda más cerca de Petukhov, y por qué eso no dice cuál de los dos tratamientos de pared es mejor?</li>
+  <li>¿Quedó el y⁺ de la zona desarrollada en la zona logarítmica? ¿Y el de la entrada?</li>
+  <li>Con funciones de pared, ¿qué parte del perfil de velocidad no puede resolver la malla? ¿Qué pasaría con una magnitud que dependa de lo que pasa dentro de la subcapa viscosa, como la transferencia de calor?</li>
+</ol>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ul>
+  <li>Blasius, H. (1913). Das Ähnlichkeitsgesetz bei Reibungsvorgängen in Flüssigkeiten. <em>Forschungsheft des Vereins Deutscher Ingenieure</em>, 131.</li>
+  <li>Colebrook, C. F. (1939). Turbulent flow in pipes, with particular reference to the transition region between the smooth and rough pipe laws. <em>Journal of the Institution of Civil Engineers</em>, 11(4), 133–156.</li>
+  <li>Menter, F. R., Kuntz, M. y Langtry, R. (2003). Ten years of industrial experience with the SST turbulence model. En K. Hanjalić, Y. Nagano y M. Tummers (eds.), <em>Turbulence, Heat and Mass Transfer 4</em> (pp. 625–632). Begell House.</li>
+  <li>Petukhov, B. S. (1970). Heat transfer and friction in turbulent pipe flow with variable physical properties. <em>Advances in Heat Transfer</em>, 6, 503–564.</li>
+  <li>White, F. M. (2011). <em>Fluid mechanics</em> (7.ª ed.). McGraw-Hill. Capítulo 6: flujo turbulento en conductos, perfiles y longitud de entrada.</li>
+  <li>OpenFOAM 12: el modelo <code>kOmegaSST</code> y las condiciones <code>omegaWallFunction</code>, <code>nutLowReWallFunction</code>, <code>kqRWallFunction</code> y <code>nutkWallFunction</code>, tal como los instala blueCFD-Core 2024.</li>
+</ul>
+<p class="source-note">Todas las cifras de la simulación salen de corridas de OpenFOAM 12 (blueCFD-Core 2024) en una laptop con Windows 11, leídas de los archivos que escribe el propio caso; las de las correlaciones, de las ecuaciones (2) y (5). Las capturas son de Notepad2, la terminal de blueCFD-Core y ParaView 5.11.2.</p>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="tuberia-laminar.html?v=13"><span>Tutorial anterior</span>← 1.1 · La tubería laminar</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Flujo incompresible</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Einen RANS-Fall mit k-ω SST aufsetzen: die Randbedingungen von k, ω und ν<sub>t</sub> und Einlasswerte aus der Turbulenzintensität; y⁺ und die dazugehörige Wandbehandlung verstehen; die Rohrreibungszahl mit drei Korrelationen für glatte Rohre vergleichen und Modell- von Netzfehler trennen.</p>
+    </section>
+    <section id="problem-de">
+      <p class="section-label">Das Problem</p>
+      <h2>Was simuliert wird</h2>
+<p>Dasselbe Rohr mit denselben Randbedingungen wie in Tutorial 1.1, mit ν = 2·10⁻⁵ m²/s (Re = 50 000). Das Rohr ist kürzer (36,71 D), weil der turbulente Einlauf kürzer ist; die erste Zelle ist achtmal dünner.</p>
+    </section>
+    <section id="theory-de">
+      <p class="section-label">Die Theorie</p>
+      <h2>Korrelationen, y⁺ und das Turbulenzmodell</h2>
+<p>Die Korrelationen von Petukhov, Blasius und Colebrook (0,0210, 0,0212 und 0,0209 bei Re = 50 000); y⁺, die viskose Unterschicht und die zwei Wandbehandlungen; das Modell k-ω SST; k und ω am Einlass aus 5 % Intensität; das 1/7-Potenzgesetz.</p>
+    </section>
+    <section id="recipe-de">
+      <p class="section-label">Schritt für Schritt</p>
+      <h2>Was sich gegenüber Tutorial 1.1 ändert</h2>
+<p>Die Schritte aus Tutorial 1.1, mit gmsh -setnumber regimen 1 -setnumber Re 50000 -setnumber yplus 1. Der Wandtyp wall ist hier Pflicht. foamRun konvergiert nach 307 Iterationen.</p>
+    </section>
+    <section id="case-de">
+      <p class="section-label">Der Fall</p>
+      <h2>Die Turbulenzdateien</h2>
+<p>momentumTransport mit RAS und kOmegaSST; 0/k, 0/omega und 0/nut mit festen Einlasswerten, inletOutlet am Auslass und Low-Re-Wandbedingungen; upwind-Konvektion für k und ω; die Löser-Einstellungen für p.</p>
+    </section>
+    <section id="results-de">
+      <p class="section-label">Ergebnisse</p>
+      <h2>Die Strömung in ParaView</h2>
+<p>Dieselben ParaView-Schritte wie in Tutorial 1.1: ein viel flacheres Profil, mit fast dem gesamten Geschwindigkeitsgradienten in einer dünnen Schicht an der Wand.</p>
+    </section>
+    <section id="validation-de">
+      <p class="section-label">Durchgerechnetes Beispiel</p>
+      <h2>Das Modell gegen die Korrelationen</h2>
+<p>f = 0,0192, 8,6 % unter Petukhov: das Modell, nicht das Netz. Das gemessene y⁺ (0,950) ist genau das geforderte mal √(f/f<sub>Petukhov</sub>). Das Profil liegt abseits der Achse auf 1 % beim 1/7-Gesetz; die Achsengeschwindigkeit überschießt im Einlauf ihren Endwert.</p>
+    </section>
+    <section id="errors-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Was schiefgeht und was OpenFOAM meldet</h2>
+<p>walls als patch zu lassen, stoppt foamRun (Wandfunktionen brauchen einen wall-Patch); Strömungen entlang z in blueCFD-Core 2024; eine erste Zelle, die nicht zu den Wandbedingungen passt; ein langsamer Drucklöser.</p>
+    </section>
+    <section id="practice-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Wandfunktionen bei y⁺ = 30</h2>
+<p>Mit y⁺ = 30 neu vernetzen und auf Wandfunktionen umstellen (kqRWallFunction, nutkWallFunction); Zellen, Iterationen und Rohrreibungszahl vergleichen.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>Petukhov (1970), Blasius (1913) und Colebrook (1939) für die Korrelationen; Menter et al. (2003) für k-ω SST; Whites Fluid Mechanics; die Quellen von OpenFOAM 12.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="tuberia-laminar.html?v=13"><span>Vorheriges Tutorial</span>← 1.1 · Das laminare Rohr</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Inkompressible Strömung</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Tutorial series on incompressible flow with OpenFOAM 12 (blueCFD-Core on Windows): laminar and turbulent pipe flow validated against Hagen-Poiseuille and friction-factor correlations, on Gmsh meshes." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>OpenFOAM Incompressible-Flow Tutorials | Carlos Molina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../../index.html">Carlos Molina</a>
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=13" data-ui-key="course">Tutorials</a>
+      <a href="../../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="course-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Software tutorials · OpenFOAM</p>
+        <h1>OpenFOAM · Incompressible flow</h1>
+        <p class="hero-copy">A tutorial series on incompressible flow with OpenFOAM, starting from the case every textbook solves: the straight pipe. Each tutorial brings the complete case, the mesh from Gmsh, and a validation against the exact solution or against measured correlations.</p>
+        <p class="hero-copy"><strong>On Windows, with blueCFD-Core.</strong> Every figure and number comes from an actual run of OpenFOAM 12 in blueCFD-Core 2024, with Gmsh 4.15.2 and ParaView 5.11.2.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Tutoriales de software · OpenFOAM</p>
+        <h1>OpenFOAM · Flujo incompresible</h1>
+        <p class="hero-copy">Una serie sobre flujo incompresible con OpenFOAM, que empieza por el caso que resuelve cualquier libro de texto: la tubería recta. Cada tutorial trae el caso completo, la malla de Gmsh y una validación contra la solución exacta o contra correlaciones medidas.</p>
+        <p class="hero-copy"><strong>En Windows, con blueCFD-Core.</strong> Todas las figuras y cifras proceden de corridas reales de OpenFOAM 12 en blueCFD-Core 2024, con Gmsh 4.15.2 y ParaView 5.11.2.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Software-Tutorials · OpenFOAM</p>
+        <h1>OpenFOAM · Inkompressible Strömung</h1>
+        <p class="hero-copy">Eine Reihe zur inkompressiblen Strömung mit OpenFOAM, beginnend mit dem Fall, den jedes Lehrbuch löst: dem geraden Rohr. Jedes Tutorial enthält den vollständigen Fall, das Netz aus Gmsh und eine Validierung gegen die exakte Lösung oder gegen gemessene Korrelationen.</p>
+        <p class="hero-copy"><strong>Unter Windows, mit blueCFD-Core.</strong> Alle Abbildungen und Zahlen stammen aus tatsächlichen Läufen von OpenFOAM 12 in blueCFD-Core 2024, mit Gmsh 4.15.2 und ParaView 5.11.2.</p>
+      </div>
+  </div>
+</section>
+
+<main>
+  <section class="section">
+    <div class="container">
+    <div data-language="en">
+      <p class="section-label">Block 1 · The straight pipe</p>
+      <div class="course-grid">
+        <article class="course-card available">
+          <span class="course-card-number">1.1</span>
+          <h3>The Laminar Pipe: Hagen-Poiseuille and the Entrance Length</h3>
+          <p>Re = 500 with incompressibleFluid on the Gmsh O-grid: friction factor, centreline velocity, profile and entrance length against the exact solution, from numbers the case itself writes.</p>
+          <span class="status">Available</span>
+          <a href="tuberia-laminar.html?v=13">Open tutorial →</a>
+        </article>
+        <article class="course-card available">
+          <span class="course-card-number">1.2</span>
+          <h3>The Turbulent Pipe: k-ω SST, y⁺ and the Friction Factor</h3>
+          <p>Re = 50 000 with k-ω SST and the first cell at y⁺ ≈ 1: the friction factor against three correlations, measured against requested y⁺, and model error told apart from mesh error.</p>
+          <span class="status">Available</span>
+          <a href="tuberia-turbulenta.html?v=13">Open tutorial →</a>
+        </article>
+      </div>
+    </div>
+    <div data-language="es" hidden>
+      <p class="section-label">Bloque 1 · La tubería recta</p>
+      <div class="course-grid">
+        <article class="course-card available">
+          <span class="course-card-number">1.1</span>
+          <h3>La tubería laminar: Hagen-Poiseuille y la longitud de entrada</h3>
+          <p>Re = 500 con incompressibleFluid sobre la malla en O de Gmsh: factor de fricción, velocidad en el eje, perfil y longitud de entrada contra la solución exacta, con las cifras que escribe el propio caso.</p>
+          <span class="status">Disponible</span>
+          <a href="tuberia-laminar.html?v=13">Abrir tutorial →</a>
+        </article>
+        <article class="course-card available">
+          <span class="course-card-number">1.2</span>
+          <h3>La tubería turbulenta: k-ω SST, y⁺ y el factor de fricción</h3>
+          <p>Re = 50 000 con k-ω SST y la primera celda en y⁺ ≈ 1: el factor de fricción contra tres correlaciones, y⁺ medido contra el pedido, y el error del modelo separado del de la malla.</p>
+          <span class="status">Disponible</span>
+          <a href="tuberia-turbulenta.html?v=13">Abrir tutorial →</a>
+        </article>
+      </div>
+    </div>
+    <div data-language="de" hidden>
+      <p class="section-label">Block 1 · Das gerade Rohr</p>
+      <div class="course-grid">
+        <article class="course-card available">
+          <span class="course-card-number">1.1</span>
+          <h3>Das laminare Rohr: Hagen-Poiseuille und die Einlauflänge</h3>
+          <p>Re = 500 mit incompressibleFluid auf dem O-Netz aus Gmsh: Rohrreibungszahl, Achsengeschwindigkeit, Profil und Einlauflänge gegen die exakte Lösung, aus Zahlen, die der Fall selbst schreibt.</p>
+          <span class="status">Verfügbar</span>
+          <a href="tuberia-laminar.html?v=13">Tutorial öffnen →</a>
+        </article>
+        <article class="course-card available">
+          <span class="course-card-number">1.2</span>
+          <h3>Das turbulente Rohr: k-ω SST, y⁺ und die Rohrreibungszahl</h3>
+          <p>Re = 50 000 mit k-ω SST und der ersten Zelle bei y⁺ ≈ 1: die Rohrreibungszahl gegen drei Korrelationen, gemessenes gegen gefordertes y⁺ und Modell- von Netzfehler getrennt.</p>
+          <span class="status">Verfügbar</span>
+          <a href="tuberia-turbulenta.html?v=13">Tutorial öffnen →</a>
+        </article>
+      </div>
+    </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>
