@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Gmsh tutorial: keep the C-grid of Tutorial 2.2.2 as an inner layer and add a fan of blocks out to a 500-chord arc, like NASA's NACA 0012 validation grids. Why the far field matters, why the columns of a C-grid cannot reach it, the opposite-sides rule of Transfinite, and a check against NASA in OpenFOAM 13." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>The Airfoil with the Far Field at 500 Chords | Gmsh Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">Gmsh · Tutorial 2.2.3</p><h1>The Airfoil with the Far Field at 500 Chords</h1><p class="hero-copy">The C-grid of Tutorial 2.2.2 becomes the inner layer of a larger mesh: a fan of blocks opens out to an arc 500 chords away, as in NASA's validation grids. With fifteen chords the drag came out 41 % too high; with this mesh it lands within 1 % of NASA.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">Gmsh · Tutorial 2.2.3</p><h1>El perfil alar con el campo lejano a 500 cuerdas</h1><p class="hero-copy">La C del Tutorial 2.2.2 se vuelve la capa interior de una malla más grande: un abanico de bloques se abre hasta un arco a 500 cuerdas, como las mallas de validación de la NASA. Con quince cuerdas la resistencia salía 41 % alta; con esta malla queda a 1 % de la NASA.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">Gmsh · Tutorial 2.2.3</p><h1>Das Profil mit dem Fernfeld bei 500 Sehnen</h1><p class="hero-copy">Das C-Netz aus Tutorial 2.2.2 wird zur inneren Schicht eines größeren Netzes: ein Fächer von Blöcken öffnet sich bis zu einem Bogen in 500 Sehnen Abstand, wie in den Validierungsnetzen der NASA. Mit fünfzehn Sehnen lag der Widerstand 41 % zu hoch; mit diesem Netz liegt er 1 % neben der NASA.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 55 min</span><span data-language="es" hidden>Lectura estimada: 55 min</span><span data-language="de" hidden>Lesedauer: ca. 55 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on Gmsh 4.15.2 and OpenFOAM 13</span><span data-language="es" hidden>Verificado en Gmsh 4.15.2 y OpenFOAM 13</span><span data-language="de" hidden>Geprüft mit Gmsh 4.15.2 und OpenFOAM 13</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="perfil-c-parametrico.html?v=13">← <span>2.2.2</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/GoaSKt5cZXc" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Watch the video</span><span data-language="es" hidden>Ver el vídeo</span><span data-language="de" hidden>Video ansehen</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#why">Why another mesh</a><a href="#idea">Two layers</a><a href="#params">Step 1 · Parameters</a><a href="#airfoil">Step 2 · Airfoil</a><a href="#inner">Step 3 · Inner layer</a><a href="#fan">Step 4 · Fan</a><a href="#blocks">Steps 5 and 6 · Blocks</a><a href="#openfoam">Step 7 · OpenFOAM</a><a href="#check">The check</a><a href="#files">The files</a><a href="#example">Suggested practice</a><a href="#summary">Key points</a><a href="#mistakes">Common mistakes</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#why-es">Por qué otra malla</a><a href="#idea-es">Dos capas</a><a href="#params-es">Paso 1 · Parámetros</a><a href="#airfoil-es">Paso 2 · Perfil</a><a href="#inner-es">Paso 3 · Capa interior</a><a href="#fan-es">Paso 4 · Abanico</a><a href="#blocks-es">Pasos 5 y 6 · Bloques</a><a href="#openfoam-es">Paso 7 · OpenFOAM</a><a href="#check-es">La prueba</a><a href="#files-es">Los archivos</a><a href="#example-es">Práctica sugerida</a><a href="#summary-es">Puntos clave</a><a href="#mistakes-es">Errores frecuentes</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#why-de">Warum ein anderes Netz</a><a href="#idea-de">Zwei Schichten</a><a href="#params-de">Schritt 1 · Parameter</a><a href="#airfoil-de">Schritt 2 · Profil</a><a href="#inner-de">Schritt 3 · Innere Schicht</a><a href="#fan-de">Schritt 4 · Fächer</a><a href="#blocks-de">Schritte 5 und 6 · Blöcke</a><a href="#openfoam-de">Schritt 7 · OpenFOAM</a><a href="#check-de">Die Probe</a><a href="#files-de">Die Dateien</a><a href="#example-de">Übung</a><a href="#summary-de">Kernpunkte</a><a href="#mistakes-de">Häufige Fehler</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Take the C-grid of Tutorial 2.2.2 to a far field 500 chords away, as in NASA's NACA 0012 validation case: keep it as an inner layer, add a fan of blocks out to an arc, split the radial progression at a node so that it continues without a jump, apply the rule by which Gmsh fills a transfinite block, and check the result against NASA in OpenFOAM 13.</p>
+    </section>
+    <section id="why">
+      <p class="section-label">The problem</p>
+      <h2>Fifteen chords are not enough, and the C-grid does not grow</h2>
+<p>A lifting airfoil carries circulation, whose induced velocity decays only as 1/R; a free-stream boundary 15 chords away cuts it off, and the drag at 10 degrees comes out 41 % high. NASA places the boundary at 500 chords. The C-grid of Tutorial 2.2.2 cannot follow: its columns of cells keep their width up to the far field, and at 100 chords they are 0.002 by 10 chords, with 82 degrees of non-orthogonality.</p>
+    </section>
+    <section id="idea">
+      <p class="section-label">The idea</p>
+      <h2>A small C near the wall and a fan out to the far field</h2>
+<p>Two layers. The inner one is the C of Tutorial 2.2.2 half a chord from the wall, with vertical radials, so the mesh lines leave the wall almost perpendicular, which is what the skin friction depends on. The outer one opens like a fan to an arc centred on the trailing edge. A fan that started at the wall would tilt the lines by 15 degrees and the friction would come out 5 % high.</p>
+    </section>
+    <section id="params">
+      <p class="section-label">Step 1</p>
+      <h2>The new parameters and the tolerance</h2>
+<p>Six new parameters: the far-field radius, the wake length, the fan angle, the far-field cell, the outlet cell and the thickness of the inner layer. Geometry.Tolerance must be lowered: the extrusion merges nodes closer than 1e-8 of the model diagonal, which at 1000 chords is larger than the first cell.</p>
+    </section>
+    <section id="airfoil">
+      <p class="section-label">Step 2</p>
+      <h2>NASA's NACA 0012 and where the nose ends</h2>
+<p>The contour of Tutorial 2.2.2 with one option more: NASA's definition of the NACA 0012, which closes the trailing edge by extending and rescaling the profile. The nose block ends at 0.2 chords instead of the maximum thickness, which keeps the first mesh lines within 3 degrees of the wall normal.</p>
+    </section>
+    <section id="inner">
+      <p class="section-label">Step 3</p>
+      <h2>The C of Tutorial 2.2.2, half a chord from the wall</h2>
+<p>The inner layer ends exactly at node K of the radial progression, so the outer layer continues it with the same ratio and no jump. At the outlet the layer cannot carry the wall cells, and grows instead from the outlet cell size within the same K cells.</p>
+    </section>
+    <section id="fan">
+      <p class="section-label">Step 4</p>
+      <h2>The outer layer, opening to a 500-chord arc</h2>
+<p>The far-field arc is centred on the trailing edge. The blocks above the airfoil share the fan angle in proportion to their cells, so that all far-field cells above the airfoil have the same width; the nose takes the rest of the half circle.</p>
+    </section>
+    <section id="blocks">
+      <p class="section-label">Steps 5 and 6</p>
+      <h2>Twenty blocks and the opposite-sides rule</h2>
+<p>Gmsh fills a transfinite block with the average of the spacing of its opposite sides, so at most one pair of opposite sides may be spaced differently. That is why the mesh has two layers: a single wake block from the trailing edge to the arc would have both pairs different and its lines would fan out from the trailing edge.</p>
+    </section>
+    <section id="openfoam">
+      <p class="section-label">Step 7</p>
+      <h2>Extrusion and groups, as in Tutorial 2.2.2</h2>
+<p>The extrusion and the physical groups of Tutorial 2.2.2, with twenty blocks instead of ten; the macro that computes the face indices does not change.</p>
+    </section>
+    <section id="check">
+      <p class="section-label">The check</p>
+      <h2>The mesh against NASA's grids and NASA's numbers</h2>
+<p>With Spalart-Allmaras at Re = 6e6, the mesh gives a drag coefficient within 1 % of NASA's at 0 and 10 degrees and a skin friction within 1 % of CFL3D; the lift at 10 degrees is 1.5 % lower, almost all of it compressibility, since NASA computes at Mach 0.15. A mesh with every size halved changes lift by 0.2 % and drag by 0.7 %.</p>
+    </section>
+    <section id="files">
+      <p class="section-label">Files</p>
+      <h2>The seven .geo files</h2>
+<p>Seven chained files: parameters, airfoil, inner layer, fan, blocks, mesh and OpenFOAM.</p>
+    </section>
+    <section id="example">
+      <p class="section-label">Suggested practice</p>
+      <h2>Three numbers to change, predicted before meshing</h2>
+<p>Three variants, each one number away: a smaller far field, whose drag error follows 1/R; a narrower and a wider fan, which leave the wall untouched and change the kink at the edge of the inner layer; and the nose ending at the maximum thickness, which tilts the first mesh lines and raises the friction.</p>
+    </section>
+    <section id="summary">
+      <p class="section-label">Key points</p>
+      <h2>What to keep from this guide</h2>
+<p>The far field of a lifting airfoil must be hundreds of chords away; a C-grid reaches it only if its columns open into a fan; the fan must not start at the wall; a radial progression can be split at a node without a jump; and at most one pair of opposite sides of a transfinite block may differ.</p>
+    </section>
+    <section id="mistakes">
+      <p class="section-label">Common mistakes</p>
+      <h2>Mistakes that a quality check does not catch</h2>
+<p>Judging the far field by the drag at zero lift; enlarging the C-grid by raising R; leaving the default geometric tolerance with a 1000-chord model; fanning from the wall; and filling a block whose two pairs of sides are spaced differently.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>Gmsh reference manual and source (meshGFaceTransfinite.cpp); NASA Turbulence Modeling Resource, 2D NACA 0012 validation and numerical analysis; Ladson (1988); Gregory and O'Reilly (1970); Thomas and Salas (1986).</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="perfil-c-parametrico.html?v=13"><span>Previous tutorial</span>← Tutorial 2.2.2 · The C-domain airfoil mesh, parametrised</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Tutorial series</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">El Tutorial 2.2.2 dejó una malla en C paramétrica con el campo lejano a quince cuerdas, y comprobó que a cero grados quince cuerdas bastan. Con ángulo de ataque ya no: a 10°, la resistencia sale 41 % más alta que la de la NASA. Este tutorial lleva la frontera a 500 cuerdas, como las mallas con que la NASA valida los modelos de turbulencia, sin tirar la malla del 2.2.2: la conserva como capa interior y le agrega, por fuera, un abanico de bloques.</p>
+<ul>
+  <li>Explicar por qué un perfil con sustentación necesita el campo lejano a cientos de cuerdas y estimar el error de un dominio pequeño.</li>
+  <li>Reconocer por qué la C del 2.2.2 no se puede agrandar sin más: sus columnas de celdas no crecen.</li>
+  <li>Construir una malla de dos capas: la C del 2.2.2 a medio cuerda del perfil y un abanico hasta un arco de 500 cuerdas.</li>
+  <li>Partir una progresión geométrica en un nodo, de modo que siga sin salto de un bloque al siguiente.</li>
+  <li>Aplicar la regla con que Gmsh llena un bloque transfinito: a lo más un par de lados opuestos puede repartir distinto.</li>
+  <li>Medir la inclinación de la malla junto a la pared, de la que depende la fricción.</li>
+  <li>Comprobar la malla contra las cifras de la NASA con OpenFOAM.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> Gmsh 4.15.2 (<a href="https://gmsh.info" target="_blank" rel="noopener">gmsh.info</a>) y, para la comprobación, OpenFOAM 13 (<a href="https://openfoam.org" target="_blank" rel="noopener">openfoam.org</a>). Este tutorial supone el <a href="perfil-c-parametrico.html">2.2.2</a>: <code>DefineConstant</code>, las macros <code>Empalme</code> y <code>Razon</code>, la primera celda a partir del y⁺ y los grupos físicos calculados se dan por sabidos. Los siete archivos <code>.geo</code> se reproducen completos.</p>
+</div>
+<div class="callout">
+  <p><strong>Contra qué se compara.</strong> El caso de validación del NACA 0012 de la NASA (<em>Turbulence Modeling Resource</em>): número de Reynolds de 6·10⁶, flujo completamente turbulento con el modelo de Spalart-Allmaras y campo lejano a 500 cuerdas. La NASA publica las fuerzas de varios códigos, sus distribuciones de presión y fricción y un estudio de malla con mallas de hasta quince millones de celdas: es una referencia mucho más precisa que un dato experimental escalado.</p>
+</div>
+
+    </section>
+    <section id="why-es">
+      <p class="section-label">El problema</p>
+      <h2>Quince cuerdas no bastan, y la C no crece</h2>
+
+<p>En el 2.2.2, quince cuerdas bastaban para la resistencia a cero grados: con cincuenta, el \(C_d\) cambió 1 %. Con el mismo caso a 10°, la malla del 2.2.2 da \(C_D\) = 0.01728 y \(C_L\) = 1.0438, contra 0.01227 y 1.0910 de la NASA: la resistencia sale 41 % alta. La malla no tiene la culpa —la fricción sale bien—; la tiene la frontera.</p>
+<h3>La circulación llega lejos</h3>
+<p>Un perfil que sustenta lleva circulación \(\Gamma\), y lejos de él el flujo se parece al de un vórtice puntual con esa circulación, cuya velocidad decae sólo como \(1/R\). Con el teorema de Kutta-Yukovski, \(\Gamma = \tfrac12 U_\infty c\,C_L\), y la velocidad que induce a una distancia \(R\) es</p>
+<div class="equation-card">\[ \frac{u_\Gamma}{U_\infty} = \frac{\Gamma}{2\pi R\,U_\infty} = \frac{C_L\,c}{4\pi R} \]</div>
+<p>Las condiciones de campo libre imponen la corriente sin perturbar en las caras de la frontera por donde el flujo entra, así que ahí borran esa velocidad. Es como si el perfil viera un ángulo de ataque un poco menor, en una cantidad \(\Delta\alpha\) del orden de \(u_\Gamma/U_\infty\): la sustentación baja, unos \(2\pi\,\Delta\alpha\), y la fuerza se inclina hacia atrás, de modo que aparece una resistencia de más, \(\Delta C_D \approx C_L\,\Delta\alpha\). Con la sustentación de estas corridas, \(u_\Gamma/U_\infty\) vale 0.55 % a 15 cuerdas y 0.017 % a 500.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Malla</th><th>R (c)</th><th>\(C_L\)</th><th>\(C_D\)</th><th>\(C_D\) contra 500 c</th><th>\(u_\Gamma/U_\infty\)</th><th>\(\dfrac{C_D - C_{D,\infty}}{C_L\,u_\Gamma/U_\infty}\)</th></tr></thead>
+    <tbody>
+      <tr><td>2.2.2 tal cual</td><td>15</td><td>1.0438</td><td>0.01728</td><td>+39.4 %</td><td>0.554 %</td><td>0.87</td></tr>
+      <tr><td>Dos capas</td><td>50</td><td>1.0669</td><td>0.01362</td><td>+9.9 %</td><td>0.170 %</td><td>0.74</td></tr>
+      <tr><td>Dos capas</td><td>100</td><td>1.0710</td><td>0.01293</td><td>+4.3 %</td><td>0.085 %</td><td>0.72</td></tr>
+      <tr><td>Dos capas</td><td>200</td><td>1.0733</td><td>0.01257</td><td>+1.5 %</td><td>0.043 %</td><td>0.66</td></tr>
+      <tr><td>Dos capas</td><td>500</td><td>1.0741</td><td>0.01239</td><td>—</td><td>0.017 %</td><td>0.66</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">El tamaño del dominio a 10°.</b> Spalart-Allmaras, \(Re\) = 6·10⁶, condiciones <em>freestream</em> en toda la frontera exterior. La primera fila usa la malla del 2.2.2 tal cual; las demás, la de este tutorial con <code>-setnumber R</code> (y <code>L</code> = R, <code>hFar</code> = R/10). La diferencia de \(C_D\) se mide contra la de 500 c. \(u_\Gamma/U_\infty\) es la velocidad que induciría en la frontera la circulación del perfil, y la última columna, cuántas veces cabe en el exceso de resistencia por unidad de sustentación, con \(C_{D,\infty}\) = 0.01227 extrapolado en \(1/R\). Las mallas de dos capas tienen de 50 800 celdas (50 c) a 66 156 (500 c).</caption>
+  </table>
+</div>
+<p>La última columna comprueba la estimación con las corridas: el exceso de resistencia por unidad de sustentación vale entre 0.66 y 0.87 veces \(u_\Gamma/U_\infty\), en todos los tamaños. La sustentación sigue la misma cuenta: a 50 cuerdas, \(2\pi \times 0.7\,u_\Gamma/U_\infty\) predice que \(C_L\) baje 0.0075 respecto del de un dominio infinito, y baja 0.0078. Dicho de otro modo: <strong>el error de \(C_D\) va como \(1/R\)</strong>, y con \(C_L\) ≈ 1 vale unas 0.056 cuerdas divididas entre el radio. Para que quede por debajo de 1 % hay que llegar a varios cientos de cuerdas, que es lo que hace la NASA.</p>
+<figure class="diagram">
+  <img src="imagenes/t223-08_dominio.png" alt="C_D y C_L contra el inverso del radio del dominio" loading="lazy">
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">El dominio, en 1/R.</b> Las corridas de la Tabla 1. Con la malla de dos capas, \(C_D\) y \(C_L\) caen casi sobre rectas en \(1/R\); la punteada pasa por las de 200 y 500 c, y en \(1/R = 0\) da \(C_D\) = 0.01227, que es el de la NASA (0.01227). La de 15 c, con la malla del 2.2.2, queda fuera: su \(C_D\) está 6 % por encima de la recta. El \(C_L\) de la NASA es compresible, a Mach 0.15: la diferencia se explica en la prueba.</figcaption>
+</figure>
+<div class="callout">
+  <p><strong>A cero grados no se nota.</strong> Sin sustentación no hay circulación, y el campo lejano puede estar mucho más cerca: por eso en la práctica del 2.2.2 pasar de 15 a 50 cuerdas cambió la resistencia 1 %. La conclusión de aquel tutorial era correcta para su caso; este tutorial empieza donde aquel caso deja de servir.</p>
+</div>
+<h3>Por qué no basta con subir R</h3>
+<p>El archivo del 2.2.2 acepta <code>-setnumber R 100</code>, y la malla se genera sin protestar. El problema es su forma. Las radiales de las estaciones suben en vertical hasta una recta \(y = R\), de modo que cada columna de celdas sobre el perfil conserva su ancho hasta el campo lejano: la que sale del borde de salida mide 0.002 c de ancho a cien cuerdas de distancia, donde las celdas tienen casi diez cuerdas de alto.</p>
+<figure class="diagram">
+  <img src="imagenes/t223-01_columnas.png" alt="La malla del 2.2.2 agrandada a 100 cuerdas y la de dos capas a 500" loading="lazy">
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">Las columnas que no crecen.</b> Arriba, el dominio completo de las dos mallas, a escala. Abajo, la misma región sobre el borde de salida, cerca del campo lejano. En la del 2.2.2 agrandada (izquierda) las columnas que salen del borde de salida conservan su ancho de 0.002 c hasta la frontera y forman una franja negra: celdas de 0.002 × 10 c, con aspecto de 5169 y 82° de no ortogonalidad. En la de dos capas (derecha), las columnas se abren en abanico y a 400 c miden del orden de una cuerda.</figcaption>
+</figure>
+<ul>
+  <li><strong>A 100 cuerdas</strong>, la no ortogonalidad llega a 82.2° en esas columnas —18 caras pasan de 70°— y la relación de aspecto a 5169: <code>checkMesh</code> responde «Failed 1 mesh checks». Con las celdas del borde de salida a la cuarta parte, el cálculo diverge.</li>
+  <li><strong>A 200 cuerdas y más</strong>, <code>gmshToFoam</code> aborta con «Did not determine new position for face»: un problema distinto, de tolerancia, que se resuelve en el paso 1.</li>
+</ul>
+<p>La NASA tiene otra salida: corregir la frontera con el campo de un vórtice puntual (Thomas y Salas, 1986), de modo que un dominio pequeño se comporte como uno infinito. OpenFOAM no trae esa condición de frontera, así que aquí se hace lo otro: llevar la frontera lejos con una malla preparada para eso.</p>
+
+    </section>
+    <section id="idea-es">
+      <p class="section-label">La idea</p>
+      <h2>Una C pequeña junto a la pared y un abanico hasta el campo lejano</h2>
+
+<p>La malla tiene dos capas. La <strong>interior</strong> es la C del 2.2.2 en pequeño: los mismos diez bloques, los mismos lazos y la misma numeración, a 0.48 c del perfil. La <strong>exterior</strong> va de esa C pequeña a un arco de 500 c con centro en el borde de salida: un bloque frente a cada curva de la C pequeña, diez más, que se abren en abanico.</p>
+<figure class="diagram">
+  <img src="imagenes/t223-02_bloques.png" alt="Los veinte bloques de la malla" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">Los veinte bloques.</b> Trazados desde las curvas de <code>perfil3_5_bloques.geo</code>, con los números de sus superficies. En azul, la capa interior: los diez bloques del 2.2.2 a 0.48 c del perfil. En naranja, el abanico: un bloque frente a cada curva de la C pequeña, hasta el arco de 500 c con centro en el borde de salida. Los bloques 12, 13 y 14 (y 17, 18 y 19) ocupan juntos los 15° del arco sobre el perfil.</figcaption>
+</figure>
+<h3>Por qué la capa interior</h3>
+<p>El abanico podría empezar en la pared: bastaría con mandar cada radial de estación directo a su punto del arco. Se probó, y la malla pasa todas las medidas de calidad —no ortogonalidad máxima de 41.7°, en la salida—, pero las líneas de la malla salen del perfil rectas hacia su punto del arco, inclinadas unos 15° respecto de la normal a la pared en todo el extradós. En una capa límite, la velocidad cambia muchísimo en la dirección normal a la pared y casi nada a lo largo de ella; una celda inclinada mezcla las dos direcciones, y la fricción, que es el gradiente en la pared, sale mal.</p>
+<figure class="diagram">
+  <img src="imagenes/t223-05_inclinacion.png" alt="La primera línea de la malla junto a la pared en cuatro mallas" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">La inclinación de la malla junto a la pared.</b> Arriba, la pared a media cuerda: con el abanico desde la pared las líneas salen inclinadas 15° hacia su punto del arco; con dos capas salen verticales. Abajo, la nariz: con la nariz hasta 0.3 c las líneas entre x/c = 0.02 y 0.10 salen 16° fuera de la normal, en promedio; hasta 0.2 c, 3°.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t223-06_cf.png" alt="Coeficiente de fricción en el extradós a 10 grados" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">La fricción depende de la inclinación.</b> \(C_f\) en el extradós a 10° con tres mallas a 500 c, contra CFL3D. Con el abanico desde la pared la fricción sale +5 % alta a media cuerda y ondula; con dos capas coincide con la de la NASA salvo en la nariz si ésta llega a 0.3 c. Las tres mallas tienen la misma primera celda y los mismos nodos sobre el perfil.</figcaption>
+</figure>
+<p>Con el abanico desde la pared, la fricción sale 5 % alta a media cuerda y el \(C_D\) de fricción, 0.00654 contra 0.00621 de la NASA. Con la capa interior, cuyas radiales son verticales como en el 2.2.2, la fricción coincide con la de CFL3D dentro de 1.1 % en x/c = 0.1, 0.3, 0.5 y 0.8. <strong>La capa interior protege la pared; el abanico sólo empieza donde la malla ya no resuelve la capa límite.</strong></p>
+<div class="callout">
+  <p><strong>La inclinación no la mide <code>checkMesh</code>.</strong> La no ortogonalidad compara la normal de cada cara con la recta que une los centros de las dos celdas vecinas; una columna de celdas inclinada pero regular tiene poca. Lo que importa junto a la pared es otra cosa: el ángulo entre la normal a la pared y la primera línea de la malla que sale de ella. Aquí se midió cara por cara del perfil, y está en la Tabla 5.</p>
+</div>
+
+    </section>
+    <section id="params-es">
+      <p class="section-label">Paso 1</p>
+      <h2>Los parámetros nuevos y la tolerancia</h2>
+
+<p>El primer archivo es el del 2.2.2 con seis parámetros nuevos —los del dominio— y una opción para la definición del perfil. Los valores por omisión son los del caso de la NASA: \(Re\) = 6·10⁶ con el aire del archivo y la cuerda de un metro.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Constante</th><th>Valor por omisión</th><th>Grupo</th><th>Qué es</th></tr></thead>
+    <tbody>
+      <tr><td><code>naca</code></td><td>12</td><td>Perfil</td><td>Código NACA de 4 dígitos</td></tr>
+      <tr><td><code>nasa</code></td><td>1</td><td>Perfil</td><td>Definición del espesor <b>(nuevo o cambiado)</b></td></tr>
+      <tr><td><code>c</code></td><td>1.0</td><td>Perfil</td><td>Cuerda c (m)</td></tr>
+      <tr><td><code>n</code></td><td>120</td><td>Perfil</td><td>Intervalos por cara</td></tr>
+      <tr><td><code>xs</code></td><td>0.20</td><td>Perfil</td><td>Estación 1, fin de la nariz (c) <b>(nuevo o cambiado)</b></td></tr>
+      <tr><td><code>xr1</code></td><td>0.55</td><td>Perfil</td><td>Estación 2 (c)</td></tr>
+      <tr><td><code>xr2</code></td><td>0.75</td><td>Perfil</td><td>Estación 3 (c)</td></tr>
+      <tr><td><code>hBA</code></td><td>0.0005</td><td>Perfil</td><td>Celda en el borde de ataque (c)</td></tr>
+      <tr><td><code>hMed</code></td><td>0.015</td><td>Perfil</td><td>Celda a media cuerda (c)</td></tr>
+      <tr><td><code>hBS</code></td><td>0.002</td><td>Perfil</td><td>Celda en el borde de salida (c)</td></tr>
+      <tr><td><code>R</code></td><td>500.0</td><td>Dominio</td><td>Radio del campo lejano (c) <b>(nuevo o cambiado)</b></td></tr>
+      <tr><td><code>L</code></td><td>500.0</td><td>Dominio</td><td>Estela hasta la salida (c) <b>(nuevo o cambiado)</b></td></tr>
+      <tr><td><code>abanico</code></td><td>15.0</td><td>Dominio</td><td>Abanico sobre el perfil (grados) <b>(nuevo o cambiado)</b></td></tr>
+      <tr><td><code>hFar</code></td><td>50.0</td><td>Dominio</td><td>Celda en el campo lejano (c) <b>(nuevo o cambiado)</b></td></tr>
+      <tr><td><code>hSalida</code></td><td>0.06</td><td>Dominio</td><td>Celda vertical en la salida (c) <b>(nuevo o cambiado)</b></td></tr>
+      <tr><td><code>hPiso</code></td><td>0.5</td><td>Dominio</td><td>Espesor de la capa interior (c) <b>(nuevo o cambiado)</b></td></tr>
+      <tr><td><code>rho</code></td><td>1.225</td><td>y+</td><td>Densidad ρ (kg m⁻³)</td></tr>
+      <tr><td><code>mu</code></td><td>1.789e-5</td><td>y+</td><td>Viscosidad μ (Pa s)</td></tr>
+      <tr><td><code>Uinf</code></td><td>87.6245</td><td>y+</td><td>Velocidad U∞ (m s⁻¹)</td></tr>
+      <tr><td><code>yplus</code></td><td>1.0</td><td>y+</td><td>y+ buscado</td></tr>
+      <tr><td><code>e</code></td><td>0.01</td><td>OpenFOAM</td><td>Espesor de la extrusión (m)</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Los parámetros del archivo.</b> Se leen tal como están en el bloque <code>DefineConstant</code> de <code>perfil3_1_parametros.geo</code>; las marcadas son nuevas o cambian de valor respecto del 2.2.2. Las longitudes están en cuerdas. <code>U∞</code> = 87.6245 m/s da \(Re\) = 6·10⁶ con el aire del archivo, el número de Reynolds del caso de validación de la NASA.</caption>
+  </table>
+</div>
+<ul>
+  <li><strong><code>R</code> y <code>L</code></strong>: el radio del arco, medido desde el borde de salida, y la longitud de la estela hasta la salida.</li>
+  <li><strong><code>abanico</code></strong>: el arco que ocupan juntos los bloques sobre el perfil, de la estación 1 al borde de salida (paso 4).</li>
+  <li><strong><code>hFar</code></strong>: la celda radial en el arco. La progresión radial va de \(h_w\) a <code>hFar</code> en <code>R</code>; con 500 c y 50 c, la razón es la misma que en el 2.2.2 con 15 c y 1.5 c.</li>
+  <li><strong><code>hPiso</code></strong>: el espesor aproximado de la capa interior (paso 3).</li>
+  <li><strong><code>hSalida</code></strong>: la celda vertical en la salida, junto al corte de estela.</li>
+</ul>
+<div class="callout warning">
+  <p><strong>La tolerancia geométrica.</strong> Al extruir, Gmsh empata los nodos de las caras por su posición, con una tolerancia de 10⁻⁸ veces la diagonal del modelo. Con un dominio de mil cuerdas son 1.4·10⁻⁵ c, más que la primera celda (8.25·10<sup>-6</sup> c a este número de Reynolds): Gmsh funde nodos de la pared y <strong>no avisa</strong>: sin esa línea, la malla de este tutorial sale con 131 046 nodos en vez de 133 304, sin un solo mensaje. El error aparece después, cuando <code>gmshToFoam</code> encuentra caras que no pertenecen a ningún parche y aborta con «Did not determine new position for face»; era lo que pasaba al agrandar el 2.2.2 a doscientas cuerdas. <code>Geometry.Tolerance = 1e-12;</code> al principio del archivo lo evita.</p>
+</div>
+<p>Las fórmulas de la primera celda y de las progresiones son las del 2.2.2. Lo que el archivo calcula con los valores por omisión, a lo largo de los siete pasos:</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Cantidad</th><th>Fórmula o regla</th><th>Valor</th></tr></thead>
+    <tbody>
+      <tr><td>Altura de la primera celda</td><td>\(h_w = 2\,y^+\nu/u_\tau\) (2.2.2)</td><td>8.25·10<sup>-6</sup> c</td></tr>
+      <tr><td>Radial: nodos y progresión</td><td>empalme de \(h_w\) a <code>hFar</code> en R</td><td>150 nodos, 1.11111</td></tr>
+      <tr><td>Celdas dentro de la capa límite estimada</td><td>como en el 2.2.2</td><td>51</td></tr>
+      <tr><td><b>Nodo donde termina la capa interior</b></td><td>el más cercano a <code>hPiso</code></td><td><b>K = 83, a 0.4774 c</b></td></tr>
+      <tr><td>Altura de la capa en la salida</td><td>de <code>hSalida</code> a la última celda de la capa en K celdas</td><td>4.453 c (progresión 0.99722)</td></tr>
+      <tr><td>Estela: nodos y progresión</td><td>empalme de <code>hBS</code> a <code>hFar</code> en L</td><td>98 nodos, 1.11111</td></tr>
+      <tr><td>Nodos de los cuatro tramos del perfil</td><td>los tamaños del 2.2.2</td><td>50, 25, 14, 40</td></tr>
+      <tr><td>Celdas alrededor del perfil</td><td>\(2\sum (N_i-1)\)</td><td>250</td></tr>
+      <tr><td>Ángulos de las estaciones en el arco</td><td>90° + <code>abanico</code> en proporción a las celdas</td><td>105.00°, 100.26°, 97.70°</td></tr>
+      <tr><td>Celda del arco sobre el perfil</td><td>\(h_{arco} = R\,\phi/\sum(N_i-1)\)</td><td>1.722 c</td></tr>
+      <tr><td>Arco de la nariz: progresión y celda en el frente</td><td>bisección desde \(h_{arco}\)</td><td>0.9345; 44.5 c</td></tr>
+      <tr><td>Tope de la estela: progresión y celda en la salida</td><td>bisección desde \(h_{arco}\)</td><td>1.0199; 11.5 c</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">Lo que el archivo calcula.</b> Cifras del registro que imprime Gmsh al leer los siete archivos con los valores por omisión. Ninguna se escribe en el archivo.</caption>
+  </table>
+</div>
+<p class="code-name"><code>perfil3_1_parametros.geo</code></p>
+<pre class="code"><code>// Perfil NACA con el campo lejano a 500 cuerdas · paso 1: los parámetros
+// Continuación del Tutorial 2.2.2: la misma C de diez bloques queda como capa interior, a
+// medio cuerda del perfil, y una segunda capa se abre en abanico hasta un arco de 500 cuerdas,
+// como las mallas de validación de la NASA. Todo lo que se puede cambiar está aquí; cada
+// constante se puede fijar desde la terminal:  gmsh perfil3_7_openfoam.geo -3 -setnumber R 100
+
+SetFactory(&quot;Built-in&quot;);
+
+// La extrusión del paso 7 empata los nodos por su posición, con una tolerancia de 1e-8 veces
+// la diagonal del modelo. Con 1000 c de dominio son 1.4e-5 c, más que la primera celda (8e-6 c
+// a Re = 6e6): Gmsh fundiría nodos de la pared y gmshToFoam abortaría («Did not determine new
+// position for face»).
+Geometry.Tolerance = 1e-12;
+
+DefineConstant[
+  // ---- perfil ----------------------------------------------------------
+  naca   = {12,     Name &quot;1Perfil/01Código NACA de 4 dígitos&quot;},
+  nasa   = {1,      Choices{0 = &quot;NACA: borde cerrado&quot;,
+                            1 = &quot;NASA: borde agudo&quot;},
+                    Name &quot;1Perfil/02Definición del espesor&quot;},
+  c      = {1.0,    Name &quot;1Perfil/03Cuerda c (m)&quot;},
+  n      = {120,    Name &quot;1Perfil/04Intervalos por cara&quot;},
+  xs     = {0.20,   Name &quot;1Perfil/05Estación 1, fin de la nariz (c)&quot;},
+  xr1    = {0.55,   Name &quot;1Perfil/06Estación 2 (c)&quot;},
+  xr2    = {0.75,   Name &quot;1Perfil/07Estación 3 (c)&quot;},
+  hBA    = {0.0005, Name &quot;1Perfil/08Celda en el borde de ataque (c)&quot;},
+  hMed   = {0.015,  Name &quot;1Perfil/09Celda a media cuerda (c)&quot;},
+  hBS    = {0.002,  Name &quot;1Perfil/10Celda en el borde de salida (c)&quot;},
+
+  // ---- dominio ---------------------------------------------------------
+  // R se mide desde el borde de salida, centro del arco; «abanico» es el arco que ocupan
+  // juntos los bloques sobre el perfil (de la estación 1 al borde de salida).
+  R       = {500.0, Name &quot;2Dominio/1Radio del campo lejano (c)&quot;},
+  L       = {500.0, Name &quot;2Dominio/2Estela hasta la salida (c)&quot;},
+  abanico = {15.0,  Name &quot;2Dominio/3Abanico sobre el perfil (grados)&quot;},
+  hFar    = {50.0,  Name &quot;2Dominio/4Celda en el campo lejano (c)&quot;},
+  hSalida = {0.06,  Name &quot;2Dominio/5Celda vertical en la salida (c)&quot;},
+  hPiso   = {0.5,   Name &quot;2Dominio/6Espesor de la capa interior (c)&quot;},
+
+  // ---- la primera celda, a partir de y+ --------------------------------
+  rho    = {1.225,    Name &quot;3y+/1Densidad ρ (kg m⁻³)&quot;},
+  mu     = {1.789e-5, Name &quot;3y+/2Viscosidad μ (Pa s)&quot;},
+  Uinf   = {87.6245,  Name &quot;3y+/3Velocidad U∞ (m s⁻¹)&quot;},
+  yplus  = {1.0,      Name &quot;3y+/4y+ buscado&quot;},
+
+  // ---- extrusión para OpenFOAM ----------------------------------------
+  e      = {0.01, Name &quot;4OpenFOAM/1Espesor de la extrusión (m)&quot;}
+];
+
+// ---------------------------------------------------------------- perfil
+// Los dígitos del código: curvatura máxima m, su posición p y el espesor t.
+Md = Floor(naca / 1000);
+Pd = Floor((naca - 1000 * Md) / 100);
+Td = naca - 1000 * Md - 100 * Pd;
+m = Md / 100.0;
+p = Pd / 10.0;
+t = Td / 100.0;
+
+// Índices de las tres estaciones de control (espaciado coseno invertido, 2.2.2).
+ks  = Floor(n / Pi * Acos(1.0 - 2.0 * xs)  + 0.5);
+kr1 = Floor(n / Pi * Acos(1.0 - 2.0 * xr1) + 0.5);
+kr2 = Floor(n / Pi * Acos(1.0 - 2.0 * xr2) + 0.5);
+
+// ------------------------------------------------- primera celda desde y+
+// Placa plana turbulenta: Cf = 0.074 Re^(-1/5). y+ mide la distancia del CENTRO de la primera
+// celda a la pared: la altura de la celda es el doble.
+nu   = mu / rho;
+Rec  = Uinf * c / nu;
+Cf   = 0.074 / Rec^0.2;
+utau = Uinf * Sqrt(Cf / 2.0);
+y1 = yplus * nu / utau;
+hw = 2.0 * y1;
+
+// ------------------------------------------- las dos macros del 2.2.2
+// Empalme: reparte eL en celdas que van de eh1 a ehN; devuelve la razón eR y los nodos eN.
+Macro Empalme
+  eR = (eL - eh1) / (eL - ehN);
+  eN = 2 + Floor(Log(ehN / eh1) / Log(eR) + 0.5);
+Return
+
+// Razon: con los nodos eN ya fijos, busca por bisección la razón eR que reparte eL empezando
+// en eh1.
+Macro Razon
+  rA = 1.0 + 1.e-9;  rB = 3.0;
+  For iter In {1:80}
+    rM = 0.5 * (rA + rB);
+    sM = eh1 * (rM^(eN - 1) - 1.0) / (rM - 1.0);
+    If (sM &lt; eL)
+      rA = rM;
+    Else
+      rB = rM;
+    EndIf
+  EndFor
+  eR = 0.5 * (rA + rB);
+Return
+
+// Radial: de la pared al campo lejano, una sola progresión desde hw. En el paso 3 se parte en
+// dos: la capa interior lleva sus primeros nodos y el abanico el resto.
+eL = R;  eh1 = hw;  ehN = hFar;  Call Empalme;
+nRadial = eN;  rRadial = eR;
+
+// Cuántas de esas celdas caen dentro de la capa límite de una placa plana a esta cuerda.
+dBL = 0.37 * c / Rec^0.2;
+nBL = Log(1.0 + dBL * (rRadial - 1.0) / hw) / Log(rRadial);
+
+// Axial en la estela: arranca con la celda del borde de salida del perfil.
+eL = L;  eh1 = hBS;  ehN = hFar;  Call Empalme;
+nEstela = eN;  rEstela = eR;
+
+Printf(&quot;Re_c = %g   Cf = %g   u_tau = %g&quot;, Rec, Cf, utau);
+Printf(&quot;y+ = %g  -&gt;  centro de la primera celda y1 = %g c, altura hw = %g c&quot;, yplus, y1, hw);
+Printf(&quot;radial: %g nodos con progresión %g (de %g c a %g c)&quot;, nRadial, rRadial, hw, hFar);
+Printf(&quot;capa límite estimada %g c: %g celdas dentro&quot;, dBL, nBL);
+Printf(&quot;estela: %g nodos con progresión %g (de %g c a %g c)&quot;, nEstela, rEstela, hBS, hFar);</code></pre>
+
+    </section>
+    <section id="airfoil-es">
+      <p class="section-label">Paso 2</p>
+      <h2>El NACA 0012 de la NASA y dónde termina la nariz</h2>
+
+<p>El contorno es el del 2.2.2 con una opción más, <code>nasa</code>, que usa la definición del NACA 0012 del caso de validación. La fórmula del NACA de cuatro dígitos deja el borde de salida abierto; el 2.2.2 lo cierra cambiando el último coeficiente (−0.1036 en vez de −0.1015). La NASA lo cierra de otro modo: prolonga el perfil con la fórmula exacta hasta \(x\) = 1.00893, donde el espesor se anula, y lo reescala a cuerda 1:</p>
+<div class="equation-card">\[ y_t = \pm\,0.594689181\,\big[0.298222773\sqrt{x} - 0.127125232\,x - 0.357907906\,x^2 + 0.291984971\,x^3 - 0.105174606\,x^4\big] \]</div>
+<p>El borde de salida queda agudo y el espesor máximo en 11.894 % de la cuerda. En el archivo, la fórmula se escala con \(t/0.12\) para que sirva con cualquier espesor. La diferencia en las fuerzas es pequeña —a 10°, con la misma malla, \(C_L\) = 1.0722 con la definición de la NASA y 1.0703 con la del 2.2.2—, pero para compararse con la NASA conviene usar su perfil.</p>
+<h3>Dónde termina la nariz</h3>
+<p>En el 2.2.2 el primer tramo, la nariz, iba hasta el espesor máximo, en 0.3 c. Aquí va hasta <code>xs</code> = 0.2 c. La razón es la inclinación de la malla junto a la pared: las líneas que salen de la nariz van hacia la media elipse de la capa interior, y cuanto más largo es el tramo, más se apartan de la normal.</p>
+<ul>
+  <li>Con la nariz hasta 0.3 c, las líneas entre x/c = 0.02 y 0.10 salen 16.1° fuera de la normal, en promedio, y la fricción en x/c = 0.1 sale 4.6 % alta.</li>
+  <li>Con 0.2 c, 3.1°, y la fricción en x/c = 0.1 coincide con la de CFL3D dentro de 0.3 %.</li>
+  <li>Con 0.12 c la tendencia se invierte: 8.9°, porque la nariz se queda corta y las estaciones de arriba, verticales, caen donde la pared todavía está muy inclinada.</li>
+</ul>
+<p class="code-name"><code>perfil3_2_perfil.geo</code></p>
+<pre class="code"><code>// Perfil NACA con el campo lejano a 500 cuerdas · paso 2: el contorno del perfil
+// El del 2.2.2, con una opción más: la definición del NACA 0012 que usa la NASA en su caso de
+// validación.
+Include &quot;perfil3_1_parametros.geo&quot;;
+
+// Numeración: 1000 + i el extradós, 2000 + i el intradós. El borde de ataque (1000) y el de
+// salida (1000 + n) son de las dos caras.
+sTramo[] = {0, 0, 0, 0};       // longitud de arco de los cuatro tramos del extradós
+xAnt = 0;  yAnt = 0;
+
+For i In {0:n}
+  x = 0.5 * (1.0 - Cos(Pi * i / n));                  // espaciado coseno
+  If (nasa)
+    // NASA: la fórmula exacta (−0.1015 x⁴) se prolonga hasta x = 1.00893, donde el espesor
+    // se anula, y se reescala a cuerda 1; el borde de salida queda agudo y el espesor en
+    // 11.894 %.
+    yt = t / 0.12 * 0.594689181 * (0.298222773 * Sqrt(x) - 0.127125232 * x - 0.357907906 * x^2
+                                   + 0.291984971 * x^3 - 0.105174606 * x^4);
+  Else
+    yt = 5.0 * t * (0.2969 * Sqrt(x) - 0.1260 * x - 0.3516 * x^2
+                    + 0.2843 * x^3 - 0.1036 * x^4);    // borde de salida cerrado (2.2.2)
+  EndIf
+
+  yc = 0.0;  dyc = 0.0;                                // línea de curvatura
+  If (m &gt; 0)
+    If (x &lt; p)
+      yc = m / p^2 * (2.0 * p * x - x^2);
+      dyc = 2.0 * m / p^2 * (p - x);
+    Else
+      yc = m / (1.0 - p)^2 * ((1.0 - 2.0 * p) + 2.0 * p * x - x^2);
+      dyc = 2.0 * m / (1.0 - p)^2 * (p - x);
+    EndIf
+  EndIf
+  th = Atan(dyc);
+
+  // El espesor se mide perpendicular a la línea de curvatura.
+  xu = c * (x - yt * Sin(th));   yu = c * (yc + yt * Cos(th));
+  xl = c * (x + yt * Sin(th));   yl = c * (yc - yt * Cos(th));
+
+  Point(1000 + i) = {xu, yu, 0};
+  If (i &gt; 0 &amp;&amp; i &lt; n)
+    Point(2000 + i) = {xl, yl, 0};
+  EndIf
+
+  If (i &gt; 0)                     // arco recorrido, para repartir los nodos
+    dS = Sqrt((xu - xAnt)^2 + (yu - yAnt)^2);
+    If (i &lt;= ks)        sTramo[0] += dS;
+    ElseIf (i &lt;= kr1)   sTramo[1] += dS;
+    ElseIf (i &lt;= kr2)   sTramo[2] += dS;
+    Else                sTramo[3] += dS;
+    EndIf
+  EndIf
+  xAnt = xu;  yAnt = yu;
+EndFor
+
+// Cuatro tramos por cara, del borde de ataque al de salida.
+Spline(1) = {1000 : 1000 + ks};
+Spline(2) = {1000 + ks : 1000 + kr1};
+Spline(3) = {1000 + kr1 : 1000 + kr2};
+Spline(4) = {1000 + kr2 : 1000 + n};
+
+Spline(5) = {1000, 2001 : 2000 + ks};
+Spline(6) = {2000 + ks : 2000 + kr1};
+Spline(7) = {2000 + kr1 : 2000 + kr2};
+Spline(8) = {2000 + kr2 : 2000 + n - 1, 1000 + n};
+
+// Sólo quedan visibles los puntos que hacen falta para construir el dominio.
+Hide { Point{1001 : 1000 + n - 1, 2001 : 2000 + n - 1}; }
+Show { Point{1000 + ks, 1000 + kr1, 1000 + kr2, 2000 + ks, 2000 + kr1, 2000 + kr2}; }
+
+// ---------------------------------------------- nodos a lo largo del perfil
+// Los del 2.2.2: mandan las celdas del borde de ataque, de media cuerda y del borde de salida.
+eL = sTramo[0];  eh1 = hBA;   ehN = hMed;  Call Empalme;
+nT1 = eN;  rT1 = eR;
+nT2 = 1 + Floor(sTramo[1] / hMed + 0.5);   rT2 = 1.0;
+nT3 = 1 + Floor(sTramo[2] / hMed + 0.5);   rT3 = 1.0;
+eL = sTramo[3];  eh1 = hMed;  ehN = hBS;   Call Empalme;
+nT4 = eN;  rT4 = eR;
+
+Printf(&quot;tramos del perfil: %g, %g, %g, %g nodos; %g celdas alrededor&quot;, nT1, nT2, nT3, nT4,
+       2 * (nT1 + nT2 + nT3 + nT4 - 4));</code></pre>
+
+    </section>
+    <section id="inner-es">
+      <p class="section-label">Paso 3</p>
+      <h2>La C del 2.2.2, a medio cuerda de la pared</h2>
+
+<p>La capa interior es el dominio del 2.2.2 con la frontera a una distancia \(H_1\) del perfil en vez de quince cuerdas: el frente de la media elipse en \(x = -H_1\), los puntos de arriba a \(H_1\) sobre las estaciones del extradós, los de abajo a \(H_1\) bajo las del intradós, y la estela hasta la salida con su propia altura. Las radiales de las estaciones son verticales, como en el 2.2.2.</p>
+<h3>La progresión partida en el nodo K</h3>
+<p>La progresión radial del paso 1 va de la pared al arco: 150 nodos con razón 1.11111. La capa interior se queda con los primeros; el abanico, con el resto. Para que no haya salto de tamaño donde se juntan, la capa tiene que terminar <em>exactamente</em> en un nodo de esa progresión, y por eso su espesor no es <code>hPiso</code>, sino la altura del nodo más cercano:</p>
+<div class="equation-card">\[ h_0 = R\,\frac{r-1}{r^{N-1}-1}, \qquad K = \operatorname{redondeo}\!\left[\frac{\ln\big(1 + h_\text{piso}(r-1)/h_0\big)}{\ln r}\right], \qquad H_1 = h_0\,\frac{r^K - 1}{r - 1} \]</div>
+<p>\(h_0\) es la primera celda que reparte Gmsh en una curva de longitud \(R\) con \(N\) nodos y razón \(r\), que difiere un poco de \(h_w\) porque \(N\) se redondeó. Con los valores por omisión, K = 83 y \(H_1\) = 0.4774 c. Las radiales de la capa llevan K + 1 nodos y las del abanico N − K, con la misma razón: Gmsh reparte cada una desde su propio extremo y las dos partes encajan.</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 300" role="img" aria-label="Una progresión radial partida en el nodo K">
+  <text class="svg-title" x="30" y="24">La radial, partida en el nodo K</text>
+  <rect x="120.0" y="264.6" width="70" height="3.4" fill="var(--sky)" stroke="var(--ink)" stroke-width="0.8"/>
+  <rect x="120.0" y="260.4" width="70" height="4.2" fill="var(--sky)" stroke="var(--ink)" stroke-width="0.8"/>
+  <rect x="120.0" y="255.3" width="70" height="5.1" fill="var(--sky)" stroke="var(--ink)" stroke-width="0.8"/>
+  <rect x="120.0" y="249.1" width="70" height="6.2" fill="var(--sky)" stroke="var(--ink)" stroke-width="0.8"/>
+  <rect x="120.0" y="241.5" width="70" height="7.6" fill="var(--sky)" stroke="var(--ink)" stroke-width="0.8"/>
+  <rect x="120.0" y="232.3" width="70" height="9.2" fill="var(--sky)" stroke="var(--ink)" stroke-width="0.8"/>
+  <rect x="120.0" y="221.0" width="70" height="11.3" fill="var(--sky)" stroke="var(--ink)" stroke-width="0.8"/>
+  <rect x="120.0" y="207.3" width="70" height="13.8" fill="var(--paper)" stroke="var(--ink)" stroke-width="0.8"/>
+  <rect x="120.0" y="190.5" width="70" height="16.8" fill="var(--paper)" stroke="var(--ink)" stroke-width="0.8"/>
+  <rect x="120.0" y="170.0" width="70" height="20.5" fill="var(--paper)" stroke="var(--ink)" stroke-width="0.8"/>
+  <rect x="120.0" y="145.0" width="70" height="25.0" fill="var(--paper)" stroke="var(--ink)" stroke-width="0.8"/>
+  <rect x="120.0" y="114.5" width="70" height="30.5" fill="var(--paper)" stroke="var(--ink)" stroke-width="0.8"/>
+  <rect x="120.0" y="77.4" width="70" height="37.2" fill="var(--paper)" stroke="var(--ink)" stroke-width="0.8"/>
+  <rect x="120.0" y="32.0" width="70" height="45.4" fill="var(--paper)" stroke="var(--ink)" stroke-width="0.8"/>
+  <line x1="90.0" y1="221.0" x2="220.0" y2="221.0" stroke="var(--accent)" stroke-width="2.4"/>
+  <text class="svg-note-sm" x="228.0" y="215.0" fill="var(--accent-dark)">nodo K: altura H₁</text>
+  <text class="svg-note-sm" x="68.0" y="272.0">pared</text>
+  <line x1="110.0" y1="268.0" x2="200.0" y2="268.0" stroke="var(--ink)" stroke-width="2"/>
+  <text class="svg-note-sm" x="228.0" y="256.0" fill="var(--blue)">capa interior: K celdas,</text>
+  <text class="svg-note-sm" x="228.0" y="272.0" fill="var(--blue)">de h₀ a h₀ r^(K−1)</text>
+  <text class="svg-note-sm" x="228.0" y="70.0">abanico: N − 1 − K celdas,</text>
+  <text class="svg-note-sm" x="228.0" y="86.0">la misma razón r, desde h₀ r^K</text>
+  <text class="svg-note" x="420" y="150">H₁ = h₀ (r^K − 1)/(r − 1)</text>
+  <text class="svg-note-sm" x="420" y="172" fill="var(--muted)">con h₀ la primera celda que reparte Gmsh:</text>
+  <text class="svg-note-sm" x="420" y="188" fill="var(--muted)">h₀ = R (r − 1)/(r^(N−1) − 1)</text>
+  <text class="svg-note-sm" x="420" y="220" fill="var(--muted)">Esquema con r = 1.22 y N = 15;</text>
+  <text class="svg-note-sm" x="420" y="236" fill="var(--muted)">en la malla, r = 1.1111, N = 150 y K = 83.</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">La progresión partida.</b> Las radiales de la capa interior llevan los primeros K + 1 nodos de la progresión que va de la pared al campo lejano; las del abanico, los demás. Como la capa termina justo en un nodo, las dos partes tienen la misma razón y no hay salto de tamaño donde se juntan.</figcaption>
+</figure>
+<h3>La salida de la capa</h3>
+<p>Junto al borde de salida, la capa lleva las celdas de la pared: la primera mide 8.25·10<sup>-6</sup> c. En la salida, 500 cuerdas atrás, eso no tiene sentido, y como en el 2.2.2 la salida lleva su propia progresión, que empieza en <code>hSalida</code>. Pero aquí el número de celdas ya está fijado —son K, las de la radial del borde de salida— y también el tamaño de la última, que tiene que empalmar con la primera del abanico. Queda una sola incógnita, la altura de la capa en la salida:</p>
+<div class="equation-card">\[ r_\text{piso} = \left(\frac{h_0\,r^{K-1}}{h_\text{salida}}\right)^{1/(K-1)}, \qquad H_2 = h_\text{salida}\,\frac{r_\text{piso}^{K}-1}{r_\text{piso}-1} \]</div>
+<p>Con los valores por omisión, \(H_2\) = 4.453 c y \(r_\text{piso}\) = 0.99722: las celdas de la salida son casi uniformes. El techo de la capa en la estela es la recta que une \((c, H_1)\) con \((x_o, H_2)\).</p>
+<p class="code-name"><code>perfil3_3_capa_interior.geo</code></p>
+<pre class="code"><code>// Perfil NACA con el campo lejano a 500 cuerdas · paso 3: la capa interior
+// Es el dominio en C del 2.2.2 en pequeño, a una distancia H1 del perfil (medio cuerda): la
+// misma numeración, las radiales de las estaciones verticales y la estela con su propia
+// salida. Ahí las líneas de la malla salen casi perpendiculares a la pared, y de eso depende
+// la fricción.
+Include &quot;perfil3_2_perfil.geo&quot;;
+
+// La capa termina en el nodo K de la progresión radial: H1 es la altura de ese nodo (la más
+// cercana a hPiso), así que la progresión sigue sin salto en el abanico del paso 4.
+h0 = R * (rRadial - 1) / (rRadial^(nRadial - 1) - 1);   // primera celda que reparte Gmsh
+K = Floor(Log(1 + hPiso * (rRadial - 1) / h0) / Log(rRadial) + 0.5);
+H1 = h0 * (rRadial^K - 1) / (rRadial - 1);
+hJ = h0 * rRadial^(K - 1);                              // última celda de la capa
+
+// En la salida, la capa no puede llevar las celdas de la pared: 500 cuerdas atrás, una fila de
+// 1e-5 c no tiene sentido. Sube de hSalida a hJ en las mismas K celdas, y por eso termina a
+// otra altura, H2.
+rPiso = (hJ / hSalida)^(1 / (K - 1));
+H2 = hSalida * (rPiso^K - 1) / (rPiso - 1);
+
+cBS = 1000 + n;                               // el borde de salida
+xo = c + L;                                   // salida
+xc = xs * c;                                  // centro de la media elipse
+
+Point(1) = {-H1, 0, 0};                                         // frente
+Point(2) = {xc, 0, 0};                                          // centro de la elipse
+pS[]  = Point{1000 + ks};   pI[]  = Point{2000 + ks};           // las estaciones del perfil
+pR1s[] = Point{1000 + kr1}; pR1i[] = Point{2000 + kr1};
+pR2s[] = Point{1000 + kr2}; pR2i[] = Point{2000 + kr2};
+Point(3)  = {pS[0],   pS[1] + H1, 0};    Point(4)  = {pI[0],   pI[1] - H1, 0};
+Point(5)  = {pR1s[0], pR1s[1] + H1, 0};  Point(6)  = {pR1i[0], pR1i[1] - H1, 0};
+Point(7)  = {pR2s[0], pR2s[1] + H1, 0};  Point(8)  = {pR2i[0], pR2i[1] - H1, 0};
+Point(9)  = {c, H1, 0};                  Point(10) = {c, -H1, 0};
+Point(11) = {xo, H2, 0};                 Point(12) = {xo, -H2, 0};
+Point(13) = {xo, 0, 0};                                         // fin del corte de estela
+
+// La media elipse pasa por el frente y por los puntos 3 y 4; el tercer punto sólo fija la
+// dirección del primer semieje (2.2.2).
+Ellipse(11) = {1, 2, 1, 3};   Ellipse(12) = {1, 2, 1, 4};
+Line(13) = {3, 5};  Line(14) = {5, 7};  Line(15) = {7, 9};  Line(16) = {9, 11};
+Line(17) = {4, 6};  Line(18) = {6, 8};  Line(19) = {8, 10}; Line(20) = {10, 12};
+Line(21) = {cBS, 13};                                           // corte de estela, en la cuerda
+
+Line(22) = {1000, 1};                                           // las radiales de la capa
+Line(23) = {1000 + ks,  3};  Line(24) = {1000 + kr1, 5};
+Line(25) = {1000 + kr2, 7};  Line(26) = {cBS,        9};
+Line(27) = {2000 + ks,  4};  Line(28) = {2000 + kr1, 6};
+Line(29) = {2000 + kr2, 8};  Line(30) = {cBS,       10};
+Line(31) = {13, 11};  Line(32) = {13, 12};                      // la salida de la capa
+
+Printf(&quot;capa interior: %g celdas, %g c junto al perfil y %g c en la salida (progresión %g)&quot;,
+       K, H1, H2, rPiso);</code></pre>
+
+    </section>
+    <section id="fan-es">
+      <p class="section-label">Paso 4</p>
+      <h2>La capa exterior, abierta hasta un arco de 500 cuerdas</h2>
+
+<p>El arco tiene su centro en el borde de salida y radio \(R\); de cada esquina de la C pequeña sale una radial hasta su punto del arco. La pregunta es a qué ángulo va cada una.</p>
+<ul>
+  <li>Las de la estación 1 a la del borde de salida —los bloques 12, 13 y 14 arriba, 17, 18 y 19 abajo— se reparten <code>abanico</code> grados a partir de 90°, <strong>en proporción a sus celdas</strong>. Así, en el arco, las celdas sobre el perfil miden todas lo mismo:</li>
+</ul>
+<div class="equation-card">\[ \theta_9 = 90°, \qquad \theta_7 = \theta_9 + \phi\,\frac{N_4-1}{\sum_{i=2}^{4}(N_i-1)}, \qquad \theta_5 = \theta_7 + \phi\,\frac{N_3-1}{\sum (N_i-1)}, \qquad \theta_3 = 90° + \phi \]</div>
+<p>con \(\phi\) = <code>abanico</code> y \(N_i\) los nodos del tramo \(i\). La celda del arco sobre el perfil es \(h_\text{arco} = R\,\phi/\sum(N_i-1)\) = 1.722 c.</p>
+<ul>
+  <li>La nariz, el bloque 11 arriba y el 16 abajo, se queda con el resto del semicírculo, de 105° a 180°.</li>
+  <li>Arriba y abajo de la estela, el dominio sigue con rectas hasta la salida, como en el 2.2.2.</li>
+</ul>
+<p>Con 15° —el valor por omisión— las radiales del abanico salen de la C pequeña inclinadas a lo más 15° respecto de las verticales de la capa interior. Ese quiebre, a 0.48 c de la pared, es la mayor no ortogonalidad cerca del perfil: 15.9°. Un abanico más angosto lo cambia de lugar, uno más ancho lo agranda; la práctica sugerida lo mide.</p>
+<p class="code-name"><code>perfil3_4_abanico.geo</code></p>
+<pre class="code"><code>// Perfil NACA con el campo lejano a 500 cuerdas · paso 4: la capa exterior, en abanico
+// De la C pequeña del paso 3 a un arco de radio R con centro en el borde de salida. En el
+// 2.2.2 las radiales de las estaciones suben en vertical hasta una recta y = R, y las columnas
+// de celdas sobre el perfil conservan su ancho hasta el campo lejano: a 100 c serían de
+// 0.002 × 10 c, con 82° de no ortogonalidad. Aquí se abren en abanico.
+Include &quot;perfil3_3_capa_interior.geo&quot;;
+
+// Los bloques sobre el perfil (de la estación 1 al borde de salida) ocupan juntos «abanico»
+// grados del arco, a partir de 90°, en proporción a sus celdas: en el campo lejano todas miden
+// lo mismo, hArco. La nariz se queda con el resto, hasta 180°.
+cArriba = (nT2 - 1) + (nT3 - 1) + (nT4 - 1);
+th9 = Pi / 2;
+th7 = th9 + abanico * Pi / 180 * (nT4 - 1) / cArriba;
+th5 = th7 + abanico * Pi / 180 * (nT3 - 1) / cArriba;
+th3 = th9 + abanico * Pi / 180;
+hArco = R * abanico * Pi / 180 / cArriba;
+
+Point(51) = {c - R, 0, 0};                                      // frente
+Point(53) = {c + R * Cos(th3), R * Sin(th3), 0};
+Point(54) = {c + R * Cos(th3), -R * Sin(th3), 0};
+Point(55) = {c + R * Cos(th5), R * Sin(th5), 0};
+Point(56) = {c + R * Cos(th5), -R * Sin(th5), 0};
+Point(57) = {c + R * Cos(th7), R * Sin(th7), 0};
+Point(58) = {c + R * Cos(th7), -R * Sin(th7), 0};
+Point(59) = {c, R, 0};     Point(60) = {c, -R, 0};
+Point(61) = {xo, R, 0};    Point(62) = {xo, -R, 0};
+
+// El arco tiene su centro en el borde de salida; arriba y abajo de la estela, rectas hasta la
+// salida.
+Circle(41) = {51, cBS, 53};   Circle(42) = {51, cBS, 54};
+Circle(43) = {53, cBS, 55};   Circle(44) = {55, cBS, 57};   Circle(45) = {57, cBS, 59};
+Line(46) = {59, 61};
+Circle(47) = {54, cBS, 56};   Circle(48) = {56, cBS, 58};   Circle(49) = {58, cBS, 60};
+Line(50) = {60, 62};
+
+// Las radiales del abanico: de cada esquina de la C pequeña a su punto del arco.
+Line(51) = {1, 51};
+Line(53) = {3, 53};  Line(55) = {5, 55};  Line(57) = {7, 57};
+Line(59) = {9, 59};  Line(61) = {11, 61};
+Line(54) = {4, 54};  Line(56) = {6, 56};  Line(58) = {8, 58};
+Line(60) = {10, 60}; Line(62) = {12, 62};
+
+Printf(&quot;arco: estaciones a %g, %g, %g grados; celda %g c sobre el perfil&quot;, th3 * 180 / Pi,
+       th5 * 180 / Pi, th7 * 180 / Pi, hArco);</code></pre>
+
+    </section>
+    <section id="blocks-es">
+      <p class="section-label">Pasos 5 y 6</p>
+      <h2>Veinte bloques y la regla de los lados opuestos</h2>
+
+<p>Los lazos del paso 5 son los del 2.2.2 para la capa interior y diez más para el abanico, cada uno empezando en la curva de la C pequeña que tiene enfrente. Antes de repartir los nodos hay que entender cómo llena Gmsh un bloque transfinito, porque de eso depende toda la topología.</p>
+<h3>La regla de los lados opuestos</h3>
+<p>Gmsh reparte primero los nodos de las cuatro curvas del bloque y después coloca los del interior por interpolación de las fronteras. Para cada nodo interior necesita dos coordenadas, \(u\) a lo largo y \(v\) a lo alto, y <strong>las toma del promedio del reparto de los dos lados opuestos</strong>: \(u\), del promedio de la curva de abajo y la de arriba; \(v\), del de las dos de los lados. Está en el código de Gmsh (<code>meshGFaceTransfinite.cpp</code>, con la opción <code>symmetric</code>), y no depende del orden de las esquinas: se comprobó que dar las esquinas en otro orden no cambia ni un nodo.</p>
+<p>Si los dos lados de un par reparten igual, el promedio es el reparto de cualquiera de ellos y todo encaja. Si difieren, el promedio no es ninguno de los dos, y el interior queda bien sólo si el otro par sí coincide.</p>
+<figure class="diagram">
+  <img src="imagenes/t223-03_regla.png" alt="La regla de los lados opuestos en un solo bloque" loading="lazy">
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">La regla de los lados opuestos, en un bloque.</b> Un bloque de 4 × 1 con 20 celdas a lo largo y 12 a lo alto (<code>datos-t223/regla/regla_lados.geo</code>). Arriba, abajo y arriba reparten distinto, pero los dos lados verticales reparten igual: las columnas salen rectas y se abren. Abajo, además, el lado derecho reparte parejo: Gmsh promedia los dos lados verticales y las filas dejan de seguir a ninguno de los dos; junto a la esquina apiñada, las columnas se tuercen.</figcaption>
+</figure>
+<div class="result-box">
+  <p><strong>En un bloque transfinito, a lo más un par de lados opuestos puede repartir distinto.</strong></p>
+</div>
+<p>De ahí sale la forma de la malla:</p>
+<ul>
+  <li><strong>En los bloques del abanico</strong> difieren la C pequeña y el arco —eso es el abanico—, y las dos radiales reparten igual: la misma progresión, desde el nodo K.</li>
+  <li><strong>En la estela de la capa interior</strong> difieren los dos lados verticales —la radial del borde de salida empieza con la celda de pared y la salida con <code>hSalida</code>—, y el corte de estela y el techo de la capa reparten igual. Las columnas suben verticales, como en el 2.2.2.</li>
+  <li><strong>En la estela del abanico</strong> difieren el techo de la capa y el tope del dominio, y los lados verticales reparten igual.</li>
+</ul>
+<p>Un solo bloque de estela del borde de salida al arco tendría los dos pares distintos. Se probó en la exploración: las líneas de la estela salían en abanico desde el borde de salida, con 61° de no ortogonalidad a 0.3 c de él. Las dos capas no son un adorno: son lo que la regla exige.</p>
+<p class="code-name"><code>perfil3_5_bloques.geo</code></p>
+<pre class="code"><code>// Perfil NACA con el campo lejano a 500 cuerdas · paso 5: los veinte bloques
+// Cada lazo empieza en la curva de abajo (el perfil, el corte de estela o la C pequeña) y da
+// la vuelta.
+Include &quot;perfil3_4_abanico.geo&quot;;
+
+// La capa interior: los diez bloques del 2.2.2, con sus mismos lazos.
+Curve Loop(1) = {1, 23, -11, -22};   Plane Surface(1) = {1};
+Curve Loop(2) = {2, 24, -13, -23};   Plane Surface(2) = {2};
+Curve Loop(3) = {3, 25, -14, -24};   Plane Surface(3) = {3};
+Curve Loop(4) = {4, 26, -15, -25};   Plane Surface(4) = {4};
+Curve Loop(5) = {5, 27, -12, -22};   Plane Surface(5) = {5};
+Curve Loop(6) = {6, 28, -17, -27};   Plane Surface(6) = {6};
+Curve Loop(7) = {7, 29, -18, -28};   Plane Surface(7) = {7};
+Curve Loop(8) = {8, 30, -19, -29};   Plane Surface(8) = {8};
+Curve Loop(9)  = {21, 31, -16, -26};  Plane Surface(9)  = {9};
+Curve Loop(10) = {21, 32, -20, -30};  Plane Surface(10) = {10};
+
+// La capa exterior: un bloque frente a cada curva de la C pequeña.
+Curve Loop(11) = {11, 53, -41, -51};  Plane Surface(11) = {11};
+Curve Loop(12) = {13, 55, -43, -53};  Plane Surface(12) = {12};
+Curve Loop(13) = {14, 57, -44, -55};  Plane Surface(13) = {13};
+Curve Loop(14) = {15, 59, -45, -57};  Plane Surface(14) = {14};
+Curve Loop(15) = {16, 61, -46, -59};  Plane Surface(15) = {15};
+Curve Loop(16) = {12, 54, -42, -51};  Plane Surface(16) = {16};
+Curve Loop(17) = {17, 56, -47, -54};  Plane Surface(17) = {17};
+Curve Loop(18) = {18, 58, -48, -56};  Plane Surface(18) = {18};
+Curve Loop(19) = {19, 60, -49, -58};  Plane Surface(19) = {19};
+Curve Loop(20) = {20, 62, -50, -60};  Plane Surface(20) = {20};</code></pre>
+<h3>Quién manda en cada curva</h3>
+<p>Como en el 2.2.2, el archivo de la malla no contiene ningún número escrito a mano. Las progresiones nuevas son tres, y las tres se buscan con <code>Razon</code> porque el número de nodos ya está impuesto: la del arco de la nariz y la del tope de la estela, que empiezan con \(h_\text{arco}\) donde tocan los sectores de arriba del perfil, para que las celdas del arco no salten de tamaño; y la de la salida de la capa, del paso 3.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Curvas</th><th>Dónde están</th><th>Nodos</th><th>Progresión</th><th>Lado opuesto</th></tr></thead>
+    <tbody>
+      <tr><td>1–8</td><td>los tramos del perfil</td><td>los del 2.2.2</td><td><code>rT1</code>, 1, 1, <code>rT4</code></td><td>13–15, 17–19 y la media elipse</td></tr>
+      <tr><td>13–15, 17–19</td><td>la C pequeña, sobre y bajo el perfil</td><td>los del tramo de enfrente</td><td>la del tramo de enfrente</td><td>el tramo del perfil (igual) y el arco (distinto)</td></tr>
+      <tr><td>11, 12</td><td>la media elipse de la capa interior</td><td>los del tramo 1</td><td>propia, desde la celda de arriba</td><td>el tramo 1 (distinto) y el arco de la nariz (distinto)</td></tr>
+      <tr><td>22–30</td><td>las radiales de la capa interior</td><td>K + 1 = 84</td><td>la radial, desde \(h_w\)</td><td>la radial vecina (igual)</td></tr>
+      <tr><td>21, 16, 20</td><td>el corte de estela y el techo de la capa</td><td>98</td><td>la de la estela</td><td>entre sí (iguales)</td></tr>
+      <tr><td>31, 32</td><td>la salida, en la capa interior</td><td>K + 1</td><td>propia, desde <code>hSalida</code></td><td>la radial del borde de salida (distinta)</td></tr>
+      <tr><td>51, 53–62</td><td>las radiales del abanico</td><td>150 − K = 67</td><td>la radial, desde el nodo K</td><td>la radial vecina (igual)</td></tr>
+      <tr><td>41–45, 47–49</td><td>el arco</td><td>los del tramo de enfrente</td><td>uniforme; en la nariz, propia</td><td>la C pequeña (distinta)</td></tr>
+      <tr><td>46, 50</td><td>el tope de la estela</td><td>98</td><td>propia, desde \(h_{arco}\)</td><td>el techo de la capa (distinto)</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">Quién manda en cada curva.</b> Las curvas del paso 6, agrupadas. «De la pared» quiere decir que su primera celda está junto al perfil o al corte de estela. En cada bloque, a lo más un par de lados opuestos reparte distinto.</caption>
+  </table>
+</div>
+<p class="code-name"><code>perfil3_6_malla.geo</code></p>
+<pre class="code"><code>// Perfil NACA con el campo lejano a 500 cuerdas · paso 6: los nodos y la malla
+// Ningún número se escribe a mano: todos salen de los pasos anteriores.
+//
+// La regla que ordena todo: Gmsh reparte el interior de un bloque transfinito con el PROMEDIO
+// del reparto de los dos lados opuestos (meshGFaceTransfinite.cpp, «symmetric»), y eso sólo
+// sale bien si a lo más un par de lados opuestos reparte distinto. En la capa interior
+// difieren sólo los lados verticales de la estela (la radial del borde de salida empieza en hw
+// y la salida en hSalida); en el abanico, sólo los de abajo y arriba (la C pequeña y el arco).
+// Un solo bloque de estela del perfil al arco tendría los dos pares distintos, y sus líneas
+// saldrían en abanico desde el borde de salida (61° de no ortogonalidad).
+Include &quot;perfil3_5_bloques.geo&quot;;
+
+// ---- capa interior, como el 2.2.2 --------------------------------------
+// Cada tramo del perfil y la recta que tiene enfrente llevan los mismos nodos y la misma
+// progresión; la media elipse empieza arriba con la celda de los tramos 2 y 3 y crece hacia el
+// frente.
+hArriba = sTramo[1] / (nT2 - 1);
+aE = xc + H1;  bE = pS[1] + H1;
+// la longitud de la media elipse, con la fórmula de Ramanujan
+sElipse = Pi * (3.0 * (aE + bE) - Sqrt((3.0 * aE + bE) * (aE + 3.0 * bE))) / 4.0;
+eL = sElipse;  eh1 = hArriba;  eN = nT1;  Call Razon;
+rEntrada = 1.0 / eR;
+
+// ---- abanico -------------------------------------------------------------
+// El arco de la nariz termina en el punto 53 con la celda hArco y crece hacia el frente; el
+// tope de la estela empieza con hArco en el punto 59 y crece hacia la salida. Así, a lo largo
+// de toda la frontera exterior, las celdas vecinas miden lo mismo.
+eL = R * (Pi - th3);  eh1 = hArco;  eN = nT1;  Call Razon;
+rNariz = 1.0 / eR;
+eL = L;  eh1 = hArco;  eN = nEstela;  Call Razon;
+rTope = eR;
+
+Transfinite Curve {1, 5}           = nT1 Using Progression rT1;
+Transfinite Curve {11, 12}         = nT1 Using Progression rEntrada;
+Transfinite Curve {2, 6, 13, 17}   = nT2;
+Transfinite Curve {3, 7, 14, 18}   = nT3;
+Transfinite Curve {4, 8, 15, 19}   = nT4 Using Progression rT4;
+Transfinite Curve {22:30}          = K + 1 Using Progression rRadial;      // hasta el nodo K
+Transfinite Curve {21, 16, 20}     = nEstela Using Progression rEstela;
+Transfinite Curve {31, 32}         = K + 1 Using Progression rPiso;
+
+Transfinite Curve {41, 42}         = nT1 Using Progression rNariz;
+Transfinite Curve {43, 47}         = nT2;
+Transfinite Curve {44, 48}         = nT3;
+Transfinite Curve {45, 49}         = nT4;
+Transfinite Curve {46, 50}         = nEstela Using Progression rTope;
+Transfinite Curve {51, 53:62}      = nRadial - K Using Progression rRadial; // desde el K
+
+Transfinite Surface {1:20};
+Recombine Surface {1:20};
+
+// La malla estructurada no se suaviza: el suavizado mueve los nodos que Transfinite acaba de
+// colocar.
+Mesh.Smoothing = 0;
+
+Printf(&quot;nariz: progresión %g, celda en el frente %g c&quot;,
+       rNariz, hArco * (1 / rNariz)^(nT1 - 2));
+Printf(&quot;tope de la estela: progresión %g, celda en la salida %g c&quot;,
+       rTope, hArco * rTope^(nEstela - 2));</code></pre>
+
+    </section>
+    <section id="openfoam-es">
+      <p class="section-label">Paso 7</p>
+      <h2>Extrusión y grupos, como en el 2.2.2</h2>
+
+<p>La extrusión y los grupos físicos son los del 2.2.2: una capa, <code>Recombine</code>, y la macro <code>Caras</code> que calcula los índices a partir del bloque y de la posición de la curva en su lazo. Sólo cambian las listas: veinte bloques en vez de diez, la entrada en los bloques 11 y 16 (el arco de la nariz), el campo lejano en los demás del abanico y la salida en cuatro bloques, dos de cada capa.</p>
+<p class="code-name"><code>perfil3_7_openfoam.geo</code></p>
+<pre class="code"><code>// Perfil NACA con el campo lejano a 500 cuerdas · paso 7: la extrusión y los grupos físicos
+// Como en el 2.2.2, los índices de las caras no se copian a mano: se calculan a partir del
+// lugar que ocupa cada curva en su Curve Loop.
+Include &quot;perfil3_6_malla.geo&quot;;
+
+fluido2D[] = {1 : 20};
+
+// Extrude devuelve, por cada superficie: la cara de enfrente, el volumen y una cara lateral
+// por curva del lazo, en el orden en que se escribió el lazo (todos tienen cuatro curvas).
+//   ext[6i]         cara de enfrente del bloque i        (i = 0, …, 19)
+//   ext[6i + 1]     volumen
+//   ext[6i + 2 + j] cara lateral de la curva j + 1 del lazo
+ext[] = Extrude {0, 0, e} { Surface{fluido2D[]}; Layers{1}; Recombine; };
+
+// Bloque y posición de la curva dentro de su lazo, para cada frontera.
+perfilB[]  = {1, 2, 3, 4, 5, 6, 7, 8};             perfilC[]  = {1, 1, 1, 1, 1, 1, 1, 1};
+entradaB[] = {11, 16};                             entradaC[] = {3, 3};
+lejosB[]   = {12, 13, 14, 15, 17, 18, 19, 20};     lejosC[]   = {3, 3, 3, 3, 3, 3, 3, 3};
+salidaB[]  = {9, 10, 15, 20};                      salidaC[]  = {2, 2, 2, 2};
+
+Macro Caras
+  caras[] = {};
+  For iC In {0 : #bloques[] - 1}
+    caras[] += {ext[6 * (bloques[iC] - 1) + 2 + (curvas[iC] - 1)]};
+  EndFor
+Return
+
+// Cada Call va en su propio renglón (2.2.2).
+bloques[] = perfilB[];  curvas[] = perfilC[];
+Call Caras;
+cPerfil[] = caras[];
+
+bloques[] = entradaB[]; curvas[] = entradaC[];
+Call Caras;
+cEntrada[] = caras[];
+
+bloques[] = lejosB[];   curvas[] = lejosC[];
+Call Caras;
+cLejos[] = caras[];
+
+bloques[] = salidaB[];  curvas[] = salidaC[];
+Call Caras;
+cSalida[] = caras[];
+
+traseras[] = {};  volumenes[] = {};
+For i In {0 : #fluido2D[] - 1}
+  traseras[]  += {ext[6 * i]};
+  volumenes[] += {ext[6 * i + 1]};
+EndFor
+
+// El parche del perfil NO se llama wall: OpenFOAM agrupa por sí solo los parches de tipo wall
+// y el nombre choca con ese grupo.
+Physical Surface(&quot;airfoil&quot;)      = cPerfil[];
+Physical Surface(&quot;inlet&quot;)        = cEntrada[];
+Physical Surface(&quot;farfield&quot;)     = cLejos[];
+Physical Surface(&quot;outlet&quot;)       = cSalida[];
+Physical Surface(&quot;frontAndBack&quot;) = {fluido2D[], traseras[]};
+Physical Volume(&quot;fluid&quot;)         = volumenes[];
+
+Mesh.MshFileVersion = 2.2;   // gmshToFoam sólo lee MSH 2 ASCII
+Mesh.Binary = 0;</code></pre>
+<p>Se genera y se guarda en un solo paso; con los valores por omisión la malla tiene 66 156 hexaedros, 250 celdas alrededor del perfil y 149 en la dirección radial:</p>
+<pre class="code"><code>gmsh perfil3_7_openfoam.geo -3 -o perfil.msh</code></pre>
+<figure class="diagram">
+  <img src="imagenes/t223-04_malla.png" alt="La malla del tutorial en cuatro escalas" loading="lazy">
+  <figcaption><b class="fig-num">Figura 8.</b> <b class="fig-title">La malla, de cerca.</b> Trazada desde la malla que escribe <code>gmsh perfil3_7_openfoam.geo -3</code> (la cara de adelante). Arriba a la izquierda se ve dónde termina la capa interior: el quiebre de las líneas a 0.48 c del perfil. A media cuerda, las líneas que salen de la pared son verticales, como en el 2.2.2; en la nariz se abren hacia la media elipse; en el borde de salida, la estela arranca con celdas de 0.002 c.</figcaption>
+</figure>
+
+    </section>
+    <section id="check-es">
+      <p class="section-label">La prueba</p>
+      <h2>La malla contra las de la NASA y sus cifras</h2>
+
+<p>La malla se comprueba de dos maneras: midiéndola y corriendo el caso de la NASA.</p>
+<h3>La malla, medida</h3>
+<p><code>checkMesh</code> responde «Mesh OK»: 66 156 celdas, no ortogonalidad máxima de 41.7° (media 8.1°), oblicuidad de 1.25 y relación de aspecto de 833. La peor cara está en la salida, a 476 cuerdas del perfil, donde la estela de la capa interior se junta con la del abanico.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Malla</th><th>Celdas</th><th>No ortogonalidad máxima</th><th>Junto al perfil</th><th>Aspecto</th><th>Salto</th><th>Inclinación en la pared</th></tr></thead>
+    <tbody>
+      <tr><td>2.2.2 tal cual, 15 c</td><td>47 792</td><td>47.6°</td><td>25.8°</td><td>1866</td><td>1.57×</td><td>8.4° (9.9°)</td></tr>
+      <tr><td>2.2.2 agrandado a 100 c</td><td>60 032</td><td>82.2°</td><td>37.9°</td><td>5169</td><td>1.57×</td><td>11.0° (14.5°)</td></tr>
+      <tr><td>Abanico desde la pared, 500 c</td><td>71 222</td><td>41.7°</td><td>17.7°</td><td>1796</td><td>1.73×</td><td>12.0° (13.8°)</td></tr>
+      <tr><td>Dos capas, nariz hasta 0.3 c</td><td>71 222</td><td>41.7°</td><td>18.8°</td><td>1810</td><td>1.57×</td><td>7.0° (16.1°)</td></tr>
+      <tr><td><b>Dos capas, nariz hasta 0.2 c (la del tutorial)</b></td><td>66 156</td><td>41.7°</td><td>15.9°</td><td>1810</td><td>1.50×</td><td>4.0° (3.1°)</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 5.</b> <b class="fig-title">Las mallas, medidas igual.</b> No ortogonalidad como la de <code>checkMesh</code> (con el centroide de cada celda); «junto al perfil» es la mayor a menos de una cuerda. El salto es el mayor cociente de áreas entre celdas vecinas. La inclinación es el ángulo entre la normal a la pared y la primera línea de la malla que sale de cada cara del perfil: media de todo el perfil y, entre paréntesis, la media del extradós entre x/c = 0.02 y 0.10. La relación de aspecto de las mallas a 500 c es la de las celdas de pared (y⁺ = 1); la de 100 c, la de las columnas del campo lejano.</caption>
+  </table>
+</div>
+<p>La tabla compara las mallas que llevaron a ésta, medidas con el mismo programa. La del 2.2.2 agrandada es la única con caras de más de 70°. El abanico desde la pared tiene buena calidad, pero inclina la malla en la pared. La capa interior con la nariz hasta 0.3 c arregla el centro, pero no la nariz. La del tutorial deja la inclinación media en 4.0°; el máximo, 8.1°, está en el borde de salida, donde la propia pared baja con esa pendiente y las radiales son verticales.</p>
+<h3>El caso</h3>
+<p>Lo indispensable del caso de OpenFOAM, que sigue el de validación de la NASA:</p>
+<ul>
+  <li><strong>Flujo:</strong> incompresible, \(U_\infty\) = 87.62 m/s y \(\nu\) = 1.4604·10⁻⁵ m²/s, es decir \(Re_c\) = 6·10⁶. El ángulo de ataque va en la velocidad, \(U_\infty(\cos\alpha, \sin\alpha, 0)\), y en las direcciones de sustentación y resistencia de <code>forceCoeffs</code>; la malla es la misma para todos los ángulos.</li>
+  <li><strong>Modelo:</strong> <code>SpalartAllmaras</code>, con \(\tilde\nu\) = 3ν en la corriente libre, como la NASA; <code>nutUSpaldingWallFunction</code> en la pared, que con y⁺ ≈ 1 coincide con la ley lineal.</li>
+  <li><strong>Frontera exterior:</strong> <code>freestreamVelocity</code>, <code>freestreamPressure</code> y <code>freestream</code> en <code>inlet</code>, <code>farfield</code> y <code>outlet</code>: entran o salen según el sentido del flujo en cada cara, que con ángulo de ataque cambia a lo largo del arco.</li>
+  <li><strong>Solución:</strong> SIMPLEC, convección de U de segundo orden y de \(\tilde\nu\) de primer orden —con segundo orden, \(\tilde\nu\) se volvía negativo en la estela en casi cada iteración—, un corrector de no ortogonalidad y 2000 iteraciones.</li>
+</ul>
+<div class="callout warning">
+  <p><strong>Con 500 cuerdas, los residuos engañan.</strong> Un control de residuos de 10⁻⁶ detiene la corrida a las 600 iteraciones, cuando \(C_L\) todavía sube: la circulación tarda en establecerse en un dominio tan grande y los residuos bajan antes. Se corre un número fijo de iteraciones y se revisa que las fuerzas ya no cambien; a 10°, \(C_L\) y \(C_D\) quedan dentro de 0.1 % de su valor final hacia la iteración 1000.</p>
+</div>
+<h3>Contra la NASA</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>α</th><th>Iteraciones</th><th>\(C_L\)</th><th>\(C_D\)</th><th>\(C_D\) presión / fricción</th><th>\(C_p\) mínimo (CFL3D)</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>0°</td><td>2500</td><td>0.0000</td><td>0.00820 (+0.1 %)</td><td>0.00130 / 0.00690</td><td>−0.41 (−0.41)</td><td></td></tr>
+      <tr><td>10°</td><td>3000</td><td>1.0741 (−1.55 %)</td><td>0.01239 (+1.0 %)</td><td>0.00609 / 0.00630</td><td>−5.57 (−5.66)</td><td></td></tr>
+      <tr><td>10°, malla fina</td><td>3500</td><td>1.0762 (−1.35 %)</td><td>0.01231 (+0.3 %)</td><td>0.00602 / 0.00629</td><td>−5.57 (−5.66)</td><td>todos los tamaños a la mitad, y⁺ = 0.5; 273 890 celdas</td></tr>
+      <tr><td>15°</td><td>5000</td><td>1.5098 (−2.35 %)</td><td>0.02191 (+3.2 %)</td><td>0.01666 / 0.00525</td><td>−10.76 (−11.16)</td><td></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 6.</b> <b class="fig-title">La malla del tutorial contra la NASA.</b> Spalart-Allmaras incompresible en OpenFOAM 13, \(Re\) = 6·10⁶. Referencias: a 0° y 15°, CFL3D en la malla de 897 × 257; a 10°, FUN3D en la malla más fina de la familia II (14 689 281 celdas): \(C_L\) = 1.0910, \(C_D\) = 0.01227, presión 0.00607 y fricción 0.00621. La NASA calcula a Mach 0.15 con códigos compresibles.</caption>
+  </table>
+</div>
+<figure class="diagram">
+  <img src="imagenes/t223-07_cp.png" alt="Coeficiente de presión a 0, 10 y 15 grados" loading="lazy">
+  <figcaption><b class="fig-num">Figura 9.</b> <b class="fig-title">La presión sobre el perfil.</b> La malla del tutorial a 0°, 10° y 15°, contra CFL3D (NASA, Spalart-Allmaras) y los datos experimentales de Gregory y O'Reilly (\(Re\) = 2.9·10⁶). La magnitud del pico de succión a 15° queda 4 % por debajo de la de CFL3D: con \(C_p\) ≈ −11 la velocidad local es \(\sqrt{1-C_p}\) ≈ 3.5 veces la de la corriente libre, y en la corrida compresible de la NASA, a Mach 0.15, el Mach local llega a cerca de 0.5.</figcaption>
+</figure>
+<p>A cero grados la resistencia coincide con la de CFL3D (+0.1 %) y a 10°, con la de la malla más fina de la NASA (+1.0 %), tanto la parte de presión como la de fricción. La sustentación a 10° queda 1.5 % abajo, y casi todo es compresibilidad: la NASA calcula a Mach 0.15 con códigos compresibles, y la regla de Prandtl-Glauert, \(C_L \propto 1/\sqrt{1-M^2}\), da 1.1 %. Se comprobó con el solver compresible de OpenFOAM sobre la misma malla (con la nariz hasta 0.3 c): a Mach 0.15, \(C_L\) sube 1.1 % y \(C_D\) 1.0 % respecto de la corrida incompresible. Descontado eso, la sustentación queda a 0.4 % de la NASA.</p>
+<p>A 15° la diferencia crece —2.4 % en \(C_L\), 3.2 % en \(C_D\)— por la misma razón y por una más: cerca de la pérdida, el desprendimiento junto al borde de salida es sensible a todo, y la corrida tarda en asentarse (las fuerzas aún cambiaban en la cuarta cifra a las 3000 iteraciones; la de la tabla llega a 5000).</p>
+<h3>Independencia de malla</h3>
+<p>Con todos los tamaños a la mitad —<code>hBA</code>, <code>hMed</code>, <code>hBS</code>, <code>hFar</code> y el y⁺—, la malla pasa a 273 890 celdas y a 10° \(C_L\) cambia +0.2 % y \(C_D\) −0.7 %. En el estudio de malla de la NASA, las mallas de tamaño parecido a la del tutorial (57 921 celdas) dan \(C_L\) = 1.0906 y \(C_D\) = 0.01276: la malla del tutorial está a la altura de las suyas.</p>
+
+    </section>
+    <section id="files-es">
+      <p class="section-label">Archivos</p>
+      <h2>Los siete archivos .geo</h2>
+
+<p>La receta completa, desde la terminal:</p>
+<div class="process-flow">
+  <div><strong>1</strong><span>Copiar los siete archivos a una carpeta y abrir ahí una terminal.</span></div>
+  <div><strong>2</strong><span><code>gmsh perfil3_7_openfoam.geo -3 -o perfil.msh</code>. Gmsh imprime lo que calcula cada paso, entre otras cosas «radial: 150 nodos con progresión 1.11111», «capa interior: 83 celdas, 0.477427 c junto al perfil» y «arco: estaciones a 105, 100.263, 97.6974 grados», y escribe <code>perfil.msh</code>.</span></div>
+  <div><strong>3</strong><span>En la carpeta del caso de OpenFOAM: <code>gmshToFoam perfil.msh</code>, cambiar el tipo de <code>airfoil</code> a <code>wall</code> y el de <code>frontAndBack</code> a <code>empty</code> en <code>constant/polyMesh/boundary</code>, y <code>checkMesh</code>, que responde «Mesh OK» con 66 156 celdas.</span></div>
+</div>
+<p>Los siete archivos se encadenan con <code>Include</code>, como en el 2.2.2: se puede abrir cualquiera y ver hasta dónde va la construcción.</p>
+<ul>
+  <li><code>perfil3_1_parametros.geo</code> — las constantes, la tolerancia, el y⁺ y las dos macros.</li>
+  <li><code>perfil3_2_perfil.geo</code> — el contorno, con la opción de la NASA, y los nodos de cada tramo.</li>
+  <li><code>perfil3_3_capa_interior.geo</code> — el nodo K, la C pequeña y su salida.</li>
+  <li><code>perfil3_4_abanico.geo</code> — los ángulos, el arco y las radiales del abanico.</li>
+  <li><code>perfil3_5_bloques.geo</code> — los veinte lazos.</li>
+  <li><code>perfil3_6_malla.geo</code> — <code>Transfinite</code>, <code>Recombine</code> y el suavizado apagado.</li>
+  <li><code>perfil3_7_openfoam.geo</code> — la extrusión, los grupos y el formato MSH 2.2.</li>
+</ul>
+<pre class="code"><code>gmsh perfil3_7_openfoam.geo -3 -o perfil.msh                       # la del tutorial
+gmsh perfil3_7_openfoam.geo -3 -setnumber R 100 -setnumber L 100 \
+     -setnumber hFar 10 -o perfil_100c.msh                          # un dominio más pequeño
+gmsh perfil3_4_abanico.geo                                          # la geometría, en la interfaz</code></pre>
+<p>En la terminal, Gmsh genera la malla 3D en menos de un segundo.</p>
+<h3>En la interfaz</h3>
+<p>Al abrir <code>perfil3_7_openfoam.geo</code>, los parámetros aparecen en el panel de la columna de la izquierda, en cuatro grupos: <code>Perfil</code>, <code>Dominio</code>, <code>y+</code> y <code>OpenFOAM</code>. Cada cambio vuelve a leer los archivos y borra la malla, así que hay que repetir <code>Mesh ▸ 2D</code> o <code>3D</code>; los archivos no cambian. <code>Geometry ▸ Edit script</code> abre sólo el archivo principal; los otros seis se abren en el editor por separado.</p>
+<p>La vista completa abarca mil cuerdas y el perfil queda reducido a un punto. Con los valores por omisión, ese punto está en el centro de la vista, porque el borde de salida es el centro del arco. La rueda del ratón acerca alrededor del puntero, y del arco al perfil el aumento es de unas mil veces: conviene acercarse por etapas, volviendo a apuntar al perfil entre una y otra, porque un error de un punto en la vista completa se multiplica por mil. El botón <code>1:1</code> de la barra de estado regresa a la vista completa. Si el puntero se detiene encima de una curva, Gmsh muestra una etiqueta amarilla con su número; basta con apartarlo.</p>
+<p>Lo que calcula el archivo se lee en <code>Tools ▸ Message Console</code>, escribiendo en su buscador: «nodos» muestra la radial, la estela y los tramos del perfil; «capa interior», las celdas K y las alturas de la capa junto al perfil y en la salida; «arco», los ángulos de las estaciones. Al cambiar <code>abanico</code> en el panel aparece otro renglón «arco» debajo del anterior, y los dos se pueden comparar.</p>
+
+    </section>
+    <section id="example-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>Tres números que cambiar, con la predicción antes de mallar</h2>
+
+<div class="example">
+  <p><strong>Enunciado.</strong> Cambiar un parámetro de la malla del tutorial a la vez —el radio del campo lejano, el ángulo del abanico o el final de la nariz— y predecir, antes de mallar, qué cambia y qué no: en la malla, con las fórmulas de este tutorial, y en las fuerzas, con la estimación del campo lejano.</p>
+  <p><strong>Condiciones.</strong> NACA 0012 de la NASA, \(Re\) = 6·10⁶, y⁺ = 1, todos los demás parámetros por omisión. Para las corridas, el caso de la sección «La prueba» a 10°, con 2000 iteraciones o más.</p>
+</div>
+<p>La segunda variante se resuelve sólo con Gmsh y el programa de medidas; la primera y la tercera piden además correr el caso.</p>
+<h3>1. Un campo lejano más cercano</h3>
+<pre class="code"><code>gmsh perfil3_7_openfoam.geo -3 -setnumber R 100 -setnumber L 100 -setnumber hFar 10 -o perfil_100c.msh</code></pre>
+<ol>
+  <li>Con la estimación de la sección «El problema», predecir cuánto subirá \(C_D\) a 10° respecto de la malla de 500 c, si \(C_L\) ≈ 1.07.</li>
+  <li>¿Por qué se baja también <code>hFar</code>? ¿Cuántos nodos radiales tiene la malla de 100 c, y por qué casi los mismos que la de 500?</li>
+  <li>Correr el caso y comparar con la predicción.</li>
+</ol>
+<h3>2. Un abanico más angosto y uno más ancho</h3>
+<pre class="code"><code>gmsh perfil3_7_openfoam.geo -3 -setnumber abanico 5 -o abanico5.msh
+gmsh perfil3_7_openfoam.geo -3 -setnumber abanico 30 -o abanico30.msh</code></pre>
+<ol>
+  <li>¿Cambia la inclinación de la malla junto a la pared? ¿Por qué?</li>
+  <li>¿Dónde está la mayor no ortogonalidad cerca del perfil en cada una, y cuánto vale?</li>
+</ol>
+<h3>3. La nariz hasta el espesor máximo</h3>
+<pre class="code"><code>gmsh perfil3_7_openfoam.geo -3 -setnumber xs 0.3 -o nariz03.msh</code></pre>
+<ol>
+  <li>Mirar en la interfaz las líneas que salen de la nariz entre x/c = 0.02 y 0.10 y estimar su ángulo con la normal a la pared.</li>
+  <li>Correr el caso a 10° y comparar el \(C_f\) en x/c = 0.1 y el \(C_D\) de fricción con los de la malla del tutorial.</li>
+</ol>
+<details class="details">
+  <summary>Comprobación: lo que dieron las mallas y las corridas</summary>
+  <div class="details-content">
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Variante</th><th>Orden</th><th>Lo que se mide</th><th>Resultado</th></tr></thead>
+    <tbody>
+      <tr><td>Campo lejano a 100 c</td><td><code>-setnumber R 100 -setnumber L 100 -setnumber hFar 10</code></td><td>\(C_D\) a 10°</td><td>0.01293 (+4.3 % contra 500 c)</td></tr>
+      <tr><td>Campo lejano a 50 c</td><td><code>-setnumber R 50 -setnumber L 50 -setnumber hFar 5</code></td><td>\(C_D\) a 10°</td><td>0.01362 (+9.9 %)</td></tr>
+      <tr><td>Abanico de 5°</td><td><code>-setnumber abanico 5</code></td><td>no ortogonalidad junto al perfil; inclinación</td><td>23.3°; 4.0°</td></tr>
+      <tr><td>Abanico de 15° (el del tutorial)</td><td>—</td><td>lo mismo</td><td>15.9°; 4.0°</td></tr>
+      <tr><td>Abanico de 30°</td><td><code>-setnumber abanico 30</code></td><td>lo mismo</td><td>30.5°; 4.0°</td></tr>
+      <tr><td>Nariz hasta 0.3 c</td><td><code>-setnumber xs 0.3</code></td><td>inclinación en la nariz; \(C_f\) en x/c = 0.1; \(C_D\) de fricción</td><td>16.1°; 0.00732 (CFL3D 0.00700); 0.00633</td></tr>
+      <tr><td>Nariz hasta 0.2 c (la del tutorial)</td><td>—</td><td>lo mismo</td><td>3.1°; 0.00702; 0.00630</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 7.</b> <b class="fig-title">Las variantes, medidas.</b> Las mallas se midieron con el mismo programa que las de la Tabla 5; las corridas son las de la Tabla 1 y la de la nariz hasta 0.3 c, a 10°.</caption>
+  </table>
+</div>
+    <ul>
+      <li><strong>El campo lejano:</strong> la estimación \(\Delta C_D \approx 0.7\,C_L\,u_\Gamma/U_\infty\) da, a 100 c y con \(C_L\) = 1.071, 0.00064 respecto de un dominio infinito, y la corrida, 0.00066 (0.00053 respecto de la de 500 c). Con <code>hFar</code> = R/10 la razón de la progresión radial es la misma, 1.11111, y la malla de 100 c sólo pierde los nodos de las últimas cuerdas: 135 radiales contra 150, y 55 476 celdas contra 66 156.</li>
+      <li><strong>El abanico:</strong> la inclinación en la pared no cambia, porque la pared está dentro de la capa interior, que no depende de <code>abanico</code>. Lo que cambia es el quiebre en el borde de la capa: con 30° las radiales del abanico salen más inclinadas y la no ortogonalidad junto al perfil sube a 30.5°; con 5° la nariz se queda con casi todo el semicírculo y el peor quiebre pasa al borde de la media elipse, sobre la nariz, con 23.3°.</li>
+      <li><strong>La nariz:</strong> con 0.3 c la malla queda igual de buena para <code>checkMesh</code>, pero la fricción en x/c = 0.1 sale 4.6 % alta y el \(C_D\) de fricción sube a 0.00633.</li>
+    </ul>
+  </div>
+</details>
+
+    </section>
+    <section id="summary-es">
+      <p class="section-label">Puntos clave</p>
+      <h2>Lo que hay que retener</h2>
+
+<ul>
+  <li><strong>Un perfil que sustenta necesita el campo lejano a cientos de cuerdas.</strong> La circulación induce en la frontera una velocidad \(C_L c/(4\pi R)\) que las condiciones de campo libre borran; el error de \(C_D\) va como \(1/R\). A cero grados no se nota.</li>
+  <li><strong>Una C de bloques no se agranda subiendo R:</strong> sus columnas conservan el ancho de la pared hasta la frontera. Hay que abrirlas en abanico.</li>
+  <li><strong>El abanico no empieza en la pared.</strong> Las líneas que salen del perfil deben ser casi normales a él; la inclinación no la mide <code>checkMesh</code>, pero la fricción sí la nota.</li>
+  <li><strong>Una progresión se parte en un nodo, no en una distancia.</strong> Si la capa termina exactamente en el nodo K, la otra parte sigue con la misma razón y sin salto.</li>
+  <li><strong>En un bloque transfinito, a lo más un par de lados opuestos reparte distinto.</strong> Gmsh promedia los dos lados de cada par.</li>
+  <li><strong>Con un dominio de mil cuerdas, la tolerancia geométrica se baja.</strong></li>
+</ul>
+
+    </section>
+    <section id="mistakes-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Errores que un control de calidad no ve</h2>
+
+<ul>
+  <li><strong>Juzgar el tamaño del dominio a cero grados.</strong> Sin sustentación, quince cuerdas bastan; con ángulo de ataque, la resistencia sale 40 % alta.</li>
+  <li><strong>Agrandar la malla del 2.2.2 con <code>-setnumber R</code>.</strong> La malla se genera, pero las columnas que no crecen dan no ortogonalidad de más de 80° a cien cuerdas.</li>
+  <li><strong>Dejar la tolerancia por omisión con un modelo de mil cuerdas.</strong> Gmsh funde nodos de la pared sin avisar; el error aparece después, en <code>gmshToFoam</code>.</li>
+  <li><strong>Abrir el abanico desde la pared.</strong> La malla pasa todos los controles de calidad y la fricción sale 5 % alta.</li>
+  <li><strong>Hacer un bloque cuyos dos pares de lados reparten distinto.</strong> Las líneas del interior dejan de seguir a cualquiera de los lados.</li>
+  <li><strong>Detener la corrida por los residuos.</strong> Con 500 cuerdas, los residuos bajan antes de que la circulación se establezca.</li>
+</ul>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ul>
+  <li>Geuzaine, C. y Remacle, J.-F. <em>Gmsh reference manual</em>, versión 4.15. <a href="https://gmsh.info/doc/texinfo/gmsh.html" target="_blank" rel="noopener">gmsh.info</a>. La interpolación de las superficies transfinitas está en el código fuente, <code>src/mesh/meshGFaceTransfinite.cpp</code>.</li>
+  <li>NASA Langley. <em>Turbulence Modeling Resource: 2D NACA 0012 Airfoil Validation Case</em> y <em>Numerical Analysis of 2D NACA 0012 Airfoil Validation Case</em>. <a href="https://tmbwg.github.io/turbmodels/naca0012_val.html" target="_blank" rel="noopener">tmbwg.github.io/turbmodels</a>. La definición del perfil, las fuerzas de CFL3D y FUN3D con Spalart-Allmaras, sus distribuciones de \(C_p\) y \(C_f\) y el estudio de malla.</li>
+  <li>Ladson, C. L. «Effects of Independent Variation of Mach and Reynolds Numbers on the Low-Speed Aerodynamic Characteristics of the NACA 0012 Airfoil Section». NASA TM 4074, 1988.</li>
+  <li>Gregory, N. y O'Reilly, C. L. «Low-Speed Aerodynamic Characteristics of NACA 0012 Aerofoil Sections, including the Effects of Upper-Surface Roughness Simulating Hoar Frost». ARC R&amp;M 3726, 1970.</li>
+  <li>Thomas, J. L. y Salas, M. D. «Far-field boundary conditions for transonic lifting solutions to the Euler equations». <em>AIAA Journal</em> 24(7):1074–1080, 1986. La corrección con un vórtice puntual en el campo lejano.</li>
+  <li>Spalart, P. R. y Allmaras, S. R. «A one-equation turbulence model for aerodynamic flows». <em>AIAA Paper</em> 92-0439, 1992.</li>
+  <li>OpenFOAM Foundation. <em>OpenFOAM v13 User Guide</em> y el caso <code>incompressibleFluid/airFoil2D</code>.</li>
+</ul>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="perfil-c-parametrico.html?v=13"><span>Tutorial anterior</span>← Tutorial 2.2.2 · El perfil en C: parámetros, capa límite y estela</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Serie de tutoriales</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Das C-Netz aus Tutorial 2.2.2 bis zu einem Fernfeld in 500 Sehnen Abstand führen, wie im NACA-0012-Validierungsfall der NASA: es als innere Schicht behalten, einen Fächer von Blöcken bis zu einem Bogen ergänzen, die radiale Progression an einem Knoten teilen, damit sie ohne Sprung weiterläuft, die Regel anwenden, nach der Gmsh einen transfiniten Block füllt, und das Ergebnis in OpenFOAM 13 mit der NASA vergleichen.</p>
+    </section>
+    <section id="why-de">
+      <p class="section-label">Das Problem</p>
+      <h2>Fünfzehn Sehnen reichen nicht, und das C-Netz wächst nicht mit</h2>
+<p>Ein auftriebserzeugendes Profil trägt Zirkulation, deren induzierte Geschwindigkeit nur wie 1/R abklingt; ein Fernfeldrand in 15 Sehnen schneidet sie ab, und der Widerstand bei 10 Grad liegt 41 % zu hoch. Die NASA legt den Rand auf 500 Sehnen. Das C-Netz aus 2.2.2 kann nicht folgen: seine Zellsäulen behalten ihre Breite bis ins Fernfeld, bei 100 Sehnen sind sie 0,002 mal 10 Sehnen groß, mit 82 Grad Nichtorthogonalität.</p>
+    </section>
+    <section id="idea-de">
+      <p class="section-label">Die Idee</p>
+      <h2>Ein kleines C an der Wand und ein Fächer bis ins Fernfeld</h2>
+<p>Zwei Schichten. Die innere ist das C aus 2.2.2 eine halbe Sehne von der Wand, mit senkrechten Radialen, sodass die Netzlinien fast senkrecht von der Wand ausgehen – davon hängt die Wandreibung ab. Die äußere öffnet sich fächerförmig bis zu einem Bogen um die Hinterkante. Ein Fächer ab der Wand würde die Linien um 15 Grad neigen, und die Reibung läge 5 % zu hoch.</p>
+    </section>
+    <section id="params-de">
+      <p class="section-label">Schritt 1</p>
+      <h2>Die neuen Parameter und die Toleranz</h2>
+<p>Sechs neue Parameter: Fernfeldradius, Nachlauflänge, Fächerwinkel, Fernfeldzelle, Auslasszelle und Dicke der inneren Schicht. Geometry.Tolerance muss herab: die Extrusion verschmilzt Knoten näher als 1e-8 der Modelldiagonale, was bei 1000 Sehnen größer ist als die erste Zelle.</p>
+    </section>
+    <section id="airfoil-de">
+      <p class="section-label">Schritt 2</p>
+      <h2>Das NACA 0012 der NASA und wo die Nase endet</h2>
+<p>Die Kontur aus 2.2.2 mit einer Option mehr: die NASA-Definition des NACA 0012, die die Hinterkante durch Verlängern und Umskalieren schließt. Der Nasenblock endet bei 0,2 Sehnen statt bei der größten Dicke; so bleiben die ersten Netzlinien innerhalb von 3 Grad zur Wandnormalen.</p>
+    </section>
+    <section id="inner-de">
+      <p class="section-label">Schritt 3</p>
+      <h2>Das C aus 2.2.2, eine halbe Sehne von der Wand</h2>
+<p>Die innere Schicht endet genau am Knoten K der radialen Progression, sodass die äußere sie mit demselben Verhältnis ohne Sprung fortsetzt. Am Auslass kann die Schicht nicht die Wandzellen tragen und wächst stattdessen in denselben K Zellen von der Auslasszelle an.</p>
+    </section>
+    <section id="fan-de">
+      <p class="section-label">Schritt 4</p>
+      <h2>Die äußere Schicht, geöffnet bis zu einem Bogen bei 500 Sehnen</h2>
+<p>Der Fernfeldbogen hat seinen Mittelpunkt an der Hinterkante. Die Blöcke über dem Profil teilen den Fächerwinkel im Verhältnis ihrer Zellen, sodass alle Fernfeldzellen dort gleich breit sind; die Nase erhält den Rest des Halbkreises.</p>
+    </section>
+    <section id="blocks-de">
+      <p class="section-label">Schritte 5 und 6</p>
+      <h2>Zwanzig Blöcke und die Regel der Gegenseiten</h2>
+<p>Gmsh füllt einen transfiniten Block mit dem Mittel der Verteilung seiner Gegenseiten; daher darf höchstens ein Paar von Gegenseiten anders verteilt sein. Deshalb hat das Netz zwei Schichten: ein einziger Nachlaufblock von der Hinterkante bis zum Bogen hätte beide Paare verschieden, und seine Linien würden sich von der Hinterkante aus auffächern.</p>
+    </section>
+    <section id="openfoam-de">
+      <p class="section-label">Schritt 7</p>
+      <h2>Extrusion und Gruppen wie in 2.2.2</h2>
+<p>Extrusion und physikalische Gruppen aus 2.2.2, mit zwanzig statt zehn Blöcken; das Makro, das die Flächenindizes berechnet, bleibt gleich.</p>
+    </section>
+    <section id="check-de">
+      <p class="section-label">Die Probe</p>
+      <h2>Das Netz gegen die NASA-Netze und ihre Zahlen</h2>
+<p>Mit Spalart-Allmaras bei Re = 6e6 liefert das Netz einen Widerstandsbeiwert innerhalb 1 % der NASA bei 0 und 10 Grad und eine Wandreibung innerhalb 1 % von CFL3D; der Auftrieb bei 10 Grad liegt 1,5 % tiefer, fast ganz Kompressibilität, da die NASA bei Mach 0,15 rechnet. Ein Netz mit halbierten Größen ändert den Auftrieb um 0,2 % und den Widerstand um 0,7 %.</p>
+    </section>
+    <section id="files-de">
+      <p class="section-label">Dateien</p>
+      <h2>Die sieben .geo-Dateien</h2>
+<p>Sieben verkettete Dateien: Parameter, Profil, innere Schicht, Fächer, Blöcke, Netz und OpenFOAM.</p>
+    </section>
+    <section id="example-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Drei Zahlen ändern, vorher vorhergesagt</h2>
+<p>Drei Varianten, je eine Zahl entfernt: ein kleineres Fernfeld, dessen Widerstandsfehler 1/R folgt; ein schmalerer und ein breiterer Fächer, die die Wand nicht berühren und den Knick am Rand der inneren Schicht ändern; und die Nase bis zur größten Dicke, die die ersten Netzlinien neigt und die Reibung erhöht.</p>
+    </section>
+    <section id="summary-de">
+      <p class="section-label">Kernpunkte</p>
+      <h2>Was man behalten sollte</h2>
+<p>Das Fernfeld eines auftriebserzeugenden Profils muss Hunderte Sehnen entfernt liegen; ein C-Netz erreicht es nur, wenn sich seine Säulen auffächern; der Fächer darf nicht an der Wand beginnen; eine radiale Progression lässt sich an einem Knoten ohne Sprung teilen; und höchstens ein Paar von Gegenseiten eines transfiniten Blocks darf verschieden sein.</p>
+    </section>
+    <section id="mistakes-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Fehler, die eine Qualitätsprüfung nicht sieht</h2>
+<p>Das Fernfeld am Widerstand ohne Auftrieb beurteilen; das C-Netz durch größeres R vergrößern; die voreingestellte Toleranz bei einem 1000-Sehnen-Modell lassen; ab der Wand auffächern; und einen Block füllen, dessen beide Seitenpaare verschieden verteilt sind.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>Gmsh-Referenzhandbuch und Quelltext (meshGFaceTransfinite.cpp); NASA Turbulence Modeling Resource, 2D-NACA-0012-Validierung und numerische Analyse; Ladson (1988); Gregory und O'Reilly (1970); Thomas und Salas (1986).</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="perfil-c-parametrico.html?v=13"><span>Vorheriges Tutorial</span>← Tutorial 2.2.2 · Das C-Netz mit Parametern</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Tutorialreihe</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>

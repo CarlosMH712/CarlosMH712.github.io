@@ -332,7 +332,7 @@ gmsh perfil2_6_openfoam.geo -3 -setnumber R 50 -setnumber entrada 50 -setnumber 
   EndFor
   eR = 0.5 * (rA + rB);
 Return</code></pre>
-<div class="callout warn">
+<div class="callout warning">
   <p><strong>Cada <code>Call</code> va en su propio renglón.</strong> Si se escribe <code>eL = 15; eh1 = hw; Call Empalme; nRadial = eN;</code> en un solo renglón, <code>nRadial</code> se queda con el valor <em>anterior</em> de <code>eN</code>: lo que sigue al <code>Call</code> en el mismo renglón se evalúa antes de que la macro corra. Con la macro de este tutorial el síntoma es una lista vacía o un conteo de la corrida pasada; se comprobó reduciendo el caso a cuatro renglones.</p>
 </div>
 <h3>Lo que el archivo calcula</h3>
@@ -735,7 +735,7 @@ Recombine Surface {1:10};
 // La malla estructurada no se suaviza: el suavizado mueve los nodos que
 // Transfinite acaba de colocar y rompe la simetría.
 Mesh.Smoothing = 0;</code></pre>
-<div class="callout warn">
+<div class="callout warning">
   <p><strong><code>Mesh.Smoothing = 0</code>.</strong> El suavizado de Gmsh mueve los nodos para mejorar la forma de los elementos, y también los de las superficies transfinitas: deshace el reparto que uno acaba de calcular y, en un perfil simétrico, rompe la simetría. En la malla de partida, con <code>Mesh.Smoothing = 40</code>, la primera celda medía entre 1.08·10<sup>-5</sup> y 3.82·10<sup>-5</sup> c en vez de una sola altura.</p>
 </div>
 <figure class="diagram">
@@ -882,7 +882,7 @@ foamRun</code></pre>
   <img src="imagenes/t222-05_cp.png" alt="C_p del cálculo viscoso contra el método de paneles" loading="lazy">
   <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">La presión sobre el perfil.</b> El cálculo viscoso (puntos) sigue al método de paneles del Tutorial 2.2.1 (línea) salvo donde se espera que no: la succión máxima queda un poco por debajo y, cerca del borde de salida, la capa límite impide que la presión se recupere hasta el valor no viscoso.</figcaption>
 </figure>
-<div class="callout warn">
+<div class="callout warning">
   <p><strong>El esquema de convección cambia la respuesta más que la malla.</strong> La primera corrida se hizo con convección de primer orden (<code>upwind</code>), que converge con más facilidad: dio <span>\(C_d\)</span> = 0.0139 y un <span>\(C_p\)</span> de remanso de 1.046, imposible en flujo incompresible. Reanudada con <code>linearUpwind</code>, de segundo orden, bajó a 0.00994 y 1.005. La difusión numérica del primer orden infla la resistencia un 39 %: una malla no se juzga con una corrida de primer orden.</p>
 </div>
 <h3>La malla de partida, con el mismo caso</h3>
