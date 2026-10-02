@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="OpenFOAM tutorial: post-processing the NACA 0012 airfoil at 10° with ParaView 5.11: colour maps and ranges, the pressure coefficient with a Calculator, contour lines, velocity vectors, streamlines, vorticity, a boundary-layer profile with Plot Over Line, C_p along the airfoil, and saving images and the state." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Post-Processing the NACA 0012 in ParaView | OpenFOAM Incompressible-Flow Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">OpenFOAM · Incompressible flow · Tutorial 2.3</p><h1>Post-Processing the NACA 0012 in ParaView</h1><p class="hero-copy">The solution of Tutorial 2.1, read as an engineer reads it: the pressure coefficient, contour lines, velocity vectors, streamlines, vorticity, the boundary-layer profile and the C_p curve along the airfoil, all with ParaView's filters.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">OpenFOAM · Flujo incompresible · Tutorial 2.3</p><h1>El posprocesamiento del NACA 0012 con ParaView</h1><p class="hero-copy">La solución del tutorial 2.1, leída como la lee un ingeniero: el coeficiente de presión, las líneas de contorno, los vectores de velocidad, las líneas de corriente, la vorticidad, el perfil de la capa límite y la curva de C_p sobre el perfil, todo con los filtros de ParaView.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">OpenFOAM · Inkompressible Strömung · Tutorial 2.3</p><h1>Die Nachbearbeitung des NACA 0012 in ParaView</h1><p class="hero-copy">Die Lösung aus Tutorial 2.1, wie sie ein Ingenieur liest: Druckbeiwert, Konturlinien, Geschwindigkeitsvektoren, Stromlinien, Wirbelstärke, das Grenzschichtprofil und die C_p-Kurve entlang des Profils, alles mit den Filtern von ParaView.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 50 min</span><span data-language="es" hidden>Lectura estimada: 50 min</span><span data-language="de" hidden>Lesedauer: ca. 50 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on ParaView 5.11.2 (blueCFD-Core 2024) with the Tutorial 2.1 results</span><span data-language="es" hidden>Verificado en ParaView 5.11.2 (blueCFD-Core 2024) con los resultados del tutorial 2.1</span><span data-language="de" hidden>Geprüft mit ParaView 5.11.2 (blueCFD-Core 2024) und den Ergebnissen aus Tutorial 2.1</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="polar-naca0012.html?v=13">← <span>2.2</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/ZL0M8lPL1Ew" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Watch the video</span><span data-language="es" hidden>Ver el vídeo</span><span data-language="de" hidden>Video ansehen</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#problem">The problem</a><a href="#theory">Theory</a><a href="#recipe">Recipe</a><a href="#case">The pipeline</a><a href="#results">Results</a><a href="#validation">Validation</a><a href="#errors">Common errors</a><a href="#practice">Suggested exercise</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#problem-es">El problema</a><a href="#theory-es">Teoría</a><a href="#recipe-es">Receta</a><a href="#case-es">El árbol de filtros</a><a href="#results-es">Resultados</a><a href="#validation-es">Validación</a><a href="#errors-es">Errores frecuentes</a><a href="#practice-es">Práctica sugerida</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#problem-de">Das Problem</a><a href="#theory-de">Theorie</a><a href="#recipe-de">Ablauf</a><a href="#case-de">Die Filterkette</a><a href="#results-de">Ergebnisse</a><a href="#validation-de">Validierung</a><a href="#errors-de">Häufige Fehler</a><a href="#practice-de">Übungsvorschlag</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Open an OpenFOAM case in ParaView and build, filter by filter, the standard post-processing of an airfoil: pressure and velocity colour maps with sensible ranges, the pressure coefficient with a Calculator, contour lines, velocity vectors, streamlines, vorticity, a boundary-layer profile and the C_p curve along the airfoil; then save an image and the state.</p>
+    </section>
+    <section id="problem">
+      <p class="section-label">The problem</p>
+      <h2>What is post-processed</h2>
+<p>The solution is the NACA 0012 at 10° of Tutorial 2.1 (Re = 6·10<sup>6</sup>, Spalart-Allmaras, 66 156 cells, far field at 500 chords). Nothing is recomputed: every picture is a different way of reading the same files.</p>
+    </section>
+    <section id="theory">
+      <p class="section-label">The theory</p>
+      <h2>What each picture says</h2>
+<p>The pressure coefficient C<sub>p</sub> = p / (½U<sub>∞</sub>²) (p is kinematic in OpenFOAM), the stagnation value 1, the Bernoulli link between C<sub>p</sub> and the speed outside the boundary layer, streamlines as integral curves of the velocity, vorticity ω<sub>z</sub> = ∂v/∂x − ∂u/∂y and the boundary-layer thickness.</p>
+    </section>
+    <section id="recipe">
+      <p class="section-label">Step by step</p>
+      <h2>From the colour map to the C_p curve</h2>
+<p>paraFoam; Apply and Last Frame; colour by U and p; Edit Color Map and Rescale Custom Range; Calculator; the preset; Slice and Contour; Clip and Glyph; Stream Tracer; Gradient with vorticity; Save Screenshot; Plot Over Line; the second reader with the airfoil patch and Plot Data; Save State.</p>
+    </section>
+    <section id="case">
+      <p class="section-label">The pipeline</p>
+      <h2>The filters, one by one</h2>
+<p>The pipeline: reader → Calculator1 (C<sub>p</sub>) → Slice1 → Contour1; Clip1 → Glyph1; StreamTracer1; Gradient1; PlotOverLine1; and a second reader on the patch airfoil → Calculator2 → Slice2 → PlotData1.</p>
+    </section>
+    <section id="results">
+      <p class="section-label">Results</p>
+      <h2>What the pictures show</h2>
+<p>Stagnation point at C<sub>p</sub> = 1, the suction peak −5.55 on the nose, speeds up to 221 m/s, a thin boundary layer and a wake of low speed behind the trailing edge.</p>
+    </section>
+    <section id="validation">
+      <p class="section-label">Worked example</p>
+      <h2>Three checks on the pictures</h2>
+<p>Three checks: C<sub>p</sub> = 1 at the stagnation point; the suction peak against CFL3D (−5.55 against −5.66); and C<sub>p</sub> at x/c = 0.5 from Bernoulli with the speed outside the boundary layer against the value read on the airfoil.</p>
+    </section>
+    <section id="errors">
+      <p class="section-label">Common errors</p>
+      <h2>What goes wrong in ParaView</h2>
+<p>Everything is one colour (the range is dominated by one cell); the filter shows nothing (hidden parent or not applied); the vectors cover the page; the 3D slice; the line misses the airfoil; ParaView shows no x-axis.</p>
+    </section>
+    <section id="practice">
+      <p class="section-label">Suggested exercise</p>
+      <h2>The same pictures at 16°</h2>
+<p>Repeat the pictures with the a16 case of Tutorial 2.2, in a second view next to the 10° one, and compare the suction peaks and the thickness of the boundary layer.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>ParaView Guide and tutorial; Anderson (2017); NASA Turbulence Modeling Resource; Schlichting and Gersten.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="polar-naca0012.html?v=13"><span>Previous tutorial</span>← 2.2 · The NACA 0012 polar</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Incompressible flow</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">El <a href="perfil-naca0012.html">tutorial 2.1</a> dejó una solución en la carpeta <code>2000</code>: millones de números, en archivos de texto. Casi nadie la lee así: se mira con un programa de posprocesamiento. Este tutorial hace ese posprocesamiento con ParaView, el que trae blueCFD-Core, y lo hace como se hace en un informe de aerodinámica: el campo de presión y el de velocidad con una escala que deje ver algo, el coeficiente de presión, las líneas de contorno, los vectores de velocidad, las líneas de corriente, la vorticidad, el perfil de velocidad de la capa límite y la curva de \(C_p\) sobre el perfil. No se calcula nada nuevo: cada imagen es una manera distinta de leer los mismos archivos.</p>
+<ul>
+  <li>Abrir un caso de OpenFOAM en ParaView, elegir el tiempo y el campo, y ajustar el rango y la paleta de color para que la imagen diga algo.</li>
+  <li>Construir un coeficiente nuevo con un <em>Calculator</em> (\(C_p\) a partir de la presión cinemática) y usarlo en los filtros que siguen.</li>
+  <li>Dibujar con filtros cuatro maneras de ver un campo: isolíneas (<em>Contour</em>), vectores (<em>Glyph</em>), líneas de corriente (<em>Stream Tracer</em>) y la vorticidad (<em>Gradient</em>).</li>
+  <li>Sacar números de una imagen: el perfil de velocidad de la capa límite con <em>Plot Over Line</em> y el \(C_p\) a lo largo del perfil con <em>Plot Data</em> sobre el parche <code>airfoil</code>.</li>
+  <li>Comprobar que lo que se ve es físico (tres comprobaciones) y guardar una imagen y el estado de ParaView para repetir todo en otro momento.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> blueCFD-Core 2024 con su ParaView 5.11.2 y el caso del <a href="perfil-naca0012.html">tutorial 2.1</a> ya calculado: la carpeta <code>perfil-naca0012</code> de la carpeta de corridas, con el tiempo <code>2000</code> escrito (se calcula en unos minutos con la receta de ese tutorial; el caso se descarga en <a href="archivos/perfil-naca0012.zip"><code>perfil-naca0012.zip</code></a>). La guía no usa ningún guion: todo se hace con el ratón y con el panel de propiedades, como en el vídeo.</p>
+</div>
+
+    </section>
+    <section id="problem-es">
+      <p class="section-label">El problema</p>
+      <h2>Qué se va a posprocesar</h2>
+
+<p>La solución es la del <a href="perfil-naca0012.html">tutorial 2.1</a>: el NACA 0012 a 10° con Re = 6·10<sup>6</sup>, Spalart-Allmaras y un dominio de 500 cuerdas de radio (tabla 1). La malla es de una celda de espesor, de modo que cada campo vive en un plano; el perfil mide una cuerda y el dominio mil, así que lo primero que ParaView enseña es una mancha del tamaño del dominio, sin perfil: hay que acercarse.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Dato</th><th>Valor</th></tr></thead>
+    <tbody>
+      <tr><td>Caso</td><td><code>perfil-naca0012</code>, el del tutorial 2.1 ya calculado (carpeta <code>2000</code> escrita por <code>foamRun</code>)</td></tr>
+      <tr><td>Perfil y flujo</td><td>NACA 0012, α = 10°, Re = 6·10<sup>6</sup>, |U<sub>∞</sub>| = 87.6245 m/s</td></tr>
+      <tr><td>Malla</td><td>66 156 celdas, una de espesor (0.01 m); dominio de 500 cuerdas de radio</td></tr>
+      <tr><td>Campos</td><td><code>p</code> (cinemática), <code>U</code>, <code>nut</code>, <code>nuTilda</code>, <code>yPlus</code> y <code>wallShearStress</code></td></tr>
+      <tr><td>Tiempo</td><td>2001 en el selector de ParaView (el último que escribió el solver)</td></tr>
+      <tr><td>Programa</td><td>ParaView 5.11.2, el que trae blueCFD-Core 2024; se abre con <code>paraFoam</code></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">El caso que se posprocesa.</b> Es el caso del tutorial 2.1, sin cambios. Los datos de la columna derecha son los que aparecen en las imágenes de esta guía.</caption>
+  </table>
+</div>
+<p>El orden de la receta es el de las preguntas que se hace quien posprocesa. Primero, <em>¿cómo se ve cada campo?</em> (mapas de color de \(p\) y de \(U\), con el rango que haga falta). Después, <em>¿cómo se escribe en coeficientes?</em> (el \(C_p\)). Luego, <em>¿qué forma tiene el flujo?</em> (isolíneas, vectores, líneas de corriente, vorticidad). Y por último, <em>¿qué números hay dentro?</em> (la capa límite y la curva de \(C_p\)). La tabla 2 es el índice de la receta.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Filtro</th><th>Entrada</th><th>Qué hace</th><th>Lo que se cambia</th></tr></thead>
+    <tbody>
+      <tr><td><code>Calculator1</code></td><td>el lector</td><td>calcula C<sub>p</sub> en cada punto</td><td>Result Array Name <code>Cp</code>; función <code>p/(0.5*87.6245^2)</code></td></tr>
+      <tr><td><code>Slice1</code></td><td><code>Calculator1</code></td><td>deja una superficie plana: la malla es de una celda de espesor</td><td><code>Z Normal</code>; el origen en z = 0.005</td></tr>
+      <tr><td><code>Contour1</code></td><td><code>Slice1</code></td><td>isolíneas de C<sub>p</sub></td><td>17 valores entre −3 y 1 (Add Range)</td></tr>
+      <tr><td><code>Clip1</code></td><td><code>Calculator1</code></td><td>recorta una caja alrededor del perfil</td><td>tipo <code>Box</code>; posición (−0.3, −0.4, −0.5) y longitud (1.8, 0.8, 1)</td></tr>
+      <tr><td><code>Glyph1</code></td><td><code>Clip1</code></td><td>flechas de velocidad</td><td>sin matriz de escala, factor 0.06, 500 puntos, muestreo en la superficie</td></tr>
+      <tr><td><code>StreamTracer1</code></td><td><code>Calculator1</code></td><td>líneas de corriente</td><td>línea de semillas de (−0.4, −0.25, 0.007) a (−0.4, 0.35, 0.007), 30 puntos, longitud 3</td></tr>
+      <tr><td><code>Gradient1</code></td><td><code>Calculator1</code></td><td>calcula la vorticidad de U</td><td>Scalar Array <code>U</code>, Compute Vorticity (en las propiedades avanzadas)</td></tr>
+      <tr><td><code>PlotOverLine1</code></td><td><code>Calculator1</code></td><td>perfil de velocidad sobre el extradós</td><td>recta vertical en x = 0.5, 800 puntos</td></tr>
+      <tr><td>segundo lector</td><td>el archivo <code>.foam</code></td><td>sólo el parche <code>airfoil</code></td><td>se desmarca <code>internalMesh</code> y se marca <code>patch/airfoil</code></td></tr>
+      <tr><td><code>Calculator2</code>, <code>Slice2</code>, <code>PlotData1</code></td><td>el segundo lector</td><td>C<sub>p</sub> a lo largo del perfil</td><td>eje x: <code>Points_X</code>; sólo la serie <code>Cp</code></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Los filtros del tutorial, en el orden de la receta.</b> Cada filtro nace del anterior; los valores son los que se escriben en el panel <code>Properties</code> de ParaView.</caption>
+  </table>
+</div>
+
+    </section>
+    <section id="theory-es">
+      <p class="section-label">La teoría</p>
+      <h2>Lo que dice cada imagen</h2>
+
+<h3>El coeficiente de presión</h3>
+<p>En un solver incompresible la presión de OpenFOAM es <em>cinemática</em>, \(p/\rho\), con \(p_\infty = 0\) en el flujo libre (tutorial 2.1). El coeficiente de presión es la presión sin dimensiones respecto a la dinámica del flujo libre:</p>
+<div class="equation-card">\[ C_p = \frac{p - p_\infty}{\tfrac12\rho U_\infty^2} = \frac{p}{\tfrac12 U_\infty^2} = 1 - \left(\frac{U}{U_\infty}\right)^2,\qquad U_\infty = 87.6245\ \text{m/s} \tag{1} \]</div>
+<p>La última igualdad es la ecuación de Bernoulli, que vale fuera de la capa límite y de la estela, donde el flujo es casi sin fricción: donde el flujo se acelera, \(C_p\) baja; en el punto de remanso, \(U = 0\), \(C_p = 1\). El Calculator de ParaView escribe \(C_p\) como <code>p/(0.5*87.6245^2)</code>.</p>
+<h3>Líneas de corriente, vectores e isolíneas</h3>
+<p>Una <strong>línea de corriente</strong> es una curva tangente en cada punto a la velocidad: en un flujo estacionario, la trayectoria que sigue una partícula. <em>Stream Tracer</em> la calcula integrando la velocidad a partir de unos puntos de arranque, las semillas; una línea de semillas antes del perfil, donde el flujo es casi uniforme, da una familia de líneas que se abren alrededor del perfil. Un <strong>vector</strong> (<em>Glyph</em>) es la velocidad en un punto, dibujada como una flecha; informa de la dirección en cada punto, no de la trayectoria. Una <strong>isolínea</strong> (<em>Contour</em>) es el conjunto de puntos donde un campo vale lo mismo: las isolíneas de \(C_p\) rodean la nariz, donde la presión cambia más rápido.</p>
+<h3>La vorticidad</h3>
+<p>La vorticidad es el rotacional de la velocidad, \(\boldsymbol{\omega} = \nabla\times\mathbf{U}\). En un flujo plano en x-y sólo tiene componente z:</p>
+<div class="equation-card">\[ \omega_z = \frac{\partial v}{\partial x} - \frac{\partial u}{\partial y} \tag{2} \]</div>
+<p>Fuera de la capa límite el flujo es casi irrotacional y \(\omega_z \approx 0\); dentro de ella, \(\partial u/\partial y\) es enorme (la velocidad pasa de 0 en la pared a \(U_e\) en pocas centésimas de cuerda), y la vorticidad es grande y negativa en el extradós. Esa capa de vorticidad se desprende por el borde de salida y forma la estela. La vorticidad de la capa límite del extradós (negativa) y la del intradós (positiva) son de signo contrario: la circulación alrededor del perfil, que produce la sustentación.</p>
+<h3>La capa límite</h3>
+<p>El perfil de velocidad \(U(y)\) sobre la pared, en una x dada, sube desde cero hasta la velocidad \(U_e\) de la corriente que la rodea. El espesor \(\delta_{99}\) es la distancia a la pared donde \(U\) llega al 99 % de \(U_e\), y la pendiente en la pared, \(\partial U/\partial y|_w\), da el esfuerzo cortante \(\tau_w = \mu_{ef}\,\partial U/\partial y|_w\) (tutorial 2.1). La velocidad \(U_e\) conecta con la presión de la pared por Bernoulli: es la tercera comprobación de la validación.</p>
+
+    </section>
+    <section id="recipe-es">
+      <p class="section-label">Paso a paso</p>
+      <h2>Del mapa de color a la curva de C_p</h2>
+
+<p>En el vídeo, la terminal de blueCFD-Core está a la izquierda y el Explorador a la derecha con la carpeta del caso; en la terminal sólo se escribe <code>paraFoam</code>. Todo lo demás se hace en ParaView, maximizado. Cada filtro se crea con su botón de la barra de herramientas (<em>Common</em> y <em>Data Analysis</em>) o con el buscador rápido de ParaView (<code>Ctrl + Espacio</code>, el nombre del filtro y Entrar).</p>
+<h3>1. Abrir el caso</h3>
+<ol>
+  <li>En la terminal: <code>cd $FOAM_RUN/perfil-naca0012</code> y <code>paraFoam</code> (crea el archivo <code>perfil-naca0012.foam</code> y abre ParaView).</li>
+  <li><code>Apply</code>, y <code>Last Frame</code> (el tiempo 2001 del selector: la última carpeta escrita). Color por <code>U</code>, vista <code>-Z</code> (x hacia la derecha) y <code>Reset Camera</code>. El dominio de 1000 cuerdas es una mancha (figura 1): la cámara se acerca con <code>Adjust Camera</code> (el botón de la barra de la vista; figura 2): posición (0.5, 0, 2.6), punto focal (0.5, 0, 0.005) y vertical (0, 1, 0) dejan el perfil a la vista (figura 3). Quien prefiera el ratón puede usar dos <code>Zoom to Box</code>, como en el 2.1, pero la cámara escrita se repite igual después de cada filtro nuevo.</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t23-01_dominio.png" alt="ParaView: el dominio completo de 1000 cuerdas, casi uniforme, sin perfil visible" loading="lazy">
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">El dominio completo.</b> Tras <code>Apply</code>, <code>Last Frame</code>, color por <code>U</code>, vista <code>-Z</code> y <code>Reset Camera</code>: con 1000 cuerdas de lado, el perfil es un punto en el centro y el color es casi uniforme.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t23-02_camara.png" alt="ParaView: el cuadro Adjust Camera con la posición, el punto focal y el vertical" loading="lazy">
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">El cuadro Adjust Camera.</b> La posición de la cámara en (0.5, 0, 2.6), el punto focal en (0.5, 0, 0.005) y el vector vertical en (0, 1, 0): a 2.6 de distancia, el perfil de una cuerda llena la vista.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t23-03_perfil_u.png" alt="ParaView: la magnitud de la velocidad alrededor del perfil, con el remanso, la succión y la estela" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">La velocidad alrededor del perfil.</b> El mismo resultado del tutorial 2.1, con la cámara escrita: el remanso en la nariz, la succión encima (hasta 221 m/s) y la estela detrás.</figcaption>
+</figure>
+<h3>2. El rango del mapa de color</h3>
+<ol>
+  <li>Color por <code>p</code>: la escala va de \(-2.1\cdot10^4\) a \(3.8\cdot10^3\) y casi todo el campo es de un solo color (figura 4): el pico de succión de la nariz, en unas pocas celdas, fija el extremo.</li>
+  <li><code>Edit Color Map</code> (el panel <em>Color Map Editor</em> a la derecha, figura 5) y, en la barra de color, <code>Rescale to Custom Data Range</code>: de −3000 a 1000 (tabla 3). Ahora se ve la presión alta del remanso y la baja sobre el extradós (figura 6).</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t23-04_p_auto.png" alt="ParaView: la presión con el rango por omisión; casi todo el campo es de un solo color" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">La presión, con el rango por omisión.</b> La escala llega a −2.1·10<sup>4</sup>: el pico de succión de la nariz fija el extremo y el resto del campo queda en un solo color.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t23-05_editor.png" alt="ParaView: el Color Map Editor a la derecha, con la curva de la paleta y los botones de rango" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">El editor del mapa de color.</b> <code>Edit Color Map</code> abre el panel de la derecha; sus botones de rango, y los de la barra de herramientas de color (<code>Rescale to Custom Data Range</code>), cambian los extremos de la escala.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t23-06_p_rango.png" alt="ParaView: la presión con el rango de −3000 a 1000, con la presión alta en el remanso y la baja sobre el extradós" loading="lazy">
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">La presión, con un rango elegido.</b> De −3000 a 1000 m²/s²: la presión alta delante de la nariz y en el borde de salida (rojo) y la baja sobre el extradós (azul).</figcaption>
+</figure>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Campo</th><th>Rango por omisión</th><th>Rango elegido</th><th>Por qué</th></tr></thead>
+    <tbody>
+      <tr><td><code>p</code> (m²/s²)</td><td>−2.1·10<sup>4</sup> a 3.8·10<sup>3</sup></td><td>−3000 a 1000</td><td>el pico de succión ocupa casi toda la escala; con el rango elegido se ve la presión sobre el resto del perfil</td></tr>
+      <tr><td>C<sub>p</sub></td><td>−5.6 a 1.0</td><td>−3 a 1</td><td>una escala redonda, con el 1 del punto de remanso arriba</td></tr>
+      <tr><td>Magnitud de <code>U</code> (m/s)</td><td>0 a 221</td><td>0 a 221</td><td>aquí el rango por omisión sirve: muestra desde el remanso hasta la velocidad máxima</td></tr>
+      <tr><td>Vorticidad ω<sub>z</sub> (1/s)</td><td>−8·10<sup>6</sup> a 1·10<sup>6</sup></td><td>−1000 a 1000</td><td>la capa límite tiene vorticidad enorme; el rango simétrico deja ver el signo y el borde de la estela</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">El rango de color de cada campo.</b> ParaView toma por omisión el mínimo y el máximo del campo, y en este caso los dos los fijan pocas celdas: el pico de succión de la nariz en p y la nariz misma en U. Con un rango elegido, el resto del campo se ve.</caption>
+  </table>
+</div>
+<h3>3. El coeficiente de presión</h3>
+<ol>
+  <li>Con el lector seleccionado, <code>Calculator</code>: <code>Result Array Name</code> = <code>Cp</code>, función <code>p/(0.5*87.6245^2)</code> (la velocidad del flujo libre del caso, ecuación 1), <code>Apply</code> (figura 7). Color por <code>Cp</code>.</li>
+  <li><code>Rescale to Custom Data Range</code> de −3 a 1, y en el editor de color, <code>Choose Preset</code> ▸ <code>Turbo</code> (doble clic). El punto de remanso queda rojo y la succión de la nariz, azul (figura 8).</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t23-07_calculator.png" alt="ParaView: el filtro Calculator con el nombre Cp y la función p/(0.5*87.6245^2)" loading="lazy">
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">El Calculator del coeficiente de presión.</b> El nombre del resultado y la función; el botón <code>Apply</code>, todavía verde, indica que falta aplicarlo.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t23-08_cp.png" alt="ParaView: el coeficiente de presión con la paleta Turbo de −3 a 1" loading="lazy">
+  <figcaption><b class="fig-num">Figura 8.</b> <b class="fig-title">El coeficiente de presión.</b> Paleta <code>Turbo</code>, de −3 a 1. Rojo en el remanso, azul en la succión de la nariz.</figcaption>
+</figure>
+<h3>4. Isolíneas</h3>
+<ol>
+  <li>Como el cálculo es de una sola celda de espesor, las isolíneas se hacen sobre un plano: con <code>Calculator1</code> seleccionado, <code>Slice</code> con <code>Z Normal</code> y <code>Apply</code>. La vista no cambia; el filtro sólo deja una superficie de verdad plana.</li>
+  <li>Con <code>Slice1</code>, <code>Contour</code>: <em>Contour By</em> = <code>Cp</code>. Se borran los valores (<code>Delete All</code>) y <code>Add a range of values</code> de −3 a 1 con 17 muestras (un valor cada 0.25) (figura 9). <code>Apply</code> (figura 10).</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t23-09_contour_serie.png" alt="ParaView: el cuadro Generate Number Series con el rango de −3 a 1 y 17 muestras" loading="lazy">
+  <figcaption><b class="fig-num">Figura 9.</b> <b class="fig-title">Los valores de las isolíneas.</b> <code>Add a range of values</code> genera 17 valores equidistantes entre −3 y 1: uno cada 0.25.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t23-10_contour.png" alt="ParaView: las isolíneas del coeficiente de presión alrededor de la nariz" loading="lazy">
+  <figcaption><b class="fig-num">Figura 10.</b> <b class="fig-title">Las isolíneas de C<sub>p</sub>.</b> Se apiñan sobre la nariz, donde la presión cambia más rápido, y se abren hacia el campo lejano; el perfil queda en el cruce de las líneas más cerradas.</figcaption>
+</figure>
+<h3>5. Vectores de velocidad</h3>
+<ol>
+  <li>Con <code>Calculator1</code>, <code>Clip</code>: <em>Clip Type</em> = <code>Box</code>, posición (−0.3, −0.4, −0.5) y longitud (1.8, 0.8, 1) para quedarse con la zona de 1.8 × 0.8 cuerdas alrededor del perfil (figura 11), y <code>Apply</code>.</li>
+  <li>Con <code>Clip1</code>, <code>Glyph</code> y <code>Apply</code> (con los valores por omisión, flechas de colores desiguales, figura 12). Se cambia el <em>Scale Array</em> a <code>No scale array</code> (todas las flechas del mismo tamaño), <em>Scale Factor</em> = 0.06 y <em>Glyph Mode</em> = <code>Uniform Spatial Distribution (Surface Sampling)</code> con 500 puntos: así las flechas cubren el plano de forma pareja. Se colorea por <code>U</code> (figura 13).</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t23-11_clip.png" alt="ParaView: el filtro Clip con una caja alrededor del perfil" loading="lazy">
+  <figcaption><b class="fig-num">Figura 11.</b> <b class="fig-title">La caja del Clip.</b> Una caja de 1.8 × 0.8 cuerdas alrededor del perfil (posición (−0.3, −0.4, −0.5), longitud (1.8, 0.8, 1)). Con <code>Show Box</code>, ParaView dibuja la caja; se apaga antes del <code>Apply</code>.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t23-12_glyph_defecto.png" alt="ParaView: el filtro Glyph con los valores por omisión, con flechas de tamaños muy distintos" loading="lazy">
+  <figcaption><b class="fig-num">Figura 12.</b> <b class="fig-title">Glyph, con los valores por omisión.</b> Una flecha por cada punto y escalada con <code>Cp</code>: unas enormes y otras casi invisibles.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t23-13_glyph.png" alt="ParaView: los vectores de velocidad alrededor del perfil, de tamaño uniforme y coloreados por la magnitud de U" loading="lazy">
+  <figcaption><b class="fig-num">Figura 13.</b> <b class="fig-title">Los vectores de velocidad.</b> Flechas del mismo tamaño (<code>No scale array</code>, factor 0.06), 500 puntos con muestreo uniforme en el plano, coloreadas por la magnitud de la velocidad.</figcaption>
+</figure>
+<h3>6. Líneas de corriente</h3>
+<ol>
+  <li>Con <code>Calculator1</code>, <code>Stream Tracer</code>. <em>Seed Type</em> = <code>Line</code> (la que trae); se cambian los extremos: <em>Point1</em> = (−0.4, −0.25, 0.007), <em>Point2</em> = (−0.4, 0.35, 0.007) y <em>Resolution</em> = 30, y la longitud máxima a 3. La línea de semillas queda delante de la nariz, donde el flujo es casi uniforme; la z de 0.007 la pone un poco delante del corte plano (z = 0.005), para que las líneas no queden tapadas por él.</li>
+  <li><code>Apply</code> y <code>Adjust Camera</code> (los mismos valores). Las líneas de corriente bordean el perfil y se abren sobre el extradós, donde la velocidad es mayor (figura 14).</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t23-15_lineas.png" alt="ParaView: las líneas de corriente alrededor del perfil" loading="lazy">
+  <figcaption><b class="fig-num">Figura 14.</b> <b class="fig-title">Las líneas de corriente.</b> Treinta líneas desde la línea de semillas: bordean el perfil y se aprietan sobre el extradós.</figcaption>
+</figure>
+<h3>7. La vorticidad</h3>
+<ol>
+  <li>Con <code>Calculator1</code>, el buscador rápido: <code>Ctrl + Espacio</code>, <code>Gradient</code>, Entrar. <em>Scalar Array</em> = <code>U</code>. La vorticidad está en las propiedades avanzadas (el engrane del panel <em>Properties</em>, figura 15): se marca <code>Compute Vorticity</code> (y se desmarca <code>Compute Gradient</code> si no se va a usar) y <code>Apply</code>.</li>
+  <li>Color por <code>Vorticity</code>, componente <code>Z</code>, rango de −1000 a 1000 (figura 16). La capa límite aparece como una película delgada, azul en el extradós (rotación en sentido horario) y roja en el intradós, que se desprende en una estela.</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t23-16_gradient.png" alt="ParaView: el filtro Gradient con Compute Vorticity marcado, en las propiedades avanzadas" loading="lazy">
+  <figcaption><b class="fig-num">Figura 15.</b> <b class="fig-title">El filtro Gradient.</b> <em>Scalar Array</em> = <code>U</code> y <code>Compute Vorticity</code> (visible sólo con las propiedades avanzadas, el engrane del panel <em>Properties</em>).</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t23-17_vorticidad.png" alt="ParaView: la componente z de la vorticidad, de −1000 a 1000, con la capa límite y la estela" loading="lazy">
+  <figcaption><b class="fig-num">Figura 16.</b> <b class="fig-title">La vorticidad.</b> Componente z, de −1000 a 1000 s<sup>−1</sup>: azul en la capa límite del extradós, rojo en la del intradós; ambas se desprenden en la estela.</figcaption>
+</figure>
+<h3>8. Guardar una imagen</h3>
+<ol>
+  <li><code>File</code> ▸ <code>Save Screenshot…</code> (figura 17), el nombre <code>figura.png</code> en la carpeta del caso, y <code>OK</code>. La imagen es de la vista activa, a la resolución que muestra el cuadro (la de la ventana).</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t23-18_guardar.png" alt="ParaView: el cuadro Save Screenshot" loading="lazy">
+  <figcaption><b class="fig-num">Figura 17.</b> <b class="fig-title">Guardar la imagen.</b> <code>File</code> ▸ <code>Save Screenshot…</code>: el nombre del archivo; el cuadro siguiente pide la resolución y el formato.</figcaption>
+</figure>
+<h3>9. El perfil de velocidad de la capa límite</h3>
+<ol>
+  <li>Con <code>Calculator1</code>, <code>Plot Over Line</code>: <em>Point1</em> = (0.5, 0.0522, 0.005) y <em>Point2</em> = (0.5, 0.0722, 0.005): una recta vertical sobre el extradós en x/c = 0.5, que empieza apenas arriba de la pared (el perfil mide 0.0522 de semiespesor en esa x en la malla; en el vídeo y en la figura 18, <em>Point1</em> conserva la z = 0 que trae por omisión, que da la misma curva porque el campo no cambia con z). <em>Resolution</em> = 800 y <code>Apply</code>.</li>
+  <li>ParaView abre una gráfica con todas las variables. En el panel <em>Properties</em>, con la sección de series (se escribe «series» en el buscador), se apagan todas con la casilla del encabezado y se enciende <code>U_Magnitude</code> (figura 19).</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t23-19_plotoverline.png" alt="ParaView: el filtro Plot Over Line con una recta vertical en x = 0.5" loading="lazy">
+  <figcaption><b class="fig-num">Figura 18.</b> <b class="fig-title">La recta de Plot Over Line.</b> De (0.5, 0.0522) a (0.5, 0.0722): 0.02 cuerdas hacia arriba desde la pared en x/c = 0.5.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t23-20_perfil_v.png" alt="ParaView: el perfil de velocidad de la capa límite en x/c = 0.5, de 0 a 109 m/s" loading="lazy">
+  <figcaption><b class="fig-num">Figura 19.</b> <b class="fig-title">El perfil de velocidad.</b> <code>U_Magnitude</code> contra la distancia a la recta: sube de 0 a 108.9 m/s y se aplana al salir de la capa límite (\(\delta_{99}\) = 0.0149 c).</figcaption>
+</figure>
+<h3>10. El \(C_p\) a lo largo del perfil</h3>
+<ol>
+  <li><code>File</code> ▸ <code>Open</code> (o <code>Ctrl + O</code>) y el mismo <code>perfil-naca0012.foam</code>: un segundo lector. En <em>Mesh Regions</em> se desmarca <code>internalMesh</code> y se marca <code>patch/airfoil</code> (sólo la superficie del perfil) y <code>Apply</code> (figura 20).</li>
+  <li>A ese lector, <code>Calculator</code> (<code>Cp</code>, la misma función) y <code>Slice</code> (<code>Z Normal</code>), y <code>Plot Data</code> (<code>Ctrl + Espacio</code>). En el panel, se quita <code>Use Index For XAxis</code>, el eje X es <code>Points_X</code> y se deja sólo la serie <code>Cp</code>. La gráfica muestra las dos curvas del perfil, la del extradós, abajo, y la del intradós (figura 21).</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t23-21_lector.png" alt="ParaView: un segundo lector con sólo el parche airfoil marcado" loading="lazy">
+  <figcaption><b class="fig-num">Figura 20.</b> <b class="fig-title">El segundo lector.</b> En <em>Mesh Regions</em>: sin <code>internalMesh</code> y con <code>patch/airfoil</code>.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t23-22_cp_perfil.png" alt="ParaView: el coeficiente de presión contra x sobre el perfil, con las curvas del extradós y del intradós" loading="lazy">
+  <figcaption><b class="fig-num">Figura 21.</b> <b class="fig-title">El C<sub>p</sub> sobre el perfil.</b> La curva de abajo, con la succión de la nariz (C<sub>p</sub> = −5.55), es la del extradós; la de arriba, la del intradós, que sólo tiene un máximo de 1.00 en el remanso.</figcaption>
+</figure>
+<h3>11. Guardar el estado</h3>
+<ol>
+  <li><code>File</code> ▸ <code>Save State…</code>, <code>estado.pvsm</code> en la carpeta del caso. Con <code>File</code> ▸ <code>Load State…</code> se recupera todo el árbol de filtros, con sus valores, en otra sesión o con otro caso (figura 22).</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t23-23_archivos.png" alt="El Explorador con figura.png y estado.pvsm en la carpeta del caso" loading="lazy">
+  <figcaption><b class="fig-num">Figura 22.</b> <b class="fig-title">Lo que se guardó.</b> <code>figura.png</code> y <code>estado.pvsm</code>, en la carpeta del caso, junto a <code>2000</code>.</figcaption>
+</figure>
+
+    </section>
+    <section id="case-es">
+      <p class="section-label">El árbol de filtros</p>
+      <h2>Los filtros, uno por uno</h2>
+
+<p>El árbol de filtros de ParaView (el <em>Pipeline Browser</em>) queda así al terminar. Cada filtro es un cuadro verde, hijo del que le da la entrada; el ojo de la izquierda lo muestra u oculta, y sólo se ven los que tienen el ojo abierto (figura 23).</p>
+<ul>
+  <li><code>perfil-naca0012.foam</code>: el lector. Trae las seis variables del caso y tres cosas que conviene saber: <em>Skip Zero Time</em> (no muestra la carpeta 0), <em>Case Type</em> (<em>Reconstructed</em>: el caso se corrió en serie), y <em>Mesh Regions</em>, donde se elige qué se lee: <code>internalMesh</code> (el volumen) o los parches (las superficies de la frontera).</li>
+  <li><code>Calculator1</code>: nace del lector y trae <code>Cp</code>; de él cuelgan casi todos los demás.</li>
+  <li><code>Slice1</code> ▸ <code>Contour1</code>; <code>Clip1</code> ▸ <code>Glyph1</code>; <code>StreamTracer1</code>; <code>Gradient1</code>; <code>PlotOverLine1</code>.</li>
+  <li>Un segundo <code>perfil-naca0012.foam</code>, sólo con <code>patch/airfoil</code>, con <code>Calculator2</code>, <code>Slice2</code> y <code>PlotData1</code>.</li>
+</ul>
+<figure class="diagram">
+<svg viewBox="0 0 760 372" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="El árbol de filtros de ParaView: el lector, Calculator1 y los filtros que cuelgan de él, y el segundo lector con el parche del perfil" font-family="Inter, sans-serif" font-size="12">
+<path d="M170 40 H190 V40 H210" fill="none" stroke="var(--muted)" stroke-width="1.4"/>
+<path d="M370 40 H390 V40 H410" fill="none" stroke="var(--muted)" stroke-width="1.4"/>
+<path d="M570 40 H575 V40 H580" fill="none" stroke="var(--muted)" stroke-width="1.4"/>
+<path d="M370 40 H390 V96 H410" fill="none" stroke="var(--muted)" stroke-width="1.4"/>
+<path d="M570 96 H575 V96 H580" fill="none" stroke="var(--muted)" stroke-width="1.4"/>
+<path d="M370 40 H390 V152 H410" fill="none" stroke="var(--muted)" stroke-width="1.4"/>
+<path d="M370 40 H390 V208 H410" fill="none" stroke="var(--muted)" stroke-width="1.4"/>
+<path d="M370 40 H390 V264 H410" fill="none" stroke="var(--muted)" stroke-width="1.4"/>
+<path d="M170 330 H190 V330 H210" fill="none" stroke="var(--muted)" stroke-width="1.4"/>
+<path d="M370 330 H390 V330 H410" fill="none" stroke="var(--muted)" stroke-width="1.4"/>
+<path d="M570 330 H575 V330 H580" fill="none" stroke="var(--muted)" stroke-width="1.4"/>
+<rect x="20" y="20" width="150" height="40" rx="6" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.6"/>
+<text x="28" y="37" fill="var(--ink)" font-weight="600">perfil-naca0012.foam</text>
+<text x="28" y="52" fill="var(--muted)" font-size="11">internalMesh</text>
+<rect x="210" y="20" width="160" height="40" rx="6" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.6"/>
+<text x="218" y="37" fill="var(--ink)" font-weight="600">Calculator1</text>
+<text x="218" y="52" fill="var(--muted)" font-size="11">Cp</text>
+<rect x="410" y="20" width="160" height="40" rx="6" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.6"/>
+<text x="418" y="37" fill="var(--ink)" font-weight="600">Slice1</text>
+<text x="418" y="52" fill="var(--muted)" font-size="11">Z Normal</text>
+<rect x="580" y="20" width="160" height="40" rx="6" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.6"/>
+<text x="588" y="37" fill="var(--ink)" font-weight="600">Contour1</text>
+<text x="588" y="52" fill="var(--muted)" font-size="11">17 isolíneas</text>
+<rect x="410" y="76" width="160" height="40" rx="6" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.6"/>
+<text x="418" y="93" fill="var(--ink)" font-weight="600">Clip1</text>
+<text x="418" y="108" fill="var(--muted)" font-size="11">Box</text>
+<rect x="580" y="76" width="160" height="40" rx="6" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.6"/>
+<text x="588" y="93" fill="var(--ink)" font-weight="600">Glyph1</text>
+<text x="588" y="108" fill="var(--muted)" font-size="11">flechas</text>
+<rect x="410" y="132" width="160" height="40" rx="6" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.6"/>
+<text x="418" y="149" fill="var(--ink)" font-weight="600">StreamTracer1</text>
+<text x="418" y="164" fill="var(--muted)" font-size="11">línea de semillas</text>
+<rect x="410" y="188" width="160" height="40" rx="6" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.6"/>
+<text x="418" y="205" fill="var(--ink)" font-weight="600">Gradient1</text>
+<text x="418" y="220" fill="var(--muted)" font-size="11">vorticidad</text>
+<rect x="410" y="244" width="160" height="40" rx="6" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.6"/>
+<text x="418" y="261" fill="var(--ink)" font-weight="600">PlotOverLine1</text>
+<text x="418" y="276" fill="var(--muted)" font-size="11">x/c = 0.5</text>
+<rect x="20" y="310" width="150" height="40" rx="6" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.6" stroke-dasharray="4 3"/>
+<text x="28" y="327" fill="var(--ink)" font-weight="600">perfil-naca0012.foam</text>
+<text x="28" y="342" fill="var(--muted)" font-size="11">patch/airfoil</text>
+<rect x="210" y="310" width="160" height="40" rx="6" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.6"/>
+<text x="218" y="327" fill="var(--ink)" font-weight="600">Calculator2</text>
+<text x="218" y="342" fill="var(--muted)" font-size="11">Cp</text>
+<rect x="410" y="310" width="160" height="40" rx="6" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.6"/>
+<text x="418" y="327" fill="var(--ink)" font-weight="600">Slice2</text>
+<text x="418" y="342" fill="var(--muted)" font-size="11">Z Normal</text>
+<rect x="580" y="310" width="160" height="40" rx="6" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.6"/>
+<text x="588" y="327" fill="var(--ink)" font-weight="600">PlotData1</text>
+<text x="588" y="342" fill="var(--muted)" font-size="11">Cp contra x</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 23.</b> <b class="fig-title">El árbol de filtros.</b> Cada cuadro es un filtro del <em>Pipeline Browser</em> y cada línea, la entrada que recibe. Casi todos cuelgan de <code>Calculator1</code> porque necesitan <code>Cp</code> o la velocidad; el segundo lector (línea punteada) sólo lee el parche <code>airfoil</code>.</figcaption>
+</figure>
+<p>Dos propiedades de ParaView explican casi todo lo que sale «raro» al principio. <strong>Apply</strong>: un filtro nuevo no hace nada hasta que se hace clic en él; mientras tanto el botón está verde. <strong>El ojo</strong>: un filtro se ve en la vista sólo si su ojo está abierto, y al crear un filtro, ParaView oculta el padre. Por eso en la receta se apaga y se enciende el ojo de cada filtro: sin eso, las isolíneas, los vectores y las líneas de corriente quedan unos debajo de otros.</p>
+
+    </section>
+    <section id="results-es">
+      <p class="section-label">Resultados</p>
+      <h2>Lo que muestran las imágenes</h2>
+
+<p>Con las imágenes de la receta se lee el flujo del 2.1 casi entero.</p>
+<ul>
+  <li><strong>La presión (figuras 6 y 8).</strong> El punto de remanso, en la nariz, tiene \(C_p\) = 1.000; la succión del extradós baja hasta \(C_p\) = −5.55 a menos de 1 % de la cuerda del borde de ataque y se recupera suavemente hacia el borde de salida. Las isolíneas (figura 10) se apiñan sobre la nariz, donde la presión cambia más rápido, y se abren en círculos hacia el campo lejano.</li>
+  <li><strong>La velocidad (figuras 3 y 13).</strong> Llega a 221 m/s, 2.5 veces la del flujo libre, sobre la nariz; los vectores se aceleran sobre el extradós y se frenan al llegar al remanso y en la estela.</li>
+  <li><strong>Las líneas de corriente (figura 14).</strong> Las que parten arriba de la línea de remanso se aprietan sobre el extradós y las de abajo se abren por debajo: es el flujo que rodea un perfil con sustentación. Todas suben hacia la derecha porque el flujo libre llega inclinado 10°; las que pasan sobre la nariz se juntan (la velocidad crece donde se aprietan) y las de abajo se separan.</li>
+  <li><strong>La vorticidad (figura 16).</strong> Se concentra en una película pegada a la pared (la capa límite) y en la estela. Fuera de eso es casi cero: el flujo exterior es irrotacional.</li>
+  <li><strong>La capa límite (figura 19).</strong> En x/c = 0.5 del extradós la velocidad sube de 0 a \(U_e\) = 108.9 m/s en un espesor \(\delta_{99}\) de 0.0149 c, unas 14.9 milésimas de cuerda: la capa límite del extradós es delgada.</li>
+  <li><strong>El \(C_p\) sobre el perfil (figura 21).</strong> Las dos curvas encierran el área de la sustentación, y su diferencia es la carga sobre cada punto de la cuerda: casi toda se genera en el primer cuarto, donde la succión es mayor.</li>
+</ul>
+
+    </section>
+    <section id="validation-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>Tres comprobaciones de las imágenes</h2>
+
+<div class="example">
+  <p><strong>Enunciado.</strong> Comprobar que las imágenes de la receta son físicas: (1) el \(C_p\) del punto de remanso; (2) el pico de succión contra el de CFL3D; (3) que la velocidad fuera de la capa límite y la presión de la pared coinciden por Bernoulli en x/c = 0.5. <strong>Condiciones:</strong> el caso del tutorial 2.1, sin cambios, en el tiempo 2001 de ParaView.</p>
+</div>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Comprobación</th><th>ParaView</th><th>Referencia</th><th>Diferencia</th></tr></thead>
+    <tbody>
+      <tr><td>C<sub>p</sub> en el punto de remanso</td><td>1.0001</td><td>1 (Bernoulli, ecuación 1)</td><td>0.01 %</td></tr>
+      <tr><td>C<sub>p</sub> mínimo en el perfil</td><td>−5.555 en x/c = 0.0030</td><td>−5.664 (CFL3D, NASA)</td><td>1.9 %</td></tr>
+      <tr><td>C<sub>p</sub> en x/c = 0.5 del extradós</td><td>−0.549 (leído en el perfil)</td><td>−0.546 (de U<sub>e</sub> = 108.9 m/s, ecuación 2)</td><td>0.004 en C<sub>p</sub></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">Tres comprobaciones de lo que se ve.</b> Los valores del campo salen de las operaciones de la receta, hechas con pvpython; los de referencia, del tutorial 2.1 y de CFL3D. La tercera usa la ecuación (2): el valor de C<sub>p</sub> que da Bernoulli con la velocidad U<sub>e</sub> fuera de la capa límite, contra el que se lee sobre el perfil en la misma x.</caption>
+  </table>
+</div>
+<h3>1. El remanso</h3>
+<p>El máximo de \(C_p\) en el parche <code>airfoil</code> es 1.0001: dentro de 0.01 % del 1 que da la ecuación (1) con \(U = 0\). Si \(C_p\) máximo diera 0.8 o 1.3 habría un error en la función del Calculator (la velocidad de referencia) o en <code>p</code> (otra presión de referencia).</p>
+<h3>2. La succión</h3>
+<p>El mínimo de \(C_p\) sobre el perfil es −5.555 en x/c = 0.0030, a 1.9 % del de CFL3D (−5.664). Es el valor de ParaView en los puntos de la superficie del perfil (el campo en el volumen tiene el mismo mínimo, −5.555); el tutorial 2.1, con los valores en el centro de cada cara, midió −5.566. Las isolíneas de la figura 10 llegan hasta \(C_p\) = −3, el límite de la serie, y la escala de la figura 8, hasta −3 también: el pico de succión, más abajo, queda fuera de la escala y se ve oscuro justo en la nariz.</p>
+<h3>3. Bernoulli sobre el extradós</h3>
+<p>En x/c = 0.5 la velocidad fuera de la capa límite es \(U_e\) = 108.9 m/s (el máximo de la curva de la figura 19). La ecuación (1) da \(C_p\) = 1 − (108.9/87.62)² = −0.546; el valor que se lee sobre el perfil, en la misma x, es \(C_p\) = −0.549. La diferencia, 0.004 en \(C_p\), es pequeña porque la presión casi no cambia a través de una capa límite delgada (la hipótesis de Prandtl), así que la presión de la pared es la de la corriente que la rodea.</p>
+<div class="result-box">
+  <p><strong>Las imágenes son físicas.</strong> El remanso da \(C_p\) = 1.000, la succión coincide con CFL3D dentro de 1.9 % y la velocidad exterior y la presión de la pared cumplen Bernoulli. Una imagen sin esas comprobaciones es sólo una imagen.</p>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>Con la imagen de las líneas de corriente, ¿dónde esperaría el punto de remanso: arriba o abajo de la nariz? ¿Qué ángulo de ataque lo pondría exactamente en la nariz?</li>
+  <li>La velocidad máxima es 2.5 veces la del flujo libre: ¿qué \(C_p\) le corresponde por la ecuación (1)? ¿Coincide con el mínimo de \(C_p\) de la tabla 4? Si no, ¿por qué?</li>
+  <li>¿Por qué la vorticidad es mayor en el extradós que en el intradós?</li>
+</ol>
+
+    </section>
+    <section id="errors-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Qué sale mal en ParaView</h2>
+
+<h3>Todo el campo tiene un solo color</h3>
+<p>El rango de color por omisión lo fijan unas pocas celdas: en <code>p</code>, el pico de succión de la nariz; en la vorticidad, la pared. Con <code>Edit Color Map</code> y <code>Rescale to Custom Data Range</code> se elige un rango (tabla 3). Al cambiar de tiempo o de campo ParaView puede volver a calcular el rango: por eso conviene, además, desactivar el reescalado automático (<code>Rescale and disable automatic rescaling</code>).</p>
+<h3>Un filtro no muestra nada</h3>
+<p>Tres causas, por orden de frecuencia: no se hizo clic en <code>Apply</code> (el botón está verde); el ojo del filtro está cerrado, o su padre lo tapa; o el filtro quedó vacío (un <code>Clip</code> con la caja lejos del perfil, o un <code>Contour</code> con valores fuera del rango del campo). La pestaña <code>Information</code> dice cuántas celdas y puntos tiene el filtro: con 0, está vacío.</p>
+<h3>Las flechas tapan el dibujo</h3>
+<p>El <em>Glyph</em> por omisión escala la flecha con una variable y pone una flecha en cada punto: unas enormes y otras invisibles (figura 12). Se cambian tres cosas: <em>Scale Array</em> en <code>No scale array</code>, el factor de escala, y el <em>Glyph Mode</em> a un muestreo uniforme, con pocos puntos.</p>
+<h3>Las líneas de corriente salen de donde no deben</h3>
+<p>La línea de semillas del <em>Stream Tracer</em> tiene un tamaño por omisión que cruza todo el dominio de 1000 cuerdas, y las líneas que salen de ella apenas tocan el perfil. Se acerca la línea al perfil (de 0.6 cuerdas de largo, delante de la nariz) y se limita la longitud de las líneas a unas cuerdas.</p>
+<h3>El filtro «Calculator» no encuentra la variable</h3>
+<p>La presión se llama <code>p</code> y la velocidad <code>U</code> en los datos de punto (<em>Point Data</em>); si el Calculator está en <em>Cell Data</em> o la variable se escribe con minúscula, ParaView avisa con un mensaje en <em>Output Messages</em> y el resultado sale vacío. El caso se lee con «<em>Create cell-to-point filtered data</em>» marcado, que es lo que da los datos de punto.</p>
+<h3>La vorticidad no aparece en el filtro Gradient</h3>
+<p>En ParaView 5.11 la casilla <code>Compute Vorticity</code> sólo se ve con las <strong>propiedades avanzadas</strong> activas (el engrane a la derecha del buscador del panel <em>Properties</em>). Sin eso el filtro se ve incompleto: sólo el gradiente. Además, sólo funciona con un vector de tres componentes: con <code>p</code> en <em>Scalar Array</em>, ParaView avisa «Input array must have exactly three components».</p>
+<h3>La recta de Plot Over Line no toca el perfil</h3>
+<p>Una recta que empieza dentro del perfil o por encima de la capa límite da una curva sin sentido: sale una parte plana a cero (dentro del perfil, donde no hay celdas) y la velocidad no se asienta. En la receta la recta empieza en y = 0.0522, justo arriba de la pared de la malla en x/c = 0.5 (0.0522; el perfil exacto mide 0.0529, porque la malla es de caras planas y queda un poco por dentro); con 0.0529 la recta empezaría 0.0007 arriba de la pared y la curva arrancaría en unos 58 m/s en lugar de en 12. En otra x hay que averiguar la altura de la pared: con <code>Information</code> sobre el segundo lector, o con un <code>Probe Location</code> bajando hasta que el valor deje de ser cero.</p>
+
+    </section>
+    <section id="practice-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>Las mismas imágenes a 16°</h2>
+
+<div class="example">
+  <p><strong>Enunciado.</strong> Repetir las imágenes con el caso a 16° de la polar del <a href="polar-naca0012.html">tutorial 2.2</a> (la carpeta <code>a16</code>) y compararlas con las de 10°. <strong>Condiciones:</strong> los mismos filtros, los mismos rangos de color (\(C_p\) de −3 a 1 sirve para ver la comparación; para ver todo el pico de succión, de −8 a 1) y la misma recta de <em>Plot Over Line</em> en x/c = 0.5. Se puede hacer con <code>File</code> ▸ <code>Load State…</code> y <code>estado.pvsm</code>, cambiando sólo el archivo del lector, o abriendo las dos carpetas a la vez en dos vistas (<em>Split Horizontal Axis</em>).</p>
+</div>
+<h3>El procedimiento, en corto</h3>
+<ol>
+  <li>En la terminal, <code>cd $FOAM_RUN/perfil-polar/a16</code> y <code>paraFoam</code>; con <code>File</code> ▸ <code>Load State…</code> se carga <code>estado.pvsm</code> y ParaView pide el archivo del lector: se elige <code>a16.foam</code>.</li>
+  <li>Se mueve la cámara (<code>Adjust Camera</code>) y se ajusta la línea de <em>Plot Over Line</em> a la pared de 16° (la altura cambia).</li>
+  <li>Se llena la tabla de abajo con el pico de succión, la velocidad máxima y \(\delta_{99}\) en x/c = 0.5.</li>
+</ol>
+<h3>Registro de resultados</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>α</th><th>C<sub>p,min</sub></th><th>|U|<sub>máx</sub> (m/s)</th><th>δ<sub>99</sub> en x/c = 0.5 (c)</th><th>U<sub>e</sub> en x/c = 0.5 (m/s)</th></tr></thead>
+    <tbody>
+      <tr><td>10°</td><td>−5.55</td><td>221</td><td>0.0149</td><td>108.9</td></tr>
+      <tr><td>16°</td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 5.</b> <b class="fig-title">Registro de resultados.</b> La primera fila es del caso a 10° (lo que se midió en este tutorial); la segunda es para llenarla con el caso a 16° de la polar del tutorial 2.2, y la tercera, con otro ángulo a elección.</caption>
+  </table>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>¿Cuánto crece el pico de succión de 10° a 16°? ¿Y la velocidad máxima? ¿Cómo se relacionan por la ecuación (1)?</li>
+  <li>¿Cambia la posición del punto de remanso? ¿Hacia dónde se mueve en las líneas de corriente?</li>
+  <li>¿Se ve en la vorticidad algún signo de que la capa límite empieza a desprenderse a 16°? ¿Dónde esperaría ver primero el engrosamiento?</li>
+</ol>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ul>
+  <li>Ahrens, J., Geveci, B. y Law, C. (2005). ParaView: an end-user tool for large-data visualization. En C. D. Hansen y C. R. Johnson (eds.), <em>The Visualization Handbook</em>. Elsevier.</li>
+  <li>Kitware (2022). <em>The ParaView Guide</em> (versión 5.11). Kitware, Inc. www.paraview.org</li>
+  <li>Anderson, J. D. (2017). <em>Fundamentals of aerodynamics</em> (6.ª ed.). McGraw-Hill. Capítulos 3 y 4: la presión y el coeficiente de presión; la vorticidad y la circulación.</li>
+  <li>Schlichting, H. y Gersten, K. (2017). <em>Boundary-layer theory</em> (9.ª ed.). Springer.</li>
+  <li>NASA Langley Research Center (s. f.). <em>Turbulence Modeling Resource</em>: 2D NACA 0012 airfoil validation case. turbmodels.larc.nasa.gov/naca0012_val.html</li>
+  <li>Molina Holguín, C. A. (2026). <a href="perfil-naca0012.html">El NACA 0012 a 10°: Spalart-Allmaras contra la NASA</a> (tutorial 2.1 de esta serie) y <a href="polar-naca0012.html">La polar del NACA 0012 contra Ladson</a> (tutorial 2.2).</li>
+</ul>
+<p class="source-note">Todas las cifras salen del caso del tutorial 2.1 (OpenFOAM 12, blueCFD-Core 2024, laptop con Windows 11), leídas con ParaView 5.11.2 (<code>pvpython</code>) con las mismas operaciones de la receta; las de CFL3D, de los archivos de la NASA que trae el caso del 2.1. Las capturas son de ParaView 5.11.2 y de la terminal de blueCFD-Core.</p>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="polar-naca0012.html?v=13"><span>Tutorial anterior</span>← 2.2 · La polar del NACA 0012</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Flujo incompresible</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Einen OpenFOAM-Fall in ParaView öffnen und Filter für Filter die übliche Nachbearbeitung eines Profils aufbauen: Druck- und Geschwindigkeitsfelder mit sinnvollen Wertebereichen, Druckbeiwert mit einem Calculator, Konturlinien, Geschwindigkeitsvektoren, Stromlinien, Wirbelstärke, ein Grenzschichtprofil und die C_p-Kurve entlang des Profils; danach ein Bild und den Zustand speichern.</p>
+    </section>
+    <section id="problem-de">
+      <p class="section-label">Das Problem</p>
+      <h2>Was nachbearbeitet wird</h2>
+<p>Die Lösung ist das NACA 0012 bei 10° aus Tutorial 2.1 (Re = 6·10<sup>6</sup>, Spalart-Allmaras, 66 156 Zellen, Fernfeld bei 500 Sehnenlängen). Nichts wird neu gerechnet: Jedes Bild ist eine andere Art, dieselben Dateien zu lesen.</p>
+    </section>
+    <section id="theory-de">
+      <p class="section-label">Die Theorie</p>
+      <h2>Was jedes Bild aussagt</h2>
+<p>Der Druckbeiwert C<sub>p</sub> = p / (½U<sub>∞</sub>²) (p ist in OpenFOAM kinematisch), der Staupunktwert 1, die Bernoulli-Verbindung zwischen C<sub>p</sub> und der Geschwindigkeit außerhalb der Grenzschicht, Stromlinien als Integralkurven der Geschwindigkeit, die Wirbelstärke ω<sub>z</sub> = ∂v/∂x − ∂u/∂y und die Grenzschichtdicke.</p>
+    </section>
+    <section id="recipe-de">
+      <p class="section-label">Schritt für Schritt</p>
+      <h2>Vom Farbverlauf zur C_p-Kurve</h2>
+<p>paraFoam; Apply und Last Frame; Einfärben nach U und p; Edit Color Map und Rescale Custom Range; Calculator; die Farbpalette; Slice und Contour; Clip und Glyph; Stream Tracer; Gradient mit Wirbelstärke; Save Screenshot; Plot Over Line; der zweite Reader mit dem Airfoil-Patch und Plot Data; Save State.</p>
+    </section>
+    <section id="case-de">
+      <p class="section-label">Die Filterkette</p>
+      <h2>Die Filter, einzeln</h2>
+<p>Die Filterkette: Reader → Calculator1 (C<sub>p</sub>) → Slice1 → Contour1; Clip1 → Glyph1; StreamTracer1; Gradient1; PlotOverLine1; und ein zweiter Reader auf dem Patch airfoil → Calculator2 → Slice2 → PlotData1.</p>
+    </section>
+    <section id="results-de">
+      <p class="section-label">Ergebnisse</p>
+      <h2>Was die Bilder zeigen</h2>
+<p>Staupunkt bei C<sub>p</sub> = 1, die Saugspitze −5,55 an der Nase, Geschwindigkeiten bis 221 m/s, eine dünne Grenzschicht und ein Nachlauf geringer Geschwindigkeit hinter der Hinterkante.</p>
+    </section>
+    <section id="validation-de">
+      <p class="section-label">Durchgerechnetes Beispiel</p>
+      <h2>Drei Prüfungen der Bilder</h2>
+<p>Drei Prüfungen: C<sub>p</sub> = 1 am Staupunkt; die Saugspitze gegen CFL3D (−5,55 gegen −5,66); und C<sub>p</sub> bei x/c = 0,5 aus Bernoulli mit der Geschwindigkeit außerhalb der Grenzschicht gegen den am Profil gelesenen Wert.</p>
+    </section>
+    <section id="errors-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Was in ParaView schiefgeht</h2>
+<p>Alles hat eine Farbe (ein Wert bestimmt den Bereich); der Filter zeigt nichts (Elternfilter verdeckt oder nicht angewendet); die Vektoren bedecken das Bild; der 3D-Schnitt; die Linie verfehlt das Profil; ParaView zeigt keine x-Achse.</p>
+    </section>
+    <section id="practice-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Dieselben Bilder bei 16°</h2>
+<p>Dieselben Bilder mit dem Fall a16 aus Tutorial 2.2 in einer zweiten Ansicht neben der von 10° wiederholen und die Saugspitzen und die Grenzschichtdicke vergleichen.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>ParaView Guide und Tutorial; Anderson (2017); NASA Turbulence Modeling Resource; Schlichting und Gersten.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="polar-naca0012.html?v=13"><span>Vorheriges Tutorial</span>← 2.2 · Die Polare des NACA 0012</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Inkompressible Strömung</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>
