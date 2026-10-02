@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Tutorial series on incompressible flow with OpenFOAM 12 (blueCFD-Core on Windows): laminar and turbulent pipe flow validated against Hagen-Poiseuille and friction-factor correlations, on Gmsh meshes." />
+  <meta name="description" content="Tutorial series on incompressible flow with OpenFOAM 12 (blueCFD-Core on Windows): laminar and turbulent pipe flow validated against Hagen-Poiseuille and friction-factor correlations, and the NACA 0012 airfoil validated against NASA, on Gmsh meshes." />
   <meta name="author" content="Carlos Alberto Molina Holguín" />
   <meta name="theme-color" content="#071d33" />
   <title>OpenFOAM Incompressible-Flow Tutorials | Carlos Molina</title>
@@ -39,21 +39,24 @@
       <div data-language="en">
         <p class="eyebrow">Software tutorials · OpenFOAM</p>
         <h1>OpenFOAM · Incompressible flow</h1>
-        <p class="hero-copy">A tutorial series on incompressible flow with OpenFOAM, starting from the case every textbook solves: the straight pipe. Each tutorial brings the complete case, the mesh from Gmsh, and a validation against the exact solution or against measured correlations.</p>
+        <p class="hero-copy">A tutorial series on incompressible flow with OpenFOAM, starting from the case every textbook solves: the straight pipe. Each tutorial brings the complete case, the mesh from Gmsh, and a validation against the exact solution, against measured correlations or against NASA's validation case.</p>
+        <p class="hero-copy">A second block takes the same method to external flow: the NACA 0012 airfoil of NASA's turbulence-modeling validation case.</p>
         <p class="hero-copy"><strong>On Windows, with blueCFD-Core.</strong> Every figure and number comes from an actual run of OpenFOAM 12 in blueCFD-Core 2024, with Gmsh 4.15.2 and ParaView 5.11.2.</p>
         <div class="button-row"><a class="button secondary" href="https://www.youtube.com/playlist?list=PLLwxvJ7hSi4g" target="_blank" rel="noopener">▶&nbsp;Series videos on YouTube</a></div>
       </div>
       <div data-language="es" hidden>
         <p class="eyebrow">Tutoriales de software · OpenFOAM</p>
         <h1>OpenFOAM · Flujo incompresible</h1>
-        <p class="hero-copy">Una serie sobre flujo incompresible con OpenFOAM, que empieza por el caso que resuelve cualquier libro de texto: la tubería recta. Cada tutorial trae el caso completo, la malla de Gmsh y una validación contra la solución exacta o contra correlaciones medidas.</p>
+        <p class="hero-copy">Una serie sobre flujo incompresible con OpenFOAM, que empieza por el caso que resuelve cualquier libro de texto: la tubería recta. Cada tutorial trae el caso completo, la malla de Gmsh y una validación contra la solución exacta, contra correlaciones medidas o contra el caso de validación de la NASA.</p>
+        <p class="hero-copy">Un segundo bloque lleva el mismo método al flujo externo: el perfil NACA 0012 del caso de validación de modelos de turbulencia de la NASA.</p>
         <p class="hero-copy"><strong>En Windows, con blueCFD-Core.</strong> Todas las figuras y cifras proceden de corridas reales de OpenFOAM 12 en blueCFD-Core 2024, con Gmsh 4.15.2 y ParaView 5.11.2.</p>
         <div class="button-row"><a class="button secondary" href="https://www.youtube.com/playlist?list=PLLwxvJ7hSi4g" target="_blank" rel="noopener">▶&nbsp;Vídeos de la serie en YouTube</a></div>
       </div>
       <div data-language="de" hidden>
         <p class="eyebrow">Software-Tutorials · OpenFOAM</p>
         <h1>OpenFOAM · Inkompressible Strömung</h1>
-        <p class="hero-copy">Eine Reihe zur inkompressiblen Strömung mit OpenFOAM, beginnend mit dem Fall, den jedes Lehrbuch löst: dem geraden Rohr. Jedes Tutorial enthält den vollständigen Fall, das Netz aus Gmsh und eine Validierung gegen die exakte Lösung oder gegen gemessene Korrelationen.</p>
+        <p class="hero-copy">Eine Reihe zur inkompressiblen Strömung mit OpenFOAM, beginnend mit dem Fall, den jedes Lehrbuch löst: dem geraden Rohr. Jedes Tutorial enthält den vollständigen Fall, das Netz aus Gmsh und eine Validierung gegen die exakte Lösung, gegen gemessene Korrelationen oder gegen den Validierungsfall der NASA.</p>
+        <p class="hero-copy">Ein zweiter Block überträgt dieselbe Methode auf die Außenumströmung: das NACA-0012-Profil aus dem Validierungsfall der NASA für Turbulenzmodelle.</p>
         <p class="hero-copy"><strong>Unter Windows, mit blueCFD-Core.</strong> Alle Abbildungen und Zahlen stammen aus tatsächlichen Läufen von OpenFOAM 12 in blueCFD-Core 2024, mit Gmsh 4.15.2 und ParaView 5.11.2.</p>
         <div class="button-row"><a class="button secondary" href="https://www.youtube.com/playlist?list=PLLwxvJ7hSi4g" target="_blank" rel="noopener">▶&nbsp;Videos der Reihe auf YouTube</a></div>
       </div>
@@ -81,6 +84,23 @@
           <a href="tuberia-turbulenta.html?v=13">Open tutorial →</a>
         </article>
       </div>
+      <p class="section-label">Block 2 · The NACA 0012 airfoil</p>
+      <div class="course-grid">
+        <article class="course-card available">
+          <span class="course-card-number">2.1</span>
+          <h3>The NACA 0012 at 10°: Spalart-Allmaras against NASA</h3>
+          <p>NASA's validation case at Re = 6·10⁶ with the far field at 500 chords, on the mesh of Gmsh Tutorial 2.2.3: lift, drag, moment, pressure and skin friction against the reference, from numbers the case itself writes.</p>
+          <span class="status">Available</span>
+          <a href="perfil-naca0012.html?v=13">Open tutorial →</a>
+        </article>
+        <article class="course-card available">
+          <span class="course-card-number">2.2</span>
+          <h3>The NACA 0012 Polar: Ten Angles of Attack against Ladson</h3>
+          <p>The airfoil of 2.1 from 0° to 17° on one mesh, with a bash script that runs the angles in parallel: the lift curve and the drag polar against Ladson's experiment and CFL3D, and the limit of a steady calculation at the stall.</p>
+          <span class="status">Available</span>
+          <a href="polar-naca0012.html?v=13">Open tutorial →</a>
+        </article>
+      </div>
     </div>
     <div data-language="es" hidden>
       <p class="section-label">Bloque 1 · La tubería recta</p>
@@ -100,6 +120,23 @@
           <a href="tuberia-turbulenta.html?v=13">Abrir tutorial →</a>
         </article>
       </div>
+      <p class="section-label">Bloque 2 · El perfil NACA 0012</p>
+      <div class="course-grid">
+        <article class="course-card available">
+          <span class="course-card-number">2.1</span>
+          <h3>El perfil NACA 0012 a 10°: Spalart-Allmaras contra la NASA</h3>
+          <p>El caso de validación de la NASA con Re = 6·10⁶ y el campo lejano a 500 cuerdas, sobre la malla del tutorial 2.2.3 de Gmsh: sustentación, resistencia, momento, presión y fricción contra la referencia, con las cifras que escribe el propio caso.</p>
+          <span class="status">Disponible</span>
+          <a href="perfil-naca0012.html?v=13">Abrir tutorial →</a>
+        </article>
+        <article class="course-card available">
+          <span class="course-card-number">2.2</span>
+          <h3>La polar del NACA 0012: diez ángulos de ataque contra Ladson</h3>
+          <p>El perfil del 2.1 de 0° a 17°, con una sola malla y un guion de bash que corre los ángulos en paralelo: la curva de sustentación y la polar de resistencia contra el experimento de Ladson y CFL3D, y el límite de un cálculo estacionario en la pérdida.</p>
+          <span class="status">Disponible</span>
+          <a href="polar-naca0012.html?v=13">Abrir tutorial →</a>
+        </article>
+      </div>
     </div>
     <div data-language="de" hidden>
       <p class="section-label">Block 1 · Das gerade Rohr</p>
@@ -117,6 +154,23 @@
           <p>Re = 50 000 mit k-ω SST und der ersten Zelle bei y⁺ ≈ 1: die Rohrreibungszahl gegen drei Korrelationen, gemessenes gegen gefordertes y⁺ und Modell- von Netzfehler getrennt.</p>
           <span class="status">Verfügbar</span>
           <a href="tuberia-turbulenta.html?v=13">Tutorial öffnen →</a>
+        </article>
+      </div>
+      <p class="section-label">Block 2 · Das NACA-0012-Profil</p>
+      <div class="course-grid">
+        <article class="course-card available">
+          <span class="course-card-number">2.1</span>
+          <h3>Das NACA 0012 bei 10°: Spalart-Allmaras gegen die NASA</h3>
+          <p>Der Validierungsfall der NASA bei Re = 6·10⁶ mit dem Fernfeld bei 500 Sehnen, auf dem Netz aus Gmsh-Tutorial 2.2.3: Auftrieb, Widerstand, Moment, Druck und Reibung gegen die Referenz, aus Zahlen, die der Fall selbst schreibt.</p>
+          <span class="status">Verfügbar</span>
+          <a href="perfil-naca0012.html?v=13">Tutorial öffnen →</a>
+        </article>
+        <article class="course-card available">
+          <span class="course-card-number">2.2</span>
+          <h3>Die Polare des NACA 0012: zehn Anstellwinkel gegen Ladson</h3>
+          <p>Das Profil aus 2.1 von 0° bis 17° auf einem Netz, mit einem Bash-Skript, das die Winkel parallel rechnet: Auftriebskurve und Widerstandspolare gegen Ladsons Experiment und CFL3D, und die Grenze einer stationären Rechnung beim Überziehen.</p>
+          <span class="status">Verfügbar</span>
+          <a href="polar-naca0012.html?v=13">Tutorial öffnen →</a>
         </article>
       </div>
     </div>
