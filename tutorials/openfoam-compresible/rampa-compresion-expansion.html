@@ -274,9 +274,13 @@
   <li><strong>Abrir la terminal.</strong> En el menú Inicio, <code>blueCFD-Core 2024 ▸ blueCFD-Core terminal</code>. Responde «Setting environment for OpenFOAM 12 mingw-w64 Double Precision (of12-64)…» y «Environment is now ready». Es una terminal <code>bash</code>, como la de Linux: las rutas de Windows se escriben con diagonales normales y la unidad como carpeta, de modo que <code>C:&#92;Users&#92;ana&#92;Downloads</code> es <code>/c/Users/ana/Downloads</code>.</li>
   <li><strong>Agregar Gmsh a la ruta de búsqueda.</strong> Si Gmsh se descomprimió en <code>C:&#92;gmsh-4.15.2-Windows64</code>:<pre class="code"><code>export PATH=&quot;$PATH:/c/gmsh-4.15.2-Windows64&quot;
 gmsh --version</code></pre>Responde <code>4.15.2</code>. Hay que hacerlo cada vez que se abre la terminal: arranca con una ruta de búsqueda que sólo contiene OpenFOAM y Windows, y cualquier programa instalado aparte, Gmsh incluido, responde <code>bash: gmsh: command not found</code>.</li>
-  <li><strong>Copiar el caso a la carpeta de corridas.</strong> <code>$FOAM_RUN</code> es la carpeta <code>run</code> de blueCFD, fuera de OneDrive y de las carpetas sincronizadas, que estorban a un programa que escribe cientos de archivos:<pre class="code"><code>cd $FOAM_RUN
-cp -r /c/Users/ana/Downloads/rampa .
-cd rampa</code></pre>(con el nombre de usuario de cada quien en lugar de <code>ana</code>).</li>
+  <li><strong>Copiar el caso a la carpeta de corridas.</strong> La carpeta de corridas es la carpeta <code>run</code> de blueCFD, y <code>$FOAM_RUN</code> es el nombre con que la terminal se refiere a ella. Los casos se corren ahí porque esa carpeta está fuera de OneDrive y de cualquier otra carpeta sincronizada: la sincronización estorba a un programa que escribe cientos de archivos. Hay dos maneras de copiar el caso; basta una.
+    <ul>
+      <li><em>Con el Explorador.</em> Hacer clic en la carpeta <code>rampa</code> de Descargas, Ctrl + C, abrir la carpeta <code>run</code> de blueCFD (en la computadora de referencia es <code>D:&#92;blueCFD-Core&#92;2024&#92;ofuser-of12&#92;run</code>; depende de dónde se instaló) y Ctrl + V.</li>
+      <li><em>Con la terminal.</em><pre class="code"><code>cd $FOAM_RUN
+cp -r /c/Users/ana/Downloads/rampa .</code></pre>con el nombre de usuario de cada quien en lugar de <code>ana</code>.</li>
+    </ul>
+    Con cualquiera de las dos, entrar al caso:<pre class="code"><code>cd $FOAM_RUN/rampa</code></pre></li>
   <li><strong>Hacer la malla.</strong> <code>-setnumber d 0.01</code> fija el tamaño de celda; <code>-3</code>, la malla 3D; <code>-o</code>, el archivo de salida:<pre class="code"><code>gmsh rampa.geo -setnumber d 0.01 -3 -o rampa.msh</code></pre>Termina en menos de un segundo con «Info : 60802 nodes 93024 elements» y «Done writing 'rampa.msh'».</li>
   <li><strong>Convertirla a OpenFOAM.</strong> <code>gmshToFoam rampa.msh</code> escribe <code>constant/polyMesh</code>. Responde, entre otras cosas, cuántas celdas leyó y qué nombre dio a cada parche:<pre class="code"><code>Cells:
     total:30000
@@ -350,7 +354,7 @@ ExecutionTime = 0.511 s  ClockTime = 0 s</code></pre>
   </table>
 </div>
 <h3><code>rampa.geo</code>: la geometría y la malla</h3>
-<p>Un archivo de Gmsh paramétrico. Los seis parámetros de <code>DefineConstant</code> —ángulo, largos, altura y tamaño de celda— se cambian desde la terminal con <code>-setnumber</code>, sin editar el archivo. El dominio se parte en tres bloques de cuatro lados (placa, rampa y meseta), cada uno con malla <code>Transfinite</code> de cuadriláteros de lado d, que se extruye una sola capa en z para hacer la malla 2D de OpenFOAM (figura 2). Los grupos físicos dan nombre a las fronteras; son los nombres que usan los archivos de <code>0/</code>. La última línea pide el formato 2.2 de archivo de malla, el que lee <code>gmshToFoam</code>.</p>
+<p>Un archivo de Gmsh paramétrico. Los seis parámetros de <code>DefineConstant</code> —ángulo, largos, altura y tamaño de celda— se cambian desde la terminal con <code>-setnumber</code>, sin editar el archivo, y también aparecen como campos en el panel <code>Rampa</code> si el archivo se abre en la interfaz de Gmsh (con <code>File ▸ Open</code>). El dominio se parte en tres bloques de cuatro lados (placa, rampa y meseta), cada uno con malla <code>Transfinite</code> de cuadriláteros de lado d, que se extruye una sola capa en z para hacer la malla 2D de OpenFOAM (figura 2). Los grupos físicos dan nombre a las fronteras; son los nombres que usan los archivos de <code>0/</code>. La última línea pide el formato 2.2 de archivo de malla, el que lee <code>gmshToFoam</code>.</p>
 <figure class="diagram">
   <img src="imagenes/t11-01_malla_esquinas.png" alt="Malla de 2 cm alrededor de las dos esquinas" loading="lazy">
   <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">La malla gruesa (d = 0.02 m) alrededor de las dos esquinas.</b> Vista en ParaView, de x = 0.7 a 2.35 m. Tres bloques de cuadriláteros: en el de la rampa, las columnas siguen siendo verticales y las filas se inclinan poco a poco, desde los 5° de la pared hasta la horizontal del techo. Las celdas son casi cuadradas en todo el dominio.</figcaption>
@@ -361,12 +365,13 @@ ExecutionTime = 0.511 s  ClockTime = 0 s</code></pre>
 // y un abanico de Prandtl-Meyer en la segunda. Unidades: metros.
 // Se puede cambiar cualquier parámetro desde la terminal: gmsh rampa.geo -setnumber d 0.01 -3
 
-DefineConstant[ th = 5 ];     // ángulo de la rampa (grados)
-DefineConstant[ L1 = 1 ];     // placa plana antes de la rampa
-DefineConstant[ Lr = 1 ];     // largo de la rampa, medido sobre su superficie
-DefineConstant[ L3 = 1 ];     // meseta después de la segunda esquina
-DefineConstant[ H = 1 ];      // altura del dominio sobre la placa
-DefineConstant[ d = 0.01 ];   // tamaño de celda (cuadrada lejos de la rampa)
+// Name muestra cada parámetro en el panel «Rampa» de la interfaz de Gmsh; el número inicial sólo fija el orden.
+DefineConstant[ th = {5,    Name &quot;Rampa/1Ángulo θ (grados)&quot;} ];   // ángulo de la rampa
+DefineConstant[ L1 = {1,    Name &quot;Rampa/2Placa L1 (m)&quot;} ];        // placa plana antes de la rampa
+DefineConstant[ Lr = {1,    Name &quot;Rampa/3Rampa Lr (m)&quot;} ];        // largo de la rampa, sobre su superficie
+DefineConstant[ L3 = {1,    Name &quot;Rampa/4Meseta L3 (m)&quot;} ];       // meseta después de la segunda esquina
+DefineConstant[ H  = {1,    Name &quot;Rampa/5Altura H (m)&quot;} ];        // altura del dominio sobre la placa
+DefineConstant[ d  = {0.01, Name &quot;Rampa/6Celda d (m)&quot;} ];         // tamaño de celda (cuadrada lejos de la rampa)
 e = 0.01;                     // espesor de la extrusión (una sola celda)
 
 t = th*Pi/180;
