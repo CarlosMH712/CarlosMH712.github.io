@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="OpenFOAM tutorial: post-processing the turbulent pipe flow of Tutorial 1.2 with ParaView 5.11: the longitudinal slice, the developing velocity profile, pressure, turbulent viscosity, isobars, velocity vectors, streamlines, y+ and wall shear with Integrate Variables, and the wall-law profile u+ against y+ on a log axis." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Post-Processing the Turbulent Pipe in ParaView | OpenFOAM Incompressible-Flow Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">OpenFOAM · Incompressible flow · Tutorial 1.3</p><h1>Post-Processing the Turbulent Pipe in ParaView</h1><p class="hero-copy">The solution of Tutorial 1.2, read with ParaView: the developing velocity profile, pressure, turbulent viscosity, isobars, vectors and streamlines, y⁺ and the mean wall shear with Integrate Variables, and the boundary-layer profile in wall units against the law of the wall.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">OpenFOAM · Flujo incompresible · Tutorial 1.3</p><h1>El posprocesamiento de la tubería turbulenta con ParaView</h1><p class="hero-copy">La solución del tutorial 1.2 leída con ParaView: el perfil de velocidad que se desarrolla, la presión, la viscosidad turbulenta, las isobaras, los vectores y las líneas de corriente, y⁺ y el esfuerzo medio en la pared con Integrate Variables, y el perfil de la capa límite en variables de pared contra la ley de la pared.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">OpenFOAM · Inkompressible Strömung · Tutorial 1.3</p><h1>Die Nachbearbeitung des turbulenten Rohrs in ParaView</h1><p class="hero-copy">Die Lösung aus Tutorial 1.2, in ParaView gelesen: das sich entwickelnde Geschwindigkeitsprofil, Druck, turbulente Viskosität, Isobaren, Vektoren und Stromlinien, y⁺ und die mittlere Wandschubspannung mit Integrate Variables sowie das Grenzschichtprofil in Wandeinheiten gegen das Wandgesetz.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 50 min</span><span data-language="es" hidden>Lectura estimada: 50 min</span><span data-language="de" hidden>Lesedauer: ca. 50 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on ParaView 5.11.2 (blueCFD-Core 2024) with the Tutorial 1.2 results</span><span data-language="es" hidden>Verificado en ParaView 5.11.2 (blueCFD-Core 2024) con los resultados del tutorial 1.2</span><span data-language="de" hidden>Geprüft mit ParaView 5.11.2 (blueCFD-Core 2024) und den Ergebnissen aus Tutorial 1.2</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="tuberia-turbulenta.html?v=13">← <span>1.2</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/IvbMK9qB3mE" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Watch the video</span><span data-language="es" hidden>Ver el vídeo</span><span data-language="de" hidden>Video ansehen</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#problem">The problem</a><a href="#theory">Theory</a><a href="#recipe">Recipe</a><a href="#case">The pipeline</a><a href="#results">Results</a><a href="#validation">Validation</a><a href="#errors">Common errors</a><a href="#practice">Suggested exercise</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#problem-es">El problema</a><a href="#theory-es">Teoría</a><a href="#recipe-es">Receta</a><a href="#case-es">El árbol de filtros</a><a href="#results-es">Resultados</a><a href="#validation-es">Validación</a><a href="#errors-es">Errores frecuentes</a><a href="#practice-es">Práctica sugerida</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#problem-de">Das Problem</a><a href="#theory-de">Theorie</a><a href="#recipe-de">Ablauf</a><a href="#case-de">Die Filterkette</a><a href="#results-de">Ergebnisse</a><a href="#validation-de">Validierung</a><a href="#errors-de">Häufige Fehler</a><a href="#practice-de">Übungsvorschlag</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Open the Tutorial 1.2 solution in ParaView and read it filter by filter: a longitudinal slice, the developing velocity profile, pressure, turbulent viscosity, isobars, vectors and streamlines, y⁺ and the mean wall shear with Integrate Variables, the axis and radial profiles with Plot Over Line, and the profile in wall units on a log axis.</p>
+    </section>
+    <section id="problem">
+      <p class="section-label">The problem</p>
+      <h2>What is post-processed</h2>
+<p>The solution is the pipe of Tutorial 1.2 (Re = 50 000, k-ω SST, 149 940 cells, 36.6 diameters long, converged in 307 iterations). Nothing is recomputed.</p>
+    </section>
+    <section id="theory">
+      <p class="section-label">The theory</p>
+      <h2>What each picture says</h2>
+<p>Pipe flow development, wall units y⁺ = y u<sub>τ</sub>/ν and u⁺ = u/u<sub>τ</sub>, the law of the wall, the mean wall shear and the friction factor f = 8 τ<sub>w</sub>/(ρU²), the turbulent-viscosity ratio ν<sub>t</sub>/ν and streamlines in a pipe.</p>
+    </section>
+    <section id="recipe">
+      <p class="section-label">Step by step</p>
+      <h2>From the slice to the law of the wall</h2>
+<p>paraFoam; Slice; the camera written by hand; colour ranges; Calculator for ν<sub>t</sub>/ν; Contour (isobars); Clip and Glyph; Stream Tracer; a cross-section slice; a second reader with only the wall; Integrate Variables; Save Screenshot; Plot Over Line on the axis and across the radius with two Calculators; log axis; Save State.</p>
+    </section>
+    <section id="case">
+      <p class="section-label">The pipeline</p>
+      <h2>The filters, one by one</h2>
+<p>The pipeline: reader → Slice1 (with a Calculator, a Contour, a Clip and a Glyph, each removed once its picture is made), StreamTracer1, Slice2 and PlotOverLine1 with two Calculators; and a second reader on the patch walls with Integrate Variables.</p>
+    </section>
+    <section id="results">
+      <p class="section-label">Results</p>
+      <h2>What the pictures show</h2>
+<p>The profile develops over about 17 diameters on the axis; the pressure falls almost linearly; ν<sub>t</sub> reaches 147 ν; y⁺ stays between 0.95 and 1.77; the mean wall shear gives f = 0.0200.</p>
+    </section>
+    <section id="validation">
+      <p class="section-label">Worked example</p>
+      <h2>Three checks on the pictures</h2>
+<p>Three checks: the mean f from Integrate Variables against the pressure-drop f of Tutorial 1.2 (the entrance explains the difference); the profile at x = 31 D against the law of the wall; and y⁺ against the requested value.</p>
+    </section>
+    <section id="errors">
+      <p class="section-label">Common errors</p>
+      <h2>What goes wrong in ParaView</h2>
+<p>The pipe is a thin strip (36:1); the pipeline shows only nine rows; a filter shows nothing (hidden or not applied); Integrate Variables without the division by the area; the profile line starts at the axis, not at the wall; the log axis with y⁺ = 0.</p>
+    </section>
+    <section id="practice">
+      <p class="section-label">Suggested exercise</p>
+      <h2>The laminar pipe, read the same way</h2>
+<p>Open the laminar case of Tutorial 1.1 and repeat the slice, the axis profile and Integrate Variables; compare f with 64/Re and the centre velocity with 2U.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>ParaView Guide; Pope (2000); Schlichting and Gersten; Petukhov (1970); Tutorials 1.1 and 1.2 of this series.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="tuberia-turbulenta.html?v=13"><span>Previous tutorial</span>← 1.2 · The turbulent pipe</a>
+      <a class="next-link" href="perfil-naca0012.html?v=13"><span>Next tutorial</span>2.1 · The NACA 0012 at 10° →</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">El <a href="tuberia-turbulenta.html">tutorial 1.2</a> terminó con un número: el factor de fricción de la tubería turbulenta. Pero el caso guardó mucho más: el campo de velocidad, el de presión, la viscosidad turbulenta, el esfuerzo en la pared. Este tutorial los lee con ParaView, como se hace en un informe: un corte por el eje del tubo, el perfil de velocidad que se desarrolla desde la entrada, la presión que baja a lo largo del tubo, la viscosidad turbulenta, las isobaras, los vectores y las líneas de corriente, un corte transversal, el \(y^+\) y el esfuerzo medio en la pared, y por último el perfil de la capa límite en variables de pared contra la ley de la pared. No se calcula nada nuevo.</p>
+<p>Es el mismo recorrido del <a href="paraview-naca0012.html">tutorial 2.3</a> (el posprocesamiento del perfil alar), pero con un flujo interno, que cambia lo que hay que mirar: aquí el flujo es casi paralelo a la pared, el tubo es 36 veces más largo que ancho, y lo que importa es la capa límite y la fricción.</p>
+<ul>
+  <li>Abrir el caso en ParaView y mirar un tubo 36 veces más largo que ancho: la cámara escrita a mano y los rangos de color que dejan ver el desarrollo del perfil.</li>
+  <li>Leer la presión, la viscosidad turbulenta y las isobaras sobre un corte por el eje, y los vectores y las líneas de corriente en las primeras diámetros.</li>
+  <li>Sacar números de la pared: \(y^+\) sobre la superficie, y el esfuerzo cortante medio con <em>Integrate Variables</em>, de donde sale el factor de fricción.</li>
+  <li>Graficar la velocidad sobre el eje y el perfil radial, y pasar éste a variables de pared (\(y^+\), \(u^+\)) para compararlo con la ley de la pared en un eje logarítmico.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> blueCFD-Core 2024 con su ParaView 5.11.2 y el caso del <a href="tuberia-turbulenta.html">tutorial 1.2</a> ya calculado: la carpeta <code>tuberia-turbulenta</code> de la carpeta de corridas, con el tiempo <code>307</code> escrito (unos 5 minutos de cálculo con la receta de ese tutorial; el caso se descarga en <a href="archivos/tuberia-turbulenta.zip"><code>tuberia-turbulenta.zip</code></a>). La guía no usa ningún guion: todo se hace con el ratón y con el panel de propiedades, como en el vídeo.</p>
+</div>
+
+    </section>
+    <section id="problem-es">
+      <p class="section-label">El problema</p>
+      <h2>Qué se va a posprocesar</h2>
+
+<p>La solución es la del <a href="tuberia-turbulenta.html">tutorial 1.2</a>: Re = 50 000, modelo k-ω SST, \(y^+\) ≈ 1 y una malla de 149 940 celdas (tabla 1). El tubo mide 36.6 diámetros de largo y entra con perfil uniforme, de modo que el perfil se desarrolla dentro del dominio, y esa es la primera cosa que hay que ver. Con un tubo de esta longitud, lo primero que enseña ParaView es una tira delgada (figura 1): hay que acercarse por tramos.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Dato</th><th>Valor</th></tr></thead>
+    <tbody>
+      <tr><td>Caso</td><td><code>tuberia-turbulenta</code>, el del tutorial 1.2 ya calculado (carpeta <code>307</code> escrita por <code>foamRun</code>)</td></tr>
+      <tr><td>Flujo</td><td>Re = 50 000, \(U\) = 1 m/s, \(D\) = 1 m, \(\nu\) = 2·10<sup>−5</sup> m²/s; k-ω SST, \(y^+\) ≈ 1</td></tr>
+      <tr><td>Geometría</td><td>tubo recto de 36.6 D de largo, con el eje en x; entrada con perfil uniforme</td></tr>
+      <tr><td>Malla</td><td>149 940 celdas  en O de 9 bloques</td></tr>
+      <tr><td>Campos</td><td><code>p</code> (cinemática), <code>U</code>, <code>k</code>, <code>omega</code>, <code>nut</code>, <code>yPlus</code> y <code>wallShearStress</code></td></tr>
+      <tr><td>Tiempo</td><td>308 en el selector de ParaView (el último que escribió el solver, la iteración 307)</td></tr>
+      <tr><td>Programa</td><td>ParaView 5.11.2, el de blueCFD-Core 2024; se abre con <code>paraFoam</code></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">El caso que se posprocesa.</b> Es el caso del tutorial 1.2, sin cambios; los datos son los que aparecen en las imágenes de esta guía.</caption>
+  </table>
+</div>
+<figure class="diagram">
+  <img src="imagenes/t13-01_tubo.png" alt="ParaView: el tubo completo de 36.6 diámetros, una tira delgada" loading="lazy">
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">El tubo, completo.</b> Con <code>Adjust Camera</code>, el tubo ocupa todo el ancho de la vista y mide unos 40 píxeles de alto. La superficie azul es la pared, donde la velocidad es cero.</figcaption>
+</figure>
+<p>El orden de la receta es el de las preguntas de quien posprocesa. Primero, <em>¿cómo se ve el flujo?</em> (el corte por el eje y la entrada). Luego, <em>¿qué hay en cada campo?</em> (presión, viscosidad turbulenta y energía cinética turbulenta, y las isobaras). Después, <em>¿qué dirección lleva?</em> (vectores, líneas de corriente y el corte transversal). Y al final, <em>¿qué números hay dentro?</em> (la pared y las gráficas). La tabla 2 es el índice de la receta, y la 3, los rangos de color que se eligen.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Filtro</th><th>Entrada</th><th>Qué hace</th><th>Lo que se cambia</th></tr></thead>
+    <tbody>
+      <tr><td><code>Slice1</code></td><td>el lector</td><td>corte longitudinal, por el eje</td><td><code>Z Normal</code>; sin <code>Show Plane</code></td></tr>
+      <tr><td><code>Calculator1</code></td><td><code>Slice1</code></td><td>ν<sub>t</sub>/ν</td><td>nombre <code>nutnu</code>; función <code>nut/0.00002</code></td></tr>
+      <tr><td><code>Contour1</code></td><td><code>Slice1</code></td><td>isobaras</td><td><code>p</code>, 20 valores entre 0.02 y 0.4 (Add Range)</td></tr>
+      <tr><td><code>Clip1</code>, <code>Glyph1</code></td><td><code>Slice1</code></td><td>vectores de velocidad en las primeras 6 D</td><td>caja de 6 × 1 × 0.4; sin matriz de escala, factor 0.2, 300 puntos con muestreo de superficie</td></tr>
+      <tr><td><code>StreamTracer1</code></td><td>el lector</td><td>líneas de corriente desde la entrada</td><td>línea de (0.05, −0.45, 0) a (0.05, 0.45, 0), 10 semillas</td></tr>
+      <tr><td><code>Slice2</code></td><td>el lector</td><td>corte transversal en x = 31 D</td><td><code>X Normal</code>; origen x = 31</td></tr>
+      <tr><td>segundo lector, <code>IntegrateVariables1</code></td><td>el archivo <code>.foam</code></td><td>y⁺ en la pared; área y esfuerzo medio</td><td>sólo <code>patch/walls</code>; <code>Divide Cell Data By Volume</code></td></tr>
+      <tr><td><code>PlotOverLine1</code></td><td>el lector</td><td>perfil sobre el eje y perfil radial</td><td>primero de (0.05, 0, 0) a (36.6, 0, 0); luego de (31, 0, 0) a (31, 0.4999, 0)</td></tr>
+      <tr><td><code>Calculator1</code>, <code>Calculator2</code></td><td><code>PlotOverLine1</code></td><td>variables de pared</td><td><code>yplus</code> y <code>uplus</code></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Los filtros del tutorial, en el orden de la receta.</b> Los valores son los que se escriben en el panel <code>Properties</code> de ParaView. Cada filtro, salvo los últimos, se borra al terminar su imagen (Delete): el Pipeline Browser sólo enseña nueve renglones.</caption>
+  </table>
+</div>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Campo</th><th>Rango por omisión</th><th>Rango que se usa</th><th>Por qué</th></tr></thead>
+    <tbody>
+      <tr><td>Magnitud de <code>U</code> (m/s)</td><td>0 a 1.2</td><td>0.8 a 1.2</td><td>la capa límite sólo ocupa el 5 % del radio; con la escala completa casi todo el corte es del mismo color</td></tr>
+      <tr><td><code>p</code> (m²/s²)</td><td>0 a 0.41</td><td>el de omisión</td><td>baja de 0.41 en la entrada a 0 en la salida: la escala completa es la buena</td></tr>
+      <tr><td>ν<sub>t</sub>/ν</td><td>0 a 147</td><td>el de omisión</td><td>la viscosidad turbulenta llega a 147 veces la molecular</td></tr>
+      <tr><td><code>k</code> (m²/s²)</td><td>2·10<sup>−6</sup> a 7.2·10<sup>−3</sup></td><td>el de omisión</td><td>el máximo está cerca de la pared, a r/R ≈ 0.9</td></tr>
+      <tr><td><code>yPlus</code></td><td>0.95 a 1.77</td><td>el de omisión</td><td>comprueba que la primera celda quedó en y⁺ ≈ 1</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">Los rangos de color que se usan.</b> ParaView toma por omisión el mínimo y el máximo del campo; para ver el desarrollo del perfil hay que acotarlo.</caption>
+  </table>
+</div>
+
+    </section>
+    <section id="theory-es">
+      <p class="section-label">La teoría</p>
+      <h2>Lo que dice cada imagen</h2>
+
+<h3>El desarrollo del flujo</h3>
+<p>A la entrada, la velocidad es uniforme. La pared frena el fluido que la toca y esa capa lenta, la capa límite, crece hacia el eje hasta llenar el tubo. Como el caudal es constante, el fluido del centro se acelera: en el eje, la velocidad sube de \(U\) = 1 m/s a más de 1.17 m/s. La distancia que tarda en desarrollarse el perfil es la longitud de entrada, que el <a href="tuberia-turbulenta.html">tutorial 1.2</a> ya estimó con correlaciones; aquí se ve en la imagen y se mide sobre el eje.</p>
+<h3>La presión y la fricción</h3>
+<p>En el flujo desarrollado la presión cae linealmente a lo largo del tubo, y el esfuerzo medio en la pared se obtiene de un balance de fuerzas, sin conocer el perfil: \(\tau_w \pi D L = -\,\Delta p\,\pi D^2/4\) (con \(p\) cinemática, \(\rho = 1\)). Si se define el factor de fricción de Darcy con la velocidad media \(U\):</p>
+<div class="equation-card">\[ \tau_w = \frac{D}{4}\left(-\frac{\mathrm{d}p}{\mathrm{d}x}\right),\qquad f = \frac{8\,\tau_w}{U^2} \tag{1} \]</div>
+<p>donde \(\tau_w\) es el esfuerzo cortante cinemático que OpenFOAM escribe en <code>wallShearStress</code>. La ecuación (1) da el mismo \(f\) por dos caminos: del gradiente de presión (como en el tutorial 1.2) o del esfuerzo en la pared, que es lo que sale de <em>Integrate Variables</em>. Los dos coinciden en el flujo desarrollado, pero no en un tubo con entrada: cerca de la entrada la capa límite es delgada y el esfuerzo es mucho mayor, así que el promedio sobre toda la pared queda por encima del valor desarrollado.</p>
+<h3>Variables de pared y la ley de la pared</h3>
+<p>Cerca de la pared, la velocidad sólo depende de la distancia a ella, de la viscosidad y del esfuerzo. Con la velocidad de fricción \(u_\tau = \sqrt{\tau_w}\) se hacen sin dimensiones la distancia y la velocidad:</p>
+<div class="equation-card">\[ y^+ = \frac{y\,u_\tau}{\nu},\qquad u^+ = \frac{u}{u_\tau},\qquad u^+ = y^+\ (y^+<5),\qquad u^+ = \frac{1}{\kappa}\ln y^+ + B\ (y^+>30) \tag{2} \]</div>
+<p>con \(\kappa\) = 0.41 y \(B\) = 5.2. Entre \(y^+\) = 5 y 30 está la zona de transición; en un eje logarítmico, la ley logarítmica es una recta. El perfil de un tubo real se aparta de ella hacia el eje (la «estela» del perfil de velocidad). Para este caso \(u_\tau = \sqrt{f/8}\,U\) = 0.04893 m/s con el \(f\) del <a href="tuberia-turbulenta.html">tutorial 1.2</a>.</p>
+<h3>La viscosidad turbulenta</h3>
+<p>El modelo no resuelve las fluctuaciones: las representa con una viscosidad adicional, \(\nu_t\). La razón \(\nu_t/\nu\) dice cuánto más fácil se mezcla el fluido que por difusión molecular: cerca de la pared, \(\nu_t\) → 0 (la turbulencia se amortigua) y en el centro es de 147 veces la viscosidad molecular.</p>
+<h3>Líneas de corriente en un tubo</h3>
+<p>En el flujo desarrollado, las líneas de corriente son rectas y paralelas al eje: no hay movimiento radial medio. Por eso un <em>Stream Tracer</em> aquí es poco espectacular, y sirve de comprobación: si las líneas se curvaran en la zona desarrollada, habría un error en las condiciones de frontera.</p>
+
+    </section>
+    <section id="recipe-es">
+      <p class="section-label">Paso a paso</p>
+      <h2>Del corte a la ley de la pared</h2>
+
+<p>En el vídeo, la terminal de blueCFD-Core está a la izquierda y el Explorador a la derecha con la carpeta del caso; en la terminal sólo se escribe <code>paraFoam</code>. Todo lo demás se hace en ParaView, maximizado. Los filtros se crean con su botón de la barra de herramientas o con el buscador rápido (<code>Ctrl + Espacio</code>, el nombre y Entrar).</p>
+<h3>1. Abrir el caso y acercarse al tubo</h3>
+<ol>
+  <li>En la terminal: <code>cd $FOAM_RUN/tuberia-turbulenta</code> y <code>paraFoam</code>. <code>Apply</code> y <code>Last Frame</code> (el tiempo 308 del selector). Color por <code>U</code> y vista <code>-Z</code> (x hacia la derecha).</li>
+  <li>La cámara se escribe con <code>Adjust Camera</code> (el botón de la barra de la vista; se escriben la posición, el punto focal y el vertical (0, 1, 0)): para el tubo entero, posición (18.3, 0, 37) y punto focal (18.3, 0, 0); para las primeras 12 D, posición (6, 0, 11.7) y punto focal (6, 0, 0). Con la tira entera el tubo mide unos 40 píxeles de alto, y con 12 D, unos 120.</li>
+</ol>
+<h3>2. El corte longitudinal y el desarrollo del perfil</h3>
+<ol>
+  <li>Con el lector seleccionado, <code>Slice</code>, <code>Z Normal</code>, sin <code>Show Plane</code>, <code>Apply</code>: un corte por el eje, en el plano x-y. Color por <code>U</code> (figura 2).</li>
+  <li>Con la cámara de las primeras 12 D, el rango de color de 0.8 a 1.2 (<code>Rescale to Custom Data Range</code>, figura 3): se ve cómo la capa lenta de la pared crece y el centro se acelera (figura 4).</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t13-03_slice_u.png" alt="ParaView: el corte por el eje coloreado por la velocidad, con la escala completa" loading="lazy">
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">El corte por el eje.</b> <code>Slice</code> con <code>Z Normal</code>, color por <code>U</code> y el rango por omisión (0 a 1.2): la capa lenta de la pared casi no se ve.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t13-04_rango.png" alt="ParaView: el cuadro Set Range con el rango de 0.8 a 1.2" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">El rango del mapa de color.</b> <code>Rescale to Custom Data Range</code>: de 0.8 a 1.2.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t13-05_entrada.png" alt="ParaView: las primeras 12 diámetros, con la capa límite creciendo desde la pared" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">La entrada.</b> Con el rango de 0.8 a 1.2 y la cámara de las primeras 12 D se ve cómo la capa lenta de la pared crece y el centro se acelera.</figcaption>
+</figure>
+<h3>3. La presión</h3>
+<ol>
+  <li>Color por <code>p</code> y la cámara del tubo entero (figura 5): del rojo de la entrada (0.41 m²/s²) al azul de la salida (0), casi linealmente.</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t13-06_presion.png" alt="ParaView: la presión a lo largo del tubo, del rojo en la entrada al azul en la salida" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">La presión.</b> De 0.41 m²/s² en la entrada a 0 en la salida, casi linealmente.</figcaption>
+</figure>
+<h3>4. La viscosidad turbulenta</h3>
+<ol>
+  <li>Con <code>Slice1</code>, <code>Calculator</code>: nombre <code>nutnu</code>, función <code>nut/0.00002</code> (la viscosidad molecular del caso; figura 6), <code>Apply</code>. Color por <code>nutnu</code> (figura 7) y por <code>k</code> (figura 8).</li>
+  <li>El filtro se borra con <code>Delete</code> al terminar la imagen: el Pipeline Browser sólo enseña nueve renglones, y los filtros que ya no hacen falta estorban. El que queda seleccionado después de borrar es el padre.</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t13-07_calc_nut.png" alt="ParaView: el filtro Calculator con la función nut/0.00002" loading="lazy">
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">El Calculator de ν<sub>t</sub>/ν.</b> El nombre <code>nutnu</code> y la función <code>nut/0.00002</code> (la viscosidad molecular del caso).</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t13-08_nut.png" alt="ParaView: la razón de viscosidades turbulenta y molecular sobre el corte" loading="lazy">
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">ν<sub>t</sub>/ν.</b> Cero en la pared y hasta 147 en el centro del tubo, una vez desarrollada la capa límite.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t13-09_k.png" alt="ParaView: la energía cinética turbulenta k sobre el corte, con el máximo cerca de la pared" loading="lazy">
+  <figcaption><b class="fig-num">Figura 8.</b> <b class="fig-title">La energía cinética turbulenta.</b> El máximo, cerca de la pared (a r/R ≈ 0.94).</figcaption>
+</figure>
+<h3>5. Isobaras</h3>
+<ol>
+  <li>Con <code>Slice1</code> coloreado por <code>p</code>, <code>Contour</code> sobre <code>p</code>: se borra el valor que trae, <code>Add a range of values</code> de 0.02 a 0.4 con 20 muestras (figura 9), <code>Apply</code>, y el contorno en un solo color (figura 10). En la zona desarrollada son rectas verticales, a la misma distancia: la presión baja linealmente. Cerca de la entrada se curvan.</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t13-10_contour_serie.png" alt="ParaView: el cuadro Generate Number Series con 20 muestras de 0.02 a 0.4" loading="lazy">
+  <figcaption><b class="fig-num">Figura 9.</b> <b class="fig-title">Los valores de las isobaras.</b> <code>Add a range of values</code>: 20 valores entre 0.02 y 0.4.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t13-11_isobaras.png" alt="ParaView: las isobaras, rectas verticales equiespaciadas, sobre el campo de presión" loading="lazy">
+  <figcaption><b class="fig-num">Figura 10.</b> <b class="fig-title">Las isobaras.</b> Rectas verticales a igual distancia en el flujo desarrollado: la presión baja linealmente.</figcaption>
+</figure>
+<h3>6. Vectores de velocidad</h3>
+<ol>
+  <li>Con <code>Slice1</code>, <code>Clip</code> con una caja (<code>Box</code>) en posición (0, −0.5, −0.2) y longitud (6, 1, 0.4): se queda con las primeras 6 D (figura 11). Con <code>Clip1</code>, <code>Glyph</code>: sin matriz de escala, factor 0.2 y 300 puntos con muestreo de superficie; coloreado por <code>U</code>, sobre la silueta del corte (figura 12).</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t13-12_clip.png" alt="ParaView: el filtro Clip con una caja de 6 × 1 × 0.4 alrededor de las primeras 6 D" loading="lazy">
+  <figcaption><b class="fig-num">Figura 11.</b> <b class="fig-title">La caja del Clip.</b> Posición (0, −0.5, −0.2) y longitud (6, 1, 0.4): las primeras 6 D del corte.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t13-13_glyph.png" alt="ParaView: las flechas de velocidad sobre la silueta del corte, paralelas al eje" loading="lazy">
+  <figcaption><b class="fig-num">Figura 12.</b> <b class="fig-title">Los vectores de velocidad.</b> Sin matriz de escala, factor 0.2 y 300 puntos: flechas paralelas al eje en todo el tramo.</figcaption>
+</figure>
+<h3>7. Líneas de corriente</h3>
+<ol>
+  <li>Con el lector, <code>Stream Tracer</code>: <em>Seed Type</em> <code>Line</code> de (0.05, −0.45, 0) a (0.05, 0.45, 0), <em>Resolution</em> 10 (figura 13), <code>Apply</code> y color por <code>U</code> (figura 14).</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t13-14_stream.png" alt="ParaView: el panel del Stream Tracer con la línea de semillas en la entrada" loading="lazy">
+  <figcaption><b class="fig-num">Figura 13.</b> <b class="fig-title">La línea de semillas.</b> De (0.05, −0.45, 0) a (0.05, 0.45, 0), con 10 semillas, justo después de la entrada.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t13-15_lineas.png" alt="ParaView: las líneas de corriente desde la entrada, rectas y paralelas al eje" loading="lazy">
+  <figcaption><b class="fig-num">Figura 14.</b> <b class="fig-title">Las líneas de corriente.</b> Rectas y paralelas al eje; el color (<code>U</code>) cambia a lo largo de cada línea por la aceleración del centro.</figcaption>
+</figure>
+<h3>8. El corte transversal</h3>
+<ol>
+  <li>Con el lector, <code>Slice</code> con <code>X Normal</code> y el origen en x = 31, <code>Apply</code>, color por <code>U</code> y la cámara desde la salida: posición (36, 0, 0), punto focal (31, 0, 0) (figura 15). El perfil es axisimétrico: el rojo del centro rodea al azul de la pared.</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t13-16_transversal.png" alt="ParaView: el corte transversal en x = 31 D, con el centro rojo y la pared azul" loading="lazy">
+  <figcaption><b class="fig-num">Figura 15.</b> <b class="fig-title">El corte transversal.</b> Visto desde la salida: el perfil es axisimétrico, con la velocidad máxima en el centro.</figcaption>
+</figure>
+<h3>9. La pared: \(y^+\) y el esfuerzo medio</h3>
+<ol>
+  <li><code>File</code> ▸ <code>Open</code> (<code>Ctrl + O</code>) y el mismo <code>tuberia-turbulenta.foam</code>: un segundo lector. En <em>Mesh Regions</em>, sin <code>internalMesh</code> y con <code>patch/walls</code> (figura 16), <code>Apply</code>. Color por <code>yPlus</code> (figura 17).</li>
+  <li><code>Integrate Variables</code> (<code>Ctrl + Espacio</code>) con <code>Divide Cell Data By Volume</code> marcado, <code>Apply</code>. ParaView abre una hoja de cálculo; con <em>Attribute</em> en <code>Cell Data</code> (figuras 18 y 19, con la barra de desplazamiento) se leen el área de la pared (115.198 m², que es \(\pi D L\)) y el esfuerzo medio, <code>wallShearStress</code> en x = 0.002494 m²/s².</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t13-17_lector_pared.png" alt="ParaView: un segundo lector con sólo patch/walls marcado" loading="lazy">
+  <figcaption><b class="fig-num">Figura 16.</b> <b class="fig-title">El segundo lector.</b> En <em>Mesh Regions</em>: sin <code>internalMesh</code> y con <code>patch/walls</code>.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t13-18_yplus.png" alt="ParaView: y+ sobre la pared del tubo" loading="lazy">
+  <figcaption><b class="fig-num">Figura 17.</b> <b class="fig-title">y⁺ sobre la pared.</b> De 0.95 a 1.77; el máximo, en la entrada.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t13-19_integrate.png" alt="ParaView: la hoja de cálculo con el área de la pared y el esfuerzo cortante medio" loading="lazy">
+  <figcaption><b class="fig-num">Figura 18.</b> <b class="fig-title">Integrate Variables.</b> Con <em>Attribute</em> en <code>Cell Data</code>: <code>Area</code> y <code>wallShearStress</code> promedio.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t13-19b_tau.png" alt="ParaView: la hoja de cálculo desplazada a la derecha, con wallShearStress y yPlus integrados" loading="lazy">
+  <figcaption><b class="fig-num">Figura 19.</b> <b class="fig-title">El esfuerzo en la pared.</b> Las últimas columnas de la misma fila: <code>wallShearStress</code> (con el signo de la dirección del flujo: negativo en x) y su magnitud, 0.002494 m²/s².</figcaption>
+</figure>
+<h3>10. Guardar una imagen</h3>
+<ol>
+  <li><code>File</code> ▸ <code>Save Screenshot…</code> (figura 20), <code>figura.png</code> en la carpeta del caso y <code>OK</code>.</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t13-20_guardar.png" alt="ParaView: el cuadro Save Screenshot" loading="lazy">
+  <figcaption><b class="fig-num">Figura 20.</b> <b class="fig-title">Guardar la imagen.</b> <code>File</code> ▸ <code>Save Screenshot…</code>.</figcaption>
+</figure>
+<h3>11. La velocidad sobre el eje</h3>
+<ol>
+  <li>Con el lector, <code>Plot Over Line</code>: <em>Point1</em> = (0.05, 0, 0), <em>Point2</em> = (36.6, 0, 0), <em>Resolution</em> = 800 (figura 21), <code>Apply</code>. En el panel de series (se escribe «series» en el buscador) se apagan todas con la casilla del encabezado y se deja sólo <code>U_Magnitude</code> (figura 22).</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t13-21_pol_eje.png" alt="ParaView: el filtro Plot Over Line con la recta sobre el eje del tubo" loading="lazy">
+  <figcaption><b class="fig-num">Figura 21.</b> <b class="fig-title">La recta sobre el eje.</b> De (0.05, 0, 0) a (36.6, 0, 0), con 800 puntos.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t13-22_grafica_eje.png" alt="ParaView: la velocidad sobre el eje contra x, con un máximo hacia 24 D" loading="lazy">
+  <figcaption><b class="fig-num">Figura 22.</b> <b class="fig-title">La velocidad en el eje.</b> Sube de 1 a unos 1.18 m/s y llega al 99 % de su valor en x = 31 D hacia x = 16.6 D; después baja un poco.</figcaption>
+</figure>
+<h3>12. El perfil radial en variables de pared</h3>
+<ol>
+  <li>Se cambia la recta del mismo <code>Plot Over Line</code>: <em>Point1</em> = (31, 0, 0), <em>Point2</em> = (31, 0.4999, 0) (del eje a la pared), <code>Apply</code> (figura 23).</li>
+  <li>Dos <code>Calculator</code> encadenados, el segundo sobre el primero: <code>yplus</code> = <code>(0.5-coordsY)*0.04893/0.00002</code> (la distancia a la pared por \(u_\tau/\nu\)) y <code>uplus</code> = <code>mag(U)/0.04893</code> (figura 24); 0.04893 es \(u_\tau\) en m/s.</li>
+  <li>En la gráfica del último: el eje X es <code>yplus</code> (se quita <code>Use Index For XAxis</code> y se elige <code>yplus</code> en <code>X Array Name</code>), la serie, sólo <code>uplus</code>, y el eje de abajo en escala logarítmica (en las propiedades de la vista, <code>Bottom Axis Log Scale</code>; figura 25). La ley de la pared se compara con los números de la tabla 4.</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t13-23_radial.png" alt="ParaView: el perfil de velocidad radial en x = 31 D, de 1.18 m/s en el eje a 0 en la pared" loading="lazy">
+  <figcaption><b class="fig-num">Figura 23.</b> <b class="fig-title">El perfil radial.</b> Del eje (a la izquierda) a la pared: casi plano en el centro y con una caída brusca junto a la pared.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t13-24_calc_ley.png" alt="ParaView: el Calculator con la función mag(U)/0.04893" loading="lazy">
+  <figcaption><b class="fig-num">Figura 24.</b> <b class="fig-title">El Calculator de u⁺.</b> <code>uplus</code> = <code>mag(U)/0.04893</code>, sobre el Calculator que calculó <code>yplus</code>.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t13-25_ley.png" alt="ParaView: u+ contra y+ en eje logarítmico" loading="lazy">
+  <figcaption><b class="fig-num">Figura 25.</b> <b class="fig-title">La ley de la pared.</b> <code>uplus</code> contra <code>yplus</code>, con el eje de abajo en escala logarítmica: la zona logarítmica es casi una recta entre y⁺ = 30 y 300.</figcaption>
+</figure>
+<h3>13. Guardar el estado</h3>
+<ol>
+  <li><code>File</code> ▸ <code>Save State…</code>, <code>estado.pvsm</code> en la carpeta del caso (figura 26). Con <code>File</code> ▸ <code>Load State…</code> se recupera el árbol de filtros.</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t13-26_archivos.png" alt="El Explorador con figura.png y estado.pvsm en la carpeta del caso" loading="lazy">
+  <figcaption><b class="fig-num">Figura 26.</b> <b class="fig-title">Lo que se guardó.</b> <code>figura.png</code> y <code>estado.pvsm</code>, en la carpeta del caso, junto a <code>307</code>.</figcaption>
+</figure>
+
+    </section>
+    <section id="case-es">
+      <p class="section-label">El árbol de filtros</p>
+      <h2>Los filtros, uno por uno</h2>
+
+<p>El árbol de filtros queda al final con el lector, <code>Slice1</code>, <code>StreamTracer1</code>, <code>Slice2</code> y <code>PlotOverLine1</code> con sus dos <code>Calculator</code> (figura 27). Los demás se borraron al terminar su imagen (Calculator de la viscosidad turbulenta, Contour, Clip y Glyph, y el segundo lector con Integrate Variables).</p>
+<figure class="diagram">
+<svg viewBox="0 0 640 352" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="El árbol de filtros de ParaView: el lector con Slice1, StreamTracer1, Slice2 y PlotOverLine1, y dos Calculator encadenados" font-family="Inter, sans-serif" font-size="12">
+<path d="M210 40 H230 V40 H250" fill="none" stroke="var(--muted)" stroke-width="1.4"/>
+<path d="M210 40 H230 V96 H250" fill="none" stroke="var(--muted)" stroke-width="1.4"/>
+<path d="M210 40 H230 V152 H250" fill="none" stroke="var(--muted)" stroke-width="1.4"/>
+<path d="M210 40 H230 V208 H250" fill="none" stroke="var(--muted)" stroke-width="1.4"/>
+<path d="M330 228 V188" fill="none" stroke="var(--muted)" stroke-width="1.4"/>
+<path d="M510 228 V244" fill="none" stroke="var(--muted)" stroke-width="1.4"/>
+<rect x="20" y="20" width="190" height="40" rx="6" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.6"/>
+<text x="28" y="37" fill="var(--ink)" font-weight="600">tuberia-turbulenta.foam</text>
+<text x="28" y="52" fill="var(--muted)" font-size="11">internalMesh</text>
+<rect x="250" y="20" width="160" height="40" rx="6" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.6"/>
+<text x="258" y="37" fill="var(--ink)" font-weight="600">Slice1</text>
+<text x="258" y="52" fill="var(--muted)" font-size="11">Z Normal</text>
+<rect x="250" y="76" width="160" height="40" rx="6" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.6"/>
+<text x="258" y="93" fill="var(--ink)" font-weight="600">StreamTracer1</text>
+<text x="258" y="108" fill="var(--muted)" font-size="11">línea de semillas</text>
+<rect x="250" y="132" width="160" height="40" rx="6" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.6"/>
+<text x="258" y="149" fill="var(--ink)" font-weight="600">Slice2</text>
+<text x="258" y="164" fill="var(--muted)" font-size="11">X Normal, x = 31</text>
+<rect x="250" y="188" width="160" height="40" rx="6" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.6"/>
+<text x="258" y="205" fill="var(--ink)" font-weight="600">PlotOverLine1</text>
+<text x="258" y="220" fill="var(--muted)" font-size="11">eje y radio</text>
+<rect x="250" y="188" width="160" height="40" rx="6" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.6"/>
+<text x="258" y="205" fill="var(--ink)" font-weight="600">Calculator1</text>
+<text x="258" y="220" fill="var(--muted)" font-size="11">yplus</text>
+<rect x="430" y="244" width="160" height="40" rx="6" fill="var(--panel)" stroke="var(--blue)" stroke-width="1.6"/>
+<text x="438" y="261" fill="var(--ink)" font-weight="600">Calculator2</text>
+<text x="438" y="276" fill="var(--muted)" font-size="11">uplus</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 27.</b> <b class="fig-title">El árbol de filtros al terminar.</b> Cada cuadro es un filtro del <em>Pipeline Browser</em> y cada línea, la entrada que recibe. Los demás se borraron al terminar su imagen. En ParaView, los renglones de una cadena sin ramas se dibujan sin sangrar.</figcaption>
+</figure>
+<p>Dos cosas de ParaView ayudan a leer el árbol. <strong>El sangrado:</strong> un filtro con un solo hijo lo dibuja justo debajo, a la misma altura; el sangrado y el signo ⊟ sólo aparecen cuando de un mismo filtro cuelgan varios. <strong>El ojito:</strong> un filtro se ve en la vista sólo si su ojo está abierto; al crear un filtro, ParaView suele cerrar el de su entrada, pero no siempre (<code>Glyph</code> deja abierta su entrada), y en un tutorial que apila cinco imágenes hay que ir abriendo y cerrando ojos para que cada imagen enseñe sólo lo suyo. En la gráfica de la línea, el ojo es el de la vista de la gráfica, no el de la vista 3D: cada vista tiene sus propios ojitos.</p>
+
+    </section>
+    <section id="results-es">
+      <p class="section-label">Resultados</p>
+      <h2>Lo que muestran las imágenes</h2>
+
+<p>Con las imágenes de la receta se lee el flujo del 1.2 casi entero.</p>
+<ul>
+  <li><strong>El desarrollo (figuras 4 y 22).</strong> La capa límite crece desde la pared y la velocidad del eje sube de 1 a 1.18 m/s en x = 31 D. Llega al 99 % de ese valor hacia x = 16.6 D. En la gráfica del eje, la velocidad llega a un máximo hacia las 24 D y baja un poco hasta la salida: el perfil no está del todo desarrollado, como ya advertía el <a href="tuberia-turbulenta.html">tutorial 1.2</a>.</li>
+  <li><strong>La presión (figura 5 y 10).</strong> Cae de 0.41 a 0 m²/s²; en la zona desarrollada, a razón de 0.00959 m²/s² por diámetro. Las isobaras son rectas verticales equiespaciadas.</li>
+  <li><strong>La viscosidad turbulenta (figuras 7 y 8).</strong> \(\nu_t/\nu\) llega a 147 lejos de la pared y se anula en ella; \(k\) tiene su máximo cerca de la pared, a r/R ≈ 0.94.</li>
+  <li><strong>Los vectores y las líneas de corriente (figuras 12 y 14).</strong> Paralelos al eje en todo el tubo; las líneas sólo se separan un poco del centro hacia la pared en la entrada, donde el fluido del centro se acelera.</li>
+  <li><strong>La pared (figuras 17, 18 y 19).</strong> \(y^+\) de 0.95 a 1.77, con promedio 0.97: la primera celda quedó donde se pidió. El esfuerzo medio da \(f\) = 0.0200.</li>
+  <li><strong>El perfil en variables de pared (figura 25).</strong> Sigue \(u^+ = y^+\) cerca de la pared (en \(y^+\) = 5, \(u^+\) = 4.99), se acerca a la ley logarítmica entre 30 y 100, y se separa de ella hacia el eje.</li>
+</ul>
+
+    </section>
+    <section id="validation-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>Tres comprobaciones de las imágenes</h2>
+
+<div class="example">
+  <p><strong>Enunciado.</strong> Comprobar que lo que se ve es físico: (1) el factor de fricción que sale del esfuerzo medio en la pared contra el del gradiente de presión del tutorial 1.2; (2) el perfil radial en x = 31 D contra la ley de la pared; (3) \(y^+\) contra el valor pedido al mallar. <strong>Condiciones:</strong> el caso del tutorial 1.2, sin cambios, en el tiempo 308 de ParaView.</p>
+</div>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Comprobación</th><th>ParaView</th><th>Referencia</th><th>Diferencia</th></tr></thead>
+    <tbody>
+      <tr><td>Factor de fricción \(f = 8\bar\tau_w/U^2\), media de toda la pared</td><td>0.01995</td><td>0.01915 (del gradiente de presión, 1.2)</td><td>4.2 %</td></tr>
+      <tr><td>\(f\) local, de las caras entre 28 y 34 D</td><td>0.01935</td><td>0.01915 (1.2)</td><td>1.0 %</td></tr>
+      <tr><td>\(u^+\) en \(y^+\) = 30 (x = 31 D)</td><td>13.68</td><td>13.50 (ley logarítmica)</td><td>1.4 %</td></tr>
+      <tr><td>\(u^+\) en \(y^+\) = 100</td><td>17.61</td><td>16.43 (ley logarítmica)</td><td>7.2 %</td></tr>
+      <tr><td>\(y^+\) de la primera celda (promedio de la pared)</td><td>0.97</td><td>1 (el pedido al mallar)</td><td>3.0 %</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">Tres comprobaciones de lo que se ve.</b> Los valores de ParaView salen de las operaciones de la receta, hechas con pvpython; los de referencia, del tutorial 1.2 y de la ley de la pared con \(\kappa\) = 0.41 y \(B\) = 5.2. En x = 31 D el perfil todavía no está desarrollado del todo (el 1.2 lo dice).</caption>
+  </table>
+</div>
+<h3>1. El factor de fricción, por dos caminos</h3>
+<p>La ecuación (1) da \(f\) de dos maneras. Del esfuerzo medio en toda la pared (<em>Integrate Variables</em>) sale \(f\) = 0.01995; del gradiente de presión (tutorial 1.2), 0.01915. Están 4.2 % separados. La diferencia no es un error: el promedio incluye la entrada, donde la fricción es alta (tabla 5: \(f\) = 0.029 en las primeras 2 D, contra 0.019 en el tramo de 28 a 34 D). Con las caras del tramo desarrollado, \(f\) = 0.01935, a 1.0 % del valor del 1.2. La fricción baja a menos de 5 % sobre el valor desarrollado hacia x = 5 D.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>x (D)</th><th>0 a 2</th><th>2 a 6</th><th>6 a 12</th><th>12 a 20</th><th>28 a 34</th></tr></thead>
+    <tbody>
+      <tr><td>\(f\) local</td><td>0.0288</td><td>0.0208</td><td>0.0195</td><td>0.0191</td><td>0.0194</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 5.</b> <b class="fig-title">El factor de fricción local a lo largo del tubo.</b> Con las caras de la pared, entre las posiciones x dadas (\(f = 8\tau_w/U^2\), \(\tau_w\) cinemático): la fricción sube mucho en la entrada, donde la capa límite es delgada, y baja hasta el valor del flujo desarrollado.</caption>
+  </table>
+</div>
+<h3>2. La ley de la pared</h3>
+<p>La figura 25 pone \(u^+\) contra \(y^+\) en x = 31 D, con \(u_\tau\) = 0.04893 m/s. En \(y^+\) = 30 el perfil da \(u^+\) = 13.68, contra 13.50 de la ley logarítmica (1.4 %); en \(y^+\) = 100, 17.61 contra 16.43 (7.2 %). La coincidencia es buena donde la ley es válida, y se pierde hacia el eje, donde empieza la estela del perfil y la ley deja de ser una buena descripción. La pendiente del tramo de 30 a 300 en \(y^+\), ajustada con los datos, es \(1/\kappa\) = 3.06 (la ley usa 2.44): como el perfil no está del todo desarrollado, el tramo es algo más empinado.</p>
+<h3>3. y⁺</h3>
+<p>El promedio de \(y^+\) sobre la pared es 0.97, a 3 % del 1 pedido; el máximo, 1.77, está en la entrada, donde la fricción es mayor. La malla cumple lo que dijo el 1.2.</p>
+<div class="result-box">
+  <p><strong>Las imágenes son físicas.</strong> El esfuerzo en la pared da el mismo factor de fricción que el gradiente de presión una vez que se descuenta la entrada; el perfil sigue la ley de la pared donde ésta es válida, y la primera celda quedó en \(y^+\) ≈ 1. Una imagen sin esas comprobaciones es sólo una imagen.</p>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>En la tabla 5, \(f\) baja de 0.029 a 0.019 y vuelve a subir un poco en el último tramo (0.019). ¿Qué pasa cerca de la salida que lo explique? (Pista: la velocidad del eje baja en las últimas diámetros.)</li>
+  <li>Si el tubo fuera el doble de largo, ¿cambiaría el \(f\) de <em>Integrate Variables</em>? ¿Hacia dónde, y cuánto?</li>
+  <li>La ley logarítmica no es válida por debajo de \(y^+\) = 30. ¿Cuántas celdas del caso hay en esa zona, con la primera en \(y^+\) ≈ 1 y el crecimiento de 1.2?</li>
+</ol>
+
+    </section>
+    <section id="errors-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Qué sale mal en ParaView</h2>
+
+<h3>El tubo es una tira de 40 píxeles</h3>
+<p>Con 36 diámetros de largo, el <code>Reset Camera</code> deja el tubo muy delgado (figura 1). Se escribe la cámara con <code>Adjust Camera</code> para ver un tramo, y no se estira la geometría (con <code>Transform</code> el radio se vería mayor, pero los vectores y las gráficas dejarían de corresponder al tubo).</p>
+<h3>El rango de color por omisión no deja ver el desarrollo</h3>
+<p>El rango de 0 a 1.2 de la velocidad lo fija el cero de la pared; el 95 % del corte es casi del mismo color. Con <code>Edit Color Map</code> y <code>Rescale to Custom Data Range</code> (0.8 a 1.2) se ve el perfil (tabla 3).</p>
+<h3>Un filtro no muestra nada, o hay imágenes encimadas</h3>
+<p>Casi siempre es el ojito: el filtro nuevo se ve, pero algunos filtros (el <em>Glyph</em>) dejan abierta su entrada y quedan encimados. El cuadro del renglón se comprueba en el Pipeline Browser y, si algo estorba, se cierra su ojo. Otra causa: no se hizo clic en <code>Apply</code> (el botón sigue verde).</p>
+<h3>Integrate Variables da una cifra enorme</h3>
+<p>Sin <code>Divide Cell Data By Volume</code>, los campos de celda salen integrados: el esfuerzo cortante da \(\tau_w A\) = 0.287 en lugar de \(\tau_w\) = 0.00249. La hoja de cálculo muestra por omisión los datos de <em>punto</em>: hay que pasar a <code>Cell Data</code> para ver el área y el esfuerzo.</p>
+<h3>El perfil radial sale al revés, o con ceros</h3>
+<p>La recta del <code>Plot Over Line</code> del perfil radial va del eje (y = 0) a la pared (y = 0.4999). Si se invierten los extremos, \(y^+\) baja de izquierda a derecha en la gráfica. Si la recta llega a y = 0.5 o más allá, el último punto cae fuera del dominio y ParaView lo marca como no válido (<code>vtkValidPointMask</code> en cero): salen ceros que en eje logarítmico aparecen como un salto.</p>
+<h3>El eje logarítmico no muestra el primer punto</h3>
+<p>En el eje de la pared, \(y^+\) = 0 no existe en una escala logarítmica. La recta termina en y = 0.4999, a \(y^+\) = 0.24 de la pared, para que el logaritmo exista. Por eso la gráfica empieza donde la ley logarítmica ya no es válida.</p>
+
+    </section>
+    <section id="practice-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>La tubería laminar, leída igual</h2>
+
+<div class="example">
+  <p><strong>Enunciado.</strong> Repetir el corte longitudinal, la gráfica del eje y <em>Integrate Variables</em> con la tubería laminar del <a href="tuberia-laminar.html">tutorial 1.1</a> (Re = 500) y comparar: el factor de fricción con \(64/Re\), y la velocidad en el eje con \(2U\). <strong>Condiciones:</strong> los mismos filtros; la tubería laminar tiene otra longitud (la que calculó el 1.1) y no necesita \(y^+\) ni ley de la pared. Se puede abrir con <code>paraFoam</code> en la carpeta <code>tuberia-laminar</code> y cargar el estado <code>estado.pvsm</code> de este tutorial, cambiando sólo el archivo del lector.</p>
+</div>
+<h3>El procedimiento, en corto</h3>
+<ol>
+  <li>En la terminal, <code>cd $FOAM_RUN/tuberia-laminar</code> y <code>paraFoam</code>; <code>Apply</code> y <code>Last Frame</code>.</li>
+  <li><code>Slice</code> por el eje, la cámara del tubo y el color de <code>U</code>: el perfil parabólico se desarrolla más despacio que el turbulento: la longitud de entrada laminar, \(0.06\,Re\,D\), crece con \(Re\).</li>
+  <li><code>Plot Over Line</code> sobre el eje y <code>Integrate Variables</code> sobre la pared; llene la tabla.</li>
+</ol>
+<h3>Registro de resultados</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Caso</th><th>\(f\) de Integrate Variables</th><th>\(f\) de la teoría</th><th>\(u_\mathrm{eje}/U\) en x = 31 D</th><th>Longitud de entrada (D)</th></tr></thead>
+    <tbody>
+      <tr><td>Turbulenta (Re = 50 000)</td><td>0.01995</td><td>0.01915 (Petukhov: 0.02096)</td><td>1.180</td><td>16.6</td></tr>
+      <tr><td>Laminar (Re = 500)</td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 6.</b> <b class="fig-title">Registro de resultados.</b> La primera fila es de la tubería turbulenta de este tutorial; la segunda es para llenarla con la laminar del tutorial 1.1.</caption>
+  </table>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>¿La velocidad del eje del tubo laminar llega a \(2U\)? ¿A qué distancia de la entrada?</li>
+  <li>El factor de fricción medio de <em>Integrate Variables</em>, ¿queda por encima o por debajo de \(64/Re\)? ¿Por qué el efecto de la entrada es menor que en el turbulento?</li>
+  <li>¿Qué filtros del turbulento ya no tienen sentido en el laminar?</li>
+</ol>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ul>
+  <li>Kitware (2022). <em>The ParaView Guide</em> (versión 5.11). Kitware, Inc. www.paraview.org</li>
+  <li>Pope, S. B. (2000). <em>Turbulent flows</em>. Cambridge University Press. Capítulo 7: flujo cerca de la pared; ley de la pared.</li>
+  <li>Schlichting, H. y Gersten, K. (2017). <em>Boundary-layer theory</em> (9.ª ed.). Springer.</li>
+  <li>Petukhov, B. S. (1970). Heat transfer and friction in turbulent pipe flow with variable physical properties. <em>Advances in Heat Transfer</em>, 6, 503-564.</li>
+  <li>Molina Holguín, C. A. (2026). <a href="tuberia-laminar.html">La tubería laminar</a> y <a href="tuberia-turbulenta.html">La tubería turbulenta</a> (tutoriales 1.1 y 1.2 de esta serie) y <a href="paraview-naca0012.html">El posprocesamiento del NACA 0012 con ParaView</a> (tutorial 2.3).</li>
+</ul>
+<p class="source-note">Todas las cifras salen del caso del tutorial 1.2 (OpenFOAM 12, blueCFD-Core 2024, laptop con Windows 11), leídas con ParaView 5.11.2 (<code>pvpython</code>) con las mismas operaciones de la receta. Las capturas son de ParaView 5.11.2 y de la terminal de blueCFD-Core.</p>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="tuberia-turbulenta.html?v=13"><span>Tutorial anterior</span>← 1.2 · La tubería turbulenta</a>
+      <a class="next-link" href="perfil-naca0012.html?v=13"><span>Tutorial siguiente</span>2.1 · El NACA 0012 a 10° →</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Die Lösung aus Tutorial 1.2 in ParaView öffnen und Filter für Filter lesen: Längsschnitt, sich entwickelndes Geschwindigkeitsprofil, Druck, turbulente Viskosität, Isobaren, Vektoren und Stromlinien, y⁺ und mittlere Wandschubspannung mit Integrate Variables, Achs- und Radialprofil mit Plot Over Line und das Profil in Wandeinheiten auf logarithmischer Achse.</p>
+    </section>
+    <section id="problem-de">
+      <p class="section-label">Das Problem</p>
+      <h2>Was nachbearbeitet wird</h2>
+<p>Die Lösung ist das Rohr aus Tutorial 1.2 (Re = 50 000, k-ω SST, 149 940 Zellen, 36,6 Durchmesser lang, in 307 Iterationen konvergiert). Nichts wird neu gerechnet.</p>
+    </section>
+    <section id="theory-de">
+      <p class="section-label">Die Theorie</p>
+      <h2>Was jedes Bild aussagt</h2>
+<p>Entwicklung der Rohrströmung, Wandeinheiten y⁺ = y u<sub>τ</sub>/ν und u⁺ = u/u<sub>τ</sub>, das Wandgesetz, die mittlere Wandschubspannung und die Rohrreibungszahl f = 8 τ<sub>w</sub>/(ρU²), das Verhältnis der turbulenten Viskosität ν<sub>t</sub>/ν und Stromlinien im Rohr.</p>
+    </section>
+    <section id="recipe-de">
+      <p class="section-label">Schritt für Schritt</p>
+      <h2>Vom Schnitt zum Wandgesetz</h2>
+<p>paraFoam; Slice; von Hand geschriebene Kamera; Farbbereiche; Calculator für ν<sub>t</sub>/ν; Contour (Isobaren); Clip und Glyph; Stream Tracer; ein Querschnitt; ein zweiter Reader nur mit der Wand; Integrate Variables; Save Screenshot; Plot Over Line auf der Achse und über den Radius mit zwei Calculators; logarithmische Achse; Save State.</p>
+    </section>
+    <section id="case-de">
+      <p class="section-label">Die Filterkette</p>
+      <h2>Die Filter, einzeln</h2>
+<p>Die Filterkette: Reader → Slice1 (mit Calculator, Contour, Clip und Glyph, jeweils nach dem Bild wieder entfernt), StreamTracer1, Slice2 und PlotOverLine1 mit zwei Calculators; und ein zweiter Reader auf dem Patch walls mit Integrate Variables.</p>
+    </section>
+    <section id="results-de">
+      <p class="section-label">Ergebnisse</p>
+      <h2>Was die Bilder zeigen</h2>
+<p>Das Profil entwickelt sich auf der Achse über etwa 17 Durchmesser; der Druck fällt fast linear; ν<sub>t</sub> erreicht 147 ν; y⁺ bleibt zwischen 0,95 und 1,77; die mittlere Wandschubspannung ergibt f = 0,0200.</p>
+    </section>
+    <section id="validation-de">
+      <p class="section-label">Durchgerechnetes Beispiel</p>
+      <h2>Drei Prüfungen der Bilder</h2>
+<p>Drei Prüfungen: das mittlere f aus Integrate Variables gegen das f aus dem Druckabfall von Tutorial 1.2 (der Einlauf erklärt die Differenz); das Profil bei x = 31 D gegen das Wandgesetz; und y⁺ gegen den geforderten Wert.</p>
+    </section>
+    <section id="errors-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Was in ParaView schiefgeht</h2>
+<p>Das Rohr ist ein dünner Streifen (36:1); der Pipeline Browser zeigt nur neun Zeilen; ein Filter zeigt nichts (verdeckt oder nicht angewendet); Integrate Variables ohne Division durch die Fläche; die Profillinie beginnt an der Achse, nicht an der Wand; die Log-Achse mit y⁺ = 0.</p>
+    </section>
+    <section id="practice-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Das laminare Rohr, genauso gelesen</h2>
+<p>Den laminaren Fall aus Tutorial 1.1 öffnen und Schnitt, Achsprofil und Integrate Variables wiederholen; f mit 64/Re und die Mittengeschwindigkeit mit 2U vergleichen.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>ParaView Guide; Pope (2000); Schlichting und Gersten; Petukhov (1970); Tutorials 1.1 und 1.2 dieser Reihe.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="tuberia-turbulenta.html?v=13"><span>Vorheriges Tutorial</span>← 1.2 · Das turbulente Rohr</a>
+      <a class="next-link" href="perfil-naca0012.html?v=13"><span>Nächstes Tutorial</span>2.1 · Das NACA 0012 bei 10° →</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>
