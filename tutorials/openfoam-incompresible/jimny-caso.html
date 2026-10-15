@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="OpenFOAM tutorial: turning the motorBikeSteady tutorial into the external-aerodynamics case of a full Suzuki Jimny at 100 km/h in blueCFD-Core (OpenFOAM 12): geometry with named regions, virtual wind tunnel, a commented snappyHexMeshDict, moving ground, rotating wheels and force coefficients." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>From motorBikeSteady to a Suzuki Jimny: Setting Up the Case | OpenFOAM Incompressible-Flow Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">OpenFOAM · Incompressible flow · Tutorial 3.1</p><h1>From motorBikeSteady to the Jimny: setting up the case</h1><p class="hero-copy">The motorBikeSteady tutorial of OpenFOAM, turned file by file into the case of a full Suzuki Jimny at 100 km/h: the geometry with its six regions, the virtual wind tunnel, the snappyHexMesh recipe, the moving ground, the rotating wheels and the force coefficients. Every file of the case is commented.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">OpenFOAM · Flujo incompresible · Tutorial 3.1</p><h1>Del motorBikeSteady al Jimny: preparar el caso</h1><p class="hero-copy">El tutorial <code>motorBikeSteady</code> de OpenFOAM, convertido archivo por archivo en el caso de un Suzuki Jimny completo a 100 km/h: la geometría con sus seis regiones, el túnel virtual, la receta de <code>snappyHexMesh</code>, el suelo móvil, las ruedas que giran y los coeficientes de fuerza. Todos los archivos del caso van comentados.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">OpenFOAM · Inkompressible Strömung · Tutorial 3.1</p><h1>Vom motorBikeSteady zum Jimny: den Fall vorbereiten</h1><p class="hero-copy">Das OpenFOAM-Tutorial motorBikeSteady, Datei für Datei in den Fall eines vollständigen Suzuki Jimny bei 100 km/h umgebaut: die Geometrie mit ihren sechs Regionen, der virtuelle Windkanal, das Rezept für snappyHexMesh, der bewegte Boden, die drehenden Räder und die Kraftbeiwerte. Alle Dateien des Falls sind kommentiert.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 60 min</span><span data-language="es" hidden>Lectura estimada: 60 min</span><span data-language="de" hidden>Lesedauer: ca. 60 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on OpenFOAM 12 (blueCFD-Core 2024) and ParaView 5.11.2</span><span data-language="es" hidden>Verificado en OpenFOAM 12 (blueCFD-Core 2024) y ParaView 5.11.2</span><span data-language="de" hidden>Geprüft mit OpenFOAM 12 (blueCFD-Core 2024) und ParaView 5.11.2</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="paraview-naca0012.html?v=13">← <span>2.3</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/39ux4uzZYEA" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Watch the video</span><span data-language="es" hidden>Ver el vídeo</span><span data-language="de" hidden>Video ansehen</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#problem">The problem</a><a href="#theory">Theory</a><a href="#recipe">Recipe</a><a href="#case">The case</a><a href="#check">Check</a><a href="#errors">Common errors</a><a href="#practice">Suggested exercise</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#problem-es">El problema</a><a href="#theory-es">Teoría</a><a href="#recipe-es">Receta</a><a href="#case-es">El caso</a><a href="#check-es">Revisión</a><a href="#errors-es">Errores frecuentes</a><a href="#practice-es">Práctica sugerida</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#problem-de">Das Problem</a><a href="#theory-de">Theorie</a><a href="#recipe-de">Ablauf</a><a href="#case-de">Der Fall</a><a href="#check-de">Prüfung</a><a href="#errors-de">Häufige Fehler</a><a href="#practice-de">Übungsvorschlag</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Start from an OpenFOAM tutorial and adapt it to your own vehicle: what each folder of a case holds, which dictionaries change and which do not, how a geometry with named regions becomes boundary patches, and how the snappyHexMesh recipe is written. Running the case in parallel is Tutorial 3.2.</p>
+    </section>
+    <section id="problem">
+      <p class="section-label">The problem</p>
+      <h2>What is simulated</h2>
+<p>A full three-door Suzuki Jimny (own FreeCAD model, 3.64 × 1.72 × 1.73 m, frontal area 2.435 m²) at 100 km/h, Re = 6.7·10⁶ with the length, on a moving ground and with rotating wheels; k-ω SST with wall functions.</p>
+    </section>
+    <section id="theory">
+      <p class="section-label">The theory</p>
+      <h2>Coefficients, the virtual tunnel and the mesh</h2>
+<p>Drag and lift coefficients and the lift per axle; the virtual wind tunnel: size, blockage (3.0 %), slip walls and the moving ground; rotating wheels (ω = U/r); what snappyHexMesh does in its three stages and what a refinement level is; layers, y⁺ and wall functions.</p>
+    </section>
+    <section id="recipe">
+      <p class="section-label">Step by step</p>
+      <h2>From motorBikeSteady to the Jimny</h2>
+<p>Copy motorBikeSteady from $FOAM_TUTORIALS, put the STL in constant/geometry and change, file by file, what the table lists: the tunnel, the snappyHexMesh recipe, the inlet speed and turbulence, the patch group, the wheels, the force references and the number of processes; fvSchemes and fvSolution are taken from the drivaerFastback tutorial, because with those of the motorbike the drag coefficient of the Jimny does not settle.</p>
+    </section>
+    <section id="case">
+      <p class="section-label">The case</p>
+      <h2>The files, one by one</h2>
+<p>Every dictionary of the case, shown complete with its Spanish comments; snappyHexMeshDict in detail.</p>
+    </section>
+    <section id="check">
+      <p class="section-label">Worked example</p>
+      <h2>The geometry and the tunnel, checked</h2>
+<p>The first four steps run in serial to check the preparation: the STL scaled to metres (96 896 triangles, closed, six regions), 2 028 feature edges, and the background mesh of 3 200 cells with the vehicle inside it, seen in ParaView.</p>
+    </section>
+    <section id="errors">
+      <p class="section-label">Common errors</p>
+      <h2>What goes wrong when preparing the case</h2>
+<p>Forgetting to scale the STL (a 3.6 km vehicle, and snappyHexMesh finishes «without errors» with no vehicle in the mesh); leaving motorBikeGroup in the fields; keeping the tutorial's maxGlobalCells of two million.</p>
+    </section>
+    <section id="practice">
+      <p class="section-label">Suggested exercise</p>
+      <h2>The same Jimny at 120 km/h</h2>
+<p>Prepare the same case at 120 km/h: the three places where the speed lives, the new wheel speed and Reynolds number; check it with the first four steps.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>The motorBikeSteady tutorial of OpenFOAM 12; the OpenFOAM user guide on snappyHexMesh; Menter (1994) for k-ω SST; Hucho for road-vehicle aerodynamics.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="paraview-naca0012.html?v=13"><span>Previous tutorial</span>← 2.3 · Post-processing the NACA 0012</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Incompressible flow</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">Nadie arma un caso de OpenFOAM desde cero: se parte de un tutorial que se parece al problema y se cambia lo necesario. Este bloque calcula la aerodinámica de un vehículo, un Suzuki Jimny de 3 puertas, y parte del tutorial <code>motorBikeSteady</code> de OpenFOAM, que calcula la de una moto con su piloto. Esta guía prepara el caso, archivo por archivo; el tutorial 3.2 lo corre en paralelo, paso a paso.</p>
+<ul>
+  <li>Reconocer qué guarda cada carpeta de un caso (<code>0</code>, <code>constant</code>, <code>system</code>) y cuáles de sus archivos cambian al pasar de un problema a otro.</li>
+  <li>Preparar una geometría con regiones con nombre, y entender cómo cada región se vuelve un parche de la malla con sus propias condiciones de frontera.</li>
+  <li>Dimensionar un túnel virtual: cuánto espacio dejar delante, detrás y a los lados, y qué condiciones llevan el suelo, el techo y los costados.</li>
+  <li>Leer y escribir la receta de <code>snappyHexMesh</code>: niveles de refinamiento, aristas, regiones de refinamiento y capas.</li>
+  <li>Poner el suelo móvil, las ruedas que giran y los coeficientes de fuerza de un vehículo.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> blueCFD-Core 2024 (OpenFOAM 12) y ParaView, como en los tutoriales anteriores, y el caso ya preparado, <a href="archivos/jimny.zip"><code>jimny.zip</code></a>: sirve para comparar lo que uno cambia con lo que debe quedar, o para saltarse la preparación e ir directo al 3.2. Todos sus archivos van comentados en español. Conviene haber hecho el <a href="tuberia-turbulenta.html">tutorial 1.2</a> (k-ω SST, y⁺ y funciones de pared) y el <a href="perfil-naca0012.html">2.1</a> (coeficientes de fuerza).</p>
+</div>
+
+    </section>
+    <section id="problem-es">
+      <p class="section-label">El problema</p>
+      <h2>Qué se va a simular</h2>
+
+<p>El vehículo es un Suzuki Jimny de 3 puertas, modelado en FreeCAD con las medidas del vehículo real (la geometría es propia y viene en el caso). La pregunta es la de cualquier estudio de aerodinámica automotriz: <strong>¿cuánta fuerza de arrastre hace el aire a 100 km/h, y cuánto levanta cada eje?</strong> Se calcula el vehículo completo, sobre un suelo que se mueve con el aire y con las ruedas girando (tabla 1).</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Cantidad</th><th>Valor</th><th>De dónde sale</th></tr></thead>
+    <tbody>
+      <tr><td>Vehículo</td><td>Suzuki Jimny de 3 puertas, modelo propio en FreeCAD</td><td>seis regiones, un <code>solid</code> cada una</td></tr>
+      <tr><td>Largo × ancho × alto</td><td>3.64 × 1.715 × 1.740 m</td><td>caja de <code>surfaceCheck</code> (el alto incluye 2 cm de llanta hundida en el suelo)</td></tr>
+      <tr><td>Área frontal \(A\)</td><td>2.435 m²</td><td><code>Aref</code> de <code>system/forceCoeffs</code></td></tr>
+      <tr><td>Distancia entre ejes</td><td>2.25 m</td><td><code>lRef</code> (para el momento de cabeceo)</td></tr>
+      <tr><td>Velocidad \(U_\infty\)</td><td>27.78 m/s = 100 km/h</td><td><code>flowVelocity</code></td></tr>
+      <tr><td>Viscosidad \(\nu\)</td><td>1.5·10<sup>−5</sup> m²/s</td><td><code>constant/physicalProperties</code></td></tr>
+      <tr><td>Reynolds con el largo</td><td>6.7·10<sup>6</sup></td><td>\(U_\infty L/\nu\)</td></tr>
+      <tr><td>Turbulencia de entrada</td><td>I = 0.2 %, \(\nu_t/\nu\) = 167</td><td><code>turbulentKE</code> = 0.005 m²/s², <code>turbulentOmega</code> = 2.0 1/s</td></tr>
+      <tr><td>Ruedas</td><td>r = 0.3315 m, ω = 83.80 rad/s</td><td>ω = \(U_\infty/r\): ruedan sin deslizar</td></tr>
+      <tr><td>Modelo de turbulencia</td><td>k-ω SST, funciones de pared</td><td><code>constant/momentumTransport</code></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">El caso del Jimny.</b> Las medidas son las del STL del caso, ya en metros (salida de <code>surfaceCheck</code>); el área frontal es la del modelo de FreeCAD con espejos. La velocidad y la turbulencia de entrada están en <code>0/include/initialConditions</code>.</caption>
+  </table>
+</div>
+<figure class="diagram">
+  <img src="imagenes/t31-01_regiones.png" alt="El Jimny del caso, con cada región en un color" loading="lazy">
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">Las seis regiones del Jimny.</b> El STL del caso visto desde adelante y a la izquierda: carrocería (azul), espejos (morado), ruedas delanteras (naranja) y traseras (rojo); los bajos y la refacción quedan ocultos. Cada color es un <code>solid</code> del STL y será un parche de la malla. Las llantas son cilindros con los hombros redondeados, hundidos 15 mm en el suelo (z = 0). Render de ParaView sobre el STL del caso.</figcaption>
+</figure>
+<p>La geometría viene en un STL con seis regiones, una por parte del vehículo (figura 1 y tabla 2). Separarlas tiene un propósito: cada región se vuelve un parche de la malla, y así las ruedas pueden girar mientras la carrocería no, y las fuerzas se pueden pedir por partes.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Región (parche)</th><th>Triángulos</th><th>Qué es</th><th>Condición de U</th></tr></thead>
+    <tbody>
+      <tr><td><code>carroceria</code></td><td>1 152</td><td>la carrocería: cabina, cofre, salpicaderas, defensas</td><td><code>noSlip</code> (grupo)</td></tr>
+      <tr><td><code>bajos</code></td><td>8 620</td><td>largueros, ejes y diferenciales</td><td><code>noSlip</code> (grupo)</td></tr>
+      <tr><td><code>ruedasDelanteras</code></td><td>39 584</td><td>las dos llantas delanteras</td><td><code>rotatingWallVelocity</code></td></tr>
+      <tr><td><code>ruedasTraseras</code></td><td>39 696</td><td>las dos llantas traseras</td><td><code>rotatingWallVelocity</code></td></tr>
+      <tr><td><code>refaccion</code></td><td>7 388</td><td>la llanta de refacción, en la puerta trasera</td><td><code>noSlip</code> (grupo)</td></tr>
+      <tr><td><code>espejos</code></td><td>456</td><td>los dos espejos</td><td><code>noSlip</code> (grupo)</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Las seis regiones del STL.</b> Número de triángulos de cada región, de <code>surfaceCheck</code>. Cada región se vuelve un parche de la malla con su nombre, y las seis quedan en el grupo <code>jimnyGroup</code>.</caption>
+  </table>
+</div>
+<p>El Jimny es un vehículo de caja: frente casi vertical, aristas vivas, cola recta. Es lo contrario de un auto aerodinámico, y por eso su coeficiente de arrastre es alto —del orden de 0.5, contra 0.25–0.30 de un sedán moderno <a href="#references-es">(Hucho, 1998)</a>—. Ese número sale en el tutorial 3.3.</p>
+
+    </section>
+    <section id="theory-es">
+      <p class="section-label">La teoría</p>
+      <h2>Coeficientes, túnel virtual y malla</h2>
+
+<h3>Los coeficientes de fuerza y el levante por eje</h3>
+<p>Las fuerzas sobre el vehículo se hacen adimensionales con la presión dinámica y el área frontal \(A\):</p>
+<div class="equation-card">\[ C_D = \frac{F_x}{\tfrac12\rho U_\infty^2 A},\qquad C_L = \frac{F_z}{\tfrac12\rho U_\infty^2 A},\qquad C_{L,f} = \frac{C_L}{2} + C_m,\qquad C_{L,r} = \frac{C_L}{2} - C_m \tag{1} \]</div>
+<p>\(C_m\) es el momento de cabeceo alrededor del punto medio entre los ejes, adimensional con la distancia entre ejes. El levante total se reparte así entre el eje delantero (\(C_{L,f}\)) y el trasero (\(C_{L,r}\)): un levante positivo descarga ese eje y le quita adherencia. La función <code>forceCoeffs</code> escribe los cinco en cada iteración. Como el solver es incompresible y trabaja con la presión dividida entre la densidad, se pone \(\rho\) = 1: los coeficientes salen bien, y las fuerzas, por unidad de densidad.</p>
+<h3>El túnel virtual</h3>
+<p>Un vehículo en la carretera tiene aire hasta el infinito; el cálculo, un túnel de tamaño finito. El túnel tiene que ser lo bastante grande para que sus paredes no cambien el flujo alrededor del vehículo:</p>
+<ul>
+  <li><strong>Delante</strong>, unos tres largos del vehículo: el aire se entera de que viene un obstáculo antes de llegar a él. Aquí, 10 m (2.7 largos).</li>
+  <li><strong>Detrás</strong>, varios largos, para que la estela salga sin rebotar en la salida. Aquí, 26 m (7 largos).</li>
+  <li><strong>A los lados y arriba</strong>, lo necesario para que el vehículo tape poco de la sección: el <em>bloqueo</em> es el área frontal entre el área de la sección. Con 10 × 8 m queda en 3.0 %: el vehículo acelera un poco el aire que pasa a sus lados, y el arrastre sale unos pocos por ciento mayor que al aire libre. Un túnel más grande lo reduce, a cambio de más celdas.</li>
+</ul>
+<p>El techo y los costados llevan la condición <code>slip</code>: paredes sin fricción, que sólo impiden que el aire las cruce. El <strong>suelo</strong> es distinto: en el marco del vehículo, el camino pasa por debajo a la velocidad del aire, así que el suelo es una pared que <strong>se mueve</strong> a \(U_\infty\). Un suelo quieto formaría una capa límite que en la carretera no existe; los túneles de viento automotrices usan una banda móvil por la misma razón. La figura 2 muestra el túnel a escala.</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 470" role="img" aria-label="Esquema del túnel virtual en vista lateral y en planta, con el Jimny y las cajas de refinamiento, a escala.">
+  <text class="svg-title" x="70" y="26">El túnel virtual, a escala: de lado (arriba) y desde arriba (abajo)</text>
+  <rect x="269.5" y="133.5" width="400.5" height="34.5" fill="#d6e4f3" stroke="none" opacity="0.9"/>
+  <rect x="70.0" y="153.0" width="205.5" height="15.0" fill="#d6e4f3" stroke="none" opacity="0.9"/>
+  <rect x="269.5" y="135.0" width="85.5" height="33.0" fill="#9dbde2" stroke="none" opacity="0.9"/>
+  <rect x="70.0" y="164.2" width="205.5" height="3.8" fill="#9dbde2" stroke="none" opacity="0.9"/>
+  <rect x="269.5" y="135.0" width="70.5" height="32.3" fill="#5b8cc6" stroke="none" opacity="0.9"/>
+  <rect x="217.0" y="162.0" width="58.5" height="6.0" fill="#5b8cc6" stroke="none" opacity="0.9"/>
+  <rect x="220.0" y="142.1" width="54.6" height="25.9" fill="var(--accent)" stroke="none"/>
+  <rect x="70" y="48.0" width="600" height="120.0" fill="none" stroke="var(--ink)" stroke-width="1.6"/>
+  <text class="svg-tick" x="64" y="52.0" text-anchor="end">z = 8</text>
+  <text class="svg-tick" x="64" y="172.0" text-anchor="end">z = 0</text>
+  <text class="svg-note-sm" x="370.0" y="42.0" text-anchor="middle">upperWall (slip)</text>
+  <text class="svg-note-sm" x="370.0" y="182.0" text-anchor="middle">lowerWall (suelo móvil)</text>
+  <text class="svg-note-sm" x="62.0" y="108.0" text-anchor="middle" transform="rotate(-90 62.0 108.0)">inlet</text>
+  <text class="svg-note-sm" x="678.0" y="108.0" text-anchor="middle" transform="rotate(90 678.0 108.0)">outlet</text>
+  <rect x="269.5" y="291.0" width="400.5" height="48.0" fill="#d6e4f3" stroke="none" opacity="0.9"/>
+  <rect x="70.0" y="292.5" width="205.5" height="45.0" fill="#d6e4f3" stroke="none" opacity="0.9"/>
+  <rect x="269.5" y="294.0" width="85.5" height="42.0" fill="#9dbde2" stroke="none" opacity="0.9"/>
+  <rect x="70.0" y="297.0" width="205.5" height="36.0" fill="#9dbde2" stroke="none" opacity="0.9"/>
+  <rect x="269.5" y="295.5" width="70.5" height="39.0" fill="#5b8cc6" stroke="none" opacity="0.9"/>
+  <rect x="217.0" y="300.0" width="58.5" height="30.0" fill="#5b8cc6" stroke="none" opacity="0.9"/>
+  <rect x="220.0" y="302.1" width="54.6" height="25.7" fill="var(--accent)" stroke="none"/>
+  <rect x="70" y="240.0" width="600" height="150.0" fill="none" stroke="var(--ink)" stroke-width="1.6"/>
+  <text class="svg-tick" x="64" y="244.0" text-anchor="end">y = 5</text>
+  <text class="svg-tick" x="64" y="394.0" text-anchor="end">y = −5</text>
+  <text class="svg-note-sm" x="370.0" y="234.0" text-anchor="middle">frontAndBack (slip), los dos costados</text>
+  <text class="svg-tick" x="70.0" y="406.0" text-anchor="middle">−10</text>
+  <text class="svg-tick" x="220.0" y="406.0" text-anchor="middle">0</text>
+  <text class="svg-tick" x="370.0" y="406.0" text-anchor="middle">10</text>
+  <text class="svg-tick" x="520.0" y="406.0" text-anchor="middle">20</text>
+  <text class="svg-tick" x="670.0" y="406.0" text-anchor="middle">30</text>
+  <text class="svg-note-sm" x="370.0" y="422.0" text-anchor="middle">x [m] (el aire corre hacia +x)</text>
+  <rect x="70" y="443" width="14" height="10" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="90" y="452">vehículo</text>
+  <rect x="220" y="443" width="14" height="10" fill="#d6e4f3"/>
+  <text class="svg-note-sm" x="240" y="452">nivel 3</text>
+  <rect x="370" y="443" width="14" height="10" fill="#9dbde2"/>
+  <text class="svg-note-sm" x="390" y="452">nivel 4</text>
+  <rect x="520" y="443" width="14" height="10" fill="#5b8cc6"/>
+  <text class="svg-note-sm" x="540" y="452">nivel 5</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">El túnel virtual y las cajas de refinamiento.</b> A escala, con las cifras de <code>blockMeshDict</code> y de <code>snappyHexMeshDict</code>. El túnel mide 40 × 10 × 8 m; el Jimny (naranja) queda a 10 m de la entrada y a 26 m de la salida. Las cajas marcan dónde snappyHexMesh pone celdas más chicas: más oscuro, más fino. Cerca del vehículo, además, manda la distancia a su superficie (tabla 3).</figcaption>
+</figure>
+<h3>Las ruedas que giran</h3>
+<p>Una rueda que rueda sin deslizar tiene velocidad cero en el contacto con el suelo, que en el marco del vehículo se mueve a \(U_\infty\): la rueda gira con</p>
+<div class="equation-card">\[ \omega = \frac{U_\infty}{r} = \frac{27.78\ \text{m/s}}{0.3315\ \text{m}} = 83.80\ \text{rad/s} \tag{2} \]</div>
+<p>con \(r\) el radio de rodadura, la altura del eje sobre el suelo. La condición <code>rotatingWallVelocity</code> le impone a cada cara de la llanta la velocidad \(\boldsymbol{\omega}\times\mathbf{r}\) del giro, sin mover la malla. Para que el contacto sea una huella y no una línea (una tangencia que <code>snappyHexMesh</code> no puede mallar bien), las llantas están hundidas 15 mm en el suelo.</p>
+<p>La figura 3 muestra cómo queda en la malla: la llanta apoyada en el suelo y, a cada lado del contacto, una cuña delgada.</p>
+<figure class="diagram">
+  <img src="imagenes/t31-04_contacto_llanta.png" alt="Corte de la malla por el plano de la rueda delantera, en el contacto con el suelo" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">Donde la llanta toca el suelo.</b> Corte de la malla de la corrida de referencia por el plano de la rueda delantera izquierda (y = 0.6975 m), de cerca. El hueco blanco es la llanta; el borde de abajo, el suelo (z = 0). Como la llanta está hundida 15 mm, toca el suelo en una franja plana de unos 20 cm, sin celdas. A cada lado de la franja queda una cuña de 17° entre la llanta y el suelo, con celdas aplastadas: ahí están, con toda probabilidad, las caras sesgadas que señala <code>checkMesh</code> (aparecieron al hacer redondas las llantas). Junto a la llanta se ven sus dos capas. Render de ParaView sin ventana sobre la malla reconstruida.</figcaption>
+</figure>
+<h3>Lo que hace <code>snappyHexMesh</code></h3>
+<p>La malla se hace en dos programas. <code>blockMesh</code> llena el túnel de cubos iguales, aquí de 1 m: la <strong>malla de fondo</strong>. <code>snappyHexMesh</code> la adapta al vehículo en tres etapas:</p>
+<div class="process-flow">
+  <div><strong>1</strong><span>Refinar y recortar (<code>castellatedMesh</code>): parte en ocho los cubos cerca del vehículo, una y otra vez, y quita los que quedan dentro de él. Queda una superficie escalonada.</span></div>
+  <div><strong>2</strong><span>Ajustar (<code>snap</code>): mueve los vértices de esa superficie escalonada hasta la del STL, siguiendo también sus aristas vivas.</span></div>
+  <div><strong>3</strong><span>Capas (<code>addLayers</code>): agrega capas delgadas pegadas a las paredes, para la capa límite.</span></div>
+</div>
+<p>Cada vez que un cubo se parte en ocho, sube un <strong>nivel</strong>: con la malla de fondo de 1 m, una celda de nivel \(k\) mide \(1/2^k\) m. La receta dice qué nivel quiere cada zona: por superficie (cada región del STL), por arista, por distancia a la superficie y por cajas en el volumen (tabla 3). Las zonas más finas van donde el flujo cambia más: la superficie, donde el aire se despega, la estela y el hueco entre el piso y el suelo.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Nivel</th><th>Celda</th><th>Dónde</th></tr></thead>
+    <tbody>
+      <tr><td>0</td><td>1 m</td><td>la malla de fondo de <code>blockMesh</code>, lejos de todo</td></tr>
+      <tr><td>3</td><td>12.5 cm</td><td>cajas <code>upstream</code> y <code>downstream</code>: delante, alrededor y la estela lejana</td></tr>
+      <tr><td>4</td><td>6.25 cm</td><td>cajas <code>underbody</code> y <code>wake</code>; hasta 80 cm del vehículo</td></tr>
+      <tr><td>5</td><td>3.1 cm</td><td>cajas <code>bajosCerca</code> y <code>estelaCerca</code>; hasta 25 cm del vehículo; bajos, ruedas, refacción y espejos (mínimo)</td></tr>
+      <tr><td>6</td><td>1.56 cm</td><td>la carrocería entera; las aristas vivas; hasta 5 cm del vehículo; las demás regiones donde se curvan</td></tr>
+      <tr><td>capas</td><td>2, de unos 0.65 y 0.78 cm</td><td>en las seis regiones del Jimny, con la primera celda en la zona logarítmica</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">La receta de snappyHexMesh, nivel por nivel.</b> Con la malla de fondo de 1 m, el nivel <i>n</i> tiene celdas de 1/2<sup><i>n</i></sup> m. Cada fila dice dónde se pide ese nivel en <code>system/snappyHexMeshDict</code>.</caption>
+  </table>
+</div>
+<p>La figura 4 adelanta lo que produce esta receta, que se corre en el tutorial 3.2: la malla cortada por el centro del vehículo, con cada zona en su nivel.</p>
+<figure class="diagram">
+  <img src="imagenes/t31-03_corte_malla.png" alt="Corte de la malla final por el plano de simetría del Jimny" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">Lo que produce la receta: la malla cortada por el centro del vehículo.</b> Corte por y = 0 de la malla de la corrida de referencia (2 123 371 celdas), entre la defensa (izquierda) y la estela (derecha). Se ven los saltos de nivel —cada uno parte la celda en dos en cada dirección—, la banda fina que rodea al vehículo (niveles 6 y 5, por distancia), la caja de la estela cercana detrás y las dos capas pegadas a la carrocería. Las líneas oblicuas largas no son celdas: salen de dibujar el corte de las celdas poliédricas que snappyHexMesh deja en las transiciones entre niveles. Los dos huecos de abajo son los ejes. Render de ParaView sin ventana sobre la malla reconstruida.</figcaption>
+</figure>
+<h3>Las capas, y⁺ y las funciones de pared</h3>
+<p>Como en el <a href="tuberia-turbulenta.html#theory-es">tutorial 1.2</a>, la primera celda junto a la pared decide cómo se trata la capa límite. Resolverla hasta la subcapa viscosa (y⁺ ≈ 1) pediría celdas de centésimas de milímetro en toda la carrocería y decenas de millones de celdas. Aquí se usan <strong>funciones de pared</strong>: la primera celda queda en la zona logarítmica (y⁺ ≈ 30–300) y una ley de pared pone el esfuerzo que corresponde. Dos capas sobre celdas de 1.6 cm dan una primera celda de unos 6.5 mm; en la corrida de referencia, la y⁺ de la carrocería quedó en 182 en promedio (máximo 2499), dentro de la zona logarítmica. Las condiciones de pared de <code>k</code>, <code>omega</code> y <code>nut</code> son las funciones de pared del <code>motorBikeSteady</code>, sin cambios.</p>
+
+    </section>
+    <section id="recipe-es">
+      <p class="section-label">Paso a paso</p>
+      <h2>Del motorBikeSteady al Jimny</h2>
+
+<p>La receta tiene dos partes: <strong>copiar el tutorial y hacerle los cambios</strong> (pasos 1 a 7), y <strong>revisar la preparación</strong> con los cuatro primeros programas, que corren en segundos (pasos 8 y 9). La tabla 4 resume todos los cambios; la sección <a href="#case-es">«El caso»</a> muestra cada archivo terminado. Quien descargue <code>jimny.zip</code> tiene ya el resultado de los pasos 1 a 7.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Archivo</th><th>motorBikeSteady</th><th>Jimny</th><th>Por qué</th></tr></thead>
+    <tbody>
+      <tr><td><code>constant/geometry/</code></td><td><code>motorBike.obj.gz</code> (lo copia <code>Allrun</code>)</td><td><code>jimny_mm.stl</code>, en milímetros</td><td>la geometría nueva</td></tr>
+      <tr><td><code>system/blockMeshDict</code></td><td>20 × 8 × 8 m, celdas de 1 m</td><td>40 × 10 × 8 m, celdas de 1 m</td><td>el Jimny mide 3.6 m: más túnel delante y detrás</td></tr>
+      <tr><td><code>system/surfaceFeaturesDict</code></td><td><code>motorBike.obj</code>, 150°</td><td><code>jimny.stl</code>, 150°</td><td>sólo el nombre</td></tr>
+      <tr><td><code>system/snappyHexMeshDict</code></td><td>una caja, superficie (5 6), 1 capa, 2 M celdas como máximo</td><td>seis regiones, seis cajas, bandas de distancia, carrocería (6 6), 2 capas, 100 M como máximo</td><td>la receta probada con el Jimny y el DrivAer</td></tr>
+      <tr><td><code>0/include/initialConditions</code></td><td>20 m/s; k = 0.24, ω = 1.78</td><td>27.78 m/s; k = 0.005, ω = 2.0; las ruedas</td><td>100 km/h, poca turbulencia de entrada</td></tr>
+      <tr><td><code>0/U.orig</code>, <code>k</code>, <code>omega</code>, <code>nut</code>, <code>p</code></td><td><code>motorBikeGroup</code></td><td><code>jimnyGroup</code>; las ruedas con <code>rotatingWallVelocity</code></td><td>el nombre del grupo y las ruedas</td></tr>
+      <tr><td><code>system/forceCoeffs</code></td><td>20 m/s, 0.75 m², 1.42 m</td><td>27.78 m/s, 2.435 m², 2.25 m</td><td>las referencias del Jimny</td></tr>
+      <tr><td><code>system/streamlines</code></td><td>línea a x = −1 m, 1 m de alto</td><td>línea a x = −1 m, del suelo al techo</td><td>el Jimny es más alto</td></tr>
+      <tr><td><code>system/controlDict</code></td><td>500 iteraciones, escribe cada 100</td><td>2000, escribe cada 500</td><td>el Jimny necesita más iteraciones</td></tr>
+      <tr><td><code>system/decomposeParDict</code></td><td>6 procesos (3 × 2 × 1); <code>distributor ptscotch</code></td><td>8 procesos (4 × 2 × 1); <code>distributor hierarchical</code></td><td>uno por núcleo; el mismo método para repartir y para rebalancear (ptscotch también funciona)</td></tr>
+      <tr><td><code>system/functions</code></td><td>corte, líneas de corriente, fuerzas</td><td>lo mismo, más y⁺ y residuos</td><td>para revisar la pared y la convergencia</td></tr>
+      <tr><td><code>system/meshQualityDict</code></td><td>los valores de OpenFOAM, con <code>minFaceWeight 0.02</code></td><td>los valores de OpenFOAM, escritos uno por uno</td><td>los de la receta probada, a la vista</td></tr>
+      <tr><td><code>Allrun</code>, <code>Allclean</code></td><td>copia la moto y corre la secuencia</td><td>escala el STL, revisa la superficie y la malla, y corre la secuencia</td><td>dos pasos más</td></tr>
+      <tr><td><code>system/fvSchemes</code>, <code>system/fvSolution</code></td><td>k y ω con upwind; SIMPLE consistente, U 0.9</td><td>los del tutorial <code>drivaerFastback</code>: k y ω con limitedLinear; SIMPLE, p 0.3, U 0.7</td><td>con los de la moto el Cd del Jimny oscila</td></tr>
+      <tr><td><code>momentumTransport</code>, <code>physicalProperties</code></td><td>k-ω SST; ν = 1.5·10<sup>−5</sup> m²/s</td><td>sin cambios (sólo comentarios)</td><td>—</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">Qué cambia del motorBikeSteady al Jimny.</b> Archivo por archivo, el tutorial <code>motorBikeSteady</code> de OpenFOAM 12 (blueCFD-Core 2024) y el caso del Jimny. Lo que no aparece no cambia; todos los archivos del caso llevan además comentarios en español.</caption>
+  </table>
+</div>
+<ol>
+  <li><strong>Copiar el tutorial</strong> a la carpeta de casos, en la terminal de blueCFD-Core, y entrar en él:<pre class="code"><code>cp -r $FOAM_TUTORIALS/incompressibleFluid/motorBikeSteady $FOAM_RUN/jimny
+cd $FOAM_RUN/jimny</code></pre>La carpeta queda como la del caso terminado, menos la geometría:<pre class="code"><code>jimny/
+├── 0/                      condiciones iniciales y de frontera
+│   ├── include/
+│   │   ├── initialConditions        velocidad, turbulencia y ruedas, en un solo lugar
+│   │   ├── fixedInlet               la condición de la entrada
+│   │   └── frontBackUpperPatches    techo y costados: slip
+│   ├── U.orig   k   omega   nut   p
+├── constant/
+│   ├── geometry/jimny_mm.stl        la geometría, en milímetros
+│   ├── momentumTransport            k-omega SST
+│   └── physicalProperties           nu del aire
+├── system/
+│   ├── blockMeshDict                el túnel (malla de fondo)
+│   ├── surfaceFeaturesDict          aristas vivas del STL
+│   ├── snappyHexMeshDict            la receta de la malla
+│   ├── meshQualityDict              límites de calidad para snappyHexMesh
+│   ├── decomposeParDict             el reparto entre procesos
+│   ├── controlDict   fvSchemes   fvSolution
+│   ├── functions                    lo que se calcula al correr
+│   └── forceCoeffs   cutPlane   streamlines
+├── Allrun                           toda la secuencia, en un comando
+└── Allclean                         deja el caso como se descargó</code></pre></li>
+  <li><strong>La geometría.</strong> Copiar <code>jimny_mm.stl</code> a <code>constant/geometry/</code> y borrar el <code>README</code> que trae esa carpeta (dice que <code>Allrun</code> copia la moto, cosa que ya no hará). El STL está en milímetros, como sale de FreeCAD; se escala a metros en el paso 8.</li>
+  <li><strong>El túnel y la malla:</strong> <code>system/blockMeshDict</code> (40 × 10 × 8 m, figura 2), <code>system/surfaceFeaturesDict</code> (el nombre del STL) y <code>system/snappyHexMeshDict</code>, que se reescribe con la receta del Jimny (sección <a href="#case-es">«El caso»</a>). En <code>snappyHexMeshDict</code>, dos cifras del tutorial se quedan cortas: <code>maxGlobalCells 2000000</code>, que detiene el refinamiento al pasar de dos millones de celdas, y <code>nSurfaceLayers 1</code>.</li>
+  <li><strong>El flujo:</strong> en <code>0/include/initialConditions</code>, la velocidad (27.78 m/s), la turbulencia de entrada y los datos de las ruedas. En <code>0/U.orig</code>, <code>0/k</code>, <code>0/omega</code>, <code>0/nut</code> y <code>0/p</code>, el grupo <code>motorBikeGroup</code> pasa a llamarse <code>jimnyGroup</code> (el nombre que le da <code>snappyHexMeshDict</code> a las seis regiones), y en <code>0/U.orig</code> se agregan las dos entradas de las ruedas.</li>
+  <li><strong>Lo que se mide:</strong> en <code>system/forceCoeffs</code>, el grupo y las tres referencias (velocidad, área frontal y distancia entre ejes); en <code>system/streamlines</code>, la línea de partida; en <code>system/functions</code>, y⁺ y los residuos; en <code>system/controlDict</code>, 2000 iteraciones.</li>
+  <li><strong>El método numérico:</strong> <code>system/fvSchemes</code> y <code>system/fvSolution</code> se reemplazan por los del tutorial <code>drivaerFastback</code>, el de un auto completo (en <code>$FOAM_TUTORIALS/incompressibleFluid/drivaerFastback/system/</code>). Es el único cambio que no sale de la geometría; el recuadro de abajo explica por qué.</li>
+  <li><strong>El paralelo:</strong> en <code>system/decomposeParDict</code>, el número de procesos: uno por núcleo de la computadora (8 en la de referencia; el tutorial trae 6), y la forma de cortar el dominio, <code>n (4 2 1)</code>, que debe multiplicar ese número.</li>
+  <li><strong>Escalar y revisar la geometría</strong>: de milímetros a metros, y una revisión de la superficie:<pre class="code"><code>surfaceTransformPoints &quot;scale=(0.001 0.001 0.001)&quot; constant/geometry/jimny_mm.stl constant/geometry/jimny.stl
+surfaceCheck constant/geometry/jimny.stl | tee log.surfaceCheck</code></pre><code>| tee log.surfaceCheck</code> muestra la salida en la terminal y la guarda en un archivo, para leerla después con calma.</li>
+  <li><strong>Las aristas y la malla de fondo:</strong><pre class="code"><code>surfaceFeatures | tee log.surfaceFeatures
+blockMesh | tee log.blockMesh</code></pre>y abrir el caso en ParaView para ver el vehículo dentro del túnel (sección <a href="#check-es">«Ejemplo resuelto»</a>).</li>
+</ol>
+<p>El caso queda listo para la malla. En el tutorial 3.2 se corre el resto en paralelo, paso a paso: <code>decomposePar</code>, <code>snappyHexMesh</code>, <code>checkMesh</code>, <code>potentialFoam</code>, <code>foamRun</code> y <code>reconstructPar</code>. <code>./Allrun</code> hace los diez pasos con un solo comando.</p>
+<div class="callout">
+  <p><strong>Por qué dos tutoriales.</strong> La tabla 4 tiene quince renglones, pero casi todo lo que no es la geometría se hereda: la estructura de <code>0/include</code>, el modelo de turbulencia y sus condiciones de pared, el <code>Allrun</code>. Son decisiones que los autores del tutorial ya probaron. El método numérico es la excepción, y es la lección de este bloque: heredar no es lo mismo que validar. Con los esquemas y la relajación del <code>motorBikeSteady</code>, el Cd del Jimny no se asienta: en la exploración de este caso osciló alrededor de 0.59 con una desviación de ±0.045. Con los del <code>drivaerFastback</code>, pensados para un auto, y la misma malla, se asentó en 0.565 ± 0.006. Un cuerpo de caja, con la estela grande y despegada detrás, pide un método más amortiguado que el de una moto.</p>
+</div>
+
+    </section>
+    <section id="case-es">
+      <p class="section-label">El caso</p>
+      <h2>Los archivos, uno por uno</h2>
+
+<p>Los archivos del caso, uno por uno, tal como vienen en <code>jimny.zip</code>, con sus comentarios. Las líneas que empiezan con <code>//</code> son comentarios: OpenFOAM las ignora. Se omite el encabezado de cada archivo, que es igual en todos.</p>
+<h3>Las condiciones del flujo: <code>0/include/initialConditions</code> y <code>0/U.orig</code></h3>
+<p>La velocidad, la turbulencia y las ruedas están en un solo archivo, que leen todos los campos con <code>#include</code>: para cambiar la velocidad basta con cambiarla aquí (y en <code>forceCoeffs</code>, práctica sugerida).</p>
+<p class="code-name"><code>0/include/initialConditions</code></p>
+<pre class="code"><code>/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  12
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+
+// Valores de la corriente libre y de las ruedas. Los leen 0/U.orig, 0/k, 0/omega y 0/p con
+// #include &quot;include/initialConditions&quot;, así que la velocidad se cambia en un solo lugar.
+// Viene del tutorial motorBikeSteady (allí, 20 m/s); se cambiaron la velocidad y la turbulencia
+// de entrada, y se agregaron las ruedas.
+
+// Velocidad del aire: 100 km/h = 27.78 m/s en dirección x (el vehículo apunta hacia -x y el aire
+// corre hacia +x). Con el largo del Jimny (3.64 m) y nu = 1.5e-5 m²/s, Re = 6.7e6.
+flowVelocity         (27.78 0 0);
+
+// Presión cinemática (p/rho, en m²/s²). Sólo importan las diferencias: se fija p = 0 en la salida.
+pressure             0;
+
+// Turbulencia de la corriente libre. Una carretera en calma tiene poca turbulencia:
+// k = 0.005 m²/s² es una intensidad I = sqrt(2k/3)/U ≈ 0.2 %, y omega = 2 1/s da nu_t/nu ≈ 170.
+// (El motorBikeSteady usa k = 0.24 y omega = 1.78: 2 % de intensidad y nu_t/nu ≈ 9000, propio de
+// un túnel muy turbulento.)
+turbulentKE          0.005;
+turbulentOmega       2.0;
+
+// Ruedas que giran sin deslizar: velocidad angular = U / radio de rodadura. Si se cambia la velocidad,
+// hay que recalcular wheelSpeed.
+// El radio de rodadura es la altura del eje: la llanta de 346.5 mm de radio está hundida 15 mm en el
+// suelo, como una llanta real aplastada por el peso, y el contacto es una franja y no una línea
+// (snappyHexMesh no malla bien una tangencia).
+wheelRadius          0.3315;
+wheelFront           0.63;          // x del eje delantero [m]
+wheelBase            2.25;          // distancia entre ejes [m]
+wheelRear            2.88;          // x del eje trasero [m] = wheelFront + wheelBase
+wheelSpeed           83.80;         // [rad/s] = 27.78 / wheelRadius
+
+// ************************************************************************* //</code></pre>
+<p>Así venía en el <code>motorBikeSteady</code>:</p>
+<p class="code-name"><code>motorBikeSteady/0/include/initialConditions</code> (original)</p>
+<pre class="code"><code>/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  12
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+
+flowVelocity         (20 0 0);
+pressure             0;
+turbulentKE          0.24;
+turbulentOmega       1.78;
+
+// ************************************************************************* //</code></pre><p class="code-name"><code>0/U.orig</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       volVectorField;
+    location    &quot;0&quot;;
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Velocidad [m/s]. Se llama U.orig, como en motorBikeSteady: potentialFoam escribe un campo U nuevo
+// (el flujo potencial con que arranca el cálculo), y OpenFOAM lee U.orig cuando U no existe. Así el
+// original no se pierde y el caso se puede volver a correr desde cero.
+
+#include        &quot;include/initialConditions&quot;
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform $flowVelocity;
+
+boundaryField
+{
+    // Condiciones de las fronteras de restricción (symmetryPlane, empty, processor…).
+    #includeEtc &quot;caseDicts/setConstraintTypes&quot;
+
+    // Entrada: la velocidad de la corriente libre (include/fixedInlet).
+    #include &quot;include/fixedInlet&quot;
+
+    // Salida: el aire sale libremente; si en algún punto quisiera entrar, se le impone U = 0.
+    outlet
+    {
+        type            inletOutlet;
+        inletValue      uniform (0 0 0);
+        value           $internalField;
+    }
+
+    // Suelo: se mueve a la velocidad del aire, como la banda de un túnel de viento automotriz. En el
+    // marco del vehículo el camino pasa debajo a 100 km/h; un suelo quieto formaría una capa límite que
+    // no existe en la carretera.
+    lowerWall
+    {
+        type            fixedValue;
+        value           $internalField;
+    }
+
+    // Carrocería, bajos, refacción y espejos: pared sin deslizamiento (U = 0). jimnyGroup es el grupo
+    // que snappyHexMeshDict da a las seis regiones del STL.
+    jimnyGroup
+    {
+        type            noSlip;
+    }
+
+    // Las ruedas giran: velocidad tangencial = omega × r alrededor del eje (eje y, giro hacia atrás
+    // por abajo). Una entrada con el nombre de un parche manda sobre la del grupo.
+    ruedasDelanteras
+    {
+        type            rotatingWallVelocity;
+        origin          ($wheelFront 0 $wheelRadius);
+        axis            (0 -1 0);
+        omega           $wheelSpeed;
+    }
+
+    ruedasTraseras
+    {
+        $ruedasDelanteras;
+        origin          ($wheelRear 0 $wheelRadius);
+    }
+
+    // Techo y costados del túnel: slip (include/frontBackUpperPatches).
+    #include &quot;include/frontBackUpperPatches&quot;
+}
+
+// ************************************************************************* //</code></pre>
+<p>Dos detalles de <code>0/U.orig</code>. El nombre: <code>potentialFoam</code> escribe un campo <code>U</code> nuevo, y OpenFOAM lee <code>U.orig</code> cuando <code>U</code> no existe, así que el original se conserva. Y la regla de prioridad: el grupo <code>jimnyGroup</code> le pone <code>noSlip</code> a las seis regiones, pero las entradas con el nombre de un parche (<code>ruedasDelanteras</code>, <code>ruedasTraseras</code>) mandan sobre las del grupo. <code>0/k</code>, <code>0/omega</code>, <code>0/nut</code> y <code>0/p</code> sólo cambian el nombre del grupo.</p>
+<h3>El túnel: <code>system/blockMeshDict</code></h3>
+<p class="code-name"><code>system/blockMeshDict</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// El túnel virtual: un solo bloque de celdas cúbicas de 1 m que snappyHexMesh refinará alrededor del
+// vehículo. Es la «malla de fondo»: su tamaño fija el de todas las demás (nivel n = 1 m / 2^n; nivel 6
+// = 1.6 cm).
+//
+// El Jimny va de x = 0 (defensa) a x = 3.64 m (refacción), de y = -0.86 a 0.86 m y de z = 0 (suelo) a
+// 1.73 m. El túnel deja 10 m delante (2.7 largos), 26 m detrás (7 largos, para que la estela salga
+// sin tocar la salida) y 5 m a cada lado y 8 m de alto (área frontal tapada: 3 %).
+// En motorBikeSteady el bloque es de 20 × 8 × 8 m para una moto de 2 m; aquí se agrandó.
+
+convertToMeters 1;
+
+vertices
+(
+    (-10 -5 0)      // 0  entrada, lado derecho, suelo
+    ( 30 -5 0)      // 1  salida
+    ( 30  5 0)      // 2
+    (-10  5 0)      // 3
+    (-10 -5 8)      // 4  los mismos cuatro, en el techo
+    ( 30 -5 8)      // 5
+    ( 30  5 8)      // 6
+    (-10  5 8)      // 7
+);
+
+blocks
+(
+    // 40 × 10 × 8 celdas de 1 m.
+    hex (0 1 2 3 4 5 6 7) (40 10 8) simpleGrading (1 1 1)
+);
+
+// Las fronteras llevan los mismos nombres que en motorBikeSteady, para que sirvan sus condiciones de
+// 0/ (entrada, salida, suelo, techo y costados).
+boundary
+(
+    frontAndBack            // los dos costados (y = ±5 m): slip
+    {
+        type patch;
+        faces
+        (
+            (3 7 6 2)
+            (1 5 4 0)
+        );
+    }
+    inlet                   // entrada (x = -10 m)
+    {
+        type patch;
+        faces
+        (
+            (0 4 7 3)
+        );
+    }
+    outlet                  // salida (x = 30 m)
+    {
+        type patch;
+        faces
+        (
+            (2 6 5 1)
+        );
+    }
+    lowerWall               // el suelo (z = 0): pared que se mueve con el aire
+    {
+        type wall;
+        faces
+        (
+            (0 3 2 1)
+        );
+    }
+    upperWall               // el techo (z = 8 m): slip
+    {
+        type patch;
+        faces
+        (
+            (4 5 6 7)
+        );
+    }
+);
+
+// ************************************************************************* //</code></pre>
+<p>Los vértices se numeran del 0 al 7: los cuatro del suelo y los cuatro del techo, en el mismo orden. <code>hex (0 1 2 3 4 5 6 7) (40 10 8)</code> es un bloque con 40 × 10 × 8 celdas. Cada frontera es una lista de caras, cada cara cuatro vértices. Los nombres son los del tutorial, para que sirvan sus condiciones de <code>0/</code>.</p>
+<h3>La receta de la malla: <code>system/snappyHexMeshDict</code></h3>
+<p>Es el archivo central del caso. Va completo y con todos sus valores escritos, incluidos los que otros casos dejan en los valores por omisión de OpenFOAM, para que se vea todo lo que decide la malla:</p>
+<p class="code-name"><code>system/snappyHexMeshDict</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    object      snappyHexMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// snappyHexMesh convierte la malla de fondo de blockMesh (cubos de 1 m) en una malla que sigue la forma
+// del Jimny, en tres etapas que se encienden aquí:
+//
+//   1. castellatedMesh: parte en ocho los cubos cerca del vehículo, una y otra vez («niveles»), y
+//      quita los que quedan dentro del vehículo. Queda una superficie escalonada, «almenada».
+//   2. snap: mueve los vértices de esa superficie escalonada hasta la superficie del STL.
+//   3. addLayers: agrega capas de celdas delgadas pegadas a las paredes, para la capa límite.
+//
+// Tamaño de celda en cada nivel, con la malla de fondo de 1 m: nivel n = 1 m / 2^n.
+//   nivel 3 = 12.5 cm   nivel 4 = 6.25 cm   nivel 5 = 3.1 cm   nivel 6 = 1.56 cm
+//
+// La estructura es la de motorBikeSteady; los niveles, las cajas y las capas son la receta que se
+// probó antes con el Jimny y con el DrivAer, un auto de referencia: unos 2.1 millones de celdas.
+
+castellatedMesh on;         // etapa 1
+snap            on;         // etapa 2
+addLayers       on;         // etapa 3
+
+// ---------------------------------------------------------------------------------------------------
+// GEOMETRÍA: las superficies que se usan para refinar o para ajustar la malla.
+// ---------------------------------------------------------------------------------------------------
+geometry
+{
+    // El Jimny: un STL en metros (Allrun lo escala desde jimny_mm.stl) con seis «solid», uno por
+    // región. Cada región se vuelve un parche con su nombre, y así las fuerzas, las condiciones de
+    // frontera y la malla se pueden dar por separado (por ejemplo, las ruedas giran y el resto no).
+    jimny
+    {
+        type triSurfaceMesh;            // en OpenFOAM 13 se llama triSurface
+        file &quot;jimny.stl&quot;;
+        regions
+        {
+            carroceria       { name carroceria; }
+            bajos            { name bajos; }             // largueros, ejes y diferenciales
+            ruedasDelanteras { name ruedasDelanteras; }
+            ruedasTraseras   { name ruedasTraseras; }
+            refaccion        { name refaccion; }         // la llanta de refacción en la puerta trasera
+            espejos          { name espejos; }
+        }
+    }
+
+    // Cajas para refinar el volumen (no son paredes: sólo marcan dónde poner celdas más chicas).
+    // min y max son esquinas opuestas [m]. El Jimny ocupa x de 0 a 3.64, y de -0.86 a 0.86, z de 0 a 1.73.
+    upstream    { type searchableBox; min (-10  -1.5 0);    max (3.7  1.5 1.0);  }  // delante y alrededor, baja
+    underbody   { type searchableBox; min (-10  -1.2 0);    max (3.7  1.2 0.25); }  // franja bajo el vehículo
+    wake        { type searchableBox; min (3.3  -1.4 0);    max (9.0  1.4 2.2);  }  // estela, hasta 5 m detrás
+    estelaCerca { type searchableBox; min (3.3  -1.3 0.05); max (8.0  1.3 2.2);  }  // estela cercana, más fina
+    bajosCerca  { type searchableBox; min (-0.2 -1.0 0);    max (3.7  1.0 0.4);  }  // entre el piso y el suelo
+    downstream  { type searchableBox; min (3.3  -1.6 0);    max (30   1.6 2.3);  }  // estela lejana, hasta la salida
+    // (en OpenFOAM 13 el tipo se llama box)
+};
+
+// ---------------------------------------------------------------------------------------------------
+// ETAPA 1: REFINAR Y RECORTAR
+// ---------------------------------------------------------------------------------------------------
+castellatedMeshControls
+{
+    // Límites de celdas: si se alcanzan, el refinamiento se detiene antes de terminar. motorBikeSteady
+    // pone maxGlobalCells 2000000, que se queda corto para el Jimny (2.1 millones): se subió.
+    maxLocalCells       100000;     // por procesador, antes de repartir la carga
+    maxGlobalCells      100000000;  // en total
+    minRefinementCells  10;         // si quedan menos celdas por refinar, termina
+    maxLoadUnbalance    0.10;       // reparte la carga entre procesadores si se desequilibra más de 10 %
+
+    // Cuántas celdas de cada nivel separan una zona de la siguiente: con 5, el tamaño cambia
+    // gradualmente (motorBikeSteady usa 3).
+    nCellsBetweenLevels 5;
+
+    // Aristas del vehículo (el archivo .eMesh que escribe surfaceFeatures): las celdas que tocan una
+    // arista viva (techo, cofre, defensas, salpicaderas) se refinan a nivel 6, para que la malla
+    // pueda seguir la arista en la etapa 2.
+    features
+    (
+        { file &quot;jimny.eMesh&quot;; level 6; }
+    );
+
+    // Refinamiento por superficie: (mínimo máximo). Toda celda que corta la superficie llega al nivel
+    // mínimo; si la superficie se curva más que resolveFeatureAngle dentro de la celda, al máximo.
+    refinementSurfaces
+    {
+        jimny
+        {
+            level (5 6);                // regiones en general: 3.1 a 1.6 cm
+
+            // type wall: los parches salen como pared. inGroups: los seis quedan en el grupo
+            // jimnyGroup, que usan las condiciones de 0/ y las fuerzas (system/forceCoeffs).
+            patchInfo
+            {
+                type        wall;
+                inGroups    (jimnyGroup);
+            }
+
+            regions
+            {
+                carroceria { level (6 6); }     // la carrocería, toda a 1.6 cm: es la que da el arrastre
+            }
+        }
+    }
+
+    // Ángulo [°] a partir del cual una celda se refina al nivel máximo de su superficie.
+    resolveFeatureAngle 30;
+
+    // Valor por omisión de OpenFOAM (caseDicts/mesh/generation/snappyHexMeshDict.cfg), con el que se
+    // probó la receta; motorBikeSteady no lo escribe.
+    extendedRefinementSpan true;
+
+    // Refinamiento del volumen.
+    refinementRegions
+    {
+        // Por distancia al vehículo: hasta 5 cm, nivel 6; hasta 25 cm, nivel 5; hasta 80 cm, nivel 4.
+        // Es la capa de celdas finas que rodea al vehículo y recoge la capa límite y el despegue.
+        jimny
+        {
+            mode    distance;
+            levels  ((0.05 6) (0.25 5) (0.8 4));
+        }
+
+        // Dentro de las cajas: el nivel que se indica.
+        &quot;(estelaCerca|bajosCerca)&quot;  // las comillas permiten nombres con expresiones regulares
+        {
+            mode    inside;
+            level   5;
+        }
+        &quot;(wake|underbody)&quot;
+        {
+            mode    inside;
+            level   4;
+        }
+        &quot;.*stream&quot;                  // upstream y downstream
+        {
+            mode    inside;
+            level   3;
+        }
+    }
+
+    // Un punto en el aire, fuera del vehículo: snappyHexMesh conserva la parte de la malla que lo
+    // contiene y descarta la de dentro del vehículo. Si cayera dentro del Jimny, se quedaría con el
+    // interior del vehículo.
+    insidePoint (-5 2 3);
+
+    // Permite caras interiores sueltas en zonas de celdas (aquí no hay zonas; se deja como en
+    // motorBikeSteady).
+    allowFreeStandingZoneFaces true;
+}
+
+// ---------------------------------------------------------------------------------------------------
+// ETAPA 2: AJUSTAR A LA SUPERFICIE
+// ---------------------------------------------------------------------------------------------------
+snapControls
+{
+    nSmoothPatch    3;      // suavizados de la superficie antes de buscar a qué punto del STL mover
+                            // cada vértice
+    tolerance       2.0;    // distancia de búsqueda, en múltiplos del tamaño local de celda
+    nSolveIter      100;    // iteraciones para relajar el desplazamiento hacia el interior de la malla
+                            // (motorBikeSteady: 30)
+    nRelaxIter      5;      // si una zona sale de los límites de meshQualityDict, cuántas veces se
+                            // reduce su desplazamiento
+
+    nFeatureSnapIter        10;     // iteraciones para ajustar los vértices a las aristas
+    explicitFeatureSnap     true;   // usar las aristas del .eMesh
+    implicitFeatureSnap     false;  // no adivinarlas de la superficie
+    multiRegionFeatureSnap  false;  // no tratar como arista la frontera entre dos regiones
+}
+
+// ---------------------------------------------------------------------------------------------------
+// ETAPA 3: CAPAS EN LA PARED
+// ---------------------------------------------------------------------------------------------------
+addLayersControls
+{
+    // Los espesores se dan relativos al tamaño de la celda junto a la pared.
+    relativeSizes       on;
+
+    // Dos capas en todas las regiones del Jimny (el suelo no lleva: se mueve con el aire y casi no
+    // forma capa límite). Con celdas de 1.6 cm en la carrocería, la última capa mide 0.5 × 1.6 = 0.8 cm
+    // y la primera 0.8 / 1.2 = 0.65 cm: y+ medio de 180 a 100 km/h, en la zona logarítmica, donde trabajan las
+    // funciones de pared de 0/. motorBikeSteady usa una capa.
+    layers
+    {
+        &quot;(carroceria|bajos|refaccion|espejos|ruedas.*)&quot;
+        {
+            nSurfaceLayers 2;
+        }
+    }
+
+    expansionRatio      1.2;    // cada capa, 1.2 veces la anterior (motorBikeSteady: 1.0)
+    finalLayerThickness 0.5;    // la última capa, 0.5 veces la celda vecina (motorBikeSteady: 0.3)
+    minThickness        1e-3;   // si una capa sale más delgada, no se pone ahí (motorBikeSteady: 0.1)
+    nGrow               0;      // donde un punto no se extruye, cuántas filas de caras vecinas
+                                // tampoco se extruyen (0: ninguna)
+
+    featureAngle        100;    // en esquinas más agudas que esto, las capas se adelgazan o se quitan
+    slipFeatureAngle    30;
+    nRelaxIter          5;      // relajaciones del desplazamiento en cada iteración
+    nRelaxedIter        20;     // a partir de esta iteración se usan los límites «relaxed» de
+                                // meshQualityDict
+    nSmoothSurfaceNormals 1;
+    nSmoothNormals      3;
+    nSmoothThickness    10;
+    maxFaceThicknessRatio 0.5;
+    maxThicknessToMedialRatio 0.6;  // espesor máximo respecto al hueco disponible (rendijas angostas)
+    minMedialAxisAngle  90;
+    nMedialAxisIter     10;
+    nBufferCellsNoExtrude 0;
+    nLayerIter          50;     // iteraciones máximas para agregar capas
+}
+
+// Los límites de calidad de las etapas 2 y 3 están en system/meshQualityDict.
+meshQualityControls
+{
+    #include &quot;meshQualityDict&quot;
+}
+
+// Sin archivos de diagnóstico extra (motorBikeSteady escribe los niveles y la cobertura de las capas
+// como campos: scalarLevels, layerSets, layerFields).
+writeFlags ();
+
+// Tolerancia para fusionar puntos, relativa al tamaño del dominio.
+mergeTolerance 1e-6;
+
+// ************************************************************************* //</code></pre>
+<ul>
+  <li><strong><code>geometry</code></strong> nombra las superficies. El STL lleva sus seis regiones; las cajas (<code>searchableBox</code>) son volúmenes para refinar, no paredes.</li>
+  <li><strong><code>refinementSurfaces</code></strong> y <strong><code>refinementRegions</code></strong> son la receta de la tabla 3. <code>patchInfo</code> hace de cada región una pared del grupo <code>jimnyGroup</code>.</li>
+  <li><strong><code>insidePoint</code></strong> es un punto en el aire: <code>snappyHexMesh</code> conserva la parte de la malla que lo contiene. Si cayera dentro del vehículo, se quedaría con el interior.</li>
+  <li><strong><code>layers</code></strong>: dos capas en las seis regiones del Jimny; el suelo no lleva, porque se mueve con el aire.</li>
+</ul>
+<h3>Las aristas: <code>system/surfaceFeaturesDict</code></h3>
+<p class="code-name"><code>system/surfaceFeaturesDict</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    object      surfaceFeaturesDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// surfaceFeatures busca las aristas vivas del STL y las escribe en constant/geometry/jimny.eMesh, que
+// snappyHexMesh usa para refinar alrededor de ellas (features) y para ajustar la malla a ellas (snap).
+
+surfaces (&quot;jimny.stl&quot;);
+
+// Una arista es «viva» si las dos caras que la forman se doblan más de 180 - 150 = 30°.
+// Con 150, salen el contorno del techo, del cofre, de las salpicaderas y de las defensas; las facetas
+// suaves de los redondeos no.
+includedAngle   150;
+
+subsetFeatures
+{
+    nonManifoldEdges no;    // aristas compartidas por más de dos caras (no las hay: cada región está cerrada)
+    openEdges        yes;   // aristas de una sola cara (bordes abiertos)
+}
+
+// También escribe las aristas en .obj (constant/extendedFeatureEdgeMesh), para verlas en ParaView.
+writeObj        yes;
+
+// ************************************************************************* //</code></pre>
+<h3>Las fuerzas: <code>system/forceCoeffs</code> y <code>system/functions</code></h3>
+<p class="code-name"><code>system/forceCoeffs</code></p>
+<pre class="code"><code>/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  12
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+
+// Coeficientes de arrastre, levante y momento de cabeceo del vehículo, en cada iteración.
+// Escribe postProcessing/forceCoeffs1/0/forceCoeffs.dat (columnas: Time Cm Cd Cl Cl(f) Cl(r)) y los
+// muestra en el registro de foamRun. Estructura de motorBikeSteady; cambian las superficies y las cifras.
+//
+//   Cd = F_x / (0.5 rho U² A),   Cl = F_z / (0.5 rho U² A)
+//   Cl(f) y Cl(r): el levante repartido en el eje delantero y en el trasero (el levante por eje es lo
+//   que se reporta en la industria: cuánto se descarga cada eje).
+
+forceCoeffs1
+{
+    type            forceCoeffs;
+    libs            (&quot;libforces.so&quot;);
+
+    writeControl    timeStep;
+    timeInterval    1;
+
+    log             yes;
+
+    patches         (jimnyGroup);   // las seis regiones del Jimny: carrocería, bajos, ruedas, refacción, espejos
+
+    rho             rhoInf;         // incompresible: la presión es cinemática (p/rho)
+    rhoInf          1;              // con rho = 1 los coeficientes salen bien; las fuerzas, por unidad de densidad
+
+    liftDir         (0 0 1);        // levante hacia arriba
+    dragDir         (1 0 0);        // arrastre en la dirección del aire
+    CofR            (1.755 0 0);    // punto medio entre los ejes, en el suelo (para el momento y el
+                                    // reparto del levante por eje)
+    pitchAxis       (0 1 0);
+
+    magUInf         27.78;          // velocidad de referencia [m/s]: la de include/initialConditions
+    lRef            2.25;           // longitud de referencia [m]: la distancia entre ejes
+    Aref            2.435;          // área frontal [m²] del modelo de FreeCAD (con espejos), medida
+                                    // proyectando el STL sobre el plano y-z
+}
+
+// ************************************************************************* //</code></pre><p class="code-name"><code>system/functions</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    object      functions;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Funciones que se calculan mientras corre foamRun. Las tres primeras son las de motorBikeSteady (en
+// archivos propios de esta carpeta); las dos últimas vienen listas con OpenFOAM (#includeFunc).
+
+#include &quot;cutPlane&quot;         // corte en y = 0
+#include &quot;streamlines&quot;      // líneas de corriente
+#include &quot;forceCoeffs&quot;      // Cd, Cl y el levante por eje, en cada iteración
+
+#includeFunc yPlus                      // y+ de la primera celda en cada pared (postProcessing/yPlus)
+#includeFunc residuals(p, U, k, omega)  // residuos iniciales en cada iteración (postProcessing/residuals)
+
+// ************************************************************************* //</code></pre>
+<p><code>CofR</code> es el punto medio entre los ejes, en el suelo: alrededor de él se calcula el momento de cabeceo y, con él, el levante de cada eje (ecuación 1). <code>cutPlane</code> y <code>streamlines</code> se quedan como en el tutorial, salvo la línea de donde parten las líneas de corriente.</p>
+<h3>El paralelo: <code>system/decomposeParDict</code></h3>
+<p class="code-name"><code>system/decomposeParDict</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    object      decomposeParDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Cómo se reparte el dominio entre procesos para correr en paralelo. decomposePar corta la malla en
+// numberOfSubdomains pedazos (carpetas processor0, processor1, …) y cada proceso de mpirun resuelve uno.
+// Debe coincidir con el -np de mpirun (Allrun lo toma de aquí).
+
+// Uno por núcleo físico de la computadora (la laptop del curso tiene 8). Con más procesos que núcleos
+// el cálculo se hace más lento, no más rápido.
+numberOfSubdomains  8;
+
+// hierarchical: corta el dominio en 4 pedazos a lo largo de x, 2 a lo largo de y y 1 en z (4 × 2 × 1
+// = 8). Es el método de motorBikeSteady.
+decomposer      hierarchical;
+
+hierarchicalCoeffs
+{
+    n               (4 2 1);
+    order           xyz;
+}
+
+// distributor: el método con que snappyHexMesh vuelve a repartir la carga cuando el refinamiento deja
+// a unos procesos con muchas más celdas que otros. motorBikeSteady usa ptscotch, que también funciona en
+// la terminal bash de blueCFD-Core; aquí se usa hierarchical, el mismo método que decomposer. Las dos
+// mallas salen prácticamente iguales (2 122 339 y 2 122 148 celdas).
+distributor     hierarchical;
+
+// ************************************************************************* //</code></pre>
+<h3>La corrida: <code>system/controlDict</code></h3>
+<p class="code-name"><code>system/controlDict</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Control de la corrida. Como en motorBikeSteady, salvo las iteraciones y cada cuántas se escribe.
+
+application     foamRun;                // el ejecutable (getApplication de Allrun lo lee de aquí)
+solver          incompressibleFluid;    // el módulo de foamRun: flujo incompresible, SIMPLE en estacionario
+
+startFrom       startTime;
+startTime       0;
+
+stopAt          endTime;
+
+// En un cálculo estacionario el «tiempo» cuenta iteraciones: deltaT = 1, endTime = número de
+// iteraciones. El Jimny necesita unas 1000 para que el Cd deje de cambiar; se corren 2000 y el Cd se
+// promedia en las últimas 1000 (motorBikeSteady corre 500).
+endTime         2000;
+
+deltaT          1;
+
+// Escribe los campos cada 500 iteraciones (motorBikeSteady, cada 100). Cada escritura de este caso
+// ocupa unos 400 MB.
+writeControl    timeStep;
+writeInterval   500;
+
+purgeWrite      0;              // conserva todas las escrituras
+
+writeFormat     binary;         // binario: ocupa menos y se lee más rápido que ascii
+writePrecision  6;
+writeCompression off;
+
+timeFormat      general;
+timePrecision   6;
+
+runTimeModifiable true;         // relee este archivo mientras corre: se puede cambiar endTime en marcha
+
+// Funciones que se calculan durante la corrida (fuerzas, cortes, líneas de corriente…): system/functions.
+
+// ************************************************************************* //</code></pre>
+<h3>El método numérico: <code>system/fvSchemes</code> y <code>system/fvSolution</code></h3>
+<p>Los del tutorial <code>drivaerFastback</code>, sin cambios en los valores, con comentarios:</p>
+<p class="code-name"><code>system/fvSchemes</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Esquemas de discretización: cómo se aproxima cada término de las ecuaciones en la malla. Son los del
+// tutorial drivaerFastback de OpenFOAM (un auto completo), sin cambios, y no los de motorBikeSteady: con
+// los de la moto, el Cd del Jimny oscila ±8 % y no se asienta; con éstos, ±1 %.
+
+// Derivada en el tiempo: ninguna. Cálculo estacionario.
+ddtSchemes
+{
+    default         steadyState;
+}
+
+// Gradientes: Gauss (suma sobre las caras) con interpolación lineal. Los de U, k y omega llevan un
+// limitador (cellLimited … 1) que impide valores nuevos fuera del intervalo de las celdas vecinas: más
+// estable en una malla de snappyHexMesh, con celdas de tamaños distintos.
+gradSchemes
+{
+    default         Gauss linear;
+    limited         cellLimited Gauss linear 1;
+    grad(U)         $limited;
+    grad(k)         $limited;
+    grad(omega)     $limited;
+}
+
+// Convección (div(phi, ·)): el término que más pesa en la exactitud y en la estabilidad.
+//   U: linearUpwind con el gradiente limitado, de segundo orden.
+//   k y omega: limitedLinear 1, de segundo orden donde el campo es suave y de primer orden donde
+//   cambia bruscamente (motorBikeSteady usa upwind, de primer orden en todas partes).
+//   bounded: en estacionario resta el término de continuidad mientras el cálculo converge.
+divSchemes
+{
+    default         none;
+    div(phi,U)      bounded Gauss linearUpwind limited;
+    turbulence      bounded Gauss limitedLinear 1;
+    div(phi,k)      $turbulence;
+    div(phi,omega)  $turbulence;
+    div(phi,epsilon) $turbulence;
+    div((nuEff*dev2(T(grad(U))))) Gauss linear;
+}
+
+// Difusión (laplaciano): lineal con corrección por no ortogonalidad.
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear;
+}
+
+snGradSchemes
+{
+    default         corrected;
+}
+
+// Distancia a la pared (la usa k-omega SST): meshWave, rápida y suficiente.
+wallDist
+{
+    method meshWave;
+}
+
+// ************************************************************************* //</code></pre><p class="code-name"><code>system/fvSolution</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Cómo se resuelven los sistemas de ecuaciones y el algoritmo SIMPLE. Son los del tutorial drivaerFastback
+// de OpenFOAM, sin cambios (ver system/fvSchemes: con los de motorBikeSteady el Cd del Jimny oscila).
+
+solvers
+{
+    // Presión: GAMG (multimalla algebraica), el más rápido para la ecuación de presión.
+    // relTol 0.1: en cada iteración de SIMPLE basta con bajar el residuo diez veces.
+    p
+    {
+        solver          GAMG;
+        smoother        GaussSeidel;
+        tolerance       1e-6;
+        relTol          0.1;
+    }
+
+    pFinal
+    {
+        $p;
+        relTol         0;
+    }
+
+    // Phi: el potencial de velocidad de potentialFoam (el campo inicial), con el mismo solver.
+    Phi
+    {
+        $p;
+    }
+
+    // Velocidad y turbulencia: Gauss-Seidel simétrico.
+    &quot;(U|k|omega|epsilon)&quot;
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-6;
+        relTol          0.1;
+    }
+
+    &quot;(U|k|omega|epsilon)Final&quot;
+    {
+        $U;
+        relTol          0;
+    }
+}
+
+// SIMPLE: el algoritmo que acopla presión y velocidad en estacionario.
+SIMPLE
+{
+    // Si todos los residuos iniciales bajaran de estos valores, el cálculo se detendría antes de endTime.
+    // En un vehículo no pasa: el flujo detrás de la cola nunca se asienta del todo.
+    residualControl
+    {
+        p               1e-4;
+        U               1e-4;
+        &quot;(k|omega|epsilon)&quot; 1e-4;
+    }
+
+    nNonOrthogonalCorrectors 0;     // sin correcciones extra por no ortogonalidad
+
+    pRefCell        0;              // referencia de presión (no se usa: la salida fija p = 0)
+    pRefValue       0;
+}
+
+// Para potentialFoam: diez correcciones, porque arranca de cero y la malla no es ortogonal.
+potentialFlow
+{
+    nNonOrthogonalCorrectors 10;
+}
+
+// Relajación: cada iteración avanza sólo una fracción del cambio calculado, para que no diverja.
+// La presión, 0.3; la velocidad y la turbulencia, 0.7. (motorBikeSteady usa SIMPLE consistente, que
+// permite relajar menos —U 0.9 y la presión sin relajar—; con el Jimny eso deja oscilar la solución.)
+relaxationFactors
+{
+    fields
+    {
+        p               0.3;
+    }
+    equations
+    {
+        U               0.7;
+        &quot;(k|omega|epsilon)&quot; 0.7;
+    }
+}
+
+// ************************************************************************* //</code></pre>
+<p>Las dos diferencias que pesan frente al <code>motorBikeSteady</code>: la convección de k y ω con <code>limitedLinear</code> (de segundo orden donde el campo es suave) en lugar de <code>upwind</code>, y SIMPLE con la presión relajada a 0.3 y la velocidad a 0.7, en lugar de SIMPLE consistente con la velocidad a 0.9. El segundo cambio es el que amortigua la oscilación.</p>
+<h3>Lo que no cambia</h3>
+<p><code>constant/momentumTransport</code> (k-ω SST) y <code>constant/physicalProperties</code> (\(\nu\) del aire) son los del tutorial; el caso los trae con comentarios.</p>
+<h3>Todo en un comando: <code>Allrun</code></h3>
+<p class="code-name"><code>Allrun</code></p>
+<pre class="code"><code>#!/bin/sh
+cd ${0%/*} || exit 1    # correr desde la carpeta del caso
+
+# El Jimny de 3 puertas a 100 km/h con k-omega SST, en paralelo. Es la secuencia del Allrun de
+# motorBikeSteady, con dos pasos más: escalar el STL (viene en milímetros) y revisar la malla con
+# checkMesh. Cada paso deja su registro en log.&lt;programa&gt;. En la guía 3.2 se corre paso por paso, a mano.
+#
+# El número de procesos sale de system/decomposeParDict (numberOfSubdomains).
+
+# Funciones de los tutoriales de OpenFOAM: runApplication y runParallel corren un programa y guardan su
+# salida en log.&lt;programa&gt;; si ese registro ya existe, no lo vuelven a correr (Allclean los borra).
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+# 1. El STL de FreeCAD está en mm; OpenFOAM trabaja en metros.
+runApplication surfaceTransformPoints &quot;scale=(0.001 0.001 0.001)&quot; \
+    constant/geometry/jimny_mm.stl constant/geometry/jimny.stl
+
+# 2. Revisar la superficie: cerrada, sin triángulos ilegales.
+runApplication surfaceCheck constant/geometry/jimny.stl
+
+# 3. Aristas vivas para snappyHexMesh (constant/geometry/jimny.eMesh).
+runApplication surfaceFeatures
+
+# 4. La malla de fondo: el túnel de cubos de 1 m.
+runApplication blockMesh
+
+# 5. Repartir el dominio entre los procesos (processor0 … processor7), con los campos de 0/.
+runApplication decomposePar -copyZero
+
+# 6. La malla del vehículo, en paralelo. -overwrite: escribe la malla final en constant/polyMesh de cada
+#    processor* en lugar de crear carpetas de tiempo intermedias.
+runParallel snappyHexMesh -overwrite
+
+# 7. Revisar la calidad de la malla y las fronteras que quedaron.
+runParallel checkMesh
+runParallel patchSummary
+
+# 8. Campo inicial: flujo potencial, para que el cálculo no arranque de un campo uniforme.
+runParallel potentialFoam
+
+# 9. El cálculo (foamRun con el módulo incompressibleFluid, de system/controlDict).
+runParallel $(getApplication)
+
+# 10. Juntar la última iteración en la carpeta del caso, para abrirla en ParaView.
+runApplication reconstructPar -latestTime
+
+#------------------------------------------------------------------------------</code></pre>
+<p><code>runApplication</code> y <code>runParallel</code> son funciones de los tutoriales de OpenFOAM: corren un programa, en serie o en paralelo, y guardan su salida en <code>log.&lt;programa&gt;</code>. Si el registro ya existe, no lo vuelven a correr: para empezar de nuevo, <code>./Allclean</code>.</p>
+
+    </section>
+    <section id="check-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>La geometría y el túnel, revisados</h2>
+
+<p>Los pasos 8 y 9 de la receta son los cuatro primeros del <code>Allrun</code>, y bastan para saber si la preparación quedó bien antes de gastar minutos en la malla. Las salidas son las de la corrida de referencia.</p>
+<h3>La geometría, escalada y revisada</h3>
+<p><code>surfaceCheck</code> da primero la caja que contiene al STL. <strong>Es la primera cifra que hay que leer</strong>: dice si la escala es la correcta.</p>
+<pre class="code"><code>Statistics:
+Triangles    : 96896
+Vertices     : 48464
+Bounding Box : (-2.84217e-17 -0.8575 -0.015) (3.64 0.8575 1.725)
+
+Region	Size
+------	----
+carroceria	1152
+bajos	8620
+ruedasDelanteras	39584
+ruedasTraseras	39696
+refaccion	7388
+espejos	456</code></pre><pre class="code"><code>Surface has no illegal triangles.
+
+Triangle quality (equilateral=1, collapsed=0):
+    0 .. 0.05  : 0.0308991
+    0.05 .. 0.1  : 0.00743065
+    0.1 .. 0.15  : 0.00102171
+    0.15 .. 0.2  : 0.0782695
+    0.2 .. 0.25  : 0.000784346
+    0.25 .. 0.3  : 0.000856589
+    0.3 .. 0.35  : 0.014593
+    0.35 .. 0.4  : 0.0078125
+    0.4 .. 0.45  : 0.00315803
+    0.45 .. 0.5  : 0.00625413
+    0.5 .. 0.55  : 0.00188862
+    0.55 .. 0.6  : 0.00665662
+    0.6 .. 0.65  : 0.00211567
+    0.65 .. 0.7  : 0.0129933
+    0.7 .. 0.75  : 0.00753385
+    0.75 .. 0.8  : 0.0168118
+    0.8 .. 0.85  : 0.0245624
+    0.85 .. 0.9  : 0.0485675
+    0.9 .. 0.95  : 0.097713
+    0.95 .. 1  : 0.630078
+
+    min 1.15195e-07 for triangle 1254
+    max 1 for triangle 33482
+
+Edges:
+    min 0.000592536 for edge 341 points (0.11 0.743341 1.085)(0.11 0.743606 1.08447)
+    max 3.00167 for edge 2207 points (0.25 -0.45 0.25)(3.25 -0.55 0.25)
+
+Checking for points less than 1e-6 of bounding box ((3.64 1.715 1.74) metre) apart.
+Found 0 nearby points.
+
+Surface is closed. All edges connected to two faces.
+
+Number of unconnected parts : 9
+Splitting surface into parts ...
+
+Writing zoning to &quot;zone_jimny.vtk&quot;...</code></pre>
+<p>El Jimny mide 3.64 m de largo, de x = 0 (la defensa) a x = 3.64 m (la refacción), y su caja baja a z = −0.01 m: es la parte de las llantas hundida en el suelo, que <code>snappyHexMesh</code> recorta. La superficie está cerrada, sin triángulos ilegales, y tiene las seis regiones. Las nueve «zonas» son las piezas sueltas del STL —la carrocería, los bajos, las cuatro llantas, la refacción y los dos espejos—; <code>surfaceCheck</code> escribe cada una en un archivo <code>jimny_N.obj</code> de la carpeta del caso, que <code>Allclean</code> borra.</p>
+<h3>Las aristas vivas</h3>
+<pre class="code"><code>Initial feature set:
+    feature points : 128
+    feature edges  : 2028
+    of which
+        region edges   : 0
+        external edges : 1077
+        internal edges : 951</code></pre>
+<p>Con <code>includedAngle 150</code>, <code>surfaceFeatures</code> encuentra 2 028 aristas: 1 077 convexas (los bordes del techo, del cofre, de las salpicaderas) y 951 cóncavas (los rincones donde se juntan dos piezas). Las escribe en <code>constant/geometry/jimny.eMesh</code>, el archivo que lee <code>snappyHexMeshDict</code>.</p>
+<h3>La malla de fondo</h3>
+<pre class="code"><code>Mesh Information
+----------------
+  boundingBox: (-10 -5 0) (30 5 8)
+  nPoints: 4059
+  nCells: 3200
+  nFaces: 10400
+  nInternalFaces: 8800
+----------------
+Patches
+----------------
+  patch 0 (start: 8800 size: 640) name: frontAndBack
+  patch 1 (start: 9440 size: 80) name: inlet
+  patch 2 (start: 9520 size: 80) name: outlet
+  patch 3 (start: 9600 size: 400) name: lowerWall
+  patch 4 (start: 10000 size: 400) name: upperWall</code></pre>
+<p>3 200 cubos de 1 m y las cinco fronteras del túnel. Para verlo junto con el vehículo, en la carpeta del caso:</p>
+<pre class="code"><code>paraFoam</code></pre>
+<p>y, en ParaView, agregar el STL con <em>File → Open</em> (<code>constant/geometry/jimny.stl</code>). La figura 5 es esa vista: la malla de fondo como aristas y el Jimny en su lugar, a 10 m de la entrada, sobre el suelo y centrado entre los costados. Si el vehículo no aparece, o aparece gigantesco, el STL no se escaló (sección <a href="#errors-es">«Errores frecuentes»</a>).</p>
+<figure class="diagram">
+  <img src="imagenes/t31-02_dominio.png" alt="La malla de fondo de blockMesh, con el Jimny adentro" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">La malla de fondo y el Jimny.</b> Las 3 200 celdas de 1 m que escribe <code>blockMesh</code> (aristas) y el STL ya escalado a metros. Así queda el caso al terminar este tutorial: la geometría en su lugar, el túnel alrededor, y todo listo para <code>snappyHexMesh</code> (tutorial 3.2). Render de ParaView sobre el caso de la corrida de referencia.</figcaption>
+</figure>
+<div class="result-box">
+  <p><strong>El caso está listo.</strong> Con esta preparación, la corrida de referencia hizo una malla de 2 123 371 celdas (no ortogonalidad máxima 63.5°) en la que <code>checkMesh</code> sólo señala 67 caras muy sesgadas. Aparecieron al quitar a las llantas un pedestal que se había probado antes —el único cambio de la geometría—, así que están donde cada llanta redonda toca el suelo en cuña: lo mismo que trae el <code>drivaerFastback</code> oficial. Cómo se llega a ella, en paralelo y paso a paso, y cómo se leen esas caras, es el tutorial 3.2.</p>
+</div>
+
+    </section>
+    <section id="errors-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Qué sale mal al preparar el caso</h2>
+
+<p>Los tres errores de esta lista son los que salen al adaptar el <code>motorBikeSteady</code>. Los mensajes son reales: se provocaron a propósito en una copia del caso.</p>
+<h3>1. El STL sin escalar</h3>
+<p>FreeCAD exporta en milímetros y OpenFOAM no sabe de unidades: un STL de 3640 «unidades» de largo es un vehículo de 3.6 km. <code>surfaceCheck</code> lo dice en su primera cifra:</p>
+<pre class="code"><code>Bounding Box : (-2.84217e-14 -857.5 -15) (3640 857.5 1725)</code></pre>
+<p>Lo peligroso es que nada más se queja. <code>snappyHexMesh</code> refina el volumen con las cajas y termina «sin errores»:</p>
+<pre class="code"><code>Layer mesh : cells:1214480  faces:3704972  points:1276825
+Cells per refinement level:
+    0	1102</code></pre>
+<p>pero el túnel de 40 m cabe entero en el aire bajo la defensa del Jimny gigante —cuya defensa empieza a 360 «metros» del suelo, y cuyas llantas delanteras, a 284 «metros» de la punta— sin cortar su superficie, y la malla no tiene un solo parche del vehículo. <code>checkMesh</code> sólo encuentra las cinco fronteras del túnel, y aun así da la malla por buena:</p>
+<pre class="code"><code>Checking basic patch addressing...
+                   Patch    Faces   Points
+            frontAndBack     1642     1924
+                   inlet      626      740
+                  outlet      770      874
+               lowerWall    26704    28132
+               upperWall      400      528</code></pre><pre class="code"><code>Mesh OK.</code></pre>
+<p><strong>Remedio:</strong> escalar con <code>surfaceTransformPoints</code> (paso 8) y revisar siempre la caja de <code>surfaceCheck</code>.</p>
+<h3>2. El grupo del tutorial en los campos</h3>
+<p>Si en algún archivo de <code>0/</code> se queda <code>motorBikeGroup</code>, ninguna entrada cubre los parches del Jimny, y el primer programa que lee los campos se detiene:</p>
+<pre class="code"><code>--&gt; FOAM FATAL IO ERROR:</code></pre>
+<p>El mensaje dice <code>0/U</code> aunque el archivo se llame <code>U.orig</code>: es el campo <code>U</code>, que OpenFOAM leyó de <code>U.orig</code> porque <code>U</code> no existía. Aquí lo dio <code>potentialFoam</code>; en paralelo lo da igual, en el primer programa que lee los campos.</p>
+<p><strong>Remedio:</strong> cambiar el grupo en los cinco archivos de <code>0/</code>. El mensaje nombra el campo y el primer parche que quedó sin condición.</p>
+<h3>3. El <code>maxGlobalCells</code> del tutorial</h3>
+<p>La moto cabe en dos millones de celdas; el Jimny, apenas no. Con el <code>maxGlobalCells 2000000</code> del tutorial, <code>snappyHexMesh</code> deja de marcar celdas para refinar en cuanto la malla pasa de dos millones, lo avisa en el registro y sigue adelante, hasta «sin errores»:</p>
+<pre class="code"><code>No cells marked for refinement since reached limit 2000000.</code></pre><pre class="code"><code>Layer mesh : cells:2105731  faces:6487695  points:2278210
+Cells per refinement level:
+    0	1044</code></pre>
+<p>Con el Jimny el límite llega casi al final: la malla queda con 2 105 731 celdas en lugar de 2 123 371, 0.8 % menos. Pero con una receta un poco más fina se quedaría a medias, y el único aviso está enterrado entre miles de líneas del registro.</p>
+<p><strong>Remedio:</strong> subir el límite (<code>100000000</code> en el caso), y comparar siempre el número de celdas que da <code>checkMesh</code> con el esperado.</p>
+
+    </section>
+    <section id="practice-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>El mismo Jimny a 120 km/h</h2>
+
+<p class="lead">Preparar el mismo caso a 120 km/h, y comprobar que la preparación quedó bien.</p>
+<div class="example">
+  <p><strong>Enunciado.</strong> A partir del caso del Jimny, preparar uno nuevo a 120 km/h (33.33 m/s). No hace falta correr la malla ni el cálculo: basta con los pasos 8 y 9 de la receta, y con dejar todo lo demás listo para el tutorial 3.2.</p>
+  <p><strong>Condiciones.</strong> El mismo vehículo, el mismo túnel, la misma malla; cambian la velocidad, el giro de las ruedas y la referencia de las fuerzas.</p>
+</div>
+<h3>El procedimiento, en corto</h3>
+<ol>
+  <li>Copiar el caso con otro nombre: <code>cp -r $FOAM_RUN/jimny $FOAM_RUN/jimny120</code>, y <code>./Allclean</code> dentro de la copia.</li>
+  <li>Encontrar los <strong>tres</strong> lugares donde vive la velocidad: <code>flowVelocity</code> y <code>wheelSpeed</code> en <code>0/include/initialConditions</code>, y <code>magUInf</code> en <code>system/forceCoeffs</code>. Calcular la nueva \(\omega\) con la ecuación (2).</li>
+  <li>Correr los pasos 8 y 9 y revisar la caja de <code>surfaceCheck</code> y el registro de <code>blockMesh</code>.</li>
+</ol>
+<h3>Registro de resultados</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Velocidad</th><th>\(U_\infty\) [m/s]</th><th>\(\omega\) [rad/s]</th><th>Re con el largo</th><th>Celdas de blockMesh</th></tr></thead>
+    <tbody>
+      <tr><td>100 km/h</td><td>27.78</td><td>83.80</td><td>6.74·10<sup>6</sup></td><td>3 200</td></tr>
+      <tr><td>120 km/h</td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 5.</b> <b class="fig-title">Registro de la práctica.</b> El renglón de 100 km/h es el del caso de esta guía; el de 120 km/h se llena con el caso propio.</caption>
+  </table>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>¿Qué pasaría con las fuerzas que escribe <code>forceCoeffs</code> si se cambia <code>flowVelocity</code> pero no <code>magUInf</code>? ¿Y con los coeficientes?</li>
+  <li>¿Por qué no cambia la malla al cambiar la velocidad? ¿Qué cifra de la malla sí depende de la velocidad, y en cuánto cambia? (Pista: y⁺.)</li>
+  <li>¿Cuántas veces más grande es la fuerza de arrastre a 120 km/h que a 100 km/h, si el coeficiente no cambia?</li>
+</ol>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ul class="references">
+  <li>Hucho, W.-H. (Ed.). (1998). <em>Aerodynamics of road vehicles</em> (4.ª ed.). SAE International.</li>
+  <li>Menter, F. R. (1994). Two-equation eddy-viscosity turbulence models for engineering applications. <em>AIAA Journal, 32</em>(8), 1598–1605.</li>
+  <li>OpenFOAM Foundation. (2024). <em>OpenFOAM user guide, version 12</em>, sección «Mesh generation with the snappyHexMesh utility». https://doc.cfd.direct/openfoam/user-guide-v12/snappyhexmesh</li>
+  <li>OpenFOAM Foundation. (2024). Tutorial <code>incompressibleFluid/motorBikeSteady</code>, OpenFOAM 12 (en <code>$FOAM_TUTORIALS</code> de blueCFD-Core 2024).</li>
+</ul>
+<p class="source-note">Las salidas de los programas son de la corrida de referencia en blueCFD-Core 2024 (OpenFOAM 12), en una laptop con Windows 11 y 8 núcleos; las imágenes del Jimny y del túnel son renders de ParaView 5.11.2 sobre los archivos del caso. El modelo del Jimny es propio, hecho en FreeCAD 1.1 con las medidas del vehículo real.</p>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="paraview-naca0012.html?v=13"><span>Tutorial anterior</span>← 2.3 · El posprocesamiento del NACA 0012</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Flujo incompresible</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Von einem OpenFOAM-Tutorial ausgehen und es an das eigene Fahrzeug anpassen: was jeder Ordner eines Falls enthält, welche Wörterbücher sich ändern und welche nicht, wie eine Geometrie mit benannten Regionen zu Randpatches wird und wie das Rezept für snappyHexMesh geschrieben wird. Die parallele Rechnung folgt in Tutorial 3.2.</p>
+    </section>
+    <section id="problem-de">
+      <p class="section-label">Das Problem</p>
+      <h2>Was simuliert wird</h2>
+<p>Ein vollständiger dreitüriger Suzuki Jimny (eigenes FreeCAD-Modell, 3,64 × 1,72 × 1,73 m, Stirnfläche 2,435 m²) bei 100 km/h, Re = 6,7·10⁶ mit der Länge, auf bewegtem Boden und mit drehenden Rädern; k-ω SST mit Wandfunktionen.</p>
+    </section>
+    <section id="theory-de">
+      <p class="section-label">Die Theorie</p>
+      <h2>Beiwerte, virtueller Kanal und Netz</h2>
+<p>Widerstands- und Auftriebsbeiwerte und der Auftrieb je Achse; der virtuelle Windkanal: Größe, Versperrung (3,0 %), reibungsfreie Wände und bewegter Boden; drehende Räder (ω = U/r); was snappyHexMesh in seinen drei Schritten tut und was eine Verfeinerungsstufe ist; Schichten, y⁺ und Wandfunktionen.</p>
+    </section>
+    <section id="recipe-de">
+      <p class="section-label">Schritt für Schritt</p>
+      <h2>Vom motorBikeSteady zum Jimny</h2>
+<p>motorBikeSteady aus $FOAM_TUTORIALS kopieren, das STL nach constant/geometry legen und Datei für Datei ändern, was die Tabelle aufführt: den Kanal, das snappyHexMesh-Rezept, Geschwindigkeit und Turbulenz am Einlass, die Patch-Gruppe, die Räder, die Kraftreferenzen und die Zahl der Prozesse; fvSchemes und fvSolution stammen aus dem Tutorial drivaerFastback, weil sich der Widerstandsbeiwert des Jimny mit denen des Motorrads nicht einstellt.</p>
+    </section>
+    <section id="case-de">
+      <p class="section-label">Der Fall</p>
+      <h2>Die Dateien, eine nach der anderen</h2>
+<p>Jedes Wörterbuch des Falls, vollständig mit seinen spanischen Kommentaren; snappyHexMeshDict im Detail.</p>
+    </section>
+    <section id="check-de">
+      <p class="section-label">Durchgerechnetes Beispiel</p>
+      <h2>Geometrie und Kanal, geprüft</h2>
+<p>Die ersten vier Schritte laufen seriell, um die Vorbereitung zu prüfen: das auf Meter skalierte STL (96 896 Dreiecke, geschlossen, sechs Regionen), 2 028 Merkmalskanten und das Hintergrundnetz mit 3 200 Zellen, in dem das Fahrzeug liegt, in ParaView.</p>
+    </section>
+    <section id="errors-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Was beim Vorbereiten schiefgeht</h2>
+<p>Das STL nicht zu skalieren (ein Fahrzeug von 3,6 km, und snappyHexMesh endet «ohne Fehler» ohne Fahrzeug im Netz); motorBikeGroup in den Feldern zu lassen; das maxGlobalCells von zwei Millionen des Tutorials zu behalten.</p>
+    </section>
+    <section id="practice-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Derselbe Jimny bei 120 km/h</h2>
+<p>Denselben Fall bei 120 km/h vorbereiten: die drei Stellen, an denen die Geschwindigkeit steht, die neue Raddrehzahl und Reynolds-Zahl; mit den ersten vier Schritten prüfen.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>Das Tutorial motorBikeSteady von OpenFOAM 12; das OpenFOAM-Benutzerhandbuch zu snappyHexMesh; Menter (1994) für k-ω SST; Hucho zur Aerodynamik von Straßenfahrzeugen.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="paraview-naca0012.html?v=13"><span>Vorheriges Tutorial</span>← 2.3 · Die Nachbearbeitung des NACA 0012</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Inkompressible Strömung</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>
