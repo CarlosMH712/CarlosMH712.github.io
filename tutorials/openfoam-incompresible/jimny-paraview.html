@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="OpenFOAM tutorial: post-processing the flow around a full Suzuki Jimny with ParaView 5.11: velocity on the centre plane, where the flow reverses (the hood bubble and the rear recirculation), the pressure coefficient on the body, the pressure drag integrated in ParaView, the wake as the zero total-pressure surface, and streamlines." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>The Jimny in ParaView: Pressure, Separation and Wake | OpenFOAM Incompressible-Flow Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">OpenFOAM · Incompressible flow · Tutorial 3.4</p><h1>The Jimny in ParaView: pressure, separation and wake</h1><p class="hero-copy">The run of Tutorial 3.2, seen: velocity on the centre plane, the regions where the flow reverses, the pressure coefficient on the body, the pressure drag recovered by integrating it, the wake and the streamlines, with ParaView 5.11.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">OpenFOAM · Flujo incompresible · Tutorial 3.4</p><h1>El Jimny en ParaView: presión, desprendimiento y estela</h1><p class="hero-copy">La corrida del tutorial 3.2, vista: la velocidad en el plano medio, dónde se invierte el flujo, el coeficiente de presión sobre la carrocería, el arrastre de presión recuperado integrándolo, la estela y las líneas de corriente, con ParaView 5.11.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">OpenFOAM · Inkompressible Strömung · Tutorial 3.4</p><h1>Der Jimny in ParaView: Druck, Ablösung und Nachlauf</h1><p class="hero-copy">Die Rechnung aus Tutorial 3.2, sichtbar gemacht: die Geschwindigkeit in der Mittelebene, wo die Strömung umkehrt, der Druckbeiwert auf der Karosserie, der Druckwiderstand durch Integration, der Nachlauf und die Stromlinien, mit ParaView 5.11.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 45 min</span><span data-language="es" hidden>Lectura estimada: 45 min</span><span data-language="de" hidden>Lesedauer: ca. 45 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on OpenFOAM 12 (blueCFD-Core 2024) and ParaView 5.11.2</span><span data-language="es" hidden>Verificado en OpenFOAM 12 (blueCFD-Core 2024) y ParaView 5.11.2</span><span data-language="de" hidden>Geprüft mit OpenFOAM 12 (blueCFD-Core 2024) und ParaView 5.11.2</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="jimny-resultados.html?v=13">← <span>3.3</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/FETqKq37H24" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Watch the video</span><span data-language="es" hidden>Ver el vídeo</span><span data-language="de" hidden>Video ansehen</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#problem">The problem</a><a href="#theory">Theory</a><a href="#recipe">Recipe</a><a href="#check">Check</a><a href="#errors">Common errors</a><a href="#practice">Suggested exercise</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#problem-es">El problema</a><a href="#theory-es">Teoría</a><a href="#recipe-es">Receta</a><a href="#check-es">Revisión</a><a href="#errors-es">Errores frecuentes</a><a href="#practice-es">Práctica sugerida</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#problem-de">Das Problem</a><a href="#theory-de">Theorie</a><a href="#recipe-de">Ablauf</a><a href="#check-de">Prüfung</a><a href="#errors-de">Häufige Fehler</a><a href="#practice-de">Übungsvorschlag</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>See the flow around a vehicle in ParaView and tie what you see to the numbers of Tutorial 3.3: the centre plane, the reversed-flow regions, the pressure coefficient, the pressure drag integrated over the body, the wake and the streamlines.</p>
+    </section>
+    <section id="problem">
+      <p class="section-label">The problem</p>
+      <h2>What the drag coefficient does not say</h2>
+<p>Tutorial 3.3 gave a drag coefficient of 0.564 and said it is almost all pressure. Where does that pressure come from, where does the flow separate, and how long is the wake?</p>
+    </section>
+    <section id="theory">
+      <p class="section-label">The theory</p>
+      <h2>Pressure coefficient, separation and total pressure</h2>
+<p>The pressure coefficient and its reference (p = 0 at the outlet, so the free stream upstream is Cp = 0.023); the pressure drag as the integral of Cp·n_x; separation and reversed flow; the total-pressure coefficient Cp0 and why the wake is the region where Cp0 &lt; 0, while moving walls can raise it above the free stream.</p>
+    </section>
+    <section id="recipe">
+      <p class="section-label">Step by step</p>
+      <h2>Nine filters, two readers</h2>
+<p>paraFoam; a Slice at y = 0 coloured by U and by Ux with a fixed range; a second reader with only the vehicle surface; a Calculator with Cp on cell data; Extract Surface, Generate Surface Normals, a Calculator with Cp·n_x and Integrate Variables; a Calculator with Cp0 and a Contour at zero; a Stream Tracer.</p>
+    </section>
+    <section id="check">
+      <p class="section-label">Worked example</p>
+      <h2>What the Jimny shows</h2>
+<p>The hood bubble starts at the leading edge (x = 0.15 m) and grows to 26 cm before the windshield; the rear recirculation reaches 2.0 m behind the vehicle; the integrated pressure drag is 0.5618 against 0.5615 from foamPostProcess; the wake is the zero total-pressure surface.</p>
+    </section>
+    <section id="errors">
+      <p class="section-label">Common errors</p>
+      <h2>What goes wrong in ParaView</h2>
+<p>Integrating point data instead of cell data (0.5532 instead of 0.5618); a colour range that grows on its own; the automatic range that hides everything in one colour.</p>
+    </section>
+    <section id="practice">
+      <p class="section-label">Suggested exercise</p>
+      <h2>The Jimny at 120 km/h, seen</h2>
+<p>Repeat the views on the 120 km/h case and compare the hood bubble, the recirculation and the integrated pressure drag.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>Hucho on road-vehicle aerodynamics; the ParaView user's guide; the OpenFOAM user guide.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="jimny-resultados.html?v=13"><span>Previous tutorial</span>← 3.3 · The Jimny's results</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Incompressible flow</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">El <a href="jimny-resultados.html">tutorial 3.3</a> dio el coeficiente de arrastre del Jimny, \(C_D\) = 0.564, y encontró que el 99 % es de presión. Esta guía lo hace visible: dónde empuja el aire, dónde se despega, cuánto mide la estela. Y lo comprueba: el arrastre de presión se vuelve a calcular dentro de ParaView, integrando lo que se ve.</p>
+<ul>
+  <li>Cortar el campo por el plano medio y leer en él la velocidad y las zonas de flujo invertido, con un rango de color elegido a propósito.</li>
+  <li>Abrir el mismo caso dos veces —el aire y la superficie del vehículo— y calcular el coeficiente de presión con un <code>Calculator</code>.</li>
+  <li>Integrar el coeficiente de presión sobre la carrocería con <code>Integrate Variables</code> y recuperar el arrastre de presión del 3.3.</li>
+  <li>Dibujar la estela como la superficie de presión total cero y las líneas de corriente alrededor del vehículo.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> El caso del 3.2 terminado y reconstruido (la carpeta <code>2000</code> en <code>$FOAM_RUN/jimny</code>) y ParaView 5.11, que se abre con <code>paraFoam</code>. Conviene haber hecho los posprocesamientos del <a href="paraview-naca0012.html">2.3</a> y del <a href="tuberia-paraview.html">1.3</a>: aquí se dan por sabidos <em>Apply</em>, el ojo de cada filtro y el rango de colores.</p>
+</div>
+
+    </section>
+    <section id="problem-es">
+      <p class="section-label">El problema</p>
+      <h2>Lo que el Cd no dice</h2>
+
+<p>Un coeficiente resume el flujo en un número, y deja fuera todo lo demás. Dos vehículos con el mismo \(C_D\) pueden tener el arrastre en lugares muy distintos, y para cambiarlo hay que saber dónde está. Las preguntas de esta guía son las que se hace un ingeniero al abrir los resultados:</p>
+<ul>
+  <li>¿Dónde empuja el aire, y dónde succiona?</li>
+  <li>¿Dónde se despega del vehículo, y qué tan grandes son esas zonas?</li>
+  <li>¿Qué tan larga es la estela?</li>
+  <li>¿Cuadra lo que se ve con el número del 3.3?</li>
+</ul>
+
+    </section>
+    <section id="theory-es">
+      <p class="section-label">La teoría</p>
+      <h2>Coeficiente de presión, desprendimiento y presión total</h2>
+
+<h3>El coeficiente de presión y su referencia</h3>
+<p>El coeficiente de presión compara la presión de cada punto con la del aire libre, en unidades de la presión dinámica:</p>
+<div class="equation-card">\[ C_p = \frac{p - p_\infty}{\tfrac12 \rho U_\infty^2},\qquad C_{p0} = \frac{p + \tfrac12\rho|\mathbf U|^2 - p_\infty}{\tfrac12 \rho U_\infty^2} \tag{1} \]</div>
+<p>El solver incompresible trabaja con la presión dividida entre la densidad, y el caso pone p = 0 en la salida del túnel. Tomando esa presión como referencia, \(C_p = p/(\tfrac12 U_\infty^2) = p/385.8642\). Pero delante del vehículo la presión del aire libre no es exactamente cero: el túnel pierde un poco de presión de la entrada a la salida, y en la entrada \(C_p\) = 0.023. Por eso el \(C_p\) de remanso, donde el aire se detiene, no es 1 sino 1 + 0.023. Para las fuerzas da igual: una presión constante sobre una superficie cerrada no empuja en ninguna dirección.</p>
+<p>\(C_{p0}\) es el coeficiente de <strong>presión total</strong>: la presión más la presión dinámica. Fuera de la capa límite y de la estela el aire no pierde energía y \(C_{p0}\) vale lo mismo que en la entrada, 1.023 (es la ecuación de Bernoulli). Dentro de ellas la viscosidad y la turbulencia se comen parte de esa energía y \(C_{p0}\) baja. La superficie \(C_{p0} = 0\), donde el aire perdió toda su presión dinámica de llegada, es la forma habitual de dibujar la estela de un vehículo <a href="#references-es">(Hucho, 1998)</a>.</p>
+<p>Hay un caso en que \(C_{p0}\) sube en lugar de bajar: junto a una pared que se mueve. Las llantas giran, y en su parte de arriba la superficie va hacia adelante, contra el viento; el suelo se mueve con el aire. Esas paredes le dan energía al aire que las toca: junto a la rueda delantera, \(C_{p0}\) llega a 1.81.</p>
+<h3>El arrastre de presión como integral</h3>
+<p>La presión empuja cada cara de la carrocería en la dirección de su normal. Sumando sobre toda la superficie, la componente en x de esa fuerza es el arrastre de presión; en coeficiente,</p>
+<div class="equation-card">\[ C_{D,p} = \frac{1}{A}\oint C_p\, n_x\, dA \tag{2} \]</div>
+<p>con \(\mathbf n\) la normal de cada cara que apunta fuera del aire, hacia dentro del vehículo (la orientación que les da OpenFOAM a las caras de frontera): en el frente, \(n_x\) es positiva y una presión positiva empuja hacia atrás. ParaView puede calcular las normales de cada cara, multiplicar y sumar: es lo que hace la receta, y debe dar el arrastre de presión de <code>foamPostProcess</code>.</p>
+<h3>Desprendimiento y flujo invertido</h3>
+<p>Donde la superficie cambia bruscamente de dirección —un borde vivo—, la capa límite no alcanza a seguirla y se despega. Detrás queda una zona donde el aire se mueve lento y en remolino, y parte de él va hacia adelante, contra la corriente: \(U_x &lt; 0\). Colorear un corte por \(U_x\), con un rango que ponga el cero en el centro de la escala, deja ver esas zonas de un vistazo. El Jimny, con su frente plano y su cola recta, tiene varias.</p>
+
+    </section>
+    <section id="recipe-es">
+      <p class="section-label">Paso a paso</p>
+      <h2>Nueve filtros, dos lectores</h2>
+
+<p>En la terminal de blueCFD-Core, dentro del caso, <code>paraFoam</code> abre ParaView con un lector del caso, <code>jimny.foam</code>. Todo lo demás es en ParaView, en el orden de la tabla 1.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Filtro</th><th>Sobre</th><th>Lo que se le pone</th><th>Para qué</th></tr></thead>
+    <tbody>
+      <tr><td><code>Slice</code></td><td>lector del aire</td><td><em>Y Normal</em> (el plano y = 0)</td><td>el plano medio: velocidad y flujo invertido</td></tr>
+      <tr><td><code>Calculator</code></td><td>lector del vehículo</td><td><em>Cell Data</em>; <code>Cp</code> = <code>p/385.8642</code></td><td>el coeficiente de presión sobre la carrocería</td></tr>
+      <tr><td><code>Extract Surface</code></td><td><code>Calculator</code> del Cp</td><td>—</td><td>deja la superficie como polígonos, lo que pide el siguiente</td></tr>
+      <tr><td><code>Generate Surface Normals</code></td><td><code>Extract Surface</code></td><td><em>Compute Cell Normals</em></td><td>la normal de cada cara: <code>Normals</code></td></tr>
+      <tr><td><code>Calculator</code></td><td>las normales</td><td><em>Cell Data</em>; <code>CpNx</code> = <code>Cp*Normals_X</code></td><td>lo que se integra para el arrastre de presión</td></tr>
+      <tr><td><code>Integrate Variables</code></td><td>ese <code>Calculator</code></td><td>—</td><td>\(\int C_p n_x\,dA\) y el área, en una hoja</td></tr>
+      <tr><td><code>Calculator</code></td><td>lector del aire</td><td><code>Cp0</code> = <code>(p+0.5*mag(U)^2)/385.8642</code></td><td>el coeficiente de presión total</td></tr>
+      <tr><td><code>Contour</code></td><td>ese <code>Calculator</code></td><td><code>Cp0</code> = 0; opacidad 0.5</td><td>la estela</td></tr>
+      <tr><td><code>Stream Tracer</code></td><td>lector del aire</td><td>una recta de semillas delante del vehículo, 60 puntos</td><td>las líneas de corriente</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">El árbol de filtros de esta guía.</b> En el orden en que se crean. Los dos lectores son el mismo archivo <code>jimny.foam</code>: el primero con la malla del aire (<code>internalMesh</code>), el segundo sólo con la superficie del vehículo (<code>group/jimnyGroup</code>).</caption>
+  </table>
+</div>
+<ol>
+  <li><strong>El lector del aire</strong>: <em>Apply</em> (lee la malla completa, 2.1 millones de celdas: unos segundos) y la última iteración con <em>Last Frame</em>.</li>
+  <li><strong>El plano medio</strong>: <code>Slice</code> con <em>Y Normal</em> (el origen ya está en y = 0, el centro del túnel), <em>Apply</em>, colorear por <code>U</code> y fijar el rango de 0 a 36 con <em>Rescale to Custom Data Range</em> ▸ <em>Rescale and disable automatic rescaling</em>. Se mira de lado con <em>Adjust Camera</em> (la vertical, z).</li>
+  <li><strong>El flujo invertido</strong>: el mismo corte coloreado por <code>U</code> ▸ <code>X</code>, con el rango de −10 a 10. Acercar la cámara al cofre y a la cola.</li>
+  <li><strong>El lector del vehículo</strong>: <em>File ▸ Open</em>, <code>jimny.foam</code> otra vez; en <em>Mesh Regions</em>, sólo <code>group/jimnyGroup</code>; <em>Apply</em>.</li>
+  <li><strong>El Cp</strong>: <code>Calculator</code> con <em>Attribute Type</em> <em>Cell Data</em>, nombre <code>Cp</code> y expresión <code>p/385.8642</code>; colorear por <code>Cp</code> con el rango de −1 a 1.</li>
+  <li><strong>El arrastre de presión</strong>, sobre ese <code>Calculator</code>: <code>Extract Surface</code>; <code>Generate Surface Normals</code> con <em>Compute Cell Normals</em>; otro <code>Calculator</code> en <em>Cell Data</em> con <code>CpNx</code> = <code>Cp*Normals_X</code>; <code>Integrate Variables</code>. En la hoja de cálculo que abre, <em>Attribute</em> en <em>Cell Data</em>: \(C_{D,p}\) = <code>CpNx</code>/2.435. Luego se cierra la hoja y se borran estos cuatro filtros, que ya no hacen falta.</li>
+  <li><strong>La estela</strong>, sobre el lector del aire: <code>Calculator</code> (en <em>Point Data</em>) con <code>Cp0</code> = <code>(p+0.5*mag(U)^2)/385.8642</code>; <code>Contour</code> por <code>Cp0</code> con el valor 0; en el panel, <em>Opacity</em> 0.5. Se deja a la vista con el vehículo.</li>
+  <li><strong>Las líneas de corriente</strong>, sobre el lector del aire: <code>Stream Tracer</code> con la recta de semillas de (−1, −0.9, 0.15) a (−1, 0.9, 1.9) y <em>Resolution</em> 60; sin <em>Show Line</em>; colorear por la magnitud de <code>U</code>.</li>
+</ol>
+<p>Los filtros se crean con los botones de la barra de herramientas (<code>Slice</code>, <code>Calculator</code>, <code>Contour</code>, <code>Stream Tracer</code>) o, los que no están en ella, con <kbd>Ctrl</kbd>+<kbd>Espacio</kbd> y su nombre.</p>
+
+    </section>
+    <section id="check-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>Lo que enseña el Jimny</h2>
+
+<p>Las imágenes son del vídeo de esta guía; las cifras, de la misma corrida leída con ParaView sin ventana.</p>
+<h3>1. La velocidad en el plano medio</h3>
+<figure class="diagram">
+  <img src="imagenes/t34-01_plano_u.png" alt="ParaView con el corte por el plano medio del Jimny coloreado por la velocidad" loading="lazy">
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">La velocidad en el plano medio.</b> <code>Slice</code> por y = 0, coloreado por la magnitud de U con el rango fijo de 0 a 36 m/s. El aire se frena delante del frente (azul), se acelera sobre el borde del techo (rojo oscuro: hasta 36.5 m/s en el plano) y deja detrás una estela lenta, tan alta como el vehículo. El hueco es el Jimny; abajo, el suelo.</figcaption>
+</figure>
+<p>La figura 1 resume el flujo de un vehículo de caja: el aire se frena contra el frente, se acelera para pasar por encima —la velocidad más alta del plano, 36.5 m/s, un tercio más que la del aire libre— y deja detrás una estela lenta que ocupa toda la altura de la cola. Con el rango automático los mismos colores se verían pálidos: ParaView lo toma de toda la malla, y el máximo, 50 m/s, está junto a la cara de afuera de la rueda delantera, donde el aire se acelera alrededor de la llanta que gira.</p>
+<h3>2. Dónde se invierte el flujo</h3>
+<figure class="diagram">
+  <img src="imagenes/t34-02_plano_ux.png" alt="El corte por el plano medio coloreado por la componente x de la velocidad, con el flujo invertido en azul" loading="lazy">
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">Dónde se invierte el flujo.</b> El mismo corte coloreado por la componente x de U, con el rango de −10 a 10 m/s: el blanco es Ux = 0 y el azul, aire que va hacia adelante, contra la corriente. Se ven dos zonas: sobre el cofre, al pie del parabrisas, y detrás de la cola.</figcaption>
+</figure>
+<p>Coloreado por \(U_x\) con el cero en el centro de la escala (figura 2), el corte enseña las zonas de la tabla 2. Las dos grandes son la del cofre y la de la cola.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Zona</th><th>De x = … a x = …</th><th>Espesor</th><th>Qué es</th></tr></thead>
+    <tbody>
+      <tr><td>sobre el cofre</td><td>0.15 a 1.30 m</td><td>hasta 26 cm, en x = 1.02 m</td><td>el aire se despega en el borde delantero del cofre y vuelve a pegarse en el parabrisas</td></tr>
+      <tr><td>en el borde del techo</td><td>1.45 a 1.60 m</td><td>7 mm</td><td>una burbuja muy delgada donde el parabrisas se junta con el techo</td></tr>
+      <tr><td>detrás de la cola</td><td>3.64 a 5.62 m</td><td>casi toda la altura de la cola</td><td>la recirculación: 2.0 m detrás del vehículo (0.55 veces su largo)</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Dónde se invierte el flujo, en el plano medio.</b> Las zonas del plano y = 0 con \(U_x &lt; 0\) (el aire va hacia adelante), medidas en la iteración 2000. El Jimny va de x = 0 a x = 3.64 m.</caption>
+  </table>
+</div>
+<figure class="diagram">
+  <img src="imagenes/t34-03_cofre_ux.png" alt="Acercamiento al cofre y al parabrisas en el corte coloreado por Ux" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">La burbuja del cofre, de cerca.</b> El aire que sube por el frente plano no alcanza a doblar el borde del cofre: se despega ahí y deja sobre el cofre una cuña de flujo invertido (azul) que crece hacia el parabrisas, donde el aire vuelve a pegarse.</figcaption>
+</figure>
+<p>Sobre el cofre (figura 3), el aire que sube por el frente plano no alcanza a doblar el borde y se despega ahí. Queda una burbuja que la figura 4 mide tramo por tramo: empieza en el borde, x = 0.15 m, crece hasta 26 cm de espesor al llegar al parabrisas y se cierra sobre él, en x ≈ 1.30 m. En el borde del techo hay otra, pero de sólo 7 mm: la primera celda junto a la pared.</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Altura de la superficie del Jimny y del borde superior del flujo invertido sobre el cofre, en el plano medio.">
+  <text class="svg-title" x="76" y="28">La burbuja del cofre en el plano medio</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="666" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">1.0</text>
+  <line class="svg-grid" x1="76" y1="237.5" x2="666" y2="237.5"/>
+  <text class="svg-tick" x="70" y="241.5" text-anchor="end">1.2</text>
+  <line class="svg-grid" x1="76" y1="175.0" x2="666" y2="175.0"/>
+  <text class="svg-tick" x="70" y="179.0" text-anchor="end">1.4</text>
+  <line class="svg-grid" x1="76" y1="112.5" x2="666" y2="112.5"/>
+  <text class="svg-tick" x="70" y="116.5" text-anchor="end">1.6</text>
+  <line class="svg-grid" x1="76" y1="50.0" x2="666" y2="50.0"/>
+  <text class="svg-tick" x="70" y="54.0" text-anchor="end">1.8</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0.00</text>
+  <text class="svg-tick" x="174.3" y="318" text-anchor="middle">0.25</text>
+  <text class="svg-tick" x="272.7" y="318" text-anchor="middle">0.50</text>
+  <text class="svg-tick" x="371.0" y="318" text-anchor="middle">0.75</text>
+  <text class="svg-tick" x="469.3" y="318" text-anchor="middle">1.00</text>
+  <text class="svg-tick" x="567.7" y="318" text-anchor="middle">1.25</text>
+  <text class="svg-tick" x="666.0" y="318" text-anchor="middle">1.50</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">x [m] (el frente del Jimny está en x = 0)</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">z [m]</text>
+  <polyline points="125.2,259.4 144.8,257.2 164.5,256.6 184.2,255.9 203.8,255.3 223.5,254.7 243.2,254.1 262.8,253.4 282.5,252.5 302.2,252.2 321.8,251.6 341.5,250.9 361.2,250.0 380.8,249.4 400.5,248.8 420.2,248.1 439.8,247.5 459.5,246.9 479.2,246.3 498.8,245.6 518.5,228.4 538.2,199.4 557.8,167.8 577.5,138.8 597.2,105.9 616.8,79.7 636.5,73.4 656.2,73.4" fill="none" stroke="var(--ink)" stroke-width="2.2"/>
+  <polyline points="144.8,252.8 164.5,243.4 184.2,233.8 203.8,228.8 223.5,219.7 243.2,211.2 262.8,211.6 282.5,201.9 302.2,201.9 321.8,192.8 341.5,192.5 361.2,192.5 380.8,183.4 400.5,183.1 420.2,183.1 439.8,173.8 459.5,173.8 479.2,163.8 498.8,163.1 518.5,153.1 538.2,142.5 557.8,132.8 577.5,122.8" fill="none" stroke="var(--blue)" stroke-width="2.2"/>
+  <circle cx="144.8" cy="252.8" r="3.6" fill="var(--blue)"/>
+  <circle cx="164.5" cy="243.4" r="3.6" fill="var(--blue)"/>
+  <circle cx="184.2" cy="233.8" r="3.6" fill="var(--blue)"/>
+  <circle cx="203.8" cy="228.8" r="3.6" fill="var(--blue)"/>
+  <circle cx="223.5" cy="219.7" r="3.6" fill="var(--blue)"/>
+  <circle cx="243.2" cy="211.2" r="3.6" fill="var(--blue)"/>
+  <circle cx="262.8" cy="211.6" r="3.6" fill="var(--blue)"/>
+  <circle cx="282.5" cy="201.9" r="3.6" fill="var(--blue)"/>
+  <circle cx="302.2" cy="201.9" r="3.6" fill="var(--blue)"/>
+  <circle cx="321.8" cy="192.8" r="3.6" fill="var(--blue)"/>
+  <circle cx="341.5" cy="192.5" r="3.6" fill="var(--blue)"/>
+  <circle cx="361.2" cy="192.5" r="3.6" fill="var(--blue)"/>
+  <circle cx="380.8" cy="183.4" r="3.6" fill="var(--blue)"/>
+  <circle cx="400.5" cy="183.1" r="3.6" fill="var(--blue)"/>
+  <circle cx="420.2" cy="183.1" r="3.6" fill="var(--blue)"/>
+  <circle cx="439.8" cy="173.8" r="3.6" fill="var(--blue)"/>
+  <circle cx="459.5" cy="173.8" r="3.6" fill="var(--blue)"/>
+  <circle cx="479.2" cy="163.8" r="3.6" fill="var(--blue)"/>
+  <circle cx="498.8" cy="163.1" r="3.6" fill="var(--blue)"/>
+  <circle cx="518.5" cy="153.1" r="3.6" fill="var(--blue)"/>
+  <circle cx="538.2" cy="142.5" r="3.6" fill="var(--blue)"/>
+  <circle cx="557.8" cy="132.8" r="3.6" fill="var(--blue)"/>
+  <circle cx="577.5" cy="122.8" r="3.6" fill="var(--blue)"/>
+  <text class="svg-note-sm" x="135.0" y="272.8" text-anchor="start" fill="var(--blue)">empieza en el borde del cofre</text>
+  <text class="svg-note-sm" x="479.2" y="206.2" text-anchor="middle" fill="var(--blue)">26 cm</text>
+  <line x1="110" y1="70" x2="136" y2="70" stroke="var(--ink)" stroke-width="2.2"/>
+  <text class="svg-note-sm" x="142" y="74">superficie del Jimny (cofre y parabrisas)</text>
+  <line x1="110" y1="88" x2="136" y2="88" stroke="var(--blue)" stroke-width="2.2"/>
+  <text class="svg-note-sm" x="142" y="92">borde de arriba del flujo invertido</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">La burbuja del cofre, medida.</b> En el plano medio, la altura de la superficie del Jimny (el cofre casi plano, a z ≈ 1.14 m, y el parabrisas inclinado) y la del borde de arriba del flujo invertido. La burbuja empieza en el borde delantero del cofre, x = 0.15 m, crece hasta 26 cm de espesor y se cierra en el parabrisas, en x ≈ 1.30 m. Datos de ParaView sin ventana, en tramos de 5 cm.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t34-04_cola_ux.png" alt="Acercamiento a la cola del Jimny en el corte coloreado por Ux" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">La recirculación detrás de la cola.</b> Detrás de la puerta trasera, casi plana, el aire gira sobre sí mismo: una zona de flujo invertido (azul) que llega a x = 5.62 m, 2.0 m detrás del vehículo.</figcaption>
+</figure>
+<p>Detrás de la cola (figura 5), la puerta trasera casi plana deja una recirculación que llega a x = 5.62 m: 2.0 m detrás del vehículo, más de la mitad de su largo. Ahí la presión es baja y tira del Jimny hacia atrás.</p>
+<h3>3. La presión sobre la carrocería</h3>
+<figure class="diagram">
+  <img src="imagenes/t34-05_lector_vehiculo.png" alt="El panel Properties del segundo lector con la lista Mesh Regions" loading="lazy">
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">Un segundo lector, sólo con el vehículo.</b> El mismo <code>jimny.foam</code>, abierto otra vez con <em>File → Open</em>. En <em>Mesh Regions</em> se deja sólo <code>group/jimnyGroup</code>: las seis regiones del Jimny, sin la malla del aire.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t34-06_calculator_cp.png" alt="El panel del Calculator con Cell Data, el nombre Cp y la expresión p/385.8642" loading="lazy">
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">El Calculator del Cp.</b> <em>Attribute Type</em>: <em>Cell Data</em> (el valor de cada cara, como lo calculó OpenFOAM); el nombre <code>Cp</code> y la expresión <code>p/385.8642</code>, que es p entre ½U∞².</figcaption>
+</figure>
+<p>El segundo lector (figura 6) trae sólo la superficie del vehículo. El <code>Calculator</code> (figura 7) trabaja con los valores de las caras, <em>Cell Data</em>: son los que calculó OpenFOAM; los de los puntos, la opción por omisión, son promedios de las caras vecinas.</p>
+<figure class="diagram">
+  <img src="imagenes/t34-07_cp.png" alt="El Jimny coloreado por el coeficiente de presión, visto de tres cuartos por delante" loading="lazy">
+  <figcaption><b class="fig-num">Figura 8.</b> <b class="fig-title">El coeficiente de presión sobre el Jimny.</b> Con el rango fijo de −1 a 1. Rojo: presión mayor que la del aire libre, en el frente y en el parabrisas, donde el aire choca. Azul: succión, en los bordes donde el aire dobla, como el borde del cofre y el del techo. El resto de la carrocería, casi blanco, está cerca de Cp = 0.</figcaption>
+</figure>
+<p>La figura 8 es el arrastre de presión hecho visible. El frente y el parabrisas, en rojo, reciben el aire de frente: en el frente de la carrocería el \(C_p\) llega a 1.021, el remanso de la teoría (1 + 0.023). Los bordes, en azul, succionan: la succión más fuerte de la carrocería, \(C_p\) = −1.94, está en la esquina donde el parabrisas se junta con el techo y el costado. En las llantas, que giran, la succión llega a −2.82 y la presión, a 1.05 en una pieza de los bajos junto a la rueda delantera: más que el remanso, porque ahí la llanta le dio energía al aire.</p>
+<h3>4. El arrastre de presión, integrado</h3>
+<figure class="diagram">
+  <img src="imagenes/t34-08_normales.png" alt="El panel de Generate Surface Normals con Compute Cell Normals marcado" loading="lazy">
+  <figcaption><b class="fig-num">Figura 9.</b> <b class="fig-title">Generate Surface Normals.</b> Sobre la superficie que deja <code>Extract Surface</code>, con <em>Compute Cell Normals</em> marcado: así cada cara recibe su normal, <code>Normals</code>, con la misma orientación que le da OpenFOAM.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t34-09_integrate.png" alt="La hoja de cálculo de Integrate Variables con las columnas Area y CpNx" loading="lazy">
+  <figcaption><b class="fig-num">Figura 10.</b> <b class="fig-title">La integral, en la hoja de cálculo.</b> <code>Integrate Variables</code> sobre <code>CpNx</code>, con <em>Attribute</em> en <em>Cell Data</em>: <code>Area</code> = 28.897 m² (la superficie del Jimny) y <code>CpNx</code> = 1.3681 m², que entre el área de referencia da \(C_{D,p}\) = 0.5618.</figcaption>
+</figure>
+<p><code>Integrate Variables</code> (figura 10) suma cada columna por el área de su cara: <code>Area</code> es el área del Jimny, 28.90 m², y <code>CpNx</code> es la integral de la ecuación (2). Entre el área de referencia, 2.435 m²:</p>
+<div class="equation-card">\[ C_{D,p} = \frac{1.3681\ \text{m}^2}{2.435\ \text{m}^2} = 0.5618 \]</div>
+<p>contra 0.5615 de <code>foamPostProcess</code> en el 3.3 (tabla 3). Lo que se ve en la figura 8 es, exactamente, el arrastre de presión del Jimny.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Cálculo</th><th>\(\int C_p n_x\, dA\) [m²]</th><th>\(C_{D,p}\)</th><th>Diferencia</th></tr></thead>
+    <tbody>
+      <tr><td>ParaView, datos en las celdas</td><td>1.3681</td><td>0.5618</td><td>+0.06 %</td></tr>
+      <tr><td>ParaView, datos en los puntos</td><td>1.3470</td><td>0.5532</td><td>-1.5 %</td></tr>
+      <tr><td><code>foamPostProcess</code> (tutorial 3.3)</td><td>1.3672</td><td>0.5615</td><td>—</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">El arrastre de presión, de dos maneras.</b> \(C_{D,p} = \int C_p\, n_x\, dA \,/\, A\) con A = 2.435 m². La de <code>foamPostProcess</code> es la parte de presión del tutorial 3.3 (633.05 N) entre ½ρU²A.</caption>
+  </table>
+</div>
+<h3>5. La estela</h3>
+<figure class="diagram">
+  <img src="imagenes/t34-10_contour_cp0.png" alt="El panel del Contour con Cp0 y el valor 0" loading="lazy">
+  <figcaption><b class="fig-num">Figura 11.</b> <b class="fig-title">El Contour de la presión total.</b> Sobre el <code>Calculator</code> con <code>Cp0</code>: <em>Contour By</em> <code>Cp0</code> y un solo valor, 0.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t34-11_estela.png" alt="La isosuperficie de presión total cero, semitransparente, alrededor y detrás del Jimny" loading="lazy">
+  <figcaption><b class="fig-num">Figura 12.</b> <b class="fig-title">La estela: la superficie de presión total cero.</b> Semitransparente, sobre el Jimny coloreado por Cp. Dentro de ella el aire perdió la presión total del aire libre: es la capa límite pegada a la carrocería y, detrás, la estela, que se cierra hacia x = 5.5 m.</figcaption>
+</figure>
+<p>La superficie \(C_{p0} = 0\) (figura 12) envuelve al Jimny —es la capa límite— y se cierra detrás de él hacia x = 5.5 m: casi donde termina la recirculación del plano medio, pero ahora en las tres dimensiones. Es la parte del aire que el vehículo frenó; su tamaño es una medida del arrastre.</p>
+<h3>6. Las líneas de corriente</h3>
+<figure class="diagram">
+  <img src="imagenes/t34-12_lineas_frente.png" alt="Líneas de corriente alrededor del Jimny vistas de tres cuartos por delante" loading="lazy">
+  <figcaption><b class="fig-num">Figura 13.</b> <b class="fig-title">Las líneas de corriente, por delante.</b> Sesenta semillas en una recta delante del Jimny, del suelo al techo, coloreadas por la velocidad: las de abajo pasan por los lados y por debajo, las de arriba suben sobre el cofre y el techo.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t34-13_lineas_detras.png" alt="Líneas de corriente detrás del Jimny vistas de tres cuartos" loading="lazy">
+  <figcaption><b class="fig-num">Figura 14.</b> <b class="fig-title">Las líneas de corriente, por detrás.</b> Las líneas que pasan junto a la cola se enrollan en la estela, donde la velocidad es baja (azul).</figcaption>
+</figure>
+<p>Las líneas de corriente (figuras 13 y 14) siguen la velocidad desde las semillas: rodean el frente, se aceleran sobre el techo (rojo) y las que pasan junto a la cola se enrollan en la estela (azul). En un cálculo estacionario son también las trayectorias del aire.</p>
+<div class="result-box">
+  <p><strong>Lo que enseña el Jimny:</strong> un frente que frena el aire y lo hace subir; una burbuja sobre el cofre que empieza en su borde y crece hasta 26 cm; una recirculación de 2.0 m detrás de la cola; y un arrastre de presión que, integrado en ParaView, da 0.5618, el mismo de <code>foamPostProcess</code>. Cuánto confiar en esos números es el tema del tutorial 3.6; antes, el 3.5 valida el método con un auto que sí se midió en un túnel de viento.</p>
+</div>
+
+    </section>
+    <section id="errors-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Qué sale mal en ParaView</h2>
+
+<p>Los dos primeros se vieron al preparar esta guía; el tercero, en los posprocesamientos anteriores.</p>
+<h3>1. Integrar con los datos en los puntos</h3>
+<p>Si el <code>Calculator</code> del Cp se deja en <em>Point Data</em> (y las normales, en los puntos), la integral da \(C_{D,p}\) = 0.5532, un 1.5 % menos (tabla 3). Los valores en los puntos son promedios de las caras vecinas, y en los bordes vivos —justo donde la presión cambia más— el promedio mezcla caras que miran a lados distintos. <strong>Remedio:</strong> para integrar, <em>Cell Data</em>; los puntos sirven para dibujar.</p>
+<h3>2. Un rango de color que crece solo</h3>
+<p>Con <em>Rescale</em> en el cuadro del rango, ParaView vuelve a ajustar la escala cuando se aplica otro filtro que usa la misma variable: al terminar la receta, la escala del Cp había pasado de −1 a 1 a −2.8 a 1.1, y el Jimny se veía de un solo color. <strong>Remedio:</strong> <em>Rescale and disable automatic rescaling</em>, que fija el rango hasta que se vuelva a cambiar a mano.</p>
+<h3>3. El rango automático</h3>
+<p>El rango automático va del mínimo al máximo de lo que se colorea. Unos pocos valores extremos —los 50 m/s junto a la rueda delantera, la presión en el remanso— lo estiran, y lo interesante queda en un solo color (como la y⁺ del <a href="jimny-resultados.html#check-es">3.3</a>). <strong>Remedio:</strong> elegir el rango con la física: de 0 a algo más que \(U_\infty\) para la velocidad, simétrico alrededor de cero para \(U_x\), de −1 a 1 para \(C_p\).</p>
+
+    </section>
+    <section id="practice-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>El Jimny a 120 km/h, visto</h2>
+
+<p class="lead">El Jimny a 120 km/h, visto: ¿cambia el flujo, o sólo su escala?</p>
+<div class="example">
+  <p><strong>Enunciado.</strong> Con el caso a 120 km/h de las prácticas del <a href="jimny-caso.html#practice-es">3.1</a> y del <a href="jimny-resultados.html#practice-es">3.3</a>, repetir esta guía y llenar la tabla 4.</p>
+  <p><strong>Condiciones.</strong> Los dos <code>Calculator</code> dividen entre \(\tfrac12 U_\infty^2\): a 120 km/h (33.33 m/s) es otro número. Los rangos de color se escalan con la velocidad.</p>
+</div>
+<h3>El procedimiento, en corto</h3>
+<ol>
+  <li>Calcular \(\tfrac12 U_\infty^2\) para 33.33 m/s y ponerlo en los dos <code>Calculator</code>.</li>
+  <li>Medir en el plano medio dónde termina la burbuja del cofre y la recirculación de la cola (el cursor de ParaView da las coordenadas de un punto con la tecla <kbd>D</kbd> o con <em>Hover Points On</em>).</li>
+  <li>Integrar el Cp como en el paso 6 y comparar con el 3.3 de ese caso.</li>
+</ol>
+<h3>Registro de resultados</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Velocidad</th><th>Fin de la burbuja del cofre [m]</th><th>Espesor máximo [cm]</th><th>Fin de la recirculación [m]</th><th>\(C_{D,p}\) integrado</th></tr></thead>
+    <tbody>
+      <tr><td>100 km/h</td><td>1.30</td><td>26</td><td>5.62</td><td>0.5618</td></tr>
+      <tr><td>120 km/h</td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">Registro de la práctica.</b> Los renglones de 100 km/h son los de esta guía; los de 120 km/h se llenan con el caso de la práctica del 3.1.</caption>
+  </table>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>¿Cambian de lugar la burbuja del cofre y la recirculación? ¿Por qué se esperaba que no cambiaran mucho, con bordes vivos?</li>
+  <li>¿Por qué los coeficientes \(C_p\) y \(C_{p0}\) se pueden comparar entre las dos velocidades y las presiones no?</li>
+  <li>Si la burbuja del cofre fuera más pequeña, ¿subiría o bajaría el \(C_p\) del parabrisas? ¿Qué cambio en la forma del frente la achicaría?</li>
+</ol>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ul class="references">
+  <li>Hucho, W.-H. (Ed.). (1998). <em>Aerodynamics of road vehicles</em> (4.ª ed.). SAE International.</li>
+  <li>Kitware. (2022). <em>ParaView user's guide</em>, versión 5.11. https://docs.paraview.org/en/v5.11.2/</li>
+  <li>OpenFOAM Foundation. (2024). <em>OpenFOAM user guide, version 12</em>. https://doc.cfd.direct/openfoam/user-guide-v12/</li>
+</ul>
+<p class="source-note">Las imágenes son del vídeo de esta guía, en ParaView 5.11.2 sobre la corrida del tutorial 3.2 (blueCFD-Core 2024, OpenFOAM 12); las cifras, de la misma corrida leída con ParaView sin ventana (<code>pvbatch</code>).</p>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="jimny-resultados.html?v=13"><span>Tutorial anterior</span>← 3.3 · Los resultados del Jimny</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Flujo incompresible</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Die Strömung um ein Fahrzeug in ParaView sichtbar machen und mit den Zahlen aus Tutorial 3.3 verbinden: Mittelebene, Rückströmgebiete, Druckbeiwert, über die Karosserie integrierter Druckwiderstand, Nachlauf und Stromlinien.</p>
+    </section>
+    <section id="problem-de">
+      <p class="section-label">Das Problem</p>
+      <h2>Was der Widerstandsbeiwert nicht sagt</h2>
+<p>Tutorial 3.3 ergab einen Widerstandsbeiwert von 0,564, fast ganz aus Druck. Woher kommt dieser Druck, wo löst die Strömung ab und wie lang ist der Nachlauf?</p>
+    </section>
+    <section id="theory-de">
+      <p class="section-label">Die Theorie</p>
+      <h2>Druckbeiwert, Ablösung und Totaldruck</h2>
+<p>Der Druckbeiwert und sein Bezug (p = 0 am Auslass, die Anströmung hat Cp = 0,023); der Druckwiderstand als Integral von Cp·n_x; Ablösung und Rückströmung; der Totaldruckbeiwert Cp0 und warum der Nachlauf das Gebiet mit Cp0 &lt; 0 ist, während bewegte Wände ihn über die Anströmung heben können.</p>
+    </section>
+    <section id="recipe-de">
+      <p class="section-label">Schritt für Schritt</p>
+      <h2>Neun Filter, zwei Reader</h2>
+<p>paraFoam; ein Slice bei y = 0, gefärbt nach U und nach Ux mit festem Bereich; ein zweiter Reader nur mit der Fahrzeugoberfläche; ein Calculator mit Cp auf Zelldaten; Extract Surface, Generate Surface Normals, ein Calculator mit Cp·n_x und Integrate Variables; ein Calculator mit Cp0 und ein Contour bei null; ein Stream Tracer.</p>
+    </section>
+    <section id="check-de">
+      <p class="section-label">Durchgerechnetes Beispiel</p>
+      <h2>Was der Jimny zeigt</h2>
+<p>Die Ablöseblase auf der Motorhaube beginnt an der Vorderkante (x = 0,15 m) und wächst bis 26 cm vor der Windschutzscheibe; das Rückströmgebiet reicht 2,0 m hinter das Fahrzeug; der integrierte Druckwiderstand ist 0,5618 gegen 0,5615 aus foamPostProcess; der Nachlauf ist die Fläche mit Totaldruck null.</p>
+    </section>
+    <section id="errors-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Was in ParaView schiefgeht</h2>
+<p>Punktdaten statt Zelldaten integrieren (0,5532 statt 0,5618); ein Farbbereich, der von selbst wächst; der automatische Bereich, der alles in einer Farbe zeigt.</p>
+    </section>
+    <section id="practice-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Der Jimny bei 120 km/h, sichtbar</h2>
+<p>Die Ansichten am Fall mit 120 km/h wiederholen und Ablöseblase, Rückströmgebiet und integrierten Druckwiderstand vergleichen.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>Hucho zur Fahrzeugaerodynamik; das ParaView-Handbuch; das OpenFOAM-Benutzerhandbuch.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="jimny-resultados.html?v=13"><span>Vorheriges Tutorial</span>← 3.3 · Die Ergebnisse des Jimny</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Inkompressible Strömung</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>
