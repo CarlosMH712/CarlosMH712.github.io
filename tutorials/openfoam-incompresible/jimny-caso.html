@@ -98,7 +98,7 @@
     </section>
     <nav class="next-nav">
       <a class="next-link" href="paraview-naca0012.html?v=13"><span>Previous tutorial</span>← 2.3 · Post-processing the NACA 0012</a>
-      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Incompressible flow</a>
+      <a class="next-link" href="jimny-paralelo.html?v=13"><span>Next tutorial</span>3.2 · The Jimny in parallel, step by step →</a>
     </nav>
   </article>
   <article class="lecture" data-language="es" hidden>
@@ -887,7 +887,8 @@ forceCoeffs1
 #include &quot;forceCoeffs&quot;      // Cd, Cl y el levante por eje, en cada iteración
 
 #includeFunc yPlus                      // y+ de la primera celda en cada pared (postProcessing/yPlus)
-#includeFunc residuals(p, U, k, omega)  // residuos iniciales en cada iteración (postProcessing/residuals)
+#includeFunc residuals(p, U, k, omega)  // residuos iniciales en cada iteración
+                                        // (postProcessing/residuals(p,U,k,omega)/1/residuals.dat)
 
 // ************************************************************************* //</code></pre>
 <p><code>CofR</code> es el punto medio entre los ejes, en el suelo: alrededor de él se calcula el momento de cabeceo y, con él, el levante de cada eje (ecuación 1). <code>cutPlane</code> y <code>streamlines</code> se quedan como en el tutorial, salvo la línea de donde parten las líneas de corriente.</p>
@@ -1372,7 +1373,7 @@ Cells per refinement level:
     </section>
     <nav class="next-nav">
       <a class="next-link" href="paraview-naca0012.html?v=13"><span>Tutorial anterior</span>← 2.3 · El posprocesamiento del NACA 0012</a>
-      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Flujo incompresible</a>
+      <a class="next-link" href="jimny-paralelo.html?v=13"><span>Tutorial siguiente</span>3.2 · El Jimny en paralelo, paso a paso →</a>
     </nav>
   </article>
   <article class="lecture" data-language="de" hidden>
@@ -1424,7 +1425,7 @@ Cells per refinement level:
     </section>
     <nav class="next-nav">
       <a class="next-link" href="paraview-naca0012.html?v=13"><span>Vorheriges Tutorial</span>← 2.3 · Die Nachbearbeitung des NACA 0012</a>
-      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Inkompressible Strömung</a>
+      <a class="next-link" href="jimny-paralelo.html?v=13"><span>Nächstes Tutorial</span>3.2 · Der Jimny parallel, Schritt für Schritt →</a>
     </nav>
   </article>
 

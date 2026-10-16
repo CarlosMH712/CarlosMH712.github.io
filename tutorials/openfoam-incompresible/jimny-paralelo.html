@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="OpenFOAM tutorial: meshing and solving the external aerodynamics of a full Suzuki Jimny in parallel with blueCFD-Core (OpenFOAM 12), one command at a time: decomposePar, snappyHexMesh, checkMesh, potentialFoam, foamRun with MPI, monitoring the drag coefficient with foamMonitor, and reconstructPar." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>The Jimny in Parallel, Step by Step | OpenFOAM Incompressible-Flow Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">OpenFOAM · Incompressible flow · Tutorial 3.2</p><h1>The Jimny in parallel, step by step</h1><p class="hero-copy">The case prepared in Tutorial 3.1, run on eight processes one command at a time: splitting the domain, the snappyHexMesh mesh and its three stages, the mesh check, the potential-flow start, the solver with MPI and how to watch it, and putting the pieces back together for ParaView.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">OpenFOAM · Flujo incompresible · Tutorial 3.2</p><h1>El Jimny en paralelo, paso a paso</h1><p class="hero-copy">El caso que se preparó en el tutorial 3.1, corrido en ocho procesos, un comando a la vez: el reparto del dominio, la malla de <code>snappyHexMesh</code> y sus tres etapas, la revisión de la malla, el arranque con flujo potencial, el solver con MPI y cómo vigilarlo, y la reconstrucción para ParaView.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">OpenFOAM · Inkompressible Strömung · Tutorial 3.2</p><h1>Der Jimny parallel, Schritt für Schritt</h1><p class="hero-copy">Der in Tutorial 3.1 vorbereitete Fall, auf acht Prozessen gerechnet, ein Befehl nach dem anderen: die Zerlegung des Gebiets, das Netz von snappyHexMesh und seine drei Schritte, die Netzprüfung, der Start mit Potentialströmung, der Löser mit MPI und seine Überwachung, und das Zusammenfügen für ParaView.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 45 min (plus 2 h of computing)</span><span data-language="es" hidden>Lectura estimada: 45 min (y 2 h de cálculo)</span><span data-language="de" hidden>Lesedauer: ca. 45 min (dazu 2 h Rechenzeit)</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on OpenFOAM 12 (blueCFD-Core 2024) and ParaView 5.11.2</span><span data-language="es" hidden>Verificado en OpenFOAM 12 (blueCFD-Core 2024) y ParaView 5.11.2</span><span data-language="de" hidden>Geprüft mit OpenFOAM 12 (blueCFD-Core 2024) und ParaView 5.11.2</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="jimny-caso.html?v=13">← <span>3.1</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/hZVX2Rd2ylU" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Watch the video</span><span data-language="es" hidden>Ver el vídeo</span><span data-language="de" hidden>Video ansehen</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#problem">The problem</a><a href="#theory">Theory</a><a href="#recipe">Recipe</a><a href="#check">Check</a><a href="#errors">Common errors</a><a href="#practice">Suggested exercise</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#problem-es">El problema</a><a href="#theory-es">Teoría</a><a href="#recipe-es">Receta</a><a href="#check-es">Revisión</a><a href="#errors-es">Errores frecuentes</a><a href="#practice-es">Práctica sugerida</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#problem-de">Das Problem</a><a href="#theory-de">Theorie</a><a href="#recipe-de">Ablauf</a><a href="#check-de">Prüfung</a><a href="#errors-de">Häufige Fehler</a><a href="#practice-de">Übungsvorschlag</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Run a case in parallel by hand and know what each command does and what to check after it: domain decomposition, the three stages of snappyHexMesh, checkMesh, potentialFoam, foamRun with mpirun, monitoring and stopping a run, and reconstructPar. The results of the run are Tutorial 3.3.</p>
+    </section>
+    <section id="problem">
+      <p class="section-label">The problem</p>
+      <h2>Two million cells and two thousand iterations</h2>
+<p>A mesh of 2 123 371 cells and 2 000 iterations: 4 min of meshing and about 2 h of solver on eight cores of a laptop.</p>
+    </section>
+    <section id="theory">
+      <p class="section-label">The theory</p>
+      <h2>Splitting the domain, the mesh stages and convergence</h2>
+<p>Domain decomposition and MPI: each process owns a piece of the mesh and exchanges the values on the faces it shares; the hierarchical method; the three stages of snappyHexMesh with the cell count after each; what convergence means for a steady RANS run of a bluff body.</p>
+    </section>
+    <section id="recipe">
+      <p class="section-label">Step by step</p>
+      <h2>Eight commands, in order</h2>
+<p>decomposePar -copyZero; mpirun -np 8 snappyHexMesh -parallel -overwrite; checkMesh and patchSummary in parallel; potentialFoam; foamRun in the background with its output in log.foamRun; foamMonitor for the residuals and the drag coefficient; reconstructPar -latestTime.</p>
+    </section>
+    <section id="check">
+      <p class="section-label">Worked example</p>
+      <h2>What each step prints, and what to read in it</h2>
+<p>The output of every step from the reference run: the decomposition, the cell count after each mesh stage, the layer coverage, the one failed check of checkMesh (67 skewed boundary faces where the tyres meet the ground), the first iteration of the solver and the drag coefficient as the run goes.</p>
+    </section>
+    <section id="errors">
+      <p class="section-label">Common errors</p>
+      <h2>What goes wrong in parallel</h2>
+<p>A number of processes that does not match decomposeParDict; running the solver without mpirun (it takes the background mesh); closing the terminal while MS-MPI runs.</p>
+    </section>
+    <section id="practice">
+      <p class="section-label">Suggested exercise</p>
+      <h2>How much do eight processes gain?</h2>
+<p>Repeat the mesh and a hundred iterations with 4 and 2 processes and compute the speed-up.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>The OpenFOAM user guide on running in parallel and on snappyHexMesh; the motorBikeSteady tutorial.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="jimny-caso.html?v=13"><span>Previous tutorial</span>← 3.1 · From motorBikeSteady to the Jimny</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Incompressible flow</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">El caso del Jimny quedó listo en el <a href="jimny-caso.html">tutorial 3.1</a>. Falta lo que más tarda: una malla de dos millones de celdas y dos mil iteraciones del solver. En una sola computadora eso se hace en paralelo, con todos sus núcleos a la vez. Esta guía lo corre a mano, un comando a la vez, para que se vea qué hace cada paso, qué escribe y qué hay que revisar antes de pasar al siguiente. <code>./Allrun</code> hace lo mismo de un solo golpe.</p>
+<ul>
+  <li>Explicar qué es repartir el dominio (<code>decomposePar</code>), qué guarda cada carpeta <code>processor*</code> y qué junta <code>reconstructPar</code>.</li>
+  <li>Lanzar un programa de OpenFOAM en paralelo con <code>mpirun</code> y <code>-parallel</code>, y guardar su salida en un registro.</li>
+  <li>Reconocer las tres etapas de <code>snappyHexMesh</code> en su registro y leer el resumen de las capas.</li>
+  <li>Interpretar la salida de <code>checkMesh</code>, incluida una revisión que no pasa, y decidir si la malla sirve.</li>
+  <li>Correr el solver en segundo plano, vigilar los residuos y el Cd con <code>foamMonitor</code>, y detenerlo sin perder lo calculado.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> El caso del 3.1 en <code>$FOAM_RUN/jimny</code>, con la malla de fondo ya hecha (pasos 8 y 9 de su receta), o el de <a href="archivos/jimny.zip"><code>jimny.zip</code></a> con esos dos pasos corridos. Una computadora con 8 núcleos y al menos 16 GB de memoria: la malla llega a ocupar unos 14 GB. Con menos núcleos se cambia el número de procesos (sección <a href="#errors-es">«Errores frecuentes»</a> y <a href="#practice-es">práctica sugerida</a>).</p>
+</div>
+
+    </section>
+    <section id="problem-es">
+      <p class="section-label">El problema</p>
+      <h2>Dos millones de celdas y dos mil iteraciones</h2>
+
+<p>El cálculo es el que se preparó en el 3.1: el Jimny completo a 100 km/h, con el suelo móvil y las ruedas girando, en un túnel virtual de 40 × 10 × 8 m. Lo que cambia ahora es la escala. La malla tiene 2 123 371 celdas y el solver da 2 000 iteraciones; en la laptop de referencia, con 8 procesos, la malla tarda 4 minutos y el solver 2.0 horas, a 3.6 s por iteración (tabla 1). En un solo proceso, varias veces eso.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Paso</th><th>Programa</th><th>Corre en</th><th>Tiempo</th><th>Escribe</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><code>decomposePar -copyZero</code></td><td>serie</td><td>1 s</td><td><code>processor0</code> … <code>processor7</code>, cada una con su pedazo de la malla de fondo y de <code>0/</code></td></tr>
+      <tr><td>2</td><td><code>snappyHexMesh -overwrite</code></td><td>8 procesos</td><td>3.9 min</td><td>la malla del vehículo, en <code>processor*/constant/polyMesh</code></td></tr>
+      <tr><td>3</td><td><code>checkMesh</code>, <code>patchSummary</code></td><td>8 procesos</td><td>4 s</td><td>nada: sólo leen e informan</td></tr>
+      <tr><td>4</td><td><code>potentialFoam</code></td><td>8 procesos</td><td>4 s</td><td>el campo inicial (<code>U</code>, <code>p</code>, <code>phi</code>) en <code>processor*/0</code></td></tr>
+      <tr><td>5–6</td><td><code>foamRun</code> (y <code>foamMonitor</code> para vigilarlo)</td><td>8 procesos</td><td>2.0 h (3.6 s por iteración)</td><td><code>processor*/500</code>, <code>1000</code>, … y <code>postProcessing/</code> en la raíz</td></tr>
+      <tr><td>7</td><td><code>reconstructPar -latestTime</code></td><td>serie</td><td>14 s</td><td>la malla completa en <code>constant/polyMesh</code> y la última iteración en <code>2000/</code></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Los pasos de la corrida, su tiempo y lo que dejan.</b> Tiempos de la corrida de referencia en una laptop con 8 núcleos (OpenFOAM 12, blueCFD-Core 2024), de los registros de cada programa. «Raíz» es la carpeta del caso; <code>processor*</code>, las ocho carpetas que crea <code>decomposePar</code>.</caption>
+  </table>
+</div>
+<p>Los números del cálculo —el Cd, el levante por eje, la y⁺— son el tema del tutorial 3.3. Aquí importa llegar a ellos sin errores, saber en cada momento qué está pasando, y reconocer cuándo el cálculo ya no va a cambiar.</p>
+
+    </section>
+    <section id="theory-es">
+      <p class="section-label">La teoría</p>
+      <h2>El reparto del dominio, las etapas de la malla y la convergencia</h2>
+
+<h3>Repartir el dominio</h3>
+<p>OpenFOAM calcula en paralelo por <strong>descomposición del dominio</strong>: la malla se corta en tantos pedazos como procesos, y cada proceso resuelve las ecuaciones en su pedazo como si fuera un caso aparte. Donde dos pedazos se tocan, las caras compartidas se vuelven parches de tipo <code>processor</code>: en cada iteración, los dos procesos vecinos se pasan por ahí los valores de sus celdas de borde. Esa comunicación la hace MPI (en blueCFD-Core, MS-MPI de Microsoft), y el programa que arranca los procesos es <code>mpirun</code>.</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 290" role="img" aria-label="Esquema de una corrida en paralelo: la carpeta del caso se reparte en ocho carpetas processor, los ocho procesos trabajan cada uno en la suya, y reconstructPar junta el resultado.">
+  <text class="svg-title" x="20" y="26">Una corrida en paralelo: repartir, calcular en ocho procesos, juntar</text>
+  <rect x="20" y="70" width="120" height="154" rx="6" fill="var(--soft)" stroke="var(--ink)" stroke-width="1.4"/>
+  <text class="svg-note-sm" x="80" y="96" text-anchor="middle">jimny/ (raíz)</text>
+  <text class="svg-tick" x="80" y="115" text-anchor="middle">malla de fondo</text>
+  <text class="svg-tick" x="80" y="134" text-anchor="middle">3 200 celdas</text>
+  <text class="svg-tick" x="80" y="153" text-anchor="middle">0/  system/</text>
+  <text class="svg-tick" x="80" y="172" text-anchor="middle">en serie</text>
+  <line x1="140" y1="147" x2="220" y2="147" stroke="var(--accent-dark)" stroke-width="2"/>
+  <polygon points="228,147 218,142 218,152" fill="var(--accent-dark)"/>
+  <text class="svg-note-sm" x="184" y="139" text-anchor="middle" fill="var(--accent-dark)">decomposePar</text>
+  <rect x="232" y="70" width="66" height="58" rx="4" fill="var(--sky)" stroke="var(--blue)" stroke-width="1.3"/>
+  <text class="svg-tick" x="265" y="94" text-anchor="middle">processor0</text>
+  <text class="svg-tick" x="265" y="112" text-anchor="middle">proceso 0</text>
+  <rect x="303" y="70" width="66" height="58" rx="4" fill="var(--sky)" stroke="var(--blue)" stroke-width="1.3"/>
+  <text class="svg-tick" x="336" y="94" text-anchor="middle">processor1</text>
+  <text class="svg-tick" x="336" y="112" text-anchor="middle">proceso 1</text>
+  <rect x="374" y="70" width="66" height="58" rx="4" fill="var(--sky)" stroke="var(--blue)" stroke-width="1.3"/>
+  <text class="svg-tick" x="407" y="94" text-anchor="middle">processor2</text>
+  <text class="svg-tick" x="407" y="112" text-anchor="middle">proceso 2</text>
+  <rect x="445" y="70" width="66" height="58" rx="4" fill="var(--sky)" stroke="var(--blue)" stroke-width="1.3"/>
+  <text class="svg-tick" x="478" y="94" text-anchor="middle">processor3</text>
+  <text class="svg-tick" x="478" y="112" text-anchor="middle">proceso 3</text>
+  <rect x="232" y="166" width="66" height="58" rx="4" fill="var(--sky)" stroke="var(--blue)" stroke-width="1.3"/>
+  <text class="svg-tick" x="265" y="190" text-anchor="middle">processor4</text>
+  <text class="svg-tick" x="265" y="208" text-anchor="middle">proceso 4</text>
+  <rect x="303" y="166" width="66" height="58" rx="4" fill="var(--sky)" stroke="var(--blue)" stroke-width="1.3"/>
+  <text class="svg-tick" x="336" y="190" text-anchor="middle">processor5</text>
+  <text class="svg-tick" x="336" y="208" text-anchor="middle">proceso 5</text>
+  <rect x="374" y="166" width="66" height="58" rx="4" fill="var(--sky)" stroke="var(--blue)" stroke-width="1.3"/>
+  <text class="svg-tick" x="407" y="190" text-anchor="middle">processor6</text>
+  <text class="svg-tick" x="407" y="208" text-anchor="middle">proceso 6</text>
+  <rect x="445" y="166" width="66" height="58" rx="4" fill="var(--sky)" stroke="var(--blue)" stroke-width="1.3"/>
+  <text class="svg-tick" x="478" y="190" text-anchor="middle">processor7</text>
+  <text class="svg-tick" x="478" y="208" text-anchor="middle">proceso 7</text>
+  <text class="svg-note-sm" x="371" y="250" text-anchor="middle">mpirun -np 8 … -parallel: snappyHexMesh, checkMesh, potentialFoam, foamRun</text>
+  <text class="svg-tick" x="371" y="270" text-anchor="middle">cada proceso, su carpeta; entre vecinos se pasan los valores de las caras compartidas</text>
+  <line x1="511" y1="147" x2="584" y2="147" stroke="var(--accent-dark)" stroke-width="2"/>
+  <polygon points="592,147 582,142 582,152" fill="var(--accent-dark)"/>
+  <text class="svg-note-sm" x="551" y="139" text-anchor="middle" fill="var(--accent-dark)">reconstructPar</text>
+  <rect x="596" y="70" width="112" height="154" rx="6" fill="var(--soft)" stroke="var(--ink)" stroke-width="1.4"/>
+  <text class="svg-note-sm" x="652" y="96" text-anchor="middle">jimny/ (raíz)</text>
+  <text class="svg-tick" x="652" y="115" text-anchor="middle">malla completa</text>
+  <text class="svg-tick" x="652" y="134" text-anchor="middle">2 123 371 celdas</text>
+  <text class="svg-tick" x="652" y="153" text-anchor="middle">iteración 2000</text>
+  <text class="svg-tick" x="652" y="172" text-anchor="middle">→ ParaView</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">Una corrida en paralelo.</b> <code>decomposePar</code> corta la malla de fondo en ocho pedazos, uno por carpeta <code>processor*</code>, con <code>n (4 2 1)</code>: cuatro a lo largo del túnel y dos a lo ancho. Cada programa que se lanza con <code>mpirun -np 8</code> y <code>-parallel</code> arranca ocho procesos; cada uno lee y escribe sólo su carpeta y se comunica con sus vecinos por las caras que comparten. <code>reconstructPar</code> junta los pedazos en la carpeta del caso, la «raíz», para abrirla en ParaView.</figcaption>
+</figure>
+<p>Tres programas dividen el trabajo (figura 1):</p>
+<ul>
+  <li><strong><code>decomposePar</code></strong>, en serie, corta la malla de la carpeta del caso —la «raíz»— y escribe un pedazo en cada carpeta <code>processor0</code> … <code>processor7</code>. El método y el número de pedazos están en <code>system/decomposeParDict</code>: <code>hierarchical</code> con <code>n (4 2 1)</code> corta el túnel en cuatro a lo largo de x, en dos a lo ancho y en uno a lo alto.</li>
+  <li><strong>Cada programa paralelo</strong> se lanza con <code>mpirun -np 8</code> y la opción <code>-parallel</code>. Sin <code>-parallel</code>, <code>mpirun</code> arrancaría ocho copias del mismo programa en serie, todas sobre la raíz.</li>
+  <li><strong><code>reconstructPar</code></strong>, en serie, junta los pedazos de nuevo en la raíz.</li>
+</ul>
+<p>Lo que se reparte bien es el trabajo por celda; lo que no, la comunicación. Cada proceso hace \(1/N\) del trabajo, pero se detiene en cada iteración a intercambiar valores, y la cantidad que intercambia crece con las caras compartidas. Por eso ocho procesos no van ocho veces más rápido: la <em>aceleración</em> \(S_N = t_1/t_N\) queda por debajo de \(N\), y la <em>eficiencia</em> \(S_N/N\), por debajo del 100 %. Con unas 265 000 celdas por proceso, este caso está lejos del límite: una regla práctica habitual es no bajar de unas 10 000 a 50 000 celdas por proceso. La práctica sugerida mide cuánto se gana.</p>
+<h3>Repartir una malla que todavía no existe</h3>
+<p>Aquí hay una sutileza. <code>decomposePar</code> reparte la malla de fondo de <code>blockMesh</code>: 3 200 cubos, 400 por proceso, en ocho bloques iguales. Luego <code>snappyHexMesh</code> refina cada pedazo en su proceso, y el pedazo donde está el vehículo crecería mucho más que los de la salida del túnel. Para que no quede un proceso con casi todo el trabajo, <code>snappyHexMesh</code> <strong>rebalancea</strong>: mueve celdas de un proceso a otro mientras refina (el método está en la entrada <code>distributor</code> de <code>decomposeParDict</code>). Al final, cada proceso tiene casi el mismo número de celdas, y los pedazos ya no son bloques (figura 2).</p>
+<figure class="diagram">
+  <img src="imagenes/t32-01_reparto.png" alt="La malla del Jimny coloreada según el proceso al que pertenece cada celda" loading="lazy">
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">El reparto real, al terminar la malla.</b> El túnel completo visto desde arriba (el aire va de izquierda a derecha), cortado a 0.4 m del suelo, con cada celda del color de su proceso; el hueco blanco es el Jimny. Siguen los cuatro cortes a lo largo y los dos a lo ancho de <code>n (4 2 1)</code>, pero ya no son bloques iguales: <code>snappyHexMesh</code> rebalancea la malla al refinar, y las franjas junto al vehículo, donde las celdas son chicas, quedaron angostas. Cada proceso tiene casi las mismas celdas (de 265 187 a 265 553). El color sale de <code>constant/polyMesh/cellProc</code>, que escribe <code>reconstructPar</code>. Render de ParaView sin ventana.</figcaption>
+</figure>
+<h3>Las tres etapas de <code>snappyHexMesh</code>, en el registro</h3>
+<p>El <a href="jimny-caso.html#theory-es">tutorial 3.1</a> describió las tres etapas de <code>snappyHexMesh</code>. En el registro se ven una tras otra, cada una con el número de celdas al terminar y su tiempo (tabla 2): refinar y recortar (<code>Mesh refined in</code>), ajustar (<code>Mesh snapped in</code>) y agregar las capas (<code>Layers added in</code>). La figura 3 muestra la misma esquina después de cada una.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Etapa</th><th>Celdas al terminar</th><th>Tiempo</th><th>Qué cambió</th></tr></thead>
+    <tbody>
+      <tr><td>malla de fondo (<code>blockMesh</code>)</td><td>3 200</td><td>—</td><td>3200 cubos de 1 m</td></tr>
+      <tr><td>1. refinar</td><td>2 113 862</td><td>57 s (con recortar)</td><td>cubos partidos en ocho, por aristas, superficie, distancia y cajas</td></tr>
+      <tr><td> recortar</td><td>1 905 878</td><td></td><td>207 984 celdas dentro del Jimny, fuera</td></tr>
+      <tr><td>2. ajustar</td><td>1 905 878</td><td>86 s</td><td>las mismas celdas; se mueven los vértices de la superficie</td></tr>
+      <tr><td>3. capas</td><td>2 123 371</td><td>91 s</td><td>217 493 celdas más: dos capas sobre 98.7 % de las caras de pared</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Las tres etapas de snappyHexMesh, en cifras.</b> Del registro <code>log.snappyHexMesh</code> de la corrida de referencia. «Recortar» quita las celdas que quedaron dentro del vehículo; las capas agregan celdas, una por capa sobre cada cara de pared.</caption>
+  </table>
+</div>
+<figure class="diagram">
+  <img src="imagenes/t32-02_etapas.png" alt="La misma esquina del Jimny después de cada etapa de snappyHexMesh" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">Las tres etapas de snappyHexMesh, en la esquina trasera del techo.</b> Corte por y = 0 de la malla hecha sin <code>-overwrite</code>, que guarda cada etapa en una carpeta de tiempo. (1) Refinar y recortar: la superficie queda escalonada, hecha de caras de cubo. (2) Ajustar: los vértices de la superficie se mueven hasta el STL y la esquina queda recta. (3) Capas: dos capas delgadas pegadas a la pared. Render de ParaView sin ventana.</figcaption>
+</figure>
+<p>Con <code>-overwrite</code>, <code>snappyHexMesh</code> escribe sólo la malla final, en <code>constant/polyMesh</code> de cada <code>processor*</code>. Sin esa opción guarda cada etapa en una carpeta de tiempo (<code>1</code>, <code>2</code> y <code>3</code>): sirve para ver qué hizo cada etapa, como en la figura, pero el solver empezaría por la malla de <code>constant</code>, que es la de fondo.</p>
+<h3>Cuándo está convergido un cálculo estacionario</h3>
+<p>El solver usa SIMPLE: cada iteración corrige la velocidad y la presión hacia una solución que no cambie de una iteración a la siguiente. El <strong>residuo inicial</strong> de cada ecuación mide cuánto falta: es el desequilibrio de la ecuación con los valores de la iteración anterior, normalizado. En un caso de libro, los residuos bajan sin parar hasta la tolerancia de <code>system/fvSolution</code> (aquí, \(10^{-4}\)) y el solver se detiene solo.</p>
+<p>Un vehículo de caja no es un caso de libro. Detrás del Jimny el flujo se despega y forma una estela con remolinos que en la realidad nunca está quieta; un cálculo estacionario la representa con un flujo «casi» fijo que se mueve un poco de una iteración a otra. Los residuos bajan dos o tres órdenes y se estancan, y el solver corre todas las iteraciones de <code>endTime</code>. El criterio práctico es otro: <strong>el cálculo terminó cuando las cantidades que interesan dejan de cambiar</strong>. Aquí, el Cd: se considera asentado cuando su promedio sobre un tramo largo ya no cambia, y su oscilación es pequeña frente a la precisión que se busca.</p>
+
+    </section>
+    <section id="recipe-es">
+      <p class="section-label">Paso a paso</p>
+      <h2>Ocho comandos, en orden</h2>
+
+<p>Todo en la terminal de blueCFD-Core, dentro del caso (<code>cd $FOAM_RUN/jimny</code>), con la malla de fondo ya hecha. Cada comando guarda su salida en un registro <code>log.&lt;programa&gt;</code>, igual que <code>Allrun</code>; <code>| tee</code> la muestra además en la terminal. La sección <a href="#check-es">«Ejemplo resuelto»</a> muestra y explica lo que escribe cada paso.</p>
+<ol>
+  <li><strong>Repartir el dominio</strong> en ocho pedazos, con las condiciones de <code>0/</code>:<pre class="code"><code>decomposePar -copyZero | tee log.decomposePar</code></pre>Aparecen las carpetas <code>processor0</code> a <code>processor7</code>. <code>-copyZero</code> copia <code>0/</code> tal cual a cada una, en lugar de repartir los campos celda por celda: los campos todavía son uniformes, y además la malla va a cambiar.</li>
+  <li><strong>La malla</strong>, con ocho procesos (unos 4 minutos):<pre class="code"><code>mpirun -np 8 snappyHexMesh -parallel -overwrite | tee log.snappyHexMesh</code></pre>Debe terminar con <code>Finished meshing without any errors</code>.</li>
+  <li><strong>Revisar la malla</strong> y las condiciones de frontera que le tocan a cada parche:<pre class="code"><code>mpirun -np 8 checkMesh -parallel | tee log.checkMesh
+mpirun -np 8 patchSummary -parallel | tee log.patchSummary</code></pre></li>
+  <li><strong>El campo inicial</strong>, flujo potencial (unos segundos):<pre class="code"><code>mpirun -np 8 potentialFoam -parallel | tee log.potentialFoam</code></pre></li>
+  <li><strong>El solver, en segundo plano</strong>, con su salida sólo en el registro (son decenas de miles de líneas):<pre class="code"><code>mpirun -np 8 foamRun -parallel &gt; log.foamRun 2&gt;&amp;1 &amp;
+tail -f log.foamRun</code></pre>El <code>&amp;</code> final devuelve la terminal. <code>tail -f</code> muestra el registro mientras crece; <kbd>Ctrl</kbd>+<kbd>C</kbd> detiene <code>tail</code>, no el solver. <strong>Esta terminal no se cierra</strong> mientras el solver corre: cerrarla lo detiene (sección <a href="#errors-es">«Errores frecuentes»</a>).</li>
+  <li><strong>Vigilar los residuos y el Cd</strong> desde una segunda terminal de blueCFD-Core, en la misma carpeta:<pre class="code"><code>cd $FOAM_RUN/jimny
+foamMonitor -l &quot;postProcessing/residuals(p,U,k,omega)/1/residuals.dat&quot; &amp;
+foamMonitor postProcessing/forceCoeffs1/0/forceCoeffs.dat &amp;</code></pre>Cada comando abre una ventana de <code>gnuplot</code> que se actualiza sola cada 10 s y se cierra sola cuando el archivo pasa un minuto sin cambiar, es decir, al terminar el solver; para ver otra vez las curvas completas, se repite el comando. Las comillas de la primera ruta hacen falta por los paréntesis. Las gráficas se pueden cerrar en cualquier momento: el solver sigue.</li>
+  <li><strong>Esperar, o detener antes.</strong> El solver termina solo en la iteración 2000 (unas 2 horas). Para detenerlo antes sin perder lo calculado:<pre class="code"><code>foamDictionary system/controlDict -entry stopAt -set writeNow</code></pre>El solver lee el cambio (<code>runTimeModifiable true</code>), termina la iteración en curso, la escribe y se detiene. Para seguir después desde ahí, <code>stopAt endTime</code> y <code>startFrom latestTime</code>.</li>
+  <li><strong>Juntar y ver</strong>: la última iteración, en la raíz, y abrir el caso:<pre class="code"><code>reconstructPar -latestTime | tee log.reconstructPar
+paraFoam</code></pre></li>
+</ol>
+<p>El caso queda listo para el tutorial 3.3, que lee sus resultados. <code>./Allrun</code> corre los mismos pasos (salvo vigilar y detener) con <code>runParallel</code>, que pone por su cuenta <code>mpirun -np</code> con el número de <code>decomposeParDict</code> y <code>-parallel</code>.</p>
+
+    </section>
+    <section id="check-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>Lo que escribe cada paso, y qué leer ahí</h2>
+
+<p>Las salidas son las de la corrida de referencia, que se hizo con la secuencia de <code>Allrun</code>; la de esta guía, escrita a mano, dio el mismo Cd, con todas sus cifras, en las 16 iteraciones que se corrieron.</p>
+<h3>1. El reparto</h3>
+<pre class="code"><code>Processor 0
+    Number of cells = 400
+    Number of faces shared with processor 1 = 40
+    Number of faces shared with processor 4 = 80
+    Number of processor patches = 2
+    Number of processor faces = 120</code></pre><pre class="code"><code>Max number of cells = 400 (0% above average 400)
+Max number of processor patches = 3 (20% above average 2.5)
+Max number of faces between processors = 160 (14.2857% above average 140)</code></pre>
+<p>Ocho pedazos de 400 cubos, y 560 caras compartidas en total: los parches <code>processor</code> por los que se comunicarán los procesos. Como la malla de fondo es un bloque de cubos y <code>n (4 2 1)</code> divide exacto sus 40 × 10 × 8 celdas, el reparto es perfecto. En cada carpeta <code>processor*</code> hay ahora <code>constant/polyMesh</code> (su pedazo de la malla) y <code>0/</code>.</p>
+<h3>2. La malla</h3>
+<p>Al final del registro, <code>snappyHexMesh</code> resume las capas región por región (tabla 3) y da el total:</p>
+<pre class="code"><code>patch            faces    layers avg thickness[m]
+                                 near-wall overall
+-----            -----    ------ --------- -------
+carroceria       85193    2      0.00656   0.0141
+bajos            10188    2      0.00674   0.0132
+ruedasDelanteras 8094     2      0.00652   0.0143
+ruedasTraseras   8089     2      0.00651   0.0143
+refaccion        2683     2      0.00652   0.0143
+espejos          910      2      0.00667   0.0135</code></pre><pre class="code"><code>Layer mesh : cells:2123371  faces:6540819  points:2296054</code></pre><pre class="code"><code>Checking final mesh ...
+Checking faces in error :
+    non-orthogonality &gt; 65  degrees                        : 0
+    faces with concavity &gt; 80  degrees                     : 0
+    faces with skewness &gt; 4   (internal) or 20  (boundary) : 0
+    faces with interpolation weights (0..1)  &lt; 0.05        : 0
+    faces with volume ratio of neighbour cells &lt; 0.01      : 0
+    faces with face twist &lt; 0.02                           : 0
+    faces on cells with determinant &lt; 0.001                : 0
+Finished meshing without any errors
+Finished meshing in = 235.286 s.</code></pre>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Región</th><th>Caras</th><th>Capas</th><th>Espesor [mm]</th><th>Espesor [% del pedido]</th></tr></thead>
+    <tbody>
+      <tr><td><code>carroceria</code></td><td>85 193</td><td>1.90</td><td>12.5</td><td>87.7</td></tr>
+      <tr><td><code>bajos</code></td><td>10 188</td><td>1.68</td><td>8.6</td><td>61.1</td></tr>
+      <tr><td><code>ruedasDelanteras</code></td><td>8 094</td><td>1.99</td><td>13.5</td><td>94.1</td></tr>
+      <tr><td><code>ruedasTraseras</code></td><td>8 089</td><td>2.00</td><td>13.7</td><td>95.3</td></tr>
+      <tr><td><code>refaccion</code></td><td>2 683</td><td>1.88</td><td>12.8</td><td>89.4</td></tr>
+      <tr><td><code>espejos</code></td><td>910</td><td>1.67</td><td>9.2</td><td>64.5</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">Las capas, región por región.</b> La tabla con que termina <code>log.snappyHexMesh</code>. «Capas» es el promedio sobre las caras de la región (se pidieron 2); «espesor» es el espesor total de las capas, en metros y en porcentaje del que se pidió.</caption>
+  </table>
+</div>
+<p>2 123 371 celdas. Las capas cubren casi toda la carrocería y las ruedas (1.9 a 2 capas de las 2 pedidas, con el 88–95 % del espesor), y menos los bajos y los espejos (alrededor de 1.7 capas y el 61–65 % del espesor): son las regiones con más rincones, donde <code>snappyHexMesh</code> retira las capas que estropearían la calidad. En total extruyó 113 666 de 115 157 caras de pared, el 98.7 %. La revisión final no encuentra ninguna cara fuera de los límites de <code>system/meshQualityDict</code>.</p>
+<h3>3. La revisión de la malla</h3>
+<pre class="code"><code>Mesh stats
+    points:           2349637
+    faces:            6591880
+    internal faces:   6341876
+    cells:            2123371
+    faces per cell:   6.09114
+    boundary patches: 14
+    point zones:      0
+    face zones:       0
+    cell zones:       0</code></pre><pre class="code"><code>Checking geometry...
+    Overall domain bounding box (-10 -5 0) (30 5 8)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Max cell openness = 5.224e-16 OK.
+    Max aspect ratio = 35.2145 OK.
+    Minimum face area = 8.57576e-07. Maximum face area = 1.00002.  Face area magnitudes OK.
+    Min volume = 4.55942e-08. Max volume = 1.00002.  Total volume = 3193.85.  Cell volumes OK.
+    Mesh non-orthogonality Max: 63.5182 average: 6.33176
+    Non-orthogonality check OK.
+    Face pyramids OK.
+ ***Max skewness = 6.51367, 67 highly skew faces detected which may impair the quality of the results
+    Coupled point location match (average 0) OK.
+
+Failed 1 mesh checks.</code></pre>
+<p>La malla tiene las 2 123 371 celdas de <code>snappyHexMesh</code>, 2 035 692 de ellas cubos (el 96 %), y una no ortogonalidad máxima de 63.5° con promedio de 6.3°: buena para el solver. Y una revisión que no pasa, marcada con <code>***</code>: 67 caras con sesgo mayor que 4, con un máximo de 6.51.</p>
+<p>¿Dónde están? <code>snappyHexMesh</code> acaba de decir que ninguna cara pasa de sus límites, y los suyos, en <code>meshQualityDict</code>, son <code>maxInternalSkewness 4</code> y <code>maxBoundarySkewness 20</code>. <code>checkMesh</code> usa 4 para todas las caras. Las dos salidas sólo concuerdan si las 67 caras son <strong>caras de frontera</strong> con sesgo entre 4 y 20: caras de pared. Y como aparecieron al hacer redondas las llantas (en el 3.1), son las de la cuña entre cada llanta y el suelo (figura 3 del <a href="jimny-caso.html#theory-es">3.1</a>). Son 67 de 6.6 millones de caras, en el rincón más difícil del caso, y el solver corre sin problemas. La malla sirve; la práctica es anotarlo, no ignorarlo.</p>
+<p><code>patchSummary</code> confirma qué condición le toca a cada parche; agrupa los que tienen las mismas:</p>
+<pre class="code"><code>wall	: carroceria
+wall	: bajos
+wall	: refaccion
+wall	: espejos
+    scalar		nut		nutkWallFunction
+    scalar		k		kqRWallFunction
+    scalar		p		zeroGradient
+    scalar		omega		omegaWallFunction
+    vector		U		noSlip
+
+wall	: ruedasDelanteras
+wall	: ruedasTraseras
+    scalar		nut		nutkWallFunction
+    scalar		k		kqRWallFunction
+    scalar		p		zeroGradient
+    scalar		omega		omegaWallFunction</code></pre><pre class="code"><code>group	: processor
+    scalar		nut		processor
+    scalar		k		processor
+    scalar		p		processor
+    scalar		omega		processor
+    vector		U		processor</code></pre>
+<p>Las cuatro regiones fijas llevan <code>noSlip</code> y las ruedas, <code>rotatingWallVelocity</code>, como se pidió en <code>0/U.orig</code>. El último grupo, <code>processor</code>, son las caras compartidas entre procesos: no son fronteras del túnel ni del vehículo, y su «condición» es el intercambio de valores.</p>
+<h3>4. El campo inicial</h3>
+<pre class="code"><code>Calculating potential flow
+GAMG:  Solving for Phi, Initial residual = 1, Final residual = 0.0923664, No Iterations 7
+GAMG:  Solving for Phi, Initial residual = 0.0254875, Final residual = 0.00116505, No Iterations 1
+GAMG:  Solving for Phi, Initial residual = 0.00135258, Final residual = 0.000111831, No Iterations 4
+GAMG:  Solving for Phi, Initial residual = 0.00061986, Final residual = 4.34707e-05, No Iterations 2
+GAMG:  Solving for Phi, Initial residual = 7.71021e-05, Final residual = 6.62924e-06, No Iterations 4
+GAMG:  Solving for Phi, Initial residual = 2.44429e-05, Final residual = 1.77759e-06, No Iterations 3
+GAMG:  Solving for Phi, Initial residual = 4.56797e-06, Final residual = 8.01522e-07, No Iterations 2
+GAMG:  Solving for Phi, Initial residual = 1.40029e-06, Final residual = 3.78003e-07, No Iterations 1
+GAMG:  Solving for Phi, Initial residual = 4.45302e-07, Final residual = 4.45302e-07, No Iterations 0
+GAMG:  Solving for Phi, Initial residual = 4.45302e-07, Final residual = 4.45302e-07, No Iterations 0
+GAMG:  Solving for Phi, Initial residual = 4.45302e-07, Final residual = 4.45302e-07, No Iterations 0
+Continuity error = 8.22993e-05
+Interpolated velocity error = 0.000267329</code></pre>
+<p><code>potentialFoam</code> resuelve el flujo potencial —sin viscosidad, sin estela— y lo escribe como campo inicial en <code>processor*/0</code>. Tarda 4.4 s. Arrancar de él, y no de un campo uniforme que atraviesa el vehículo, evita que las primeras iteraciones del solver vayan muy lejos. Un detalle: el Cd del flujo potencial es 0.0041 (primera fila de <code>forceCoeffs.dat</code>, el tiempo 0). Es la paradoja de d'Alembert: sin viscosidad no hay arrastre. Todo el arrastre del Jimny lo pone el solver, con la capa límite y la estela.</p>
+<h3>5. El solver</h3>
+<p>Una iteración del registro <code>log.foamRun</code>, la primera:</p>
+<pre class="code"><code>Time = 1s
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0741398, Final residual = 0.00441761, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.177184, Final residual = 0.00857436, No Iterations 2
+smoothSolver:  Solving for Uz, Initial residual = 0.165917, Final residual = 0.00728544, No Iterations 2
+GAMG:  Solving for p, Initial residual = 1, Final residual = 0.0697652, No Iterations 3
+time step continuity errors : sum local = 0.00669643, global = -3.15432e-06, cumulative = -3.15432e-06
+smoothSolver:  Solving for omega, Initial residual = 0.00146172, Final residual = 3.92095e-05, No Iterations 2
+smoothSolver:  Solving for k, Initial residual = 1, Final residual = 0.050699, No Iterations 2
+bounding k, min: -0.000206278 max: 0.0479107 average: 0.00502951
+ExecutionTime = 8.499 s  ClockTime = 9 s
+
+forceCoeffs forceCoeffs1 write:
+    Cm    = 0.404204
+    Cd    = 1.25326
+    Cl    = -0.180748
+    Cl(f) = 0.31383
+    Cl(r) = -0.494578</code></pre>
+<p>Cada iteración resuelve las tres componentes de la velocidad, la presión, ω y k, en ese orden; cada renglón da el residuo inicial, el final y las iteraciones del solver lineal. <code>ExecutionTime</code> es el tiempo acumulado; restando el de dos iteraciones seguidas sale el costo de cada una, 3.6 s en promedio. Al final de cada iteración, <code>forceCoeffs</code> escribe los coeficientes. Al principio están lejos del valor final (Cd de 1.25 en la primera): el flujo apenas se está formando.</p>
+<p>Mientras el solver corre, <code>foamMonitor</code> dibuja los residuos y los coeficientes; la figura 4 es lo que muestra al final de las 2000 iteraciones. Las figuras 5 y 6 son las mismas curvas, dibujadas con los archivos de <code>postProcessing</code> para leerlas mejor.</p>
+<figure class="diagram">
+  <img src="imagenes/t32-04_foammonitor.png" alt="Las dos ventanas de foamMonitor al terminar las 2000 iteraciones" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">Lo que muestra foamMonitor.</b> Las dos ventanas de <code>gnuplot</code> al terminar el solver, a la derecha de la pantalla. Arriba, los residuos iniciales de p, de las tres componentes de U, de k y de ω, en escala logarítmica. Abajo, las cinco columnas de <code>forceCoeffs.dat</code>: <code>foamMonitor</code> dibuja todas, y el Cd es la curva verde que se asienta cerca de 0.56. Captura de la corrida del vídeo de esta guía, que terminó con el mismo Cd que la de referencia.</figcaption>
+</figure>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Residuos iniciales de p, Ux, k y omega en escala logarítmica durante las 2000 iteraciones; ninguno llega a la tolerancia de 1e-4 de p.">
+  <text class="svg-title" x="76" y="28">Los residuos iniciales en cada iteración</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="666" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">10<tspan baseline-shift="super" font-size="8">−5</tspan></text>
+  <line class="svg-grid" x1="76" y1="251.7" x2="666" y2="251.7"/>
+  <text class="svg-tick" x="70" y="255.7" text-anchor="end">10<tspan baseline-shift="super" font-size="8">−4</tspan></text>
+  <line class="svg-grid" x1="76" y1="203.4" x2="666" y2="203.4"/>
+  <text class="svg-tick" x="70" y="207.4" text-anchor="end">10<tspan baseline-shift="super" font-size="8">−3</tspan></text>
+  <line class="svg-grid" x1="76" y1="155.1" x2="666" y2="155.1"/>
+  <text class="svg-tick" x="70" y="159.1" text-anchor="end">10<tspan baseline-shift="super" font-size="8">−2</tspan></text>
+  <line class="svg-grid" x1="76" y1="106.8" x2="666" y2="106.8"/>
+  <text class="svg-tick" x="70" y="110.8" text-anchor="end">10<tspan baseline-shift="super" font-size="8">−1</tspan></text>
+  <line class="svg-grid" x1="76" y1="58.5" x2="666" y2="58.5"/>
+  <text class="svg-tick" x="70" y="62.5" text-anchor="end">10<tspan baseline-shift="super" font-size="8">0</tspan></text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0</text>
+  <text class="svg-tick" x="223.5" y="318" text-anchor="middle">500</text>
+  <text class="svg-tick" x="371.0" y="318" text-anchor="middle">1000</text>
+  <text class="svg-tick" x="518.5" y="318" text-anchor="middle">1500</text>
+  <text class="svg-tick" x="666.0" y="318" text-anchor="middle">2000</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">iteración</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">residuo inicial</text>
+  <polyline points="76.3,58.5 76.6,78.5 76.9,87.6 77.2,86.1 77.5,85.2 77.8,81.7 78.1,80.5 78.4,86.3 78.7,92.0 79.0,93.6 79.2,96.0 79.5,96.4 79.8,96.4 80.1,95.2 80.4,94.5 80.7,94.7 81.0,95.4 81.3,96.9 81.6,98.2 81.9,99.3 82.2,99.9 82.5,100.2 82.8,100.1 83.1,99.8 83.4,99.3 83.7,98.7 84.0,98.2 84.3,97.6 84.6,97.3 84.8,97.3 85.1,97.5 85.4,97.9 85.7,98.5 86.0,98.9 86.3,99.1 86.6,99.1 86.9,99.0 87.2,98.7 87.5,98.2 87.8,97.7 89.0,96.5 90.2,97.0 91.3,97.6 92.5,97.6 93.7,97.9 94.9,99.1 96.1,99.8 97.2,99.3 98.4,98.9 99.6,99.0 100.8,99.1 102.0,99.9 103.1,101.2 104.3,102.4 105.5,103.6 106.7,104.8 107.9,105.7 109.0,106.0 110.2,106.6 111.4,107.1 112.6,107.2 113.8,107.6 114.9,108.3 116.1,109.0 117.3,109.1 118.5,109.4 119.7,109.9 120.8,110.5 122.0,111.1 123.2,111.3 124.4,110.7 125.6,110.3 126.7,110.5 127.9,110.6 129.1,111.0 130.3,111.2 131.5,111.0 132.6,111.3 133.8,111.7 135.0,112.4 136.2,112.9 137.4,113.4 138.5,113.7 139.7,114.3 140.9,115.2 142.1,116.1 143.3,117.1 144.4,117.8 145.6,118.6 146.8,119.7 148.0,120.6 149.2,121.1 150.3,121.7 151.5,122.4 152.7,123.0 153.9,123.3 155.1,123.5 156.2,124.2 157.4,125.1 158.6,125.6 159.8,126.1 161.0,126.7 162.1,127.2 163.3,127.4 164.5,127.6 165.7,128.4 166.9,129.2 168.0,129.8 169.2,130.1 170.4,130.7 171.6,131.3 172.8,131.5 173.9,131.4 175.1,131.6 176.3,132.2 177.5,132.4 178.7,131.9 179.8,131.8 181.0,132.3 182.2,132.6 183.4,132.3 184.6,131.9 185.7,132.0 186.9,132.0 188.1,132.3 189.3,132.1 190.5,131.5 191.6,131.2 192.8,130.8 194.0,130.7 195.2,131.0 196.4,131.0 197.5,131.1 198.7,131.5 199.9,132.0 201.1,132.4 202.3,132.3 203.4,132.8 204.6,133.2 205.8,133.5 207.0,133.3 208.2,133.1 209.3,133.4 210.5,134.0 211.7,134.4 212.9,134.6 214.1,134.8 215.2,135.1 216.4,135.8 217.6,136.4 218.8,136.7 220.0,136.8 221.1,136.9 222.3,137.4 223.5,138.0 224.7,137.9 225.9,137.9 227.0,138.2 228.2,138.7 229.4,139.0 230.6,139.1 231.8,139.1 232.9,139.4 234.1,140.0 235.3,140.2 236.5,140.3 237.7,140.4 238.8,140.6 240.0,140.7 241.2,140.3 242.4,140.0 243.6,140.0 244.7,140.4 245.9,140.8 247.1,140.5 248.3,140.5 249.5,140.7 250.6,141.4 251.8,141.6 253.0,141.4 254.2,141.4 255.4,141.7 256.5,141.7 257.7,141.0 258.9,140.8 260.1,140.7 261.3,140.9 262.4,140.6 263.6,140.1 264.8,139.8 266.0,140.0 267.2,140.3 268.3,140.1 269.5,140.2 270.7,140.5 271.9,140.5 273.1,140.3 274.2,140.2 275.4,140.4 276.6,140.6 277.8,140.6 279.0,140.4 280.1,140.3 281.3,140.6 282.5,140.7 283.7,140.6 284.9,140.6 286.0,140.5 287.2,140.7 288.4,140.5 289.6,140.6 290.8,140.8 291.9,141.2 293.1,141.3 294.3,141.1 295.5,141.2 296.7,141.7 297.8,141.9 299.0,141.5 300.2,141.5 301.4,142.0 302.6,142.0 303.7,141.7 304.9,141.2 306.1,141.7 307.3,142.1 308.5,142.0 309.6,141.8 310.8,141.9 312.0,142.4 313.2,142.4 314.4,141.8 315.5,141.5 316.7,142.1 317.9,142.6 319.1,142.4 320.3,142.3 321.4,142.5 322.6,143.2 323.8,143.4 325.0,142.8 326.2,142.5 327.3,143.1 328.5,143.7 329.7,143.3 330.9,142.8 332.1,143.1 333.2,143.7 334.4,143.7 335.6,143.1 336.8,143.1 338.0,143.3 339.1,143.3 340.3,142.9 341.5,142.3 342.7,142.4 343.9,142.8 345.0,142.6 346.2,142.2 347.4,142.1 348.6,142.5 349.8,142.8 350.9,142.3 352.1,142.3 353.3,143.1 354.5,143.2 355.7,142.8 356.8,142.4 358.0,142.4 359.2,142.9 360.4,142.9 361.6,142.8 362.7,142.7 363.9,142.8 365.1,143.0 366.3,143.1 367.5,142.9 368.6,142.8 369.8,143.3 371.0,143.3 372.2,143.1 373.4,142.8 374.5,142.9 375.7,143.1 376.9,143.0 378.1,142.5 379.3,142.1 380.4,142.3 381.6,142.5 382.8,142.7 384.0,142.7 385.2,143.0 386.3,143.3 387.5,143.3 388.7,142.9 389.9,142.9 391.1,142.7 392.2,142.5 393.4,142.5 394.6,142.7 395.8,142.7 397.0,142.6 398.1,142.2 399.3,142.1 400.5,142.2 401.7,141.9 402.9,141.2 404.0,141.5 405.2,141.7 406.4,141.8 407.6,141.6 408.8,141.5 409.9,141.7 411.1,142.0 412.3,141.7 413.5,141.5 414.7,141.6 415.8,142.1 417.0,142.0 418.2,141.5 419.4,141.4 420.6,141.6 421.7,141.9 422.9,141.6 424.1,141.0 425.3,140.8 426.5,140.9 427.6,140.8 428.8,140.7 430.0,140.6 431.2,140.9 432.4,140.8 433.5,140.2 434.7,140.5 435.9,141.0 437.1,141.3 438.3,141.1 439.4,140.7 440.6,140.7 441.8,141.2 443.0,141.6 444.2,141.5 445.3,141.6 446.5,141.4 447.7,141.7 448.9,141.5 450.1,141.2 451.2,141.5 452.4,141.9 453.6,141.7 454.8,141.1 456.0,140.9 457.1,141.3 458.3,141.6 459.5,141.3 460.7,141.1 461.9,141.3 463.0,141.5 464.2,141.7 465.4,141.5 466.6,141.7 467.8,141.9 468.9,141.8 470.1,141.6 471.3,141.5 472.5,141.7 473.7,142.0 474.8,141.8 476.0,141.4 477.2,141.5 478.4,142.0 479.6,142.1 480.7,141.8 481.9,141.5 483.1,142.0 484.3,142.3 485.5,142.5 486.6,142.2 487.8,141.9 489.0,141.9 490.2,141.9 491.4,142.1 492.5,142.0 493.7,142.3 494.9,142.4 496.1,142.2 497.3,142.1 498.4,142.3 499.6,142.6 500.8,142.6 502.0,142.1 503.2,142.0 504.3,142.2 505.5,142.3 506.7,142.4 507.9,142.7 509.1,142.9 510.2,142.8 511.4,142.8 512.6,143.1 513.8,143.4 515.0,143.6 516.1,143.6 517.3,143.0 518.5,143.4 519.7,143.9 520.9,144.4 522.0,144.4 523.2,144.4 524.4,144.6 525.6,144.5 526.8,144.6 527.9,144.7 529.1,144.8 530.3,145.1 531.5,144.5 532.7,144.0 533.8,143.9 535.0,144.1 536.2,144.0 537.4,143.3 538.6,142.7 539.7,143.1 540.9,143.4 542.1,143.1 543.3,143.2 544.5,143.4 545.6,143.7 546.8,143.5 548.0,143.4 549.2,143.8 550.4,144.2 551.5,144.3 552.7,143.9 553.9,143.9 555.1,144.4 556.3,145.0 557.4,144.7 558.6,144.1 559.8,143.9 561.0,144.1 562.2,144.3 563.3,143.6 564.5,143.1 565.7,143.1 566.9,143.2 568.1,143.0 569.2,143.0 570.4,143.4 571.6,143.8 572.8,143.3 574.0,142.8 575.1,143.2 576.3,143.6 577.5,143.9 578.7,143.5 579.9,143.2 581.0,143.5 582.2,143.8 583.4,143.8 584.6,143.4 585.8,143.1 586.9,143.6 588.1,144.1 589.3,144.2 590.5,144.2 591.7,144.3 592.8,144.1 594.0,143.9 595.2,143.6 596.4,143.8 597.6,144.4 598.7,144.4 599.9,144.2 601.1,144.4 602.3,144.7 603.5,144.8 604.6,144.3 605.8,143.9 607.0,143.6 608.2,143.7 609.4,143.8 610.5,143.6 611.7,143.3 612.9,143.3 614.1,143.2 615.3,143.4 616.4,143.6 617.6,143.5 618.8,143.2 620.0,142.8 621.2,142.9 622.3,143.2 623.5,143.7 624.7,143.6 625.9,143.2 627.1,143.5 628.2,143.4 629.4,143.5 630.6,143.5 631.8,143.6 633.0,143.7 634.1,143.4 635.3,142.9 636.5,142.8 637.7,143.1 638.9,143.0 640.0,142.8 641.2,142.9 642.4,142.9 643.6,143.2 644.8,143.3 645.9,143.0 647.1,143.1 648.3,143.5 649.5,143.5 650.7,143.5 651.8,143.7 653.0,143.7 654.2,143.6 655.4,143.6 656.6,143.6 657.7,143.9 658.9,144.2 660.1,144.0 661.3,143.6 662.5,143.1 663.6,143.5 664.8,143.8 666.0,143.4" fill="none" stroke="var(--accent-dark)" stroke-width="1.2"/>
+  <polyline points="76.3,113.1 76.6,129.7 76.9,131.1 77.2,138.2 77.5,151.9 77.8,149.7 78.1,150.3 78.4,155.7 78.7,157.0 79.0,159.5 79.2,163.7 79.5,166.7 79.8,169.0 80.1,169.3 80.4,170.3 80.7,171.3 81.0,171.2 81.3,171.6 81.6,172.5 81.9,173.7 82.2,174.6 82.5,174.9 82.8,175.3 83.1,175.9 83.4,176.3 83.7,176.7 84.0,177.1 84.3,177.6 84.6,177.7 84.8,177.7 85.1,177.6 85.4,177.9 85.7,178.1 86.0,178.0 86.3,178.0 86.6,178.0 86.9,178.1 87.2,178.1 87.5,178.2 87.8,178.2 89.0,177.5 90.2,177.7 91.3,177.8 92.5,178.4 93.7,178.5 94.9,178.7 96.1,178.7 97.2,178.6 98.4,178.0 99.6,177.9 100.8,177.5 102.0,177.1 103.1,176.9 104.3,177.1 105.5,177.4 106.7,177.7 107.9,178.2 109.0,178.8 110.2,179.3 111.4,179.6 112.6,180.0 113.8,180.5 114.9,181.1 116.1,181.6 117.3,181.8 118.5,182.0 119.7,182.4 120.8,183.0 122.0,183.3 123.2,183.6 124.4,183.7 125.6,183.6 126.7,183.6 127.9,183.6 129.1,183.8 130.3,184.2 131.5,184.7 132.6,185.1 133.8,185.5 135.0,186.0 136.2,186.5 137.4,187.0 138.5,187.5 139.7,188.1 140.9,188.5 142.1,189.2 143.3,190.0 144.4,190.7 145.6,191.2 146.8,191.8 148.0,192.4 149.2,192.9 150.3,193.4 151.5,194.0 152.7,194.7 153.9,195.3 155.1,195.9 156.2,196.3 157.4,196.8 158.6,197.2 159.8,197.7 161.0,198.2 162.1,198.6 163.3,199.1 164.5,199.5 165.7,200.0 166.9,200.5 168.0,201.0 169.2,201.6 170.4,202.0 171.6,202.5 172.8,202.8 173.9,203.1 175.1,203.4 176.3,203.7 177.5,204.0 178.7,204.3 179.8,204.5 181.0,204.7 182.2,204.9 183.4,205.2 184.6,205.3 185.7,205.4 186.9,205.4 188.1,205.5 189.3,205.5 190.5,205.5 191.6,205.4 192.8,205.4 194.0,205.4 195.2,205.6 196.4,206.0 197.5,206.5 198.7,207.0 199.9,207.5 201.1,208.0 202.3,208.3 203.4,208.6 204.6,208.8 205.8,209.0 207.0,209.4 208.2,209.8 209.3,210.2 210.5,210.5 211.7,210.9 212.9,211.5 214.1,212.0 215.2,212.5 216.4,213.2 217.6,213.8 218.8,214.2 220.0,214.6 221.1,215.0 222.3,215.5 223.5,216.0 224.7,216.5 225.9,217.0 227.0,217.4 228.2,217.7 229.4,218.1 230.6,218.2 231.8,218.3 232.9,218.5 234.1,218.7 235.3,218.8 236.5,218.9 237.7,218.8 238.8,218.8 240.0,219.0 241.2,219.0 242.4,218.9 243.6,219.0 244.7,219.1 245.9,219.4 247.1,219.5 248.3,219.7 249.5,220.0 250.6,220.4 251.8,220.9 253.0,221.2 254.2,221.6 255.4,222.1 256.5,222.6 257.7,222.9 258.9,223.0 260.1,223.2 261.3,223.4 262.4,223.7 263.6,223.7 264.8,223.6 266.0,223.7 267.2,223.8 268.3,223.9 269.5,223.8 270.7,223.9 271.9,223.9 273.1,224.1 274.2,224.0 275.4,223.9 276.6,223.9 277.8,224.0 279.0,224.1 280.1,224.1 281.3,224.2 282.5,224.3 283.7,224.4 284.9,224.4 286.0,224.5 287.2,224.7 288.4,224.7 289.6,224.8 290.8,224.9 291.9,225.1 293.1,225.3 294.3,225.3 295.5,225.4 296.7,225.6 297.8,225.8 299.0,225.9 300.2,225.9 301.4,226.1 302.6,226.4 303.7,226.5 304.9,226.4 306.1,226.5 307.3,226.9 308.5,227.1 309.6,227.1 310.8,227.3 312.0,227.6 313.2,227.8 314.4,227.9 315.5,228.0 316.7,228.3 317.9,228.6 319.1,228.8 320.3,229.0 321.4,229.0 322.6,229.3 323.8,229.5 325.0,229.5 326.2,229.4 327.3,229.6 328.5,229.8 329.7,230.0 330.9,230.0 332.1,230.1 333.2,230.4 334.4,230.7 335.6,230.7 336.8,230.6 338.0,230.8 339.1,231.0 340.3,231.2 341.5,231.2 342.7,231.4 343.9,231.6 345.0,231.8 346.2,232.1 347.4,232.2 348.6,232.6 349.8,232.9 350.9,233.1 352.1,233.2 353.3,233.3 354.5,233.4 355.7,233.7 356.8,233.6 358.0,233.4 359.2,233.5 360.4,233.6 361.6,233.6 362.7,233.5 363.9,233.3 365.1,233.4 366.3,233.4 367.5,233.4 368.6,233.5 369.8,233.6 371.0,233.7 372.2,233.8 373.4,233.8 374.5,233.7 375.7,233.9 376.9,233.8 378.1,233.9 379.3,233.7 380.4,233.8 381.6,234.0 382.8,234.0 384.0,234.3 385.2,234.4 386.3,234.7 387.5,234.6 388.7,234.6 389.9,234.4 391.1,234.5 392.2,234.5 393.4,234.3 394.6,234.4 395.8,234.5 397.0,234.4 398.1,234.1 399.3,233.8 400.5,233.9 401.7,233.6 402.9,233.2 404.0,232.9 405.2,233.2 406.4,233.3 407.6,233.5 408.8,233.4 409.9,233.7 411.1,234.0 412.3,234.1 413.5,234.1 414.7,234.3 415.8,234.6 417.0,234.8 418.2,234.8 419.4,234.8 420.6,234.9 421.7,235.1 422.9,234.9 424.1,234.6 425.3,234.4 426.5,234.3 427.6,234.2 428.8,234.0 430.0,234.0 431.2,234.0 432.4,234.2 433.5,234.1 434.7,234.1 435.9,234.5 437.1,234.7 438.3,234.9 439.4,234.5 440.6,234.5 441.8,234.5 443.0,234.7 444.2,234.5 445.3,234.4 446.5,234.5 447.7,234.7 448.9,234.9 450.1,234.8 451.2,234.9 452.4,235.1 453.6,235.3 454.8,235.2 456.0,235.2 457.1,235.5 458.3,235.7 459.5,236.0 460.7,235.7 461.9,235.7 463.0,235.7 464.2,235.7 465.4,235.9 466.6,235.9 467.8,236.1 468.9,236.0 470.1,236.2 471.3,236.0 472.5,236.1 473.7,236.1 474.8,236.2 476.0,236.2 477.2,236.2 478.4,236.3 479.6,236.5 480.7,236.8 481.9,236.8 483.1,236.8 484.3,236.8 485.5,236.8 486.6,236.8 487.8,236.6 489.0,236.5 490.2,236.4 491.4,236.4 492.5,236.4 493.7,236.5 494.9,236.5 496.1,236.4 497.3,236.3 498.4,236.2 499.6,236.3 500.8,236.2 502.0,236.1 503.2,236.1 504.3,236.2 505.5,236.2 506.7,236.1 507.9,236.1 509.1,236.2 510.2,236.1 511.4,236.2 512.6,236.3 513.8,236.5 515.0,236.6 516.1,236.6 517.3,236.2 518.5,236.3 519.7,236.6 520.9,237.0 522.0,237.1 523.2,237.2 524.4,237.4 525.6,237.7 526.8,237.9 527.9,238.0 529.1,238.2 530.3,238.5 531.5,238.4 532.7,238.1 533.8,238.0 535.0,238.0 536.2,237.9 537.4,237.5 538.6,237.1 539.7,237.1 540.9,237.3 542.1,237.4 543.3,237.3 544.5,237.3 545.6,237.3 546.8,237.4 548.0,237.3 549.2,237.7 550.4,237.9 551.5,238.5 552.7,238.6 553.9,238.9 555.1,239.2 556.3,239.6 557.4,239.7 558.6,239.4 559.8,239.1 561.0,239.1 562.2,239.1 563.3,239.0 564.5,238.8 565.7,238.8 566.9,238.8 568.1,239.0 569.2,238.9 570.4,239.1 571.6,239.1 572.8,239.5 574.0,239.3 575.1,239.6 576.3,239.7 577.5,240.2 578.7,240.3 579.9,240.1 581.0,240.0 582.2,240.0 583.4,239.9 584.6,239.6 585.8,239.3 586.9,239.5 588.1,239.8 589.3,240.1 590.5,239.9 591.7,240.0 592.8,239.8 594.0,240.0 595.2,239.7 596.4,239.9 597.6,239.8 598.7,240.1 599.9,239.9 601.1,240.0 602.3,240.1 603.5,240.1 604.6,240.1 605.8,239.7 607.0,239.4 608.2,239.3 609.4,239.4 610.5,239.3 611.7,239.1 612.9,238.9 614.1,238.8 615.3,238.6 616.4,238.7 617.6,238.5 618.8,238.4 620.0,238.2 621.2,238.3 622.3,238.3 623.5,238.6 624.7,238.6 625.9,238.6 627.1,238.4 628.2,238.4 629.4,238.4 630.6,238.1 631.8,238.2 633.0,238.1 634.1,238.1 635.3,237.9 636.5,237.9 637.7,237.8 638.9,237.7 640.0,237.5 641.2,237.4 642.4,237.3 643.6,237.3 644.8,237.3 645.9,237.1 647.1,237.0 648.3,237.1 649.5,237.1 650.7,237.1 651.8,237.2 653.0,237.3 654.2,237.5 655.4,237.7 656.6,237.9 657.7,238.3 658.9,238.6 660.1,238.5 661.3,238.4 662.5,238.1 663.6,238.2 664.8,238.3 666.0,238.2" fill="none" stroke="var(--blue)" stroke-width="1.2"/>
+  <polyline points="76.3,58.5 76.6,92.8 76.9,106.6 77.2,117.8 77.5,127.8 77.8,136.2 78.1,143.1 78.4,148.9 78.7,153.9 79.0,158.5 79.2,162.3 79.5,165.0 79.8,166.7 80.1,168.0 80.4,168.9 80.7,169.9 81.0,170.6 81.3,171.5 81.6,172.9 81.9,174.1 82.2,174.9 82.5,175.5 82.8,175.6 83.1,176.1 83.4,176.5 83.7,176.5 84.0,176.6 84.3,176.7 84.6,176.8 84.8,176.9 85.1,176.9 85.4,176.7 85.7,176.5 86.0,176.2 86.3,176.0 86.6,175.7 86.9,175.4 87.2,175.0 87.5,174.7 87.8,174.4 89.0,173.4 90.2,172.4 91.3,171.9 92.5,172.1 93.7,172.5 94.9,172.6 96.1,172.6 97.2,172.5 98.4,172.2 99.6,171.9 100.8,171.9 102.0,172.4 103.1,173.2 104.3,173.9 105.5,174.7 106.7,176.3 107.9,178.4 109.0,180.2 110.2,181.3 111.4,182.2 112.6,183.0 113.8,183.8 114.9,184.6 116.1,185.2 117.3,185.6 118.5,186.0 119.7,186.3 120.8,186.7 122.0,187.1 123.2,187.3 124.4,187.5 125.6,187.7 126.7,188.0 127.9,188.4 129.1,189.0 130.3,189.6 131.5,190.1 132.6,190.5 133.8,190.7 135.0,191.0 136.2,191.2 137.4,191.5 138.5,191.7 139.7,191.9 140.9,192.0 142.1,192.3 143.3,192.5 144.4,192.7 145.6,193.0 146.8,193.4 148.0,193.8 149.2,194.0 150.3,194.3 151.5,194.5 152.7,194.8 153.9,195.0 155.1,195.3 156.2,195.6 157.4,195.8 158.6,196.2 159.8,196.5 161.0,196.8 162.1,197.1 163.3,197.4 164.5,197.9 165.7,198.4 166.9,198.9 168.0,199.4 169.2,199.8 170.4,200.2 171.6,200.7 172.8,201.2 173.9,201.5 175.1,201.8 176.3,202.1 177.5,202.4 178.7,202.7 179.8,202.9 181.0,203.2 182.2,203.4 183.4,203.6 184.6,204.1 185.7,204.5 186.9,204.8 188.1,205.1 189.3,205.1 190.5,205.1 191.6,205.2 192.8,205.3 194.0,205.5 195.2,205.6 196.4,205.7 197.5,205.7 198.7,205.8 199.9,205.9 201.1,206.1 202.3,206.4 203.4,206.9 204.6,207.2 205.8,207.6 207.0,208.0 208.2,208.3 209.3,208.5 210.5,208.7 211.7,208.8 212.9,209.0 214.1,209.2 215.2,209.4 216.4,209.6 217.6,209.9 218.8,210.0 220.0,210.3 221.1,210.7 222.3,211.1 223.5,211.6 224.7,212.1 225.9,212.7 227.0,213.2 228.2,213.8 229.4,214.3 230.6,214.8 231.8,215.1 232.9,215.5 234.1,215.9 235.3,216.2 236.5,216.4 237.7,216.6 238.8,216.8 240.0,217.0 241.2,217.1 242.4,217.1 243.6,217.3 244.7,217.5 245.9,217.7 247.1,217.8 248.3,218.0 249.5,218.3 250.6,218.5 251.8,218.7 253.0,218.9 254.2,219.1 255.4,219.3 256.5,219.4 257.7,219.5 258.9,219.5 260.1,219.6 261.3,219.7 262.4,219.8 263.6,219.8 264.8,219.8 266.0,219.8 267.2,219.8 268.3,219.8 269.5,219.9 270.7,220.1 271.9,220.2 273.1,220.4 274.2,220.5 275.4,220.6 276.6,220.8 277.8,220.9 279.0,220.9 280.1,220.9 281.3,220.9 282.5,220.8 283.7,220.8 284.9,220.8 286.0,221.0 287.2,221.2 288.4,221.2 289.6,221.3 290.8,221.5 291.9,221.7 293.1,221.9 294.3,222.1 295.5,222.2 296.7,222.2 297.8,222.2 299.0,222.2 300.2,222.3 301.4,222.4 302.6,222.4 303.7,222.4 304.9,222.4 306.1,222.5 307.3,222.6 308.5,222.9 309.6,223.2 310.8,223.6 312.0,223.9 313.2,224.0 314.4,224.0 315.5,224.1 316.7,224.2 317.9,224.4 319.1,224.5 320.3,224.5 321.4,224.7 322.6,225.0 323.8,225.3 325.0,225.7 326.2,225.9 327.3,226.2 328.5,226.5 329.7,226.6 330.9,226.6 332.1,226.8 333.2,227.1 334.4,227.4 335.6,227.6 336.8,227.7 338.0,227.9 339.1,228.1 340.3,228.1 341.5,228.4 342.7,228.5 343.9,228.7 345.0,228.7 346.2,228.8 347.4,228.8 348.6,228.9 349.8,228.9 350.9,229.1 352.1,229.2 353.3,229.4 354.5,229.5 355.7,229.7 356.8,229.8 358.0,229.8 359.2,229.9 360.4,229.9 361.6,229.9 362.7,229.9 363.9,229.9 365.1,229.9 366.3,230.0 367.5,230.1 368.6,230.2 369.8,230.2 371.0,230.3 372.2,230.4 373.4,230.5 374.5,230.5 375.7,230.5 376.9,230.5 378.1,230.3 379.3,230.3 380.4,230.2 381.6,230.3 382.8,230.2 384.0,230.4 385.2,230.5 386.3,230.6 387.5,230.7 388.7,231.0 389.9,231.2 391.1,231.2 392.2,231.2 393.4,231.1 394.6,231.0 395.8,230.7 397.0,230.5 398.1,230.4 399.3,230.4 400.5,230.3 401.7,230.2 402.9,230.0 404.0,229.9 405.2,229.9 406.4,229.7 407.6,229.7 408.8,229.7 409.9,229.8 411.1,229.9 412.3,229.8 413.5,230.0 414.7,230.2 415.8,230.3 417.0,230.3 418.2,230.2 419.4,230.2 420.6,230.2 421.7,230.2 422.9,230.0 424.1,230.0 425.3,230.2 426.5,230.3 427.6,230.2 428.8,230.1 430.0,230.3 431.2,230.6 432.4,230.7 433.5,230.8 434.7,231.0 435.9,231.3 437.1,231.7 438.3,231.8 439.4,231.7 440.6,231.7 441.8,231.7 443.0,231.7 444.2,231.7 445.3,231.7 446.5,231.8 447.7,231.9 448.9,231.9 450.1,231.9 451.2,231.9 452.4,232.1 453.6,232.0 454.8,231.9 456.0,231.9 457.1,232.2 458.3,232.4 459.5,232.3 460.7,232.2 461.9,232.1 463.0,232.2 464.2,232.3 465.4,232.3 466.6,232.5 467.8,232.8 468.9,233.1 470.1,233.2 471.3,233.3 472.5,233.3 473.7,233.3 474.8,233.1 476.0,232.9 477.2,232.7 478.4,232.8 479.6,232.9 480.7,232.9 481.9,233.0 483.1,233.1 484.3,233.2 485.5,233.2 486.6,233.2 487.8,233.2 489.0,233.3 490.2,233.5 491.4,233.6 492.5,233.7 493.7,233.6 494.9,233.7 496.1,233.6 497.3,233.3 498.4,233.1 499.6,232.9 500.8,232.9 502.0,232.9 503.2,232.7 504.3,232.5 505.5,232.4 506.7,232.4 507.9,232.2 509.1,232.1 510.2,232.1 511.4,232.2 512.6,232.3 513.8,232.6 515.0,232.7 516.1,232.9 517.3,232.9 518.5,233.0 519.7,233.0 520.9,233.1 522.0,233.1 523.2,233.3 524.4,233.4 525.6,233.5 526.8,233.6 527.9,233.9 529.1,234.2 530.3,234.4 531.5,234.5 532.7,234.5 533.8,234.6 535.0,234.7 536.2,234.8 537.4,234.8 538.6,234.7 539.7,234.8 540.9,234.7 542.1,234.6 543.3,234.5 544.5,234.4 545.6,234.4 546.8,234.4 548.0,234.2 549.2,234.4 550.4,234.6 551.5,234.7 552.7,234.7 553.9,234.8 555.1,235.0 556.3,235.3 557.4,235.4 558.6,235.3 559.8,235.4 561.0,235.3 562.2,235.1 563.3,235.1 564.5,235.2 565.7,235.3 566.9,235.4 568.1,235.3 569.2,235.3 570.4,235.2 571.6,235.3 572.8,235.0 574.0,235.1 575.1,235.3 576.3,235.7 577.5,235.8 578.7,235.8 579.9,235.7 581.0,235.7 582.2,235.8 583.4,235.5 584.6,235.4 585.8,235.2 586.9,235.4 588.1,235.7 589.3,235.9 590.5,236.1 591.7,236.2 592.8,236.3 594.0,236.4 595.2,236.4 596.4,236.5 597.6,236.6 598.7,236.6 599.9,236.4 601.1,236.7 602.3,236.9 603.5,237.1 604.6,237.0 605.8,236.8 607.0,236.6 608.2,236.5 609.4,236.7 610.5,236.7 611.7,236.6 612.9,236.5 614.1,236.3 615.3,235.9 616.4,235.8 617.6,235.6 618.8,235.4 620.0,235.3 621.2,234.9 622.3,235.0 623.5,235.0 624.7,235.0 625.9,235.0 627.1,234.9 628.2,234.8 629.4,234.5 630.6,234.3 631.8,234.1 633.0,234.0 634.1,233.9 635.3,233.9 636.5,233.8 637.7,233.7 638.9,233.5 640.0,233.2 641.2,233.2 642.4,233.2 643.6,233.2 644.8,233.2 645.9,233.2 647.1,233.3 648.3,233.5 649.5,233.6 650.7,233.6 651.8,233.6 653.0,233.5 654.2,233.4 655.4,233.4 656.6,233.6 657.7,233.6 658.9,233.9 660.1,233.9 661.3,233.9 662.5,233.9 663.6,234.0 664.8,234.1 666.0,234.1" fill="none" stroke="var(--muted)" stroke-width="1.2"/>
+  <polyline points="76.3,195.4 76.6,185.9 76.9,180.2 77.2,174.5 77.5,174.0 77.8,176.0 78.1,178.3 78.4,179.8 78.7,181.0 79.0,181.8 79.2,183.0 79.5,183.9 79.8,184.7 80.1,185.4 80.4,186.0 80.7,186.7 81.0,186.5 81.3,186.9 81.6,187.6 81.9,188.5 82.2,189.3 82.5,190.1 82.8,191.1 83.1,191.8 83.4,192.5 83.7,193.0 84.0,193.5 84.3,193.9 84.6,194.3 84.8,194.8 85.1,195.1 85.4,195.4 85.7,195.7 86.0,196.1 86.3,196.4 86.6,196.8 86.9,197.1 87.2,197.4 87.5,197.8 87.8,198.1 89.0,199.4 90.2,200.5 91.3,201.7 92.5,203.0 93.7,204.3 94.9,205.2 96.1,205.7 97.2,206.0 98.4,206.3 99.6,206.4 100.8,206.6 102.0,206.9 103.1,207.0 104.3,207.3 105.5,207.6 106.7,208.3 107.9,208.9 109.0,209.5 110.2,210.0 111.4,210.6 112.6,211.4 113.8,212.0 114.9,212.5 116.1,212.9 117.3,213.2 118.5,213.4 119.7,213.7 120.8,214.1 122.0,215.3 123.2,215.6 124.4,215.7 125.6,215.7 126.7,215.8 127.9,216.1 129.1,216.5 130.3,216.8 131.5,217.0 132.6,217.1 133.8,217.2 135.0,217.5 136.2,217.8 137.4,218.1 138.5,218.3 139.7,218.6 140.9,218.7 142.1,218.9 143.3,219.2 144.4,219.5 145.6,219.9 146.8,220.4 148.0,220.8 149.2,221.2 150.3,221.5 151.5,221.8 152.7,222.2 153.9,222.7 155.1,223.2 156.2,223.6 157.4,223.9 158.6,224.1 159.8,224.3 161.0,224.5 162.1,224.9 163.3,225.3 164.5,225.7 165.7,226.2 166.9,226.7 168.0,227.3 169.2,227.7 170.4,227.9 171.6,228.1 172.8,228.2 173.9,228.3 175.1,228.4 176.3,228.4 177.5,228.5 178.7,228.6 179.8,228.5 181.0,228.6 182.2,228.7 183.4,228.8 184.6,229.0 185.7,229.0 186.9,229.1 188.1,229.1 189.3,229.0 190.5,229.0 191.6,229.0 192.8,229.0 194.0,229.0 195.2,229.1 196.4,229.2 197.5,229.4 198.7,229.7 199.9,230.1 201.1,230.4 202.3,230.6 203.4,230.7 204.6,230.9 205.8,231.1 207.0,231.5 208.2,231.8 209.3,231.9 210.5,231.9 211.7,232.1 212.9,232.3 214.1,232.4 215.2,232.5 216.4,232.6 217.6,232.7 218.8,232.8 220.0,232.7 221.1,232.8 222.3,233.0 223.5,233.3 224.7,233.6 225.9,233.9 227.0,234.2 228.2,234.6 229.4,234.8 230.6,235.1 231.8,235.2 232.9,235.0 234.1,235.1 235.3,235.2 236.5,235.3 237.7,235.4 238.8,235.4 240.0,236.1 241.2,236.0 242.4,235.9 243.6,235.9 244.7,235.5 245.9,235.5 247.1,235.6 248.3,235.7 249.5,235.7 250.6,235.7 251.8,235.8 253.0,235.8 254.2,235.9 255.4,236.1 256.5,236.1 257.7,236.1 258.9,236.1 260.1,236.1 261.3,236.1 262.4,236.1 263.6,236.1 264.8,236.1 266.0,236.0 267.2,236.0 268.3,236.0 269.5,236.1 270.7,236.1 271.9,236.2 273.1,236.2 274.2,236.2 275.4,236.2 276.6,236.2 277.8,236.4 279.0,236.4 280.1,236.5 281.3,236.4 282.5,236.4 283.7,236.3 284.9,236.3 286.0,236.3 287.2,236.3 288.4,236.3 289.6,236.4 290.8,236.6 291.9,236.7 293.1,236.8 294.3,236.9 295.5,237.2 296.7,237.4 297.8,237.4 299.0,237.5 300.2,237.7 301.4,237.9 302.6,238.1 303.7,238.1 304.9,238.2 306.1,238.4 307.3,238.6 308.5,238.8 309.6,239.0 310.8,239.2 312.0,239.3 313.2,239.4 314.4,239.4 315.5,239.5 316.7,239.7 317.9,239.7 319.1,239.8 320.3,239.8 321.4,240.0 322.6,240.2 323.8,240.3 325.0,240.3 326.2,240.3 327.3,240.4 328.5,240.4 329.7,240.4 330.9,240.3 332.1,240.4 333.2,240.5 334.4,240.6 335.6,240.5 336.8,240.5 338.0,240.5 339.1,240.5 340.3,240.4 341.5,240.3 342.7,240.4 343.9,240.4 345.0,240.3 346.2,240.3 347.4,240.4 348.6,240.5 349.8,240.4 350.9,240.3 352.1,240.3 353.3,240.5 354.5,240.4 355.7,240.5 356.8,240.4 358.0,240.4 359.2,240.4 360.4,240.4 361.6,240.3 362.7,240.5 363.9,240.6 365.1,240.6 366.3,240.6 367.5,240.5 368.6,240.6 369.8,240.7 371.0,240.8 372.2,240.8 373.4,240.9 374.5,240.9 375.7,240.9 376.9,240.8 378.1,240.7 379.3,240.7 380.4,240.6 381.6,240.7 382.8,240.6 384.0,240.8 385.2,240.9 386.3,241.0 387.5,241.0 388.7,241.0 389.9,240.9 391.1,240.9 392.2,240.8 393.4,240.7 394.6,240.8 395.8,240.7 397.0,240.6 398.1,240.5 399.3,240.4 400.5,240.4 401.7,240.3 402.9,240.1 404.0,240.1 405.2,240.1 406.4,240.1 407.6,240.2 408.8,240.3 409.9,240.5 411.1,240.5 412.3,240.5 413.5,240.4 414.7,240.5 415.8,240.5 417.0,240.6 418.2,240.6 419.4,240.4 420.6,240.5 421.7,240.5 422.9,240.5 424.1,240.4 425.3,240.4 426.5,240.3 427.6,240.2 428.8,240.2 430.0,240.3 431.2,240.4 432.4,240.4 433.5,240.4 434.7,240.5 435.9,240.7 437.1,240.9 438.3,240.9 439.4,240.9 440.6,241.0 441.8,241.1 443.0,241.1 444.2,241.1 445.3,241.0 446.5,241.1 447.7,241.1 448.9,241.1 450.1,241.0 451.2,241.1 452.4,241.2 453.6,241.2 454.8,241.1 456.0,241.2 457.1,241.3 458.3,241.3 459.5,241.3 460.7,241.3 461.9,241.4 463.0,241.5 464.2,241.4 465.4,241.4 466.6,241.6 467.8,241.7 468.9,241.7 470.1,241.7 471.3,241.8 472.5,241.8 473.7,241.8 474.8,241.7 476.0,241.6 477.2,241.7 478.4,241.8 479.6,241.8 480.7,241.6 481.9,241.6 483.1,241.6 484.3,241.6 485.5,241.5 486.6,241.5 487.8,241.6 489.0,241.6 490.2,241.8 491.4,241.7 492.5,241.9 493.7,241.8 494.9,241.6 496.1,241.5 497.3,241.4 498.4,241.4 499.6,241.4 500.8,241.3 502.0,241.2 503.2,241.2 504.3,241.1 505.5,241.1 506.7,241.0 507.9,241.1 509.1,241.2 510.2,241.3 511.4,241.4 512.6,241.4 513.8,241.6 515.0,241.7 516.1,241.7 517.3,241.6 518.5,241.8 519.7,241.9 520.9,242.1 522.0,242.1 523.2,242.1 524.4,242.2 525.6,242.3 526.8,242.3 527.9,242.4 529.1,242.5 530.3,242.6 531.5,242.5 532.7,242.3 533.8,242.3 535.0,242.4 536.2,242.2 537.4,242.0 538.6,241.9 539.7,241.9 540.9,242.0 542.1,242.0 543.3,242.0 544.5,242.2 545.6,242.2 546.8,242.3 548.0,242.2 549.2,242.3 550.4,242.3 551.5,242.4 552.7,242.4 553.9,242.4 555.1,242.6 556.3,242.6 557.4,242.6 558.6,242.5 559.8,242.5 561.0,242.5 562.2,242.5 563.3,242.3 564.5,242.3 565.7,242.3 566.9,242.4 568.1,242.4 569.2,242.4 570.4,242.6 571.6,242.5 572.8,242.6 574.0,242.3 575.1,242.4 576.3,242.5 577.5,242.6 578.7,242.6 579.9,242.6 581.0,242.6 582.2,242.7 583.4,242.7 584.6,242.5 585.8,242.4 586.9,242.5 588.1,242.6 589.3,242.7 590.5,242.8 591.7,242.8 592.8,242.9 594.0,242.8 595.2,242.8 596.4,243.0 597.6,243.0 598.7,243.0 599.9,243.0 601.1,243.0 602.3,243.0 603.5,243.0 604.6,242.8 605.8,242.6 607.0,242.4 608.2,242.4 609.4,242.4 610.5,242.3 611.7,242.3 612.9,242.2 614.1,242.1 615.3,242.1 616.4,242.2 617.6,242.2 618.8,242.2 620.0,242.1 621.2,242.0 622.3,242.0 623.5,242.0 624.7,242.0 625.9,242.0 627.1,242.1 628.2,242.0 629.4,242.0 630.6,241.9 631.8,241.9 633.0,241.8 634.1,241.7 635.3,241.6 636.5,241.7 637.7,241.6 638.9,241.5 640.0,241.6 641.2,241.5 642.4,241.7 643.6,241.7 644.8,241.7 645.9,241.7 647.1,241.8 648.3,241.8 649.5,241.8 650.7,242.0 651.8,242.0 653.0,242.0 654.2,242.0 655.4,242.1 656.6,242.2 657.7,242.4 658.9,242.4 660.1,242.3 661.3,242.1 662.5,242.1 663.6,242.2 664.8,242.2 666.0,242.1" fill="none" stroke="var(--accent)" stroke-width="1.2"/>
+  <polyline points="76.0,251.7 666.0,251.7" fill="none" stroke="var(--ink)" stroke-width="1.0" stroke-dasharray="5 4"/>
+  <line x1="520" y1="70" x2="546" y2="70" stroke="var(--accent-dark)" stroke-width="1.2"/>
+  <text class="svg-note-sm" x="552" y="74">p</text>
+  <line x1="520" y1="88" x2="546" y2="88" stroke="var(--blue)" stroke-width="1.2"/>
+  <text class="svg-note-sm" x="552" y="92">Ux</text>
+  <line x1="520" y1="106" x2="546" y2="106" stroke="var(--muted)" stroke-width="1.2"/>
+  <text class="svg-note-sm" x="552" y="110">k</text>
+  <line x1="520" y1="124" x2="546" y2="124" stroke="var(--accent)" stroke-width="1.2"/>
+  <text class="svg-note-sm" x="552" y="128">ω</text>
+  <line x1="520" y1="142" x2="546" y2="142" stroke="var(--ink)" stroke-width="1.0" stroke-dasharray="5 4"/>
+  <text class="svg-note-sm" x="552" y="146">tolerancia de fvSolution</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">Los residuos de la misma corrida.</b> De <code>postProcessing/residuals(p,U,k,omega)/1/residuals.dat</code>. Bajan dos o tres órdenes y se estancan: el de p queda en 1.7·10<sup>−2</sup> y nunca llega a la tolerancia (línea discontinua), así que el solver no se detiene solo y corre las 2000 iteraciones. Con un cuerpo romo y una estela despegada, es lo normal.</figcaption>
+</figure>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Coeficiente de arrastre del Jimny en cada una de las 2000 iteraciones de la corrida de referencia.">
+  <text class="svg-title" x="76" y="28">El Cd en cada iteración</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="666" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">0.4</text>
+  <line class="svg-grid" x1="76" y1="258.3" x2="666" y2="258.3"/>
+  <text class="svg-tick" x="70" y="262.3" text-anchor="end">0.5</text>
+  <line class="svg-grid" x1="76" y1="216.7" x2="666" y2="216.7"/>
+  <text class="svg-tick" x="70" y="220.7" text-anchor="end">0.6</text>
+  <line class="svg-grid" x1="76" y1="175.0" x2="666" y2="175.0"/>
+  <text class="svg-tick" x="70" y="179.0" text-anchor="end">0.7</text>
+  <line class="svg-grid" x1="76" y1="133.3" x2="666" y2="133.3"/>
+  <text class="svg-tick" x="70" y="137.3" text-anchor="end">0.8</text>
+  <line class="svg-grid" x1="76" y1="91.7" x2="666" y2="91.7"/>
+  <text class="svg-tick" x="70" y="95.7" text-anchor="end">0.9</text>
+  <line class="svg-grid" x1="76" y1="50.0" x2="666" y2="50.0"/>
+  <text class="svg-tick" x="70" y="54.0" text-anchor="end">1.0</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0</text>
+  <text class="svg-tick" x="223.5" y="318" text-anchor="middle">500</text>
+  <text class="svg-tick" x="371.0" y="318" text-anchor="middle">1000</text>
+  <text class="svg-tick" x="518.5" y="318" text-anchor="middle">1500</text>
+  <text class="svg-tick" x="666.0" y="318" text-anchor="middle">2000</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">iteración</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">Cd</text>
+  <polyline points="77.2,218.7" fill="none" stroke="var(--blue)" stroke-width="1.4"/>
+  <polyline points="78.1,230.6" fill="none" stroke="var(--blue)" stroke-width="1.4"/>
+  <polyline points="79.2,58.2 79.5,146.4 79.8,199.6 80.1,160.4 80.4,85.3" fill="none" stroke="var(--blue)" stroke-width="1.4"/>
+  <polyline points="87.2,50.5 87.5,56.6 87.8,62.2 89.0,63.2" fill="none" stroke="var(--blue)" stroke-width="1.4"/>
+  <polyline points="93.7,53.1 94.9,72.3 96.1,88.3 97.2,94.8 98.4,97.0 99.6,108.5 100.8,126.5 102.0,136.0 103.1,130.8 104.3,122.4 105.5,105.5 106.7,96.2 107.9,92.2 109.0,86.2 110.2,82.4 111.4,83.4 112.6,83.2 113.8,82.4 114.9,83.3 116.1,91.8 117.3,104.3 118.5,112.2 119.7,121.7 120.8,131.7 122.0,137.8 123.2,137.6 124.4,131.5 125.6,127.3 126.7,128.3 127.9,131.7 129.1,133.9 130.3,133.0 131.5,133.0 132.6,135.8 133.8,138.2 135.0,135.3 136.2,129.8 137.4,125.8 138.5,125.6 139.7,128.0 140.9,128.8 142.1,129.7 143.3,132.0 144.4,133.0 145.6,134.4 146.8,136.1 148.0,136.4 149.2,136.9 150.3,137.4 151.5,139.3 152.7,143.3 153.9,149.1 155.1,155.9 156.2,166.0 157.4,177.9 158.6,186.6 159.8,189.0 161.0,188.5 162.1,186.6 163.3,184.1 164.5,182.1 165.7,183.9 166.9,191.2 168.0,201.3 169.2,209.6 170.4,215.4 171.6,219.4 172.8,224.1 173.9,228.0 175.1,230.4 176.3,233.6 177.5,238.8 178.7,242.0 179.8,243.2 181.0,243.4 182.2,242.0 183.4,238.0 184.6,232.6 185.7,230.7 186.9,232.0 188.1,233.0 189.3,232.9 190.5,230.5 191.6,226.0 192.8,219.5 194.0,213.0 195.2,208.6 196.4,207.8 197.5,212.7 198.7,219.2 199.9,223.6 201.1,224.2 202.3,222.4 203.4,222.5 204.6,226.9 205.8,234.0 207.0,238.0 208.2,236.5 209.3,229.5 210.5,219.6 211.7,209.6 212.9,201.2 214.1,196.7 215.2,198.6 216.4,205.0 217.6,212.3 218.8,219.1 220.0,225.3 221.1,230.6 222.3,233.7 223.5,234.4 224.7,234.4 225.9,234.8 227.0,235.0 228.2,235.2 229.4,234.7 230.6,233.3 231.8,231.6 232.9,230.3 234.1,229.6 235.3,229.3 236.5,229.4 237.7,230.2 238.8,231.6 240.0,233.4 241.2,234.8 242.4,236.5 243.6,238.3 244.7,239.6 245.9,239.3 247.1,237.2 248.3,234.4 249.5,231.4 250.6,228.6 251.8,225.2 253.0,221.7 254.2,219.0 255.4,217.5 256.5,216.3 257.7,214.5 258.9,214.1 260.1,214.9 261.3,216.3 262.4,217.3 263.6,217.2 264.8,217.3 266.0,218.4 267.2,219.2 268.3,218.7 269.5,217.6 270.7,217.0 271.9,217.2 273.1,217.3 274.2,216.0 275.4,215.3 276.6,215.9 277.8,217.0 279.0,217.8 280.1,218.2 281.3,219.7 282.5,222.6 283.7,225.1 284.9,227.2 286.0,229.0 287.2,231.0 288.4,232.5 289.6,233.8 290.8,234.0 291.9,234.2 293.1,235.1 294.3,235.6 295.5,235.6 296.7,235.5 297.8,236.6 299.0,238.2 300.2,238.6 301.4,237.9 302.6,237.5 303.7,237.9 304.9,238.0 306.1,237.9 307.3,238.8 308.5,239.7 309.6,239.2 310.8,237.2 312.0,235.6 313.2,234.6 314.4,233.6 315.5,233.1 316.7,232.9 317.9,232.7 319.1,231.7 320.3,230.6 321.4,229.6 322.6,229.3 323.8,229.6 325.0,229.4 326.2,229.0 327.3,228.6 328.5,228.4 329.7,228.0 330.9,227.4 332.1,226.8 333.2,227.1 334.4,228.0 335.6,227.4 336.8,226.8 338.0,226.9 339.1,227.6 340.3,228.3 341.5,227.9 342.7,227.2 343.9,228.1 345.0,230.5 346.2,230.9 347.4,230.0 348.6,230.2 349.8,232.0 350.9,232.7 352.1,231.7 353.3,232.1 354.5,233.5 355.7,234.0 356.8,233.3 358.0,232.7 359.2,233.5 360.4,234.5 361.6,234.9 362.7,235.3 363.9,235.9 365.1,235.8 366.3,236.0 367.5,235.9 368.6,235.3 369.8,234.9 371.0,234.9 372.2,235.0 373.4,234.8 374.5,234.3 375.7,234.1 376.9,234.9 378.1,235.2 379.3,234.3 380.4,233.4 381.6,233.3 382.8,233.2 384.0,231.8 385.2,230.7 386.3,230.7 387.5,231.2 388.7,230.9 389.9,230.1 391.1,230.4 392.2,231.3 393.4,231.9 394.6,230.9 395.8,230.2 397.0,230.9 398.1,230.8 399.3,229.3 400.5,228.5 401.7,228.8 402.9,228.5 404.0,228.4 405.2,228.9 406.4,229.9 407.6,230.6 408.8,230.4 409.9,229.4 411.1,229.2 412.3,229.6 413.5,229.4 414.7,229.3 415.8,229.6 417.0,230.4 418.2,231.4 419.4,232.2 420.6,232.6 421.7,233.2 422.9,233.5 424.1,233.3 425.3,232.6 426.5,232.5 427.6,232.8 428.8,232.3 430.0,231.4 431.2,231.9 432.4,233.5 433.5,234.0 434.7,233.4 435.9,232.9 437.1,233.5 438.3,234.1 439.4,233.5 440.6,232.8 441.8,233.0 443.0,233.9 444.2,233.6 445.3,232.5 446.5,232.2 447.7,232.9 448.9,233.1 450.1,232.3 451.2,231.6 452.4,231.8 453.6,232.4 454.8,231.9 456.0,231.1 457.1,230.8 458.3,230.9 459.5,231.0 460.7,230.6 461.9,230.1 463.0,230.6 464.2,231.6 465.4,231.4 466.6,230.6 467.8,230.2 468.9,230.8 470.1,231.5 471.3,231.4 472.5,230.5 473.7,231.0 474.8,232.4 476.0,232.3 477.2,230.4 478.4,229.8 479.6,230.7 480.7,231.2 481.9,230.6 483.1,230.2 484.3,231.1 485.5,232.1 486.6,232.1 487.8,231.4 489.0,231.1 490.2,231.4 491.4,232.0 492.5,232.2 493.7,232.1 494.9,232.6 496.1,233.2 497.3,233.0 498.4,232.0 499.6,231.6 500.8,231.8 502.0,232.1 503.2,231.6 504.3,231.2 505.5,231.4 506.7,231.5 507.9,232.1 509.1,232.4 510.2,232.2 511.4,232.0 512.6,232.1 513.8,231.6 515.0,230.5 516.1,230.0 517.3,230.5 518.5,230.9 519.7,230.3 520.9,229.9 522.0,230.5 523.2,231.1 524.4,231.5 525.6,231.5 526.8,231.8 527.9,231.7 529.1,231.2 530.3,230.9 531.5,231.0 532.7,230.8 533.8,230.5 535.0,231.1 536.2,231.6 537.4,231.3 538.6,230.8 539.7,230.9 540.9,231.9 542.1,232.0 543.3,231.7 544.5,231.6 545.6,232.3 546.8,232.7 548.0,232.1 549.2,231.4 550.4,231.9 551.5,232.9 552.7,232.3 553.9,231.9 555.1,232.0 556.3,232.6 557.4,232.3 558.6,232.0 559.8,231.5 561.0,231.5 562.2,232.5 563.3,232.6 564.5,232.2 565.7,232.2 566.9,233.4 568.1,233.7 569.2,232.5 570.4,231.5 571.6,233.2 572.8,234.9 574.0,233.9 575.1,232.7 576.3,232.8 577.5,233.8 578.7,234.1 579.9,233.2 581.0,232.9 582.2,234.0 583.4,234.7 584.6,233.9 585.8,232.6 586.9,232.0 588.1,232.6 589.3,232.8 590.5,231.6 591.7,231.6 592.8,233.1 594.0,234.1 595.2,233.1 596.4,231.8 597.6,231.9 598.7,233.5 599.9,234.0 601.1,232.6 602.3,232.3 603.5,232.7 604.6,232.9 605.8,232.4 607.0,231.0 608.2,230.6 609.4,230.9 610.5,230.5 611.7,230.2 612.9,231.2 614.1,231.9 615.3,232.4 616.4,231.9 617.6,230.9 618.8,231.3 620.0,232.1 621.2,232.5 622.3,231.9 623.5,231.4 624.7,231.5 625.9,232.5 627.1,231.9 628.2,231.1 629.4,231.0 630.6,231.4 631.8,231.8 633.0,231.9 634.1,232.0 635.3,231.7 636.5,231.7 637.7,231.6 638.9,231.4 640.0,231.6 641.2,232.3 642.4,232.6 643.6,232.6 644.8,232.4 645.9,231.9 647.1,231.6 648.3,231.4 649.5,230.8 650.7,230.6 651.8,230.7 653.0,231.3 654.2,231.1 655.4,230.5 656.6,230.2 657.7,230.5 658.9,231.1 660.1,231.4 661.3,231.3 662.5,231.0 663.6,231.0 664.8,230.9 666.0,230.4" fill="none" stroke="var(--blue)" stroke-width="1.4"/>
+  <text class="svg-note-sm" x="173.4" y="70.8" text-anchor="start">las primeras iteraciones salen de la escala (hasta 2.2)</text>
+  <text class="svg-note-sm" x="651.2" y="208.3" text-anchor="end">0.564 ± 0.003 en 1001–2000</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">El Cd mientras corre el solver.</b> Las 2000 iteraciones de la corrida de referencia, de <code>postProcessing/forceCoeffs1/0/forceCoeffs.dat</code>: lo mismo que dibuja <code>foamMonitor</code> en marcha. Tras un arranque brusco, el Cd se asienta hacia la iteración 800; de la 1001 a la 2000 promedia 0.564 con una desviación estándar de 0.003.</figcaption>
+</figure>
+<p>Los residuos se estancan pronto, como se esperaba (sección <a href="#theory-es">«Teoría»</a>), y el de p nunca llega a la tolerancia. El Cd da la respuesta: tras un arranque brusco se asienta hacia la iteración 800 (desde ahí, el promedio de cada tramo de 100 iteraciones queda entre 0.561 y 0.569), y de la 1001 a la 2000 promedia 0.564 con una desviación estándar de 0.003, el 0.5 %. <strong>Ese cálculo está terminado</strong>, aunque los residuos no lo digan. Cuánto vale ese Cd y qué tan confiable es, es el tutorial 3.3.</p>
+<h3>6. Detener y juntar</h3>
+<p>En la exploración de esta guía el solver se detuvo con <code>writeNow</code> en la iteración 16: terminó normalmente (<code>End</code>) y escribió <code>processor*/16</code>. <code>reconstructPar -latestTime</code> tardó 14 s:</p>
+<pre class="code"><code>Reconstructing meshes
+
+    Merging mesh 0 with 1
+    Merging mesh 2 with 3
+    Merging mesh 4 with 5
+    Merging mesh 6 with 7
+    Merging mesh 0 with 2
+    Merging mesh 4 with 6
+    Merging mesh 0 with 4</code></pre>
+<p>Primero junta las mallas de los ocho procesos, de dos en dos, y escribe la malla completa en <code>constant/polyMesh</code> de la raíz: <strong>reemplaza la malla de fondo</strong>, que ya no hace falta. Luego junta los campos de la última iteración en <code>2000/</code>. En <code>constant/polyMesh</code> deja además <code>cellProc</code>, el proceso de cada celda, con el que se dibujó la figura 2. Con eso, <code>paraFoam</code> abre el caso como cualquier caso en serie.</p>
+<div class="result-box">
+  <p><strong>El cálculo está hecho.</strong> Una malla de 2 123 371 celdas en 4 minutos, con 67 caras sesgadas localizadas y entendidas; 2 000 iteraciones en 2.0 horas, con el Cd asentado en 0.564 ± 0.003; y el resultado en la raíz del caso. Las carpetas <code>processor*</code> guardan todas las escrituras (500, 1000, 1500 y 2000) y ocupan más que la raíz: cuando ya no se necesiten, se pueden borrar.</p>
+</div>
+
+    </section>
+    <section id="errors-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Qué sale mal en paralelo</h2>
+
+<p>Los mensajes son reales: se provocaron a propósito en copias del caso.</p>
+<h3>1. Un número de procesos distinto del de <code>decomposeParDict</code></h3>
+<p>Con <code>mpirun -np 6</code> en un caso repartido en ocho:</p>
+<pre class="code"><code>[0] --&gt; FOAM FATAL ERROR:
+[0] &quot;D:/blueCFD-Core/2024/ofuser-of12/run/vehiculo/jimny-t32-etapas/system/decomposeParDict&quot; specifies 8 processors but job was started with 6 processors.
+[0]
+FOAM parallel run exiting</code></pre>
+<p>OpenFOAM se niega a correr. <strong>Remedio:</strong> el <code>-np</code> de <code>mpirun</code> debe ser el <code>numberOfSubdomains</code> de <code>decomposeParDict</code>. Para usar otro número, se cambian <code>numberOfSubdomains</code> y <code>n</code> (cuyo producto debe dar ese número) y se reparte de nuevo: <code>decomposePar -force</code> borra las carpetas <code>processor*</code> anteriores.</p>
+<h3>2. El solver sin <code>mpirun</code></h3>
+<p>Si se escribe sólo <code>foamRun</code>, en serie, el solver no lee las carpetas <code>processor*</code>: lee la raíz, donde sigue la malla de fondo de 3 200 cubos, sin el vehículo. Y no se detiene. Avisa una vez, al empezar, que no encuentra el grupo de las fuerzas:</p>
+<pre class="code"><code>    Cannot find any patch or group names matching jimnyGroup</code></pre>
+<p>y corre, con un Cd de cero y cada iteración en una fracción de segundo:</p>
+<pre class="code"><code>Time = 3s
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00955492, Final residual = 0.00513222, No Iterations 1000
+smoothSolver:  Solving for Uy, Initial residual = 0.282453, Final residual = 5.02743e-05, No Iterations 1
+smoothSolver:  Solving for Uz, Initial residual = 0.265954, Final residual = 4.75075e-05, No Iterations 1
+GAMG:  Solving for p, Initial residual = 0.297893, Final residual = 0.0142902, No Iterations 1
+time step continuity errors : sum local = 1.68151e-15, global = 2.54071e-17, cumulative = 2.85312e-17
+smoothSolver:  Solving for omega, Initial residual = 0.0188206, Final residual = 0.00116048, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 0.469615, Final residual = 0.0254124, No Iterations 1
+ExecutionTime = 0.361 s  ClockTime = 0 s
+
+forceCoeffs forceCoeffs1 write:</code></pre>
+<p>Las dos señales —el Cd nulo y una iteración decenas de veces más rápida que con el vehículo— dicen que se está calculando el túnel vacío. <strong>Remedio:</strong> todo lo que va después de <code>decomposePar</code> y antes de <code>reconstructPar</code> lleva <code>mpirun -np 8</code> y <code>-parallel</code>.</p>
+<h3>3. Cerrar la terminal con el solver corriendo</h3>
+<p>El solver corre en segundo plano, pero sus ocho procesos son hijos de la terminal desde la que se lanzó <code>mpirun</code>. Al cerrar esa ventana, mintty avisa (figura 7):</p>
+<figure class="diagram">
+  <img src="imagenes/t32-03_cerrar_terminal.png" alt="La terminal de blueCFD con el solver en segundo plano y el aviso de mintty al cerrarla" loading="lazy">
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">Cerrar la terminal del solver.</b> Izquierda: la terminal donde se lanzó <code>mpirun -np 8 foamRun -parallel &gt; log.prueba 2&gt;&amp;1 &amp;</code>; <code>[1] 3470</code> es el número del trabajo en segundo plano. Derecha: lo que pregunta mintty al cerrar la ventana con su ×: hay procesos corriendo, ¿cerrar de todos modos? Captura de la prueba hecha para esta guía.</figcaption>
+</figure>
+<p>El botón por omisión es <em>Cancel</em>, y es el correcto. Con <em>OK</em>, en la prueba que se hizo para esta guía, los ocho procesos de <code>foamRun</code> desaparecieron al instante y el registro quedó cortado a media iteración, sin un solo mensaje de error:</p>
+<pre class="code"><code>Time = 42s
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00339564, Final residual = 0.000239497, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.027154, Final residual = 0.00188304, No Iterations 2
+smoothSolver:  Solving for Uz, Initial residual = 0.0291933, Final residual = 0.0020588, No Iterations 2
+GAMG:  Solving for p, Initial residual = 0.160887, Final residual = 0.00951584, No Iterations 2
+time step continuity errors : sum local = 0.0026403, global = -9.37456e-05, cumulative = -0.000583206</code></pre>
+<p>Lo mismo pasa si se cierra la sesión desde la que se lanzó: en una corrida de este bloque, lanzada desde otro programa, MS-MPI se cortó en la iteración 822 con <code>Aborting: mpiexec on ACER-CARLOSMH failed to communicate with smpd manager</code>. En los dos casos se pierde lo calculado desde la última escritura (con <code>writeInterval 500</code>, hasta 499 iteraciones). <strong>Remedio:</strong> dejar abierta la terminal del solver y vigilarlo desde otra. Si se cortó, se sigue desde la última escritura con <code>startFrom latestTime</code> en <code>system/controlDict</code> y el mismo <code>mpirun</code>. Mientras la computadora calcula, conviene que no entre en suspensión.</p>
+
+    </section>
+    <section id="practice-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>¿Cuánto ganan ocho procesos?</h2>
+
+<p class="lead">Medir cuánto ganan los procesos: la misma malla y cien iteraciones con 2 y 4 procesos.</p>
+<div class="example">
+  <p><strong>Enunciado.</strong> Repetir los pasos 1 a 5 de la receta con 4 y con 2 procesos, deteniendo el solver tras cien iteraciones, y comparar los tiempos con los de 8 (tabla 4).</p>
+  <p><strong>Condiciones.</strong> El mismo caso y la misma computadora, sin otros programas pesados abiertos. La malla con un solo proceso tardaría mucho y puede no caber en la memoria; la columna de un proceso se deja para quien tenga tiempo.</p>
+</div>
+<h3>El procedimiento, en corto</h3>
+<ol>
+  <li>Copiar el caso (<code>cp -r $FOAM_RUN/jimny $FOAM_RUN/jimny4</code>), entrar y borrar lo calculado: <code>rm -rf processor* 2000 constant/polyMesh postProcessing log.*</code>, y <code>blockMesh</code> para rehacer la malla de fondo (<code>reconstructPar</code> la había reemplazado).</li>
+  <li>En <code>system/decomposeParDict</code>: <code>numberOfSubdomains 4</code> y <code>n (2 2 1)</code>. En <code>system/controlDict</code>: <code>endTime 100</code>.</li>
+  <li>Correr los pasos 1 a 5 con <code>-np 4</code>. El tiempo de la malla está al final de <code>log.snappyHexMesh</code> (<code>Finished meshing in</code>); el de cada iteración, restando dos <code>ExecutionTime</code> seguidos de <code>log.foamRun</code> (o con <code>foamLog log.foamRun</code>, que escribe <code>logs/executionTime_0</code>).</li>
+  <li>Repetir con 2 procesos y <code>n (2 1 1)</code>.</li>
+</ol>
+<h3>Registro de resultados</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Procesos <i>N</i></th><th><code>n</code> en <code>decomposeParDict</code></th><th>snappyHexMesh [s]</th><th>Tiempo por iteración [s]</th><th>Aceleración</th><th>Eficiencia</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>—</td><td></td><td></td><td>1</td><td>100 %</td></tr>
+      <tr><td>2</td><td>(2 1 1)</td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>4</td><td>(2 2 1)</td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>8</td><td>(4 2 1)</td><td>235</td><td>3.63</td><td></td><td></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">Registro de la práctica.</b> El renglón de 8 procesos es el de la corrida de referencia de esta guía (la malla) y el promedio de sus 2000 iteraciones; los demás se llenan con la corrida propia. La aceleración es el tiempo con un proceso entre el tiempo con <i>N</i>; la eficiencia, la aceleración entre <i>N</i>.</caption>
+  </table>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>¿Crece la aceleración en proporción al número de procesos? ¿Qué parte del tiempo no se reparte?</li>
+  <li>¿Cuántos núcleos físicos tiene la computadora? ¿Qué pasa si se piden más procesos que núcleos?</li>
+  <li>¿Cambia el número de celdas de la malla con el número de procesos? ¿Y el Cd de la iteración 100? Si cambia, ¿por qué podría hacerlo?</li>
+</ol>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ul class="references">
+  <li>OpenFOAM Foundation. (2024). <em>OpenFOAM user guide, version 12</em>, secciones «Running applications in parallel» y «Mesh generation with the snappyHexMesh utility». https://doc.cfd.direct/openfoam/user-guide-v12/</li>
+  <li>OpenFOAM Foundation. (2024). Tutorial <code>incompressibleFluid/motorBikeSteady</code>, OpenFOAM 12 (su <code>Allrun</code>, en <code>$FOAM_TUTORIALS</code> de blueCFD-Core 2024).</li>
+  <li>Ferziger, J. H., Perić, M. y Street, R. L. (2020). <em>Computational methods for fluid dynamics</em> (4.ª ed.). Springer.</li>
+</ul>
+<p class="source-note">Las salidas de los programas son de la corrida de referencia en blueCFD-Core 2024 (OpenFOAM 12), en una laptop con Windows 11, 8 núcleos y 16 GB; los errores, de copias del caso en la misma computadora. Las imágenes de la malla son renders de ParaView 5.11.2 sin ventana; las gráficas, de los archivos de <code>postProcessing</code> de la misma corrida.</p>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="jimny-caso.html?v=13"><span>Tutorial anterior</span>← 3.1 · Del motorBikeSteady al Jimny</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Flujo incompresible</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Einen Fall von Hand parallel rechnen und wissen, was jeder Befehl tut und was danach zu prüfen ist: Gebietszerlegung, die drei Schritte von snappyHexMesh, checkMesh, potentialFoam, foamRun mit mpirun, Überwachen und Anhalten einer Rechnung, reconstructPar. Die Ergebnisse folgen in Tutorial 3.3.</p>
+    </section>
+    <section id="problem-de">
+      <p class="section-label">Das Problem</p>
+      <h2>Zwei Millionen Zellen und zweitausend Iterationen</h2>
+<p>Ein Netz mit 2 123 371 Zellen und 2 000 Iterationen: 4 min Vernetzung und etwa 2 h Löser auf acht Kernen eines Laptops.</p>
+    </section>
+    <section id="theory-de">
+      <p class="section-label">Die Theorie</p>
+      <h2>Gebietszerlegung, Netzschritte und Konvergenz</h2>
+<p>Gebietszerlegung und MPI: jeder Prozess besitzt ein Stück des Netzes und tauscht die Werte auf den gemeinsamen Flächen aus; die hierarchische Methode; die drei Schritte von snappyHexMesh mit der Zellenzahl danach; was Konvergenz bei einer stationären RANS-Rechnung eines stumpfen Körpers bedeutet.</p>
+    </section>
+    <section id="recipe-de">
+      <p class="section-label">Schritt für Schritt</p>
+      <h2>Acht Befehle, der Reihe nach</h2>
+<p>decomposePar -copyZero; mpirun -np 8 snappyHexMesh -parallel -overwrite; checkMesh und patchSummary parallel; potentialFoam; foamRun im Hintergrund mit der Ausgabe in log.foamRun; foamMonitor für Residuen und Widerstandsbeiwert; reconstructPar -latestTime.</p>
+    </section>
+    <section id="check-de">
+      <p class="section-label">Durchgerechnetes Beispiel</p>
+      <h2>Was jeder Schritt ausgibt und was man darin liest</h2>
+<p>Die Ausgabe jedes Schritts aus der Referenzrechnung: die Zerlegung, die Zellenzahl nach jedem Netzschritt, die Schichtabdeckung, die eine fehlgeschlagene Prüfung von checkMesh (67 schiefe Randflächen, wo die Reifen den Boden berühren), die erste Iteration des Lösers und der Widerstandsbeiwert im Verlauf.</p>
+    </section>
+    <section id="errors-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Was parallel schiefgeht</h2>
+<p>Eine Prozesszahl, die nicht zu decomposeParDict passt; den Löser ohne mpirun starten (er nimmt das Hintergrundnetz); das Terminal schließen, während MS-MPI läuft.</p>
+    </section>
+    <section id="practice-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Wie viel bringen acht Prozesse?</h2>
+<p>Netz und hundert Iterationen mit 4 und 2 Prozessen wiederholen und die Beschleunigung berechnen.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>Das OpenFOAM-Benutzerhandbuch zum Parallelrechnen und zu snappyHexMesh; das Tutorial motorBikeSteady.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="jimny-caso.html?v=13"><span>Vorheriges Tutorial</span>← 3.1 · Vom motorBikeSteady zum Jimny</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Inkompressible Strömung</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>
