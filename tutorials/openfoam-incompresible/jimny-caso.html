@@ -316,6 +316,7 @@ cd $FOAM_RUN/jimny</code></pre>La carpeta queda como la del caso terminado, meno
 │   ├── functions                    lo que se calcula al correr
 │   └── forceCoeffs   cutPlane   streamlines
 ├── Allrun                           toda la secuencia, en un comando
+├── promedios   fuerzas           los resultados (tutorial 3.3)
 └── Allclean                         deja el caso como se descargó</code></pre></li>
   <li><strong>La geometría.</strong> Copiar <code>jimny_mm.stl</code> a <code>constant/geometry/</code> y borrar el <code>README</code> que trae esa carpeta (dice que <code>Allrun</code> copia la moto, cosa que ya no hará). El STL está en milímetros, como sale de FreeCAD; se escala a metros en el paso 8.</li>
   <li><strong>El túnel y la malla:</strong> <code>system/blockMeshDict</code> (40 × 10 × 8 m, figura 2), <code>system/surfaceFeaturesDict</code> (el nombre del STL) y <code>system/snappyHexMeshDict</code>, que se reescribe con la receta del Jimny (sección <a href="#case-es">«El caso»</a>). En <code>snappyHexMeshDict</code>, dos cifras del tutorial se quedan cortas: <code>maxGlobalCells 2000000</code>, que detiene el refinamiento al pasar de dos millones de celdas, y <code>nSurfaceLayers 1</code>.</li>

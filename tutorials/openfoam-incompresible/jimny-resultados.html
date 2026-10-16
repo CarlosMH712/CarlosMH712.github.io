@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="OpenFOAM tutorial: reading the results of the full Suzuki Jimny at 100 km/h in blueCFD-Core (OpenFOAM 12): averaging the drag coefficient over the settled iterations, lift per axle, drag force and power, where the drag comes from (pressure and friction, part by part, with foamPostProcess) and whether y+ suits the wall functions." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>The Jimny's Results: Drag, Lift per Axle and y+ | OpenFOAM Incompressible-Flow Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">OpenFOAM · Incompressible flow · Tutorial 3.3</p><h1>The Jimny's results: drag, lift per axle and y⁺</h1><p class="hero-copy">The run of Tutorial 3.2, read as numbers: the drag coefficient averaged over the settled iterations and its spread, the lift on each axle, the drag force and the power it costs at 100 km/h, where the drag comes from part by part, and whether the first cell sits where the wall functions work.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">OpenFOAM · Flujo incompresible · Tutorial 3.3</p><h1>Los resultados del Jimny: arrastre, levante por eje y y⁺</h1><p class="hero-copy">La corrida del tutorial 3.2, leída en números: el coeficiente de arrastre promediado sobre las iteraciones asentadas y su dispersión, el levante de cada eje, la fuerza de arrastre y la potencia que cuesta a 100 km/h, de dónde sale el arrastre parte por parte, y si la primera celda quedó donde funcionan las funciones de pared.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">OpenFOAM · Inkompressible Strömung · Tutorial 3.3</p><h1>Die Ergebnisse des Jimny: Widerstand, Auftrieb je Achse und y⁺</h1><p class="hero-copy">Die Rechnung aus Tutorial 3.2 in Zahlen: der Widerstandsbeiwert, gemittelt über die eingeschwungenen Iterationen, und seine Streuung, der Auftrieb je Achse, Widerstandskraft und Leistung bei 100 km/h, woher der Widerstand Teil für Teil kommt und ob die erste Zelle dort liegt, wo Wandfunktionen gelten.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 40 min</span><span data-language="es" hidden>Lectura estimada: 40 min</span><span data-language="de" hidden>Lesedauer: ca. 40 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on OpenFOAM 12 (blueCFD-Core 2024) and ParaView 5.11.2</span><span data-language="es" hidden>Verificado en OpenFOAM 12 (blueCFD-Core 2024) y ParaView 5.11.2</span><span data-language="de" hidden>Geprüft mit OpenFOAM 12 (blueCFD-Core 2024) und ParaView 5.11.2</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="jimny-paralelo.html?v=13">← <span>3.2</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/fFM1ypPezwY" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Watch the video</span><span data-language="es" hidden>Ver el vídeo</span><span data-language="de" hidden>Video ansehen</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#problem">The problem</a><a href="#theory">Theory</a><a href="#recipe">Recipe</a><a href="#check">Check</a><a href="#errors">Common errors</a><a href="#practice">Suggested exercise</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#problem-es">El problema</a><a href="#theory-es">Teoría</a><a href="#recipe-es">Receta</a><a href="#check-es">Revisión</a><a href="#errors-es">Errores frecuentes</a><a href="#practice-es">Práctica sugerida</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#problem-de">Das Problem</a><a href="#theory-de">Theorie</a><a href="#recipe-de">Ablauf</a><a href="#check-de">Prüfung</a><a href="#errors-de">Häufige Fehler</a><a href="#practice-de">Übungsvorschlag</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Turn the force file of a steady RANS run into results: average over the settled iterations, state the spread, convert coefficients into forces and power, split the drag into pressure and friction and into parts with foamPostProcess, and check y⁺ against the wall functions.</p>
+    </section>
+    <section id="problem">
+      <p class="section-label">The problem</p>
+      <h2>From two thousand rows to a few numbers</h2>
+<p>The run of Tutorial 3.2: 2 000 iterations of the full Jimny at 100 km/h. What is its drag coefficient, how sure is it, and what does it mean in newtons and kilowatts?</p>
+    </section>
+    <section id="theory">
+      <p class="section-label">The theory</p>
+      <h2>Averages, forces, pressure and friction, y⁺</h2>
+<p>Averaging a steady RANS run of a bluff body: the settled window, the spread and block averages; from coefficients to forces (½ρU²A) and power; pressure drag and friction drag; y⁺ and the log layer.</p>
+    </section>
+    <section id="recipe">
+      <p class="section-label">Step by step</p>
+      <h2>Six commands on the finished case</h2>
+<p>Open forceCoeffs.dat; read and run the two short scripts that come with the case: promedios (averages with awk from a chosen iteration) and fuerzas (foamPostProcess -solver incompressibleFluid with forcesIncompressible, for the whole vehicle and part by part, with a summary table); read yPlus.dat; see y⁺ on the vehicle in ParaView.</p>
+    </section>
+    <section id="check">
+      <p class="section-label">Worked example</p>
+      <h2>The Jimny at 100 km/h, in numbers</h2>
+<p>Cd = 0.564 ± 0.003, a drag of 636 N and 17.7 kW at 100 km/h; the front axle is unloaded by 193 N and the rear one loaded by 111 N; 1.0 % of the drag is friction; the body takes three quarters; 90 % of the body area has 30 ≤ y⁺ ≤ 300.</p>
+    </section>
+    <section id="errors">
+      <p class="section-label">Common errors</p>
+      <h2>What goes wrong when reading results</h2>
+<p>Averaging from the first iteration; foamPostProcess without -solver (it cannot find U and p); forces with rhoInf = 1 (per unit density).</p>
+    </section>
+    <section id="practice">
+      <p class="section-label">Suggested exercise</p>
+      <h2>The Jimny at 120 km/h</h2>
+<p>Run the 120 km/h case prepared in Tutorial 3.1 and compare drag coefficient, force and power.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>Hucho on road-vehicle aerodynamics; the OpenFOAM user guide on function objects; Menter (1994); Pope (2000) for the log layer.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="jimny-paralelo.html?v=13"><span>Previous tutorial</span>← 3.2 · The Jimny in parallel, step by step</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Incompressible flow</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">El <a href="jimny-paralelo.html">tutorial 3.2</a> dejó el cálculo del Jimny terminado: dos mil renglones de coeficientes, campos en la iteración 2000 y un Cd que se asentó. Esta guía convierte eso en resultados que se puedan reportar: un coeficiente con su dispersión, fuerzas en newtons, el reparto del arrastre y una revisión de que la malla junto a la pared es la que piden las funciones de pared.</p>
+<ul>
+  <li>Elegir la ventana de iteraciones que se promedia y calcular el promedio y la dispersión de cada coeficiente con un guion de <code>awk</code>.</li>
+  <li>Pasar de los coeficientes a fuerzas y a la potencia que cuesta el arrastre, y explicar qué significa el levante de cada eje.</li>
+  <li>Calcular con <code>foamPostProcess</code> la fuerza de presión y la de fricción sobre el vehículo entero y sobre cada una de sus partes.</li>
+  <li>Revisar la y⁺ del vehículo contra la zona en que valen las funciones de pared.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> El caso del 3.2 terminado y reconstruido (la carpeta <code>2000</code> en la raíz de <code>$FOAM_RUN/jimny</code>). Todo lo de esta guía se hace sobre ese caso, sin volver a calcular: unos minutos en total.</p>
+</div>
+
+    </section>
+    <section id="problem-es">
+      <p class="section-label">El problema</p>
+      <h2>De dos mil renglones a unas cuantas cifras</h2>
+
+<p>La función <code>forceCoeffs</code> escribió, en cada iteración, cinco coeficientes del Jimny a 100 km/h. ¿Cuánto vale su coeficiente de arrastre? La respuesta no es el último renglón, ni el promedio de todos: es el promedio de las iteraciones en que el cálculo ya se asentó, con una medida de cuánto se mueve. Y un coeficiente se entiende mejor en unidades: cuántos newtons empuja el aire, cuántos kilowatts cuesta vencerlo, cuánto le quita de peso a cada eje y qué parte del vehículo los pone.</p>
+<p>No se encontró un Cd publicado del Jimny para compararlo (no aparece en las fichas técnicas consultadas); lo esperable para un vehículo de caja es del orden de 0.5 <a href="#references-es">(Hucho, 1998)</a>. Cuánto se puede confiar en el número de un cálculo RANS es el tema del tutorial 3.6; aquí, cómo se obtiene y qué dice.</p>
+
+    </section>
+    <section id="theory-es">
+      <p class="section-label">La teoría</p>
+      <h2>Promedios, fuerzas, presión y fricción, y⁺</h2>
+
+<h3>El promedio y su dispersión</h3>
+<p>En un cálculo estacionario de un cuerpo romo, el Cd no se queda en un valor fijo: tras el arranque, oscila alrededor de un valor que ya no cambia (<a href="jimny-paralelo.html#check-es">tutorial 3.2</a>). Se reporta el <strong>promedio</strong> sobre una ventana de iteraciones asentadas —aquí de la 1001 a la 2000— y su <strong>desviación estándar</strong>, que mide cuánto oscila. Para comprobar que la ventana está bien elegida se parte en tramos y se comparan sus promedios: si un tramo se aparta de los demás, la ventana todavía tiene arranque (figura 1).</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Cd del Jimny en cada iteración, con el promedio de cada tramo de 250 iteraciones y el promedio de 1001 a 2000.">
+  <text class="svg-title" x="76" y="28">El Cd y sus promedios por tramos</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="666" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">0.5</text>
+  <line class="svg-grid" x1="76" y1="237.5" x2="666" y2="237.5"/>
+  <text class="svg-tick" x="70" y="241.5" text-anchor="end">0.6</text>
+  <line class="svg-grid" x1="76" y1="175.0" x2="666" y2="175.0"/>
+  <text class="svg-tick" x="70" y="179.0" text-anchor="end">0.7</text>
+  <line class="svg-grid" x1="76" y1="112.5" x2="666" y2="112.5"/>
+  <text class="svg-tick" x="70" y="116.5" text-anchor="end">0.8</text>
+  <line class="svg-grid" x1="76" y1="50.0" x2="666" y2="50.0"/>
+  <text class="svg-tick" x="70" y="54.0" text-anchor="end">0.9</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0</text>
+  <text class="svg-tick" x="149.8" y="318" text-anchor="middle">250</text>
+  <text class="svg-tick" x="223.5" y="318" text-anchor="middle">500</text>
+  <text class="svg-tick" x="297.2" y="318" text-anchor="middle">750</text>
+  <text class="svg-tick" x="371.0" y="318" text-anchor="middle">1000</text>
+  <text class="svg-tick" x="444.8" y="318" text-anchor="middle">1250</text>
+  <text class="svg-tick" x="518.5" y="318" text-anchor="middle">1500</text>
+  <text class="svg-tick" x="592.2" y="318" text-anchor="middle">1750</text>
+  <text class="svg-tick" x="666.0" y="318" text-anchor="middle">2000</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">iteración</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">Cd</text>
+  <polyline points="77.2,240.6" fill="none" stroke="var(--muted)" stroke-width="1.0"/>
+  <polyline points="78.1,258.4" fill="none" stroke="var(--muted)" stroke-width="1.0"/>
+  <polyline points="79.5,132.1 79.8,212.0 80.1,153.2" fill="none" stroke="var(--muted)" stroke-width="1.0"/>
+  <polyline points="97.2,54.7 98.4,57.9 99.6,75.3 100.8,102.2 102.0,116.5 103.1,108.7 104.3,96.2 105.5,70.8 106.7,56.8 107.9,50.8" fill="none" stroke="var(--muted)" stroke-width="1.0"/>
+  <polyline points="116.1,50.1 117.3,69.0 118.5,80.8 119.7,95.0 120.8,110.1 122.0,119.2 123.2,118.9 124.4,109.8 125.6,103.4 126.7,105.0 127.9,110.0 129.1,113.3 130.3,112.0 131.5,112.1 132.6,116.1 133.8,119.7 135.0,115.5 136.2,107.2 137.4,101.3 138.5,100.9 139.7,104.4 140.9,105.7 142.1,107.1 143.3,110.5 144.4,112.0 145.6,114.1 146.8,116.6 148.0,117.0 149.2,117.8 150.3,118.7 151.5,121.4 152.7,127.4 153.9,136.1 155.1,146.4 156.2,161.5 157.4,179.3 158.6,192.4 159.8,196.0 161.0,195.3 162.1,192.4 163.3,188.6 164.5,185.6 165.7,188.4 166.9,199.3 168.0,214.4 169.2,226.9 170.4,235.5 171.6,241.6 172.8,248.6 173.9,254.5 175.1,258.2 176.3,262.9 177.5,270.6 178.7,275.5 179.8,277.4 181.0,277.7 182.2,275.5 183.4,269.6 184.6,261.5 185.7,258.6 186.9,260.4 188.1,261.9 189.3,261.9 190.5,258.3 191.6,251.4 192.8,241.7 194.0,231.9 195.2,225.4 196.4,224.3 197.5,231.6 198.7,241.3 199.9,247.9 201.1,248.8 202.3,246.1 203.4,246.2 204.6,252.8 205.8,263.4 207.0,269.5 208.2,267.2 209.3,256.7 210.5,242.0 211.7,226.9 212.9,214.3 214.1,207.5 215.2,210.4 216.4,220.0 217.6,231.0 218.8,241.1 220.0,250.5 221.1,258.5 222.3,263.0 223.5,264.1 224.7,264.0 225.9,264.8 227.0,265.1 228.2,265.3 229.4,264.6 230.6,262.5 231.8,259.9 232.9,258.0 234.1,256.9 235.3,256.4 236.5,256.6 237.7,257.8 238.8,260.0 240.0,262.7 241.2,264.7 242.4,267.3 243.6,270.0 244.7,271.9 245.9,271.4 247.1,268.3 248.3,264.0 249.5,259.6 250.6,255.5 251.8,250.2 253.0,245.0 254.2,241.0 255.4,238.8 256.5,236.9 257.7,234.3 258.9,233.7 260.1,234.8 261.3,236.9 262.4,238.4 263.6,238.3 264.8,238.4 266.0,240.0 267.2,241.4 268.3,240.6 269.5,238.9 270.7,238.0 271.9,238.3 273.1,238.5 274.2,236.6 275.4,235.4 276.6,236.3 277.8,238.0 279.0,239.2 280.1,239.7 281.3,242.1 282.5,246.4 283.7,250.2 284.9,253.3 286.0,256.1 287.2,259.1 288.4,261.3 289.6,263.1 290.8,263.5 291.9,263.8 293.1,265.1 294.3,265.8 295.5,265.9 296.7,265.7 297.8,267.4 299.0,269.8 300.2,270.4 301.4,269.3 302.6,268.8 303.7,269.4 304.9,269.5 306.1,269.4 307.3,270.7 308.5,272.0 309.6,271.3 310.8,268.3 312.0,265.9 313.2,264.4 314.4,262.9 315.5,262.2 316.7,261.8 317.9,261.5 319.1,260.1 320.3,258.5 321.4,256.9 322.6,256.4 323.8,256.9 325.0,256.6 326.2,255.9 327.3,255.3 328.5,255.2 329.7,254.5 330.9,253.6 332.1,252.7 333.2,253.2 334.4,254.5 335.6,253.6 336.8,252.7 338.0,252.8 339.1,253.9 340.3,255.0 341.5,254.3 342.7,253.3 343.9,254.7 345.0,258.3 346.2,258.9 347.4,257.5 348.6,257.8 349.8,260.4 350.9,261.5 352.1,260.1 353.3,260.6 354.5,262.7 355.7,263.6 356.8,262.4 358.0,261.6 359.2,262.7 360.4,264.2 361.6,264.9 362.7,265.4 363.9,266.3 365.1,266.2 366.3,266.5 367.5,266.3 368.6,265.5 369.8,264.9 371.0,264.8 372.2,265.0 373.4,264.7 374.5,264.0 375.7,263.7 376.9,264.9 378.1,265.4 379.3,263.9 380.4,262.6 381.6,262.4 382.8,262.3 384.0,260.2 385.2,258.5 386.3,258.5 387.5,259.3 388.7,258.9 389.9,257.6 391.1,258.1 392.2,259.4 393.4,260.4 394.6,258.8 395.8,257.8 397.0,258.9 398.1,258.7 399.3,256.5 400.5,255.2 401.7,255.7 402.9,255.3 404.0,255.1 405.2,255.8 406.4,257.3 407.6,258.4 408.8,258.0 409.9,256.6 411.1,256.4 412.3,256.8 413.5,256.6 414.7,256.4 415.8,256.9 417.0,258.1 418.2,259.6 419.4,260.8 420.6,261.4 421.7,262.3 422.9,262.8 424.1,262.5 425.3,261.4 426.5,261.2 427.6,261.7 428.8,261.0 430.0,259.6 431.2,260.4 432.4,262.7 433.5,263.4 434.7,262.6 435.9,261.8 437.1,262.7 438.3,263.6 439.4,262.8 440.6,261.6 441.8,262.0 443.0,263.4 444.2,262.8 445.3,261.2 446.5,260.8 447.7,261.9 448.9,262.2 450.1,261.0 451.2,259.9 452.4,260.2 453.6,261.1 454.8,260.4 456.0,259.2 457.1,258.6 458.3,258.9 459.5,259.0 460.7,258.4 461.9,257.6 463.0,258.4 464.2,259.9 465.4,259.6 466.6,258.4 467.8,257.8 468.9,258.7 470.1,259.8 471.3,259.5 472.5,258.3 473.7,259.0 474.8,261.2 476.0,260.9 477.2,258.1 478.4,257.2 479.6,258.5 480.7,259.3 481.9,258.4 483.1,257.8 484.3,259.2 485.5,260.7 486.6,260.7 487.8,259.5 489.0,259.2 490.2,259.6 491.4,260.5 492.5,260.8 493.7,260.7 494.9,261.3 496.1,262.2 497.3,262.1 498.4,260.5 499.6,259.8 500.8,260.2 502.0,260.6 503.2,260.0 504.3,259.4 505.5,259.6 506.7,259.8 507.9,260.7 509.1,261.1 510.2,260.8 511.4,260.5 512.6,260.7 513.8,259.9 515.0,258.2 516.1,257.5 517.3,258.2 518.5,258.9 519.7,257.9 520.9,257.4 522.0,258.2 523.2,259.2 524.4,259.8 525.6,259.8 526.8,260.2 527.9,260.1 529.1,259.3 530.3,258.9 531.5,259.0 532.7,258.7 533.8,258.2 535.0,259.2 536.2,259.9 537.4,259.4 538.6,258.6 539.7,258.8 540.9,260.3 542.1,260.5 543.3,260.1 544.5,260.0 545.6,261.0 546.8,261.5 548.0,260.7 549.2,259.5 550.4,260.3 551.5,261.8 552.7,261.0 553.9,260.4 555.1,260.6 556.3,261.4 557.4,261.0 558.6,260.5 559.8,259.7 561.0,259.8 562.2,261.2 563.3,261.4 564.5,260.9 565.7,260.9 566.9,262.6 568.1,263.1 569.2,261.2 570.4,259.8 571.6,262.3 572.8,264.9 574.0,263.3 575.1,261.6 576.3,261.8 577.5,263.2 578.7,263.7 579.9,262.4 581.0,261.9 582.2,263.5 583.4,264.5 584.6,263.3 585.8,261.4 586.9,260.5 588.1,261.4 589.3,261.7 590.5,259.9 591.7,259.9 592.8,262.2 594.0,263.7 595.2,262.1 596.4,260.2 597.6,260.4 598.7,262.8 599.9,263.5 601.1,261.4 602.3,260.9 603.5,261.5 604.6,261.9 605.8,261.0 607.0,259.0 608.2,258.4 609.4,258.8 610.5,258.2 611.7,257.8 612.9,259.3 614.1,260.3 615.3,261.1 616.4,260.3 617.6,258.9 618.8,259.5 620.0,260.6 621.2,261.2 622.3,260.3 623.5,259.6 624.7,259.8 625.9,261.2 627.1,260.4 628.2,259.1 629.4,259.0 630.6,259.6 631.8,260.2 633.0,260.3 634.1,260.5 635.3,260.0 636.5,260.0 637.7,259.9 638.9,259.5 640.0,259.9 641.2,260.9 642.4,261.5 643.6,261.3 644.8,261.1 645.9,260.3 647.1,259.9 648.3,259.7 649.5,258.8 650.7,258.5 651.8,258.6 653.0,259.4 654.2,259.2 655.4,258.3 656.6,257.8 657.7,258.3 658.9,259.1 660.1,259.6 661.3,259.4 662.5,259.0 663.6,259.0 664.8,258.8 666.0,258.1" fill="none" stroke="var(--muted)" stroke-width="1.0"/>
+  <polyline points="76.3,62.1 149.8,62.1" fill="none" stroke="var(--accent-dark)" stroke-width="3.0"/>
+  <polyline points="150.0,229.5 223.5,229.5" fill="none" stroke="var(--accent-dark)" stroke-width="3.0"/>
+  <polyline points="223.8,252.3 297.2,252.3" fill="none" stroke="var(--accent-dark)" stroke-width="3.0"/>
+  <polyline points="297.5,261.4 371.0,261.4" fill="none" stroke="var(--accent-dark)" stroke-width="3.0"/>
+  <polyline points="371.3,260.2 444.8,260.2" fill="none" stroke="var(--accent-dark)" stroke-width="3.0"/>
+  <polyline points="445.0,259.8 518.5,259.8" fill="none" stroke="var(--accent-dark)" stroke-width="3.0"/>
+  <polyline points="518.8,260.7 592.2,260.7" fill="none" stroke="var(--accent-dark)" stroke-width="3.0"/>
+  <polyline points="592.5,260.0 666.0,260.0" fill="none" stroke="var(--accent-dark)" stroke-width="3.0"/>
+  <polyline points="371.0,260.2 666.0,260.2" fill="none" stroke="var(--blue)" stroke-width="1.6" stroke-dasharray="6 4"/>
+  <text class="svg-note-sm" x="112.9" y="77.7" text-anchor="middle" fill="var(--accent-dark)">0.881</text>
+  <text class="svg-note-sm" x="186.6" y="217.0" text-anchor="middle" fill="var(--accent-dark)">0.613</text>
+  <text class="svg-note-sm" x="518.5" y="282.1" text-anchor="middle" fill="var(--blue)">0.564 ± 0.003</text>
+  <line x1="470" y1="66" x2="496" y2="66" stroke="var(--muted)" stroke-width="1.0"/>
+  <text class="svg-note-sm" x="502" y="70">Cd en cada iteración</text>
+  <line x1="470" y1="84" x2="496" y2="84" stroke="var(--accent-dark)" stroke-width="3.0"/>
+  <text class="svg-note-sm" x="502" y="88">promedio de cada tramo de 250</text>
+  <line x1="470" y1="228" x2="496" y2="228" stroke="var(--blue)" stroke-width="1.6" stroke-dasharray="6 4"/>
+  <text class="svg-note-sm" x="502" y="232">promedio de 1001 a 2000</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">Cómo se promedia el Cd.</b> El Cd de cada iteración (gris), el promedio de cada tramo de 250 iteraciones (naranja) y el de 1001 a 2000 (azul, discontinuo). Los dos primeros tramos todavía están bajando; desde la iteración 1001, los cuatro promedios quedan entre 0.563 y 0.564. Promediar desde el principio daría 0.611, un 8 % más.</figcaption>
+</figure>
+<p>La desviación estándar dice cuánto se mueve el número de una iteración a otra, no cuánto se equivoca el cálculo. El error del modelo de turbulencia, de la malla o del túnel virtual es otro asunto, y casi siempre mayor (tutorial 3.6).</p>
+<h3>De los coeficientes a las fuerzas</h3>
+<p>Los coeficientes se definieron con la presión dinámica y el área frontal (ecuación 1 del <a href="jimny-caso.html#theory-es">tutorial 3.1</a>). Despejando, con la densidad del aire \(\rho\) = 1.2 kg/m³:</p>
+<div class="equation-card">\[ F_D = C_D\,\tfrac12\rho U_\infty^2 A,\qquad P = F_D\,U_\infty \tag{1} \]</div>
+<p>\(\tfrac12\rho U_\infty^2 A\) vale 1 127 N para el Jimny a 100 km/h. La potencia \(P\) es la que el motor entrega sólo para vencer el aire; como \(F_D\) crece con \(U_\infty^2\), la potencia crece con \(U_\infty^3\). Con los coeficientes de levante de cada eje pasa lo mismo: \(C_{L,f}\,\tfrac12\rho U_\infty^2 A\) es la fuerza con que el aire levanta el eje delantero, y una fuerza negativa carga el eje en lugar de descargarlo.</p>
+<h3>Arrastre de presión y arrastre de fricción</h3>
+<p>El aire empuja la superficie del vehículo de dos maneras: perpendicular a cada cara, con la presión, y a lo largo de ella, con el esfuerzo cortante de la capa límite. Sumando sobre toda la superficie, la componente en la dirección del flujo de cada una da el <strong>arrastre de presión</strong> y el <strong>de fricción</strong>. En un perfil delgado a poco ángulo (<a href="perfil-naca0012.html">tutorial 2.1</a>) los dos pesan; en un cuerpo romo, que deja detrás una estela despegada con la presión baja, el de presión domina. La función <code>forcesIncompressible</code> los da por separado, y para la región de la superficie que se le pida.</p>
+<h3>La y⁺ y las funciones de pared</h3>
+<p>Como en el <a href="tuberia-turbulenta.html#theory-es">tutorial 1.2</a>, las funciones de pared suponen que la primera celda cae en la zona logarítmica de la capa límite. La regla práctica habitual es \(30 \lesssim y^+ \lesssim 300\): por debajo, la celda entra en la zona de transición; por encima, puede salirse de la capa límite. En un vehículo nunca se cumple en toda la superficie, porque el esfuerzo cortante cambia mucho de un lugar a otro; lo que se revisa es qué fracción del área cumple y dónde están las que no.</p>
+
+    </section>
+    <section id="recipe-es">
+      <p class="section-label">Paso a paso</p>
+      <h2>Seis comandos sobre el caso terminado</h2>
+
+<p>Todo en la carpeta del caso (<code>cd $FOAM_RUN/jimny</code>): la terminal de blueCFD-Core, un editor de texto y ParaView. Los cálculos los hacen dos guiones cortos que vienen en <code>jimny.zip</code>, <code>promedios</code> y <code>fuerzas</code>, como <code>Allrun</code>, y como él sin extensión: un doble clic en el Explorador no los ejecuta, sino que Windows pregunta con qué programa abrirlos. Se abren en el editor para ver qué hacen (cada renglón está comentado) y se corren con un comando corto. Si el caso se preparó con una copia anterior del <code>.zip</code>, que no los traía, se copian de la descarga a la carpeta del caso.</p>
+<ol>
+  <li><strong>Mirar el archivo de coeficientes</strong>, <code>postProcessing/forceCoeffs1/0/forceCoeffs.dat</code>, en el editor: un encabezado con las referencias, y un renglón por iteración con <code>Time Cm Cd Cl Cl(f) Cl(r)</code>.</li>
+  <li><strong>Los promedios</strong>: abrir <code>promedios</code> en el editor, y correrlo con la iteración desde la que se promedia:<pre class="code"><code>./promedios 1000</code></pre>Escribe el promedio y la desviación estándar de los cinco coeficientes, de la iteración 1001 a la última.</li>
+  <li><strong>Las fuerzas</strong>: abrir <code>fuerzas</code> en el editor, y correrlo (tarda medio minuto):<pre class="code"><code>./fuerzas</code></pre>Corre <code>foamPostProcess</code> una vez para el vehículo entero y una para cada parte, deja cada salida en <code>log.fuerzas_&lt;parte&gt;</code> y al final escribe una tabla con el arrastre de cada parte: presión, fricción, total, porcentaje y aporte al \(C_D\).</li>
+  <li><strong>La y⁺</strong>: abrir en el editor <code>postProcessing/yPlus/0/yPlus.dat</code>, el archivo de la función <code>yPlus</code>, e ir al final (<kbd>Ctrl</kbd>+<kbd>Fin</kbd>): los últimos siete renglones son los de la iteración 2000, uno por parche. Luego, en ParaView (<code>paraFoam</code>): en <em>Mesh Regions</em>, sólo <code>group/jimnyGroup</code>; <em>Apply</em>, la última iteración, colorear por <code>yPlus</code> y fijar el rango de 30 a 300 (<em>Rescale to Custom Range</em>): la escala abarca la zona logarítmica, y los extremos marcan lo que se sale, el azul más oscuro \(y^+ \le 30\) y el rojo más oscuro \(y^+ \ge 300\).</li>
+</ol>
+
+    </section>
+    <section id="check-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>El Jimny a 100 km/h, en cifras</h2>
+
+<p>Las salidas son las de la corrida del tutorial 3.2; los fragmentos, de la exploración de esta guía sobre el caso terminado.</p>
+<h3>1. Los coeficientes</h3>
+<p>El guion de los promedios es un solo comando de <code>awk</code>, con comentarios que explican cada parte:</p>
+<p class="code-name"><code>promedios</code></p>
+<pre class="code"><code>#!/bin/sh
+cd ${0%/*} || exit 1    # correr desde la carpeta del caso
+
+# Promedio y desviación estándar de los cinco coeficientes que escribe forceCoeffs, de una iteración en adelante.
+#
+#   ./promedios 1000     promedia de la iteración 1001 a la última
+#   ./promedios          lo mismo (1000 es el valor por omisión)
+#
+# La iteración se elige mirando antes la gráfica del Cd (foamMonitor, tutorial 3.2): el promedio no debe incluir
+# el arranque, cuando los coeficientes todavía están lejos de su valor final.
+
+DESDE=${1:-1000}
+ARCHIVO=postProcessing/forceCoeffs1/0/forceCoeffs.dat
+
+# awk lee el archivo renglón por renglón:
+#   !/^#/              salta el encabezado (los renglones que empiezan con #)
+#   $1 &gt; desde         sólo las iteraciones posteriores a DESDE ($1 es la primera columna: Time)
+#   s[i] y q[i]        suman cada columna (2 a 6: Cm Cd Cl Cl(f) Cl(r)) y su cuadrado
+#   END                al terminar: la media m = s/n y la desviación estándar sqrt(q/n - m²)
+awk -v desde=&quot;$DESDE&quot; &#x27;
+    !/^#/ &amp;&amp; $1 &gt; desde { n++; ultima = $1; for (i = 2; i &lt;= 6; i++) { s[i] += $i; q[i] += $i * $i } }
+    END {
+        split(&quot;Cm Cd Cl Cl(f) Cl(r)&quot;, nombre)
+        printf &quot;Iteraciones %d a %d (%d renglones)\n\n&quot;, desde + 1, ultima, n
+        print  &quot;          promedio   desviación estándar&quot;
+        for (i = 2; i &lt;= 6; i++) {
+            m = s[i] / n
+            printf &quot;%-6s %11.4f %11.4f\n&quot;, nombre[i - 1], m, sqrt(q[i] / n - m * m)
+        }
+    }&#x27; $ARCHIVO
+
+#------------------------------------------------------------------------------</code></pre>
+<p>Su salida:</p>
+<pre class="code"><code>Iteraciones 1001 a 2000 (1000 renglones)
+
+          promedio   desviación estándar
+Cm          0.1348      0.0037
+Cd          0.5637      0.0030
+Cl          0.0725      0.0100
+Cl(f)       0.1710      0.0052
+Cl(r)      -0.0985      0.0071</code></pre>
+<p>El Cd del Jimny es <strong>0.564 ± 0.003</strong>. La tabla 1 reúne los cinco coeficientes y sus fuerzas. Los promedios de los cuatro tramos de 250 iteraciones entre la 1001 y la 2000 quedan entre 0.5629 y 0.5644: el promedio está bien determinado, mucho mejor que lo que oscila cada iteración.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Coeficiente</th><th>Promedio</th><th>Desviación</th><th>Fuerza [N]</th><th>Qué es</th></tr></thead>
+    <tbody>
+      <tr><td>\(C_D\)</td><td>0.564</td><td>0.003</td><td>636</td><td>el arrastre</td></tr>
+      <tr><td>\(C_L\)</td><td>0.072</td><td>0.010</td><td>82</td><td>el levante total</td></tr>
+      <tr><td>\(C_{L,f}\)</td><td>0.171</td><td>0.005</td><td>193</td><td>el levante del eje delantero: lo descarga</td></tr>
+      <tr><td>\(C_{L,r}\)</td><td>−0.099</td><td>0.007</td><td>−111</td><td>el del trasero: negativo, lo carga</td></tr>
+      <tr><td>\(C_m\)</td><td>0.135</td><td>0.004</td><td>—</td><td>el cabeceo, alrededor del punto medio entre ejes</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Los coeficientes del Jimny.</b> Promedio y desviación estándar de las iteraciones 1001 a 2000 de <code>forceCoeffs.dat</code>, y la fuerza que corresponde con ρ = 1.2 kg/m³ (½ρU²A = 1 127 N). Positivo: hacia atrás (arrastre), hacia arriba (levante) y nariz arriba (momento).</caption>
+  </table>
+</div>
+<p>Con la ecuación (1), el aire empuja al Jimny hacia atrás con unos 636 N, y vencerlo a 100 km/h cuesta <strong>17.7 kW</strong>. A 120 km/h el arrastre crece con el cuadrado de la velocidad y la potencia con el cubo: un 73 % más (práctica sugerida).</p>
+<p>El levante total es pequeño (\(C_L\) = 0.072), pero no se reparte igual: el eje delantero recibe 193 N hacia arriba y el trasero 111 N hacia abajo (figura 2). El aire descarga la dirección y carga la tracción trasera. Las dos oscilan más que el Cd, en proporción, y también se reportan con su promedio.</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Coeficientes de levante del eje delantero y del trasero del Jimny en cada iteración.">
+  <text class="svg-title" x="76" y="28">El levante de cada eje en cada iteración</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="666" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">−0.4</text>
+  <line class="svg-grid" x1="76" y1="237.5" x2="666" y2="237.5"/>
+  <text class="svg-tick" x="70" y="241.5" text-anchor="end">−0.2</text>
+  <line class="svg-grid" x1="76" y1="175.0" x2="666" y2="175.0"/>
+  <text class="svg-tick" x="70" y="179.0" text-anchor="end">0.0</text>
+  <line class="svg-grid" x1="76" y1="112.5" x2="666" y2="112.5"/>
+  <text class="svg-tick" x="70" y="116.5" text-anchor="end">0.2</text>
+  <line class="svg-grid" x1="76" y1="50.0" x2="666" y2="50.0"/>
+  <text class="svg-tick" x="70" y="54.0" text-anchor="end">0.4</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0</text>
+  <text class="svg-tick" x="223.5" y="318" text-anchor="middle">500</text>
+  <text class="svg-tick" x="371.0" y="318" text-anchor="middle">1000</text>
+  <text class="svg-tick" x="518.5" y="318" text-anchor="middle">1500</text>
+  <text class="svg-tick" x="666.0" y="318" text-anchor="middle">2000</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">iteración</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">coeficiente de levante</text>
+  <polyline points="76.0,174.5 76.3,76.9" fill="none" stroke="var(--accent-dark)" stroke-width="1.3"/>
+  <polyline points="76.9,82.6 77.2,252.2" fill="none" stroke="var(--accent-dark)" stroke-width="1.3"/>
+  <polyline points="77.8,297.3 78.1,169.9 78.4,70.9 78.7,64.4 79.0,113.8 79.2,151.4 79.5,172.6 79.8,169.9 80.1,148.8 80.4,120.9 80.7,95.6 81.0,81.0 81.3,78.0 81.6,78.9 81.9,78.9 82.2,77.1 82.5,75.0 82.8,75.0 83.1,77.4 83.4,80.6 83.7,82.5 84.0,81.8 84.3,77.8 84.6,70.0 84.8,60.0 85.1,50.9" fill="none" stroke="var(--accent-dark)" stroke-width="1.3"/>
+  <polyline points="86.3,50.7 86.6,58.7 86.9,66.4 87.2,71.5 87.5,72.9 87.8,70.1" fill="none" stroke="var(--accent-dark)" stroke-width="1.3"/>
+  <polyline points="94.9,58.8 96.1,66.1 97.2,66.7 98.4,64.0 99.6,71.5 100.8,75.2 102.0,79.8 103.1,86.8 104.3,77.5 105.5,77.1 106.7,85.0 107.9,66.6 109.0,51.5 110.2,58.2 111.4,64.7 112.6,61.5 113.8,56.9 114.9,57.8 116.1,65.7 117.3,74.0 118.5,71.1 119.7,64.6 120.8,68.1 122.0,79.2 123.2,81.7 124.4,74.2 125.6,69.6 126.7,73.8 127.9,80.7 129.1,83.2 130.3,81.5 131.5,76.2 132.6,72.6 133.8,72.1 135.0,69.6 136.2,65.6 137.4,64.1 138.5,64.3 139.7,63.0 140.9,64.8 142.1,69.6 143.3,68.3 144.4,63.0 145.6,64.6 146.8,72.1 148.0,72.0 149.2,65.5 150.3,66.6 151.5,73.3 152.7,78.2 153.9,75.8 155.1,74.6 156.2,83.2 157.4,91.9 158.6,93.1 159.8,92.6 161.0,96.1 162.1,99.8 163.3,97.5 164.5,92.6 165.7,93.8 166.9,100.2 168.0,102.3 169.2,103.0 170.4,108.6 171.6,114.8 172.8,114.8 173.9,111.0 175.1,113.0 176.3,119.2 177.5,121.0 178.7,117.4 179.8,117.6 181.0,121.6 182.2,124.3 183.4,121.0 184.6,115.6 185.7,112.9 186.9,114.2 188.1,118.6 189.3,120.5 190.5,117.0 191.6,113.3 192.8,111.9 194.0,110.9 195.2,108.8 196.4,104.9 197.5,101.8 198.7,105.0 199.9,110.7 201.1,112.4 202.3,109.8 203.4,108.9 204.6,113.4 205.8,116.6 207.0,117.5 208.2,117.2 209.3,117.0 210.5,115.0 211.7,108.9 212.9,101.7 214.1,96.9 215.2,96.2 216.4,99.3 217.6,102.5 218.8,104.0 220.0,106.5 221.1,111.2 222.3,116.0 223.5,117.8 224.7,116.7 225.9,116.1 227.0,117.8 228.2,120.1 229.4,118.9 230.6,114.6 231.8,112.9 232.9,115.2 234.1,116.3 235.3,113.2 236.5,110.1 237.7,110.4 238.8,113.9 240.0,115.2 241.2,113.8 242.4,113.6 243.6,116.0 244.7,119.1 245.9,118.6 247.1,114.8 248.3,112.2 249.5,113.9 250.6,114.7 251.8,110.9 253.0,105.6 254.2,104.1 255.4,106.4 256.5,106.5 257.7,103.2 258.9,101.0 260.1,102.7 261.3,106.3 262.4,106.0 263.6,103.2 264.8,103.0 266.0,106.5 267.2,108.5 268.3,105.7 269.5,103.4 270.7,104.8 271.9,106.7 273.1,105.9 274.2,104.5 275.4,104.4 276.6,105.0 277.8,106.4 279.0,106.7 280.1,106.8 281.3,108.7 282.5,111.1 283.7,112.0 284.9,111.9 286.0,113.4 287.2,116.5 288.4,118.6 289.6,118.6 290.8,118.9 291.9,120.3 293.1,120.5 294.3,119.3 295.5,119.6 296.7,122.1 297.8,123.2 299.0,120.9 300.2,119.8 301.4,122.2 302.6,123.6 303.7,121.7 304.9,120.5 306.1,123.1 307.3,125.7 308.5,124.7 309.6,121.0 310.8,120.4 312.0,123.3 313.2,124.0 314.4,120.0 315.5,117.4 316.7,119.6 317.9,121.9 319.1,120.2 320.3,117.0 321.4,117.3 322.6,121.1 323.8,120.9 325.0,116.9 326.2,115.6 327.3,119.3 328.5,121.3 329.7,119.3 330.9,115.8 332.1,115.3 333.2,118.4 334.4,119.5 335.6,118.2 336.8,117.2 338.0,118.4 339.1,120.1 340.3,119.2 341.5,117.4 342.7,118.6 343.9,122.1 345.0,121.1 346.2,117.0 347.4,117.3 348.6,121.9 349.8,123.9 350.9,120.9 352.1,119.6 353.3,122.3 354.5,125.3 355.7,124.2 356.8,120.9 358.0,120.4 359.2,123.3 360.4,125.5 361.6,124.0 362.7,121.3 363.9,120.5 365.1,123.0 366.3,125.1 367.5,124.9 368.6,123.8 369.8,123.0 371.0,123.2 372.2,122.7 373.4,122.2 374.5,122.3 375.7,123.6 376.9,125.1 378.1,123.7 379.3,120.9 380.4,120.4 381.6,122.8 382.8,122.9 384.0,121.6 385.2,121.0 386.3,120.2 387.5,120.4 388.7,121.0 389.9,120.9 391.1,120.2 392.2,120.0 393.4,120.1 394.6,120.7 395.8,121.5 397.0,120.4 398.1,119.8 399.3,120.6 400.5,122.8 401.7,122.2 402.9,119.4 404.0,119.6 405.2,121.2 406.4,121.9 407.6,120.6 408.8,119.4 409.9,120.1 411.1,122.0 412.3,121.9 413.5,120.5 414.7,121.5 415.8,123.3 417.0,122.5 418.2,119.5 419.4,119.8 420.6,122.3 421.7,124.8 422.9,124.6 424.1,121.4 425.3,119.5 426.5,121.0 427.6,123.1 428.8,122.2 430.0,122.1 431.2,124.0 432.4,124.2 433.5,121.7 434.7,120.2 435.9,122.6 437.1,125.3 438.3,124.5 439.4,120.5 440.6,119.1 441.8,121.6 443.0,123.4 444.2,122.2 445.3,120.0 446.5,120.1 447.7,121.8 448.9,122.0 450.1,121.0 451.2,122.0 452.4,124.5 453.6,124.1 454.8,120.8 456.0,118.0 457.1,119.4 458.3,122.7 459.5,121.5 460.7,118.8 461.9,118.4 463.0,120.5 464.2,121.9 465.4,120.9 466.6,118.6 467.8,119.3 468.9,121.5 470.1,120.8 471.3,120.2 472.5,122.1 473.7,124.1 474.8,123.1 476.0,119.4 477.2,118.3 478.4,121.0 479.6,123.1 480.7,121.6 481.9,119.3 483.1,119.7 484.3,122.6 485.5,124.1 486.6,123.0 487.8,122.0 489.0,121.4 490.2,120.8 491.4,120.7 492.5,121.2 493.7,122.8 494.9,123.9 496.1,122.7 497.3,120.5 498.4,121.3 499.6,124.4 500.8,124.4 502.0,120.7 503.2,118.7 504.3,120.7 505.5,122.5 506.7,122.7 507.9,122.5 509.1,122.9 510.2,121.8 511.4,118.8 512.6,119.5 513.8,122.7 515.0,123.5 516.1,122.0 517.3,121.1 518.5,120.2 519.7,120.3 520.9,121.3 522.0,120.9 523.2,120.2 524.4,119.9 525.6,120.1 526.8,119.8 527.9,120.0 529.1,121.0 530.3,122.0 531.5,121.2 532.7,118.7 533.8,120.0 535.0,124.2 536.2,124.5 537.4,120.4 538.6,118.3 539.7,120.3 540.9,123.2 542.1,122.3 543.3,120.2 544.5,121.0 545.6,121.8 546.8,120.1 548.0,118.7 549.2,121.1 550.4,124.4 551.5,123.8 552.7,120.3 553.9,119.3 555.1,121.3 556.3,122.7 557.4,122.6 558.6,120.0 559.8,118.1 561.0,121.1 562.2,124.2 563.3,123.5 564.5,120.9 565.7,121.2 566.9,122.8 568.1,122.4 569.2,119.9 570.4,121.1 571.6,124.8 572.8,122.9 574.0,119.6 575.1,120.6 576.3,124.6 577.5,125.7 578.7,122.7 579.9,119.1 581.0,120.0 582.2,124.7 583.4,125.2 584.6,122.4 585.8,120.5 586.9,121.1 588.1,123.1 589.3,122.9 590.5,120.9 591.7,120.6 592.8,122.0 594.0,121.1 595.2,120.3 596.4,120.8 597.6,122.9 598.7,123.3 599.9,119.7 601.1,118.3 602.3,121.4 603.5,123.8 604.6,123.1 605.8,120.9 607.0,119.3 608.2,121.3 609.4,123.5 610.5,122.5 611.7,121.3 612.9,121.1 614.1,121.5 615.3,121.5 616.4,121.4 617.6,122.4 618.8,122.8 620.0,120.9 621.2,120.2 622.3,122.7 623.5,124.5 624.7,124.1 625.9,121.7 627.1,118.8 628.2,119.6 629.4,122.1 630.6,122.8 631.8,122.3 633.0,122.4 634.1,120.9 635.3,119.2 636.5,120.5 637.7,122.6 638.9,123.4 640.0,122.4 641.2,121.5 642.4,121.7 643.6,122.6 644.8,122.8 645.9,122.7 647.1,122.0 648.3,120.2 649.5,120.3 650.7,121.1 651.8,122.7 653.0,123.6 654.2,123.2 655.4,121.1 656.6,119.8 657.7,120.7 658.9,123.3 660.1,123.6 661.3,120.3 662.5,119.2 663.6,121.7 664.8,123.5 666.0,121.9" fill="none" stroke="var(--accent-dark)" stroke-width="1.3"/>
+  <polyline points="76.0,175.5" fill="none" stroke="var(--blue)" stroke-width="1.3"/>
+  <polyline points="77.2,232.5 77.5,118.5 77.8,144.9 78.1,260.6" fill="none" stroke="var(--blue)" stroke-width="1.3"/>
+  <polyline points="112.6,294.5 113.8,296.1" fill="none" stroke="var(--blue)" stroke-width="1.3"/>
+  <polyline points="120.8,290.4 122.0,283.5 123.2,273.6 124.4,264.8 125.6,264.7 126.7,266.0 127.9,263.1 129.1,259.2 130.3,255.8 131.5,253.8 132.6,258.3 133.8,263.3 135.0,262.2 136.2,261.2 137.4,262.2 138.5,260.8 139.7,257.1 140.9,260.9 142.1,266.8 143.3,265.5 144.4,264.1 145.6,266.1 146.8,268.0 148.0,264.8 149.2,258.4 150.3,255.6 151.5,254.8 152.7,250.7 153.9,241.0 155.1,236.1 156.2,238.1 157.4,235.5 158.6,230.3 159.8,230.5 161.0,233.8 162.1,233.6 163.3,229.7 164.5,227.3 165.7,226.5 166.9,225.3 168.0,218.6 169.2,211.6 170.4,213.6 171.6,218.3 172.8,214.1 173.9,208.6 175.1,213.2 176.3,216.7 177.5,210.4 178.7,206.3 179.8,208.4 181.0,211.0 182.2,209.4 183.4,206.4 184.6,208.0 185.7,211.0 186.9,214.4 188.1,217.1 189.3,216.1 190.5,215.7 191.6,219.2 192.8,223.7 194.0,224.8 195.2,220.9 196.4,216.6 197.5,213.6 198.7,212.1 199.9,210.3 201.1,207.8 202.3,208.5 203.4,212.8 204.6,215.4 205.8,211.6 207.0,206.1 208.2,206.7 209.3,212.9 210.5,217.8 211.7,219.1 212.9,219.9 214.1,221.8 215.2,222.6 216.4,221.1 217.6,216.7 218.8,213.3 220.0,212.9 221.1,212.5 222.3,211.6 223.5,208.8 224.7,206.4 225.9,207.1 227.0,209.0 228.2,209.4 229.4,207.0 230.6,205.9 231.8,209.2 232.9,212.9 234.1,212.2 235.3,208.1 236.5,207.8 237.7,211.0 238.8,211.8 240.0,207.3 241.2,202.9 242.4,203.8 243.6,206.8 244.7,207.6 245.9,205.1 247.1,203.6 248.3,206.8 249.5,211.4 250.6,212.3 251.8,210.3 253.0,210.4 254.2,212.8 255.4,214.4 256.5,213.5 257.7,212.2 258.9,213.8 260.1,215.7 261.3,214.9 262.4,210.8 263.6,207.8 264.8,208.8 266.0,210.3 267.2,209.4 268.3,205.9 269.5,205.6 270.7,208.4 271.9,209.5 273.1,209.0 274.2,209.9 275.4,212.8 276.6,214.3 277.8,213.5 279.0,211.4 280.1,209.9 281.3,210.0 282.5,209.3 283.7,206.5 284.9,203.0 286.0,201.5 287.2,202.3 288.4,201.8 289.6,200.9 290.8,201.6 291.9,203.3 293.1,203.3 294.3,201.7 295.5,201.4 296.7,202.4 297.8,202.4 299.0,200.4 300.2,200.0 301.4,201.6 302.6,201.1 303.7,199.4 304.9,200.2 306.1,203.3 307.3,203.3 308.5,200.6 309.6,199.5 310.8,201.4 312.0,203.1 313.2,202.1 314.4,200.6 315.5,201.4 316.7,203.2 317.9,202.5 319.1,199.7 320.3,199.1 321.4,201.9 322.6,204.3 323.8,202.8 325.0,199.7 326.2,200.9 327.3,205.4 328.5,205.8 329.7,202.3 330.9,201.7 332.1,204.4 333.2,205.3 334.4,202.9 335.6,201.2 336.8,203.1 338.0,206.4 339.1,206.3 340.3,202.9 341.5,201.4 342.7,204.0 343.9,205.9 345.0,202.0 346.2,197.8 347.4,199.8 348.6,203.2 349.8,202.4 350.9,200.3 352.1,200.9 353.3,203.5 354.5,204.4 355.7,202.3 356.8,199.9 358.0,200.1 359.2,201.9 360.4,202.5 361.6,200.5 362.7,198.0 363.9,198.2 365.1,200.3 366.3,200.8 367.5,200.6 368.6,202.0 369.8,204.1 371.0,204.0 372.2,201.6 373.4,200.0 374.5,201.2 375.7,202.7 376.9,202.4 378.1,201.0 379.3,200.3 380.4,201.7 381.6,203.4 382.8,204.0 384.0,204.9 385.2,206.9 386.3,207.9 387.5,206.8 388.7,205.6 389.9,205.9 391.1,205.4 392.2,203.6 393.4,203.1 394.6,204.6 395.8,205.3 397.0,204.7 398.1,205.3 399.3,206.8 400.5,207.4 401.7,206.5 402.9,205.3 404.0,205.7 405.2,206.2 406.4,204.9 407.6,204.0 408.8,204.5 409.9,204.7 411.1,203.1 412.3,202.6 413.5,203.9 414.7,206.0 415.8,206.5 417.0,203.6 418.2,200.3 419.4,201.1 420.6,203.8 421.7,203.8 422.9,202.6 424.1,203.0 425.3,203.3 426.5,202.6 427.6,202.8 428.8,203.9 430.0,205.6 431.2,206.5 432.4,204.0 433.5,200.5 434.7,201.7 435.9,206.0 437.1,206.2 438.3,203.0 439.4,201.7 440.6,203.3 441.8,204.7 443.0,204.5 444.2,203.9 445.3,205.2 446.5,206.7 447.7,206.0 448.9,203.5 450.1,203.2 451.2,206.8 452.4,209.3 453.6,207.6 454.8,204.6 456.0,204.9 457.1,207.4 458.3,208.3 459.5,205.5 460.7,203.4 461.9,205.5 463.0,208.0 464.2,206.7 465.4,204.3 466.6,205.0 467.8,208.0 468.9,208.9 470.1,206.0 471.3,204.5 472.5,207.6 473.7,209.5 474.8,207.4 476.0,204.0 477.2,204.3 478.4,206.8 479.6,206.7 480.7,204.0 481.9,202.9 483.1,204.5 484.3,206.1 485.5,205.6 486.6,204.6 487.8,205.5 489.0,207.6 490.2,207.6 491.4,205.2 492.5,203.9 493.7,205.5 494.9,207.1 496.1,205.3 497.3,202.4 498.4,202.5 499.6,205.3 500.8,206.7 502.0,204.8 503.2,202.5 504.3,202.7 505.5,204.2 506.7,205.1 507.9,205.7 509.1,205.6 510.2,205.0 511.4,203.8 512.6,203.1 513.8,204.4 515.0,206.8 516.1,207.7 517.3,207.0 518.5,205.8 519.7,205.1 520.9,206.1 522.0,207.0 523.2,206.7 524.4,205.7 525.6,204.2 526.8,203.7 527.9,205.5 529.1,207.9 530.3,207.7 531.5,206.1 532.7,205.7 533.8,207.0 535.0,207.6 536.2,206.3 537.4,205.0 538.6,205.0 539.7,205.0 540.9,203.9 542.1,202.7 543.3,204.3 544.5,207.2 545.6,206.3 546.8,202.8 548.0,203.3 549.2,207.7 550.4,209.4 551.5,207.3 552.7,204.9 553.9,205.2 555.1,207.4 556.3,207.4 557.4,205.0 558.6,204.0 559.8,205.0 561.0,206.9 562.2,207.2 563.3,206.4 564.5,207.1 565.7,208.1 566.9,206.0 568.1,202.5 569.2,203.1 570.4,206.7 571.6,207.6 572.8,203.8 574.0,201.2 575.1,204.7 576.3,209.2 577.5,208.6 578.7,205.3 579.9,204.1 581.0,206.3 582.2,208.9 583.4,207.7 584.6,205.9 585.8,207.3 586.9,208.7 588.1,208.5 589.3,207.8 590.5,208.3 591.7,209.8 592.8,209.2 594.0,205.1 595.2,204.2 596.4,208.0 597.6,210.7 598.7,209.5 599.9,206.0 601.1,205.4 602.3,208.8 603.5,210.2 604.6,208.3 605.8,207.2 607.0,207.6 608.2,209.2 609.4,210.4 610.5,208.9 611.7,207.5 612.9,207.7 614.1,207.1 615.3,205.3 616.4,205.3 617.6,207.4 618.8,207.9 620.0,204.4 621.2,201.8 622.3,204.5 623.5,209.0 624.7,210.4 625.9,208.8 627.1,206.0 628.2,206.1 629.4,208.3 630.6,208.8 631.8,207.7 633.0,207.1 634.1,206.2 635.3,204.8 636.5,205.0 637.7,206.8 638.9,208.1 640.0,208.7 641.2,208.6 642.4,208.0 643.6,208.1 644.8,209.2 645.9,209.7 647.1,208.1 648.3,204.9 649.5,204.3 650.7,206.8 651.8,208.6 653.0,208.2 654.2,206.9 655.4,206.1 656.6,206.4 657.7,208.2 658.9,209.4 660.1,208.9 661.3,207.4 662.5,207.3 663.6,207.9 664.8,208.3 666.0,208.4" fill="none" stroke="var(--blue)" stroke-width="1.3"/>
+  <polyline points="76.0,175.0 666.0,175.0" fill="none" stroke="var(--ink)" stroke-width="0.8"/>
+  <text class="svg-note-sm" x="518.5" y="105.9" text-anchor="middle" fill="var(--accent-dark)">0.171: descarga el eje delantero</text>
+  <text class="svg-note-sm" x="518.5" y="224.5" text-anchor="middle" fill="var(--blue)">−0.099: carga el trasero</text>
+  <line x1="470" y1="66" x2="496" y2="66" stroke="var(--accent-dark)" stroke-width="1.3"/>
+  <text class="svg-note-sm" x="502" y="70">eje delantero, Cl(f)</text>
+  <line x1="470" y1="84" x2="496" y2="84" stroke="var(--blue)" stroke-width="1.3"/>
+  <text class="svg-note-sm" x="502" y="88">eje trasero, Cl(r)</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">El levante por eje.</b> Los coeficientes \(C_{L,f}\) y \(C_{L,r}\) de <code>forceCoeffs.dat</code>. Se asientan con el Cd: el eje delantero queda con levante positivo (el aire lo descarga) y el trasero con levante negativo (lo carga).</figcaption>
+</figure>
+<h3>2. Presión y fricción</h3>
+<p>El guion de las fuerzas corre <code>foamPostProcess</code> con la función <code>forcesIncompressible</code> siete veces, cambiando sólo la lista de parches:</p>
+<p class="code-name"><code>fuerzas</code></p>
+<pre class="code"><code>#!/bin/sh
+cd ${0%/*} || exit 1    # correr desde la carpeta del caso
+
+# La fuerza de arrastre sobre el Jimny entero y sobre cada una de sus partes, en newtons, separada en presión y
+# fricción, en la última iteración escrita (por ejemplo, 2000 después de reconstructPar).
+#
+#   ./fuerzas
+#
+# Para cada parte corre foamPostProcess con la función forcesIncompressible; su salida completa queda en
+# log.fuerzas_&lt;parte&gt;. Al final escribe una tabla con la componente x (el arrastre) de cada parte.
+
+RHO=1.2     # densidad del aire [kg/m³]: el solver trabaja con p/rho, y rhoInf la vuelve a multiplicar
+U=$(foamDictionary system/forceCoeffs -entry forceCoeffs1/magUInf -value)     # velocidad de referencia [m/s]
+A=$(foamDictionary system/forceCoeffs -entry forceCoeffs1/Aref -value)        # área frontal [m²]
+PARTES=&quot;carroceria bajos ruedasDelanteras ruedasTraseras refaccion espejos&quot;
+
+for parte in jimnyGroup $PARTES
+do
+    echo &quot;foamPostProcess: $parte&quot;
+    # -solver incompressibleFluid: que lea los campos y el modelo de turbulencia como el solver
+    # CofR y pitchAxis son los de system/forceCoeffs (para los momentos, que aquí no se usan)
+    foamPostProcess -solver incompressibleFluid -latestTime \
+        -func &quot;forcesIncompressible(patches=($parte), rhoInf=$RHO, CofR=(1.755 0 0), pitchAxis=(0 1 0))&quot; \
+        &gt; log.fuerzas_$parte 2&gt;&amp;1
+done
+
+# De cada registro, la componente x de «pressure» y de «viscous» bajo «sum of forces»
+fx () {
+    awk &#x27;/sum of forces/ { f = 1 }
+         f &amp;&amp; /pressure/ { gsub(/[()]/, &quot;&quot;); p = $3 }
+         f &amp;&amp; /viscous/  { gsub(/[()]/, &quot;&quot;); print p, $3; exit }&#x27; log.fuerzas_$1
+}
+
+TOTAL=$(fx jimnyGroup | awk &#x27;{ print $1 + $2 }&#x27;)
+echo
+echo &quot;rho = $RHO kg/m3, U = $U m/s, A = $A m2&quot;
+echo
+echo &quot;parte              presión  fricción    total      %   aporte&quot;
+echo &quot;                       [N]       [N]      [N]           al Cd&quot;
+for parte in $PARTES jimnyGroup
+do
+    # % del total y aporte al Cd: la fuerza entre la del Jimny entero y entre ½ rho U² A
+    fx $parte | awk -v parte=$parte -v total=$TOTAL -v rho=$RHO -v U=$U -v A=$A &#x27;
+        { t = $1 + $2; printf &quot;%-17s %8.2f %9.2f %8.2f %6.1f %8.4f\n&quot;, parte, $1, $2, t, 100 * t / total, t / (0.5 * rho * U * U * A) }&#x27;
+done
+
+#------------------------------------------------------------------------------</code></pre>
+<p><code>-func</code> le pasa a <code>foamPostProcess</code> una función con sus parámetros; <code>rhoInf=$RHO</code> devuelve la presión cinemática del solver a pascales; <code>-solver incompressibleFluid</code> hace que lea los campos y el modelo de turbulencia como el solver, sin lo cual no puede calcular nada (sección <a href="#errors-es">«Errores frecuentes»</a>). La velocidad y el área las lee de <code>system/forceCoeffs</code> con <code>foamDictionary</code>, para no escribirlas dos veces. Lo que escribe <code>foamPostProcess</code> para el vehículo entero, en <code>log.fuerzas_jimnyGroup</code>:</p>
+<pre class="code"><code>    sum of forces:
+        pressure : (633.05 -3.18604 70.7666)
+        viscous  : (6.22645 -0.795903 0.255584)</code></pre>
+<p>Las fuerzas vienen en componentes (x, y, z): x es el arrastre, z el levante. El arrastre es 633.05 N de presión más 6.23 N de fricción: <strong>639.3 N, con sólo el 1.0 % de fricción</strong>. Es la firma de un cuerpo romo. Y es la comprobación de que todo cuadra: entre ½ρU²A,</p>
+<div class="equation-card">\[ C_D = \frac{639.28\ \text{N}}{1127.5\ \text{N}} = 0.5670 \]</div>
+<p>exactamente el Cd que escribió <code>forceCoeffs</code> en la iteración 2000 (0.5670); un poco más que el promedio, porque es una sola iteración.</p>
+<h3>3. Parte por parte</h3>
+<p>La tabla con que termina <code>fuerzas</code>:</p>
+<pre class="code"><code>parte              presión  fricción    total      %   aporte
+                       [N]       [N]      [N]           al Cd
+carroceria          491.70      1.42   493.12   77.1   0.4374
+bajos                51.70      1.43    53.13    8.3   0.0471
+ruedasDelanteras     40.15      1.75    41.90    6.6   0.0372
+ruedasTraseras       25.11      1.54    26.65    4.2   0.0236
+refaccion            23.07     -0.01    23.06    3.6   0.0205
+espejos               1.32      0.09     1.42    0.2   0.0013
+jimnyGroup          633.05      6.23   639.28  100.0   0.5670</code></pre>
+<p>La tabla 2 y la figura 3 la reúnen con el resto; las seis partes suman 639.28 N, el total.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Región</th><th>Presión [N]</th><th>Fricción [N]</th><th>Total [N]</th><th>% del total</th><th>Aporte al \(C_D\)</th></tr></thead>
+    <tbody>
+      <tr><td>carrocería</td><td>491.7</td><td>1.42</td><td>493.1</td><td>77.1</td><td>0.4374</td></tr>
+      <tr><td>bajos</td><td>51.7</td><td>1.43</td><td>53.1</td><td>8.3</td><td>0.0471</td></tr>
+      <tr><td>ruedas delanteras</td><td>40.1</td><td>1.75</td><td>41.9</td><td>6.6</td><td>0.0372</td></tr>
+      <tr><td>ruedas traseras</td><td>25.1</td><td>1.54</td><td>26.6</td><td>4.2</td><td>0.0236</td></tr>
+      <tr><td>refacción</td><td>23.1</td><td>−0.01</td><td>23.1</td><td>3.6</td><td>0.0205</td></tr>
+      <tr><td>espejos</td><td>1.3</td><td>0.09</td><td>1.4</td><td>0.2</td><td>0.0013</td></tr>
+      <tr><td><b>total</b> (<code>jimnyGroup</code>)</td><td><b>633.0</b></td><td><b>6.23</b></td><td><b>639.3</b></td><td>100</td><td><b>0.5670</b></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">De dónde sale el arrastre.</b> La fuerza en x (arrastre) sobre cada región en la iteración 2000, de <code>foamPostProcess</code> con <code>forcesIncompressible</code> y ρ = 1.2 kg/m³: la parte de presión y la de fricción (viscosa), en newtons. La última columna es su contribución al \(C_D\): la fuerza entre ½ρU²A.</caption>
+  </table>
+</div>
+<figure class="diagram">
+<svg viewBox="0 0 720 318" role="img" aria-label="Barras con la fuerza de arrastre de cada región del Jimny, separada en presión y fricción.">
+  <text class="svg-title" x="20" y="28">El arrastre de cada región, en newtons (iteración 2000)</text>
+  <line class="svg-grid" x1="170.0" y1="48" x2="170.0" y2="258"/>
+  <text class="svg-tick" x="170.0" y="274" text-anchor="middle">0</text>
+  <line class="svg-grid" x1="264.0" y1="48" x2="264.0" y2="258"/>
+  <text class="svg-tick" x="264.0" y="274" text-anchor="middle">100</text>
+  <line class="svg-grid" x1="358.0" y1="48" x2="358.0" y2="258"/>
+  <text class="svg-tick" x="358.0" y="274" text-anchor="middle">200</text>
+  <line class="svg-grid" x1="452.0" y1="48" x2="452.0" y2="258"/>
+  <text class="svg-tick" x="452.0" y="274" text-anchor="middle">300</text>
+  <line class="svg-grid" x1="546.0" y1="48" x2="546.0" y2="258"/>
+  <text class="svg-tick" x="546.0" y="274" text-anchor="middle">400</text>
+  <line class="svg-grid" x1="640.0" y1="48" x2="640.0" y2="258"/>
+  <text class="svg-tick" x="640.0" y="274" text-anchor="middle">500</text>
+  <text class="svg-note-sm" x="160" y="71" text-anchor="end">carrocería</text>
+  <rect x="170" y="57" width="462.2" height="20" fill="var(--blue)"/>
+  <rect x="632.2" y="57" width="1.3" height="20" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="641.5" y="72">493.1 N (77.1 %)</text>
+  <text class="svg-note-sm" x="160" y="105" text-anchor="end">bajos</text>
+  <rect x="170" y="91" width="48.6" height="20" fill="var(--blue)"/>
+  <rect x="218.6" y="91" width="1.3" height="20" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="227.9" y="106">53.1 N (8.3 %)</text>
+  <text class="svg-note-sm" x="160" y="139" text-anchor="end">ruedas delanteras</text>
+  <rect x="170" y="125" width="37.7" height="20" fill="var(--blue)"/>
+  <rect x="207.7" y="125" width="1.6" height="20" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="217.4" y="140">41.9 N (6.6 %)</text>
+  <text class="svg-note-sm" x="160" y="173" text-anchor="end">ruedas traseras</text>
+  <rect x="170" y="159" width="23.6" height="20" fill="var(--blue)"/>
+  <rect x="193.6" y="159" width="1.4" height="20" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="203.0" y="174">26.6 N (4.2 %)</text>
+  <text class="svg-note-sm" x="160" y="207" text-anchor="end">refacción</text>
+  <rect x="170" y="193" width="21.7" height="20" fill="var(--blue)"/>
+  <rect x="191.7" y="193" width="1.0" height="20" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="199.7" y="208">23.1 N (3.6 %)</text>
+  <text class="svg-note-sm" x="160" y="241" text-anchor="end">espejos</text>
+  <rect x="170" y="227" width="1.2" height="20" fill="var(--blue)"/>
+  <rect x="171.2" y="227" width="1.0" height="20" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="179.3" y="242">1.4 N (0.2 %)</text>
+  <rect x="170" y="288" width="14" height="12" fill="var(--blue)"/>
+  <text class="svg-note-sm" x="190" y="298">presión</text>
+  <rect x="280" y="288" width="14" height="12" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="300" y="298">fricción (viscosa)</text>
+  <text class="svg-note-sm" x="490" y="298">total: 639.3 N, 1.0 % de fricción</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">De dónde sale el arrastre.</b> La fuerza de arrastre sobre cada región en la iteración 2000, de <code>foamPostProcess</code>: presión (azul) y fricción (naranja). La fricción apenas se ve: es el 1.0 % del total. La carrocería se lleva tres cuartas partes; la llanta de refacción, colgada atrás, pone casi tanto como las dos ruedas traseras.</figcaption>
+</figure>
+<p>La carrocería se lleva tres cuartas partes del arrastre: el frente plano y la cola recta. Los bajos y las ruedas, que en un auto aerodinámico pesan mucho, aquí suman algo menos de la quinta parte. La llanta de refacción, colgada en la puerta trasera, pone el 3.6 % por sí sola: casi lo mismo que las dos ruedas traseras. Los espejos, apenas nada. En la fricción el orden cambia: las cuatro ruedas, que giran contra el aire, ponen 3.3 de los 6.2 N, y la carrocería, con 5 veces su área, sólo 1.4 N.</p>
+<h3>4. La y⁺</h3>
+<pre class="code"><code>2000          	lowerWall	2.602597e+01	5.541003e+03	7.448665e+02
+2000          	carroceria	1.387597e-01	2.498547e+03	1.819586e+02
+2000          	bajos	2.458007e+00	9.126416e+02	1.611530e+02
+2000          	ruedasDelanteras	1.437751e+01	5.150612e+02	2.504171e+02
+2000          	ruedasTraseras	5.507145e+01	4.931985e+02	2.532536e+02
+2000          	refaccion	1.556949e+00	2.737289e+02	1.523803e+02
+2000          	espejos	6.054022e+00	1.275359e+03	2.236633e+02</code></pre>
+<p>Las columnas son el mínimo, el máximo y el promedio de cada parche. El promedio de cada región del Jimny cae en la zona logarítmica; los máximos, no. La tabla 3 dice cuánta área está en cada banda: el 90 % de la carrocería tiene \(30 \le y^+ \le 300\), el 8 % pasa de 300 y el 2 % queda por debajo de 30. Las ruedas delanteras son las que más se salen por arriba (24 %). El suelo (<code>lowerWall</code>) no lleva capas y su y⁺ es mayor, pero su esfuerzo no entra en las fuerzas del vehículo.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Región</th><th>Área [m²]</th><th>y⁺ < 30</th><th>30 a 300</th><th>y⁺ > 300</th><th>Promedio</th><th>Máximo</th></tr></thead>
+    <tbody>
+      <tr><td>carrocería</td><td>21.21</td><td>1.8 %</td><td>89.8 %</td><td>8.3 %</td><td>182</td><td>2 499</td></tr>
+      <tr><td>bajos</td><td>2.66</td><td>2.7 %</td><td>88.9 %</td><td>8.4 %</td><td>161</td><td>913</td></tr>
+      <tr><td>ruedas delanteras</td><td>2.06</td><td>0.0 %</td><td>75.9 %</td><td>24.1 %</td><td>250</td><td>515</td></tr>
+      <tr><td>ruedas traseras</td><td>2.05</td><td>0.0 %</td><td>80.6 %</td><td>19.4 %</td><td>253</td><td>493</td></tr>
+      <tr><td>refacción</td><td>0.69</td><td>7.7 %</td><td>92.3 %</td><td>0.0 %</td><td>152</td><td>274</td></tr>
+      <tr><td>espejos</td><td>0.22</td><td>3.5 %</td><td>69.0 %</td><td>27.5 %</td><td>224</td><td>1 275</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">La y⁺ de cada región, por área.</b> Fracción del área de cada región según su y⁺ en la iteración 2000 (función <code>yPlus</code>, pesada por el área de cada cara); la zona logarítmica, donde valen las funciones de pared, va de 30 a 300. Las dos últimas columnas son las de <code>yPlus.dat</code>.</caption>
+  </table>
+</div>
+<p>En ParaView (paso 4 de la receta), el rango automático no sirve para esto: se fija de 30 a 300 (figura 4). La figura 5 es la misma información en tres bandas, por delante y por detrás.</p>
+<figure class="diagram">
+  <img src="imagenes/t33-02_paraview_rango.png" alt="El Jimny en ParaView coloreado por y+, con el rango automático y con el rango de 30 a 300" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">La y⁺ en ParaView, antes y después de fijar el rango.</b> Con el rango automático (izquierda), unas pocas caras con la y⁺ muy alta estiran la escala y casi todo el vehículo queda del mismo azul. Con el rango fijado de 30 a 300 (derecha) se ve la zona logarítmica completa: el rojo más oscuro pasa de 300 (el parabrisas, el frente del cofre), el azul más oscuro queda por debajo de 30. La escala automática es la de los datos interpolados a los vértices, distinta de la de <code>yPlus.dat</code>, que es por cara. Fotogramas del vídeo de esta guía.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t33-01_yplus.png" alt="El Jimny coloreado por su y+ en tres bandas, visto por delante y por detrás" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">La y⁺ sobre el Jimny.</b> Las seis regiones del vehículo en la iteración 2000, coloreadas por la y⁺ de cada cara en tres bandas: menos de 30 (azul), la zona logarítmica de 30 a 300 (gris claro) y más de 300 (rojo). Casi todo el vehículo está en la zona logarítmica. La y⁺ crece con el esfuerzo cortante: es baja donde el aire casi se detiene, como el centro de la defensa, y alta en el parabrisas, el frente del cofre y algunas aristas. Render de ParaView sin ventana.</figcaption>
+</figure>
+<div class="result-box">
+  <p><strong>El Jimny a 100 km/h:</strong> \(C_D\) = 0.564 ± 0.003, 636 N de arrastre y 17.7 kW para vencerlo; 193 N de levante en el eje delantero y 111 N de carga en el trasero; un arrastre casi todo de presión (99 %), tres cuartas partes en la carrocería; y la primera celda en la zona logarítmica en el 90 % de la carrocería. Cómo se ve ese flujo es el tutorial 3.4; cuánto confiar en el número, el 3.6.</p>
+</div>
+
+    </section>
+    <section id="errors-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Qué sale mal al leer los resultados</h2>
+
+<p>Los resultados son reales: se obtuvieron sobre una copia del caso terminado.</p>
+<h3>1. Promediar desde el principio</h3>
+<pre class="code"><code>./promedios 0</code></pre><pre class="code"><code>Iteraciones 1 a 2000 (2000 renglones)
+
+          promedio   desviación estándar
+Cm          0.1721      0.0862
+Cd          0.6108      0.1253
+Cl          0.0581      0.0762
+Cl(f)       0.2012      0.0644
+Cl(r)      -0.1431      0.1167</code></pre>
+<p>Desde la iteración 1, el promedio incluye el arranque, cuando el Cd pasaba de 2: da 0.611, un 8 % más, con una desviación estándar 41 veces mayor; y el número no avisa de que está mal. <strong>Remedio:</strong> mirar la gráfica (<code>foamMonitor</code> o la figura 1) antes de elegir la ventana, y comprobarla con promedios por tramos.</p>
+<h3>2. <code>foamPostProcess</code> sin <code>-solver</code></h3>
+<pre class="code"><code>--&gt; FOAM FATAL ERROR:
+Could not find U, p
+
+    From function void Foam::functionObjects::forcesBase::initialise()</code></pre>
+<p>Es lo que se obtiene al quitar <code>-solver incompressibleFluid</code> del guion (o al escribir el comando a mano sin él): <code>foamPostProcess</code> no lee los campos ni el modelo de turbulencia que necesita la función. <strong>Remedio:</strong> agregarlo, con el nombre del <code>solver</code> que está en <code>system/controlDict</code>.</p>
+<h3>3. Las fuerzas con <code>rhoInf=1</code></h3>
+<pre class="code"><code>    sum of forces:
+        pressure : (527.542 -2.65504 58.9722)
+        viscous  : (5.18871 -0.663252 0.212987)</code></pre>
+<p>Con <code>RHO=1</code> en el guion (<code>rhoInf=1</code>, como en <code>system/forceCoeffs</code>), nada se queja, y el arrastre sale en 532.7: son newtons por cada kg/m³ de densidad, porque el solver incompresible trabaja con la presión dividida entre la densidad. Multiplicado por 1.2 da los 639.3 N. <strong>Remedio:</strong> dar siempre la densidad del aire, y desconfiar de una fuerza que no se haya comparado con su coeficiente.</p>
+
+    </section>
+    <section id="practice-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>El Jimny a 120 km/h</h2>
+
+<p class="lead">El Jimny a 120 km/h: ¿cambia el coeficiente, o sólo la fuerza?</p>
+<div class="example">
+  <p><strong>Enunciado.</strong> Correr el caso a 120 km/h que se preparó en la práctica sugerida del <a href="jimny-caso.html#practice-es">tutorial 3.1</a> (la secuencia del 3.2, unas dos horas) y obtener sus resultados con esta guía.</p>
+  <p><strong>Condiciones.</strong> El mismo vehículo, el mismo túnel y la misma receta de malla; la ventana de promedio se elige mirando su gráfica.</p>
+</div>
+<h3>El procedimiento, en corto</h3>
+<ol>
+  <li>Correr el caso de 120 km/h con los pasos del tutorial 3.2.</li>
+  <li>Con los pasos 2 a 6 de la receta, llenar el renglón de 120 km/h de la tabla 4; en <code>forcesIncompressible</code> no cambia nada, porque la velocidad no entra.</li>
+  <li>Comparar la fuerza obtenida con la escalada de la de 100 km/h.</li>
+</ol>
+<h3>Registro de resultados</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Velocidad</th><th>\(C_D\) (1001–2000)</th><th>Arrastre [N]</th><th>Arrastre escalado [N]</th><th>Potencia [kW]</th><th>y⁺ promedio, carrocería</th></tr></thead>
+    <tbody>
+      <tr><td>100 km/h</td><td>0.564</td><td>636</td><td>—</td><td>17.7</td><td>182</td></tr>
+      <tr><td>120 km/h</td><td></td><td></td><td>915</td><td></td><td></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">Registro de la práctica.</b> El renglón de 100 km/h es el de esta guía; el de 120 km/h se llena con la corrida del caso de la práctica del tutorial 3.1. «Escalada» es la fuerza de 100 km/h multiplicada por (120/100)².</caption>
+  </table>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>¿Cambió el Cd? Si cambió poco, ¿por qué se esperaba (piense en el número de Reynolds y en un cuerpo de aristas vivas)?</li>
+  <li>¿Cuánto más potencia cuesta el aire a 120 km/h que a 100? ¿Qué parte de la potencia de un motor de 75 kW es?</li>
+  <li>¿Qué pasó con la y⁺ de la carrocería, y por qué? ¿Sigue en la zona logarítmica?</li>
+</ol>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ul class="references">
+  <li>Hucho, W.-H. (Ed.). (1998). <em>Aerodynamics of road vehicles</em> (4.ª ed.). SAE International.</li>
+  <li>Menter, F. R. (1994). Two-equation eddy-viscosity turbulence models for engineering applications. <em>AIAA Journal, 32</em>(8), 1598–1605.</li>
+  <li>OpenFOAM Foundation. (2024). <em>OpenFOAM user guide, version 12</em>, sección «Function objects» (funciones <code>forceCoeffs</code>, <code>forces</code> y <code>yPlus</code>). https://doc.cfd.direct/openfoam/user-guide-v12/</li>
+  <li>Pope, S. B. (2000). <em>Turbulent flows</em>. Cambridge University Press. (Capítulo 7, la capa logarítmica.)</li>
+</ul>
+<p class="source-note">Las salidas son de la corrida del tutorial 3.2 en blueCFD-Core 2024 (OpenFOAM 12), en una laptop con Windows 11 y 8 núcleos: <code>foamPostProcess</code> sobre la iteración 2000 y las series de <code>postProcessing</code>; la fracción de área por banda de y⁺ se calculó con ParaView 5.11.2 sin ventana. No se encontró un Cd publicado del Suzuki Jimny para compararlo.</p>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="jimny-paralelo.html?v=13"><span>Tutorial anterior</span>← 3.2 · El Jimny en paralelo, paso a paso</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Flujo incompresible</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Die Kraftdatei einer stationären RANS-Rechnung in Ergebnisse verwandeln: über die eingeschwungenen Iterationen mitteln, die Streuung angeben, Beiwerte in Kräfte und Leistung umrechnen, den Widerstand mit foamPostProcess in Druck und Reibung und nach Teilen aufteilen und y⁺ mit den Wandfunktionen abgleichen.</p>
+    </section>
+    <section id="problem-de">
+      <p class="section-label">Das Problem</p>
+      <h2>Von zweitausend Zeilen zu wenigen Zahlen</h2>
+<p>Die Rechnung aus Tutorial 3.2: 2 000 Iterationen des vollständigen Jimny bei 100 km/h. Wie groß ist sein Widerstandsbeiwert, wie sicher ist er und was bedeutet er in Newton und Kilowatt?</p>
+    </section>
+    <section id="theory-de">
+      <p class="section-label">Die Theorie</p>
+      <h2>Mittelwerte, Kräfte, Druck und Reibung, y⁺</h2>
+<p>Mittelung einer stationären RANS-Rechnung eines stumpfen Körpers: das eingeschwungene Fenster, Streuung und Blockmittel; von Beiwerten zu Kräften (½ρU²A) und Leistung; Druck- und Reibungswiderstand; y⁺ und die logarithmische Schicht.</p>
+    </section>
+    <section id="recipe-de">
+      <p class="section-label">Schritt für Schritt</p>
+      <h2>Sechs Befehle am fertigen Fall</h2>
+<p>forceCoeffs.dat öffnen; die zwei kurzen Skripte des Falls lesen und ausführen: promedios (Mittelwerte mit awk ab einer gewählten Iteration) und fuerzas (foamPostProcess -solver incompressibleFluid mit forcesIncompressible, für das ganze Fahrzeug und Teil für Teil, mit einer Übersichtstabelle); yPlus.dat lesen; y⁺ am Fahrzeug in ParaView ansehen.</p>
+    </section>
+    <section id="check-de">
+      <p class="section-label">Durchgerechnetes Beispiel</p>
+      <h2>Der Jimny bei 100 km/h in Zahlen</h2>
+<p>Cd = 0,564 ± 0,003, ein Widerstand von 636 N und 17,7 kW bei 100 km/h; die Vorderachse wird um 193 N entlastet, die Hinterachse um 111 N belastet; 1,0 % des Widerstands sind Reibung; die Karosserie trägt drei Viertel; 90 % der Karosseriefläche haben 30 ≤ y⁺ ≤ 300.</p>
+    </section>
+    <section id="errors-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Was beim Auswerten schiefgeht</h2>
+<p>Ab der ersten Iteration mitteln; foamPostProcess ohne -solver (findet U und p nicht); Kräfte mit rhoInf = 1 (je Dichteeinheit).</p>
+    </section>
+    <section id="practice-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Der Jimny bei 120 km/h</h2>
+<p>Den in Tutorial 3.1 vorbereiteten Fall bei 120 km/h rechnen und Widerstandsbeiwert, Kraft und Leistung vergleichen.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>Hucho zur Fahrzeugaerodynamik; das OpenFOAM-Benutzerhandbuch zu Function Objects; Menter (1994); Pope (2000) zur logarithmischen Schicht.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="jimny-paralelo.html?v=13"><span>Vorheriges Tutorial</span>← 3.2 · Der Jimny parallel, Schritt für Schritt</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Inkompressible Strömung</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>
