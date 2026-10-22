@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="OpenFOAM tutorial: running the drivaerFastback tutorial of OpenFOAM 12 with its small mesh and comparing its drag coefficient with the wind-tunnel measurement, then the same car with the Jimny's snappyHexMesh recipe: what validating a CFD method means, and how much a coarse mesh costs." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Validating the Method with the DrivAer | OpenFOAM Incompressible-Flow Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">OpenFOAM · Incompressible flow · Tutorial 3.5</p><h1>The DrivAer: validating the method against the wind tunnel</h1><p class="hero-copy">The Jimny has no published drag coefficient, but the DrivAer does: a research car measured in a wind tunnel, with its own OpenFOAM tutorial. Running it with the same method as the Jimny says how far the calculation lands from the measurement, and how much the mesh matters.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">OpenFOAM · Flujo incompresible · Tutorial 3.5</p><h1>El DrivAer: validar el método contra el túnel de viento</h1><p class="hero-copy">El Jimny no tiene un coeficiente de arrastre publicado; el DrivAer sí: un auto de investigación medido en túnel de viento, que trae su propio tutorial de OpenFOAM. Correrlo con el mismo método del Jimny dice qué tan lejos queda el cálculo de la medición, y cuánto pesa la malla.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">OpenFOAM · Inkompressible Strömung · Tutorial 3.5</p><h1>Der DrivAer: die Methode am Windkanal validieren</h1><p class="hero-copy">Für den Jimny gibt es keinen veröffentlichten Widerstandsbeiwert, für den DrivAer schon: ein im Windkanal vermessenes Forschungsfahrzeug mit eigenem OpenFOAM-Tutorial. Mit derselben Methode wie der Jimny gerechnet, zeigt es, wie weit die Rechnung von der Messung liegt und wie viel das Netz ausmacht.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 40 min (plus 12 min of computing)</span><span data-language="es" hidden>Lectura estimada: 40 min (y 12 min de cálculo)</span><span data-language="de" hidden>Lesedauer: ca. 40 min (dazu 12 min Rechenzeit)</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on OpenFOAM 12 (blueCFD-Core 2024) and ParaView 5.11.2</span><span data-language="es" hidden>Verificado en OpenFOAM 12 (blueCFD-Core 2024) y ParaView 5.11.2</span><span data-language="de" hidden>Geprüft mit OpenFOAM 12 (blueCFD-Core 2024) und ParaView 5.11.2</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="jimny-paraview.html?v=13">← <span>3.4</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#problem">The problem</a><a href="#theory">Theory</a><a href="#recipe">Recipe</a><a href="#case">The case</a><a href="#check">Check</a><a href="#errors">Common errors</a><a href="#practice">Suggested exercise</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#problem-es">El problema</a><a href="#theory-es">Teoría</a><a href="#recipe-es">Receta</a><a href="#case-es">El caso</a><a href="#check-es">Revisión</a><a href="#errors-es">Errores frecuentes</a><a href="#practice-es">Práctica sugerida</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#problem-de">Das Problem</a><a href="#theory-de">Theorie</a><a href="#recipe-de">Ablauf</a><a href="#case-de">Der Fall</a><a href="#check-de">Prüfung</a><a href="#errors-de">Häufige Fehler</a><a href="#practice-de">Übungsvorschlag</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Run an official OpenFOAM tutorial unchanged, read its Allrun and its .orig files, and use it to validate the method of the Jimny: compare a drag coefficient with a measurement and explain the difference.</p>
+    </section>
+    <section id="problem">
+      <p class="section-label">The problem</p>
+      <h2>A car that was measured</h2>
+<p>The DrivAer fastback (TU München) was measured in a wind tunnel: Cd = 0.243 to 0.247 for the configuration of the tutorial. How close does the method of the Jimny get?</p>
+    </section>
+    <section id="theory">
+      <p class="section-label">The theory</p>
+      <h2>Validation, similarity and the tutorial's meshes</h2>
+<p>Verification and validation; Reynolds similarity and blockage; the four meshes of the Allrun (S, M, L, XL) and how refineMesh builds them; why OpenFOAM reads controlDict.orig when controlDict does not exist.</p>
+    </section>
+    <section id="recipe">
+      <p class="section-label">Step by step</p>
+      <h2>The tutorial as it comes</h2>
+<p>cp the tutorial; ./Allrun -cores 8 -mesh S (12 min); read log.checkMesh; bring the promedios script of the Jimny and change its file name by hand; reconstructPar -latestTime and ParaView.</p>
+    </section>
+    <section id="case">
+      <p class="section-label">The case</p>
+      <h2>The DrivAer next to the Jimny</h2>
+<p>The DrivAer and the Jimny side by side: the same tunnel, ground, wheels, turbulence model and numerical method; the snappyHexMesh recipes compared line by line.</p>
+    </section>
+    <section id="check">
+      <p class="section-label">Worked example</p>
+      <h2>Calculation against wind tunnel</h2>
+<p>The S mesh (440 139 cells) gives Cd = 0.299, 21 to 23 % above the tunnel; the Jimny's recipe on the same car (2 076 004 cells) gives 0.276, 12 to 14 % above. The method overestimates the drag, less with the finer mesh.</p>
+    </section>
+    <section id="errors">
+      <p class="section-label">Common errors</p>
+      <h2>What goes wrong with a tutorial's Allrun</h2>
+<p>A lower-case mesh option; running the Allrun again on a finished case (it skips every step); opening the case in ParaView without reconstructPar (only the background mesh, at time 0).</p>
+    </section>
+    <section id="practice">
+      <p class="section-label">Suggested exercise</p>
+      <h2>The M mesh</h2>
+<p>Run the M mesh and see whether the drag coefficient gets closer to the tunnel.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>Heft, Indinger and Adams (2012) for the DrivAer; the drivaerFastback tutorial of OpenFOAM 12; Hucho; Roache on verification and validation.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="jimny-paraview.html?v=13"><span>Previous tutorial</span>← 3.4 · The Jimny in ParaView</a>
+      <a class="next-link" href="cd-incertidumbre.html?v=13"><span>Next tutorial</span>3.6 · How much is a RANS drag coefficient worth? →</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">Los tutoriales <a href="jimny-caso.html">3.1</a> a <a href="jimny-paraview.html">3.4</a> dieron el coeficiente de arrastre del Jimny, \(C_D\) = 0.564, y lo hicieron visible. Pero el Jimny nunca se midió en un túnel de viento —o al menos no hay una medición publicada—, así que ese número no se puede comparar con nada. Esta guía hace lo que se hace en ingeniería en ese caso: correr el mismo método sobre un vehículo que sí se midió, el DrivAer, y ver qué tan lejos queda.</p>
+<ul>
+  <li>Distinguir verificar un cálculo de validarlo, y explicar qué dice —y qué no dice— una comparación con un experimento.</li>
+  <li>Correr un tutorial de OpenFOAM tal como viene: copiarlo, leer su <code>Allrun</code> y sus archivos <code>.orig</code>, y elegir el tamaño de su malla.</li>
+  <li>Comparar la receta de malla del tutorial con la del Jimny, línea por línea.</li>
+  <li>Calcular el \(C_D\) con el guion <code>promedios</code> del Jimny, adaptado, y su diferencia con el túnel de viento.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> blueCFD-Core 2024 (OpenFOAM 12), una computadora de 8 núcleos y 16 GB (la malla S tarda 12 min) y el caso del Jimny en <code>$FOAM_RUN/jimny</code>, del que se copia el guion <code>promedios</code> del <a href="jimny-resultados.html">3.3</a>. El DrivAer no se descarga: viene con OpenFOAM.</p>
+</div>
+
+    </section>
+    <section id="problem-es">
+      <p class="section-label">El problema</p>
+      <h2>Un auto que sí se midió</h2>
+
+<p>El DrivAer es un auto de investigación de la Universidad Técnica de Múnich <a href="#references-es">(Heft, Indinger y Adams, 2012)</a>: la mezcla de dos sedanes alemanes de tamaño medio, con piezas intercambiables —tres colas, bajos lisos o detallados, con espejos o sin ellos— y un modelo a escala 1:2.5 que se midió en un túnel de viento. Su geometría es pública, y por eso es el auto de prueba de la aerodinámica de vehículos: un método nuevo se corre primero en el DrivAer.</p>
+<p>OpenFOAM 12 lo trae como tutorial: <code>incompressibleFluid/drivaerFastback</code>, la cola en caída suave (<em>fastback</em>), con bajos lisos, espejos y ruedas que giran sobre un suelo que se mueve. Es casi el mismo planteamiento del Jimny (tabla 1): el Jimny se armó, en el 3.1, a partir de él.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th></th><th>DrivAer (fastback)</th><th>Jimny</th></tr></thead>
+    <tbody>
+      <tr><td>Largo × ancho × alto</td><td>4.61 × 2.03 × 1.42 m</td><td>3.64 × 1.72 × 1.73 m</td></tr>
+      <tr><td>Área frontal \(A\)</td><td>2.154 m²</td><td>2.435 m²</td></tr>
+      <tr><td>Velocidad</td><td>16 m/s (el Reynolds del modelo medido)</td><td>27.78 m/s (100 km/h)</td></tr>
+      <tr><td>Reynolds con el largo</td><td>4.9·10<sup>6</sup></td><td>6.7·10<sup>6</sup></td></tr>
+      <tr><td>Bloqueo</td><td>2.7 %</td><td>3.0 %</td></tr>
+      <tr><td>Suelo y ruedas</td><td>suelo móvil, ruedas que giran</td><td>lo mismo</td></tr>
+      <tr><td>Modelo</td><td>k-ω SST, funciones de pared</td><td>lo mismo</td></tr>
+      <tr><td>\(C_D\) medido</td><td>0.243 a 0.247 (túnel de viento)</td><td>no publicado</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">El DrivAer y el Jimny.</b> Las medidas del DrivAer son las de su superficie en la malla (ParaView); las del Jimny, las del tutorial 3.1. El bloqueo es el área frontal entre la sección del túnel virtual, de 10 × 8 m en los dos casos.</caption>
+  </table>
+</div>
+<p>La pregunta de esta guía: <strong>con el método del Jimny, ¿cuánto se equivoca el \(C_D\) del DrivAer?</strong> Si el error es chico, hay razones para confiar en el 0.564 del Jimny; si es grande, al menos se sabe en qué dirección y de qué tamaño.</p>
+
+    </section>
+    <section id="theory-es">
+      <p class="section-label">La teoría</p>
+      <h2>Validación, semejanza y las mallas del tutorial</h2>
+
+<h3>Verificar y validar</h3>
+<p>Son dos preguntas distintas <a href="#references-es">(Roache, 1998)</a>. <strong>Verificar</strong> es preguntar si las ecuaciones se resolvieron bien: si la malla es suficiente, si el cálculo convergió, si el programa no tiene errores. <strong>Validar</strong> es preguntar si se resolvieron las ecuaciones correctas: si el modelo de turbulencia, las condiciones de frontera y la geometría representan el experimento. Lo primero se responde con el propio cálculo (mallas más finas, más iteraciones); lo segundo, sólo contra una medición.</p>
+<p>La comparación se resume en la diferencia relativa con el experimento:</p>
+<div class="equation-card">\[ \varepsilon = \frac{C_{D,\text{cálculo}} - C_{D,\text{túnel}}}{C_{D,\text{túnel}}} \tag{1} \]</div>
+<p>Un \(\varepsilon\) pequeño no prueba que el método sea bueno —los errores de la malla y del modelo pueden cancelarse—, y uno grande no dice cuál de los dos falla. Por eso conviene correr más de una malla: si \(\varepsilon\) cambia mucho al refinar, el cálculo no está verificado todavía, y la comparación con el túnel dice poco del modelo.</p>
+<h3>La semejanza: por qué 16 m/s</h3>
+<p>El modelo del túnel medía 1.85 m, a escala 1:2.5, y se midió a 40 m/s. El tutorial usa el auto de tamaño real, \(L\) = 4.613 m, y para que el flujo sea semejante le pone la velocidad que da el mismo número de Reynolds:</p>
+<div class="equation-card">\[ Re = \frac{U L}{\nu} = \frac{16 \times 4.613}{1.5 \times 10^{-5}} = 4.92 \times 10^{6} \tag{2} \]</div>
+<p>el mismo que el del modelo: \(40 \times 1.85 / 1.5\times 10^{-5}\). Con números de Reynolds iguales y la misma forma, los coeficientes son iguales: el \(C_D\) del modelo del túnel es el del auto real a 16 m/s. Lo que no se reproduce igual es el <strong>bloqueo</strong>, la parte de la sección del túnel que tapa el auto: en el túnel virtual de 10 × 8 m es 2.7 %, poco, y en el túnel real se corrige en la medición.</p>
+<h3>Los archivos .orig</h3>
+<p>Un tutorial con varias opciones necesita cambiar sus diccionarios según la opción, sin perder los originales. La solución de OpenFOAM es la extensión <code>.orig</code> (figura 1): cuando un programa busca <code>system/controlDict</code> y no lo encuentra, lee <code>system/controlDict.orig</code>. El <code>Allrun</code> cambia una entrada con <code>foamDictionary -set</code>, que lee el <code>.orig</code> y escribe el archivo sin extensión, con el cambio; el <code>.orig</code> queda intacto, y <code>Allclean</code> borra los archivos sin extensión para volver al principio.</p>
+<figure class="diagram">
+  <img src="imagenes/t35-01_orig.png" alt="El Explorador de Windows con la carpeta system del DrivAer y tres archivos .orig" loading="lazy">
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">La carpeta system del tutorial, recién copiada.</b> Tres archivos tienen la extensión <code>.orig</code> (el Explorador los muestra como <em>ORIG File</em>): <code>controlDict</code>, <code>decomposeParDict</code> y <code>snappyHexMeshDict</code>. Son los que el <code>Allrun</code> modifica según las opciones con que se llame.</figcaption>
+</figure>
+<h3>Las cuatro mallas</h3>
+<p>La malla de fondo del DrivAer, la de <code>blockMeshDict</code>, son cubos de 1 m: 40 × 10 × 8 = 3200 celdas. La opción <code>-mesh</code> del <code>Allrun</code> decide cuántas veces se parte esa malla en ocho con <code>refineMesh</code> antes de <code>snappyHexMesh</code> (tabla 2). Como los niveles de <code>snappyHexMeshDict</code> son relativos a la malla de fondo, cada refinamiento parte también a la mitad las celdas junto al auto, y multiplica el total por unas siete u ocho.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Opción</th><th>Celdas</th><th>Refinamientos de la malla de fondo</th><th>Celda en la carrocería</th></tr></thead>
+    <tbody>
+      <tr><td><code>-mesh S</code></td><td>440 mil</td><td>0</td><td>3.1 cm (nivel 5 sobre cubos de 1 m)</td></tr>
+      <tr><td><code>-mesh M</code> (por omisión)</td><td>3 millones</td><td>1</td><td>1.6 cm</td></tr>
+      <tr><td><code>-mesh L</code></td><td>22.5 millones</td><td>2</td><td>0.8 cm</td></tr>
+      <tr><td><code>-mesh XL</code></td><td>unos 200 millones</td><td>3</td><td>0.4 cm</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Las cuatro mallas del Allrun.</b> Las cifras de celdas son las que da el propio <code>Allrun</code> (<code>./Allrun -help</code>). Cada nivel parte la malla de fondo en ocho con <code>refineMesh</code> antes de <code>snappyHexMesh</code>: las celdas del auto se hacen la mitad. La S tarda 12 min en la laptop de 8 núcleos.</caption>
+  </table>
+</div>
+<p>La S es la única que cabe en una sesión de clase. La M, la que el tutorial usa si no se le dice otra cosa, tardaría del orden de una hora y media en una computadora como la de esta guía (una estimación); la L y la XL son para un clúster.</p>
+
+    </section>
+    <section id="recipe-es">
+      <p class="section-label">Paso a paso</p>
+      <h2>El tutorial tal como viene</h2>
+
+<p>En la terminal de blueCFD-Core:</p>
+<ol>
+  <li><strong>Copiar el tutorial</strong>: <code>cp -r $FOAM_TUTORIALS/incompressibleFluid/drivaerFastback $FOAM_RUN/drivaer</code> y <code>cd $FOAM_RUN/drivaer</code>. El caso tiene <code>0</code>, <code>constant</code>, <code>system</code>, <code>Allrun</code> y <code>Allclean</code>; en <code>system</code>, tres archivos <code>.orig</code>.</li>
+  <li><strong>Leer el caso</strong> en Notepad2: <code>Allrun</code> (figura 2), <code>0/U</code> (16 m/s, y las ruedas que giran a \(U/r\)), <code>system/snappyHexMeshDict.orig</code> y <code>system/forceCoeffsIncompressible</code> (el área de referencia, 2.154 m²).</li>
+  <li><strong>Correr</strong>: <code>./Allrun -cores 8 -mesh S</code>. El guion escribe una línea por paso —<code>blockMesh</code>, <code>decomposePar</code>, <code>snappyHexMesh</code>, <code>checkMesh</code> y <code>foamRun</code>— y su salida va a un <code>log</code> con el nombre del programa (figura 3). La malla tarda 1 min y las 1000 iteraciones, 11.</li>
+  <li><strong>Revisar la malla</strong>: abrir <code>log.checkMesh</code> y leer el final.</li>
+  <li><strong>El \(C_D\)</strong>: <code>cp ../jimny/promedios .</code>; abrir <code>promedios</code> y cambiar la línea del archivo (figura 4) por
+<pre class="code"><code>ARCHIVO=postProcessing/forceCoeffsIncompressible/0/forceCoeffs.dat</code></pre>
+  y luego <code>./promedios 300</code>: promedia de la iteración 301 a la 1000.</li>
+  <li><strong>Verlo</strong>: <code>reconstructPar -latestTime | tee log.reconstructPar</code> (el <code>Allrun</code> no reconstruye) y <code>paraFoam</code>; en <em>Mesh Regions</em>, sólo <code>patch/body</code>, <code>patch/frontWheels</code> y <code>patch/rearWheels</code>; <em>Apply</em> y colorear por <code>p</code>. El lector abre ya en la iteración 1000, la única reconstruida.</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t35-02_allrun.png" alt="El archivo Allrun del DrivAer abierto en Notepad2, con las opciones -cores y -mesh" loading="lazy">
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">El principio del Allrun.</b> La ayuda del guion: <code>-cores</code> fija el número de procesos y <code>-mesh</code>, el tamaño de la malla, de S (440 mil celdas) a XL (unos 200 millones). Sin <code>-mesh</code> se usa la M.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t35-03_allrun_fin.png" alt="La terminal de blueCFD-Core con la lista de pasos del Allrun del DrivAer" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">El Allrun, al terminar.</b> Cada línea es un paso del guion; su salida no va a la pantalla sino a un <code>log</code> con el nombre del programa. Cuando vuelve el cursor, el caso está mallado, calculado y con las fuerzas escritas.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t35-04_promedios_editado.png" alt="El guion promedios abierto en Notepad2 con la línea del archivo cambiada" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">El guion promedios, adaptado al DrivAer.</b> La única línea que cambia es la del archivo: en el DrivAer, la función de fuerzas se llama <code>forceCoeffsIncompressible</code> (el nombre de su archivo en <code>system</code>), no <code>forceCoeffs1</code> como en el Jimny.</figcaption>
+</figure>
+<div class="callout">
+  <p><strong>¿Por qué 300?</strong> El caso corre 1000 iteraciones, no 2000 como el Jimny, y el \(C_D\) se asienta antes: después de la 300 sólo oscila alrededor de su promedio. La receta del Jimny, más fina, se corrió 2000 iteraciones y se promedió desde la 1000, como en el 3.3.</p>
+</div>
+
+    </section>
+    <section id="case-es">
+      <p class="section-label">El caso</p>
+      <h2>El DrivAer junto al Jimny</h2>
+
+<p>El DrivAer y el Jimny comparten el túnel virtual (40 × 10 × 8 m, el aire entra por x = −10 m), el suelo que se mueve con el aire, las ruedas que giran, el modelo k-ω SST con funciones de pared y los mismos esquemas numéricos: el caso del Jimny se armó en el 3.1 a partir de este tutorial y del <code>motorBikeSteady</code>. Lo que cambia es la malla: el Jimny se malló más fino (tabla 3).</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th></th><th>DrivAer, malla S</th><th>Jimny</th></tr></thead>
+    <tbody>
+      <tr><td>Carrocería</td><td>nivel (5 5)</td><td>nivel (6 6)</td></tr>
+      <tr><td>Ruedas</td><td>nivel (4 5)</td><td>nivel (5 6)</td></tr>
+      <tr><td>Aristas vivas</td><td>no se refinan (<code>features ()</code>)</td><td>nivel 6 (<code>surfaceFeatures</code>)</td></tr>
+      <tr><td>Cerca de la superficie</td><td>nivel 5 hasta 20 cm</td><td>nivel 6 hasta 5 cm, 5 hasta 25 cm, 4 hasta 80 cm</td></tr>
+      <tr><td>Cajas</td><td>estela y bajos nivel 4; adelante y atrás nivel 3</td><td>estela y bajos cercanos 5; estela y bajos 4; adelante y atrás 3</td></tr>
+      <tr><td>Capas</td><td>2, sólo en la carrocería</td><td>2, en todas las regiones del vehículo</td></tr>
+      <tr><td>Celdas</td><td>440 139</td><td>2 076 004 (la receta del Jimny llevada al DrivAer)</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">Las dos recetas de snappyHexMesh.</b> Lo que pide <code>snappyHexMeshDict.orig</code> del DrivAer (malla S) y <code>snappyHexMeshDict</code> del Jimny (tutorial 3.1). Con la malla de fondo de 1 m, el nivel 5 son celdas de 3.1 cm y el 6, de 1.6 cm.</caption>
+  </table>
+</div>
+<p>Para separar el método de la malla, al preparar esta guía se corrió también el DrivAer con la receta del Jimny: el mismo <code>snappyHexMeshDict</code> del 3.1, con las cajas ajustadas al tamaño del DrivAer y su área de referencia. Son 2 076 004 celdas, casi cinco veces las de la S. Esa corrida es la que dice qué tan lejos queda el método del Jimny; la de la malla S, qué tan lejos queda el tutorial tal como viene.</p>
+<div class="callout">
+  <p><strong>Lo que la malla S no tiene.</strong> No refina las aristas vivas (<code>features ()</code>, una lista vacía) y su nivel en la carrocería es uno menos que el del Jimny: celdas de 3.1 cm en lugar de 1.6 cm. Las capas son dos en los dos casos, pero el DrivAer sólo las pone en la carrocería; el Jimny, también en las llantas.</p>
+</div>
+
+    </section>
+    <section id="check-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>Cálculo contra túnel</h2>
+
+<p class="lead">Enunciado: con la malla S del tutorial y con la receta del Jimny, calcular el \(C_D\) del DrivAer fastback y su diferencia con el túnel de viento.</p>
+<h3>1. La malla</h3>
+<p>Al final de <code>log.checkMesh</code> la malla S no pasa dos revisiones:</p>
+<pre class="code"><code> ***Error in face pyramids: 1 faces are incorrectly oriented.
+ ***Max skewness = 6.5856943, 2 highly skew faces detected which may impair the quality of the results
+
+Failed 2 mesh checks.</code></pre>
+<p>Son 3 caras en una malla de 440 139 celdas: el tutorial las acepta tal como viene, y el solver corre sin problemas. La receta del Jimny falla sólo en una revisión: 78 caras sesgadas, ninguna invertida. Son defectos locales que <code>checkMesh</code> señala para que se sepa que están, no razones para detener el cálculo.</p>
+<h3>2. El \(C_D\)</h3>
+<figure class="diagram">
+  <img src="imagenes/t35-05_promedios.png" alt="La terminal con la salida del guion promedios en el DrivAer" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">El Cd del DrivAer con la malla S.</b> <code>./promedios 300</code>: el promedio y la desviación estándar de las iteraciones 301 a 1000. \(C_D\) = 0.2988 ± 0.0031.</figcaption>
+</figure>
+<p>El guion <code>promedios</code> (figura 5) da \(C_D\) = 0.2988 ± 0.0031 con la malla S. Con la receta del Jimny, 0.2764 ± 0.0047. La tabla 4 y la figura 6 los ponen junto al túnel de viento.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Cálculo</th><th>Celdas</th><th>Iteraciones</th><th>\(C_D\)</th><th>Diferencia con el túnel</th></tr></thead>
+    <tbody>
+      <tr><td>Tutorial, malla S</td><td>440 139</td><td>301–1000</td><td>0.299 ± 0.003</td><td>+21 a +23 %</td></tr>
+      <tr><td>Receta del Jimny</td><td>2 076 004</td><td>1001–2000</td><td>0.276 ± 0.005</td><td>+12 a +14 %</td></tr>
+      <tr><td>Túnel de viento</td><td>—</td><td>—</td><td>0.243 a 0.247</td><td>—</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">El Cd del DrivAer: cálculo contra túnel.</b> Promedio y desviación estándar de las iteraciones indicadas. La diferencia es contra 0.243 y 0.247, los dos valores medidos para esta configuración que dan las fuentes consultadas.</caption>
+  </table>
+</div>
+<figure class="diagram">
+<svg viewBox="0 0 720 316" role="img" aria-label="El coeficiente de arrastre del DrivAer calculado con la malla S y con la receta del Jimny, contra la banda medida en el túnel de viento.">
+  <text class="svg-title" x="20" y="28">El arrastre del DrivAer: dos mallas contra el túnel de viento</text>
+  <rect x="368.2" y="60" width="12.9" height="186" fill="#9dbde2" opacity="0.55"/>
+  <line class="svg-grid" x1="230.0" y1="60" x2="230.0" y2="246"/>
+  <text class="svg-tick" x="230.0" y="264" text-anchor="middle">0.20</text>
+  <line class="svg-grid" x1="294.3" y1="60" x2="294.3" y2="246"/>
+  <text class="svg-tick" x="294.3" y="264" text-anchor="middle">0.22</text>
+  <line class="svg-grid" x1="358.6" y1="60" x2="358.6" y2="246"/>
+  <text class="svg-tick" x="358.6" y="264" text-anchor="middle">0.24</text>
+  <line class="svg-grid" x1="422.9" y1="60" x2="422.9" y2="246"/>
+  <text class="svg-tick" x="422.9" y="264" text-anchor="middle">0.26</text>
+  <line class="svg-grid" x1="487.1" y1="60" x2="487.1" y2="246"/>
+  <text class="svg-tick" x="487.1" y="264" text-anchor="middle">0.28</text>
+  <line class="svg-grid" x1="551.4" y1="60" x2="551.4" y2="246"/>
+  <text class="svg-tick" x="551.4" y="264" text-anchor="middle">0.30</text>
+  <line class="svg-grid" x1="615.7" y1="60" x2="615.7" y2="246"/>
+  <text class="svg-tick" x="615.7" y="264" text-anchor="middle">0.32</text>
+  <line class="svg-grid" x1="680.0" y1="60" x2="680.0" y2="246"/>
+  <text class="svg-tick" x="680.0" y="264" text-anchor="middle">0.34</text>
+  <line class="svg-axis" x1="230" y1="246" x2="680" y2="246"/>
+  <text class="svg-note-sm" x="455.0" y="286" text-anchor="middle">coeficiente de arrastre</text>
+  <text class="svg-tick" x="218" y="86" text-anchor="end" font-weight="600">Túnel de viento</text>
+  <text class="svg-note-sm" x="218" y="103" text-anchor="end">Heft et al. (2012)</text>
+  <text class="svg-note-sm" x="389.1" y="90" text-anchor="start">0.243 a 0.247</text>
+  <text class="svg-tick" x="218" y="148" text-anchor="end" font-weight="600">Receta del Jimny</text>
+  <text class="svg-note-sm" x="218" y="165" text-anchor="end">2 076 004 celdas</text>
+  <line x1="460.7" y1="148" x2="490.7" y2="148" stroke="var(--blue)" stroke-width="2"/>
+  <line x1="460.7" y1="142" x2="460.7" y2="154" stroke="var(--blue)" stroke-width="2"/>
+  <line x1="490.7" y1="142" x2="490.7" y2="154" stroke="var(--blue)" stroke-width="2"/>
+  <circle cx="475.7" cy="148" r="6" fill="var(--blue)"/>
+  <text class="svg-note-sm" x="500.7" y="152" text-anchor="start">0.276 (+12 a +14 %)</text>
+  <text class="svg-tick" x="218" y="210" text-anchor="end" font-weight="600">Tutorial, malla S</text>
+  <text class="svg-note-sm" x="218" y="227" text-anchor="end">440 139 celdas</text>
+  <line x1="537.7" y1="210" x2="557.5" y2="210" stroke="var(--accent)" stroke-width="2"/>
+  <line x1="537.7" y1="204" x2="537.7" y2="216" stroke="var(--accent)" stroke-width="2"/>
+  <line x1="557.5" y1="204" x2="557.5" y2="216" stroke="var(--accent)" stroke-width="2"/>
+  <circle cx="547.6" cy="210" r="6" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="567.5" y="214" text-anchor="start">0.299 (+21 a +23 %)</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">Cálculo contra túnel.</b> El punto es el promedio del \(C_D\) de las últimas iteraciones y la barra, una desviación estándar a cada lado; la franja es lo medido en el túnel de viento para esta configuración. Las dos mallas sobrestiman el arrastre; la más fina, la de la receta del Jimny, queda más cerca.</figcaption>
+</figure>
+<p>Con la ecuación (1), contra 0.243:</p>
+<div class="equation-card">\[ \varepsilon_S = \frac{0.299 - 0.243}{0.243} = +23\,\%,\qquad \varepsilon_{\text{Jimny}} = \frac{0.276 - 0.243}{0.243} = +14\,\% \]</div>
+<p>Tres cosas se leen de ahí:</p>
+<ul>
+  <li><strong>El método sobrestima el arrastre.</strong> Las dos mallas quedan arriba del túnel; ninguna lo cruza. Es lo que se reporta con frecuencia para RANS con funciones de pared en autos, donde el desprendimiento en la cola es lo más difícil de predecir. Con dos mallas no se puede separar qué parte del error es del modelo y qué parte de la malla.</li>
+  <li><strong>La malla todavía importa.</strong> De la S a la receta del Jimny, con casi cinco veces más celdas, el \(C_D\) baja 7 %. El cálculo no está verificado: con una malla más fina el número seguiría cambiando, y por eso la práctica sugerida corre la M.</li>
+  <li><strong>El error es del orden de un décimo.</strong> Con la receta del Jimny el DrivAer queda 12 a 14 % arriba del túnel. Si al Jimny le pasa lo mismo, su 0.564 sería más bien alrededor de 0.50; pero no hay forma de saberlo sin medirlo, y su forma es muy distinta: un error que se mide en un auto no se le puede restar a otro.</li>
+</ul>
+<div class="callout">
+  <p><strong>Nota de alcance.</strong> Los dos valores del túnel, 0.243 y 0.247, son los que citan para esta configuración los trabajos que usan el DrivAer como referencia; no se leyeron en las publicaciones originales de la TU Múnich, y de ellos salen también la escala del modelo (1:2.5) y la velocidad de la medición (40 m/s). Varían con la versión del modelo y con el túnel, y unas milésimas de diferencia en el valor medido cambian el error en uno o dos puntos.</p>
+</div>
+<h3>3. El DrivAer en ParaView</h3>
+<figure class="diagram">
+  <img src="imagenes/t35-06_drivaer_p.png" alt="ParaView con el DrivAer coloreado por la presión, visto de tres cuartos por delante" loading="lazy">
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">La presión sobre el DrivAer.</b> La carrocería y las ruedas coloreadas por p con el rango de −128 a 128 m²/s², que es \(C_p\) de −1 a 1 (½U∞² = 128 m²/s² con 16 m/s). El remanso en la nariz y la presión positiva en el parabrisas; la succión donde el aire dobla un borde: el principio del cofre, el principio del techo y los pasos de rueda.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t35-07_drivaer_p_detras.png" alt="ParaView con el DrivAer coloreado por la presión, visto de tres cuartos por detrás" loading="lazy">
+  <figcaption><b class="fig-num">Figura 8.</b> <b class="fig-title">El DrivAer por detrás.</b> Sobre la tapa de la cajuela la presión se recupera (naranja) y la base, la cara de atrás, queda en una succión débil. La base es la parte de la carrocería a la que la presión baja tira hacia atrás; en el DrivAer, con su cola en caída suave (<em>fastback</em>), es mucho más pequeña que la cola recta del Jimny.</figcaption>
+</figure>
+<p>Coloreado por p, con el rango que corresponde a \(C_p\) de −1 a 1 (figuras 7 y 8), el DrivAer enseña lo mismo que el Jimny en el 3.4 —remanso en la nariz, succión donde el aire dobla un borde—, pero con bordes redondeados la succión es más suave y el remanso, más pequeño. Su \(C_D\) es menos de la mitad del del Jimny, con un área frontal parecida.</p>
+<div class="result-box">
+  <p><strong>Resultado:</strong> el método del Jimny, aplicado a un auto que sí se midió, sobrestima el \(C_D\) en 12 a 14 %; con la malla S del tutorial, en 21 a 23 %. La diferencia entre las dos mallas dice que el cálculo todavía depende de la malla; cuánto, y qué tan confiable es entonces un \(C_D\) de RANS, es el tema del tutorial 3.6.</p>
+</div>
+
+    </section>
+    <section id="errors-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Qué sale mal con el Allrun de un tutorial</h2>
+
+<p>Los tres salieron al preparar esta guía.</p>
+<h3>1. La malla en minúscula</h3>
+<p><code>./Allrun -cores 8 -mesh s</code> no corre nada: el guion sólo acepta S, M, L y XL en mayúscula, y responde con su ayuda,</p>
+<pre class="code"><code>Invalid argument &#x27;s&#x27; to -m|-mesh &lt;S|M|L|XL&gt;.</code></pre>
+<p><strong>Remedio:</strong> la letra en mayúscula. La ayuda completa, con el número de celdas de cada malla, se pide con <code>./Allrun -help</code>.</p>
+<h3>2. Volver a correr el Allrun</h3>
+<p>Correr <code>./Allrun</code> otra vez en un caso terminado —por ejemplo, con <code>-mesh M</code> para la práctica— no hace nada: cada paso encuentra su <code>log</code> y se salta,</p>
+<pre class="code"><code>blockMesh already run on …/drivaer: remove log file &#x27;log.blockMesh&#x27; to re-run
+decomposePar already run on …/drivaer: remove log file &#x27;log.decomposePar&#x27; to re-run
+snappyHexMesh already run on …/drivaer: remove log file &#x27;log.snappyHexMesh&#x27; to re-run
+checkMesh already run on …/drivaer: remove log file &#x27;log.checkMesh&#x27; to re-run
+foamRun already run on …/drivaer: remove log file &#x27;log.foamRun&#x27; to re-run</code></pre>
+<p>Y si se borran los <code>log</code> a mano, quedan las carpetas <code>processor*</code> de la corrida anterior. <strong>Remedio:</strong> <code>./Allclean</code> antes del <code>Allrun</code>, o mejor, otra copia del tutorial en otra carpeta, para conservar la corrida S.</p>
+<h3>3. ParaView sin reconstruir</h3>
+<p>El <code>Allrun</code> no reconstruye: la línea de <code>reconstructPar</code> viene comentada. Si se abre ParaView directamente, con el lector en <em>Reconstructed Case</em> (la opción por omisión), sólo hay la malla de fondo —3 200 cubos de 1 m, sin auto— y un solo tiempo, el 0. <strong>Remedio:</strong> <code>reconstructPar -latestTime</code> antes de <code>paraFoam</code>, o en el lector cambiar <em>Case Type</em> a <em>Decomposed Case</em>, que lee las carpetas <code>processor*</code>.</p>
+
+    </section>
+    <section id="practice-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>La malla M</h2>
+
+<p class="lead">La malla M: ¿se acerca el \(C_D\) al túnel?</p>
+<div class="example">
+  <p><strong>Enunciado.</strong> Correr el DrivAer con la malla M, la que el tutorial usa por omisión, y llenar la tabla 5.</p>
+  <p><strong>Condiciones.</strong> En otra carpeta, para no perder la S: <code>cp -r $FOAM_TUTORIALS/incompressibleFluid/drivaerFastback $FOAM_RUN/drivaerM</code>. Unos 3 millones de celdas, siete veces la S: con 8 núcleos, del orden de una hora y media (una estimación a partir del tiempo de la S, no una corrida).</p>
+</div>
+<h3>El procedimiento, en corto</h3>
+<ol>
+  <li><code>./Allrun -cores 8</code> (sin <code>-mesh</code>: la M). En la terminal aparecen, después de <code>decomposePar</code>, las líneas de un paso que con la S no estaba: <code>Refining the background mesh</code> y <code>refineMesh</code>.</li>
+  <li>Copiar el guion <code>promedios</code> ya adaptado, <code>cp ../drivaer/promedios .</code>, y correr <code>./promedios 300</code>.</li>
+  <li>Calcular la diferencia con el túnel con la ecuación (1).</li>
+</ol>
+<h3>Registro de resultados</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Malla</th><th>Celdas</th><th>Tiempo total</th><th>\(C_D\)</th><th>Diferencia con 0.243</th></tr></thead>
+    <tbody>
+      <tr><td>S</td><td>440 139</td><td>12 min</td><td>0.299</td><td>+23 %</td></tr>
+      <tr><td>M</td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 5.</b> <b class="fig-title">Registro de la práctica.</b> El renglón de la malla S es el de esta guía; el de la M se llena con la corrida propia (unos 3 millones de celdas: en una computadora de 16 GB y 8 núcleos, del orden de una hora y media, una estimación).</caption>
+  </table>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>¿Baja el \(C_D\) de la S a la M lo mismo que de la S a la receta del Jimny? ¿Qué receta pone las celdas en mejores lugares?</li>
+  <li>Si el \(C_D\) siguiera bajando con cada malla, ¿podría acabar por debajo del túnel? ¿Qué diría eso del modelo de turbulencia?</li>
+  <li>¿Por qué el error del DrivAer no se puede usar para corregir el \(C_D\) del Jimny?</li>
+</ol>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ul class="references">
+  <li>Heft, A. I., Indinger, T. y Adams, N. A. (2012). <em>Introduction of a new realistic generic car model for aerodynamic investigations</em> (SAE Technical Paper 2012-01-0168). SAE International.</li>
+  <li>Heft, A. I., Indinger, T. y Adams, N. A. (2012). Experimental and numerical investigation of the DrivAer model. En <em>Proceedings of the ASME 2012 Fluids Engineering Division Summer Meeting</em> (FEDSM2012-72272). ASME.</li>
+  <li>Hucho, W.-H. (Ed.). (1998). <em>Aerodynamics of road vehicles</em> (4.ª ed.). SAE International.</li>
+  <li>OpenFOAM Foundation. (2024). <em>OpenFOAM 12</em>, tutorial <code>incompressibleFluid/drivaerFastback</code>. https://openfoam.org</li>
+  <li>Roache, P. J. (1998). <em>Verification and validation in computational science and engineering</em>. Hermosa Publishers.</li>
+</ul>
+<p class="source-note">Las imágenes son del vídeo de esta guía; las cifras, de los registros de la corrida del tutorial con la malla S (blueCFD-Core 2024, OpenFOAM 12, 8 procesos) y de la corrida del DrivAer con la receta del Jimny, hechas en la misma computadora el 13 de octubre de 2026.</p>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="jimny-paraview.html?v=13"><span>Tutorial anterior</span>← 3.4 · El Jimny en ParaView</a>
+      <a class="next-link" href="cd-incertidumbre.html?v=13"><span>Tutorial siguiente</span>3.6 · ¿Cuánto vale un Cd de RANS? →</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Ein offizielles OpenFOAM-Tutorial unverändert rechnen, sein Allrun und seine .orig-Dateien lesen und damit die Methode des Jimny validieren: einen Widerstandsbeiwert mit einer Messung vergleichen und den Unterschied erklären.</p>
+    </section>
+    <section id="problem-de">
+      <p class="section-label">Das Problem</p>
+      <h2>Ein Auto, das gemessen wurde</h2>
+<p>Der DrivAer Fastback (TU München) wurde im Windkanal vermessen: Cd = 0,243 bis 0,247 für die Konfiguration des Tutorials. Wie nah kommt die Methode des Jimny?</p>
+    </section>
+    <section id="theory-de">
+      <p class="section-label">Die Theorie</p>
+      <h2>Validierung, Ähnlichkeit und die Netze des Tutorials</h2>
+<p>Verifikation und Validierung; Reynolds-Ähnlichkeit und Versperrung; die vier Netze des Allrun (S, M, L, XL) und wie refineMesh sie erzeugt; warum OpenFOAM controlDict.orig liest, wenn controlDict fehlt.</p>
+    </section>
+    <section id="recipe-de">
+      <p class="section-label">Schritt für Schritt</p>
+      <h2>Das Tutorial, wie es geliefert wird</h2>
+<p>Das Tutorial mit cp kopieren; ./Allrun -cores 8 -mesh S (12 min); log.checkMesh lesen; das Skript promedios des Jimny holen und den Dateinamen von Hand ändern; reconstructPar -latestTime und ParaView.</p>
+    </section>
+    <section id="case-de">
+      <p class="section-label">Der Fall</p>
+      <h2>Der DrivAer neben dem Jimny</h2>
+<p>DrivAer und Jimny nebeneinander: derselbe Kanal, Boden, dieselben Räder, dasselbe Turbulenzmodell und numerische Verfahren; die snappyHexMesh-Rezepte Zeile für Zeile verglichen.</p>
+    </section>
+    <section id="check-de">
+      <p class="section-label">Durchgerechnetes Beispiel</p>
+      <h2>Rechnung gegen Windkanal</h2>
+<p>Das Netz S (440 139 Zellen) ergibt Cd = 0,299, 21 bis 23 % über dem Windkanal; das Rezept des Jimny am selben Auto (2 076 004 Zellen) ergibt 0,276, 12 bis 14 % darüber. Die Methode überschätzt den Widerstand, weniger mit dem feineren Netz.</p>
+    </section>
+    <section id="errors-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Was mit dem Allrun eines Tutorials schiefgeht</h2>
+<p>Eine Netzoption in Kleinbuchstaben; das Allrun erneut auf einem fertigen Fall starten (es überspringt jeden Schritt); den Fall ohne reconstructPar in ParaView öffnen (nur das Hintergrundnetz, zur Zeit 0).</p>
+    </section>
+    <section id="practice-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Das Netz M</h2>
+<p>Das Netz M rechnen und prüfen, ob der Widerstandsbeiwert näher an den Windkanal kommt.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>Heft, Indinger und Adams (2012) zum DrivAer; das Tutorial drivaerFastback von OpenFOAM 12; Hucho; Roache zu Verifikation und Validierung.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="jimny-paraview.html?v=13"><span>Vorheriges Tutorial</span>← 3.4 · Der Jimny in ParaView</a>
+      <a class="next-link" href="cd-incertidumbre.html?v=13"><span>Nächstes Tutorial</span>3.6 · Was ist ein RANS-Widerstandsbeiwert wert? →</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>

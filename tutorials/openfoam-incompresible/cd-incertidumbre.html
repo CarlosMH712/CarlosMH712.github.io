@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="OpenFOAM tutorial: sixteen steady RANS runs of the Jimny and the DrivAer, changing one thing at a time (mesh, wall treatment, symmetry plane, numerical schemes, tunnel boundaries, OpenFOAM version), and the uncertainty of an averaged drag coefficient measured with batch means." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>How Much Is a RANS Drag Coefficient Worth? | OpenFOAM Incompressible-Flow Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">OpenFOAM · Incompressible flow · Tutorial 3.6</p><h1>How much is a RANS drag coefficient worth?</h1><p class="hero-copy">The Jimny gave Cd = 0.564 ± 0.003. That ± only says how much the number oscillates. Sixteen runs of the Jimny and the DrivAer, each changing one thing, say how much it really moves, and where.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">OpenFOAM · Flujo incompresible · Tutorial 3.6</p><h1>¿Cuánto vale un Cd de RANS?</h1><p class="hero-copy">El Jimny dio \(C_D\) = 0.564 ± 0.003. Ese ± sólo dice cuánto oscila el número en las últimas mil iteraciones. Dieciséis corridas del Jimny y del DrivAer, cada una con un solo cambio, dicen cuánto se mueve de verdad, y por qué.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">OpenFOAM · Inkompressible Strömung · Tutorial 3.6</p><h1>Was ist ein RANS-Widerstandsbeiwert wert?</h1><p class="hero-copy">Der Jimny ergab Cd = 0,564 ± 0,003. Dieses ± sagt nur, wie stark die Zahl schwankt. Sechzehn Rechnungen des Jimny und des DrivAer, jede mit einer einzigen Änderung, zeigen, wie weit sie sich wirklich bewegt.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 45 min</span><span data-language="es" hidden>Lectura estimada: 45 min</span><span data-language="de" hidden>Lesedauer: ca. 45 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on OpenFOAM 12 (blueCFD-Core 2024) and OpenFOAM 13</span><span data-language="es" hidden>Verificado en OpenFOAM 12 (blueCFD-Core 2024) y OpenFOAM 13</span><span data-language="de" hidden>Geprüft mit OpenFOAM 12 (blueCFD-Core 2024) und OpenFOAM 13</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="drivaer-validacion.html?v=13">← <span>3.5</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#problem">The problem</a><a href="#theory">Theory</a><a href="#recipe">Recipe</a><a href="#case">The runs</a><a href="#check">Check</a><a href="#errors">Common errors</a><a href="#practice">Suggested exercise</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#problem-es">El problema</a><a href="#theory-es">Teoría</a><a href="#recipe-es">Receta</a><a href="#case-es">Las corridas</a><a href="#check-es">Revisión</a><a href="#errors-es">Errores frecuentes</a><a href="#practice-es">Práctica sugerida</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#problem-de">Das Problem</a><a href="#theory-de">Theorie</a><a href="#recipe-de">Ablauf</a><a href="#case-de">Die Rechnungen</a><a href="#check-de">Prüfung</a><a href="#errors-de">Häufige Fehler</a><a href="#practice-de">Übungsvorschlag</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Tell apart the sources of uncertainty of a computed drag coefficient; measure the uncertainty of an average with batch means; read a mesh study and a pressure/friction breakdown; report a Cd with an honest uncertainty.</p>
+    </section>
+    <section id="problem">
+      <p class="section-label">The problem</p>
+      <h2>One car, many numbers</h2>
+<p>Preparing tutorials 3.1 to 3.5 took sixteen runs. With the same physics, the Jimny gave Cd from 0.537 to 0.594 and the DrivAer from 0.263 to 0.302. Which one is the drag coefficient, and how sure can one be?</p>
+    </section>
+    <section id="theory">
+      <p class="section-label">The theory</p>
+      <h2>Where the uncertainty of a computed Cd comes from</h2>
+<p>Numerical errors (averaging, discretization) and modelling errors (turbulence model, wall treatment, symmetry, domain); the standard error of the mean of a correlated signal, σ√(τ/N), and the batch-means estimate.</p>
+    </section>
+    <section id="recipe">
+      <p class="section-label">Step by step</p>
+      <h2>The average and its uncertainty: the tramos script</h2>
+<p>The tramos script splits the Cd history into equal blocks: ./tramos 1000 250 gives four block means between 0.5629 and 0.5644 and a standard error of 0.0003.</p>
+    </section>
+    <section id="case">
+      <p class="section-label">The runs</p>
+      <h2>Sixteen runs, one change at a time</h2>
+<p>All sixteen runs in one table; the symmetry plane (half vehicle: 0.555 ± 0.033, oscillating; full: 0.537 ± 0.002); Cd against mesh; where along the car the runs differ.</p>
+    </section>
+    <section id="check">
+      <p class="section-label">Worked example</p>
+      <h2>The uncertainty budget of the Jimny</h2>
+<p>Averaging and OpenFOAM version move Cd by less than 1 %; mesh near the wall, symmetry, schemes and tunnel boundaries by 3 to 9 %; the DrivAer lands 12 to 14 % above the tunnel. A steady RANS Cd is worth about ±10 %.</p>
+    </section>
+    <section id="errors">
+      <p class="section-label">Common errors</p>
+      <h2>How an uncertainty is underestimated</h2>
+<p>Blocks shorter than the slow oscillation; comparing two runs by their averages only; reading the ± of the average as the uncertainty of the result.</p>
+    </section>
+    <section id="practice">
+      <p class="section-label">Suggested exercise</p>
+      <h2>The Jimny with the numerics of motorBikeSteady</h2>
+<p>Run the Jimny with the fvSchemes and fvSolution of motorBikeSteady and measure, with tramos, how much the numerical method moves the drag coefficient.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>Roache on verification and validation; Yazdani (2015) on steady and unsteady computations of the DrivAer; Heft, Indinger and Adams (2012); batch means for the error of an average.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="drivaer-validacion.html?v=13"><span>Previous tutorial</span>← 3.5 · The DrivAer against the wind tunnel</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Incompressible flow</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">El tutorial <a href="jimny-resultados.html">3.3</a> dio el coeficiente de arrastre del Jimny, \(C_D\) = 0.564 ± 0.003, y el <a href="drivaer-validacion.html">3.5</a> mostró que el mismo método pone al DrivAer 12 a 14 % por encima del túnel de viento. Esta guía junta todo lo que se corrió para preparar el bloque —dieciséis cálculos— y responde una pregunta que casi ningún tutorial hace: ¿cuánto vale ese número?</p>
+<ul>
+  <li>Distinguir las fuentes de incertidumbre de un \(C_D\) calculado: el promedio, la malla, el método numérico, las fronteras, el plano de simetría, el tratamiento de la pared, la versión del programa y el modelo de turbulencia.</li>
+  <li>Medir la incertidumbre de un promedio con el guion <code>tramos</code>, y saber cuándo la subestima.</li>
+  <li>Leer un estudio de malla y el desglose del arrastre a lo largo de un vehículo.</li>
+  <li>Reportar un \(C_D\) con una incertidumbre honesta.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> El caso del Jimny ya calculado en <code>$FOAM_RUN/jimny</code> (tutoriales <a href="jimny-caso.html">3.1</a> y <a href="jimny-paralelo.html">3.2</a>) y, si se quiere, el DrivAer del 3.5 en <code>$FOAM_RUN/drivaer</code>. La receta no calcula nada nuevo: lee las historias de fuerzas que ya están escritas. Las dieciséis corridas se hicieron al preparar el bloque; aquí se leen sus resultados.</p>
+</div>
+
+    </section>
+    <section id="problem-es">
+      <p class="section-label">El problema</p>
+      <h2>Un vehículo, muchos números</h2>
+
+<p>Para preparar los tutoriales 3.1 a 3.5 se corrió el Jimny nueve veces y el DrivAer siete, en dos computadoras y con dos versiones de OpenFOAM (tabla 1, en la sección <a href="#case-es">Las corridas</a>). Todas con la misma física: aire a velocidad constante, k-ω SST estacionario con funciones de pared, suelo que se mueve y ruedas que giran. Cada corrida cambió una sola cosa respecto de otra: la malla, el tratamiento de la pared, medio vehículo o vehículo completo, los esquemas numéricos, las fronteras del túnel, la versión.</p>
+<p>Con esos cambios, el Jimny dio \(C_D\) de 0.537 a 0.594 con mallas de un millón de celdas o más, y el DrivAer de 0.263 a 0.302. Ninguno de esos números está mal calculado: cada uno es el resultado correcto de sus decisiones. La pregunta de esta guía es <strong>cuánto se mueve el \(C_D\) con cada decisión, y qué incertidumbre hay que ponerle entonces al del Jimny</strong>.</p>
+
+    </section>
+    <section id="theory-es">
+      <p class="section-label">La teoría</p>
+      <h2>De dónde sale la incertidumbre de un Cd calculado</h2>
+
+<h3>Dos clases de error</h3>
+<p>Como en el <a href="drivaer-validacion.html#theory-es">3.5</a>, conviene separar lo que es de las ecuaciones de lo que es de cómo se resolvieron <a href="#references-es">(Roache, 1998)</a>:</p>
+<ul>
+  <li><strong>Errores numéricos</strong>: el cálculo no resolvió exactamente las ecuaciones que se le dieron. Aquí entran el promedio de una solución que oscila, la malla (discretización) y, en parte, los esquemas: un esquema de primer orden resuelve con más difusión numérica las mismas ecuaciones. Se reducen con más iteraciones, más celdas o mejores esquemas, y se miden con el propio cálculo.</li>
+  <li><strong>Errores de modelo</strong>: las ecuaciones no representan exactamente el problema. Aquí entran el modelo de turbulencia, las funciones de pared, el plano de simetría (que obliga al flujo a ser simétrico), el tamaño del túnel virtual y sus condiciones de frontera. No se reducen refinando: sólo se ven al cambiar el modelo, o contra un experimento.</li>
+</ul>
+<p>Un \(C_D\) calculado carga con las dos. La desviación estándar que da el guion <code>promedios</code> del <a href="jimny-resultados.html">3.3</a> no mide ninguna de las dos: sólo dice cuánto oscila el número entre iteraciones.</p>
+<h3>El error de un promedio</h3>
+<p>Si las \(N\) iteraciones que se promedian fueran independientes, el error estándar del promedio sería la desviación estándar entre la raíz de \(N\):</p>
+<div class="equation-card">\[ \sigma_{\bar C} = \frac{\sigma}{\sqrt{N}} \tag{1} \]</div>
+<p>Pero no lo son: el \(C_D\) de una iteración se parece mucho al de la anterior. El número de iteraciones que hace falta para que deje de parecerse es el <strong>tiempo integral de correlación</strong>, \(\tau = 1 + 2\sum_k \rho_k\), donde \(\rho_k\) es la correlación entre iteraciones separadas \(k\) pasos. En \(N\) iteraciones sólo hay \(N/\tau\) valores independientes, y</p>
+<div class="equation-card">\[ \sigma_{\bar C} \approx \sigma\,\sqrt{\frac{\tau}{N}} \tag{2} \]</div>
+<p>Con el Jimny de los tutoriales, \(\sigma\) = 0.0030, \(\tau\) ≈ 49 iteraciones y \(N\) = 1000: \(\sigma_{\bar C}\) ≈ 0.0030 × \(\sqrt{49/1000}\) = 0.0007. El promedio está determinado a la cuarta cifra.</p>
+<p>Calcular \(\tau\) exige la correlación de la serie. Hay un camino más sencillo, el de los <strong>promedios por tramos</strong> (<em>batch means</em>): partir las \(N\) iteraciones en \(m\) tramos iguales, promediar cada uno y tomar la desviación estándar \(s_m\) de esos \(m\) promedios:</p>
+<div class="equation-card">\[ \sigma_{\bar C} \approx \frac{s_m}{\sqrt{m}} \tag{3} \]</div>
+<p>Si cada tramo es mucho más largo que \(\tau\), sus promedios son casi independientes y la ecuación (3) vale lo mismo que la (2). Si los tramos son cortos, no: se parecen entre sí y la ecuación (3) da un error demasiado chico. Eso es lo que hace el guion <code>tramos</code>, y es la razón de su segundo número.</p>
+<h3>El estudio de malla</h3>
+<p>Para el error de discretización se corre la misma receta con mallas cada vez más finas. Si el \(C_D\) deja de cambiar, la malla está resuelta para esa receta; la diferencia entre las dos mallas más finas da el orden de lo que queda. Hay métodos formales para extrapolar a una malla infinitamente fina (la extrapolación de Richardson y el índice de convergencia de malla de Roache), pero exigen mallas que se refinan por un mismo factor en todas partes; las de <code>snappyHexMesh</code> no lo cumplen, porque cada nivel refina sólo cerca del vehículo. Aquí se usa la diferencia directa.</p>
+
+    </section>
+    <section id="recipe-es">
+      <p class="section-label">Paso a paso</p>
+      <h2>El promedio y su incertidumbre: el guion tramos</h2>
+
+<p>El guion <code>tramos</code> viene en <code>jimny.zip</code> junto a <code>promedios</code> y <code>fuerzas</code>. Si el caso se descargó antes de esta guía, basta con copiar ese archivo del <code>.zip</code> a la carpeta del caso. En la terminal de blueCFD-Core:</p>
+<ol>
+  <li><strong>Leer el guion</strong>: <code>cd $FOAM_RUN/jimny</code> y abrir <code>tramos</code> en Notepad2. Como <code>promedios</code>, es una sola orden de <code>awk</code> con comentarios; recibe dos números, la iteración desde la que se promedia y el largo de cada tramo, y lee el mismo <code>forceCoeffs.dat</code> (figura 1).</li>
+  <li><strong>Correrlo con los valores por omisión</strong>, desde la 1001 en tramos de 250: <code>./tramos</code> (figura 2). Los cuatro tramos quedan dentro de una franja de 15 diezmilésimas; el error estándar, 0.0003, es del orden del de la ecuación (2), 0.0007.</li>
+  <li><strong>Con tramos más cortos</strong>: <code>./tramos 1000 100</code> da diez tramos, entre 0.5610 y 0.5662, y un error estándar de 0.0006. En el Jimny completo, cuyo \(\tau\) es de unas 49 iteraciones, tramos de 100 todavía son bastante largos.</li>
+  <li><strong>Con el arranque dentro</strong>: <code>./tramos 0 250</code> (figura 3). El primer tramo se sale de los demás y el error estándar se multiplica por más de cien: es la señal, ya vista en el <a href="jimny-resultados.html#errors-es">3.3</a>, de que la ventana incluye el arranque.</li>
+  <li><strong>En el DrivAer</strong>: <code>cp ../jimny/tramos ../drivaer/</code>, <code>cd ../drivaer</code> y cambiar la línea del archivo como en el 3.5 (<code>ARCHIVO=postProcessing/forceCoeffsIncompressible/0/forceCoeffs.dat</code>, figura 4). Con 700 iteraciones asentadas, cuatro tramos de 175:
+<pre class="code"><code>$ ./tramos 300 175
+Iteraciones 301 a 1000, 4 tramos de 175
+
+tramo   iteraciones      Cd
+   1      301-475       0.2989
+   2      476-650       0.2980
+   3      651-825       0.2988
+   4      826-1000      0.2995
+
+Promedio de los tramos         0.2988
+Del menor al mayor tramo       0.2980 a 0.2995
+Error estándar de la media     0.0003</code></pre>
+  </li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t36-01_tramos.png" alt="El guion tramos abierto en Notepad2, con el Explorador en la carpeta del caso del Jimny" loading="lazy">
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">El guion tramos.</b> Una sola orden de <code>awk</code>, con sus comentarios. <code>DESDE</code> y <code>TRAMO</code> toman los dos números de la línea de órdenes (1000 y 250 si no se dan); <code>ARCHIVO</code> es el mismo <code>forceCoeffs.dat</code> que lee <code>promedios</code>. Cada renglón suma su \(C_D\) al tramo que le toca; al final se promedia cada tramo y se calcula la ecuación (3).</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t36-02_tramos_250.png" alt="La terminal de blueCFD con la salida del guion tramos: cuatro tramos y el error estándar" loading="lazy">
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">./tramos en el Jimny.</b> Cuatro tramos de 250 iteraciones, de la 1001 a la 2000: los cuatro promedios difieren en la cuarta cifra, y el error estándar del promedio es de tres diezmilésimas.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t36-03_tramos_arranque.png" alt="La terminal con la salida de tramos desde la iteración 1: ocho tramos, el primero muy distinto" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">Con el arranque dentro.</b> <code>./tramos 0 250</code>: el primer tramo, el del arranque, da 0.88 y arrastra el promedio a 0.61; el error estándar sube a 0.039, más de cien veces el de la figura 2.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t36-04_tramos_drivaer.png" alt="El guion tramos en Notepad2 con la línea del archivo cambiada, y el Explorador en el caso del DrivAer" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">El guion tramos, en el DrivAer.</b> Como con <code>promedios</code> en el 3.5, la única línea que cambia es la del archivo (renglón 17): la función de fuerzas del DrivAer se llama <code>forceCoeffsIncompressible</code>.</figcaption>
+</figure>
+<div class="callout">
+  <p><strong>Qué dice y qué no dice <code>tramos</code>.</strong> Dice cuánto podría cambiar el promedio si se corrieran más iteraciones del mismo cálculo: el error del promedio, la primera de las fuentes de incertidumbre. No dice nada de la malla, del método ni del modelo. En el Jimny es de tres diezmilésimas; las otras fuentes, como se verá, son cien veces mayores.</p>
+</div>
+
+    </section>
+    <section id="case-es">
+      <p class="section-label">Las corridas</p>
+      <h2>Dieciséis corridas, un cambio a la vez</h2>
+
+<p>La tabla 1 reúne las dieciséis corridas. Todas las del Jimny, salvo la de los tutoriales, usan la geometría con pedestal bajo las llantas (la primera versión del 3.1); quitarlo no cambió el \(C_D\): 0.565 con pedestal y 0.564 sin él, con el mismo método.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th></th><th>Corrida</th><th>OpenFOAM</th><th>Celdas</th><th>Iteraciones</th><th>\(C_D\)</th></tr></thead>
+    <tbody>
+      <tr><td>Jimny</td><td>medio, malla gruesa</td><td>13</td><td>235 677</td><td>501–1000</td><td>0.621 ± 0.075</td></tr>
+      <tr><td></td><td>medio, malla intermedia</td><td>13</td><td>825 413</td><td>1001–2000</td><td>0.538 ± 0.042</td></tr>
+      <tr><td></td><td>medio, malla fina</td><td>13</td><td>1 061 209</td><td>1001–2000</td><td>0.539 ± 0.038</td></tr>
+      <tr><td></td><td>medio, malla fina</td><td>12</td><td>1 061 331</td><td>1001–4000</td><td>0.555 ± 0.033</td></tr>
+      <tr><td></td><td>completo, malla fina</td><td>12</td><td>2 122 063</td><td>1001–4000</td><td>0.537 ± 0.002</td></tr>
+      <tr><td></td><td>desde <code>motorBikeSteady</code>, su método y su túnel</td><td>12</td><td>2 122 339</td><td>1001–2000</td><td>0.594 ± 0.045</td></tr>
+      <tr><td></td><td>+ esquemas del <code>drivaerFastback</code></td><td>12</td><td>2 122 339</td><td>1001–2000</td><td>0.565 ± 0.006</td></tr>
+      <tr><td></td><td>+ túnel y condiciones de <code>freestream</code></td><td>12</td><td>2 122 339</td><td>1001–2000</td><td>0.550 ± 0.021</td></tr>
+      <tr><td></td><td><strong>el de los tutoriales 3.1–3.4</strong></td><td>12</td><td>2 123 371</td><td>1001–2000</td><td><strong>0.564 ± 0.003</strong></td></tr>
+      <tr><td>DrivAer</td><td>tutorial, malla S</td><td>13</td><td>440 080</td><td>301–1000</td><td>0.302 ± 0.003</td></tr>
+      <tr><td></td><td>tutorial, malla S</td><td>12</td><td>440 139</td><td>301–1000</td><td>0.299 ± 0.003</td></tr>
+      <tr><td></td><td>medio, receta intermedia del Jimny</td><td>13</td><td>841 970</td><td>1001–2000</td><td>0.263 ± 0.006</td></tr>
+      <tr><td></td><td>medio, receta fina del Jimny</td><td>13</td><td>1 030 398</td><td>1001–2000</td><td>0.264 ± 0.006</td></tr>
+      <tr><td></td><td>medio, receta fina del Jimny</td><td>12</td><td>1 030 465</td><td>1001–2000</td><td>0.266 ± 0.007</td></tr>
+      <tr><td></td><td>medio, pared resuelta (nivel 7, 5 capas)</td><td>12</td><td>3 336 696</td><td>1001–2000</td><td>0.289 ± 0.005</td></tr>
+      <tr><td></td><td>completo, receta fina del Jimny (tutorial 3.5)</td><td>12</td><td>2 076 004</td><td>1001–2000</td><td>0.276 ± 0.005</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Las dieciséis corridas.</b> Todas con k-ω SST estacionario, funciones de pared, suelo móvil y ruedas que giran. «Medio» es medio vehículo con plano de simetría; las celdas son las de lo que se calculó. El promedio y la desviación estándar son de las iteraciones indicadas. OpenFOAM 13 corrió en la Mac (Multipass); OpenFOAM 12, en la laptop (blueCFD-Core).</caption>
+  </table>
+</div>
+<h3>El plano de simetría</h3>
+<p>Medio vehículo con un plano de simetría en \(y\) = 0 cuesta la mitad de las celdas, y es lo que hacen muchos tutoriales. Con el Jimny, el resultado fue una solución que no se asienta (figura 5): el \(C_D\) oscila entre 0.48 y 0.68 con un periodo de cientos de iteraciones, y los promedios de mil iteraciones van de 0.549 a 0.562. El vehículo completo, con la misma receta, se queda en 0.537 ± 0.002.</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Coeficiente de arrastre del Jimny en cada iteración: con medio vehículo oscila entre 0.48 y 0.68 sin asentarse; completo se queda fijo en 0.537.">
+  <text class="svg-title" x="76" y="28">El Jimny con y sin plano de simetría</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="666" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">0.45</text>
+  <line class="svg-grid" x1="76" y1="258.3" x2="666" y2="258.3"/>
+  <text class="svg-tick" x="70" y="262.3" text-anchor="end">0.50</text>
+  <line class="svg-grid" x1="76" y1="216.7" x2="666" y2="216.7"/>
+  <text class="svg-tick" x="70" y="220.7" text-anchor="end">0.55</text>
+  <line class="svg-grid" x1="76" y1="175.0" x2="666" y2="175.0"/>
+  <text class="svg-tick" x="70" y="179.0" text-anchor="end">0.60</text>
+  <line class="svg-grid" x1="76" y1="133.3" x2="666" y2="133.3"/>
+  <text class="svg-tick" x="70" y="137.3" text-anchor="end">0.65</text>
+  <line class="svg-grid" x1="76" y1="91.7" x2="666" y2="91.7"/>
+  <text class="svg-tick" x="70" y="95.7" text-anchor="end">0.70</text>
+  <line class="svg-grid" x1="76" y1="50.0" x2="666" y2="50.0"/>
+  <text class="svg-tick" x="70" y="54.0" text-anchor="end">0.75</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0</text>
+  <text class="svg-tick" x="149.8" y="318" text-anchor="middle">500</text>
+  <text class="svg-tick" x="223.5" y="318" text-anchor="middle">1000</text>
+  <text class="svg-tick" x="297.2" y="318" text-anchor="middle">1500</text>
+  <text class="svg-tick" x="371.0" y="318" text-anchor="middle">2000</text>
+  <text class="svg-tick" x="444.8" y="318" text-anchor="middle">2500</text>
+  <text class="svg-tick" x="518.5" y="318" text-anchor="middle">3000</text>
+  <text class="svg-tick" x="592.2" y="318" text-anchor="middle">3500</text>
+  <text class="svg-tick" x="666.0" y="318" text-anchor="middle">4000</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">iteración</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">Cd</text>
+  <polyline points="79.5,98.5" fill="none" stroke="var(--accent)" stroke-width="1.0"/>
+  <polyline points="102.0,62.6 102.5,84.1 103.1,103.2 103.7,115.4 104.3,117.3 104.9,108.8 105.5,86.0 106.1,68.8 106.7,54.3" fill="none" stroke="var(--accent)" stroke-width="1.0"/>
+  <polyline points="115.5,50.3 116.1,62.3 116.7,75.1 117.3,86.5 117.9,98.4 118.5,114.3 119.1,132.4 119.7,149.4 120.2,161.5 120.8,167.1 121.4,168.7 122.0,174.1 122.6,181.9 123.2,189.3 123.8,198.3 124.4,209.4 125.0,223.2 125.6,237.0 126.2,247.1 126.7,254.1 127.3,257.8 127.9,258.0 128.5,254.4 129.1,248.9 129.7,244.6 130.3,241.7 130.9,239.1 131.5,234.2 132.1,227.7 132.6,222.4 133.2,221.3 133.8,221.9 134.4,222.0 135.0,222.0 135.6,221.1 136.2,219.8 136.8,215.3 137.4,209.4 137.9,205.9 138.5,206.4 139.1,209.5 139.7,208.0 140.3,202.7 140.9,200.2 141.5,202.0 142.1,207.0 142.7,208.7 143.3,210.0 143.9,212.3 144.4,212.8 145.0,211.3 145.6,211.3 146.2,217.2 146.8,223.7 147.4,226.5 148.0,227.3 148.6,230.0 149.2,233.0 149.8,236.0 150.3,237.4 150.9,241.3 151.5,245.7 152.1,247.9 152.7,245.9 153.3,243.6 153.9,245.8 154.5,247.7 155.1,247.9 155.7,247.6 156.2,248.3 156.8,245.4 157.4,239.7 158.0,234.7 158.6,231.4 159.2,229.5 159.8,227.3 160.4,226.1 161.0,224.1 161.6,220.9 162.1,216.4 162.7,209.3 163.3,203.1 163.9,202.1 164.5,206.1 165.1,210.9 165.7,211.7 166.3,207.5 166.9,199.9 167.4,191.1 168.0,183.7 168.6,182.4 169.2,188.3 169.8,197.8 170.4,206.0 171.0,210.5 171.6,212.6 172.2,214.1 172.8,215.8 173.4,216.8 173.9,217.4 174.5,219.0 175.1,219.6 175.7,218.1 176.3,216.3 176.9,215.2 177.5,213.0 178.1,210.2 178.7,209.6 179.2,210.8 179.8,211.7 180.4,211.0 181.0,209.7 181.6,210.8 182.2,213.7 182.8,216.3 183.4,218.8 184.0,220.9 184.6,222.0 185.2,217.7 185.7,208.9 186.3,200.4 186.9,199.6 187.5,205.1 188.1,211.3 188.7,213.8 189.3,214.0 189.9,211.3 190.5,204.5 191.1,197.2 191.6,194.6 192.2,196.1 192.8,199.2 193.4,204.3 194.0,208.9 194.6,210.1 195.2,203.8 195.8,190.7 196.4,175.1 196.9,159.8 197.5,149.7 198.1,146.2 198.7,150.9 199.3,161.8 199.9,171.8 200.5,178.1 201.1,181.2 201.7,184.7 202.3,190.7 202.8,200.2 203.4,208.8 204.0,212.3 204.6,211.4 205.2,206.2 205.8,196.4 206.4,186.8 207.0,183.5 207.6,188.7 208.2,195.8 208.8,200.2 209.3,204.2 209.9,204.1 210.5,195.7 211.1,184.8 211.7,178.2 212.3,182.1 212.9,193.1 213.5,207.0 214.1,220.3 214.7,228.5 215.2,229.7 215.8,224.4 216.4,216.3 217.0,208.1 217.6,203.5 218.2,203.5 218.8,209.0 219.4,219.1 220.0,228.1 220.6,229.0 221.1,220.8 221.7,211.5 222.3,207.2 222.9,207.3 223.5,208.7 224.1,209.9 224.7,212.0 225.3,212.6 225.9,210.4 226.4,207.3 227.0,204.7 227.6,203.4 228.2,203.9 228.8,206.4 229.4,209.5 230.0,208.5 230.6,205.2 231.2,204.8 231.8,207.7 232.3,211.6 232.9,214.0 233.5,212.9 234.1,209.6 234.7,204.2 235.3,197.5 235.9,189.1 236.5,182.6 237.1,181.5 237.7,187.0 238.2,196.5 238.8,204.3 239.4,207.2 240.0,201.9 240.6,189.3 241.2,173.7 241.8,161.1 242.4,153.6 243.0,150.8 243.6,151.2 244.1,154.9 244.7,162.5 245.3,172.2 245.9,180.3 246.5,186.1 247.1,189.3 247.7,193.5 248.3,200.6 248.9,207.2 249.5,209.9 250.0,208.0 250.6,206.2 251.2,206.7 251.8,210.6 252.4,213.0 253.0,210.4 253.6,202.2 254.2,191.4 254.8,180.0 255.4,172.4 255.9,175.0 256.5,188.1 257.1,201.4 257.7,209.9 258.3,213.5 258.9,214.6 259.5,215.2 260.1,218.9 260.7,223.9 261.3,228.1 261.9,227.6 262.4,222.6 263.0,210.5 263.6,199.4 264.2,191.3 264.8,191.0 265.4,198.6 266.0,204.3 266.6,207.1 267.2,207.5 267.8,204.4 268.3,199.1 268.9,193.9 269.5,194.4 270.1,202.2 270.7,211.6 271.3,217.5 271.9,215.8 272.5,201.3 273.1,186.4 273.6,171.8 274.2,158.1 274.8,152.0 275.4,157.8 276.0,171.0 276.6,180.8 277.2,187.3 277.8,197.2 278.4,205.5 279.0,206.7 279.5,205.2 280.1,209.5 280.7,216.6 281.3,217.9 281.9,211.7 282.5,205.4 283.1,197.5 283.7,182.8 284.3,172.9 284.9,171.5 285.4,177.2 286.0,184.1 286.6,193.3 287.2,203.7 287.8,207.1 288.4,202.2 289.0,201.1 289.6,212.0 290.2,225.2 290.8,231.4 291.4,233.3 291.9,224.3 292.5,202.4 293.1,173.9 293.7,152.5 294.3,138.5 294.9,125.5 295.5,112.3 296.1,106.9 296.7,111.1 297.2,118.7 297.8,129.0 298.4,141.1 299.0,153.8 299.6,163.0 300.2,170.5 300.8,182.9 301.4,197.7 302.0,210.0 302.6,219.2 303.1,229.0 303.7,235.3 304.3,232.5 304.9,224.1 305.5,215.6 306.1,209.4 306.7,207.2 307.3,211.5 307.9,219.5 308.5,226.8 309.1,230.1 309.6,231.5 310.2,236.0 310.8,243.2 311.4,248.7 312.0,249.6 312.6,248.6 313.2,247.9 313.8,251.9 314.4,260.7 315.0,269.9 315.5,271.4 316.1,260.5 316.7,241.9 317.3,218.9 317.9,195.5 318.5,173.8 319.1,159.2 319.7,148.7 320.3,143.6 320.9,146.2 321.4,155.1 322.0,167.5 322.6,181.8 323.2,200.3 323.8,218.2 324.4,230.7 325.0,232.3 325.6,222.7 326.2,207.3 326.8,196.1 327.3,197.1 327.9,212.7 328.5,236.3 329.1,255.5 329.7,267.2 330.3,263.0 330.9,247.2 331.5,225.9 332.1,207.5 332.6,192.0 333.2,177.9 333.8,170.3 334.4,172.7 335.0,181.1 335.6,190.2 336.2,198.0 336.8,206.8 337.4,214.8 338.0,221.2 338.6,225.7 339.1,230.6 339.7,233.8 340.3,235.3 340.9,235.5 341.5,235.4 342.1,235.6 342.7,233.5 343.3,230.6 343.9,228.0 344.4,229.5 345.0,229.3 345.6,225.0 346.2,220.8 346.8,218.4 347.4,214.3 348.0,210.1 348.6,212.7 349.2,216.5 349.8,215.2 350.4,213.6 350.9,217.9 351.5,225.5 352.1,231.2 352.7,235.6 353.3,239.6 353.9,242.7 354.5,241.9 355.1,238.5 355.7,236.2 356.2,236.3 356.8,234.0 357.4,231.4 358.0,231.6 358.6,232.1 359.2,232.1 359.8,231.2 360.4,232.7 361.0,238.4 361.6,243.0 362.1,241.4 362.7,238.5 363.3,238.3 363.9,241.4 364.5,245.8 365.1,246.0 365.7,242.5 366.3,238.4 366.9,236.2 367.5,234.8 368.1,235.3 368.6,233.8 369.2,231.1 369.8,228.8 370.4,227.2 371.0,227.1 371.0,227.1 371.6,227.5 372.2,230.1 372.8,230.9 373.4,228.8 373.9,226.8 374.5,223.7 375.1,221.0 375.7,221.3 376.3,222.4 376.9,222.8 377.5,225.4 378.1,227.0 378.7,225.6 379.3,223.8 379.9,227.0 380.4,230.9 381.0,230.3 381.6,226.1 382.2,221.4 382.8,222.6 383.4,227.1 384.0,228.7 384.6,224.3 385.2,220.2 385.8,216.9 386.3,216.8 386.9,219.7 387.5,222.7 388.1,222.9 388.7,218.4 389.3,211.4 389.9,206.0 390.5,209.5 391.1,218.7 391.7,222.4 392.2,218.6 392.8,212.3 393.4,205.9 394.0,202.9 394.6,205.6 395.2,211.6 395.8,218.1 396.4,223.7 397.0,223.1 397.6,217.3 398.1,215.8 398.7,220.6 399.3,223.3 399.9,220.5 400.5,215.5 401.1,211.2 401.7,209.6 402.3,211.2 402.9,215.2 403.5,218.0 404.0,217.2 404.6,210.3 405.2,201.6 405.8,196.4 406.4,200.2 407.0,207.0 407.6,210.7 408.2,212.2 408.8,214.2 409.3,214.5 409.9,211.4 410.5,206.2 411.1,202.0 411.7,202.8 412.3,207.6 412.9,211.9 413.5,215.8 414.1,216.1 414.7,210.9 415.2,201.0 415.8,195.1 416.4,196.1 417.0,201.7 417.6,206.8 418.2,211.2 418.8,214.6 419.4,212.0 420.0,199.3 420.6,181.4 421.1,169.3 421.7,165.8 422.3,168.2 422.9,175.0 423.5,184.8 424.1,194.4 424.7,201.0 425.3,204.1 425.9,201.3 426.5,195.7 427.1,193.4 427.6,197.3 428.2,208.3 428.8,219.3 429.4,222.7 430.0,212.1 430.6,194.7 431.2,176.0 431.8,161.3 432.4,152.8 432.9,153.5 433.5,163.5 434.1,175.4 434.7,185.6 435.3,192.3 435.9,200.7 436.5,210.0 437.1,217.7 437.7,221.2 438.3,222.8 438.9,218.2 439.4,211.1 440.0,210.8 440.6,222.2 441.2,236.9 441.8,239.0 442.4,229.9 443.0,215.5 443.6,198.3 444.2,182.9 444.8,176.4 445.3,183.5 445.9,198.6 446.5,213.0 447.1,221.0 447.7,225.8 448.3,227.9 448.9,231.5 449.5,237.4 450.1,243.8 450.6,245.2 451.2,235.4 451.8,215.1 452.4,193.1 453.0,175.8 453.6,165.4 454.2,166.8 454.8,175.3 455.4,187.9 456.0,203.8 456.6,214.4 457.1,220.5 457.7,220.6 458.3,222.8 458.9,228.4 459.5,236.9 460.1,242.4 460.7,237.6 461.3,223.7 461.9,207.5 462.4,199.2 463.0,205.4 463.6,222.0 464.2,234.9 464.8,239.6 465.4,234.1 466.0,221.0 466.6,210.2 467.2,213.7 467.8,230.7 468.4,244.8 468.9,250.2 469.5,249.4 470.1,236.8 470.7,217.3 471.3,197.5 471.9,185.2 472.5,181.6 473.1,184.6 473.7,192.4 474.2,208.2 474.8,227.4 475.4,244.1 476.0,246.4 476.6,237.1 477.2,222.5 477.8,206.7 478.4,195.0 479.0,196.7 479.6,211.2 480.2,225.8 480.7,230.3 481.3,223.7 481.9,209.7 482.5,193.3 483.1,180.3 483.7,183.0 484.3,202.1 484.9,220.1 485.5,230.7 486.0,236.1 486.6,238.8 487.2,247.9 487.8,262.0 488.4,273.8 489.0,277.3 489.6,268.7 490.2,248.3 490.8,224.7 491.4,202.2 491.9,178.2 492.5,156.7 493.1,139.1 493.7,130.5 494.3,126.4 494.9,121.9 495.5,119.7 496.1,126.4 496.7,139.5 497.3,150.2 497.8,163.1 498.4,178.0 499.0,192.4 499.6,205.8 500.2,219.0 500.8,233.0 501.4,243.6 502.0,245.9 502.6,238.4 503.2,235.0 503.8,238.2 504.3,247.8 504.9,257.9 505.5,265.0 506.1,265.4 506.7,259.0 507.3,249.2 507.9,240.2 508.5,234.9 509.1,233.9 509.6,237.6 510.2,247.0 510.8,255.6 511.4,258.3 512.0,253.6 512.6,247.7 513.2,242.1 513.8,237.8 514.4,234.8 515.0,235.9 515.5,235.9 516.1,231.4 516.7,227.1 517.3,224.6 517.9,224.9 518.5,225.0 519.1,222.5 519.7,222.1 520.3,225.8 520.9,226.9 521.5,224.6 522.0,224.7 522.6,224.6 523.2,222.5 523.8,222.3 524.4,227.7 525.0,233.8 525.6,236.1 526.2,236.7 526.8,240.3 527.4,246.0 527.9,247.8 528.5,245.7 529.1,245.3 529.7,243.4 530.3,239.7 530.9,239.5 531.5,241.8 532.1,243.6 532.7,239.7 533.2,234.5 533.8,234.0 534.4,236.6 535.0,237.8 535.6,236.5 536.2,236.4 536.8,231.6 537.4,223.4 538.0,220.1 538.6,228.3 539.2,237.2 539.7,237.8 540.3,227.2 540.9,208.3 541.5,191.5 542.1,175.7 542.7,167.6 543.3,168.8 543.9,177.1 544.5,187.2 545.0,201.4 545.6,223.1 546.2,248.5 546.8,266.0 547.4,265.3 548.0,251.5 548.6,230.0 549.2,205.0 549.8,178.9 550.4,160.6 551.0,146.6 551.5,136.0 552.1,126.9 552.7,121.5 553.3,124.2 553.9,136.5 554.5,151.5 555.1,163.8 555.7,176.0 556.3,188.4 556.8,199.0 557.4,212.0 558.0,229.4 558.6,247.7 559.2,259.9 559.8,265.1 560.4,261.1 561.0,252.9 561.6,241.7 562.2,227.8 562.8,211.7 563.3,194.5 563.9,180.8 564.5,174.9 565.1,180.4 565.7,191.5 566.3,202.7 566.9,213.8 567.5,227.3 568.1,239.5 568.6,245.8 569.2,244.5 569.8,239.7 570.4,236.9 571.0,233.5 571.6,230.7 572.2,231.0 572.8,234.9 573.4,234.4 574.0,230.1 574.5,226.6 575.1,226.0 575.7,226.3 576.3,222.4 576.9,217.6 577.5,213.9 578.1,214.6 578.7,213.0 579.3,210.7 579.9,213.2 580.5,215.9 581.0,217.2 581.6,220.7 582.2,225.3 582.8,227.7 583.4,231.3 584.0,236.5 584.6,241.7 585.2,244.4 585.8,242.2 586.4,237.1 586.9,236.2 587.5,236.3 588.1,237.6 588.7,240.8 589.3,242.7 589.9,242.0 590.5,240.6 591.1,240.3 591.7,243.1 592.2,246.8 592.8,247.0 593.4,246.4 594.0,249.8 594.6,251.1 595.2,249.7 595.8,245.1 596.4,244.8 597.0,244.3 597.6,243.3 598.1,240.1 598.7,238.2 599.3,236.6 599.9,233.9 600.5,230.2 601.1,230.3 601.7,233.8 602.3,235.0 602.9,232.3 603.5,229.9 604.0,229.7 604.6,228.1 605.2,222.5 605.8,218.8 606.4,217.4 607.0,219.4 607.6,219.7 608.2,220.8 608.8,222.2 609.4,225.5 610.0,226.8 610.5,227.5 611.1,229.9 611.7,231.8 612.3,228.8 612.9,224.9 613.5,226.3 614.1,230.1 614.7,231.2 615.3,225.1 615.9,218.0 616.4,215.5 617.0,217.1 617.6,221.7 618.2,226.4 618.8,227.0 619.4,221.0 620.0,212.5 620.6,211.5 621.2,216.3 621.8,222.4 622.3,224.3 622.9,224.7 623.5,219.4 624.1,209.9 624.7,202.6 625.3,205.5 625.9,214.1 626.5,218.9 627.1,221.0 627.6,220.0 628.2,216.6 628.8,213.8 629.4,214.2 630.0,218.4 630.6,224.0 631.2,222.8 631.8,215.7 632.4,210.0 633.0,205.1 633.5,198.4 634.1,192.7 634.7,193.6 635.3,199.8 635.9,206.7 636.5,210.4 637.1,210.7 637.7,206.6 638.3,199.9 638.9,195.3 639.4,196.1 640.0,202.1 640.6,209.6 641.2,213.0 641.8,214.2 642.4,208.7 643.0,199.2 643.6,187.7 644.2,177.8 644.8,174.1 645.4,177.4 645.9,183.2 646.5,191.1 647.1,199.2 647.7,202.1 648.3,202.0 648.9,203.8 649.5,209.2 650.1,214.6 650.7,217.7 651.2,219.0 651.8,216.9 652.4,206.8 653.0,188.3 653.6,171.1 654.2,162.2 654.8,164.8 655.4,175.1 656.0,187.5 656.6,198.7 657.1,202.7 657.7,203.3 658.3,206.7 658.9,218.1 659.5,232.1 660.1,239.2 660.7,233.9 661.3,220.7 661.9,204.1 662.5,184.9 663.0,170.7 663.6,168.8 664.2,179.8 664.8,196.1 665.4,207.1 666.0,210.9" fill="none" stroke="var(--accent)" stroke-width="1.0"/>
+  <polyline points="94.9,68.1 95.5,85.6 96.1,89.9 96.7,87.6 97.2,78.4 97.8,63.0" fill="none" stroke="var(--blue)" stroke-width="1.6"/>
+  <polyline points="102.0,58.8 102.5,66.4 103.1,74.9 103.7,84.1 104.3,99.7 104.9,120.6 105.5,139.1 106.1,154.0 106.7,167.2 107.3,181.5 107.9,192.2 108.5,196.7 109.0,203.1 109.6,209.3 110.2,211.3 110.8,213.5 111.4,217.5 112.0,222.3 112.6,225.6 113.2,228.5 113.8,232.9 114.3,238.8 114.9,244.3 115.5,244.1 116.1,239.9 116.7,239.7 117.3,242.4 117.9,241.2 118.5,232.1 119.1,227.0 119.7,225.9 120.2,225.8 120.8,226.4 121.4,228.9 122.0,230.3 122.6,226.8 123.2,223.3 123.8,223.8 124.4,222.9 125.0,218.0 125.6,211.9 126.2,207.4 126.7,205.0 127.3,202.6 127.9,199.2 128.5,196.5 129.1,196.0 129.7,197.9 130.3,199.1 130.9,199.2 131.5,197.7 132.1,196.3 132.6,196.3 133.2,196.6 133.8,196.8 134.4,197.1 135.0,198.6 135.6,199.8 136.2,200.3 136.8,200.4 137.4,202.5 137.9,205.1 138.5,205.3 139.1,204.3 139.7,204.1 140.3,205.1 140.9,205.9 141.5,206.6 142.1,207.4 142.7,208.9 143.3,212.0 143.9,214.1 144.4,214.1 145.0,213.1 145.6,213.8 146.2,215.1 146.8,214.8 147.4,214.3 148.0,213.7 148.6,213.1 149.2,211.7 149.8,210.6 149.8,210.6 150.9,209.4 151.5,209.7 152.1,208.4 152.7,206.4 153.3,205.1 153.9,205.8 154.5,205.4 155.1,203.4 155.7,201.6 156.2,202.1 156.8,204.3 157.4,205.7 158.0,206.3 158.6,206.0 159.2,206.5 159.8,207.0 160.4,206.5 161.0,206.1 161.6,208.8 162.1,212.3 162.7,214.1 163.3,214.1 163.9,213.9 164.5,214.5 165.1,214.9 165.7,213.5 166.3,212.5 166.9,214.1 167.4,217.7 168.0,218.5 168.6,217.5 169.2,219.3 169.8,222.5 170.4,223.5 171.0,222.2 171.6,223.2 172.2,225.3 172.8,226.6 173.4,226.4 173.9,226.3 174.5,226.7 175.1,227.1 175.7,227.1 176.3,225.4 176.9,225.6 177.5,226.3 178.1,227.1 178.7,226.9 179.2,226.3 179.8,226.6 180.4,228.2 181.0,230.0 181.6,228.8 182.2,227.6 182.8,228.0 183.4,228.5 184.0,226.3 184.6,223.8 185.2,223.5 185.7,223.3 186.3,222.7 186.9,221.8 187.5,222.6 188.1,225.0 188.7,226.2 189.3,225.4 189.9,224.3 190.5,223.5 191.1,222.7 191.6,222.8 192.2,223.6 192.8,223.3 193.4,221.9 194.0,220.9 194.6,220.4 195.2,220.3 195.8,220.7 196.4,221.4 196.9,223.0 197.5,224.3 198.1,223.6 198.7,222.6 199.3,222.1 199.9,221.7 200.5,222.1 201.1,224.4 201.7,224.2 202.3,222.6 202.8,223.6 203.4,226.3 204.0,226.4 204.6,225.0 205.2,225.6 205.8,227.1 206.4,227.5 207.0,225.9 207.6,224.5 208.2,225.9 208.8,227.4 209.3,225.6 209.9,222.7 210.5,222.7 211.1,224.8 211.7,224.8 212.3,222.2 212.9,221.4 213.5,222.7 214.1,223.2 214.7,221.9 215.2,221.8 215.8,225.1 216.4,227.4 217.0,225.3 217.6,221.9 218.2,221.6 218.8,223.6 219.4,222.7 220.0,220.1 220.6,220.0 221.1,222.6 221.7,221.9 222.3,219.5 222.9,220.3 223.5,223.2 224.1,224.0 224.7,222.3 225.3,221.5 225.9,221.8 226.4,221.6 227.0,221.2 227.6,222.3 228.2,223.9 228.8,224.1 229.4,223.4 230.0,224.0 230.6,225.6 231.2,225.5 231.8,225.5 232.3,225.8 232.9,227.5 233.5,228.2 234.1,226.0 234.7,225.7 235.3,227.8 235.9,227.9 236.5,225.5 237.1,227.4 237.7,231.1 238.2,230.7 238.8,228.4 239.4,227.4 240.0,228.7 240.6,228.6 241.2,227.6 241.8,227.0 242.4,229.5 243.0,231.5 243.6,231.8 244.1,230.2 244.7,228.9 245.3,229.7 245.9,230.1 246.5,228.7 247.1,227.5 247.7,229.7 248.3,230.7 248.9,229.1 249.5,227.6 250.0,229.0 250.6,231.0 251.2,231.4 251.8,230.3 252.4,229.5 253.0,229.8 253.6,228.4 254.2,226.2 254.8,225.7 255.4,226.5 255.9,227.6 256.5,228.4 257.1,228.0 257.7,226.8 258.3,227.9 258.9,229.9 259.5,230.3 260.1,229.2 260.7,228.3 261.3,228.2 261.9,228.7 262.4,227.6 263.0,226.4 263.6,228.2 264.2,230.0 264.8,229.4 265.4,228.5 266.0,228.7 266.6,229.6 267.2,229.2 267.8,226.2 268.3,224.8 268.9,227.0 269.5,228.6 270.1,227.1 270.7,226.2 271.3,228.4 271.9,230.2 272.5,229.2 273.1,227.9 273.6,227.9 274.2,228.5 274.8,226.6 275.4,224.9 276.0,224.6 276.6,224.9 277.2,225.0 277.8,226.1 278.4,226.7 279.0,227.8 279.5,228.7 280.1,229.2 280.7,228.5 281.3,227.2 281.9,226.8 282.5,227.7 283.1,227.5 283.7,226.2 284.3,226.2 284.9,227.3 285.4,227.1 286.0,226.9 286.6,226.8 287.2,227.5 287.8,229.4 288.4,229.3 289.0,227.4 289.6,226.4 290.2,227.6 290.8,228.2 291.4,227.6 291.9,226.6 292.5,227.9 293.1,229.7 293.7,228.2 294.3,225.5 294.9,226.4 295.5,228.7 296.1,227.8 296.7,225.9 297.2,226.6 297.8,228.9 298.4,229.7 299.0,227.8 299.6,226.8 300.2,227.9 300.8,229.3 301.4,228.0 302.0,227.1 302.6,228.5 303.1,229.5 303.7,227.3 304.3,226.0 304.9,227.8 305.5,228.3 306.1,227.5 306.7,227.5 307.3,228.0 307.9,227.9 308.5,227.0 309.1,226.6 309.6,227.1 310.2,228.0 310.8,226.9 311.4,226.2 312.0,227.2 312.6,228.5 313.2,226.9 313.8,226.8 314.4,229.4 315.0,229.7 315.5,228.0 316.1,227.9 316.7,230.0 317.3,229.8 317.9,227.0 318.5,225.7 319.1,228.0 319.7,230.1 320.3,228.8 320.9,228.0 321.4,229.9 322.0,231.0 322.6,227.9 323.2,227.5 323.8,229.5 324.4,229.7 325.0,228.0 325.6,227.8 326.2,228.9 326.8,228.8 327.3,227.6 327.9,226.4 328.5,227.0 329.1,226.4 329.7,224.9 330.3,224.6 330.9,226.3 331.5,226.3 332.1,224.9 332.6,225.6 333.2,227.1 333.8,226.6 334.4,225.7 335.0,225.8 335.6,225.8 336.2,225.1 336.8,223.7 337.4,223.6 338.0,225.7 338.6,227.4 339.1,226.4 339.7,225.8 340.3,227.6 340.9,228.2 341.5,227.4 342.1,227.7 342.7,228.1 343.3,228.2 343.9,227.4 344.4,225.9 345.0,226.0 345.6,227.8 346.2,227.2 346.8,226.5 347.4,229.1 348.0,230.8 348.6,228.9 349.2,227.6 349.8,228.7 350.4,228.6 350.9,227.0 351.5,226.1 352.1,227.5 352.7,229.2 353.3,227.2 353.9,225.7 354.5,227.9 355.1,229.8 355.7,228.0 356.2,226.9 356.8,228.5 357.4,229.3 358.0,225.9 358.6,223.7 359.2,225.2 359.8,227.1 360.4,227.2 361.0,227.5 361.6,229.2 362.1,230.7 362.7,229.1 363.3,227.1 363.9,227.3 364.5,229.2 365.1,228.0 365.7,225.5 366.3,225.6 366.9,226.6 367.5,226.1 368.1,226.8 368.6,229.4 369.2,230.8 369.8,230.8 370.4,229.9 371.0,230.8 371.6,231.1 372.2,228.3 372.8,226.3 373.4,227.5 373.9,227.2 374.5,224.3 375.1,224.7 375.7,227.8 376.3,228.2 376.9,225.3 377.5,224.9 378.1,227.8 378.7,229.7 379.3,227.6 379.9,225.8 380.4,228.0 381.0,228.7 381.6,226.1 382.2,224.6 382.8,227.0 383.4,229.2 384.0,227.2 384.6,225.1 385.2,226.2 385.8,227.9 386.3,227.2 386.9,225.6 387.5,225.8 388.1,228.4 388.7,228.2 389.3,227.0 389.9,227.6 390.5,227.8 391.1,226.4 391.7,226.2 392.2,227.9 392.8,228.1 393.4,228.0 394.0,227.0 394.6,226.3 395.2,226.1 395.8,225.2 396.4,224.2 397.0,225.5 397.6,226.9 398.1,225.6 398.7,225.3 399.3,227.3 399.9,228.0 400.5,226.2 401.1,225.1 401.7,228.1 402.3,230.2 402.9,226.9 403.5,224.1 404.0,226.4 404.6,228.0 405.2,226.2 405.8,225.6 406.4,228.4 407.0,231.7 407.6,230.5 408.2,227.8 408.8,228.1 409.3,230.4 409.9,229.3 410.5,226.6 411.1,227.3 411.7,230.2 412.3,230.4 412.9,229.1 413.5,228.9 414.1,228.2 414.7,227.0 415.2,227.1 415.8,228.4 416.4,229.2 417.0,227.5 417.6,225.8 418.2,225.9 418.8,226.1 419.4,224.2 420.0,224.5 420.6,228.1 421.1,228.4 421.7,225.8 422.3,225.0 422.9,227.4 423.5,228.4 424.1,225.6 424.7,224.7 425.3,228.4 425.9,230.5 426.5,227.1 427.1,224.9 427.6,226.1 428.2,227.1 428.8,225.2 429.4,224.5 430.0,227.2 430.6,229.6 431.2,227.3 431.8,225.3 432.4,227.2 432.9,229.0 433.5,228.4 434.1,228.1 434.7,229.2 435.3,230.0 435.9,229.0 436.5,227.6 437.1,227.8 437.7,229.6 438.3,228.2 438.9,227.4 439.4,229.3 440.0,230.1 440.6,227.1 441.2,225.3 441.8,227.3 442.4,228.8 443.0,227.2 443.6,226.1 444.2,229.5 444.8,230.8 445.3,227.4 445.9,225.9 446.5,228.7 447.1,229.4 447.7,227.1 448.3,227.1 448.9,230.2 449.5,231.4 450.1,228.3 450.6,226.6 451.2,228.1 451.8,230.1 452.4,228.5 453.0,226.6 453.6,227.9 454.2,229.6 454.8,228.0 455.4,225.2 456.0,226.3 456.6,227.4 457.1,224.7 457.7,223.0 458.3,224.4 458.9,225.6 459.5,225.2 460.1,224.5 460.7,224.7 461.3,226.7 461.9,226.4 462.4,224.7 463.0,225.9 463.6,227.9 464.2,226.7 464.8,225.1 465.4,226.8 466.0,228.7 466.6,228.2 467.2,226.5 467.8,227.8 468.4,229.8 468.9,228.7 469.5,225.5 470.1,226.0 470.7,228.7 471.3,228.6 471.9,226.0 472.5,225.6 473.1,228.3 473.7,228.9 474.2,226.8 474.8,227.9 475.4,231.3 476.0,231.3 476.6,228.0 477.2,226.8 477.8,227.7 478.4,228.1 479.0,225.8 479.6,225.0 480.2,227.4 480.7,228.4 481.3,226.3 481.9,226.3 482.5,228.9 483.1,228.8 483.7,226.0 484.3,225.2 484.9,227.5 485.5,228.7 486.0,226.9 486.6,225.9 487.2,227.6 487.8,228.5 488.4,226.2 489.0,225.5 489.6,227.6 490.2,228.5 490.8,225.8 491.4,224.6 491.9,226.8 492.5,227.4 493.1,226.1 493.7,225.5 494.3,226.7 494.9,228.0 495.5,227.0 496.1,224.8 496.7,225.6 497.3,227.6 497.8,226.4 498.4,225.1 499.0,227.4 499.6,228.6 500.2,227.1 500.8,226.8 501.4,227.5 502.0,227.4 502.6,227.4 503.2,226.5 503.8,227.3 504.3,228.1 504.9,226.0 505.5,225.3 506.1,228.3 506.7,228.6 507.3,226.4 507.9,227.0 508.5,229.2 509.1,229.7 509.6,228.0 510.2,226.9 510.8,228.3 511.4,229.4 512.0,227.3 512.6,225.7 513.2,228.0 513.8,229.0 514.4,227.1 515.0,225.6 515.5,226.9 516.1,228.6 516.7,228.3 517.3,226.8 517.9,227.5 518.5,229.3 519.1,228.4 519.7,226.8 520.3,226.9 520.9,227.7 521.5,227.0 522.0,225.4 522.6,226.2 523.2,227.9 523.8,227.8 524.4,226.2 525.0,226.7 525.6,227.0 526.2,226.5 526.8,227.5 527.4,229.1 527.9,227.5 528.5,225.0 529.1,224.7 529.7,226.2 530.3,227.9 530.9,227.7 531.5,227.5 532.1,228.8 532.7,228.2 533.2,226.1 533.8,224.3 534.4,226.1 535.0,228.2 535.6,227.3 536.2,225.0 536.8,226.2 537.4,228.2 538.0,227.6 538.6,226.2 539.2,226.4 539.7,228.7 540.3,229.8 540.9,227.6 541.5,225.8 542.1,227.1 542.7,228.2 543.3,227.1 543.9,227.6 544.5,229.2 545.0,230.4 545.6,229.8 546.2,228.8 546.8,228.0 547.4,227.7 548.0,227.2 548.6,227.2 549.2,227.9 549.8,227.2 550.4,226.8 551.0,227.1 551.5,226.5 552.1,225.2 552.7,226.2 553.3,227.7 553.9,227.7 554.5,227.0 555.1,225.8 555.7,226.5 556.3,227.8 556.8,227.0 557.4,225.5 558.0,227.7 558.6,230.3 559.2,228.7 559.8,226.0 560.4,225.3 561.0,226.7 561.6,227.7 562.2,226.4 562.8,225.7 563.3,228.1 563.9,228.5 564.5,225.5 565.1,224.4 565.7,225.9 566.3,227.2 566.9,226.8 567.5,226.3 568.1,227.2 568.6,228.2 569.2,228.5 569.8,227.4 570.4,226.9 571.0,227.5 571.6,228.3 572.2,227.8 572.8,226.4 573.4,225.8 574.0,226.0 574.5,226.2 575.1,226.5 575.7,227.5 576.3,227.2 576.9,227.0 577.5,227.7 578.1,227.3 578.7,226.3 579.3,226.8 579.9,227.1 580.5,225.7 581.0,226.0 581.6,226.1 582.2,226.8 582.8,228.3 583.4,228.2 584.0,226.2 584.6,226.7 585.2,229.0 585.8,228.2 586.4,226.8 586.9,226.6 587.5,226.9 588.1,226.5 588.7,225.7 589.3,224.6 589.9,226.5 590.5,229.1 591.1,228.2 591.7,226.7 592.2,227.1 592.8,227.2 593.4,226.7 594.0,225.2 594.6,225.0 595.2,227.3 595.8,228.4 596.4,225.2 597.0,224.9 597.6,226.6 598.1,228.1 598.7,227.5 599.3,226.6 599.9,227.0 600.5,229.3 601.1,228.7 601.7,225.7 602.3,226.0 602.9,228.5 603.5,228.7 604.0,227.4 604.6,228.9 605.2,230.9 605.8,228.1 606.4,224.2 607.0,224.3 607.6,226.7 608.2,226.7 608.8,225.9 609.4,226.6 610.0,228.3 610.5,228.0 611.1,226.4 611.7,227.3 612.3,229.3 612.9,229.5 613.5,226.6 614.1,226.4 614.7,227.8 615.3,226.7 615.9,223.9 616.4,224.4 617.0,226.4 617.6,227.4 618.2,226.1 618.8,225.8 619.4,228.4 620.0,229.3 620.6,226.2 621.2,225.8 621.8,228.8 622.3,229.4 622.9,226.8 623.5,226.4 624.1,227.3 624.7,227.1 625.3,224.4 625.9,223.2 626.5,225.5 627.1,227.4 627.6,226.3 628.2,225.6 628.8,227.8 629.4,228.3 630.0,226.3 630.6,225.4 631.2,227.7 631.8,228.9 632.4,226.5 633.0,225.1 633.5,227.6 634.1,229.0 634.7,227.3 635.3,226.3 635.9,228.7 636.5,231.0 637.1,228.0 637.7,225.4 638.3,228.7 638.9,230.3 639.4,227.2 640.0,225.7 640.6,229.0 641.2,230.7 641.8,229.6 642.4,228.5 643.0,229.2 643.6,230.2 644.2,227.9 644.8,224.8 645.4,226.1 645.9,228.6 646.5,226.9 647.1,225.0 647.7,226.2 648.3,227.0 648.9,225.9 649.5,224.7 650.1,227.0 650.7,228.5 651.2,227.8 651.8,226.6 652.4,228.3 653.0,227.9 653.6,225.0 654.2,224.3 654.8,226.1 655.4,227.0 656.0,225.7 656.6,225.2 657.1,227.3 657.7,228.3 658.3,226.0 658.9,224.9 659.5,227.8 660.1,230.4 660.7,228.8 661.3,225.2 661.9,225.7 662.5,227.3 663.0,226.4 663.6,224.8 664.2,226.7 664.8,229.6 665.4,229.4 666.0,227.1" fill="none" stroke="var(--blue)" stroke-width="1.6"/>
+  <polyline points="223.5,212.4 666.0,212.4" fill="none" stroke="var(--accent-dark)" stroke-width="1.2" stroke-dasharray="6 4"/>
+  <polyline points="223.5,227.3 666.0,227.3" fill="none" stroke="var(--ink)" stroke-width="1.2" stroke-dasharray="6 4"/>
+  <line x1="360" y1="66" x2="386" y2="66" stroke="var(--accent)" stroke-width="1.0"/>
+  <text class="svg-note-sm" x="392" y="70">medio vehículo, plano de simetría: 0.555 ± 0.033</text>
+  <line x1="360" y1="84" x2="386" y2="84" stroke="var(--blue)" stroke-width="1.6"/>
+  <text class="svg-note-sm" x="392" y="88">vehículo completo: 0.537 ± 0.002</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">El mismo Jimny, con y sin plano de simetría.</b> La misma receta de malla y el mismo método, 4000 iteraciones. Con medio vehículo y un plano de simetría en y = 0, el \(C_D\) oscila lento y fuerte, sin asentarse; con el vehículo completo se queda fijo desde la iteración 1000. Las líneas discontinuas son los promedios de 1001 a 4000.</figcaption>
+</figure>
+<p>La explicación está en la estela. Detrás de un cuerpo romo, la estela no es simétrica en cada instante: se carga a un lado o al otro. Con el vehículo completo, el cálculo estacionario encuentra una solución y se queda en ella; con el plano de simetría, la estela no puede cargarse a ningún lado, y el cálculo oscila buscando una solución que la condición de frontera no permite. En el DrivAer pasó lo contrario en el número —medio auto dio 0.266 y el completo 0.276—, pero por la misma causa: la presión de la base cambia cuando la estela queda libre. El plano de simetría no sesga el \(C_D\) siempre en el mismo sentido; sólo lo cambia.</p>
+<h3>La malla</h3>
+<p>Las dos series de mallas (figura 6) dicen lo mismo: de la malla gruesa a la intermedia el \(C_D\) baja un 13 % en el Jimny y un 13 % en el DrivAer; de la intermedia a la fina, con entre un quinto y un tercio más de celdas, cambia 0.1 y 0.3 %. En el volumen —las cajas de la estela y de los bajos— la malla fina está resuelta.</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Coeficiente de arrastre contra el número de celdas para el Jimny y el DrivAer: los dos bajan de la malla gruesa a la intermedia y ya no cambian a la fina; la pared resuelta y el vehículo completo suben el del DrivAer.">
+  <text class="svg-title" x="76" y="28">Cd contra malla</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="666" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">0.2</text>
+  <line class="svg-grid" x1="76" y1="250.0" x2="666" y2="250.0"/>
+  <text class="svg-tick" x="70" y="254.0" text-anchor="end">0.3</text>
+  <line class="svg-grid" x1="76" y1="200.0" x2="666" y2="200.0"/>
+  <text class="svg-tick" x="70" y="204.0" text-anchor="end">0.4</text>
+  <line class="svg-grid" x1="76" y1="150.0" x2="666" y2="150.0"/>
+  <text class="svg-tick" x="70" y="154.0" text-anchor="end">0.5</text>
+  <line class="svg-grid" x1="76" y1="100.0" x2="666" y2="100.0"/>
+  <text class="svg-tick" x="70" y="104.0" text-anchor="end">0.6</text>
+  <line class="svg-grid" x1="76" y1="50.0" x2="666" y2="50.0"/>
+  <text class="svg-tick" x="70" y="54.0" text-anchor="end">0.7</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0</text>
+  <text class="svg-tick" x="160.3" y="318" text-anchor="middle">1</text>
+  <text class="svg-tick" x="244.6" y="318" text-anchor="middle">2</text>
+  <text class="svg-tick" x="328.9" y="318" text-anchor="middle">3</text>
+  <text class="svg-tick" x="413.1" y="318" text-anchor="middle">4</text>
+  <text class="svg-tick" x="497.4" y="318" text-anchor="middle">5</text>
+  <text class="svg-tick" x="581.7" y="318" text-anchor="middle">6</text>
+  <text class="svg-tick" x="666.0" y="318" text-anchor="middle">7</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">millones de celdas (vehículo completo; el medio vehículo cuenta doble)</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">Cd</text>
+  <polyline points="115.7,89.7 215.1,130.9 254.9,130.7" fill="none" stroke="var(--accent)" stroke-width="1.8"/>
+  <circle cx="115.7" cy="89.7" r="3.6" fill="var(--accent)"/>
+  <circle cx="215.1" cy="130.9" r="3.6" fill="var(--accent)"/>
+  <circle cx="254.9" cy="130.7" r="3.6" fill="var(--accent)"/>
+  <rect x="251.4" y="127.9" width="7" height="7" fill="none" stroke="var(--accent-dark)" stroke-width="1.4"/>
+  <polyline points="113.1,248.8 217.9,268.6 249.7,268.1" fill="none" stroke="var(--blue)" stroke-width="1.8"/>
+  <circle cx="113.1" cy="248.8" r="3.6" fill="var(--blue)"/>
+  <circle cx="217.9" cy="268.6" r="3.6" fill="var(--blue)"/>
+  <circle cx="249.7" cy="268.1" r="3.6" fill="var(--blue)"/>
+  <rect x="247.5" y="258.3" width="7" height="7" fill="none" stroke="var(--ink)" stroke-width="1.4"/>
+  <rect x="635.0" y="251.8" width="7" height="7" fill="none" stroke="var(--ink)" stroke-width="1.4"/>
+  <polyline points="76.0,278.5 666.0,278.5" fill="none" stroke="#5b8cc6" stroke-width="1.0" stroke-dasharray="4 3"/>
+  <text class="svg-note-sm" x="122.5" y="83.7" text-anchor="start">0.621</text>
+  <text class="svg-note-sm" x="208.4" y="124.9" text-anchor="end">0.538</text>
+  <text class="svg-note-sm" x="261.6" y="124.7" text-anchor="start">0.539</text>
+  <text class="svg-note-sm" x="119.8" y="242.8" text-anchor="start">0.302</text>
+  <text class="svg-note-sm" x="211.2" y="262.6" text-anchor="end">0.263</text>
+  <text class="svg-note-sm" x="261.5" y="270.1" text-anchor="start">0.264</text>
+  <text class="svg-note-sm" x="254.9" y="146.4" text-anchor="middle">completo 0.537</text>
+  <text class="svg-note-sm" x="251.0" y="244.3" text-anchor="middle">completo 0.276</text>
+  <text class="svg-note-sm" x="638.5" y="244.3" text-anchor="middle">pared resuelta 0.289</text>
+  <line x1="300" y1="66" x2="326" y2="66" stroke="var(--accent)" stroke-width="1.8"/>
+  <text class="svg-note-sm" x="332" y="70">Jimny, medio vehículo (OpenFOAM 13)</text>
+  <rect x="310" y="98.5" width="7" height="7" fill="none" stroke="var(--accent-dark)" stroke-width="1.4"/>
+  <text class="svg-note-sm" x="332" y="106">Jimny completo (OpenFOAM 12)</text>
+  <line x1="300" y1="120" x2="326" y2="120" stroke="var(--blue)" stroke-width="1.8"/>
+  <text class="svg-note-sm" x="332" y="124">DrivAer: S, intermedia, fina (OpenFOAM 13)</text>
+  <rect x="310" y="152.5" width="7" height="7" fill="none" stroke="var(--ink)" stroke-width="1.4"/>
+  <text class="svg-note-sm" x="332" y="160">DrivAer completo y con la pared resuelta (OpenFOAM 12)</text>
+  <line x1="300" y1="174" x2="326" y2="174" stroke="#5b8cc6" stroke-width="1.0" stroke-dasharray="4 3"/>
+  <text class="svg-note-sm" x="332" y="178">DrivAer en el túnel de viento, 0.243</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">Cd contra malla.</b> Las corridas de medio vehículo cuentan el doble de celdas, para compararlas con las de vehículo completo. De la malla gruesa a la intermedia el \(C_D\) baja; de la intermedia a la fina casi no cambia: en el volumen, la malla está resuelta. Pero el DrivAer sube con la pared resuelta y con el vehículo completo, que no son más celdas en el volumen sino otra cosa.</figcaption>
+</figure>
+<p>Pero la corrida del DrivAer con la pared resuelta, con un nivel más en la superficie (celdas de 8 mm en lugar de 1.6 cm) y cinco capas en lugar de dos, subió el \(C_D\) de 0.266 a 0.289, un 9 %. No es una malla más fina de la misma receta: cambia la superficie, las capas y el \(y^+\) (de unos 93 a unos 32), y con ello la manera en que se calcula la capa límite.</p>
+<h3>Dónde está la diferencia</h3>
+<p>El desglose del arrastre en presión y fricción (tabla 2) dice dónde. La fricción es el 7 a 8 % del total y casi no cambia de una corrida a otra. Lo que cambia es la presión de la carrocería; y sumada de la nariz a la cola (figura 7), las tres corridas coinciden hasta \(x\) ≈ 2.4 m —el remanso de la nariz, la succión del cofre y del techo son iguales— y se separan en la cola y en la base, donde el flujo se desprende. Con el auto completo o con la pared resuelta, la base tira más hacia atrás.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th></th><th>Receta fina, medio auto</th><th>Pared resuelta, medio auto</th><th>Receta fina, auto completo</th></tr></thead>
+    <tbody>
+      <tr><td>Carrocería, presión</td><td>0.1855</td><td>0.2057</td><td>0.2106</td></tr>
+      <tr><td>Carrocería, fricción</td><td>0.0196</td><td>0.0208</td><td>0.0198</td></tr>
+      <tr><td>Ruedas delanteras</td><td>0.0387</td><td>0.0480</td><td>0.0394</td></tr>
+      <tr><td>Ruedas traseras</td><td>0.0163</td><td>0.0105</td><td>0.0129</td></tr>
+      <tr><td><strong>Total</strong></td><td><strong>0.2601</strong></td><td><strong>0.2849</strong></td><td><strong>0.2827</strong></td></tr>
+      <tr><td>de él, fricción</td><td>0.0205 (8 %)</td><td>0.0215 (8 %)</td><td>0.0205 (7 %)</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">El arrastre del DrivAer, por partes.</b> Promedio de los campos de las iteraciones 1000, 1500 y 2000 (por eso los totales difieren unas milésimas de los de la tabla 1). La presión integra \(p\,n_x\) y la fricción, el esfuerzo cortante, sobre cada parte; los dos casos de medio auto se refieren a la mitad del área frontal.</caption>
+  </table>
+</div>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Coeficiente de arrastre acumulado de la carrocería del DrivAer de la nariz a la cola en tres corridas: las tres coinciden hasta x = 2.4 m y se separan en la cola.">
+  <text class="svg-title" x="76" y="28">El arrastre de la carrocería del DrivAer, sumado de adelante hacia atrás</text>
+  <line class="svg-grid" x1="76" y1="272.2" x2="666" y2="272.2"/>
+  <text class="svg-tick" x="70" y="276.2" text-anchor="end">0.08</text>
+  <line class="svg-grid" x1="76" y1="216.7" x2="666" y2="216.7"/>
+  <text class="svg-tick" x="70" y="220.7" text-anchor="end">0.12</text>
+  <line class="svg-grid" x1="76" y1="161.1" x2="666" y2="161.1"/>
+  <text class="svg-tick" x="70" y="165.1" text-anchor="end">0.16</text>
+  <line class="svg-grid" x1="76" y1="105.6" x2="666" y2="105.6"/>
+  <text class="svg-tick" x="70" y="109.6" text-anchor="end">0.20</text>
+  <line class="svg-grid" x1="76" y1="50.0" x2="666" y2="50.0"/>
+  <text class="svg-tick" x="70" y="54.0" text-anchor="end">0.24</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">−1</text>
+  <text class="svg-tick" x="194.0" y="318" text-anchor="middle">0</text>
+  <text class="svg-tick" x="312.0" y="318" text-anchor="middle">1</text>
+  <text class="svg-tick" x="430.0" y="318" text-anchor="middle">2</text>
+  <text class="svg-tick" x="548.0" y="318" text-anchor="middle">3</text>
+  <text class="svg-tick" x="666.0" y="318" text-anchor="middle">4</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">x [m]   (la nariz en x = −0.82 m, la cola en x = 3.80 m)</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">Cd acumulado</text>
+  <polyline points="111.3,171.9 125.0,173.7 138.6,219.8 152.2,216.0 165.8,191.1 179.4,187.9 193.0,185.5 206.6,188.2 220.2,196.7 233.8,223.0 247.4,255.6 261.0,246.1 274.6,228.7 288.2,214.7 301.9,204.3 315.5,203.1 329.1,222.7 342.7,245.3 356.3,257.6 369.9,263.9 383.5,267.6 397.1,268.4 410.7,266.8 424.3,261.2 437.9,256.2 451.5,251.5 465.1,246.3 478.8,233.6 492.4,201.1 506.0,185.6 519.6,173.3 533.2,161.0 546.8,146.6 560.4,142.0 574.0,161.0 587.6,155.2 601.2,148.7 614.8,143.3 628.4,124.3 642.0,98.4" fill="none" stroke="var(--blue)" stroke-width="1.6"/>
+  <polyline points="111.3,177.1 125.0,179.2 138.6,223.4 152.2,218.9 165.8,191.8 179.4,188.3 193.0,186.0 206.6,188.2 220.2,195.3 233.8,219.9 247.4,247.5 261.0,234.9 274.6,217.4 288.3,203.1 301.9,203.3 315.5,202.3 329.1,221.6 342.7,243.6 356.3,256.9 369.9,263.5 383.5,267.4 397.1,268.6 410.7,267.4 424.3,262.4 437.9,258.7 451.5,254.9 465.2,249.6 478.8,238.0 492.4,210.2 506.0,196.2 519.6,186.0 533.2,173.4 546.8,158.1 560.4,152.4 574.0,156.7 587.6,147.4 601.2,140.3 614.8,133.6 628.5,112.3 642.1,68.8" fill="none" stroke="var(--accent)" stroke-width="1.6"/>
+  <polyline points="111.3,172.0 125.0,174.5 138.6,223.5 152.2,226.0 165.8,204.3 179.4,201.8 193.0,199.7 206.6,202.1 220.2,208.7 233.8,230.7 247.4,255.4 261.0,246.3 274.6,228.8 288.2,214.4 301.9,206.4 315.5,206.5 329.1,225.7 342.7,248.2 356.3,260.4 369.9,267.0 383.5,270.6 397.1,271.5 410.7,269.9 424.3,262.4 437.9,258.9 451.5,254.2 465.1,248.9 478.8,231.9 492.4,202.7 506.0,189.3 519.6,177.5 533.2,164.8 546.8,150.3 560.4,146.5 574.0,155.0 587.6,147.9 601.2,141.7 614.8,132.8 628.4,112.8 642.0,63.3" fill="none" stroke="var(--ink)" stroke-width="1.3"/>
+  <text class="svg-note-sm" x="105.5" y="161.1" text-anchor="start">nariz: remanso</text>
+  <text class="svg-note-sm" x="394.6" y="283.3" text-anchor="middle">techo: succión</text>
+  <text class="svg-note-sm" x="630.6" y="230.6" text-anchor="end">cola y base</text>
+  <line x1="110" y1="66" x2="136" y2="66" stroke="var(--blue)" stroke-width="1.6"/>
+  <text class="svg-note-sm" x="142" y="70">receta fina, medio auto</text>
+  <line x1="110" y1="84" x2="136" y2="84" stroke="var(--accent)" stroke-width="1.6"/>
+  <text class="svg-note-sm" x="142" y="88">pared resuelta, medio auto</text>
+  <line x1="110" y1="102" x2="136" y2="102" stroke="var(--ink)" stroke-width="1.3"/>
+  <text class="svg-note-sm" x="142" y="106">receta fina, auto completo</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">Dónde se separan las corridas.</b> El \(C_D\) de la carrocería sumado por tramos de 11 cm desde la nariz: sube con el remanso, baja con la succión del cofre y del techo, y vuelve a subir en la cola. Las tres corridas casi coinciden hasta x ≈ 2.4 m; la diferencia está en la cola y en la base, donde se desprende el flujo.</figcaption>
+</figure>
+<p>Es lo esperable: lo que un modelo RANS estacionario predice peor es el desprendimiento y la estela, y es ahí donde las decisiones del cálculo se notan. El Jimny es un cuerpo romo, con la parte trasera plana y vertical: el 99 % de su arrastre es de presión (<a href="jimny-resultados.html">3.3</a>) y su \(C_D\) es más del doble del del DrivAer. Es sensible a lo mismo.</p>
+<h3>Lo que otros calcularon</h3>
+<p>El DrivAer fastback con bajos lisos se ha calculado muchas veces. La figura 8 pone los valores que se encontraron junto a los medidos y a los de esta serie. Una tesis de Chalmers hecha con Volvo <a href="#references-es">(Yazdani, 2015)</a>, que reúne los publicados hasta entonces, encuentra que los cálculos del fastback se reparten en 0.054 de \(C_D\), que RANS estacionario con k-ε da 0.213, por debajo de todos los túneles, y que el cálculo no estacionario (SA-DDES, con 200 millones de celdas) predice mejor la presión de la base y la forma de la estela.</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 420" role="img" aria-label="El coeficiente de arrastre del DrivAer fastback medido en túneles de viento, calculado por otros grupos y calculado en esta serie.">
+  <text class="svg-title" x="20" y="28">El Cd del DrivAer fastback: medido y calculado</text>
+  <rect x="414.0" y="56" width="90.0" height="300" fill="#9dbde2" opacity="0.45"/>
+  <line class="svg-grid" x1="330.0" y1="56" x2="330.0" y2="364"/>
+  <text class="svg-tick" x="330.0" y="382" text-anchor="middle">0.20</text>
+  <line class="svg-grid" x1="390.0" y1="56" x2="390.0" y2="364"/>
+  <text class="svg-tick" x="390.0" y="382" text-anchor="middle">0.22</text>
+  <line class="svg-grid" x1="450.0" y1="56" x2="450.0" y2="364"/>
+  <text class="svg-tick" x="450.0" y="382" text-anchor="middle">0.24</text>
+  <line class="svg-grid" x1="510.0" y1="56" x2="510.0" y2="364"/>
+  <text class="svg-tick" x="510.0" y="382" text-anchor="middle">0.26</text>
+  <line class="svg-grid" x1="570.0" y1="56" x2="570.0" y2="364"/>
+  <text class="svg-tick" x="570.0" y="382" text-anchor="middle">0.28</text>
+  <line class="svg-grid" x1="630.0" y1="56" x2="630.0" y2="364"/>
+  <text class="svg-tick" x="630.0" y="382" text-anchor="middle">0.30</text>
+  <text class="svg-note-sm" x="495.0" y="404" text-anchor="middle">coeficiente de arrastre</text>
+  <text class="svg-tick" x="318" y="80" text-anchor="end">Túnel de viento</text>
+  <circle cx="459.0" cy="76" r="5" fill="var(--ink)"/>
+  <circle cx="471.0" cy="76" r="5" fill="var(--ink)"/>
+  <circle cx="459.0" cy="76" r="5" fill="var(--ink)"/>
+  <circle cx="414.0" cy="76" r="5" fill="var(--ink)"/>
+  <circle cx="492.0" cy="76" r="5" fill="var(--ink)"/>
+  <circle cx="486.0" cy="76" r="5" fill="var(--ink)"/>
+  <circle cx="498.0" cy="76" r="5" fill="var(--ink)"/>
+  <circle cx="504.0" cy="76" r="5" fill="var(--ink)"/>
+  <text class="svg-note-sm" x="513.0" y="80">0.228 a 0.258</text>
+  <text class="svg-tick" x="318" y="110" text-anchor="end">k-ε realizable, 50 y 200 millones de celdas (Yazdani, 2015)</text>
+  <line x1="369.0" y1="106" x2="372.0" y2="106" stroke="#5b8cc6" stroke-width="3"/>
+  <circle cx="369.0" cy="106" r="5" fill="#5b8cc6"/>
+  <circle cx="372.0" cy="106" r="5" fill="#5b8cc6"/>
+  <text class="svg-note-sm" x="381.0" y="110">0.213–0.214</text>
+  <text class="svg-tick" x="318" y="140" text-anchor="end">SA-DDES, 200 millones de celdas (Yazdani, 2015)</text>
+  <circle cx="435.0" cy="136" r="5" fill="#5b8cc6"/>
+  <text class="svg-note-sm" x="444.0" y="140">0.235</text>
+  <text class="svg-tick" x="318" y="170" text-anchor="end">k-ω SST con y⁺ < 1, 11 millones de celdas</text>
+  <line x1="456.0" y1="166" x2="501.0" y2="166" stroke="#5b8cc6" stroke-width="3"/>
+  <circle cx="456.0" cy="166" r="5" fill="#5b8cc6"/>
+  <circle cx="501.0" cy="166" r="5" fill="#5b8cc6"/>
+  <text class="svg-note-sm" x="510.0" y="170">0.242–0.257</text>
+  <text class="svg-tick" x="318" y="200" text-anchor="end">k-ε realizable, medio auto, 1.6 millones de celdas</text>
+  <circle cx="459.0" cy="196" r="5" fill="#5b8cc6"/>
+  <text class="svg-note-sm" x="468.0" y="200">0.243</text>
+  <text class="svg-tick" x="318" y="230" text-anchor="end">k-ω SST en OpenFOAM, 27 millones de celdas</text>
+  <circle cx="492.0" cy="226" r="5" fill="#5b8cc6"/>
+  <text class="svg-note-sm" x="501.0" y="230">0.254</text>
+  <text class="svg-tick" x="318" y="260" text-anchor="end">Esta serie: tutorial, malla S</text>
+  <circle cx="626.5" cy="256" r="5" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="635.5" y="260">0.299</text>
+  <text class="svg-tick" x="318" y="290" text-anchor="end">Esta serie: receta fina, medio auto</text>
+  <circle cx="528.0" cy="286" r="5" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="537.0" y="290">0.266</text>
+  <text class="svg-tick" x="318" y="320" text-anchor="end">Esta serie: receta fina, auto completo</text>
+  <circle cx="559.3" cy="316" r="5" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="568.3" y="320">0.276</text>
+  <text class="svg-tick" x="318" y="350" text-anchor="end">Esta serie: pared resuelta, medio auto</text>
+  <circle cx="598.0" cy="346" r="5" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="607.0" y="350">0.289</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 8.</b> <b class="fig-title">El DrivAer, medido y calculado.</b> La franja va del menor al mayor valor medido en túnel que se citan para el fastback con bajos lisos; los puntos azules son cálculos publicados por otros grupos, de RANS con decenas de millones de celdas a un DDES de 200 millones; los naranjas, los de esta serie. Los cálculos publicados se reparten a los dos lados del túnel.</figcaption>
+</figure>
+<div class="callout">
+  <p><strong>Nota de alcance.</strong> Salvo la tesis de Yazdani, que se leyó completa, los valores de la figura 8 vienen de páginas y artículos que citan a otros, no de las publicaciones originales; la tesis advierte, además, que los soportes del modelo en el túnel de la TU Múnich suben el \(C_D\) medido hasta cuatro milésimas, y que sus ruedas no son las del modelo de los cálculos. El túnel también tiene su incertidumbre.</p>
+</div>
+
+    </section>
+    <section id="check-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>El presupuesto de incertidumbre del Jimny</h2>
+
+<p class="lead">Enunciado: con las corridas de la tabla 1, estimar cuánto puede moverse el \(C_D\) del Jimny, 0.564, por cada fuente de incertidumbre, y reportarlo con una incertidumbre total.</p>
+<h3>1. Una cosa a la vez</h3>
+<p>La tabla 3 compara pares de corridas que difieren en una sola cosa; la figura 9 lo dibuja.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Fuente</th><th>Cambio</th><th>Vehículo</th><th>Efecto en \(C_D\)</th></tr></thead>
+    <tbody>
+      <tr><td>El promedio</td><td>1000 iteraciones contra su error estándar</td><td>Jimny 3.1–3.4</td><td>+0.1 %</td></tr>
+      <tr><td>La versión</td><td>OpenFOAM 13 → 12, misma malla</td><td>DrivAer, receta fina</td><td>+0.9 %</td></tr>
+      <tr><td>La malla del volumen</td><td>intermedia → fina</td><td>DrivAer, medio</td><td>+0.3 %</td></tr>
+      <tr><td>La malla junto a la pared</td><td>receta fina → pared resuelta</td><td>DrivAer, medio</td><td>+8.8 %</td></tr>
+      <tr><td>El plano de simetría</td><td>medio → completo</td><td>Jimny</td><td>−3.2 %</td></tr>
+      <tr><td></td><td></td><td>DrivAer</td><td>+3.9 %</td></tr>
+      <tr><td>Los esquemas numéricos</td><td><code>motorBikeSteady</code> → <code>drivaerFastback</code></td><td>Jimny</td><td>−4.9 %</td></tr>
+      <tr><td>Las fronteras del túnel</td><td><code>slip</code> → <code>freestream</code></td><td>Jimny</td><td>−2.7 %</td></tr>
+      <tr><td>El modelo de turbulencia</td><td>cálculo contra túnel (0.243–0.247)</td><td>DrivAer completo</td><td>+12.8 %</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">Qué mueve el Cd.</b> Cada renglón compara dos corridas que difieren en una sola cosa (tabla 1). El último compara el cálculo con el túnel: mezcla el modelo de turbulencia con todo lo demás.</caption>
+  </table>
+</div>
+<figure class="diagram">
+<svg viewBox="0 0 720 426" role="img" aria-label="Cambio porcentual del coeficiente de arrastre al cambiar una sola cosa del cálculo, de la versión de OpenFOAM al modelo de turbulencia.">
+  <text class="svg-title" x="20" y="28">Cuánto cambia el Cd al cambiar una sola cosa</text>
+  <line class="svg-grid" x1="300.0" y1="52" x2="300.0" y2="366"/>
+  <text class="svg-tick" x="300.0" y="384" text-anchor="middle">−10 %</text>
+  <line class="svg-grid" x1="376.0" y1="52" x2="376.0" y2="366"/>
+  <text class="svg-tick" x="376.0" y="384" text-anchor="middle">−5 %</text>
+  <line class="svg-grid" x1="452.0" y1="52" x2="452.0" y2="366"/>
+  <text class="svg-tick" x="452.0" y="384" text-anchor="middle">0</text>
+  <line class="svg-grid" x1="528.0" y1="52" x2="528.0" y2="366"/>
+  <text class="svg-tick" x="528.0" y="384" text-anchor="middle">+5 %</text>
+  <line class="svg-grid" x1="604.0" y1="52" x2="604.0" y2="366"/>
+  <text class="svg-tick" x="604.0" y="384" text-anchor="middle">+10 %</text>
+  <line class="svg-grid" x1="680.0" y1="52" x2="680.0" y2="366"/>
+  <text class="svg-tick" x="680.0" y="384" text-anchor="middle">+15 %</text>
+  <line class="svg-axis" x1="452.0" y1="52" x2="452.0" y2="366"/>
+  <text class="svg-note-sm" x="490.0" y="406" text-anchor="middle">cambio del coeficiente de arrastre</text>
+  <text class="svg-tick" x="290" y="75" text-anchor="end">El promedio (Jimny 3.1–3.4)</text>
+  <rect x="452.0" y="62" width="1.8" height="20" fill="var(--blue)" opacity="0.85"/>
+  <text class="svg-note-sm" x="459.8" y="76" text-anchor="start">+0.1 %</text>
+  <text class="svg-tick" x="290" y="109" text-anchor="end">La versión (DrivAer)</text>
+  <rect x="452.0" y="96" width="13.2" height="20" fill="var(--blue)" opacity="0.85"/>
+  <text class="svg-note-sm" x="471.2" y="110" text-anchor="start">+0.9 %</text>
+  <text class="svg-tick" x="290" y="143" text-anchor="end">La malla del volumen (DrivAer)</text>
+  <rect x="452.0" y="130" width="5.0" height="20" fill="var(--blue)" opacity="0.85"/>
+  <text class="svg-note-sm" x="463.0" y="144" text-anchor="start">+0.3 %</text>
+  <text class="svg-tick" x="290" y="177" text-anchor="end">La malla junto a la pared (DrivAer)</text>
+  <rect x="452.0" y="164" width="133.3" height="20" fill="var(--blue)" opacity="0.85"/>
+  <text class="svg-note-sm" x="591.3" y="178" text-anchor="start">+8.8 %</text>
+  <text class="svg-tick" x="290" y="211" text-anchor="end">El plano de simetría (Jimny)</text>
+  <rect x="403.2" y="198" width="48.8" height="20" fill="var(--blue)" opacity="0.85"/>
+  <text class="svg-note-sm" x="397.2" y="212" text-anchor="end">−3.2 %</text>
+  <text class="svg-tick" x="290" y="245" text-anchor="end"> (DrivAer)</text>
+  <rect x="452.0" y="232" width="59.8" height="20" fill="var(--blue)" opacity="0.85"/>
+  <text class="svg-note-sm" x="517.8" y="246" text-anchor="start">+3.9 %</text>
+  <text class="svg-tick" x="290" y="279" text-anchor="end">Los esquemas numéricos (Jimny)</text>
+  <rect x="378.1" y="266" width="73.9" height="20" fill="var(--blue)" opacity="0.85"/>
+  <text class="svg-note-sm" x="372.1" y="280" text-anchor="end">−4.9 %</text>
+  <text class="svg-tick" x="290" y="313" text-anchor="end">Las fronteras del túnel (Jimny)</text>
+  <rect x="411.0" y="300" width="41.0" height="20" fill="var(--blue)" opacity="0.85"/>
+  <text class="svg-note-sm" x="405.0" y="314" text-anchor="end">−2.7 %</text>
+  <text class="svg-tick" x="290" y="347" text-anchor="end">El modelo de turbulencia (DrivAer completo)</text>
+  <rect x="452.0" y="334" width="195.1" height="20" fill="var(--accent)" opacity="0.85"/>
+  <text class="svg-note-sm" x="653.1" y="348" text-anchor="start">+12.8 %</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 9.</b> <b class="fig-title">Qué mueve el Cd.</b> Cada barra compara dos corridas que difieren en una sola cosa (tabla 3). La versión de OpenFOAM, el promedio y la malla del volumen mueven el \(C_D\) menos de 1 %; la pared, el plano de simetría, los esquemas y las fronteras, de 3 a 9 %; la última barra es la distancia al túnel de viento.</figcaption>
+</figure>
+<p>Se separan en tres grupos:</p>
+<ul>
+  <li><strong>Menos de 1 %: el promedio, la versión y la malla del volumen.</strong> Son las fuentes que más se discuten y las que menos pesan aquí. El promedio de mil iteraciones del Jimny completo tiene un error estándar de 0.0007; OpenFOAM 12 y 13 dan el mismo \(C_D\) del DrivAer con 0.9 % de diferencia; la malla fina en el volumen ya no cambia el resultado.</li>
+  <li><strong>De 3 a 9 %: las decisiones del método.</strong> La pared, el plano de simetría, los esquemas numéricos y las fronteras del túnel. Ninguna de las dos opciones de cada par es un error: los esquemas del <code>motorBikeSteady</code> y los del <code>drivaerFastback</code> son de tutoriales oficiales, y <code>slip</code> y <code>freestream</code> son fronteras razonables para un túnel virtual.</li>
+  <li><strong>Del orden de 13 %: el modelo.</strong> Con todo lo anterior fijo, el DrivAer completo queda 12 a 14 % por encima del túnel. Esa barra mezcla el modelo de turbulencia con las demás decisiones, y no se puede trasladar al Jimny: su forma es otra.</li>
+</ul>
+<h3>2. El Jimny con las decisiones razonables</h3>
+<p>Las corridas del Jimny completo con métodos que convergen —los esquemas del <code>drivaerFastback</code>, con las fronteras del <code>motorBikeSteady</code> o con <code>freestream</code>, con arranque uniforme o con <code>potentialFoam</code>, con pedestal o sin él— dan 0.537, 0.550, 0.564, 0.565. Su centro y su semiamplitud:</p>
+<div class="equation-card">\[ C_D = 0.551 \pm 0.014 \quad (\pm 3\,\%) \tag{4} \]</div>
+<p>Es la incertidumbre del <em>método</em>: lo que se mueve el \(C_D\) del Jimny entre decisiones igual de defendibles. Con el método del <code>motorBikeSteady</code>, que no converge, se llega a 0.594.</p>
+<h3>3. El Jimny contra la realidad</h3>
+<p>A eso hay que sumarle lo que el método no sabe de la física, que sólo un experimento mide. El DrivAer dice que, para un auto, ese error es del orden de un décimo, y la dispersión de los cálculos publicados dice lo mismo. Si las dos incertidumbres se suponen independientes, se combinan en cuadratura:</p>
+<div class="equation-card">\[ u = \sqrt{u_{\text{método}}^2 + u_{\text{modelo}}^2} = \sqrt{3^2 + 10^2}\;\% \approx 10\,\% \tag{5} \]</div>
+<div class="result-box">
+  <p><strong>Resultado:</strong> el \(C_D\) del Jimny con RANS estacionario es 0.551 ± 0.014 como resultado del método, y del orden de 0.55 ± 0.06 como estimación del vehículo real: entre 0.50 y 0.61. El ± 0.003 del 3.3 era sólo la oscilación; la incertidumbre de un \(C_D\) de RANS es unas veinte veces mayor, y lo que más la mueve está en la estela.</p>
+</div>
+<div class="callout">
+  <p><strong>Por qué el ±10 % es una estimación.</strong> El 10 % del modelo no se midió en el Jimny: sale de un auto distinto y de la literatura. Sólo una medición del Jimny en túnel, o un cálculo con un modelo mejor para la estela, lo reduciría. Lo segundo es lo que intenta el tutorial 3.7, con un cálculo no estacionario.</p>
+</div>
+
+    </section>
+    <section id="errors-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Cómo se subestima una incertidumbre</h2>
+
+<p>Los tres salieron al preparar el bloque.</p>
+<h3>1. Tramos más cortos que la oscilación</h3>
+<p>En el Jimny de medio vehículo, que oscila con periodos de cientos de iteraciones (figura 5), el error estándar del promedio de 1001 a 4000 depende del largo de los tramos (tabla 4): 0.0019 con tramos de 10, 0.0048 con tramos de 500. Con tramos cortos, cada tramo se parece al siguiente y la ecuación (3) da un error dos y media veces menor. La ecuación (2), con \(\tau\) = 35, da 0.0036, también menos que con tramos de 500: \(\tau\) mide la oscilación rápida, no la deriva lenta.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th></th><th>\(\sigma\)</th><th>\(\tau\)</th><th>Ec. (2)</th><th>Tramos de 10</th><th>Tramos de 500</th><th>Tramos de 1000</th></tr></thead>
+    <tbody>
+      <tr><td>Jimny completo (3.1–3.4)</td><td>0.0030</td><td>49</td><td>0.0007</td><td>0.0003</td><td>—</td><td>—</td></tr>
+      <tr><td>Medio vehículo</td><td>0.0335</td><td>35</td><td>0.0036</td><td>0.0019</td><td>0.0048</td><td>0.0036</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">La incertidumbre del promedio, por dos caminos.</b> Iteraciones 1001 a 2000 para el Jimny de los tutoriales y 1001 a 4000 para el medio vehículo. τ es el tiempo integral de correlación del \(C_D\), en iteraciones; la columna de la ecuación (2) usa ese τ; las otras, el guion <code>tramos</code> con tramos del largo indicado.</caption>
+  </table>
+</div>
+<p><strong>Remedio:</strong> mirar la historia del \(C_D\) antes de elegir el tramo, y elegirlo más largo que la oscilación más lenta que se vea. Si al alargar los tramos el error estándar sigue creciendo, el promedio no está determinado, y hay que correr más iteraciones o cambiar algo del cálculo.</p>
+<h3>2. Comparar dos corridas por su promedio</h3>
+<p>El Jimny de medio vehículo se corrió primero en la Mac, con OpenFOAM 13: \(C_D\) = 0.539 (1001–2000). En la laptop, con OpenFOAM 12, dio 0.562 en las mismas iteraciones: un 4 % más, que parecía una diferencia entre versiones. Con 4000 iteraciones, el promedio de la laptop bajó a 0.555, y los promedios de mil iteraciones fueron 0.562, 0.554, 0.549: la diferencia cabía en la oscilación. En el DrivAer, que oscila poco, las dos versiones coinciden en 0.9 %. <strong>Remedio:</strong> comparar dos corridas sólo con la incertidumbre de cada promedio a la vista; si sus franjas se tocan, la diferencia no está probada.</p>
+<h3>3. Pocos tramos</h3>
+<p>En las 500 iteraciones de la 1501 a la 2000 no caben dos tramos de 600, y el guion lo dice en lugar de calcular:</p>
+<pre class="code"><code>$ ./tramos 1500 600
+Hacen falta al menos dos tramos completos</code></pre>
+<p>Con dos o tres tramos sí calcula, pero el error estándar de la ecuación (3) es poco confiable: la desviación estándar de dos números es casi un volado. <strong>Remedio:</strong> al menos cuatro tramos, y si con tramos largos no caben, más iteraciones.</p>
+
+    </section>
+    <section id="practice-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>El Jimny con el método del motorBikeSteady</h2>
+
+<p class="lead">¿Cuánto mueve el método numérico el \(C_D\) del Jimny?</p>
+<div class="example">
+  <p><strong>Enunciado.</strong> Correr el Jimny con los esquemas y los solvers del <code>motorBikeSteady</code>, el tutorial del que salió el caso en el 3.1, y llenar la tabla 5.</p>
+  <p><strong>Condiciones.</strong> El mismo caso, la misma malla de 2 123 371 celdas y 2000 iteraciones: unas dos horas con 8 núcleos, como en el 3.2. En otra carpeta, para no perder la corrida de referencia.</p>
+</div>
+<h3>El procedimiento, en corto</h3>
+<ol>
+  <li>Descomprimir <code>jimny.zip</code> otra vez y renombrar la carpeta a <code>jimny-moto</code> dentro de <code>$FOAM_RUN</code>.</li>
+  <li><code>cd $FOAM_RUN/jimny-moto</code> y copiar los dos archivos del tutorial original: <code>cp $FOAM_TUTORIALS/incompressibleFluid/motorBikeSteady/system/fvSchemes system/</code> y lo mismo con <code>fvSolution</code>. Abrirlos en Notepad2: la convección de k y ω es <code>upwind</code>, y el algoritmo es SIMPLEC (<code>consistent yes</code>) con la velocidad relajada a 0.9 y la presión sin relajar.</li>
+  <li><code>./Allrun</code> y, al terminar, <code>./tramos</code> y <code>./tramos 1000 500</code>.</li>
+</ol>
+<h3>Registro de resultados</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Método numérico</th><th>\(C_D\) (1001–2000)</th><th>Tramos de 250: del menor al mayor</th><th>Error estándar de la media</th></tr></thead>
+    <tbody>
+      <tr><td><code>drivaerFastback</code></td><td>0.5637</td><td>0.5629 a 0.5644</td><td>0.0003</td></tr>
+      <tr><td><code>motorBikeSteady</code></td><td></td><td></td><td></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 5.</b> <b class="fig-title">Registro de la práctica.</b> El primer renglón es el de los tutoriales 3.1–3.4. El segundo se llena con la corrida propia; como referencia, la misma comparación hecha al preparar el caso, con las llantas sobre un pedestal (tutorial 3.1), dio 0.594 ± 0.045 con el método del <code>motorBikeSteady</code> y 0.565 ± 0.006 con el del <code>drivaerFastback</code>.</caption>
+  </table>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>¿Se asienta el \(C_D\)? ¿Qué dice el error estándar al pasar de tramos de 250 a tramos de 500?</li>
+  <li>¿La diferencia con 0.564 es mayor que la incertidumbre de los dos promedios?</li>
+  <li>El método del <code>motorBikeSteady</code> funciona bien con la motocicleta. ¿Qué tiene el Jimny —un cuerpo romo con la parte trasera vertical— que lo vuelve sensible a la difusión numérica de <code>upwind</code>?</li>
+</ol>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ul class="references">
+  <li>Heft, A. I., Indinger, T. y Adams, N. A. (2012). <em>Introduction of a new realistic generic car model for aerodynamic investigations</em> (SAE Technical Paper 2012-01-0168). SAE International.</li>
+  <li>Law, A. M. (2015). <em>Simulation modeling and analysis</em> (5.ª ed.). McGraw-Hill. (El método de los promedios por tramos.)</li>
+  <li>Oberkampf, W. L. y Roy, C. J. (2010). <em>Verification and validation in scientific computing</em>. Cambridge University Press.</li>
+  <li>Roache, P. J. (1998). <em>Verification and validation in computational science and engineering</em>. Hermosa Publishers.</li>
+  <li>Yazdani, R. (2015). <em>Steady and unsteady numerical analysis of the DrivAer model</em> (tesis de maestría 2015:34). Chalmers University of Technology. https://publications.lib.chalmers.se/records/fulltext/219217/219217.pdf</li>
+</ul>
+<p class="source-note">Las capturas son del ensayo del vídeo de esta guía. Las cifras son de las corridas hechas para preparar el bloque 3, del 12 al 15 de octubre de 2026: en la Mac, OpenFOAM 13 en una máquina virtual Multipass; en la laptop, blueCFD-Core 2024 (OpenFOAM 12) con 6 u 8 procesos.</p>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="drivaer-validacion.html?v=13"><span>Tutorial anterior</span>← 3.5 · El DrivAer contra el túnel de viento</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Flujo incompresible</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Die Unsicherheitsquellen eines berechneten Widerstandsbeiwerts unterscheiden; die Unsicherheit eines Mittelwerts mit Blockmitteln messen; eine Netzstudie und eine Druck-/Reibungsaufteilung lesen; einen Cd mit ehrlicher Unsicherheit angeben.</p>
+    </section>
+    <section id="problem-de">
+      <p class="section-label">Das Problem</p>
+      <h2>Ein Fahrzeug, viele Zahlen</h2>
+<p>Für die Tutorials 3.1 bis 3.5 waren sechzehn Rechnungen nötig. Mit derselben Physik ergab der Jimny Cd-Werte zwischen 0,537 und 0,594. Welcher ist der Widerstandsbeiwert, und wie sicher ist er?</p>
+    </section>
+    <section id="theory-de">
+      <p class="section-label">Die Theorie</p>
+      <h2>Woher die Unsicherheit eines berechneten Cd kommt</h2>
+<p>Numerische Fehler (Mittelung, Diskretisierung) und Modellfehler (Turbulenzmodell, Wandbehandlung, Symmetrie, Gebiet); der Standardfehler des Mittelwerts eines korrelierten Signals, σ√(τ/N), und die Blockmittel.</p>
+    </section>
+    <section id="recipe-de">
+      <p class="section-label">Schritt für Schritt</p>
+      <h2>Der Mittelwert und seine Unsicherheit: das Skript tramos</h2>
+<p>Das Skript tramos teilt den Cd-Verlauf in gleiche Blöcke: ./tramos 1000 250 ergibt vier Blockmittel zwischen 0,5629 und 0,5644 und einen Standardfehler von 0,0003.</p>
+    </section>
+    <section id="case-de">
+      <p class="section-label">Die Rechnungen</p>
+      <h2>Sechzehn Rechnungen, eine Änderung nach der anderen</h2>
+<p>Alle sechzehn Rechnungen in einer Tabelle; die Symmetrieebene (halbes Fahrzeug: 0,555 ± 0,033, schwankend; ganzes: 0,537 ± 0,002); Cd über dem Netz; wo entlang des Autos sich die Rechnungen unterscheiden.</p>
+    </section>
+    <section id="check-de">
+      <p class="section-label">Durchgerechnetes Beispiel</p>
+      <h2>Das Unsicherheitsbudget des Jimny</h2>
+<p>Mittelung und OpenFOAM-Version ändern Cd um weniger als 1 %; Wandnetz, Symmetrie, Schemata und Kanalränder um 3 bis 9 %; der DrivAer liegt 12 bis 14 % über dem Windkanal. Ein stationärer RANS-Cd ist etwa ±10 % wert.</p>
+    </section>
+    <section id="errors-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Wie eine Unsicherheit unterschätzt wird</h2>
+<p>Blöcke kürzer als die langsame Schwingung; zwei Rechnungen nur über ihre Mittelwerte vergleichen; das ± des Mittelwerts als Unsicherheit des Ergebnisses lesen.</p>
+    </section>
+    <section id="practice-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Der Jimny mit dem Verfahren von motorBikeSteady</h2>
+<p>Den Jimny mit fvSchemes und fvSolution von motorBikeSteady rechnen und mit tramos messen, wie stark das numerische Verfahren den Widerstandsbeiwert verschiebt.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>Roache zu Verifikation und Validierung; Yazdani (2015) zu stationären und instationären Rechnungen des DrivAer; Heft, Indinger und Adams (2012); Blockmittel für den Fehler eines Mittelwerts.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="drivaer-validacion.html?v=13"><span>Vorheriges Tutorial</span>← 3.5 · Der DrivAer gegen den Windkanal</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Inkompressible Strömung</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>
