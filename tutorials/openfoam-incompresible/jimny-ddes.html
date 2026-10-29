@@ -79,7 +79,7 @@
     <section id="check">
       <p class="section-label">Worked example</p>
       <h2>RANS, SST-DES and SA-DDES side by side</h2>
-<p>Mean drag: RANS 0.564, SST-DES 0.576 ± 0.010, SA-DDES 0.689 ± 0.011. The DDES drag fluctuates by ±0.047 to ±0.056; the mean recirculation behind the tail is 1.98 m (RANS), 1.77 m (SST-DES) and 1.36 m (SA-DDES). The 20% gap between the two DDES models is pressure drag spread over the hood, roof, sides and rear: with Spalart-Allmaras the shear layers from the front edges break into resolved eddies almost at once, with SST they stay smooth sheets until the wake. Each DDES run costs ten to twelve times the RANS run.</p>
+<p>Mean drag: RANS 0.564, SST-DES 0.576 ± 0.010, SA-DDES 0.689 ± 0.011. The DDES drag fluctuates by ±0.047 to ±0.056; the mean recirculation behind the tail is 1.98 m (RANS), 1.70 m (SST-DES) and 1.17 m (SA-DDES). The 20% gap between the two DDES models is pressure drag spread over the hood, roof, sides and rear: with Spalart-Allmaras the shear layers from the front edges break into resolved eddies almost at once, with SST they stay smooth sheets until the wake. Each DDES run costs ten to twelve times the RANS run.</p>
     </section>
     <section id="errors">
       <p class="section-label">Common errors</p>
@@ -364,7 +364,7 @@ promediosTiempo
 {
     type            fieldAverage;
     libs            (&quot;libfieldFunctionObjects.so&quot;);
-    timeStart       0.3;
+    startTime       0.3;                    // startTime en OpenFOAM 12: timeStart (de la versión ESI) se ignora sin aviso
     writeControl    writeTime;
     fields
     (
@@ -382,7 +382,7 @@ promediosTiempo
 }
 
 // ************************************************************************* //</code></pre>
-<p><code>promediosTiempo</code> acumula, desde 0.3 s, la media de U y de p y sus fluctuaciones (<code>UPrime2Mean</code>, <code>pPrime2Mean</code>), que se escriben con cada carpeta de tiempo. <code>fuerzas</code> guarda la fuerza total en cada paso, para la fuerza lateral, que <code>forceCoeffs</code> no da.</p>
+<p><code>promediosTiempo</code> acumula, desde 0.3 s (<code>startTime</code>; véase el problema 6 de la sección de errores), la media de U y de p y sus fluctuaciones (<code>UPrime2Mean</code>, <code>pPrime2Mean</code>), que se escriben con cada carpeta de tiempo. <code>fuerzas</code> guarda la fuerza total en cada paso, para la fuerza lateral, que <code>forceCoeffs</code> no da.</p>
 
     </section>
     <section id="check-es">
@@ -485,15 +485,15 @@ Error estándar de la media     0.0100</code></pre>
     <thead><tr><th>Cálculo</th><th>\(C_D\)</th><th>Fluctuación</th><th>\(C_{L,f}\)</th><th>\(C_{L,r}\)</th><th>Recirculación</th></tr></thead>
     <tbody>
       <tr><td>RANS, k-ω SST</td><td>0.564 ± 0.001</td><td>0.003</td><td>0.171</td><td>−0.099</td><td>1.98 m</td></tr>
-      <tr><td>DDES, k-ω SST</td><td>0.576 ± 0.010</td><td>0.047</td><td>0.143</td><td>−0.104</td><td>1.77 m</td></tr>
-      <tr><td>DDES, Spalart-Allmaras</td><td>0.689 ± 0.011</td><td>0.056</td><td>0.282</td><td>−0.212</td><td>1.36 m</td></tr>
+      <tr><td>DDES, k-ω SST</td><td>0.576 ± 0.010</td><td>0.047</td><td>0.143</td><td>−0.104</td><td>1.70 m</td></tr>
+      <tr><td>DDES, Spalart-Allmaras</td><td>0.689 ± 0.011</td><td>0.056</td><td>0.282</td><td>−0.212</td><td>1.17 m</td></tr>
     </tbody>
     <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Los tres cálculos del Jimny.</b> RANS: iteraciones 1001 a 2000 (tutorial 3.3); DDES: de 0.3 a 1.5 s. El ± del \(C_D\) es el error estándar de la media (en el DDES, con tramos de 0.2 s: el guion <code>tramos</code>); la fluctuación es la desviación estándar del \(C_D\) instantáneo. La recirculación es el largo de la zona con \(U_x &lt; 0\) detrás de la cola, en el plano medio, con la velocidad media.</caption>
   </table>
 </div>
 <p>Contra el RANS, el \(C_D\) medio cambia +2 % con k-ω SST y +22 % con Spalart-Allmaras. La fuerza de arrastre a 100 km/h pasa de 636 N a 650 y 777 N (\(\rho\) = 1.2 kg/m³). La diferencia entre los dos DDES, 0.113, es unas diez veces el error estándar de cada media: no es ruido, es el modelo. Con Spalart-Allmaras también se duplica el levante del eje delantero.</p>
 <h3>3. Dónde está la diferencia</h3>
-<p>Casi toda es arrastre de presión: el de fricción apenas cambia. Integrando la presión media sobre el vehículo por franjas (el guion <code>arrastre_zonas_ddes.py</code> de la carpeta de exploración), de cada 100 unidades de arrastre de presión que Spalart-Allmaras agrega sobre k-ω SST, 27 están en el cofre y el parabrisas, 49 en el techo y los costados y 30 en la cola; en la cara del frente casi no hay diferencia (−6, un poco menos). La diferencia no viene de un punto: viene de lo que pasa en todo el vehículo detrás de los bordes del frente, que es lo que muestran los remolinos.</p>
+<p>Casi toda es arrastre de presión: el de fricción apenas cambia. Integrando la presión media sobre el vehículo por franjas (el guion <code>arrastre_zonas_ddes.py</code> de la carpeta de exploración), de cada 100 unidades de arrastre de presión que Spalart-Allmaras agrega sobre k-ω SST, 25 están en el cofre y el parabrisas, 50 en el techo y los costados y 30 en la cola; en la cara del frente casi no hay diferencia (−6, un poco menos). La diferencia no viene de un punto: viene de lo que pasa en todo el vehículo detrás de los bordes del frente, que es lo que muestran los remolinos.</p>
 <h3>4. Los remolinos</h3>
 <figure class="diagram">
   <img src="imagenes/t37-02_q.png" alt="El Jimny visto de tres cuartos por delante con las isosuperficies del criterio Q de los dos modelos DDES" loading="lazy">
@@ -514,7 +514,7 @@ Error estándar de la media     0.0100</code></pre>
   <img src="imagenes/t37-01_planos.png" alt="Cuatro cortes del plano medio del Jimny coloreados por la magnitud de la velocidad" loading="lazy">
   <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">La velocidad en el plano medio.</b> |U| en \(y\) = 0, de 0 a 36 m/s. Arriba, el RANS (iteración 2000) y el DDES k-ω SST en el instante 1.5 s; abajo, la velocidad media de 0.3 a 1.5 s de los dos DDES. La instantánea está llena de remolinos; las medias se parecen al RANS, con la zona lenta detrás de la cola más corta.</figcaption>
 </figure>
-<p>En el plano medio (figura 6), la velocidad instantánea del DDES está llena de remolinos; su media, en cambio, se parece a la estela del RANS. La zona de flujo invertido detrás de la cola mide 1.98 m en el RANS, 1.77 m con k-ω SST y 1.36 m con Spalart-Allmaras. Es la regla de los cuerpos romos: la burbuja más corta va con más succión en la cara trasera y más arrastre.</p>
+<p>En el plano medio (figura 6), la velocidad instantánea del DDES está llena de remolinos; su media, en cambio, se parece a la estela del RANS. La zona de flujo invertido detrás de la cola mide 1.98 m en el RANS, 1.70 m con k-ω SST y 1.17 m con Spalart-Allmaras. Es la regla de los cuerpos romos: la burbuja más corta va con más succión en la cara trasera y más arrastre.</p>
 <h3>6. El costo</h3>
 <div class="table-wrap">
   <table>
@@ -539,7 +539,7 @@ Error estándar de la media     0.0100</code></pre>
       <p class="section-label">Errores frecuentes</p>
       <h2>Cambiar el modelo de turbulencia de un caso</h2>
 
-<p>Los cinco salieron al preparar esta guía.</p>
+<p>Los seis salieron al preparar esta guía.</p>
 <h3>1. Spalart-Allmaras sin nuTilda</h3>
 <p>Si se cambia sólo <code>momentumTransport</code> a <code>SpalartAllmarasDDES</code>, el solver se detiene al construir el modelo:</p>
 <pre class="code"><code>--&gt; FOAM FATAL ERROR:
@@ -557,6 +557,15 @@ cannot find file &quot;D:/blueCFD-Core/2024/ofuser-of12/run/vehiculo/errores-sa/
 <p><strong>Remedio:</strong> un solo lugar. Los casos de esta guía usan <code>system/functions</code>.</p>
 <h3>5. El filtro Gradient de ParaView</h3>
 <p>Calcular Q en ParaView con el filtro <em>Gradient</em> (casilla <em>Compute QCriterion</em>) sobre los datos en los puntos llenó el registro de «vtkWedge … Jacobian inverse not found» —las cuñas degeneradas que <code>snappyHexMesh</code> deja junto a la pared— y, con el campo de 1.5 s, ParaView se cerró. <strong>Remedio:</strong> que lo calcule OpenFOAM, con <code>foamPostProcess -func Q</code> (paso 6 de la receta), y en ParaView sólo dibujar el <em>Contour</em>.</p>
+<h3>6. timeStart en vez de startTime</h3>
+<p>La primera versión de esta guía escribía <code>timeStart 0.3;</code> en <code>promediosTiempo</code>, como en la versión ESI de OpenFOAM (openfoam.com). OpenFOAM 12 no conoce esa palabra, <strong>no avisa</strong> y promedia desde el tiempo 0, con el arranque incluido. Se descubre en el archivo que <code>fieldAverage</code> escribe en cada carpeta de tiempo:</p>
+<p class="code-name"><code>processor0/1.5/uniform/promediosTiempoProperties</code></p>
+<pre class="code"><code>U
+{
+    totalIter       15000;
+    totalTime       1.5;
+}</code></pre>
+<p>Con el promedio desde 0.3 s, <code>totalTime</code> sería 1.2. <strong>Remedio:</strong> <code>startTime 0.3;</code>, que es lo que traen ahora los dos casos. Si ya se corrió con <code>timeStart</code>, no hace falta repetir el cálculo: con un paso de tiempo fijo, la media de 0.3 a 1.5 s sale de las dos medias acumuladas, \(\bar u_{0.3\text{–}1.5} = (15000\,\bar u_{1.5} - 3000\,\bar u_{0.3})/12000\). Así se corrigieron, el 29 de octubre de 2026, la estela media y el reparto del arrastre de esta guía; la burbuja de Spalart-Allmaras resultó 14 % más corta que con el promedio desde 0. El \(C_D\) no cambia: sale de <code>forceCoeffs</code>, no de los promedios.</p>
 
     </section>
     <section id="practice-es">
@@ -647,7 +656,7 @@ cannot find file &quot;D:/blueCFD-Core/2024/ofuser-of12/run/vehiculo/errores-sa/
     <section id="check-de">
       <p class="section-label">Durchgerechnetes Beispiel</p>
       <h2>RANS, SST-DES und SA-DDES nebeneinander</h2>
-<p>Mittlerer Widerstand: RANS 0,564, SST-DES 0,576 ± 0,010, SA-DDES 0,689 ± 0,011. Der DDES-Widerstand schwankt um ±0,047 bis ±0,056; das mittlere Rückströmgebiet hinter dem Heck ist 1,98 m (RANS), 1,77 m (SST-DES) und 1,36 m (SA-DDES) lang. Der Unterschied von 20 % zwischen den beiden DDES-Modellen ist Druckwiderstand, verteilt auf Motorhaube, Dach, Seiten und Heck: Mit Spalart-Allmaras zerfallen die Scherschichten der vorderen Kanten fast sofort in aufgelöste Wirbel, mit SST bleiben sie bis zum Nachlauf glatte Schichten. Jede DDES-Rechnung kostet das Zehn- bis Zwölffache der RANS-Rechnung.</p>
+<p>Mittlerer Widerstand: RANS 0,564, SST-DES 0,576 ± 0,010, SA-DDES 0,689 ± 0,011. Der DDES-Widerstand schwankt um ±0,047 bis ±0,056; das mittlere Rückströmgebiet hinter dem Heck ist 1,98 m (RANS), 1,70 m (SST-DES) und 1,17 m (SA-DDES) lang. Der Unterschied von 20 % zwischen den beiden DDES-Modellen ist Druckwiderstand, verteilt auf Motorhaube, Dach, Seiten und Heck: Mit Spalart-Allmaras zerfallen die Scherschichten der vorderen Kanten fast sofort in aufgelöste Wirbel, mit SST bleiben sie bis zum Nachlauf glatte Schichten. Jede DDES-Rechnung kostet das Zehn- bis Zwölffache der RANS-Rechnung.</p>
     </section>
     <section id="errors-de">
       <p class="section-label">Häufige Fehler</p>
