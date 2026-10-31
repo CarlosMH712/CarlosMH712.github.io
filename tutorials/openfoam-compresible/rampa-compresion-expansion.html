@@ -32,7 +32,7 @@
     <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
     <span data-language="en">Verified on OpenFOAM 12 (blueCFD-Core 2024), Gmsh 4.15.2 and ParaView 5.11.2</span><span data-language="es" hidden>Verificado en OpenFOAM 12 (blueCFD-Core 2024), Gmsh 4.15.2 y ParaView 5.11.2</span><span data-language="de" hidden>Geprüft mit OpenFOAM 12 (blueCFD-Core 2024), Gmsh 4.15.2 und ParaView 5.11.2</span>
   </div>
-  <div class="button-row"><a class="button secondary" href="index.html?v=13">← <span>Serie</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a></div>
+  <div class="button-row"><a class="button secondary" href="index.html?v=13">← <span>Serie</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/XvUWoYY9rWg" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Watch the video</span><span data-language="es" hidden>Ver el vídeo</span><span data-language="de" hidden>Video ansehen</span></a></div>
 </div></section>
 
 <main><div class="container lecture-shell">
@@ -108,7 +108,7 @@
     </section>
     <nav class="next-nav">
       <a class="next-link" href="index.html?v=13"><span>Series index</span>← OpenFOAM compressible-flow tutorials</a>
-      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Compressible flow</a>
+      <a class="next-link" href="tobera-sin-descarga.html?v=13"><span>Next tutorial</span>1.2 · The converging-diverging nozzle without exhaust →</a>
     </nav>
   </article>
   <article class="lecture" data-language="es" hidden>
@@ -268,7 +268,7 @@
       <p class="section-label">Paso a paso</p>
       <h2>De la malla a los resultados</h2>
 
-<p>Todo se hace en la terminal de blueCFD-Core. La receta completa es para la malla de 0.01 m; el estudio de convergencia de la sección <a href="#validation-es">«Validación y convergencia de malla»</a> la repite con 0.02 y 0.005 m, cambiando un solo número.</p>
+<p>Todo se hace en la terminal de blueCFD-Core. La receta completa es para la malla de 0.01 m; el estudio de convergencia de la sección <a href="#validation-es">«Validación y convergencia de malla»</a> la repite con 0.02 y 0.005 m, cambiando un solo número. El vídeo del tutorial sigue esta receta a partir del paso 6, con el caso ya copiado y la malla ya hecha; corrige los tipos de parche a mano (la segunda manera del paso 7) y, antes de correr el solver, abre los archivos del caso que explica la sección <a href="#case-es">«El caso»</a>.</p>
 <ol>
   <li><strong>Descomprimir el caso.</strong> Descomprimir <code>rampa.zip</code> en la carpeta Descargas: queda una carpeta <code>rampa</code> con <code>rampa.geo</code>, <code>Allrun</code>, <code>Allrun.bat</code> y las carpetas <code>0</code>, <code>constant</code> y <code>system</code>.</li>
   <li><strong>Abrir la terminal.</strong> En el menú Inicio, <code>blueCFD-Core 2024 ▸ blueCFD-Core terminal</code>. Responde «Setting environment for OpenFOAM 12 mingw-w64 Double Precision (of12-64)…» y «Environment is now ready». Es una terminal <code>bash</code>, como la de Linux: las rutas de Windows se escriben con diagonales normales y la unidad como carpeta, de modo que <code>C:&#92;Users&#92;ana&#92;Downloads</code> es <code>/c/Users/ana/Downloads</code>.</li>
@@ -294,7 +294,7 @@ Patch 3 gets name inlet
 Patch 4 gets name outlet</code></pre></li>
   <li><strong>Corregir los tipos de parche.</strong> <code>gmshToFoam</code> declara todos los parches como <code>patch</code>, un tipo genérico. Tres de ellos necesitan otro:<pre class="code"><code>foamDictionary constant/polyMesh/boundary -entry entry0/walls/type -set wall
 foamDictionary constant/polyMesh/boundary -entry entry0/top/type -set symmetryPlane
-foamDictionary constant/polyMesh/boundary -entry entry0/frontAndBack/type -set empty</code></pre>Cada línea responde «New entry type wall;», «… symmetryPlane;» y «… empty;». Sin este paso, <code>foamRun</code> se detiene con un error (sección <a href="#errors-es">«Errores frecuentes»</a>).</li>
+foamDictionary constant/polyMesh/boundary -entry entry0/frontAndBack/type -set empty</code></pre>Cada línea responde «New entry type wall;», «… symmetryPlane;» y «… empty;». Lo mismo se puede hacer a mano, como en el vídeo: abrir <code>constant/polyMesh/boundary</code> con un editor de texto (blueCFD trae Notepad2) y, en los bloques <code>walls</code>, <code>top</code> y <code>frontAndBack</code>, cambiar <code>type patch;</code> por <code>type wall;</code>, <code>type symmetryPlane;</code> y <code>type empty;</code>, sin tocar las demás líneas. Las dos maneras dan el mismo resultado. Sin este paso, <code>foamRun</code> se detiene con un error (sección <a href="#errors-es">«Errores frecuentes»</a>).</li>
   <li><strong>Revisar la malla.</strong> <code>checkMesh</code>. Lo importante está al final:<pre class="code"><code>    Mesh has 2 geometric (non-empty/wedge) directions (1 1 0)
     Mesh has 2 solution (non-empty) directions (1 1 0)</code></pre><pre class="code"><code>Mesh OK.</code></pre>Dos direcciones: OpenFOAM reconoce que la malla es 2D. Si dijera tres, los tipos del paso anterior no se aplicaron.</li>
   <li><strong>Correr el solver.</strong> <code>foamRun | tee log.foamRun</code>. <code>foamRun</code> lee el solver en <code>system/controlDict</code> (<code>shockFluid</code>) y avanza hasta t = 1.5; <code>tee</code> muestra el avance en pantalla y a la vez lo guarda en <code>log.foamRun</code>. En la malla de 0.01 m tarda cerca de un minuto y medio, y termina con «End».</li>
@@ -1266,7 +1266,7 @@ Cannot find patchField entry for walls</code></pre>
     </section>
     <nav class="next-nav">
       <a class="next-link" href="index.html?v=13"><span>Índice de la serie</span>← Tutoriales de OpenFOAM: flujo compresible</a>
-      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Flujo compresible</a>
+      <a class="next-link" href="tobera-sin-descarga.html?v=13"><span>Tutorial siguiente</span>1.2 · La tobera convergente-divergente sin descarga →</a>
     </nav>
   </article>
   <article class="lecture" data-language="de" hidden>
@@ -1328,7 +1328,7 @@ Cannot find patchField entry for walls</code></pre>
     </section>
     <nav class="next-nav">
       <a class="next-link" href="index.html?v=13"><span>Übersicht der Reihe</span>← OpenFOAM-Tutorials: kompressible Strömung</a>
-      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Kompressible Strömung</a>
+      <a class="next-link" href="tobera-sin-descarga.html?v=13"><span>Nächstes Tutorial</span>1.2 · Die Laval-Düse ohne Austrittsstrahl →</a>
     </nav>
   </article>
 
