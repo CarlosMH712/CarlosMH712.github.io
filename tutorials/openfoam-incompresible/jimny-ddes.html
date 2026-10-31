@@ -98,7 +98,7 @@
     </section>
     <nav class="next-nav">
       <a class="next-link" href="cd-incertidumbre.html?v=13"><span>Previous tutorial</span>← 3.6 · How much is a RANS drag coefficient worth?</a>
-      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Incompressible flow</a>
+      <a class="next-link" href="drivaer-ddes.html?v=13"><span>Next tutorial</span>3.8 · The DrivAer with both DDES models →</a>
     </nav>
   </article>
   <article class="lecture" data-language="es" hidden>
@@ -158,7 +158,7 @@
       <p class="section-label">Paso a paso</p>
       <h2>De la solución RANS a dos corridas DDES</h2>
 
-<p>Los dos casos se descomprimen en <code>$FOAM_RUN</code>, junto al caso RANS: <code>jimny-ddes</code> (k-ω SST) y <code>jimny-ddes-sa</code> (Spalart-Allmaras). Ninguno trae malla: la toman del caso RANS. En la terminal de blueCFD-Core:</p>
+<p>Los dos casos se descomprimen en <code>$FOAM_RUN</code>, junto al caso RANS: <a href="archivos/jimny-ddes.zip"><code>jimny-ddes.zip</code></a> (k-ω SST) y <a href="archivos/jimny-ddes-sa.zip"><code>jimny-ddes-sa.zip</code></a> (Spalart-Allmaras). Ninguno trae malla: la toman del caso RANS. En la terminal de blueCFD-Core:</p>
 <ol>
   <li><strong>Leer el caso.</strong> <code>cd $FOAM_RUN/jimny-ddes</code> y abrir en Notepad2 el <code>Allrun</code> y los cinco diccionarios (sección <a href="#case-es">El caso</a>). El <code>Allrun</code> copia de <code>../jimny</code> lo que falta en <code>constant</code> y <code>system</code>, clona la malla de cada carpeta <code>processor*</code> y convierte su última iteración (la 2000) en el tiempo 0 del DDES.</li>
   <li><strong>Correr el k-ω SST.</strong> <code>./Allrun</code>. Responde con</li>
@@ -623,7 +623,7 @@ cannot find file &quot;D:/blueCFD-Core/2024/ofuser-of12/run/vehiculo/errores-sa/
     </section>
     <nav class="next-nav">
       <a class="next-link" href="cd-incertidumbre.html?v=13"><span>Tutorial anterior</span>← 3.6 · ¿Cuánto vale un Cd de RANS?</a>
-      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Flujo incompresible</a>
+      <a class="next-link" href="drivaer-ddes.html?v=13"><span>Tutorial siguiente</span>3.8 · El DrivAer con los dos DDES →</a>
     </nav>
   </article>
   <article class="lecture" data-language="de" hidden>
@@ -675,7 +675,7 @@ cannot find file &quot;D:/blueCFD-Core/2024/ofuser-of12/run/vehiculo/errores-sa/
     </section>
     <nav class="next-nav">
       <a class="next-link" href="cd-incertidumbre.html?v=13"><span>Vorheriges Tutorial</span>← 3.6 · Was ist ein RANS-Widerstandsbeiwert wert?</a>
-      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Inkompressible Strömung</a>
+      <a class="next-link" href="drivaer-ddes.html?v=13"><span>Nächstes Tutorial</span>3.8 · Der DrivAer mit beiden DDES-Modellen →</a>
     </nav>
   </article>
 

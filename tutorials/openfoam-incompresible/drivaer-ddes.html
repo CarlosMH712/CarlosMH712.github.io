@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="OpenFOAM tutorial: the DrivAer fastback computed with kOmegaSSTDES and SpalartAllmarasDDES from its steady RANS solution, against the wind-tunnel drag: mean drag and its uncertainty, the drag split by body and wheels, base pressure, mean wake and Q criterion, and what it says about the two models on the Jimny." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>The DrivAer with Both DDES Models: Which One Matches the Wind Tunnel? | OpenFOAM Incompressible-Flow Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">OpenFOAM · Incompressible flow · Tutorial 3.8</p><h1>The DrivAer with both DDES models</h1><p class="hero-copy">On the Jimny the two DDES models of tutorial 3.7 disagreed by 20 % and there was no measurement to decide. The DrivAer has one. Same mesh recipe, same models: which one matches the wind tunnel?</p></div>
+  <div data-language="es" hidden><p class="eyebrow">OpenFOAM · Flujo incompresible · Tutorial 3.8</p><h1>El DrivAer con los dos DDES</h1><p class="hero-copy">En el Jimny, los dos DDES del 3.7 difirieron 20 % y no había una medición para decidir. El DrivAer la tiene. La misma receta de malla, los mismos modelos: ¿cuál acierta contra el túnel?</p></div>
+  <div data-language="de" hidden><p class="eyebrow">OpenFOAM · Inkompressible Strömung · Tutorial 3.8</p><h1>Der DrivAer mit beiden DDES-Modellen</h1><p class="hero-copy">Beim Jimny unterschieden sich die zwei DDES-Modelle aus Tutorial 3.7 um 20 %, und es gab keine Messung, um zu entscheiden. Der DrivAer hat eine. Gleiches Netzrezept, gleiche Modelle: Welches trifft den Windkanal?</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 45 min (plus about a day of computing per model)</span><span data-language="es" hidden>Lectura estimada: 45 min (y alrededor de un día de cálculo por modelo)</span><span data-language="de" hidden>Lesedauer: ca. 45 min (dazu etwa ein Tag Rechenzeit je Modell)</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on OpenFOAM 12 (blueCFD-Core 2024) and ParaView 5.11.2</span><span data-language="es" hidden>Verificado en OpenFOAM 12 (blueCFD-Core 2024) y ParaView 5.11.2</span><span data-language="de" hidden>Geprüft mit OpenFOAM 12 (blueCFD-Core 2024) und ParaView 5.11.2</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="jimny-ddes.html?v=13">← <span>3.7</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#problem">The problem</a><a href="#theory">Theory</a><a href="#recipe">Recipe</a><a href="#case">The case</a><a href="#check">Check</a><a href="#errors">Common errors</a><a href="#practice">Suggested exercise</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#problem-es">El problema</a><a href="#theory-es">Teoría</a><a href="#recipe-es">Receta</a><a href="#case-es">El caso</a><a href="#check-es">Revisión</a><a href="#errors-es">Errores frecuentes</a><a href="#practice-es">Práctica sugerida</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#problem-de">Das Problem</a><a href="#theory-de">Theorie</a><a href="#recipe-de">Ablauf</a><a href="#case-de">Der Fall</a><a href="#check-de">Prüfung</a><a href="#errors-de">Häufige Fehler</a><a href="#practice-de">Übungsvorschlag</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Run the two DDES models of tutorial 3.7 on a car with wind-tunnel data; decide whether two mean drag coefficients differ more than their uncertainty; find where the drag changes (body, wheels, base) with the mean pressure; resume a day-long run after an interruption; say what a validation on one car means for another.</p>
+    </section>
+    <section id="problem">
+      <p class="section-label">The problem</p>
+      <h2>Two models, one measurement</h2>
+<p>On the Jimny, SST-DES gave Cd = 0.576 and SA-DDES 0.689. The DrivAer fastback (wind tunnel: 0.243 to 0.247), with the Jimny's mesh recipe, puts both models to the test against a measurement.</p>
+    </section>
+    <section id="theory">
+      <p class="section-label">The theory</p>
+      <h2>What a validation can decide</h2>
+<p>Validation compares a computed value and its uncertainty with a measured value and its scatter; two means differ only if their gap exceeds the combined standard error. Where the models of tutorial 3.7 differ: in shear layers that leave sharp edges, which the Jimny has at its front and the DrivAer does not.</p>
+    </section>
+    <section id="recipe">
+      <p class="section-label">Step by step</p>
+      <h2>Three cases, two days of computing</h2>
+<p>Three cases: drivaer-completo (the full car with the Jimny recipe, about 2 h), drivaer-ddes (SST-DES, about 29 h) and drivaer-ddes-sa (SA-DDES, about 24 h); the tramos script from 0.6 s; foamPostProcess -func Q; ParaView on the decomposed case.</p>
+    </section>
+    <section id="case">
+      <p class="section-label">The case</p>
+      <h2>From the Jimny to the DrivAer</h2>
+<p>What changes from the Jimny DDES: duration and averaging window (one car length takes 0.29 s at 16 m/s), the force functions of the drivaerFastback tutorial, nuTilda created on each processor, and the box of setFieldsDict.</p>
+    </section>
+    <section id="check">
+      <p class="section-label">Worked example</p>
+      <h2>RANS, SST-DES, SA-DDES and the wind tunnel</h2>
+<p>Mean drag from 0.6 to 1.8 s: SST-DES 0.287 ± 0.0015, SA-DDES 0.285 ± 0.0012; RANS 0.276; wind tunnel 0.243 to 0.247. The two DDES models agree within 1.4 combined standard errors, and both lie 15 to 18 % above the tunnel, a little more than RANS. They do not change the total pressure drag; they redistribute it: less suction on the base (Cp −0.07 against −0.10) and a shorter recirculation, more drag on the wheels. The 20 % gap of the Jimny most likely comes from its sharp front edges, which the DrivAer does not have.</p>
+    </section>
+    <section id="errors">
+      <p class="section-label">Common errors</p>
+      <h2>A day-long run and its averages</h2>
+<p>A Windows update restarts the computer halfway through: resume from the last written time and join the two force histories before averaging; the RANS solution is not steady, so one iteration is not its mean; a "dominant frequency" in the first bin of the spectrum is not a frequency; averages that started at 0.</p>
+    </section>
+    <section id="practice">
+      <p class="section-label">Suggested exercise</p>
+      <h2>How much does the tunnel block?</h2>
+<p>The car blocks 2.7 % of the tunnel cross-section. Repeat the RANS run in a tunnel three times larger in section and measure how much of the gap to the wind tunnel is blockage.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>Heft, Indinger and Adams (2012) on the DrivAer model and its wind-tunnel data; Spalart (2009) and Spalart et al. (2006) on DES and DDES; Yazdani (2015) on the DrivAer with SA-DDES; Roache (1998) on validation.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="jimny-ddes.html?v=13"><span>Previous tutorial</span>← 3.7 · The Jimny with DDES: two models against RANS</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Incompressible flow</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">El <a href="jimny-ddes.html">3.7</a> calculó el Jimny con dos modelos DDES y obtuvo dos respuestas que difieren 20 %, sin una medición para decidir entre ellas. Esta guía corre los mismos dos modelos, con la misma receta de malla, en el auto que sí tiene medición: el DrivAer del <a href="drivaer-validacion.html">3.5</a>.</p>
+<ul>
+  <li>Correr los dos DDES del 3.7 en un vehículo con datos de túnel de viento.</li>
+  <li>Decidir si dos \(C_D\) medios son distintos o sólo lo parecen, con su error estándar.</li>
+  <li>Encontrar con la presión media dónde cambia el arrastre: carrocería, ruedas o base.</li>
+  <li>Reanudar una corrida de un día que se interrumpió, sin perder los promedios.</li>
+  <li>Decir qué significa para el Jimny lo que se aprende con el DrivAer, y qué no.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> Los tres casos de esta guía (tabla 1), el tutorial <code>drivaerFastback</code> de OpenFOAM 12 (las superficies del auto se toman de ahí) y tiempo de cómputo: en la laptop de la serie, unas 2 horas el RANS y alrededor de un día cada DDES. Los dos DDES no conviene correrlos al mismo tiempo en la misma computadora: se reparten los núcleos y cada uno tarda el doble. Antes de lanzar una corrida de un día en Windows conviene pausar las actualizaciones automáticas (sección <a href="#errors-es">Errores frecuentes</a>, problema 1).</p>
+</div>
+
+    </section>
+    <section id="problem-es">
+      <p class="section-label">El problema</p>
+      <h2>Dos modelos, una medición</h2>
+
+<p>En el Jimny, el DDES con k-ω SST dio \(C_D\) = 0.576 y el de Spalart-Allmaras 0.689: la diferencia, unas diez veces el error estándar de cada media, es del modelo. La isosuperficie \(Q\) del 3.7 mostró dónde nace: las capas de aire que se desprenden de los bordes del frente del Jimny siguen lisas con un modelo y se rompen en remolinos casi desde el borde con el otro. Pero el Jimny no tiene un \(C_D\) medido, así que no hay forma de saber cuál de los dos se acerca más al vehículo real.</p>
+<p>El DrivAer fastback sí: su \(C_D\) en el túnel de viento es de 0.243 a 0.247 <a href="#references-es">(Heft, Indinger y Adams, 2012)</a>, y el <a href="drivaer-validacion.html">3.5</a> y el <a href="cd-incertidumbre.html">3.6</a> ya lo calcularon con RANS y con la receta del Jimny: 0.276, +12 a +14 % arriba del túnel. La pregunta de esta guía: <strong>con la misma malla, ¿acerca alguno de los dos DDES el \(C_D\) del DrivAer al túnel? ¿Y cuál?</strong></p>
+<div class="callout">
+  <p><strong>Los dos vehículos no se comparan entre sí.</strong> El \(C_D\) del DrivAer (alrededor de 0.28) no dice nada del \(C_D\) del Jimny (alrededor de 0.56): son formas distintas. El DrivAer es la pieza patrón del método (<a href="drivaer-validacion.html#problem-es">3.5</a>): se le aplica lo mismo que al Jimny y, como su \(C_D\) se midió, dice cuánto se equivoca el método. En esta guía se compara otra cosa: <strong>cuánto difieren los dos modelos entre sí</strong> en cada vehículo. Esa comparación sí tiene sentido, porque el método es el mismo; lo que no se puede hacer es pasarle al Jimny el error del DrivAer.</p>
+</div>
+
+    </section>
+    <section id="theory-es">
+      <p class="section-label">La teoría</p>
+      <h2>Lo que una validación puede decidir</h2>
+
+<p>Lo que son DES y DDES, el paso de tiempo, los promedios y el criterio \(Q\) está en el <a href="jimny-ddes.html#theory-es">3.7</a>. Aquí hacen falta tres ideas más.</p>
+<h3>Validar es comparar dos incertidumbres</h3>
+<p>Un cálculo se valida contra una medición <a href="#references-es">(Roache, 1998)</a>: la diferencia entre los dos se compara con la incertidumbre de cada uno. La del túnel, para el DrivAer, es la dispersión de las mediciones publicadas, de 0.243 a 0.247 (3.5). La del cálculo tiene varias partes, y el <a href="cd-incertidumbre.html">3.6</a> las midió para el RANS: la malla, la pared, el dominio, el modelo. La de un DDES tiene una más, que el RANS no tiene: su \(C_D\) oscila, y su media lleva el error estándar que da el guion <code>tramos</code>.</p>
+<h3>¿Son distintas dos medias?</h3>
+<p>Dos \(C_D\) medios, \(\bar C_1 \pm e_1\) y \(\bar C_2 \pm e_2\), con sus errores estándar, sólo se pueden llamar distintos si su diferencia es varias veces el error combinado:</p>
+<div class="equation-card">\[ z = \frac{|\bar C_1 - \bar C_2|}{\sqrt{e_1^2 + e_2^2}} \tag{1} \]</div>
+<p>Con \(z\) de 1 o menos, la diferencia cabe en el ruido de los promedios; con \(z\) de 3 o más, es real. Entre 1 y 3 no se puede decir con seguridad, y con un error estándar optimista —tramos más cortos que la oscilación más lenta, 3.6— hay que pedir más.</p>
+<h3>Dónde pueden diferir dos modelos híbridos</h3>
+<p>Los dos DDES son RANS junto a la pared y LES lejos de ella. Mientras la capa límite está pegada, los dos se comportan como sus modelos RANS; donde el aire se desprende, cada uno pasa de turbulencia modelada a resuelta a su manera, y esa «zona gris» es donde pueden dar cosas distintas <a href="#references-es">(Spalart, 2009)</a>. Un cuerpo con bordes vivos al frente, como el Jimny, desprende capas desde el frente, y toda la carrocería queda bajo ellas. Un auto redondeado como el DrivAer lleva la capa límite pegada hasta la cola (sobre el techo, el 3.6 encontró la fricción positiva hasta el borde del fastback): el aire se desprende en ese borde, en la base y alrededor de las ruedas. Si la diferencia del Jimny es de la zona gris del frente, en el DrivAer debería ser mucho menor.</p>
+<h3>Cuánto dura el cálculo</h3>
+<p>El DrivAer mide 4.61 m y va a 16 m/s: el aire tarda 0.29 s en recorrer su largo, contra 0.13 s en el Jimny. Por eso el cálculo dura 1.8 s (6.2 largos) y el promedio empieza en 0.6 s (2.1 largos para olvidar el arranque). Con el mismo \(\Delta t\) = 1·10⁻⁴ s del Jimny, en una celda del nivel 6 (1.56 cm) el número de Courant es 0.10: se podría usar un paso mayor, pero se dejó el del 3.7 para que la única diferencia entre los dos vehículos sea el vehículo.</p>
+
+    </section>
+    <section id="recipe-es">
+      <p class="section-label">Paso a paso</p>
+      <h2>Tres casos, dos días de cálculo</h2>
+
+<p>Los tres casos se descomprimen en <code>$FOAM_RUN</code>, uno junto al otro (tabla 1). En la terminal de blueCFD-Core:</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Caso</th><th>Qué hace</th><th>Tiempo de cálculo</th></tr></thead>
+    <tbody>
+      <tr><td><a href='archivos/drivaer-completo.zip'><code>drivaer-completo.zip</code></a></td><td>el DrivAer fastback completo con la receta del Jimny (tutoriales 3.5 y 3.6): malla de 2 076 004 celdas y 2000 iteraciones de k-ω SST estacionario</td><td>2.1 h</td></tr>
+      <tr><td><a href='archivos/drivaer-ddes.zip'><code>drivaer-ddes.zip</code></a></td><td>DDES con <code>kOmegaSSTDES</code>, 1.8 s de flujo desde la iteración 2000 de <code>drivaer-completo</code></td><td>29 h</td></tr>
+      <tr><td><a href='archivos/drivaer-ddes-sa.zip'><code>drivaer-ddes-sa.zip</code></a></td><td>DDES con <code>SpalartAllmarasDDES</code>, lo mismo, con <code>nuTilda</code> creada a partir de <code>nut</code></td><td>24 h</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Los tres casos.</b> Se descomprimen juntos en <code>$FOAM_RUN</code>. Los tiempos son los de la laptop de la serie (8 núcleos, 16 GB).</caption>
+  </table>
+</div>
+<ol>
+  <li><strong>El RANS.</strong> <code>cd $FOAM_RUN/drivaer-completo</code> y <code>./Allrun</code>. Descomprime las superficies del auto del tutorial de OpenFOAM, hace la malla con la receta del Jimny (3.5) y corre 2000 iteraciones de k-ω SST. Responde con</li>
+</ol>
+<pre class="code"><code>Running surfaceFeatures on …/drivaer-completo
+Running blockMesh on …/drivaer-completo
+Running decomposePar on …/drivaer-completo
+Running snappyHexMesh in parallel on …/drivaer-completo using 8 processes
+Running checkMesh in parallel on …/drivaer-completo using 8 processes
+Running foamRun in parallel on …/drivaer-completo using 8 processes</code></pre>
+<p>en unas 2 horas. La malla tiene 2 076 004 celdas, y <code>log.checkMesh</code> termina con <code>Failed 1 mesh checks.</code>: son las 78 caras sesgadas que ya se vieron en el <a href="drivaer-validacion.html">3.5</a>, no un error de la receta.</p>
+<ol start="2">
+  <li><strong>Su \(C_D\)</strong>: <code>./tramos 1000 250</code>, como en el 3.6. Debe dar 0.276.</li>
+  <li><strong>El DDES con k-ω SST.</strong> <code>cd ../drivaer-ddes</code> y <code>./Allrun</code>. Como el del Jimny, clona la malla y la última iteración de cada <code>processor*</code> del RANS, que pasa a ser su tiempo 0, y corre 1.8 s de flujo. Cada 0.1 s (1000 pasos, alrededor de hora y media) se escribe una carpeta de tiempo. Se vigila desde otra terminal con <code>tail postProcessing/forceCoeffsIncompressible/0/forceCoeffs.dat</code>.</li>
+  <li><strong>El DDES con Spalart-Allmaras</strong>, cuando termine el primero: <code>cd ../drivaer-ddes-sa</code> y <code>./Allrun</code>. Además de clonar, pasa los campos a texto, crea <code>nuTilda</code> en cada <code>processor*</code> y la fija en la corriente libre con <code>setFields</code>.</li>
+  <li><strong>El \(C_D\) medio de cada uno</strong>: <code>./tramos 0.6 1000</code>, desde 0.6 s en tramos de 0.1 s.</li>
+  <li><strong>Los remolinos</strong>: <code>mpirun -np 8 foamPostProcess -solver incompressibleFluid -func Q -time 1.8 -parallel</code> en cada caso.</li>
+  <li><strong>ParaView</strong>, sin reconstruir (<em>Case Type</em>: <em>Decomposed Case</em>): un corte en \(y\) = 0 coloreado por <code>UMean</code>; un corte horizontal en \(z\) = 0.25 m, a la altura de los ejes; un <em>Contour</em> de <code>Q</code> = 2000 coloreado por <code>U</code>, con los parches del auto. La presión media sobre el auto, región por región, con la cadena <em>Extract Surface</em> → <em>Generate Surface Normals</em> → <em>Calculator</em> → <em>Integrate Variables</em> del <a href="jimny-paraview.html">3.4</a>, sobre <code>pMean</code>.</li>
+</ol>
+<div class="callout">
+  <p><strong>Si la corrida se interrumpe, no se vuelve a correr el <code>Allrun</code>.</strong> Volvería a copiar el tiempo 0 desde el RANS. Una corrida interrumpida se reanuda desde la última carpeta de tiempo escrita (problema 1 de la sección de errores).</p>
+</div>
+
+    </section>
+    <section id="case-es">
+      <p class="section-label">El caso</p>
+      <h2>Del Jimny al DrivAer</h2>
+
+<p>Los esquemas, el algoritmo y los dos modelos son los del 3.7, archivo por archivo. Cambia lo que depende del vehículo (tabla 2).</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th></th><th>Jimny (3.7)</th><th>DrivAer (esta guía)</th></tr></thead>
+    <tbody>
+      <tr><td>Velocidad, largo</td><td>27.78 m/s, 3.64 m</td><td>16 m/s, 4.61 m</td></tr>
+      <tr><td>Un largo del auto</td><td>0.13 s</td><td>0.29 s</td></tr>
+      <tr><td>Duración y escritura (<code>controlDict</code>)</td><td>1.5 s; cada 0.05 s</td><td>1.8 s; cada 0.1 s</td></tr>
+      <tr><td>Inicio de los promedios (<code>functions</code>)</td><td>0.3 s</td><td>0.6 s</td></tr>
+      <tr><td>Fuerzas</td><td><code>forceCoeffs1</code>, parches del Jimny</td><td><code>forceCoeffsIncompressible</code> del tutorial (lee la velocidad y la distancia entre ejes de <code>0/U</code>); <code>fuerzas</code> en <code>body</code> y las ruedas</td></tr>
+      <tr><td><code>nuTilda</code> (Spalart-Allmaras)</td><td>en el caso reconstruido, y luego <code>decomposePar</code></td><td>en cada <code>processor*</code>, sin reconstruir</td></tr>
+      <tr><td>Función de pared de <code>nut</code></td><td>se cambia a <code>nutUSpaldingWallFunction</code></td><td>el DrivAer ya la usa</td></tr>
+      <tr><td><code>setFieldsDict</code></td><td>la caja antes del Jimny</td><td>\(x\) &lt; −1.1 m (la nariz está en −0.82 m)</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Del DDES del Jimny al del DrivAer.</b> Los esquemas, el algoritmo y los modelos son los del 3.7; cambia lo que depende del auto.</caption>
+  </table>
+</div>
+<p class="code-name"><code>system/controlDict</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     foamRun;
+solver          incompressibleFluid;
+
+startFrom       startTime;
+startTime       0;              // el tiempo 0 es la iteración 2000 de la corrida RANS del DrivAer completo
+stopAt          endTime;
+endTime         1.8;            // el DrivAer mide 4.613 m y va a 16 m/s: un largo cada 0.29 s
+
+deltaT          1e-4;
+adjustTimeStep  no;
+
+writeControl    timeStep;
+writeInterval   1000;      // cada 0.1 s
+purgeWrite      0;
+writeFormat     binary;
+writePrecision  6;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable true;
+
+
+// ************************************************************************* //</code></pre>
+<p>18 000 pasos de 1·10⁻⁴ s, con una carpeta de tiempo cada 1000. El tiempo 0 es la iteración 2000 del RANS.</p>
+<p class="code-name"><code>system/functions</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    object      functions;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Funciones del DDES del DrivAer: las fuerzas en cada paso y los promedios en el tiempo a partir de 0.6 s, cuando
+// la estela ya olvidó el arranque desde la solución RANS (unos 2.5 largos del auto).
+
+#includeFunc forceCoeffsIncompressible      // Cd, Cl, Cl(f), Cl(r) en cada paso, con el Aref y el lRef del 3.5
+#includeFunc residuals(p, U, k, omega)
+
+fuerzas                                     // la fuerza total, para ver la fuerza lateral (la estela de lado a lado)
+{
+    type            forces;
+    libs            (&quot;libforces.so&quot;);
+    writeControl    timeStep;
+    writeInterval   1;
+    patches         (&quot;(body|.*Wheels)&quot;);
+    rho             rhoInf;
+    rhoInf          1;
+    CofR            (1.393 0 0);
+}
+
+promediosTiempo
+{
+    type            fieldAverage;
+    libs            (&quot;libfieldFunctionObjects.so&quot;);
+    startTime       0.6;               // startTime en OpenFOAM 12: timeStart (de la versión ESI) se ignora sin aviso
+    writeControl    writeTime;
+    fields
+    (
+        U
+        {
+            mean        yes;
+            prime2Mean  yes;
+        }
+        p
+        {
+            mean        yes;
+            prime2Mean  yes;
+        }
+    );
+}
+
+// ************************************************************************* //</code></pre>
+<p><code>forceCoeffsIncompressible</code> es la función del tutorial <code>drivaerFastback</code>, la misma del 3.5; lee la velocidad de referencia y la distancia entre ejes de <code>0/U</code>, por eso el <code>Allrun</code> copia ese archivo del RANS. <code>fuerzas</code> da la fuerza total en cada paso, para la fuerza lateral y para separar la presión de la fricción. <code>promediosTiempo</code> empieza en 0.6 s con <code>startTime</code> (no <code>timeStart</code>: 3.7, problema 6).</p>
+<p class="code-name"><code>system/setFieldsDict</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    object      setFieldsDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// nuTilda de la corriente libre antes del auto (x &lt; -1.1 m; la nariz del DrivAer está en x = -0.816 m): el campo
+// inicial viene del nut del RANS, y en Spalart-Allmaras esa turbulencia no decae al viajar: llegaría al auto.
+
+defaultFieldValues
+(
+);
+
+regions
+(
+    boxToCell
+    {
+        box (-11 -6 -1) (-1.1 6 9);
+        fieldValues
+        (
+            volScalarFieldValue nuTilda 4.5e-5
+        );
+    }
+);
+
+// ************************************************************************* //</code></pre>
+<p>Con Spalart-Allmaras, <code>nuTilda</code> se crea a partir del <code>nut</code> del RANS y, antes de la nariz, se fija en 3\(\nu\) = 4.5·10⁻⁵ m²/s, el valor de la entrada: la turbulencia que el RANS de k-ω SST deja en la corriente libre no decaería con Spalart-Allmaras y llegaría al auto (3.7, problema 3).</p>
+
+    </section>
+    <section id="check-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>RANS, SST-DES, SA-DDES y el túnel</h2>
+
+<p class="lead">Enunciado: con las dos corridas DDES de 1.8 s del DrivAer, comparar con el RANS y con el túnel el \(C_D\) medio, su incertidumbre, el reparto del arrastre, la estela media y los remolinos, y decir qué modelo acierta.</p>
+<h3>1. El arrastre en el tiempo</h3>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Coeficiente de arrastre del DrivAer en el tiempo con los dos modelos DDES, el valor del RANS y el del túnel; el promedio empieza en 0.6 s.">
+  <text class="svg-title" x="76" y="28">El arrastre de los dos DDES del DrivAer en el tiempo</text>
+  <line class="svg-grid" x1="76" y1="275.0" x2="666" y2="275.0"/>
+  <text class="svg-tick" x="70" y="279.0" text-anchor="end">0.24</text>
+  <line class="svg-grid" x1="76" y1="225.0" x2="666" y2="225.0"/>
+  <text class="svg-tick" x="70" y="229.0" text-anchor="end">0.26</text>
+  <line class="svg-grid" x1="76" y1="175.0" x2="666" y2="175.0"/>
+  <text class="svg-tick" x="70" y="179.0" text-anchor="end">0.28</text>
+  <line class="svg-grid" x1="76" y1="125.0" x2="666" y2="125.0"/>
+  <text class="svg-tick" x="70" y="129.0" text-anchor="end">0.30</text>
+  <line class="svg-grid" x1="76" y1="75.0" x2="666" y2="75.0"/>
+  <text class="svg-tick" x="70" y="79.0" text-anchor="end">0.32</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0.0</text>
+  <text class="svg-tick" x="174.3" y="318" text-anchor="middle">0.3</text>
+  <text class="svg-tick" x="272.7" y="318" text-anchor="middle">0.6</text>
+  <text class="svg-tick" x="371.0" y="318" text-anchor="middle">0.9</text>
+  <text class="svg-tick" x="469.3" y="318" text-anchor="middle">1.2</text>
+  <text class="svg-tick" x="567.7" y="318" text-anchor="middle">1.5</text>
+  <text class="svg-tick" x="666.0" y="318" text-anchor="middle">1.8</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">t [s]</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">Cd</text>
+  <polyline points="76.0,150.8 76.7,110.4 77.3,156.4 78.0,168.1 78.6,173.2 79.3,176.4 79.9,178.6 80.6,180.2 81.2,181.7 81.9,183.1 82.6,184.4 83.2,185.3 83.9,186.4 84.5,187.6 85.2,188.7 85.8,188.8 86.5,189.0 87.1,190.6 87.8,190.8 88.5,191.8 89.1,192.6 89.8,192.0 90.4,191.4 91.1,190.5 91.7,188.4 92.4,186.1 93.0,184.0 93.7,181.6 94.4,180.7 95.0,181.6 95.7,184.0 96.3,187.7 97.0,192.6 97.6,197.3 98.3,201.1 98.9,204.0 99.6,205.6 100.3,205.3 100.9,204.0 101.6,201.9 102.2,200.1 102.9,199.2 103.5,199.1 104.2,200.1 104.8,201.6 105.5,203.1 106.2,204.2 106.8,204.8 107.5,205.5 108.1,206.5 108.8,208.3 109.4,210.1 110.1,211.6 110.7,212.9 111.4,214.1 112.1,214.9 112.7,215.7 113.4,216.7 114.0,216.9 114.7,217.0 115.3,216.6 116.0,216.1 116.6,216.2 117.3,217.6 118.0,219.4 118.6,221.0 119.3,221.3 119.9,220.7 120.6,219.4 121.2,217.9 121.9,216.8 122.5,215.8 123.2,215.5 123.9,215.7 124.5,216.0 125.2,215.5 125.8,213.5 126.5,210.3 127.1,207.5 127.8,205.3 128.4,203.9 129.1,203.3 129.8,203.0 130.4,203.5 131.1,204.2 131.7,205.0 132.4,206.3 133.0,207.9 133.7,209.7 134.3,211.4 135.0,212.8 135.7,214.2 136.3,215.6 137.0,217.6 137.6,219.9 138.3,222.2 138.9,224.6 139.6,226.3 140.2,225.8 140.9,223.3 141.6,219.3 142.2,214.1 142.9,209.1 143.5,205.0 144.2,202.0 144.8,199.8 145.5,198.1 146.1,195.9 146.8,193.2 147.5,189.9 148.1,186.3 148.8,182.9 149.4,179.8 150.1,177.6 150.7,175.6 151.4,174.0 152.0,173.2 152.7,173.6 153.4,174.6 154.0,175.0 154.7,174.7 155.3,173.5 156.0,171.9 156.6,170.9 157.3,171.3 157.9,174.0 158.6,178.8 159.3,184.9 159.9,191.2 160.6,196.6 161.2,200.9 161.9,204.2 162.5,206.6 163.2,207.8 163.8,207.0 164.5,204.6 165.2,200.2 165.8,195.2 166.5,189.9 167.1,186.0 167.8,184.0 168.4,184.1 169.1,185.3 169.7,187.7 170.4,189.4 171.1,190.8 171.7,192.2 172.4,193.4 173.0,195.1 173.7,196.3 174.3,197.6 175.0,198.6 175.6,199.5 176.3,200.2 177.0,200.1 177.6,199.2 178.3,197.9 178.9,196.5 179.6,195.5 180.2,195.9 180.9,197.1 181.5,198.3 182.2,198.8 182.9,198.5 183.5,197.7 184.2,196.6 184.8,195.5 185.5,195.3 186.1,196.5 186.8,198.4 187.4,199.9 188.1,201.5 188.8,202.8 189.4,205.0 190.1,207.8 190.7,211.9 191.4,216.7 192.0,222.2 192.7,227.2 193.3,231.7 194.0,235.2 194.7,237.6 195.3,238.7 196.0,238.7 196.6,237.9 197.3,236.9 197.9,235.7 198.6,234.0 199.2,231.1 199.9,227.6 200.6,223.4 201.2,219.9 201.9,215.2 202.5,209.5 203.2,203.2 203.8,198.0 204.5,194.3 205.1,191.4 205.8,188.6 206.5,186.0 207.1,184.8 207.8,185.9 208.4,188.8 209.1,192.6 209.7,196.1 210.4,197.8 211.0,197.7 211.7,196.5 212.4,194.5 213.0,192.0 213.7,188.9 214.3,186.5 215.0,183.4 215.6,179.2 216.3,174.4 216.9,169.3 217.6,164.0 218.3,159.3 218.9,156.5 219.6,156.7 220.2,159.0 220.9,163.5 221.5,170.3 222.2,178.0 222.8,185.7 223.5,193.4 224.2,199.7 224.8,204.1 225.5,205.5 226.1,204.8 226.8,202.0 227.4,198.2 228.1,194.7 228.7,191.6 229.4,188.1 230.1,184.3 230.7,181.0 231.4,177.8 232.0,175.0 232.7,174.4 233.3,175.5 234.0,177.8 234.6,181.0 235.3,184.3 236.0,186.5 236.6,186.5 237.3,186.6 237.9,186.9 238.6,186.8 239.2,187.4 239.9,187.1 240.5,186.1 241.2,184.6 241.9,181.7 242.5,178.5 243.2,175.5 243.8,172.6 244.5,170.5 245.1,169.7 245.8,170.1 246.4,171.6 247.1,173.6 247.8,176.1 248.4,178.9 249.1,180.1 249.7,180.0 250.4,178.2 251.0,175.0 251.7,171.9 252.3,169.5 253.0,167.9 253.7,166.8 254.3,166.6 255.0,167.6 255.6,169.1 256.3,170.4 256.9,171.2 257.6,170.6 258.2,168.4 258.9,164.8 259.6,159.8 260.2,153.4 260.9,146.7 261.5,141.0 262.2,137.3 262.8,136.0 263.5,136.7 264.1,138.5 264.8,141.0 265.5,143.3 266.1,144.9 266.8,147.2 267.4,151.1 268.1,155.3 268.7,160.0 269.4,166.2 270.0,171.9 270.7,175.9 271.4,178.8 272.0,179.9 272.7,179.4 273.3,177.4 274.0,175.0 274.6,171.8 275.3,168.5 275.9,166.2 276.6,165.2 277.3,164.3 277.9,164.7 278.6,165.8 279.2,166.5 279.9,166.7 280.5,166.3 281.2,165.2 281.8,164.0 282.5,164.0 283.2,166.2 283.8,169.1 284.5,172.1 285.1,175.0 285.8,177.6 286.4,179.2 287.1,182.5 287.7,185.3 288.4,187.0 289.1,187.3 289.7,186.3 290.4,185.1 291.0,184.2 291.7,185.9 292.3,188.5 293.0,191.4 293.6,194.4 294.3,196.7 295.0,196.7 295.6,195.3 296.3,193.3 296.9,190.2 297.6,186.6 298.2,183.4 298.9,181.0 299.5,179.1 300.2,177.3 300.9,175.1 301.5,172.4 302.2,168.8 302.8,165.2 303.5,161.9 304.1,159.5 304.8,157.9 305.4,155.9 306.1,154.2 306.8,153.0 307.4,152.4 308.1,152.0 308.7,151.6 309.4,150.8 310.0,150.6 310.7,150.9 311.3,151.5 312.0,151.6 312.7,151.0 313.3,150.3 314.0,149.2 314.6,148.0 315.3,147.2 315.9,146.2 316.6,146.5 317.2,148.5 317.9,152.1 318.6,155.8 319.2,159.2 319.9,161.6 320.5,163.4 321.2,164.1 321.8,164.6 322.5,164.4 323.1,162.8 323.8,160.5 324.5,158.5 325.1,157.2 325.8,154.5 326.4,150.2 327.1,144.7 327.7,138.4 328.4,132.7 329.0,127.8 329.7,125.2 330.4,125.8 331.0,128.1 331.7,131.3 332.3,134.4 333.0,137.2 333.6,140.3 334.3,143.7 334.9,147.1 335.6,150.2 336.3,152.3 336.9,153.1 337.6,151.8 338.2,150.1 338.9,147.5 339.5,144.6 340.2,140.7 340.8,136.7 341.5,133.5 342.2,131.5 342.8,130.9 343.5,130.7 344.1,131.4 344.8,132.0 345.4,132.6 346.1,133.2 346.7,133.7 347.4,134.0 348.1,135.0 348.7,136.3 349.4,137.6 350.0,140.2 350.7,142.1 351.3,143.3 352.0,143.8 352.6,143.0 353.3,141.5 354.0,138.8 354.6,134.9 355.3,130.9 355.9,127.7 356.6,125.2 357.2,122.7 357.9,119.8 358.5,117.8 359.2,118.3 359.9,120.5 360.5,124.1 361.2,128.9 361.8,134.0 362.5,139.2 363.1,144.2 363.8,149.0 364.4,153.9 365.1,157.4 365.8,158.5 366.4,157.6 367.1,156.5 367.7,154.8 368.4,153.8 369.0,153.7 369.7,154.4 370.3,155.8 371.0,157.6 371.7,159.2 372.3,160.9 373.0,161.9 373.6,162.9 374.3,164.1 374.9,165.3 375.6,165.7 376.2,166.0 376.9,165.8 377.6,165.8 378.2,165.9 378.9,166.4 379.5,165.2 380.2,162.0 380.8,156.4 381.5,149.2 382.1,141.9 382.8,134.6 383.5,128.6 384.1,125.0 384.8,122.8 385.4,122.4 386.1,122.7 386.7,124.0 387.4,125.8 388.0,128.7 388.7,131.4 389.4,132.8 390.0,132.7 390.7,131.7 391.3,131.0 392.0,131.9 392.6,135.1 393.3,140.4 393.9,147.3 394.6,154.1 395.3,158.7 395.9,159.6 396.6,158.0 397.2,154.2 397.9,149.4 398.5,144.9 399.2,140.0 399.8,135.1 400.5,130.1 401.2,124.9 401.8,120.1 402.5,117.4 403.1,116.8 403.8,118.1 404.4,121.0 405.1,125.4 405.7,129.6 406.4,134.0 407.1,139.3 407.7,144.8 408.4,149.1 409.0,151.6 409.7,151.7 410.3,149.7 411.0,145.4 411.6,141.0 412.3,137.8 413.0,136.4 413.6,136.5 414.3,137.5 414.9,138.8 415.6,138.8 416.2,137.1 416.9,133.4 417.5,127.8 418.2,122.0 418.9,117.0 419.5,114.0 420.2,114.3 420.8,117.4 421.5,123.5 422.1,132.2 422.8,142.0 423.4,151.5 424.1,158.5 424.8,162.7 425.4,163.6 426.1,162.7 426.7,160.5 427.4,158.6 428.0,157.0 428.7,155.3 429.3,153.0 430.0,150.1 430.7,147.8 431.3,147.9 432.0,149.7 432.6,152.8 433.3,156.4 433.9,159.1 434.6,161.1 435.2,163.1 435.9,165.0 436.6,167.0 437.2,168.1 437.9,167.8 438.5,164.7 439.2,159.4 439.8,153.5 440.5,147.8 441.1,144.8 441.8,143.8 442.5,144.8 443.1,147.1 443.8,150.0 444.4,153.2 445.1,155.9 445.7,158.1 446.4,159.8 447.0,160.8 447.7,161.3 448.4,161.6 449.0,162.5 449.7,165.2 450.3,169.1 451.0,174.2 451.6,179.3 452.3,184.7 452.9,188.0 453.6,188.6 454.3,185.5 454.9,179.0 455.6,169.4 456.2,159.4 456.9,150.9 457.5,145.1 458.2,142.1 458.8,141.0 459.5,141.6 460.2,144.1 460.8,147.6 461.5,152.1 462.1,156.8 462.8,160.5 463.4,162.1 464.1,162.4 464.7,161.1 465.4,159.2 466.1,157.5 466.7,157.0 467.4,158.0 468.0,160.4 468.7,163.3 469.3,165.4 470.0,167.1 470.6,167.6 471.3,167.5 472.0,166.1 472.6,163.6 473.3,161.4 473.9,160.1 474.6,160.5 475.2,161.2 475.9,162.6 476.5,164.3 477.2,165.3 477.9,165.0 478.5,164.5 479.2,163.8 479.8,162.8 480.5,161.4 481.1,159.9 481.8,157.9 482.4,155.8 483.1,153.4 483.8,152.0 484.4,151.6 485.1,151.7 485.7,153.2 486.4,155.1 487.0,157.5 487.7,159.6 488.3,161.6 489.0,162.4 489.7,162.0 490.3,160.9 491.0,159.6 491.6,157.7 492.3,156.3 492.9,155.9 493.6,155.5 494.2,154.2 494.9,152.6 495.6,150.3 496.2,148.0 496.9,146.4 497.5,146.0 498.2,145.2 498.8,145.6 499.5,146.7 500.1,147.5 500.8,148.4 501.5,149.2 502.1,150.1 502.8,151.7 503.4,154.5 504.1,158.5 504.7,164.2 505.4,171.7 506.0,179.0 506.7,186.0 507.4,190.9 508.0,192.9 508.7,191.8 509.3,188.9 510.0,186.5 510.6,185.5 511.3,185.5 511.9,184.9 512.6,182.5 513.3,179.8 513.9,177.7 514.6,176.3 515.2,174.2 515.9,172.6 516.5,171.4 517.2,169.9 517.8,168.5 518.5,167.5 519.2,167.0 519.8,167.3 520.5,167.8 521.1,169.7 521.8,172.3 522.4,175.4 523.1,178.1 523.7,179.0 524.4,178.5 525.1,176.8 525.7,174.5 526.4,171.7 527.0,169.2 527.7,167.9 528.3,169.2 529.0,172.0 529.6,176.3 530.3,181.8 531.0,187.5 531.6,192.7 532.3,195.9 532.9,196.4 533.6,195.1 534.2,192.4 534.9,189.3 535.5,186.6 536.2,185.5 536.9,185.4 537.5,184.0 538.2,180.7 538.8,175.5 539.5,169.2 540.1,162.6 540.8,158.1 541.4,155.6 542.1,156.1 542.8,159.3 543.4,163.7 544.1,168.6 544.7,173.0 545.4,176.6 546.0,179.3 546.7,179.9 547.3,178.4 548.0,176.5 548.7,173.9 549.3,171.3 550.0,169.6 550.6,170.0 551.3,172.6 551.9,176.7 552.6,180.0 553.2,182.1 553.9,181.7 554.6,177.1 555.2,170.7 555.9,164.6 556.5,159.8 557.2,156.6 557.8,153.3 558.5,152.4 559.1,153.4 559.8,155.6 560.5,157.6 561.1,160.4 561.8,163.7 562.4,167.9 563.1,172.0 563.7,174.8 564.4,176.6 565.0,177.8 565.7,176.5 566.4,174.4 567.0,171.3 567.7,167.7 568.3,162.6 569.0,157.8 569.6,153.1 570.3,149.5 570.9,146.6 571.6,144.2 572.3,143.0 572.9,143.9 573.6,145.9 574.2,149.2 574.9,152.4 575.5,155.2 576.2,158.2 576.8,161.7 577.5,166.1 578.2,171.7 578.8,178.1 579.5,183.8 580.1,186.8 580.8,186.6 581.4,183.3 582.1,178.5 582.7,173.3 583.4,168.2 584.1,163.2 584.7,159.3 585.4,156.5 586.0,154.7 586.7,154.4 587.3,153.9 588.0,152.9 588.6,150.4 589.3,148.8 590.0,148.3 590.6,148.8 591.3,149.8 591.9,152.0 592.6,155.3 593.2,158.8 593.9,161.4 594.5,162.1 595.2,161.5 595.9,161.3 596.5,161.7 597.2,163.3 597.8,166.1 598.5,168.5 599.1,170.8 599.8,172.6 600.4,173.7 601.1,174.7 601.8,175.2 602.4,175.0 603.1,175.9 603.7,175.9 604.4,175.3 605.0,175.0 605.7,174.8 606.3,174.1 607.0,173.6 607.7,173.6 608.3,175.7 609.0,178.6 609.6,181.7 610.3,184.6 610.9,185.4 611.6,184.5 612.2,182.5 612.9,179.0 613.6,173.4 614.2,165.6 614.9,157.0 615.5,147.9 616.2,140.0 616.8,133.7 617.5,129.3 618.1,126.6 618.8,124.6 619.5,124.0 620.1,124.5 620.8,126.1 621.4,128.5 622.1,131.5 622.7,134.7 623.4,138.0 624.0,142.0 624.7,145.2 625.4,147.7 626.0,149.2 626.7,150.0 627.3,149.2 628.0,147.5 628.6,145.2 629.3,143.5 629.9,142.7 630.6,143.7 631.3,145.7 631.9,148.5 632.6,151.9 633.2,154.9 633.9,157.1 634.5,158.4 635.2,159.4 635.8,159.7 636.5,158.7 637.2,156.8 637.8,154.8 638.5,153.7 639.1,152.6 639.8,151.8 640.4,150.9 641.1,150.0 641.7,149.8 642.4,149.9 643.1,150.2 643.7,149.8 644.4,148.9 645.0,147.5 645.7,145.7 646.3,144.2 647.0,143.5 647.6,143.8 648.3,144.8 649.0,147.1 649.6,149.7 650.3,152.2 650.9,154.0 651.6,154.8 652.2,154.9 652.9,155.1 653.5,156.5 654.2,159.7 654.9,163.9 655.5,169.4 656.2,175.2 656.8,179.7 657.5,182.5 658.1,182.7 658.8,180.4 659.4,176.3 660.1,170.7 660.8,163.7 661.4,155.9 662.1,148.4 662.7,140.7 663.4,134.7 664.0,128.8 664.7,123.7 665.3,119.8 666.0,117.2" fill="none" stroke="var(--blue)" stroke-width="1.1"/>
+  <polyline points="76.0,150.8 76.7,112.8 77.3,159.7 78.0,172.5 78.6,179.6 79.3,183.8 79.9,186.8 80.6,189.2 81.2,191.2 81.9,192.6 82.6,193.9 83.2,195.3 83.9,197.3 84.5,199.1 85.2,200.9 85.8,202.3 86.5,203.2 87.1,203.7 87.8,203.7 88.5,203.3 89.1,202.9 89.8,202.4 90.4,202.0 91.1,201.4 91.7,200.6 92.4,199.4 93.0,197.9 93.7,196.8 94.4,196.5 95.0,197.4 95.7,199.3 96.3,202.1 97.0,205.0 97.6,207.8 98.3,209.7 98.9,210.8 99.6,211.4 100.3,211.3 100.9,211.3 101.6,211.4 102.2,212.4 102.9,214.9 103.5,218.4 104.2,221.9 104.8,224.8 105.5,226.7 106.2,226.8 106.8,226.0 107.5,224.7 108.1,223.2 108.8,221.9 109.4,221.4 110.1,221.4 110.7,221.8 111.4,222.4 112.1,222.7 112.7,222.2 113.4,221.3 114.0,220.5 114.7,219.8 115.3,219.8 116.0,220.0 116.6,220.7 117.3,222.3 118.0,223.9 118.6,225.9 119.3,227.5 119.9,229.1 120.6,229.9 121.2,230.5 121.9,229.9 122.5,227.8 123.2,224.7 123.9,221.6 124.5,218.8 125.2,216.4 125.8,214.5 126.5,212.7 127.1,211.0 127.8,209.2 128.4,207.3 129.1,205.4 129.8,204.1 130.4,203.6 131.1,204.1 131.7,205.3 132.4,208.5 133.0,213.0 133.7,218.1 134.3,223.0 135.0,226.9 135.7,227.9 136.3,226.8 137.0,223.3 137.6,218.5 138.3,213.7 138.9,209.6 139.6,206.4 140.2,203.7 140.9,200.7 141.6,197.7 142.2,196.0 142.9,194.7 143.5,193.9 144.2,191.9 144.8,188.3 145.5,183.2 146.1,177.0 146.8,171.4 147.5,167.8 148.1,167.3 148.8,169.5 149.4,173.5 150.1,177.9 150.7,181.1 151.4,182.6 152.0,182.8 152.7,182.2 153.4,181.9 154.0,182.3 154.7,182.9 155.3,184.7 156.0,187.4 156.6,191.1 157.3,195.0 157.9,200.0 158.6,204.1 159.3,207.2 159.9,208.4 160.6,208.0 161.2,205.4 161.9,201.4 162.5,196.5 163.2,191.5 163.8,187.4 164.5,184.2 165.2,182.9 165.8,183.9 166.5,187.3 167.1,191.0 167.8,195.3 168.4,198.6 169.1,201.0 169.7,201.9 170.4,201.0 171.1,199.6 171.7,197.3 172.4,194.3 173.0,191.1 173.7,186.9 174.3,182.8 175.0,178.1 175.6,173.4 176.3,169.7 177.0,167.7 177.6,167.6 178.3,169.6 178.9,172.9 179.6,175.9 180.2,178.1 180.9,179.9 181.5,181.7 182.2,183.2 182.9,185.1 183.5,187.7 184.2,189.9 184.8,192.1 185.5,193.8 186.1,194.0 186.8,193.3 187.4,191.9 188.1,190.1 188.8,188.3 189.4,187.3 190.1,185.9 190.7,183.6 191.4,181.0 192.0,179.6 192.7,179.1 193.3,180.1 194.0,182.2 194.7,183.9 195.3,185.2 196.0,185.4 196.6,185.9 197.3,187.0 197.9,188.8 198.6,191.6 199.2,194.9 199.9,198.6 200.6,202.6 201.2,205.6 201.9,207.9 202.5,208.5 203.2,208.3 203.8,207.1 204.5,205.1 205.1,203.4 205.8,202.4 206.5,201.1 207.1,200.2 207.8,199.8 208.4,201.3 209.1,203.6 209.7,207.5 210.4,211.9 211.0,216.3 211.7,218.6 212.4,218.2 213.0,215.3 213.7,210.9 214.3,205.8 215.0,201.0 215.6,197.9 216.3,196.5 216.9,194.5 217.6,190.0 218.3,184.0 218.9,178.7 219.6,173.9 220.2,169.8 220.9,165.7 221.5,161.1 222.2,156.6 222.8,152.5 223.5,148.7 224.2,146.0 224.8,143.8 225.5,141.9 226.1,141.9 226.8,145.4 227.4,152.8 228.1,163.1 228.7,175.0 229.4,188.2 230.1,201.3 230.7,212.9 231.4,221.8 232.0,227.5 232.7,229.9 233.3,229.2 234.0,226.5 234.6,222.9 235.3,219.1 236.0,215.6 236.6,211.8 237.3,207.8 237.9,204.7 238.6,201.3 239.2,198.0 239.9,194.5 240.5,190.4 241.2,185.4 241.9,179.2 242.5,172.0 243.2,166.2 243.8,161.8 244.5,158.4 245.1,157.8 245.8,159.8 246.4,163.2 247.1,167.6 247.8,171.6 248.4,175.8 249.1,178.5 249.7,179.4 250.4,178.6 251.0,176.3 251.7,174.0 252.3,171.3 253.0,168.6 253.7,165.5 254.3,163.1 255.0,161.7 255.6,161.1 256.3,161.7 256.9,163.9 257.6,167.2 258.2,169.5 258.9,171.1 259.6,172.6 260.2,172.2 260.9,170.5 261.5,168.1 262.2,165.3 262.8,162.7 263.5,161.8 264.1,161.3 264.8,161.7 265.5,162.3 266.1,162.4 266.8,162.4 267.4,162.8 268.1,162.7 268.7,163.0 269.4,162.9 270.0,163.2 270.7,163.8 271.4,163.6 272.0,163.4 272.7,163.7 273.3,163.7 274.0,163.2 274.6,161.9 275.3,160.6 275.9,158.3 276.6,154.8 277.3,151.5 277.9,149.0 278.6,148.0 279.2,148.4 279.9,149.2 280.5,149.7 281.2,148.5 281.8,146.4 282.5,144.3 283.2,143.3 283.8,143.7 284.5,146.9 285.1,150.5 285.8,153.6 286.4,157.4 287.1,160.3 287.7,161.8 288.4,161.1 289.1,158.5 289.7,155.8 290.4,153.3 291.0,151.1 291.7,148.7 292.3,146.4 293.0,145.1 293.6,144.1 294.3,143.9 295.0,143.6 295.6,142.3 296.3,141.0 296.9,139.1 297.6,137.7 298.2,137.4 298.9,138.8 299.5,141.2 300.2,144.2 300.9,147.8 301.5,151.1 302.2,153.2 302.8,154.5 303.5,154.4 304.1,153.0 304.8,151.0 305.4,149.8 306.1,149.4 306.8,148.7 307.4,148.9 308.1,147.5 308.7,147.2 309.4,148.2 310.0,150.2 310.7,152.1 311.3,153.3 312.0,154.2 312.7,154.2 313.3,154.5 314.0,154.1 314.6,153.6 315.3,152.4 315.9,151.2 316.6,150.9 317.2,150.7 317.9,151.1 318.6,151.6 319.2,151.5 319.9,150.0 320.5,149.3 321.2,148.1 321.8,146.9 322.5,146.6 323.1,146.7 323.8,148.2 324.5,150.7 325.1,154.0 325.8,156.8 326.4,158.7 327.1,159.6 327.7,158.8 328.4,156.5 329.0,153.6 329.7,150.3 330.4,146.9 331.0,144.0 331.7,142.8 332.3,141.8 333.0,139.7 333.6,137.7 334.3,135.8 334.9,135.0 335.6,136.3 336.3,140.3 336.9,145.2 337.6,150.3 338.2,154.1 338.9,156.7 339.5,157.2 340.2,155.4 340.8,152.1 341.5,148.5 342.2,145.8 342.8,145.0 343.5,145.4 344.1,146.2 344.8,146.7 345.4,146.0 346.1,145.6 346.7,144.4 347.4,143.5 348.1,143.6 348.7,145.5 349.4,148.5 350.0,151.6 350.7,151.7 351.3,149.1 352.0,143.7 352.6,137.2 353.3,131.4 354.0,127.5 354.6,125.9 355.3,126.4 355.9,127.2 356.6,128.0 357.2,128.8 357.9,128.9 358.5,130.5 359.2,133.8 359.9,139.4 360.5,146.5 361.2,153.7 361.8,159.9 362.5,163.3 363.1,164.3 363.8,163.8 364.4,163.0 365.1,163.5 365.8,167.2 366.4,169.3 367.1,168.2 367.7,166.1 368.4,163.0 369.0,158.9 369.7,154.0 370.3,148.7 371.0,144.5 371.7,141.0 372.3,137.4 373.0,134.4 373.6,133.3 374.3,133.4 374.9,136.1 375.6,139.8 376.2,146.4 376.9,154.6 377.6,162.3 378.2,167.8 378.9,169.7 379.5,170.0 380.2,169.2 380.8,168.7 381.5,168.0 382.1,167.3 382.8,164.7 383.5,160.6 384.1,157.4 384.8,157.7 385.4,161.8 386.1,167.3 386.7,172.9 387.4,178.9 388.0,184.2 388.7,186.7 389.4,186.4 390.0,183.9 390.7,179.9 391.3,177.3 392.0,175.5 392.6,175.8 393.3,174.3 393.9,169.8 394.6,164.7 395.3,162.5 395.9,163.2 396.6,165.1 397.2,167.0 397.9,168.9 398.5,171.4 399.2,174.7 399.8,178.7 400.5,184.6 401.2,190.0 401.8,194.0 402.5,195.2 403.1,192.9 403.8,188.9 404.4,185.7 405.1,184.3 405.7,185.8 406.4,186.0 407.1,184.7 407.7,184.3 408.4,183.7 409.0,184.4 409.7,184.2 410.3,183.9 411.0,184.4 411.6,183.1 412.3,181.3 413.0,179.3 413.6,176.4 414.3,171.5 414.9,167.0 415.6,164.3 416.2,164.8 416.9,168.7 417.5,171.6 418.2,172.5 418.9,172.8 419.5,172.9 420.2,172.5 420.8,172.1 421.5,172.0 422.1,173.2 422.8,175.4 423.4,178.2 424.1,180.1 424.8,180.6 425.4,180.1 426.1,179.4 426.7,179.6 427.4,182.2 428.0,186.2 428.7,188.4 429.3,188.0 430.0,184.3 430.7,177.6 431.3,169.5 432.0,161.9 432.6,157.9 433.3,158.0 433.9,160.2 434.6,164.5 435.2,169.6 435.9,174.5 436.6,177.6 437.2,177.8 437.9,175.5 438.5,171.3 439.2,167.1 439.8,164.8 440.5,165.1 441.1,168.4 441.8,171.3 442.5,174.2 443.1,176.7 443.8,179.4 444.4,181.1 445.1,183.3 445.7,186.0 446.4,188.0 447.0,188.8 447.7,187.7 448.4,184.5 449.0,179.6 449.7,173.1 450.3,166.1 451.0,160.8 451.6,156.7 452.3,154.2 452.9,152.3 453.6,150.9 454.3,150.8 454.9,150.8 455.6,151.2 456.2,152.5 456.9,154.4 457.5,156.9 458.2,159.0 458.8,160.9 459.5,162.8 460.2,163.4 460.8,162.6 461.5,159.0 462.1,153.3 462.8,146.7 463.4,140.6 464.1,136.0 464.7,132.6 465.4,129.4 466.1,128.0 466.7,126.9 467.4,128.6 468.0,130.5 468.7,131.5 469.3,131.7 470.0,132.8 470.6,136.2 471.3,140.9 472.0,147.5 472.6,154.8 473.3,162.9 473.9,170.7 474.6,177.6 475.2,182.4 475.9,183.8 476.5,181.7 477.2,178.0 477.9,172.7 478.5,168.2 479.2,164.9 479.8,162.4 480.5,160.7 481.1,160.7 481.8,159.5 482.4,158.1 483.1,158.0 483.8,158.3 484.4,160.1 485.1,162.2 485.7,163.9 486.4,164.0 487.0,162.5 487.7,160.6 488.3,158.6 489.0,157.4 489.7,157.5 490.3,159.2 491.0,161.4 491.6,164.2 492.3,166.5 492.9,167.7 493.6,167.9 494.2,166.7 494.9,164.7 495.6,161.8 496.2,159.1 496.9,157.2 497.5,157.9 498.2,160.2 498.8,163.1 499.5,166.1 500.1,170.0 500.8,173.4 501.5,175.7 502.1,176.2 502.8,176.0 503.4,175.2 504.1,173.7 504.7,171.9 505.4,170.9 506.0,170.0 506.7,169.9 507.4,170.9 508.0,173.6 508.7,175.9 509.3,177.8 510.0,179.4 510.6,180.7 511.3,180.6 511.9,180.4 512.6,180.9 513.3,182.0 513.9,184.0 514.6,185.9 515.2,187.9 515.9,189.5 516.5,191.0 517.2,192.9 517.8,193.7 518.5,192.8 519.2,191.3 519.8,189.8 520.5,188.4 521.1,187.0 521.8,184.8 522.4,181.7 523.1,178.8 523.7,175.2 524.4,170.4 525.1,165.0 525.7,159.6 526.4,153.9 527.0,149.2 527.7,146.4 528.3,146.0 529.0,148.0 529.6,150.8 530.3,153.6 531.0,155.4 531.6,156.6 532.3,157.4 532.9,157.4 533.6,157.6 534.2,157.8 534.9,157.7 535.5,157.0 536.2,156.4 536.9,156.0 537.5,156.9 538.2,159.1 538.8,161.8 539.5,165.2 540.1,168.0 540.8,170.3 541.4,174.0 542.1,177.4 542.8,180.0 543.4,183.2 544.1,186.0 544.7,188.4 545.4,189.1 546.0,188.2 546.7,186.1 547.3,183.7 548.0,181.2 548.7,178.4 549.3,176.7 550.0,175.4 550.6,173.9 551.3,173.1 551.9,173.0 552.6,173.1 553.2,175.5 553.9,179.2 554.6,183.4 555.2,187.4 555.9,189.6 556.5,191.6 557.2,193.5 557.8,194.1 558.5,194.0 559.1,193.0 559.8,191.6 560.5,190.3 561.1,189.1 561.8,187.2 562.4,183.4 563.1,178.2 563.7,173.2 564.4,168.3 565.0,164.2 565.7,160.8 566.4,158.6 567.0,157.3 567.7,155.5 568.3,154.1 569.0,152.4 569.6,152.5 570.3,154.1 570.9,157.8 571.6,161.1 572.3,162.6 572.9,163.8 573.6,165.6 574.2,168.5 574.9,171.4 575.5,172.5 576.2,170.2 576.8,165.8 577.5,161.1 578.2,157.1 578.8,154.3 579.5,153.0 580.1,151.5 580.8,149.4 581.4,147.7 582.1,145.6 582.7,144.7 583.4,145.8 584.1,149.7 584.7,154.9 585.4,160.3 586.0,165.8 586.7,172.6 587.3,179.4 588.0,187.1 588.6,192.2 589.3,193.0 590.0,189.9 590.6,184.6 591.3,179.8 591.9,177.0 592.6,176.2 593.2,177.5 593.9,179.4 594.5,180.2 595.2,180.5 595.9,181.2 596.5,183.1 597.2,183.3 597.8,183.9 598.5,184.5 599.1,184.8 599.8,185.0 600.4,185.4 601.1,186.7 601.8,188.3 602.4,189.4 603.1,190.3 603.7,190.9 604.4,189.7 605.0,186.8 605.7,184.1 606.3,182.9 607.0,182.8 607.7,184.2 608.3,185.9 609.0,187.4 609.6,187.2 610.3,185.2 610.9,182.6 611.6,179.2 612.2,176.3 612.9,172.8 613.6,169.8 614.2,167.1 614.9,164.2 615.5,162.0 616.2,161.0 616.8,159.9 617.5,159.5 618.1,159.4 618.8,160.2 619.5,160.5 620.1,159.7 620.8,158.3 621.4,156.8 622.1,154.8 622.7,153.7 623.4,153.6 624.0,154.0 624.7,156.0 625.4,158.5 626.0,161.6 626.7,165.2 627.3,168.2 628.0,171.4 628.6,173.5 629.3,175.2 629.9,175.9 630.6,176.3 631.3,176.4 631.9,175.9 632.6,175.3 633.2,173.5 633.9,171.2 634.5,170.4 635.2,170.1 635.8,170.6 636.5,172.0 637.2,173.9 637.8,175.9 638.5,178.1 639.1,180.3 639.8,181.6 640.4,180.9 641.1,178.4 641.7,172.5 642.4,164.2 643.1,155.3 643.7,148.4 644.4,144.7 645.0,143.7 645.7,144.5 646.3,145.8 647.0,148.3 647.6,152.2 648.3,156.0 649.0,159.5 649.6,162.2 650.3,164.3 650.9,165.3 651.6,165.8 652.2,165.7 652.9,165.8 653.5,167.2 654.2,169.3 654.9,170.9 655.5,170.4 656.2,166.6 656.8,160.1 657.5,153.1 658.1,146.9 658.8,143.5 659.4,144.1 660.1,144.9 660.8,144.0 661.4,143.1 662.1,143.6 662.7,146.1 663.4,150.4 664.0,154.9 664.7,158.4 665.3,161.9 666.0,166.0" fill="none" stroke="var(--accent)" stroke-width="1.1"/>
+  <polyline points="76.0,183.9 666.0,183.9" fill="none" stroke="var(--ink)" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <polyline points="76.0,262.5 666.0,262.5" fill="none" stroke="var(--muted)" stroke-width="2.4"/>
+  <polyline points="272.7,300.0 272.7,50.0" fill="none" stroke="var(--muted)" stroke-width="0.8" stroke-dasharray="2 3"/>
+  <text class="svg-note-sm" x="279.2" y="287.5" text-anchor="start" fill="var(--muted)">inicio del promedio</text>
+  <line x1="330" y1="66" x2="356" y2="66" stroke="var(--blue)" stroke-width="1.1"/>
+  <text class="svg-note-sm" x="362" y="70">DDES k-ω SST: media 0.287</text>
+  <line x1="330" y1="84" x2="356" y2="84" stroke="var(--accent)" stroke-width="1.1"/>
+  <text class="svg-note-sm" x="362" y="88">DDES Spalart-Allmaras: media 0.285</text>
+  <line x1="330" y1="102" x2="356" y2="102" stroke="var(--ink)" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <text class="svg-note-sm" x="362" y="106">RANS: 0.276</text>
+  <line x1="330" y1="120" x2="356" y2="120" stroke="var(--muted)" stroke-width="2.4"/>
+  <text class="svg-note-sm" x="362" y="124">túnel: 0.243–0.247</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">El arrastre en el tiempo.</b> Los dos DDES arrancan de la iteración 2000 del RANS, que estaba arriba de su media (\(C_D\) = 0.290); en el primer medio segundo bajan hasta 0.25–0.26 y vuelven a subir, mientras la estela pasa de la forma del RANS a la turbulenta. Desde 0.6 s los dos oscilan juntos, un poco arriba del RANS y lejos de la franja del túnel.</figcaption>
+</figure>
+<p>Los dos DDES arrancan del \(C_D\) de la iteración 2000 del RANS, 0.290, que estaba arriba de su promedio (problema 2 de la sección de errores). Durante medio segundo bajan y suben mientras la estela del RANS se convierte en la turbulenta; desde 0.6 s oscilan juntos (figura 1). Con <code>./tramos 0.6 1000</code> (k-ω SST, con las dos partes de la corrida unidas: problema 1):</p>
+<pre class="code"><code>$ ./tramos 0.6 1000 cd.dat
+Tiempo 0.6001 a 1.8 s, 12 tramos de 1000 pasos
+
+tramo   tiempo [s]       Cd
+   1   0.6001-0.7       0.2795
+   2   0.7001-0.8       0.2904
+   3   0.8001-0.9       0.2945
+   4   0.9001-1         0.2924
+   5   1.0001-1.1       0.2926
+   6   1.1001-1.2       0.2860
+   7   1.2001-1.3       0.2871
+   8   1.3001-1.4       0.2791
+   9   1.4001-1.5       0.2818
+  10   1.5001-1.6       0.2858
+  11   1.6001-1.7       0.2876
+  12   1.7001-1.8       0.2884
+
+Promedio de los tramos         0.2871
+Del menor al mayor tramo       0.2791 a 0.2945
+Error estándar de la media     0.0015</code></pre>
+<p>Los tramos van de 0.279 a 0.294; con Spalart-Allmaras, de 0.279 a 0.291. Las mitades de la ventana dan 0.289 y 0.285 (k-ω SST) y 0.287 y 0.282 (Spalart-Allmaras): el promedio no se mueve más que su error. La fluctuación del \(C_D\), ±0.007 y ±0.006, es de 7 a 9 veces menor que en el Jimny (±0.047 y ±0.056); comparada con el \(C_D\) de cada uno, 2 % contra 8 %: un auto redondeado tiene una estela más tranquila. La fuerza lateral oscila alrededor de cero, ±0.011 y ±0.013 en \(C_S\).</p>
+<h3>2. Los números</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Cálculo</th><th>\(C_D\)</th><th>Fluctuación</th><th>Sobre el túnel</th><th>\(C_{L,f}\)</th><th>\(C_{L,r}\)</th><th>Recirculación</th><th>\(C_p\) de la base</th></tr></thead>
+    <tbody>
+      <tr><td>Túnel (Heft et al., 2012)</td><td>0.243 a 0.247</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>RANS, k-ω SST</td><td>0.276 ± 0.0008</td><td>0.0047</td><td>+12 a +14 %</td><td>−0.081</td><td>0.141</td><td>0.75 m</td><td>−0.096</td></tr>
+      <tr><td>DDES, k-ω SST</td><td>0.287 ± 0.0015</td><td>0.0070</td><td>+16 a +18 %</td><td>−0.105</td><td>0.100</td><td>0.57 m</td><td>−0.069</td></tr>
+      <tr><td>DDES, Spalart-Allmaras</td><td>0.285 ± 0.0012</td><td>0.0063</td><td>+15 a +17 %</td><td>−0.099</td><td>0.089</td><td>0.61 m</td><td>−0.072</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">Los tres cálculos del DrivAer contra el túnel.</b> RANS: iteraciones 1001 a 2000 (tutorial 3.6), con el error estándar corregido por la autocorrelación; DDES: de 0.6 a 1.8 s, con el error estándar de tramos de 0.1 s. La fluctuación es la desviación estándar del \(C_D\) instantáneo. La recirculación es el largo de la zona con \(U_x &lt; 0\) detrás de la cola en el plano medio; el \(C_p\) de la base, el promedio sobre las caras traseras del auto (0.69 m²). Los campos del RANS son la media de sus iteraciones 1000, 1500 y 2000; los de los DDES, sus medias en el tiempo.</caption>
+  </table>
+</div>
+<p>La tabla 3 responde la pregunta de la guía. Entre los dos DDES, la diferencia es 0.003 y, con la ecuación (1), \(z\) = 1.4: <strong>en el DrivAer, los dos modelos dan el mismo \(C_D\)</strong>. Contra el RANS, en cambio, los dos suben: +4 % (\(z\) = 6) y +3 % (\(z\) = 6). Y contra el túnel quedan +16 a +18 % y +15 a +17 % arriba: más lejos que el RANS. Ninguno de los dos acierta, y los dos fallan igual.</p>
+<h3>3. Dónde está el arrastre</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th></th><th>RANS</th><th>DDES k-ω SST</th><th>DDES Spalart-Allmaras</th></tr></thead>
+    <tbody>
+      <tr><td>Carrocería, presión</td><td>0.213</td><td>0.201</td><td>0.193</td></tr>
+      <tr><td>Ruedas delanteras, presión</td><td>0.039</td><td>0.045</td><td>0.043</td></tr>
+      <tr><td>Ruedas traseras, presión</td><td>0.013</td><td>0.021</td><td>0.026</td></tr>
+      <tr><td>Presión, total</td><td>0.264</td><td>0.267</td><td>0.263</td></tr>
+      <tr><td>Fricción</td><td>≈ 0.020</td><td>0.022</td><td>0.024</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">Dónde está el arrastre.</b> Arrastre de presión integrado cara por cara sobre cada región con la presión media (el guion <code>campos_drivaer.py</code> de la carpeta de exploración); la fricción, de la función <code>fuerzas</code>. En el RANS, la media de las iteraciones 1000, 1500 y 2000, cuyo \(C_D\) promedia 0.283, 0.006 más que el de las iteraciones 1001 a 2000: sus renglones están un poco altos.</caption>
+  </table>
+</div>
+<p>La tabla 4 y la figura 2 dicen por qué el total casi no cambia: <strong>los DDES no cambian el arrastre de presión, lo reparten distinto</strong>. La carrocería pierde de 0.011 a 0.019 y las ruedas ganan casi lo mismo, sobre todo las traseras (de 0.013 a 0.021 y 0.026). Por tramos, los tres cálculos coinciden de la nariz al final del techo; se separan en tres lugares:</p>
+<ul>
+  <li><strong>La base</strong> (los dos últimos tramos): con los DDES, su \(C_p\) medio sube de −0.096 a −0.069 y −0.072, menos succión en la cara de atrás, y su arrastre baja.</li>
+  <li><strong>El hueco de la rueda trasera</strong> (\(x\) ≈ 2.4 m) y <strong>las ruedas traseras</strong>: suben. Ahí llega el aire que sale de debajo del auto y de los huecos de las ruedas delanteras, que en los DDES trae remolinos resueltos (figura 5).</li>
+  <li><strong>El techo</strong>: el \(C_p\) de la línea media es el mismo en los tres; el flujo de arriba sigue pegado hasta el borde del fastback.</li>
+</ul>
+<p>La fricción sube un poco, de ≈ 0.020 a 0.022 y 0.024. Lo que el DDES gana en la base lo pierde en las ruedas, y el total queda donde estaba, unos puntos arriba.</p>
+<figure class="diagram">
+  <img src="imagenes/t38-01_reparto.png" alt="Tres gráficas del arrastre de presión del DrivAer por región, por tramos y del coeficiente de presión del techo, con el RANS y los dos DDES" loading="lazy">
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">Dónde cambia el arrastre.</b> Arriba, el arrastre de presión de la carrocería y de las ruedas (en el RANS, la media de tres iteraciones, con su intervalo). En medio, el de la carrocería por tramos de 0.2 m de la nariz a la cola. Abajo, el \(C_p\) sobre la línea media del techo, con el eje invertido (la succión hacia arriba). Los tres cálculos coinciden de la nariz al final del techo; se separan en el hueco de la rueda trasera (\(x\) ≈ 2.4 m), en las ruedas y en la base.</figcaption>
+</figure>
+<h3>4. La estela</h3>
+<figure class="diagram">
+  <img src="imagenes/t38-02_planos.png" alt="Tres cortes del plano medio del DrivAer coloreados por la magnitud de la velocidad" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">La estela en el plano medio.</b> |U| en \(y\) = 0, de 0 a 21 m/s, con la línea \(U_x\) = 0 en blanco: (a) el RANS en la iteración 1500; (b) y (c) las medias de 0.6 a 1.8 s de los dos DDES. La burbuja de recirculación detrás de la cola es más corta con los DDES, y casi igual con los dos modelos.</figcaption>
+</figure>
+<p>En el plano medio (figura 3), la burbuja de recirculación detrás de la cola mide 0.57 m con k-ω SST y 0.61 m con Spalart-Allmaras; la del RANS, entre 0.64 y 0.82 m según la iteración. Una burbuja más corta va con una base menos succionada (tabla 3). Cuál de las dos bases se parece a la del túnel no se puede decir aquí: el \(C_p\) medido de la base del DrivAer sólo está publicado en figuras de pago (3.6). La literatura del DrivAer reporta que un cálculo no estacionario predice la presión de la base y la estela mejor que uno estacionario <a href="#references-es">(Yazdani, 2015)</a>; aquí, aunque fuera así, el \(C_D\) total no mejora.</p>
+<figure class="diagram">
+  <img src="imagenes/t38-03_ruedas.png" alt="Tres cortes horizontales del DrivAer a la altura de las ruedas coloreados por la magnitud de la velocidad" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">Las estelas de las ruedas.</b> |U| en el plano horizontal \(z\) = 0.25 m, a la altura de los ejes, visto desde arriba, con la línea \(U_x\) = 0: (a) el RANS en la iteración 1500, con una burbuja larga detrás de la rueda trasera derecha: la estela de un RANS que no se asienta es asimétrica; (b) y (c) las medias de los dos DDES, casi simétricas.</figcaption>
+</figure>
+<p>A la altura de los ejes (figura 4) se ve la otra mitad de la historia: el aire que sale de los huecos de las ruedas y de debajo del auto. En el RANS, la estela de la iteración 1500 es asimétrica, con una burbuja larga detrás de la rueda trasera derecha; las medias de los DDES son casi simétricas.</p>
+<h3>5. Los remolinos</h3>
+<figure class="diagram">
+  <img src="imagenes/t38-04_q.png" alt="El DrivAer con las isosuperficies del criterio Q de los dos modelos DDES, desde atrás y desde adelante" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">Los remolinos.</b> Isosuperficie \(Q\) = 2000 s⁻² en el instante 1.8 s, coloreada por |U|, con k-ω SST (izquierda) y Spalart-Allmaras (derecha), desde atrás (arriba) y desde adelante (abajo). Con Spalart-Allmaras, los costados y las ruedas delanteras se cubren de remolinos pequeños; con k-ω SST, los remolinos son menos y más grandes, también en la estela.</figcaption>
+</figure>
+<p>La diferencia que en el Jimny estaba en todo el vehículo aquí se ve en los costados (figura 5). Con Spalart-Allmaras, el aire que sale de las ruedas delanteras y de los postes del parabrisas se rompe en muchos remolinos pequeños que cubren los costados; con k-ω SST, los remolinos son menos y más grandes. Es la misma tendencia del 3.7, con una diferencia de lugar. En el Jimny, los remolinos nacían en las capas que se desprenden de los bordes del frente, y el cofre, el parabrisas, el techo y los costados quedaban bajo flujo desprendido, donde el modelo decide la presión: ahí estuvo 75 % de la diferencia de arrastre entre los dos modelos (3.7). En el DrivAer, la capa límite de la carrocería sigue pegada, la presión de los costados la fija el flujo de afuera, y los remolinos que pasan sobre ella no la cambian: el \(C_p\) del techo es el mismo con los dos modelos (figura 2).</p>
+<h3>6. El costo</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Cálculo</th><th>Pasos</th><th>Segundos por paso</th><th>Horas</th><th>Courant máximo</th></tr></thead>
+    <tbody>
+      <tr><td>RANS (con la malla aparte)</td><td>2 000 iteraciones</td><td>3.7</td><td>2.1</td><td>—</td></tr>
+      <tr><td>DDES, k-ω SST</td><td>18 337</td><td>5.75</td><td>29.3</td><td>2.19</td></tr>
+      <tr><td>DDES, Spalart-Allmaras</td><td>18 000</td><td>4.80</td><td>24.0</td><td>1.71</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 5.</b> <b class="fig-title">Lo que cuesta.</b> En la laptop de la serie, con 8 procesos. La corrida k-ω SST se interrumpió en 1.13 s por un reinicio de Windows y se reanudó desde 1.1 s: 337 pasos se calcularon dos veces (sección de errores, problema 1).</caption>
+  </table>
+</div>
+<p>Cada DDES costó de 12 a 14 veces el RANS. Spalart-Allmaras, con una ecuación de turbulencia en lugar de dos, cuesta 17 % menos por paso.</p>
+<h3>7. Lo que el DrivAer dice del Jimny</h3>
+<p>El DrivAer no decide entre los dos modelos: con flujo pegado hasta la cola, los dos dan lo mismo. Lo que sí dice:</p>
+<ul>
+  <li><strong>La diferencia del Jimny parece ser de su forma.</strong> Con la misma receta de malla y los mismos modelos, el auto redondeado no distingue a los dos DDES y el vehículo de bordes vivos los separa 20 %. El túnel, la receta de malla y la numérica son los mismos, pero los dos vehículos difieren en más cosas que el frente: toda la forma, las ruedas y la velocidad (27.8 contra 16 m/s), así que es una inferencia, no una prueba; pero es la que explica dónde se separan los modelos. La diferencia nace donde el aire se desprende de un borde, que es donde los modelos híbridos difieren (sección <a href="#theory-es">Teoría</a>).</li>
+  <li><strong>El DDES no corrige el error del método.</strong> El RANS del DrivAer queda +12 a +14 % arriba del túnel; los DDES, +15 a +17 % y +16 a +18 %. Lo que sobra no es del modelo de turbulencia: es de lo que tienen en común las tres corridas, la malla con funciones de pared, las ruedas y el dominio (práctica sugerida).</li>
+  <li><strong>Para el Jimny, el modelo sigue siendo una incertidumbre.</strong> Si su arrastre se parece al del DrivAer en cómo responde a la malla, sus tres números (0.564, 0.576 y 0.689) estarían arriba del real; cuál de los dos DDES está más cerca, el DrivAer no lo puede decir, porque no tiene el borde que los separa. Haría falta un vehículo medido con bordes vivos al frente, como los del Jimny.</li>
+</ul>
+<div class="result-box">
+  <p><strong>Resultado:</strong> el \(C_D\) medio del DrivAer es 0.287 ± 0.0015 con DDES k-ω SST y 0.285 ± 0.0012 con DDES Spalart-Allmaras, iguales dentro de su incertidumbre (\(z\) = 1.4), contra 0.276 del RANS y 0.243–0.247 del túnel. Los DDES reparten distinto el arrastre —menos succión en la base, más en las ruedas— pero no lo acercan al túnel. Lo más probable es que la diferencia de 20 % entre los dos modelos en el Jimny venga de sus bordes vivos, no de los modelos en general.</p>
+</div>
+
+    </section>
+    <section id="errors-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Una corrida de un día y sus promedios</h2>
+
+<p>Los cuatro salieron al preparar esta guía.</p>
+<h3>1. Una actualización de Windows a medio cálculo</h3>
+<p>En la madrugada del segundo día, Windows instaló una actualización y reinició la laptop. El DDES de k-ω SST iba en 1.1337 s; el registro termina a la mitad de ese paso, con el único aviso que dejó MS-MPI:</p>
+<pre class="code"><code>GAMG:  Solving for p, Initial residual = 0.00693432, Final residual = 0.000164702, No Iterations 2
+time step continuity errors : sum local = 6.55181e-11, global = 1.93977e-14
+GAMG:  Solving for p, Initial residual = 0.000639439, Final residual = 2.40731e-05, No Iterations 2
+time step continuity errors : sum local = 9.57583e-12, global = -6.0389e-15
+
+Aborting: mpiexec on ACER-CARLOSMH failed to communicate with smpd manager on ACER-CARLOSMH</code></pre>
+<p>La última carpeta de tiempo escrita era la 1.1.</p>
+<p><strong>Remedio.</strong> No se vuelve a correr el <code>Allrun</code> (copiaría otra vez el tiempo 0 del RANS): se reanuda desde la última carpeta de tiempo. En el caso, con la terminal de blueCFD:</p>
+<pre class="code"><code>foamDictionary -entry startFrom -set latestTime system/controlDict
+mv log.foamRun log.foamRun.0
+mpirun -np 8 foamRun -parallel &gt; log.foamRun 2&gt;&amp;1 &amp;</code></pre>
+<p>Se pierde lo calculado desde la última escritura (aquí, 0.034 s: 337 pasos, 32 minutos). Los promedios de los campos siguen bien: <code>fieldAverage</code> guarda su cuenta en <code>uniform/</code> de cada carpeta de tiempo y continúa desde ahí. Las fuerzas, en cambio, empiezan un archivo nuevo, en <code>postProcessing/forceCoeffsIncompressible/1.1</code>, y el guion <code>tramos</code> sólo lee el de <code>0</code>. Sin unirlos, el promedio sale de la primera parte de la corrida:</p>
+<pre class="code"><code>$ ./tramos 0.6 1000
+Tiempo 0.6001 a 1.1 s, 5 tramos de 1000 pasos
+
+tramo   tiempo [s]       Cd
+   1   0.6001-0.7       0.2795
+   2   0.7001-0.8       0.2904
+   3   0.8001-0.9       0.2945
+   4   0.9001-1         0.2924
+   5   1.0001-1.1       0.2926
+
+Promedio de los tramos         0.2899
+Del menor al mayor tramo       0.2795 a 0.2945
+Error estándar de la media     0.0027</code></pre>
+<p>0.2899 ± 0.0027 en lugar de 0.2871 ± 0.0015: cinco tramos en lugar de doce, y un número que parece bueno. Las dos partes se unen con el primer archivo hasta 1.1 s y el segundo completo, y el guion acepta el archivo como tercer argumento:</p>
+<pre class="code"><code>awk &#x27;!/^#/ &amp;&amp; $1 &lt; 1.1&#x27; postProcessing/forceCoeffsIncompressible/0/forceCoeffs.dat &gt; cd.dat
+grep -v &#x27;^#&#x27; postProcessing/forceCoeffsIncompressible/1.1/forceCoeffs.dat &gt;&gt; cd.dat
+./tramos 0.6 1000 cd.dat</code></pre>
+<p>Lo que evita el problema es pausar las actualizaciones automáticas de Windows (Configuración → Windows Update → Pausar actualizaciones) antes de lanzar una corrida de un día.</p>
+<h3>2. Un RANS que no se asienta</h3>
+<p>El \(C_D\) del RANS del DrivAer no se queda quieto: de la iteración 1001 a la 2000 va de 0.266 a 0.292, con una media de 0.276. Sus campos sólo se guardaron en las iteraciones 1000, 1500 y 2000, con \(C_D\) 0.282, 0.276, 0.290; la 2000, de donde arrancan los DDES, está en el extremo de arriba. Comparar la estela de un DDES con la de una sola iteración del RANS es comparar una media con un instante: la recirculación del RANS mide de 0.64 a 0.82 m según la iteración que se tome. <strong>Remedio:</strong> comparar medias con medias. Aquí, los campos del RANS son la media de sus tres iteraciones guardadas (tabla 4), con la advertencia de que su \(C_D\) promedia 0.283; para hacerlo bien, se agrega <code>fieldAverage</code> a las funciones del RANS desde la iteración 1000.</p>
+<h3>3. Una frecuencia que no es</h3>
+<p>El análisis de esta guía buscó, como el del 3.7, el máximo del espectro del \(C_D\). Con k-ω SST lo encontró en 0.83 Hz, que es 1/1.2 s: el primer intervalo del espectro de una ventana de 1.2 s, es decir, una deriva lenta que dura toda la ventana, no una oscilación. Con Spalart-Allmaras, en 2.5 Hz, apenas sobre sus vecinos. El espectro del DrivAer es de banda ancha, sin un pico. <strong>Remedio:</strong> antes de reportar una frecuencia, ver el espectro y pedir que el pico sobresalga claramente y esté a varios intervalos del primero; una frecuencia de unos cuantos hertz pide una ventana de varios segundos.</p>
+<h3>4. Promedios que empezaron en 0</h3>
+<p>La corrida de k-ω SST de esta guía se lanzó antes de descubrir el problema 6 del 3.7, con <code>timeStart</code>, y sus campos medios acumularon desde el tiempo 0, con el arranque incluido. No hubo que repetirla: con el paso de tiempo fijo, la media de 0.6 a 1.8 s sale de las medias acumuladas en las carpetas 1.8 y 0.6, \(\bar u_{0.6\text{–}1.8} = (18000\,\bar u_{1.8} - 6000\,\bar u_{0.6})/12000\). <strong>Remedio:</strong> <code>startTime 0.6;</code>, como traen los dos casos, y no borrar las carpetas de tiempo intermedias hasta revisar <code>uniform/promediosTiempoProperties</code>.</p>
+
+    </section>
+    <section id="practice-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>¿Cuánto estorba el túnel?</h2>
+
+<p class="lead">¿Cuánto estorba el túnel?</p>
+<div class="example">
+  <p><strong>Enunciado.</strong> El túnel de <code>drivaer-completo</code> mide 10 m de ancho y 8 m de alto; el auto tapa 2.7 % de la sección. El aire que rodea al auto se acelera más que en un túnel sin paredes, y el arrastre sube. Repetir el RANS en un túnel tres veces mayor en sección y medir cuánto de la diferencia con el túnel de viento es bloqueo. Llenar la tabla 6.</p>
+  <p><strong>Condiciones.</strong> El mismo caso, con la malla de fondo más grande; la receta del auto no cambia.</p>
+</div>
+<h3>El procedimiento, en corto</h3>
+<ol>
+  <li>Copiar <code>drivaer-completo</code> a <code>drivaer-grande</code> y correr su <code>Allclean</code>.</li>
+  <li>En <code>system/blockMeshDict</code>: \(y\) de −10 a 10 m y \(z\) de 0 a 12 m, con cubos de 1 m (<code>yCells 20</code>, <code>zCells 12</code>).</li>
+  <li><code>./Allrun</code> y <code>./tramos 1000 250</code>.</li>
+</ol>
+<h3>Registro de resultados</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Túnel</th><th>Sección</th><th>Bloqueo</th><th>Celdas</th><th>\(C_D\) (1001–2000)</th><th>Sobre el túnel</th></tr></thead>
+    <tbody>
+      <tr><td>10 × 8 m</td><td>80 m²</td><td>2.7 %</td><td>2 076 004</td><td>0.276 ± 0.0008</td><td>+12 a +14 %</td></tr>
+      <tr><td>20 × 12 m</td><td>240 m²</td><td>0.9 %</td><td></td><td></td><td></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 6.</b> <b class="fig-title">Registro de la práctica.</b> La sección del túnel es \((y_{max} - y_{min})(z_{max} - z_{min})\); el bloqueo, el área frontal del DrivAer (2.154 m²) entre esa sección. El primer renglón es el de <code>drivaer-completo</code>.</caption>
+  </table>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>¿Cuántas celdas agrega el túnel grande? ¿Por qué tan pocas?</li>
+  <li>¿Cuánto baja el \(C_D\)? ¿Qué parte de la diferencia con el túnel de viento explica?</li>
+  <li>El túnel de viento también tiene paredes. ¿Por qué su medición no lleva el mismo error? (Las mediciones publicadas ya vienen corregidas por bloqueo.)</li>
+  <li>Si el bloqueo explica una parte, ¿qué queda para la malla y las ruedas? ¿Cómo se separarían?</li>
+</ol>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ul class="references">
+  <li>Heft, A. I., Indinger, T. y Adams, N. A. (2012). <em>Introduction of a new realistic generic car model for aerodynamic investigations</em> (SAE Technical Paper 2012-01-0168). SAE International.</li>
+  <li>OpenFOAM Foundation. (2024). <em>OpenFOAM 12</em>, tutorial <code>incompressibleFluid/drivaerFastback</code>. https://openfoam.org</li>
+  <li>Roache, P. J. (1998). <em>Verification and validation in computational science and engineering</em>. Hermosa Publishers.</li>
+  <li>Spalart, P. R. (2009). Detached-eddy simulation. <em>Annual Review of Fluid Mechanics, 41</em>, 181–202.</li>
+  <li>Spalart, P. R., Deck, S., Shur, M. L., Squires, K. D., Strelets, M. Kh. y Travin, A. (2006). A new version of detached-eddy simulation, resistant to ambiguous grid densities. <em>Theoretical and Computational Fluid Dynamics, 20</em>, 181–195.</li>
+  <li>Yazdani, R. (2015). <em>Steady and unsteady numerical analysis of the DrivAer model</em> (tesis de maestría 2015:34). Chalmers University of Technology.</li>
+</ul>
+<p class="source-note">Las cifras son de las dos corridas DDES de 1.8 s del DrivAer y de su corrida RANS, hechas en la misma computadora con blueCFD-Core 2024 (OpenFOAM 12) y 8 procesos, en octubre de 2026; las imágenes, de ParaView 5.11.2 sin ventana (<code>pvbatch</code>) y de matplotlib sobre esas corridas.</p>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="jimny-ddes.html?v=13"><span>Tutorial anterior</span>← 3.7 · El Jimny con DDES: dos modelos contra el RANS</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Flujo incompresible</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Die zwei DDES-Modelle aus Tutorial 3.7 an einem Auto mit Windkanaldaten rechnen; entscheiden, ob sich zwei mittlere Widerstandsbeiwerte stärker unterscheiden als ihre Unsicherheit; mit dem mittleren Druck finden, wo sich der Widerstand ändert (Karosserie, Räder, Heck); eine tagelange Rechnung nach einer Unterbrechung fortsetzen; sagen, was eine Validierung an einem Auto für ein anderes bedeutet.</p>
+    </section>
+    <section id="problem-de">
+      <p class="section-label">Das Problem</p>
+      <h2>Zwei Modelle, eine Messung</h2>
+<p>Beim Jimny ergab SST-DES Cd = 0,576 und SA-DDES 0,689. Der DrivAer Fastback (Windkanal: 0,243 bis 0,247) mit dem Netzrezept des Jimny stellt beide Modelle auf die Probe gegen eine Messung.</p>
+    </section>
+    <section id="theory-de">
+      <p class="section-label">Die Theorie</p>
+      <h2>Was eine Validierung entscheiden kann</h2>
+<p>Eine Validierung vergleicht einen berechneten Wert und seine Unsicherheit mit einem gemessenen Wert und seiner Streuung; zwei Mittelwerte unterscheiden sich nur, wenn ihr Abstand den kombinierten Standardfehler übersteigt. Wo sich die Modelle aus 3.7 unterscheiden: in Scherschichten, die sich an scharfen Kanten lösen; der Jimny hat sie vorne, der DrivAer nicht.</p>
+    </section>
+    <section id="recipe-de">
+      <p class="section-label">Schritt für Schritt</p>
+      <h2>Drei Fälle, zwei Tage Rechenzeit</h2>
+<p>Drei Fälle: drivaer-completo (das ganze Auto mit dem Jimny-Rezept, etwa 2 h), drivaer-ddes (SST-DES, etwa 29 h) und drivaer-ddes-sa (SA-DDES, etwa 24 h); das Skript tramos ab 0,6 s; foamPostProcess -func Q; ParaView auf dem zerlegten Fall.</p>
+    </section>
+    <section id="case-de">
+      <p class="section-label">Der Fall</p>
+      <h2>Vom Jimny zum DrivAer</h2>
+<p>Was sich gegenüber der DDES des Jimny ändert: Dauer und Mittelungsfenster (eine Wagenlänge dauert 0,29 s bei 16 m/s), die Kraftfunktionen des Tutorials drivaerFastback, nuTilda auf jedem Prozessor erzeugt, und die Box von setFieldsDict.</p>
+    </section>
+    <section id="check-de">
+      <p class="section-label">Durchgerechnetes Beispiel</p>
+      <h2>RANS, SST-DES, SA-DDES und der Windkanal</h2>
+<p>Mittlerer Widerstand von 0,6 bis 1,8 s: SST-DES 0,287 ± 0,0015, SA-DDES 0,285 ± 0,0012; RANS 0,276; Windkanal 0,243 bis 0,247. Die zwei DDES-Modelle stimmen innerhalb von 1,4 kombinierten Standardfehlern überein, und beide liegen 15 bis 18 % über dem Kanal, etwas mehr als RANS. Sie ändern den gesamten Druckwiderstand nicht, sie verteilen ihn um: weniger Sog am Heck (Cp −0,07 gegen −0,10) und ein kürzeres Rückströmgebiet, mehr Widerstand an den Rädern. Der Unterschied von 20 % beim Jimny kommt wahrscheinlich von seinen scharfen Vorderkanten, die der DrivAer nicht hat.</p>
+    </section>
+    <section id="errors-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Eine tagelange Rechnung und ihre Mittelwerte</h2>
+<p>Ein Windows-Update startet den Rechner mitten in der Rechnung neu: ab dem letzten geschriebenen Zeitpunkt fortsetzen und die zwei Kraftverläufe vor dem Mitteln zusammenfügen; die RANS-Lösung ist nicht stationär, eine Iteration ist nicht ihr Mittel; eine „dominante Frequenz“ im ersten Intervall des Spektrums ist keine Frequenz; Mittelwerte, die bei 0 begannen.</p>
+    </section>
+    <section id="practice-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Wie stark versperrt der Kanal?</h2>
+<p>Das Auto versperrt 2,7 % des Kanalquerschnitts. Die RANS-Rechnung in einem Kanal mit dreifachem Querschnitt wiederholen und messen, wie viel der Abweichung zum Windkanal von der Versperrung kommt.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>Heft, Indinger und Adams (2012) zum DrivAer-Modell und seinen Windkanaldaten; Spalart (2009) und Spalart et al. (2006) zu DES und DDES; Yazdani (2015) zum DrivAer mit SA-DDES; Roache (1998) zur Validierung.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="jimny-ddes.html?v=13"><span>Vorheriges Tutorial</span>← 3.7 · Der Jimny mit DDES: zwei Modelle gegen RANS</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Inkompressible Strömung</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>

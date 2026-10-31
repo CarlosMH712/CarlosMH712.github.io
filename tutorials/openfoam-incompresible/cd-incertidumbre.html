@@ -124,6 +124,9 @@
 
 <p>Para preparar los tutoriales 3.1 a 3.5 se corrió el Jimny nueve veces y el DrivAer siete, en dos computadoras y con dos versiones de OpenFOAM (tabla 1, en la sección <a href="#case-es">Las corridas</a>). Todas con la misma física: aire a velocidad constante, k-ω SST estacionario con funciones de pared, suelo que se mueve y ruedas que giran. Cada corrida cambió una sola cosa respecto de otra: la malla, el tratamiento de la pared, medio vehículo o vehículo completo, los esquemas numéricos, las fronteras del túnel, la versión.</p>
 <p>Con esos cambios, el Jimny dio \(C_D\) de 0.537 a 0.594 con mallas de un millón de celdas o más, y el DrivAer de 0.263 a 0.302. Ninguno de esos números está mal calculado: cada uno es el resultado correcto de sus decisiones. La pregunta de esta guía es <strong>cuánto se mueve el \(C_D\) con cada decisión, y qué incertidumbre hay que ponerle entonces al del Jimny</strong>.</p>
+<div class="callout">
+  <p><strong>Los dos vehículos no se comparan entre sí.</strong> El \(C_D\) del Jimny y el del DrivAer son de formas distintas. El DrivAer está aquí como pieza patrón (<a href="drivaer-validacion.html#problem-es">3.5</a>): como su \(C_D\) se midió, dice cuánto se equivoca el método; lo que se compara es cuánto se mueve el \(C_D\) de cada uno con las mismas decisiones.</p>
+</div>
 
     </section>
     <section id="theory-es">
