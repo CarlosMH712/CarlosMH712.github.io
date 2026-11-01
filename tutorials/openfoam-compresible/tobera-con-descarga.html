@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="OpenFOAM tutorial: overexpanded and underexpanded jets from a planar nozzle, run with shockFluid in blueCFD-Core (OpenFOAM 12) on a Gmsh mesh: lip shock, Prandtl-Meyer fan and Mach disk against theory with a uniform exit, and what changes with the non-uniform exit of a real nozzle." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>The Converging-Diverging Nozzle with Exhaust | OpenFOAM Compressible-Flow Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">OpenFOAM · Compressible flow · Tutorial 1.3</p><h1>The converging-diverging nozzle with exhaust</h1><p class="hero-copy">Outside the nozzle the jet has to match the ambient pressure, and the waves that do it start at the lip. With a uniform exit their angles follow theory, and even the Mach disk appears where predicted. With the real nozzle the same comparison shows why «overexpanded» depends on where you look.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">OpenFOAM · Flujo compresible · Tutorial 1.3</p><h1>La tobera convergente-divergente con descarga</h1><p class="hero-copy">Afuera de la tobera el chorro tiene que igualar la presión del ambiente, y las ondas que lo hacen nacen en el labio. Con una salida uniforme sus ángulos siguen la teoría, y hasta el disco de Mach aparece donde se predice. Con la tobera real, la misma comparación muestra por qué «sobreexpandida» depende de dónde se mire.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">OpenFOAM · Kompressible Strömung · Tutorial 1.3</p><h1>Die Laval-Düse mit Austrittsstrahl</h1><p class="hero-copy">Außerhalb der Düse muss der Strahl den Umgebungsdruck erreichen, und die Wellen, die das leisten, entstehen an der Lippe. Bei gleichförmigem Austritt folgen ihre Winkel der Theorie, und sogar die Mach-Scheibe erscheint am vorhergesagten Ort. Mit der realen Düse zeigt derselbe Vergleich, warum „überexpandiert“ davon abhängt, wo man hinschaut.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 60 min (63 min of computing)</span><span data-language="es" hidden>Lectura estimada: 60 min (63 min de cálculo)</span><span data-language="de" hidden>Lesedauer: ca. 60 min (63 min Rechenzeit)</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on OpenFOAM 12 (blueCFD-Core 2024), Gmsh 4.15.2 and ParaView 5.11.2</span><span data-language="es" hidden>Verificado en OpenFOAM 12 (blueCFD-Core 2024), Gmsh 4.15.2 y ParaView 5.11.2</span><span data-language="de" hidden>Geprüft mit OpenFOAM 12 (blueCFD-Core 2024), Gmsh 4.15.2 und ParaView 5.11.2</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="tobera-sin-descarga.html?v=13">← <span>1.2</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/JwCUrpFwrb4" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Watch the video</span><span data-language="es" hidden>Ver el vídeo</span><span data-language="de" hidden>Video ansehen</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#problem">The problem</a><a href="#theory">Theory</a><a href="#recipe">Recipe</a><a href="#case">The case</a><a href="#results">ParaView</a><a href="#validation">Validation</a><a href="#nozzle">The real nozzle</a><a href="#errors">Common errors</a><a href="#practice">Suggested exercise</a><a href="#appendix">Appendix</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#problem-es">El problema</a><a href="#theory-es">Teoría</a><a href="#recipe-es">Receta</a><a href="#case-es">El caso</a><a href="#results-es">ParaView</a><a href="#validation-es">Validación</a><a href="#nozzle-es">La tobera real</a><a href="#errors-es">Errores frecuentes</a><a href="#practice-es">Práctica sugerida</a><a href="#appendix-es">Apéndice</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#problem-de">Das Problem</a><a href="#theory-de">Theorie</a><a href="#recipe-de">Ablauf</a><a href="#case-de">Der Fall</a><a href="#results-de">ParaView</a><a href="#validation-de">Validierung</a><a href="#nozzle-de">Die reale Düse</a><a href="#errors-de">Häufige Fehler</a><a href="#practice-de">Übungsvorschlag</a><a href="#appendix-de">Anhang</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Tell an overexpanded nozzle from an underexpanded one and say which wave leaves the lip in each case; compute the oblique-shock angle and the head and tail of the Prandtl-Meyer fan from the pressure ratio; measure those angles in an OpenFOAM field with a short script; predict when a Mach disk appears; and explain why, in a cosine nozzle, «overexpanded» depends on where you look.</p>
+    </section>
+    <section id="problem">
+      <p class="section-label">The problem</p>
+      <h2>What is simulated</h2>
+<p>Two domains: a jet alone with a uniform inlet at the exit plane (Mach 2.5, p1/p0 = 0.05), where theory has a single starting state, and the nozzle of tutorial 1.2 with the ambient downstream of it.</p>
+    </section>
+    <section id="theory">
+      <p class="section-label">The theory</p>
+      <h2>Overexpanded, underexpanded and the Mach disk</h2>
+<p>With pb > p1 an oblique shock leaves the lip; with pb < p1, a Prandtl-Meyer fan. The jet boundary reflects each wave with the opposite sign, which gives the diamond pattern. The regular reflection on the axis needs the turn behind the lip shock to stay below the maximum of an attached shock at M2: with M1 = 2.5 that fails at pb/p1 = 2.89, and a Mach disk appears.</p>
+    </section>
+    <section id="recipe">
+      <p class="section-label">Step by step</p>
+      <h2>Eight cases with one script</h2>
+<p>In the blueCFD-Core terminal: unzip tobera-con-descarga.zip, copy it once per case, run ./Allrun uniforme M1 P1 PB or ./Allrun tobera PB, then python3 validar.py. A uniform jet takes about 4 minutes and a nozzle case about 12 on a laptop; each uses one core.</p>
+    </section>
+    <section id="case">
+      <p class="section-label">The case</p>
+      <h2>The case, file by file</h2>
+<p>The same tobera.geo with chorro = 1 or 2; a farField boundary with totalPressure, through which the jet entrains ambient gas; three shorter stages; and sixty vertical lines from which validar.py takes the wave positions: the centroid of the pressure gradient for the shock, 3 %% thresholds for the fan.</p>
+    </section>
+    <section id="results">
+      <p class="section-label">Results</p>
+      <h2>The uniform jets in ParaView</h2>
+<p>The Mach field of the four uniform jets: lip shock and its reflection, the Mach disk at pb/p1 = 3.5, the fan at 0.7. Far from the exit the jet is unsteady and depends on the mesh.</p>
+    </section>
+    <section id="validation">
+      <p class="section-label">Worked example</p>
+      <h2>The uniform jets against the theory</h2>
+<p>The shock angle is 29.4° against 28.6° at pb/p1 = 1.5, with a bias that shrinks with the mesh; head and tail of the fan agree within 0.3°; and the Mach disk appears between pb/p1 = 2.8 and 2.9, where theory puts it.</p>
+    </section>
+    <section id="nozzle">
+      <p class="section-label">The real nozzle</p>
+      <h2>When the exit is not uniform</h2>
+<p>The exit pressure goes from 0.015 on the axis to 0.048 at the lip, so the design pressure leaves the core overexpanded and the periphery underexpanded. The lip waves leave the single-state theory by about +2° and −3°, the Mach disk appears much earlier, and a compression wave from the end of the cosine contour crosses the axis at x ≈ 8.2 m whatever the ambient pressure.</p>
+    </section>
+    <section id="errors">
+      <p class="section-label">Common errors</p>
+      <h2>What goes wrong, and what OpenFOAM says</h2>
+<p>pb/p1 = 5 and 0.15 stop with a floating-point exception; using the mean design state instead of the state at the lip; reading the tail of a strong fan; and comparing the far field.</p>
+    </section>
+    <section id="practice">
+      <p class="section-label">Suggested exercise</p>
+      <h2>Another Mach number and the Mach disk</h2>
+<p>Run the uniform jet at Mach 2 and 3 with pb/p1 = 1.5, and bracket the Mach disk at Mach 2.</p>
+    </section>
+    <section id="appendix">
+      <p class="section-label">Appendix</p>
+      <h2>From the pressure ratio to the angles</h2>
+<p>The worked numbers for the shock at pb/p1 = 1.5, the fan at 0.7 and the limit of regular reflection.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>Anderson's Modern Compressible Flow and NACA Report 1135 for the theory; Hornung and Ben-Dor for shock reflection; the OpenFOAM 12 sources and the Kurganov-Tadmor paper for the numerics.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="tobera-sin-descarga.html?v=13"><span>Previous tutorial</span>← 1.2 · The converging-diverging nozzle without exhaust</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Compressible flow</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">La <a href="tobera-sin-descarga.html">1.2</a> terminó en el plano de salida de la tobera, y dejó dos regímenes sin explicar: por debajo de \(p_{II}\), dentro de la tobera el flujo es el mismo con cualquier presión de descarga. La diferencia entre la presión con la que sale el gas y la del ambiente se arregla afuera, con ondas que nacen en el labio de la salida. Esta guía extiende el dominio hacia el ambiente, primero con un chorro de salida uniforme, donde la teoría acierta, y después con la tobera real, donde deja de bastar.</p>
+<ul>
+  <li>Distinguir una tobera sobreexpandida de una subexpandida, y decir qué onda sale del labio en cada caso.</li>
+  <li>Calcular el ángulo del choque oblicuo y los de la cabeza y la cola del abanico de Prandtl-Meyer a partir de \(p_b/p_1\).</li>
+  <li>Medir esos ángulos en un campo de OpenFOAM con un guion de Python, y explicar por qué la posición de una onda se toma con un centroide y no con el máximo.</li>
+  <li>Predecir cuándo aparece un disco de Mach en el eje, y comprobarlo.</li>
+  <li>Explicar por qué, en una tobera cosenoidal, «sobreexpandida» depende de dónde se mire.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> Lo mismo que en la 1.2: blueCFD-Core 2024 (OpenFOAM 12 para Windows, con ParaView 5.11.2) y Gmsh 4.15.2 en <code>C:&#92;gmsh-4.15.2-Windows64</code>. El caso es <a href="archivos/tobera-con-descarga.zip"><code>tobera-con-descarga.zip</code></a>. Conviene haber hecho la 1.2 y la <a href="rampa-compresion-expansion.html">1.1</a>, de la que salen el choque oblicuo y el abanico. Los ocho casos, uno detrás de otro, tardan unos 63 minutos en la laptop de la serie; cada uno usa un núcleo, así que se pueden correr varios a la vez en terminales distintas. La malla con descarga se construye con los botones en el <a href="../gmsh/tobera-convergente-divergente.html">2.3.1</a> de Gmsh; aquí el <code>.geo</code> viene en el caso.</p>
+</div>
+
+    </section>
+    <section id="problem-es">
+      <p class="section-label">El problema</p>
+      <h2>Qué se va a simular</h2>
+
+<p>El gas sale de la tobera a un ambiente en reposo a presión \(p_b\). Para ver las ondas sin que nada las contamine, la guía resuelve dos dominios (figura 1):</p>
+<ol>
+  <li><strong>El chorro de salida uniforme.</strong> Sólo el exterior, con la entrada en el plano de salida: Mach \(M_1\) = 2.5 y presión \(p_1/p_0\) = 0.05, iguales en toda la altura, como en una tobera ideal. Aquí la teoría tiene un solo estado de partida y se puede comparar número por número.</li>
+  <li><strong>La tobera real.</strong> La tobera de la 1.2, con el ambiente a su salida. Aquí la salida no es uniforme.</li>
+</ol>
+<figure class="diagram">
+<svg viewBox="0 0 720 280" role="img" aria-label="Los dos dominios: la media tobera con el ambiente y el chorro solo, con sus fronteras">
+  <text class="svg-title" x="34" y="26">Los dos dominios, a escala: el chorro solo empieza en la línea punteada</text>
+  <polygon points="34.0,214.0 34.0,186.0 34.8,186.0 35.7,186.0 36.5,186.1 37.4,186.2 38.2,186.3 39.0,186.4 39.9,186.6 40.7,186.8 41.6,187.0 42.4,187.2 43.2,187.5 44.1,187.7 44.9,188.0 45.8,188.4 46.6,188.7 47.4,189.0 48.3,189.4 49.1,189.8 50.0,190.2 50.8,190.6 51.6,191.1 52.5,191.5 53.3,192.0 54.2,192.4 55.0,192.9 55.8,193.4 56.7,193.9 57.5,194.4 58.4,194.9 59.2,195.4 60.0,196.0 60.9,196.5 61.7,197.0 62.6,197.6 63.4,198.1 64.2,198.6 65.1,199.1 65.9,199.6 66.8,200.2 67.6,200.7 68.4,201.2 69.3,201.6 70.1,202.1 71.0,202.6 71.8,203.1 72.6,203.5 73.5,203.9 74.3,204.3 75.2,204.7 76.0,205.1 76.8,205.5 77.7,205.8 78.5,206.2 79.4,206.5 80.2,206.7 81.0,207.0 81.9,207.3 82.7,207.5 83.6,207.7 84.4,207.9 85.2,208.0 86.1,208.1 86.9,208.2 87.8,208.3 88.6,208.4 89.4,208.4 90.3,208.4 91.1,208.4 92.0,208.4 92.8,208.4 93.6,208.3 94.5,208.3 95.3,208.3 96.2,208.2 97.0,208.2 97.8,208.1 98.7,208.1 99.5,208.0 100.4,207.9 101.2,207.9 102.0,207.8 102.9,207.7 103.7,207.6 104.6,207.5 105.4,207.4 106.2,207.3 107.1,207.1 107.9,207.0 108.8,206.9 109.6,206.7 110.4,206.6 111.3,206.5 112.1,206.3 113.0,206.2 113.8,206.0 114.6,205.8 115.5,205.7 116.3,205.5 117.2,205.3 118.0,205.1 118.8,204.9 119.7,204.7 120.5,204.5 121.4,204.3 122.2,204.1 123.0,203.9 123.9,203.7 124.7,203.5 125.6,203.3 126.4,203.1 127.2,202.8 128.1,202.6 128.9,202.4 129.8,202.1 130.6,201.9 131.4,201.6 132.3,201.4 133.1,201.2 134.0,200.9 134.8,200.7 135.6,200.4 136.5,200.2 137.3,199.9 138.2,199.6 139.0,199.4 139.8,199.1 140.7,198.9 141.5,198.6 142.4,198.3 143.2,198.1 144.0,197.8 144.9,197.6 145.7,197.3 146.6,197.0 147.4,196.8 148.2,196.5 149.1,196.2 149.9,196.0 150.8,195.7 151.6,195.4 152.4,195.2 153.3,194.9 154.1,194.7 155.0,194.4 155.8,194.2 156.6,193.9 157.5,193.7 158.3,193.4 159.2,193.2 160.0,192.9 160.8,192.7 161.7,192.4 162.5,192.2 163.4,192.0 164.2,191.7 165.0,191.5 165.9,191.3 166.7,191.1 167.6,190.8 168.4,190.6 169.2,190.4 170.1,190.2 170.9,190.0 171.8,189.8 172.6,189.6 173.4,189.4 174.3,189.2 175.1,189.0 176.0,188.9 176.8,188.7 177.6,188.5 178.5,188.4 179.3,188.2 180.2,188.0 181.0,187.9 181.8,187.7 182.7,187.6 183.5,187.5 184.4,187.3 185.2,187.2 186.0,187.1 186.9,187.0 187.7,186.9 188.6,186.8 189.4,186.7 190.2,186.6 191.1,186.5 191.9,186.4 192.8,186.4 193.6,186.3 194.4,186.3 195.3,186.2 196.1,186.2 197.0,186.1 197.8,186.1 198.6,186.0 199.5,186.0 200.3,186.0 201.2,186.0 202.0,186.0 202.0,46.0 650.0,46.0 650.0,214.0" fill="var(--sky)" stroke="none"/>
+  <polyline points="34.0,186.0 34.8,186.0 35.7,186.0 36.5,186.1 37.4,186.2 38.2,186.3 39.0,186.4 39.9,186.6 40.7,186.8 41.6,187.0 42.4,187.2 43.2,187.5 44.1,187.7 44.9,188.0 45.8,188.4 46.6,188.7 47.4,189.0 48.3,189.4 49.1,189.8 50.0,190.2 50.8,190.6 51.6,191.1 52.5,191.5 53.3,192.0 54.2,192.4 55.0,192.9 55.8,193.4 56.7,193.9 57.5,194.4 58.4,194.9 59.2,195.4 60.0,196.0 60.9,196.5 61.7,197.0 62.6,197.6 63.4,198.1 64.2,198.6 65.1,199.1 65.9,199.6 66.8,200.2 67.6,200.7 68.4,201.2 69.3,201.6 70.1,202.1 71.0,202.6 71.8,203.1 72.6,203.5 73.5,203.9 74.3,204.3 75.2,204.7 76.0,205.1 76.8,205.5 77.7,205.8 78.5,206.2 79.4,206.5 80.2,206.7 81.0,207.0 81.9,207.3 82.7,207.5 83.6,207.7 84.4,207.9 85.2,208.0 86.1,208.1 86.9,208.2 87.8,208.3 88.6,208.4 89.4,208.4 90.3,208.4 91.1,208.4 92.0,208.4 92.8,208.4 93.6,208.3 94.5,208.3 95.3,208.3 96.2,208.2 97.0,208.2 97.8,208.1 98.7,208.1 99.5,208.0 100.4,207.9 101.2,207.9 102.0,207.8 102.9,207.7 103.7,207.6 104.6,207.5 105.4,207.4 106.2,207.3 107.1,207.1 107.9,207.0 108.8,206.9 109.6,206.7 110.4,206.6 111.3,206.5 112.1,206.3 113.0,206.2 113.8,206.0 114.6,205.8 115.5,205.7 116.3,205.5 117.2,205.3 118.0,205.1 118.8,204.9 119.7,204.7 120.5,204.5 121.4,204.3 122.2,204.1 123.0,203.9 123.9,203.7 124.7,203.5 125.6,203.3 126.4,203.1 127.2,202.8 128.1,202.6 128.9,202.4 129.8,202.1 130.6,201.9 131.4,201.6 132.3,201.4 133.1,201.2 134.0,200.9 134.8,200.7 135.6,200.4 136.5,200.2 137.3,199.9 138.2,199.6 139.0,199.4 139.8,199.1 140.7,198.9 141.5,198.6 142.4,198.3 143.2,198.1 144.0,197.8 144.9,197.6 145.7,197.3 146.6,197.0 147.4,196.8 148.2,196.5 149.1,196.2 149.9,196.0 150.8,195.7 151.6,195.4 152.4,195.2 153.3,194.9 154.1,194.7 155.0,194.4 155.8,194.2 156.6,193.9 157.5,193.7 158.3,193.4 159.2,193.2 160.0,192.9 160.8,192.7 161.7,192.4 162.5,192.2 163.4,192.0 164.2,191.7 165.0,191.5 165.9,191.3 166.7,191.1 167.6,190.8 168.4,190.6 169.2,190.4 170.1,190.2 170.9,190.0 171.8,189.8 172.6,189.6 173.4,189.4 174.3,189.2 175.1,189.0 176.0,188.9 176.8,188.7 177.6,188.5 178.5,188.4 179.3,188.2 180.2,188.0 181.0,187.9 181.8,187.7 182.7,187.6 183.5,187.5 184.4,187.3 185.2,187.2 186.0,187.1 186.9,187.0 187.7,186.9 188.6,186.8 189.4,186.7 190.2,186.6 191.1,186.5 191.9,186.4 192.8,186.4 193.6,186.3 194.4,186.3 195.3,186.2 196.1,186.2 197.0,186.1 197.8,186.1 198.6,186.0 199.5,186.0 200.3,186.0 201.2,186.0 202.0,186.0" fill="none" stroke="var(--ink)" stroke-width="2.4"/>
+  <line x1="34.0" y1="214.0" x2="650.0" y2="214.0" stroke="var(--blue)" stroke-width="1.4" stroke-dasharray="10 3 2 3"/>
+  <line x1="202.0" y1="214.0" x2="202.0" y2="186.0" stroke="var(--accent-dark)" stroke-width="2" stroke-dasharray="6 4"/>
+  <line x1="202.0" y1="186.0" x2="202.0" y2="46.0" stroke="var(--success)" stroke-width="2"/>
+  <polyline points="202.0,46.0 650.0,46.0 650.0,214.0" fill="none" stroke="var(--success)" stroke-width="2"/>
+  <text class="svg-note-sm" x="36.8" y="231.0">entrada: p<tspan baseline-shift="sub" font-size="75%">0</tspan>, T<tspan baseline-shift="sub" font-size="75%">0</tspan></text>
+  <text class="svg-note-sm" x="426.0" y="231.0" fill="var(--blue)" text-anchor="middle">eje: symmetryPlane</text>
+  <text class="svg-note-sm" x="190.8" y="173.4" text-anchor="end">pared: slip</text>
+  <text class="svg-note-sm" x="210.4" y="201.4" fill="var(--accent-dark)">labio, y salida uniforme (M<tspan baseline-shift="sub" font-size="75%">1</tspan>, p<tspan baseline-shift="sub" font-size="75%">1</tspan>)</text>
+  <text class="svg-note-sm" x="342.0" y="40.0" fill="var(--success)">farField: p<tspan baseline-shift="sub" font-size="75%">b</tspan></text>
+  <text class="svg-note-sm" x="206.2" y="124.4" fill="var(--success)">farField</text>
+  <text class="svg-note-sm" x="644.4" y="124.4" text-anchor="end">outlet: p<tspan baseline-shift="sub" font-size="75%">b</tspan></text>
+  <text class="svg-tick" x="34.0" y="248.0" text-anchor="middle">0</text>
+  <text class="svg-tick" x="202.0" y="248.0" text-anchor="middle">6</text>
+  <text class="svg-tick" x="426.0" y="248.0" text-anchor="middle">14</text>
+  <text class="svg-tick" x="650.0" y="248.0" text-anchor="middle">22</text>
+  <text class="svg-note-sm" x="314.0" y="268.0" text-anchor="middle">x (m)</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">Los dos dominios.</b> En azul claro, todo lo que se calcula con la tobera: del depósito hasta 16 m aguas abajo de la salida. El chorro solo es lo que queda a la derecha de \(x\) = 6, con la entrada en la línea punteada: la salida de una tobera ideal, uniforme. Se calcula sólo la mitad de arriba; el eje es un plano de simetría.</figcaption>
+</figure>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Dato</th><th>Valor</th><th>Dónde se fija</th></tr></thead>
+    <tbody>
+      <tr><td>Tobera</td><td>\(A_e/A_t\) = 5, \(H_e\) = 1 m, salida en \(x\) = 6 m</td><td><code>tobera.geo</code></td></tr>
+      <tr><td>Largo del dominio aguas abajo de la salida</td><td>16 m, ocho alturas de salida completas</td><td><code>fDown</code></td></tr>
+      <tr><td>Altura del dominio</td><td>6 m, seis semialturas de salida</td><td><code>fFar</code></td></tr>
+      <tr><td>Salida uniforme</td><td>\(M_1\) = 2.5, \(p_1/p_0\) = 0.05</td><td>argumentos del <code>Allrun</code></td></tr>
+      <tr><td>Temperatura y velocidad de la salida uniforme</td><td>\(T_1 = T_0/(1 + 0.2 M_1^2)\) = 0.4444, \(U_1 = M_1\sqrt{T_1}\) = 1.6667</td><td>las calcula el <code>Allrun</code></td></tr>
+      <tr><td>Presión del ambiente, \(p_b/p_0\)</td><td>de 0.01 a 0.175</td><td><code>PB</code>, último argumento</td></tr>
+      <tr><td>Celdas</td><td>29 564 con el chorro solo y 40 394 con la tobera</td><td><code>nR</code>, <code>hJ</code>, <code>hA</code></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Datos de los dos dominios.</b> La tobera es la de la <a href='tobera-sin-descarga.html'>1.2</a>; las longitudes del chorro están en <code>tobera.geo</code>.</caption>
+  </table>
+</div>
+<p>La pregunta de esta guía: <strong>¿los ángulos de las ondas del labio son los de la teoría, y qué parte de esa respuesta sobrevive cuando la salida deja de ser uniforme?</strong></p>
+
+    </section>
+    <section id="theory-es">
+      <p class="section-label">La teoría</p>
+      <h2>Sobreexpandida, subexpandida y el disco de Mach</h2>
+
+<p>El gas llega al labio con presión \(p_1\) y Mach \(M_1\), y afuera la presión es \(p_b\). El borde del chorro separa gas en movimiento de gas en reposo, y a través de él la presión tiene que ser la misma. Si \(p_1\) no es \(p_b\), una onda que nace en el labio hace el ajuste (figura 2). Las ecuaciones son las de la <a href="rampa-compresion-expansion.html#theory-es">1.1</a>; lo nuevo es que el dato ya no es el ángulo de la pared, sino la razón de presiones.</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 300" role="img" aria-label="Esquema de las ondas del labio: choque oblicuo en la sobreexpandida y abanico de Prandtl-Meyer en la subexpandida">
+  <text class="svg-title" x="30" y="26">Lo que sale del labio, a escala para M<tspan baseline-shift="sub" font-size="75%">1</tspan> = 2.5</text>
+  <text class="svg-note-sm" x="30.0" y="52">(a) Sobreexpandida: p<tspan baseline-shift="sub" font-size="75%">b</tspan> &gt; p<tspan baseline-shift="sub" font-size="75%">1</tspan></text>
+  <line x1="30.0" y1="250.0" x2="329.0" y2="250.0" stroke="var(--blue)" stroke-width="1.4" stroke-dasharray="10 3 2 3"/>
+  <line x1="30.0" y1="120.0" x2="30.0" y2="81.0" stroke="var(--ink)" stroke-width="3"/>
+  <text class="svg-note-sm" x="37.8" y="237.0">M<tspan baseline-shift="sub" font-size="75%">1</tspan>, p<tspan baseline-shift="sub" font-size="75%">1</tspan> →</text>
+  <polygon points="30.0,120.0 268.8,250.0 316.0,151.8" fill="var(--sky)"/>
+  <line x1="30.0" y1="120.0" x2="268.8" y2="250.0" stroke="var(--accent)" stroke-width="2.4"/>
+  <line x1="30.0" y1="120.0" x2="316.0" y2="151.8" stroke="var(--ink)" stroke-width="1.6"/>
+  <text class="svg-note-sm" x="123.6" y="177.2" fill="var(--accent-dark)" text-anchor="end">choque, β</text>
+  <text class="svg-note-sm" x="179.5" y="117.4">borde: gira θ</text>
+  <text class="svg-note-sm" x="192.5" y="191.5">p = p<tspan baseline-shift="sub" font-size="75%">b</tspan></text>
+  <text class="svg-note-sm" x="385.0" y="52">(b) Subexpandida: p<tspan baseline-shift="sub" font-size="75%">b</tspan> &lt; p<tspan baseline-shift="sub" font-size="75%">1</tspan></text>
+  <line x1="385.0" y1="250.0" x2="684.0" y2="250.0" stroke="var(--blue)" stroke-width="1.4" stroke-dasharray="10 3 2 3"/>
+  <line x1="385.0" y1="120.0" x2="385.0" y2="81.0" stroke="var(--ink)" stroke-width="3"/>
+  <text class="svg-note-sm" x="392.8" y="237.0">M<tspan baseline-shift="sub" font-size="75%">1</tspan>, p<tspan baseline-shift="sub" font-size="75%">1</tspan> →</text>
+  <polygon points="385.0,120.0 671.0,203.8 671.0,94.2 385.0,120.0" fill="var(--sky)"/>
+  <line x1="385.0" y1="120.0" x2="671.0" y2="244.8" stroke="var(--accent)" stroke-width="2"/>
+  <line x1="385.0" y1="120.0" x2="671.0" y2="236.3" stroke="var(--accent)" stroke-width="0.8"/>
+  <line x1="385.0" y1="120.0" x2="671.0" y2="227.9" stroke="var(--accent)" stroke-width="0.8"/>
+  <line x1="385.0" y1="120.0" x2="671.0" y2="219.7" stroke="var(--accent)" stroke-width="0.8"/>
+  <line x1="385.0" y1="120.0" x2="671.0" y2="211.7" stroke="var(--accent)" stroke-width="0.8"/>
+  <line x1="385.0" y1="120.0" x2="671.0" y2="203.8" stroke="var(--accent)" stroke-width="2"/>
+  <line x1="385.0" y1="120.0" x2="671.0" y2="94.2" stroke="var(--ink)" stroke-width="1.6"/>
+  <text class="svg-note-sm" x="502.0" y="185.0" fill="var(--accent-dark)" text-anchor="end">cabeza</text>
+  <text class="svg-note-sm" x="638.5" y="182.4" fill="var(--accent-dark)">cola</text>
+  <text class="svg-note-sm" x="534.5" y="87.5">borde: gira θ</text>
+  <text class="svg-note-sm" x="612.5" y="139.5">p = p<tspan baseline-shift="sub" font-size="75%">b</tspan></text>
+</svg>
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">Las ondas del labio.</b> (a) Con \(p_b/p_1\) = 1.5, el choque oblicuo sube la presión del chorro a \(p_b\) y gira el flujo hacia el eje. (b) Con \(p_b/p_1\) = 0.7, el abanico la baja a \(p_b\) y gira el flujo hacia afuera. En los dos casos el borde del chorro es una frontera a presión \(p_b\), y la línea negra sigue la dirección del flujo detrás de la onda.</figcaption>
+</figure>
+<h3>Sobreexpandida, \(p_b > p_1\): un choque oblicuo</h3>
+<p>La tobera expandió el gas de más, y el gas tiene que subir a \(p_b\). Un choque oblicuo que sale del labio lo hace. Con la razón de presiones se obtiene directamente el Mach normal al choque, y de ahí el ángulo β:</p>
+<div class="equation-card">\[ M_{n1}^2 = 1 + \frac{\gamma + 1}{2\gamma}\left(\frac{p_b}{p_1} - 1\right), \qquad \sin\beta = \frac{M_{n1}}{M_1} \tag{1} \]</div>
+<p>El flujo gira hacia el eje el ángulo θ de la relación θ–β–M, y sale con el Mach \(M_2\):</p>
+<div class="equation-card">\[ \begin{aligned} \tan\theta &= 2\cot\beta\;\frac{M_1^2\sin^2\beta - 1}{M_1^2(\gamma+\cos 2\beta)+2} \\ M_{n2}^2 &= \frac{1+\frac{\gamma-1}{2}M_{n1}^2}{\gamma M_{n1}^2-\frac{\gamma-1}{2}}, \qquad M_2 = \frac{M_{n2}}{\sin(\beta-\theta)} \end{aligned} \tag{2} \]</div>
+<h3>Subexpandida, \(p_b < p_1\): un abanico de Prandtl-Meyer</h3>
+<p>Al gas todavía le sobra presión y sigue expandiéndose afuera. El abanico es isentrópico, así que el Mach de atrás sale de la presión, y el giro, de la función de Prandtl-Meyer:</p>
+<div class="equation-card">\[ \frac{p_b}{p_1} = \left[\frac{1+\frac{\gamma-1}{2}M_1^2}{1+\frac{\gamma-1}{2}M_2^2}\right]^{\frac{\gamma}{\gamma-1}}, \qquad \theta = \nu(M_2) - \nu(M_1) \tag{3} \]</div>
+<div class="equation-card">\[ \nu(M) = \sqrt{\frac{\gamma+1}{\gamma-1}}\,\arctan\sqrt{\frac{\gamma-1}{\gamma+1}\left(M^2-1\right)} - \arctan\sqrt{M^2-1} \tag{4} \]</div>
+<p>El flujo gira hacia afuera. La cabeza del abanico viaja con el ángulo de Mach del flujo que llega; la cola, con el del flujo que sale, medido desde su nueva dirección:</p>
+<div class="equation-card">\[ \alpha_{cabeza} = \mu_1 = \arcsin\frac{1}{M_1}, \qquad \alpha_{cola} = \mu_2 - \theta = \arcsin\frac{1}{M_2} - \theta \tag{5} \]</div>
+<h3>El borde del chorro y los diamantes</h3>
+<p>La onda del labio llega al eje y se refleja; la reflejada llega al borde del chorro, que es una frontera a presión constante. Ahí una onda se refleja con el signo contrario: un choque regresa como expansión y una expansión, como compresión. Por eso el chorro se angosta y se abre una y otra vez, con el patrón de «diamantes» de las fotografías de escapes de cohetes.</p>
+<h3>El disco de Mach</h3>
+<p>Detrás del choque del labio el flujo va hacia el eje, con el ángulo θ. Para seguir paralelo al eje, tiene que girar θ de regreso con un segundo choque, el reflejado. Eso sólo es posible si θ no pasa del giro máximo que admite un choque adherido con el Mach \(M_2\):</p>
+<div class="equation-card">\[ \theta(M_1, p_b/p_1) \le \theta_{\max}(M_2) \tag{6} \]</div>
+<p>Cuando la condición (6) falla, la reflexión regular es imposible, y aparece un choque casi normal cerca del eje, el <strong>disco de Mach</strong>, unido al choque del labio en un punto triple. Con \(M_1\) = 2.5, la desigualdad (6) deja de cumplirse en \(p_b/p_1\) = 2.89 (el <a href="#appendix-es">Apéndice</a> hace la cuenta). La teoría de reflexiones tiene un segundo criterio, el de von Neumann, que da 2.83: entre los dos valores pueden existir las dos reflexiones <a href="#references-es">(Hornung, 1986; Ben-Dor, 2007)</a>.</p>
+<h3>La tobera real</h3>
+<p>Con la tobera de la 1.2, el régimen depende de cómo se compare \(p_b\) con la presión de salida (tabla 2). Para una salida uniforme esa comparación sería una sola; aquí no.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>\(p_b/p_0\)</th><th>Qué pasa</th><th>Caso de la guía</th></tr></thead>
+    <tbody>
+      <tr><td>mayor que 0.243 (\(p_{II}\))</td><td>el choque entra a la tobera: el régimen de la 1.2</td><td>—</td></tr>
+      <tr><td>de 0.048 a 0.243</td><td>sobreexpandida en toda la salida: choques oblicuos en el labio</td><td><code>sobre075</code>, <code>sobre120</code></td></tr>
+      <tr><td>de 0.0154 a 0.048</td><td>el núcleo sobreexpandido y la periferia subexpandida, a la vez</td><td><code>adaptada</code></td></tr>
+      <tr><td>menor que 0.0154</td><td>subexpandida en toda la salida: abanico en el labio</td><td><code>sub010</code></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Los regímenes de la tobera con el ambiente.</b> Las presiones \(p_{II}\) y \(p_{III}\) son las de la <a href='tobera-sin-descarga.html#theory-es'>1.2</a>. Las dos últimas filas no están en la teoría cuasi-unidimensional: la sección de salida de la tobera cosenoidal no es uniforme, y la presión de salida va de 0.0154 en el eje a 0.048 junto al labio.</caption>
+  </table>
+</div>
+
+    </section>
+    <section id="recipe-es">
+      <p class="section-label">Paso a paso</p>
+      <h2>Ocho casos con un guion</h2>
+
+<p>Todo se hace en la terminal de blueCFD-Core, como en la <a href="tobera-sin-descarga.html#recipe-es">1.2</a>. Cada caso va en su propia copia de la carpeta.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Carpeta</th><th>Orden</th><th>\(p_b/p_1\)</th><th>Qué se espera</th><th>Tiempo</th></tr></thead>
+    <tbody>
+      <tr><td><code>uniforme15</code></td><td><code>./Allrun uniforme 2.5 0.05 0.075</code></td><td>1.5</td><td>choque oblicuo, β = 28.6°</td><td>4 min</td></tr>
+      <tr><td><code>uniforme24</code></td><td><code>./Allrun uniforme 2.5 0.05 0.12</code></td><td>2.4</td><td>choque oblicuo, β = 36.4°</td><td>4 min</td></tr>
+      <tr><td><code>uniforme35</code></td><td><code>./Allrun uniforme 2.5 0.05 0.175</code></td><td>3.5</td><td>choque oblicuo, β = 45.2°, con disco de Mach</td><td>4 min</td></tr>
+      <tr><td><code>uniforme07</code></td><td><code>./Allrun uniforme 2.5 0.05 0.035</code></td><td>0.7</td><td>abanico, cabeza a 23.6° y cola a 16.3°</td><td>4 min</td></tr>
+      <tr><td><code>sobre075</code></td><td><code>./Allrun tobera 0.075</code></td><td>1.56</td><td>sobreexpandida en toda la salida</td><td>12 min</td></tr>
+      <tr><td><code>sobre120</code></td><td><code>./Allrun tobera 0.12</code></td><td>2.49</td><td>sobreexpandida, más fuerte</td><td>12 min</td></tr>
+      <tr><td><code>adaptada</code></td><td><code>./Allrun tobera 0.020993</code></td><td>0.44</td><td>\(p_b = p_{III}\): adaptada sólo en promedio</td><td>12 min</td></tr>
+      <tr><td><code>sub010</code></td><td><code>./Allrun tobera 0.01</code></td><td>0.21</td><td>subexpandida en toda la salida</td><td>12 min</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">Los ocho casos de la receta.</b> Cada uno en su copia de la carpeta. Los tiempos son de la laptop de la serie, con un caso a la vez; cada caso usa un núcleo, así que varios pueden correr al mismo tiempo en terminales distintas, un poco más lentos.</caption>
+  </table>
+</div>
+<ol>
+  <li><strong>Descomprimir el caso</strong> en la carpeta Descargas: queda una carpeta <code>tobera-con-descarga</code> con los archivos de la tabla 4.</li>
+  <li><strong>Abrir la terminal</strong> y <strong>agregar Gmsh a la ruta de búsqueda</strong>:<pre class="code"><code>export PATH="$PATH:/c/gmsh-4.15.2-Windows64"</code></pre></li>
+  <li><strong>Hacer una copia por caso</strong> en la carpeta de corridas, con el nombre de usuario de cada quien en lugar de <code>ana</code>:<pre class="code"><code>cp -r /c/Users/ana/Downloads/tobera-con-descarga $FOAM_RUN/uniforme15
+cp -r /c/Users/ana/Downloads/tobera-con-descarga $FOAM_RUN/uniforme24
+cp -r /c/Users/ana/Downloads/tobera-con-descarga $FOAM_RUN/uniforme35
+cp -r /c/Users/ana/Downloads/tobera-con-descarga $FOAM_RUN/uniforme07
+cp -r /c/Users/ana/Downloads/tobera-con-descarga $FOAM_RUN/sobre075
+cp -r /c/Users/ana/Downloads/tobera-con-descarga $FOAM_RUN/sobre120
+cp -r /c/Users/ana/Downloads/tobera-con-descarga $FOAM_RUN/adaptada
+cp -r /c/Users/ana/Downloads/tobera-con-descarga $FOAM_RUN/sub010</code></pre></li>
+  <li><strong>Correr el primer chorro uniforme.</strong><pre class="code"><code>cd $FOAM_RUN/uniforme15
+./Allrun uniforme 2.5 0.05 0.075</code></pre>Los tres números son \(M_1\), \(p_1/p_0\) y \(p_b/p_0\): aquí \(p_b/p_1\) = 1.5. El guion hace la malla, la convierte y la revisa, prepara el arranque, corre <code>shockFluid</code> en tres etapas y hace los muestreos (sección <a href="#case-es">El caso</a>). Responde, con la ruta completa en lugar de <code>…</code>:<pre class="code"><code>Running gmshToFoam on …/uniforme15
+Running checkMesh on …/uniforme15
+Running setFields on …/uniforme15
+Running foamRun on …/uniforme15
+Running foamRun on …/uniforme15
+Running foamRun on …/uniforme15
+Running foamPostProcess on …/uniforme15
+Running foamPostProcess on …/uniforme15
+Terminado. Siguiente paso: python3 validar.py</code></pre>Tardó 3.5 minutos. Si algún programa falla, el guion se detiene y dice qué archivo <code>log.*</code> leer.</li>
+  <li><strong>Compararlo con la teoría:</strong><pre class="code"><code>python3 validar.py</code></pre>Responde:<pre class="code"><code>Chorro uniforme: M1 = 2.5, p1 = 0.05, pb = 0.075 (pb/p1 = 1.5)
+
+                                        OpenFOAM    teoría     dif.
+  β del choque, con el flujo que llega     29.4°     28.6°    +0.8°
+  ángulo del flujo detrás, con el eje      -6.5°     -6.4°    -0.2°
+  Mach detrás del choque                   2.222     2.236   -0.6 %
+  presión detrás del choque                0.076     0.075   +1.0 %
+  (ajuste de x = 6.10 a 6.90, desviación 0.006 m)
+
+  Hasta x = 8 el Mach medio del eje no baja de 1: reflexión regular.</code></pre>La sección <a href="#validation-es">Ejemplo resuelto</a> explica cómo se midió cada renglón.</li>
+  <li><strong>Los otros tres chorros uniformes</strong>, cada uno en su carpeta y con su orden de la tabla 3.</li>
+  <li><strong>La tobera real.</strong> Con la palabra <code>tobera</code>, el único número es \(p_b/p_0\):<pre class="code"><code>cd $FOAM_RUN/sobre075
+./Allrun tobera 0.075
+python3 validar.py</code></pre>Tardó 12 minutos. Los otros tres casos son iguales, con su presión.</li>
+  <li><strong>Ver los resultados:</strong> <code>paraFoam</code> en la carpeta de cada caso (sección <a href="#results-es">Resultados</a>).</li>
+</ol>
+<div class="callout">
+  <p><strong>Para repetir un caso en la misma carpeta</strong>, primero <code>./Allclean</code>. Sin argumentos, <code>./Allrun</code> escribe cómo se usa.</p>
+</div>
+
+    </section>
+    <section id="case-es">
+      <p class="section-label">El caso</p>
+      <h2>El caso, archivo por archivo</h2>
+
+<p>El gas, Euler, los esquemas numéricos y <code>shockFluid</code> son los de la 1.1 y la 1.2. Lo nuevo es el dominio exterior, sus fronteras y la manera de medir las ondas.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Archivo</th><th>Qué es</th></tr></thead>
+    <tbody>
+      <tr><td><code>tobera.geo</code></td><td>el mismo de la 1.2; con <code>chorro</code> = 1 agrega el ambiente y con 2 deja sólo el chorro</td></tr>
+      <tr><td><code>Allrun</code>, <code>Allclean</code></td><td>el guion de los dos dominios y el que deja la carpeta como nueva</td></tr>
+      <tr><td><code>validar.py</code></td><td>mide las ondas y las compara con la teoría; sólo usa la biblioteca estándar de Python</td></tr>
+      <tr><td><code>0.uniforme/</code>, <code>0.tobera/</code></td><td>las condiciones de frontera de cada dominio</td></tr>
+      <tr><td><code>constant/</code></td><td>el gas normalizado y Euler, como en la 1.1 y la 1.2</td></tr>
+      <tr><td><code>system/setFieldsDict.uniforme</code>, <code>.tobera</code></td><td>el arranque de cada dominio</td></tr>
+      <tr><td><code>solvers/shockFluid/</code></td><td><code>controlDict</code>, <code>fvSchemes</code> y <code>fvSolution</code>; el <code>Allrun</code> los copia a <code>system/</code></td></tr>
+      <tr><td><code>system/eje</code>, <code>ejeMedio</code>, <code>ondas</code>, <code>presiones</code></td><td>los muestreos: el eje, sesenta rectas verticales con la sección de salida, y cinco sondas</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">Los archivos de <code>tobera-con-descarga.zip</code>.</b> Lo que el <code>Allrun</code> genera (la malla, <code>0/</code>, los diccionarios de <code>system/</code> y los resultados) lo borra <code>./Allclean</code>.</caption>
+  </table>
+</div>
+<h3>La geometría: tobera.geo</h3>
+<p>Es el archivo de la 1.2. Con <code>chorro</code> = 1 agrega dos bloques después de la salida, el núcleo del chorro (a la altura de la salida) y el ambiente (de ahí hacia arriba); con <code>chorro</code> = 2 deja sólo esos dos, y la entrada queda en el plano de salida. El <code>Allrun</code> pasa el valor con <code>-setnumber chorro</code>. El núcleo conserva celdas de 33 mm en \(y\) para resolver las ondas, y el ambiente crece de 33 mm en el labio a 250 mm en el borde (figura 3).</p>
+<figure class="diagram">
+  <img src="imagenes/t13-01_malla.png" alt="Malla alrededor del labio de la tobera" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">La malla en el labio.</b> De \(x\) ≈ 4 a 8 m. A la izquierda, el divergente; a la derecha, el núcleo del chorro, que conserva las celdas de la salida en \(y\); arriba, el ambiente, cuyas celdas crecen hacia el borde del dominio.</figcaption>
+</figure>
+<h3>Las fronteras</h3>
+<p>El archivo <code>0.uniforme/p</code>:</p><pre class="code"><code>boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform P1;
+    }
+    outlet
+    {
+        type            waveTransmissive;
+        field           p;
+        psi             psi;
+        gamma           1.4;
+        fieldInf        PB;
+        lInf            1;
+        value           uniform PB;
+    }
+    farField
+    {
+        type            totalPressure;
+        rho             none;
+        psi             psi;
+        gamma           1.4;
+        p0              uniform PB;
+        value           uniform PB;
+    }
+    axis
+    {
+        type            symmetryPlane;
+    }
+    frontAndBack
+    {
+        type            empty;
+    }
+}</code></pre>
+<p>La entrada del chorro uniforme es supersónica, así que todo se impone: \(p_1\) aquí, \(U_1\) y \(T_1\) en <code>0.uniforme/U</code> y <code>0.uniforme/T</code>. <code>P1</code>, <code>PB</code>, <code>UX</code> y <code>T1</code> son marcas que el <code>Allrun</code> reemplaza. En la carpeta <code>0.tobera</code> la entrada es la del depósito de la 1.2, y aparece la pared.</p>
+<p>La frontera nueva es <code>farField</code>, el labio exterior y el techo del dominio. El chorro arrastra gas del ambiente, de modo que por ahí puede entrar: con <code>totalPressure</code>, el gas que entra llega en reposo a presión \(p_b\), y la velocidad <code>pressureInletOutletVelocity</code> se ajusta a lo que haga falta. En la salida del dominio, <code>waveTransmissive</code> lleva la presión hacia \(p_b\) y deja salir las ondas, como en la 1.2. La validación repitió el caso con el techo al doble de altura, a 12 \(H_e\): los ángulos cambiaron 0.1° o menos.</p>
+<h3>El arranque</h3>
+<p>El archivo <code>system/setFieldsDict.uniforme</code>:</p><pre class="code"><code>defaultFieldValues
+(
+    volVectorFieldValue U (0 0 0)
+    volScalarFieldValue T 1
+    volScalarFieldValue p PB
+);
+
+regions
+(
+    boxToCell
+    {
+        box (5.9 -1 -10) (30 1 10);
+        fieldValues
+        (
+            volScalarFieldValue p P1
+            volVectorFieldValue U (UX 0 0)
+            volScalarFieldValue T T1
+        );
+    }
+);</code></pre>
+<p>Todo el dominio arranca en reposo a \(p_b\), salvo el núcleo del chorro, que arranca con el estado de la entrada: el chorro ya existe desde el primer paso, en lugar de abrirse paso a través del ambiente. En <code>setFieldsDict.tobera</code>, como en la 1.2, el convergente arranca a la presión de remanso.</p>
+<h3>Tres etapas otra vez</h3>
+<p>Las mismas de la 1.2, más cortas, porque aquí no hay una onda atrapada en el convergente: hasta \(t\) = 20 con primer orden, hasta 40 con segundo orden y hasta 60 promediando \(p\), \(U\) y \(T\). La figura 4 muestra por qué hacen falta los promedios, y también lo que no arreglan.</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Presión contra el tiempo en cinco sondas del chorro">
+  <text class="svg-title" x="76" y="28">Presión en las sondas de uniforme15 (a media altura del núcleo)</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="526" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">0.00</text>
+  <line class="svg-grid" x1="76" y1="237.5" x2="526" y2="237.5"/>
+  <text class="svg-tick" x="70" y="241.5" text-anchor="end">0.04</text>
+  <line class="svg-grid" x1="76" y1="175.0" x2="526" y2="175.0"/>
+  <text class="svg-tick" x="70" y="179.0" text-anchor="end">0.08</text>
+  <line class="svg-grid" x1="76" y1="112.5" x2="526" y2="112.5"/>
+  <text class="svg-tick" x="70" y="116.5" text-anchor="end">0.12</text>
+  <line class="svg-grid" x1="76" y1="50.0" x2="526" y2="50.0"/>
+  <text class="svg-tick" x="70" y="54.0" text-anchor="end">0.16</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0</text>
+  <text class="svg-tick" x="151.0" y="318" text-anchor="middle">10</text>
+  <text class="svg-tick" x="226.0" y="318" text-anchor="middle">20</text>
+  <text class="svg-tick" x="301.0" y="318" text-anchor="middle">30</text>
+  <text class="svg-tick" x="376.0" y="318" text-anchor="middle">40</text>
+  <text class="svg-tick" x="451.0" y="318" text-anchor="middle">50</text>
+  <text class="svg-tick" x="526.0" y="318" text-anchor="middle">60</text>
+  <line class="svg-axis" x1="76" y1="300" x2="526" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="301.0" y="338" text-anchor="middle">tiempo</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">p / p0</text>
+  <polyline points="76.0,221.9 76.2,221.9 77.2,221.9 78.1,221.9 79.1,221.6 80.1,221.2 81.1,221.1 82.0,221.2 83.0,221.4 84.0,221.4 85.0,221.4 85.9,221.5 86.9,221.5 87.9,221.5 88.9,221.5 89.8,221.5 90.8,221.5 91.8,221.5 92.8,221.5 93.7,221.5 94.7,221.5 95.7,221.5 96.7,221.5 97.6,221.5 98.6,221.5 99.6,221.5 100.6,221.5 101.5,221.5 102.5,221.5 103.5,221.5 104.5,221.5 105.5,221.5 106.4,221.6 107.4,221.6 108.4,221.6 109.4,221.6 110.3,221.6 111.3,221.6 112.3,221.6 113.3,221.6 114.2,221.6 115.2,221.6 116.2,221.6 117.2,221.6 118.1,221.6 119.1,221.6 120.1,221.6 121.1,221.6 122.0,221.6 123.0,221.6 124.0,221.6 125.0,221.6 125.9,221.6 126.9,221.6 127.9,221.6 128.9,221.6 129.8,221.6 130.8,221.6 131.8,221.6 132.8,221.6 133.7,221.6 134.7,221.6 135.7,221.6 136.7,221.6 137.6,221.6 138.6,221.6 139.6,221.6 140.6,221.6 141.5,221.6 142.5,221.6 143.5,221.5 144.5,221.5 145.4,221.5 146.4,221.5 147.4,221.5 148.4,221.5 149.3,221.5 150.3,221.5 151.3,221.5 152.3,221.5 153.2,221.5 154.2,221.5 155.2,221.5 156.2,221.5 157.1,221.5 158.1,221.5 159.1,221.5 160.1,221.5 161.0,221.5 162.0,221.5 163.0,221.5 164.0,221.5 164.9,221.5 165.9,221.5 166.9,221.5 167.9,221.5 168.8,221.5 169.8,221.5 170.8,221.5 171.8,221.5 172.7,221.5 173.7,221.5 174.7,221.5 175.7,221.5 176.7,221.5 177.6,221.5 178.6,221.5 179.6,221.5 180.6,221.5 181.5,221.5 182.5,221.5 183.5,221.5 184.5,221.5 185.4,221.5 186.4,221.5 187.4,221.5 188.4,221.5 189.3,221.5 190.3,221.5 191.3,221.5 192.3,221.5 193.2,221.6 194.2,221.6 195.2,221.6 196.2,221.6 197.1,221.6 198.1,221.6 199.1,221.6 200.1,221.6 201.0,221.6 202.0,221.6 203.0,221.6 204.0,221.6 204.9,221.6 205.9,221.6 206.9,221.6 207.9,221.6 208.8,221.6 209.8,221.6 210.8,221.6 211.8,221.6 212.7,221.6 213.7,221.6 214.7,221.6 215.7,221.6 216.6,221.6 217.6,221.6 218.6,221.6 219.6,221.6 220.5,221.6 221.5,221.6 222.5,221.6 223.5,221.6 224.4,221.6 225.4,221.6 226.6,221.7 227.6,221.9 228.6,221.9 229.6,221.9 230.5,221.9 231.5,221.9 232.5,221.9 233.4,221.9 234.4,221.9 235.4,221.9 236.4,221.9 237.4,221.9 238.3,221.9 239.3,221.9 240.3,221.9 241.3,221.9 242.2,221.9 243.2,221.9 244.2,221.9 245.2,221.9 246.1,221.9 247.1,221.9 248.1,221.9 249.1,221.9 250.0,221.9 251.0,221.9 252.0,221.9 253.0,221.9 253.9,221.9 254.9,221.9 255.9,221.9 256.9,221.9 257.8,221.9 258.8,221.9 259.8,221.9 260.8,221.9 261.7,221.9 262.7,221.9 263.7,221.9 264.7,221.9 265.7,221.9 266.6,221.9 267.6,221.9 268.6,221.9 269.6,221.9 270.5,221.9 271.5,221.9 272.5,221.9 273.5,221.9 274.5,221.9 275.4,221.9 276.4,221.9 277.4,221.9 278.4,221.9 279.4,221.9 280.3,221.9 281.3,221.9 282.3,221.9 283.3,221.9 284.2,221.9 285.2,221.9 286.2,221.9 287.2,221.9 288.2,221.9 289.1,221.9 290.1,221.9 291.1,221.9 292.1,221.9 293.0,221.9 294.0,221.9 295.0,221.9 296.0,221.9 296.9,221.9 297.9,221.9 298.9,221.9 299.9,221.9 300.9,221.9 301.8,221.9 302.8,221.9 303.8,221.9 304.8,221.9 305.7,221.9 306.7,221.9 307.7,221.9 308.7,221.9 309.7,221.9 310.6,221.9 311.6,221.9 312.6,221.9 313.6,221.9 314.6,221.9 315.5,221.9 316.5,221.9 317.5,221.9 318.5,221.9 319.5,221.9 320.4,221.9 321.4,221.9 322.4,221.9 323.4,221.9 324.4,221.9 325.3,221.9 326.3,221.9 327.3,221.9 328.3,221.9 329.2,221.9 330.2,221.9 331.2,221.9 332.2,221.9 333.2,221.9 334.1,221.9 335.1,221.9 336.1,221.9 337.1,221.9 338.1,221.9 339.0,221.9 340.0,221.9 341.0,221.9 342.0,221.9 343.0,221.9 343.9,221.9 344.9,221.9 345.9,221.9 346.9,221.9 347.9,221.9 348.8,221.9 349.8,221.9 350.8,221.9 351.8,221.9 352.8,221.9 353.7,221.9 354.7,221.9 355.7,221.9 356.7,221.9 357.6,221.9 358.6,221.9 359.6,221.9 360.6,221.9 361.6,221.9 362.5,221.9 363.5,221.9 364.5,221.9 365.5,221.9 366.5,221.9 367.4,221.9 368.4,221.9 369.4,221.9 370.4,221.9 371.4,221.9 372.3,221.9 373.3,221.9 374.3,221.9 375.3,221.9 376.6,221.9 377.6,221.9 378.6,221.9 379.6,221.9 380.6,221.9 381.5,221.9 382.5,221.9 383.5,221.9 384.5,221.9 385.5,221.9 386.4,221.9 387.4,221.9 388.4,221.9 389.4,221.9 390.4,221.9 391.3,221.9 392.3,221.9 393.3,221.9 394.3,221.9 395.3,221.9 396.2,221.9 397.2,221.9 398.2,221.9 399.2,221.9 400.1,221.9 401.1,221.9 402.1,221.9 403.1,221.9 404.1,221.9 405.0,221.9 406.0,221.9 407.0,221.9 408.0,221.9 408.9,221.9 409.9,221.9 410.9,221.9 411.9,221.9 412.9,221.9 413.8,221.9 414.8,221.9 415.8,221.9 416.8,221.9 417.8,221.9 418.7,221.9 419.7,221.9 420.7,221.9 421.7,221.9 422.7,221.9 423.6,221.9 424.6,221.9 425.6,221.9 426.6,221.9 427.6,221.9 428.5,221.9 429.5,221.9 430.5,221.9 431.5,221.9 432.4,221.9 433.4,221.9 434.4,221.9 435.4,221.9 436.4,221.9 437.3,221.9 438.3,221.9 439.3,221.9 440.3,221.9 441.3,221.9 442.2,221.9 443.2,221.9 444.2,221.9 445.2,221.9 446.2,221.9 447.1,221.9 448.1,221.9 449.1,221.9 450.1,221.9 451.0,221.9 452.0,221.9 453.0,221.9 454.0,221.9 455.0,221.9 455.9,221.9 456.9,221.9 457.9,221.9 458.9,221.9 459.9,221.9 460.8,221.9 461.8,221.9 462.8,221.9 463.8,221.9 464.8,221.9 465.7,221.9 466.7,221.9 467.7,221.9 468.7,221.9 469.7,221.9 470.6,221.9 471.6,221.9 472.6,221.9 473.6,221.9 474.5,221.9 475.5,221.9 476.5,221.9 477.5,221.9 478.5,221.9 479.4,221.9 480.4,221.9 481.4,221.9 482.4,221.9 483.4,221.9 484.3,221.9 485.3,221.9 486.3,221.9 487.2,221.9 488.2,221.9 489.2,221.9 490.2,221.9 491.1,221.9 492.1,221.9 493.1,221.9 494.1,221.9 495.1,221.9 496.0,221.9 497.0,221.9 498.0,221.9 499.0,221.9 500.0,221.9 500.9,221.9 501.9,221.9 502.9,221.9 503.9,221.9 504.9,221.9 505.8,221.9 506.8,221.9 507.8,221.9 508.8,221.9 509.8,221.9 510.7,221.9 511.7,221.9 512.7,221.9 513.7,221.9 514.6,221.9 515.6,221.9 516.6,221.9 517.6,221.9 518.6,221.9 519.5,221.9 520.5,221.9 521.5,221.9 522.5,221.9 523.5,221.9 524.4,221.9 525.4,221.9" fill="none" stroke="var(--ink)" stroke-width="1.3"/>
+  <polyline points="76.0,221.9 76.2,221.9 77.2,221.9 78.1,221.9 79.1,221.3 80.1,215.7 81.1,204.0 82.0,197.7 83.0,195.8 84.0,193.4 85.0,190.5 85.9,187.5 86.9,185.1 87.9,183.6 88.9,183.2 89.8,183.7 90.8,184.8 91.8,186.0 92.8,187.1 93.7,188.0 94.7,188.5 95.7,188.8 96.7,189.0 97.6,189.0 98.6,188.9 99.6,188.8 100.6,188.6 101.5,188.5 102.5,188.3 103.5,188.1 104.5,187.9 105.5,187.7 106.4,187.5 107.4,187.3 108.4,187.2 109.4,187.0 110.3,186.9 111.3,186.7 112.3,186.6 113.3,186.5 114.2,186.4 115.2,186.3 116.2,186.2 117.2,186.1 118.1,186.0 119.1,185.9 120.1,185.8 121.1,185.7 122.0,185.6 123.0,185.5 124.0,185.3 125.0,185.1 125.9,184.9 126.9,184.7 127.9,184.5 128.9,184.3 129.8,184.0 130.8,183.7 131.8,183.5 132.8,183.2 133.7,183.0 134.7,182.7 135.7,182.5 136.7,182.4 137.6,182.2 138.6,182.1 139.6,182.0 140.6,181.9 141.5,181.8 142.5,181.8 143.5,181.7 144.5,181.7 145.4,181.7 146.4,181.6 147.4,181.6 148.4,181.6 149.3,181.5 150.3,181.5 151.3,181.5 152.3,181.4 153.2,181.3 154.2,181.3 155.2,181.2 156.2,181.2 157.1,181.1 158.1,181.1 159.1,181.0 160.1,181.0 161.0,181.0 162.0,181.0 163.0,181.0 164.0,181.1 164.9,181.1 165.9,181.2 166.9,181.3 167.9,181.4 168.8,181.6 169.8,181.8 170.8,182.0 171.8,182.2 172.7,182.4 173.7,182.6 174.7,182.9 175.7,183.1 176.7,183.4 177.6,183.6 178.6,183.9 179.6,184.1 180.6,184.4 181.5,184.6 182.5,184.7 183.5,184.9 184.5,185.1 185.4,185.2 186.4,185.3 187.4,185.4 188.4,185.4 189.3,185.5 190.3,185.5 191.3,185.5 192.3,185.5 193.2,185.5 194.2,185.5 195.2,185.4 196.2,185.4 197.1,185.3 198.1,185.3 199.1,185.2 200.1,185.2 201.0,185.1 202.0,185.1 203.0,185.0 204.0,185.0 204.9,184.9 205.9,184.9 206.9,184.8 207.9,184.8 208.8,184.8 209.8,184.8 210.8,184.8 211.8,184.8 212.7,184.8 213.7,184.8 214.7,184.8 215.7,184.8 216.6,184.9 217.6,184.9 218.6,184.9 219.6,185.0 220.5,185.0 221.5,185.1 222.5,185.1 223.5,185.2 224.4,185.3 225.4,185.3 226.6,185.1 227.6,184.5 228.6,184.0 229.6,183.8 230.5,184.9 231.5,188.1 232.5,187.2 233.4,189.1 234.4,189.1 235.4,191.0 236.4,191.4 237.4,192.3 238.3,186.6 239.3,185.0 240.3,182.3 241.3,182.3 242.2,183.5 243.2,181.2 244.2,180.9 245.2,182.3 246.1,182.2 247.1,182.5 248.1,182.5 249.1,182.7 250.0,182.9 251.0,181.8 252.0,182.2 253.0,181.5 253.9,181.8 254.9,181.5 255.9,181.3 256.9,182.1 257.8,182.2 258.8,182.8 259.8,182.7 260.8,183.1 261.7,182.2 262.7,182.6 263.7,181.7 264.7,182.1 265.7,181.2 266.6,181.7 267.6,181.7 268.6,181.8 269.6,182.0 270.5,182.5 271.5,183.1 272.5,183.1 273.5,182.9 274.5,183.1 275.4,183.0 276.4,182.8 277.4,182.8 278.4,182.7 279.4,183.1 280.3,183.2 281.3,183.2 282.3,183.8 283.3,183.5 284.2,183.3 285.2,183.5 286.2,182.7 287.2,182.9 288.2,182.3 289.1,181.7 290.1,181.2 291.1,181.6 292.1,180.5 293.0,181.3 294.0,181.6 295.0,181.4 296.0,181.7 296.9,181.2 297.9,181.6 298.9,181.5 299.9,181.5 300.9,180.9 301.8,181.5 302.8,180.6 303.8,181.0 304.8,180.2 305.7,180.6 306.7,181.4 307.7,180.9 308.7,181.2 309.7,180.9 310.6,181.0 311.6,180.5 312.6,180.4 313.6,179.7 314.6,180.4 315.5,179.6 316.5,180.3 317.5,180.4 318.5,180.9 319.5,181.6 320.4,181.5 321.4,181.9 322.4,181.6 323.4,181.8 324.4,180.8 325.3,181.0 326.3,180.3 327.3,180.4 328.3,179.9 329.2,180.3 330.2,180.7 331.2,180.8 332.2,181.3 333.2,181.6 334.1,181.6 335.1,181.7 336.1,181.9 337.1,182.1 338.1,181.9 339.0,182.2 340.0,182.3 341.0,183.1 342.0,183.4 343.0,184.0 343.9,184.5 344.9,184.6 345.9,185.1 346.9,184.4 347.9,184.9 348.8,183.8 349.8,183.6 350.8,183.2 351.8,183.2 352.8,182.9 353.7,183.5 354.7,183.2 355.7,183.9 356.7,184.4 357.6,183.9 358.6,184.3 359.6,183.7 360.6,183.7 361.6,183.3 362.5,182.4 363.5,182.4 364.5,181.5 365.5,181.7 366.5,181.2 367.4,182.0 368.4,182.2 369.4,182.0 370.4,182.5 371.4,182.0 372.3,182.5 373.3,181.8 374.3,181.6 375.3,181.6 376.6,182.5 377.6,182.0 378.6,181.9 379.6,182.7 380.6,182.3 381.5,181.9 382.5,181.7 383.5,181.3 384.5,181.2 385.5,181.1 386.4,181.7 387.4,181.5 388.4,183.0 389.4,182.5 390.4,183.3 391.3,183.1 392.3,183.1 393.3,183.1 394.3,182.9 395.3,182.8 396.2,183.4 397.2,182.7 398.2,183.2 399.2,183.3 400.1,184.0 401.1,183.7 402.1,185.2 403.1,185.0 404.1,185.5 405.0,185.3 406.0,186.0 407.0,185.3 408.0,184.6 408.9,184.6 409.9,184.4 410.9,184.2 411.9,184.1 412.9,184.4 413.8,184.6 414.8,184.4 415.8,184.6 416.8,184.3 417.8,184.3 418.7,184.1 419.7,183.4 420.7,183.5 421.7,182.1 422.7,182.8 423.6,182.3 424.6,182.6 425.6,182.5 426.6,183.1 427.6,183.0 428.5,182.9 429.5,183.5 430.5,183.3 431.5,183.1 432.4,182.7 433.4,181.6 434.4,182.0 435.4,181.8 436.4,182.6 437.3,182.8 438.3,184.2 439.3,184.5 440.3,184.4 441.3,185.2 442.2,185.6 443.2,185.9 444.2,185.7 445.2,185.5 446.2,185.2 447.1,184.3 448.1,185.1 449.1,184.6 450.1,185.0 451.0,185.0 452.0,184.6 453.0,184.7 454.0,184.5 455.0,184.6 455.9,183.8 456.9,183.0 457.9,182.0 458.9,180.3 459.9,180.5 460.8,180.2 461.8,180.7 462.8,180.5 463.8,180.9 464.8,182.3 465.7,182.6 466.7,184.0 467.7,184.0 468.7,184.2 469.7,183.3 470.6,182.5 471.6,181.8 472.6,181.2 473.6,181.4 474.5,181.9 475.5,182.3 476.5,183.8 477.5,182.7 478.5,183.1 479.4,181.9 480.4,181.8 481.4,181.8 482.4,181.2 483.4,181.2 484.3,181.0 485.3,181.0 486.3,181.6 487.2,182.2 488.2,183.4 489.2,181.8 490.2,182.9 491.1,182.6 492.1,183.2 493.1,181.8 494.1,181.1 495.1,180.5 496.0,179.9 497.0,181.2 498.0,180.6 499.0,180.9 500.0,180.3 500.9,181.0 501.9,181.7 502.9,180.9 503.9,182.1 504.9,181.9 505.8,182.1 506.8,181.5 507.8,181.7 508.8,181.6 509.8,180.9 510.7,181.6 511.7,181.4 512.7,181.8 513.7,180.9 514.6,182.4 515.6,182.2 516.6,181.6 517.6,182.7 518.6,182.9 519.5,182.3 520.5,182.3 521.5,181.2 522.5,181.2 523.5,180.4 524.4,180.9 525.4,181.4" fill="none" stroke="var(--accent)" stroke-width="1.3"/>
+  <polyline points="76.0,221.9 76.2,221.9 77.2,221.9 78.1,221.9 79.1,221.3 80.1,215.7 81.1,203.9 82.0,197.0 83.0,195.9 84.0,196.4 85.0,196.9 85.9,197.4 86.9,197.7 87.9,197.5 88.9,196.1 89.8,192.8 90.8,188.0 91.8,182.9 92.8,177.6 93.7,172.4 94.7,167.4 95.7,162.8 96.7,158.6 97.6,155.1 98.6,152.2 99.6,150.0 100.6,148.4 101.5,147.5 102.5,147.2 103.5,147.5 104.5,148.2 105.5,149.3 106.4,150.4 107.4,151.5 108.4,152.5 109.4,153.3 110.3,153.9 111.3,154.3 112.3,154.6 113.3,154.7 114.2,154.7 115.2,154.6 116.2,154.4 117.2,154.2 118.1,154.0 119.1,153.8 120.1,153.6 121.1,153.4 122.0,153.2 123.0,153.1 124.0,152.9 125.0,152.8 125.9,152.6 126.9,152.5 127.9,152.3 128.9,152.2 129.8,152.0 130.8,151.8 131.8,151.7 132.8,151.4 133.7,151.2 134.7,151.0 135.7,150.7 136.7,150.4 137.6,150.0 138.6,149.7 139.6,149.3 140.6,148.8 141.5,148.4 142.5,147.9 143.5,147.4 144.5,146.9 145.4,146.3 146.4,145.8 147.4,145.2 148.4,144.6 149.3,144.0 150.3,143.4 151.3,142.8 152.3,142.2 153.2,141.6 154.2,141.0 155.2,140.5 156.2,140.0 157.1,139.5 158.1,139.1 159.1,138.8 160.1,138.5 161.0,138.2 162.0,138.1 163.0,138.0 164.0,138.0 164.9,138.0 165.9,138.2 166.9,138.4 167.9,138.7 168.8,139.1 169.8,139.5 170.8,140.0 171.8,140.6 172.7,141.2 173.7,141.9 174.7,142.7 175.7,143.5 176.7,144.3 177.6,145.1 178.6,146.0 179.6,146.9 180.6,147.8 181.5,148.7 182.5,149.6 183.5,150.5 184.5,151.3 185.4,152.1 186.4,152.9 187.4,153.6 188.4,154.3 189.3,154.9 190.3,155.5 191.3,156.0 192.3,156.4 193.2,156.8 194.2,157.1 195.2,157.4 196.2,157.6 197.1,157.7 198.1,157.8 199.1,157.9 200.1,157.9 201.0,157.8 202.0,157.8 203.0,157.7 204.0,157.6 204.9,157.4 205.9,157.3 206.9,157.1 207.9,157.0 208.8,156.8 209.8,156.7 210.8,156.5 211.8,156.3 212.7,156.2 213.7,156.1 214.7,155.9 215.7,155.8 216.6,155.7 217.6,155.6 218.6,155.5 219.6,155.4 220.5,155.3 221.5,155.2 222.5,155.1 223.5,155.0 224.4,155.0 225.4,154.9 226.6,154.4 227.6,153.7 228.6,153.3 229.6,152.9 230.5,150.1 231.5,151.1 232.5,145.8 233.4,154.4 234.4,143.6 235.4,144.1 236.4,141.5 237.4,159.9 238.3,131.9 239.3,139.8 240.3,156.5 241.3,156.5 242.2,141.6 243.2,154.6 244.2,175.5 245.2,143.9 246.1,147.8 247.1,200.4 248.1,200.2 249.1,136.1 250.0,122.1 251.0,134.7 252.0,178.3 253.0,153.2 253.9,114.5 254.9,163.6 255.9,173.2 256.9,117.7 257.8,137.5 258.8,148.5 259.8,116.7 260.8,125.1 261.7,111.0 262.7,120.2 263.7,124.6 264.7,153.9 265.7,157.8 266.6,152.4 267.6,144.5 268.6,146.9 269.6,120.2 270.5,133.8 271.5,117.3 272.5,118.3 273.5,114.2 274.5,118.1 275.4,114.1 276.4,144.9 277.4,144.1 278.4,137.7 279.4,149.6 280.3,132.7 281.3,126.7 282.3,116.2 283.3,124.0 284.2,109.2 285.2,122.3 286.2,104.9 287.2,138.2 288.2,119.1 289.1,144.5 290.1,128.8 291.1,157.0 292.1,133.5 293.0,141.3 294.0,127.1 295.0,116.4 296.0,115.2 296.9,111.7 297.9,120.3 298.9,113.8 299.9,138.0 300.9,121.7 301.8,157.4 302.8,133.2 303.8,154.5 304.8,127.2 305.7,143.4 306.7,114.3 307.7,119.8 308.7,103.2 309.7,104.7 310.6,108.9 311.6,106.8 312.6,132.6 313.6,124.7 314.6,150.8 315.5,137.6 316.5,152.3 317.5,127.2 318.5,134.2 319.5,114.7 320.4,110.1 321.4,104.9 322.4,101.3 323.4,114.5 324.4,104.0 325.3,138.8 326.3,124.7 327.3,154.1 328.3,152.3 329.2,151.1 330.2,131.3 331.2,124.6 332.2,124.4 333.2,111.9 334.1,119.0 335.1,103.6 336.1,114.4 337.1,109.6 338.1,140.2 339.0,143.0 340.0,142.8 341.0,153.1 342.0,147.2 343.0,158.2 343.9,120.0 344.9,124.1 345.9,116.1 346.9,123.7 347.9,121.1 348.8,117.2 349.8,134.4 350.8,125.9 351.8,153.6 352.8,140.3 353.7,160.7 354.7,148.2 355.7,143.0 356.7,135.3 357.6,121.1 358.6,113.6 359.6,116.8 360.6,118.7 361.6,128.8 362.5,150.8 363.5,139.4 364.5,145.2 365.5,157.1 366.5,145.8 367.4,140.8 368.4,136.8 369.4,112.8 370.4,113.2 371.4,113.1 372.3,113.1 373.3,108.0 374.3,111.6 375.3,147.1 376.6,103.8 377.6,98.4 378.6,97.2 379.6,95.2 380.6,99.8 381.5,116.1 382.5,159.3 383.5,143.9 384.5,154.9 385.5,167.4 386.4,123.3 387.4,114.0 388.4,154.5 389.4,131.7 390.4,104.3 391.3,115.2 392.3,129.5 393.3,110.6 394.3,128.9 395.3,155.0 396.2,155.8 397.2,137.0 398.2,157.0 399.2,153.9 400.1,153.0 401.1,128.6 402.1,154.9 403.1,122.7 404.1,116.9 405.0,127.1 406.0,138.6 407.0,120.4 408.0,146.9 408.9,161.1 409.9,148.2 410.9,154.0 411.9,153.2 412.9,154.7 413.8,140.7 414.8,131.0 415.8,139.6 416.8,120.8 417.8,116.7 418.7,125.2 419.7,144.0 420.7,151.9 421.7,165.1 422.7,166.2 423.6,162.2 424.6,162.5 425.6,152.1 426.6,149.0 427.6,124.5 428.5,124.1 429.5,126.7 430.5,114.8 431.5,110.1 432.4,137.5 433.4,155.1 434.4,145.3 435.4,163.5 436.4,166.2 437.3,159.4 438.3,153.1 439.3,125.5 440.3,114.3 441.3,122.4 442.2,108.9 443.2,105.1 444.2,134.9 445.2,148.2 446.2,119.7 447.1,155.6 448.1,167.5 449.1,160.4 450.1,140.0 451.0,149.7 452.0,123.0 453.0,123.8 454.0,125.0 455.0,118.8 455.9,114.5 456.9,132.4 457.9,152.1 458.9,163.0 459.9,154.3 460.8,168.1 461.8,144.6 462.8,167.8 463.8,124.6 464.8,133.5 465.7,123.2 466.7,133.0 467.7,110.7 468.7,101.6 469.7,103.9 470.6,152.1 471.6,135.5 472.6,154.4 473.6,166.6 474.5,141.6 475.5,128.4 476.5,136.9 477.5,98.4 478.5,104.3 479.4,140.1 480.4,100.9 481.4,102.1 482.4,141.7 483.4,115.5 484.3,154.7 485.3,146.9 486.3,155.7 487.2,166.3 488.2,117.7 489.2,125.4 490.2,152.5 491.1,99.6 492.1,91.5 493.1,115.8 494.1,124.7 495.1,95.5 496.0,133.4 497.0,154.4 498.0,135.6 499.0,157.4 500.0,169.9 500.9,131.6 501.9,121.8 502.9,128.3 503.9,107.4 504.9,112.5 505.8,92.9 506.8,118.7 507.8,143.3 508.8,103.9 509.8,136.9 510.7,160.9 511.7,124.5 512.7,144.0 513.7,165.8 514.6,120.8 515.6,105.4 516.6,120.4 517.6,107.3 518.6,115.0 519.5,100.4 520.5,138.6 521.5,129.4 522.5,110.6 523.5,163.8 524.4,155.5 525.4,133.5" fill="none" stroke="var(--blue)" stroke-width="1.3"/>
+  <polyline points="76.0,221.9 76.2,221.9 77.2,221.9 78.1,221.9 79.1,221.3 80.1,215.7 81.1,203.9 82.0,197.0 83.0,195.9 84.0,196.4 85.0,197.0 85.9,197.4 86.9,197.6 87.9,197.4 88.9,195.9 89.8,191.3 90.8,183.5 91.8,176.0 92.8,172.0 93.7,171.0 94.7,171.5 95.7,172.4 96.7,173.6 97.6,174.8 98.6,175.8 99.6,176.5 100.6,177.2 101.5,177.9 102.5,178.5 103.5,179.1 104.5,179.7 105.5,180.2 106.4,180.6 107.4,180.9 108.4,181.0 109.4,181.0 110.3,180.8 111.3,180.6 112.3,180.3 113.3,180.1 114.2,179.9 115.2,179.7 116.2,179.7 117.2,179.8 118.1,180.1 119.1,180.5 120.1,181.0 121.1,181.8 122.0,182.7 123.0,183.7 124.0,184.8 125.0,186.0 125.9,187.3 126.9,188.5 127.9,189.8 128.9,191.0 129.8,192.1 130.8,193.2 131.8,194.2 132.8,195.1 133.7,196.0 134.7,196.9 135.7,197.7 136.7,198.5 137.6,199.2 138.6,200.0 139.6,200.6 140.6,201.3 141.5,201.9 142.5,202.4 143.5,202.8 144.5,203.2 145.4,203.5 146.4,203.8 147.4,203.9 148.4,204.0 149.3,204.0 150.3,203.9 151.3,203.7 152.3,203.5 153.2,203.2 154.2,202.8 155.2,202.4 156.2,201.9 157.1,201.4 158.1,200.9 159.1,200.4 160.1,200.0 161.0,199.6 162.0,199.2 163.0,199.0 164.0,198.8 164.9,198.8 165.9,198.8 166.9,199.0 167.9,199.2 168.8,199.6 169.8,200.1 170.8,200.6 171.8,201.3 172.7,202.0 173.7,202.8 174.7,203.7 175.7,204.6 176.7,205.5 177.6,206.5 178.6,207.5 179.6,208.5 180.6,209.5 181.5,210.4 182.5,211.4 183.5,212.3 184.5,213.1 185.4,213.9 186.4,214.7 187.4,215.3 188.4,216.0 189.3,216.5 190.3,217.0 191.3,217.4 192.3,217.7 193.2,218.0 194.2,218.2 195.2,218.3 196.2,218.4 197.1,218.4 198.1,218.4 199.1,218.3 200.1,218.2 201.0,218.0 202.0,217.8 203.0,217.6 204.0,217.3 204.9,217.0 205.9,216.8 206.9,216.5 207.9,216.2 208.8,215.8 209.8,215.5 210.8,215.2 211.8,214.9 212.7,214.5 213.7,214.2 214.7,213.9 215.7,213.6 216.6,213.2 217.6,212.9 218.6,212.6 219.6,212.2 220.5,211.9 221.5,211.6 222.5,211.3 223.5,211.0 224.4,210.7 225.4,210.4 226.6,210.2 227.6,210.0 228.6,209.8 229.6,209.6 230.5,209.8 231.5,209.9 232.5,209.7 233.4,210.2 234.4,209.7 235.4,210.0 236.4,210.6 237.4,211.7 238.3,210.0 239.3,210.7 240.3,211.1 241.3,213.2 242.2,212.2 243.2,210.2 244.2,213.9 245.2,211.0 246.1,208.6 247.1,210.1 248.1,214.2 249.1,212.7 250.0,207.5 251.0,212.5 252.0,215.8 253.0,212.7 253.9,211.0 254.9,214.4 255.9,209.1 256.9,203.7 257.8,211.9 258.8,208.5 259.8,197.1 260.8,212.8 261.7,223.8 262.7,215.3 263.7,202.8 264.7,214.4 265.7,223.0 266.6,215.3 267.6,220.2 268.6,220.1 269.6,212.4 270.5,206.4 271.5,200.8 272.5,199.6 273.5,208.8 274.5,224.1 275.4,227.1 276.4,224.9 277.4,228.1 278.4,224.0 279.4,218.5 280.3,198.0 281.3,192.0 282.3,192.0 283.3,193.6 284.2,194.6 285.2,203.2 286.2,215.1 287.2,220.1 288.2,224.1 289.1,221.3 290.1,222.4 291.1,216.5 292.1,204.6 293.0,195.7 294.0,192.3 295.0,193.5 296.0,194.8 296.9,199.0 297.9,208.7 298.9,221.3 299.9,221.6 300.9,224.7 301.8,223.3 302.8,221.1 303.8,215.1 304.8,204.5 305.7,198.3 306.7,197.8 307.7,196.4 308.7,197.5 309.7,206.0 310.6,215.8 311.6,225.3 312.6,223.5 313.6,224.1 314.6,224.2 315.5,218.8 316.5,206.9 317.5,198.4 318.5,195.8 319.5,196.5 320.4,198.1 321.4,202.2 322.4,213.7 323.4,222.3 324.4,228.5 325.3,229.2 326.3,227.9 327.3,227.2 328.3,225.2 329.2,217.7 330.2,201.4 331.2,194.9 332.2,194.0 333.2,194.3 334.1,196.9 335.1,209.2 336.1,221.8 337.1,231.9 338.1,233.1 339.0,235.4 340.0,231.9 341.0,229.6 342.0,219.4 343.0,208.0 343.9,202.3 344.9,200.8 345.9,201.5 346.9,203.7 347.9,215.3 348.8,224.0 349.8,228.7 350.8,228.6 351.8,231.1 352.8,232.8 353.7,230.6 354.7,214.2 355.7,204.7 356.7,201.9 357.6,201.1 358.6,202.1 359.6,203.5 360.6,208.0 361.6,222.9 362.5,225.0 363.5,226.9 364.5,228.0 365.5,227.3 366.5,220.8 367.4,201.4 368.4,194.6 369.4,193.1 370.4,191.6 371.4,202.3 372.3,217.8 373.3,225.4 374.3,228.3 375.3,227.9 376.6,196.0 377.6,200.6 378.6,220.6 379.6,234.6 380.6,235.8 381.5,239.7 382.5,237.5 383.5,237.2 384.5,230.9 385.5,213.2 386.4,200.7 387.4,196.9 388.4,193.6 389.4,191.2 390.4,196.1 391.3,207.8 392.3,222.5 393.3,229.8 394.3,236.4 395.3,240.2 396.2,234.2 397.2,221.2 398.2,215.6 399.2,216.2 400.1,212.5 401.1,208.7 402.1,209.5 403.1,208.2 404.1,209.5 405.0,222.8 406.0,233.6 407.0,232.6 408.0,234.3 408.9,231.4 409.9,228.5 410.9,225.3 411.9,211.5 412.9,210.3 413.8,211.2 414.8,211.7 415.8,218.2 416.8,222.9 417.8,221.1 418.7,228.8 419.7,232.4 420.7,233.6 421.7,237.6 422.7,233.5 423.6,229.5 424.6,217.5 425.6,203.2 426.6,196.8 427.6,196.6 428.5,198.5 429.5,215.2 430.5,229.8 431.5,236.0 432.4,235.3 433.4,233.7 434.4,236.0 435.4,230.3 436.4,223.2 437.3,205.8 438.3,201.2 439.3,199.3 440.3,196.5 441.3,198.5 442.2,210.5 443.2,229.2 444.2,229.5 445.2,232.8 446.2,232.9 447.1,232.6 448.1,233.8 449.1,225.0 450.1,208.1 451.0,195.6 452.0,188.9 453.0,189.0 454.0,194.4 455.0,213.1 455.9,220.5 456.9,224.8 457.9,225.5 458.9,225.5 459.9,229.0 460.8,221.4 461.8,217.3 462.8,203.8 463.8,196.9 464.8,192.4 465.7,191.6 466.7,196.2 467.7,215.9 468.7,228.5 469.7,226.5 470.6,229.1 471.6,225.4 472.6,221.7 473.6,215.2 474.5,195.0 475.5,189.7 476.5,190.0 477.5,193.0 478.5,196.7 479.4,207.6 480.4,227.9 481.4,230.4 482.4,234.8 483.4,237.6 484.3,231.4 485.3,223.7 486.3,211.1 487.2,201.4 488.2,193.5 489.2,192.4 490.2,193.0 491.1,189.9 492.1,196.1 493.1,209.5 494.1,214.6 495.1,216.7 496.0,220.1 497.0,226.3 498.0,221.3 499.0,204.9 500.0,191.4 500.9,190.3 501.9,190.7 502.9,191.3 503.9,205.2 504.9,210.8 505.8,211.1 506.8,220.4 507.8,227.8 508.8,233.8 509.8,237.9 510.7,236.2 511.7,226.4 512.7,213.9 513.7,210.0 514.6,202.8 515.6,194.7 516.6,195.8 517.6,210.9 518.6,215.1 519.5,215.1 520.5,220.3 521.5,221.6 522.5,221.4 523.5,225.1 524.4,225.8 525.4,215.6" fill="none" stroke="var(--success)" stroke-width="1.3"/>
+  <polyline points="76.0,221.9 76.2,221.9 77.2,221.9 78.1,221.9 79.1,221.3 80.1,215.7 81.1,203.9 82.0,197.0 83.0,195.9 84.0,196.4 85.0,197.0 85.9,197.4 86.9,197.6 87.9,197.4 88.9,195.9 89.8,191.3 90.8,183.5 91.8,176.0 92.8,172.0 93.7,171.0 94.7,171.5 95.7,172.3 96.7,173.2 97.6,174.0 98.6,174.7 99.6,175.4 100.6,176.0 101.5,176.6 102.5,177.2 103.5,177.7 104.5,178.2 105.5,178.7 106.4,179.0 107.4,179.3 108.4,179.5 109.4,179.7 110.3,179.7 111.3,179.8 112.3,179.8 113.3,179.7 114.2,179.7 115.2,179.6 116.2,179.6 117.2,179.6 118.1,179.5 119.1,179.6 120.1,179.6 121.1,179.7 122.0,179.8 123.0,180.0 124.0,180.2 125.0,180.4 125.9,180.6 126.9,180.8 127.9,181.0 128.9,181.2 129.8,181.4 130.8,181.5 131.8,181.7 132.8,181.8 133.7,181.9 134.7,181.9 135.7,182.0 136.7,182.0 137.6,182.0 138.6,182.0 139.6,182.0 140.6,181.9 141.5,181.8 142.5,181.6 143.5,181.5 144.5,181.2 145.4,181.0 146.4,180.6 147.4,180.2 148.4,179.7 149.3,179.1 150.3,178.4 151.3,177.7 152.3,176.8 153.2,175.9 154.2,174.8 155.2,173.7 156.2,172.6 157.1,171.4 158.1,170.2 159.1,169.0 160.1,167.8 161.0,166.7 162.0,165.6 163.0,164.6 164.0,163.7 164.9,162.9 165.9,162.3 166.9,161.8 167.9,161.4 168.8,161.2 169.8,161.2 170.8,161.3 171.8,161.6 172.7,162.1 173.7,162.6 174.7,163.3 175.7,164.2 176.7,165.1 177.6,166.0 178.6,167.1 179.6,168.2 180.6,169.3 181.5,170.4 182.5,171.5 183.5,172.6 184.5,173.7 185.4,174.7 186.4,175.7 187.4,176.7 188.4,177.7 189.3,178.6 190.3,179.5 191.3,180.5 192.3,181.4 193.2,182.3 194.2,183.3 195.2,184.2 196.2,185.2 197.1,186.3 198.1,187.3 199.1,188.4 200.1,189.5 201.0,190.5 202.0,191.5 203.0,192.5 204.0,193.4 204.9,194.3 205.9,195.1 206.9,195.9 207.9,196.6 208.8,197.3 209.8,197.9 210.8,198.5 211.8,199.1 212.7,199.6 213.7,200.1 214.7,200.6 215.7,201.1 216.6,201.6 217.6,202.1 218.6,202.5 219.6,202.9 220.5,203.3 221.5,203.8 222.5,204.2 223.5,204.6 224.4,204.9 225.4,205.3 226.6,205.8 227.6,206.3 228.6,206.8 229.6,207.3 230.5,208.0 231.5,208.6 232.5,209.0 233.4,209.7 234.4,210.3 235.4,210.9 236.4,211.6 237.4,212.2 238.3,212.9 239.3,213.9 240.3,214.6 241.3,215.9 242.2,216.6 243.2,217.3 244.2,218.1 245.2,219.2 246.1,220.2 247.1,221.0 248.1,221.3 249.1,222.4 250.0,222.2 251.0,223.3 252.0,224.6 253.0,225.0 253.9,224.0 254.9,223.4 255.9,223.7 256.9,224.3 257.8,223.8 258.8,223.7 259.8,222.8 260.8,222.7 261.7,223.4 262.7,222.6 263.7,221.4 264.7,221.6 265.7,219.6 266.6,218.2 267.6,216.6 268.6,216.3 269.6,214.6 270.5,212.5 271.5,210.3 272.5,210.1 273.5,210.1 274.5,207.5 275.4,207.2 276.4,207.0 277.4,204.3 278.4,203.6 279.4,202.7 280.3,203.3 281.3,202.6 282.3,202.4 283.3,201.6 284.2,200.6 285.2,202.7 286.2,204.1 287.2,202.9 288.2,203.1 289.1,200.4 290.1,198.4 291.1,198.8 292.1,200.4 293.0,201.8 294.0,200.7 295.0,201.5 296.0,200.2 296.9,193.5 297.9,194.7 298.9,206.6 299.9,202.7 300.9,198.4 301.8,206.2 302.8,208.7 303.8,205.6 304.8,202.7 305.7,206.5 306.7,203.4 307.7,206.0 308.7,209.5 309.7,212.9 310.6,214.3 311.6,221.4 312.6,221.2 313.6,222.7 314.6,222.8 315.5,223.2 316.5,223.5 317.5,220.8 318.5,221.0 319.5,218.7 320.4,216.8 321.4,215.2 322.4,210.3 323.4,210.8 324.4,206.4 325.3,206.5 326.3,204.7 327.3,204.5 328.3,201.7 329.2,197.6 330.2,197.7 331.2,197.2 332.2,197.4 333.2,192.3 334.1,190.4 335.1,187.7 336.1,190.2 337.1,190.4 338.1,191.7 339.0,188.7 340.0,184.4 341.0,187.6 342.0,184.0 343.0,185.0 343.9,182.7 344.9,187.4 345.9,186.0 346.9,189.4 347.9,189.4 348.8,187.5 349.8,186.6 350.8,185.4 351.8,187.5 352.8,183.0 353.7,184.7 354.7,185.0 355.7,187.6 356.7,185.5 357.6,188.6 358.6,186.6 359.6,188.7 360.6,185.6 361.6,184.9 362.5,184.9 363.5,183.8 364.5,185.4 365.5,182.8 366.5,182.6 367.4,180.6 368.4,184.3 369.4,182.9 370.4,184.8 371.4,181.3 372.3,185.1 373.3,181.1 374.3,183.3 375.3,186.2 376.6,187.8 377.6,184.7 378.6,188.1 379.6,186.9 380.6,188.2 381.5,189.0 382.5,190.1 383.5,188.8 384.5,190.0 385.5,189.2 386.4,193.0 387.4,193.3 388.4,195.9 389.4,197.8 390.4,197.9 391.3,197.5 392.3,199.9 393.3,201.6 394.3,202.9 395.3,206.8 396.2,206.9 397.2,208.6 398.2,212.6 399.2,214.1 400.1,213.2 401.1,215.2 402.1,213.7 403.1,213.4 404.1,215.6 405.0,216.2 406.0,215.6 407.0,217.5 408.0,216.0 408.9,216.3 409.9,213.4 410.9,217.6 411.9,220.3 412.9,216.8 413.8,217.6 414.8,219.2 415.8,217.1 416.8,218.6 417.8,216.9 418.7,220.1 419.7,214.3 420.7,210.8 421.7,215.0 422.7,211.8 423.6,207.9 424.6,209.8 425.6,207.0 426.6,208.8 427.6,215.0 428.5,212.8 429.5,218.6 430.5,219.4 431.5,213.4 432.4,214.2 433.4,213.0 434.4,214.0 435.4,214.8 436.4,212.3 437.3,210.9 438.3,210.7 439.3,211.1 440.3,208.2 441.3,210.5 442.2,206.4 443.2,207.6 444.2,206.4 445.2,205.8 446.2,204.9 447.1,200.3 448.1,198.1 449.1,194.5 450.1,195.2 451.0,194.0 452.0,194.6 453.0,195.4 454.0,195.5 455.0,197.9 455.9,196.8 456.9,197.2 457.9,195.3 458.9,195.5 459.9,194.3 460.8,196.5 461.8,193.5 462.8,191.3 463.8,194.7 464.8,195.8 465.7,197.0 466.7,194.1 467.7,193.4 468.7,191.6 469.7,189.2 470.6,192.4 471.6,192.4 472.6,191.5 473.6,192.1 474.5,194.1 475.5,198.2 476.5,200.1 477.5,196.8 478.5,194.3 479.4,196.4 480.4,196.7 481.4,197.6 482.4,195.9 483.4,197.8 484.3,193.1 485.3,191.2 486.3,189.2 487.2,190.4 488.2,190.5 489.2,190.8 490.2,188.1 491.1,188.6 492.1,185.3 493.1,186.4 494.1,187.6 495.1,187.1 496.0,188.2 497.0,189.0 498.0,192.8 499.0,190.7 500.0,192.8 500.9,192.5 501.9,189.9 502.9,190.4 503.9,190.0 504.9,194.3 505.8,195.8 506.8,195.3 507.8,192.7 508.8,192.4 509.8,197.8 510.7,195.8 511.7,192.0 512.7,191.3 513.7,192.5 514.6,193.0 515.6,189.5 516.6,187.3 517.6,184.2 518.6,184.6 519.5,184.8 520.5,181.3 521.5,180.4 522.5,178.7 523.5,179.1 524.4,183.1 525.4,181.7" fill="none" stroke="var(--muted)" stroke-width="1.3"/>
+  <text class="svg-note-sm" x="151.0" y="65.6" text-anchor="middle" fill="var(--muted)">1: upwind</text>
+  <text class="svg-note-sm" x="301.0" y="65.6" text-anchor="middle" fill="var(--muted)">2: van Leer</text>
+  <text class="svg-note-sm" x="451.0" y="65.6" text-anchor="middle" fill="var(--muted)">3: promedio</text>
+  <line x1="555" y1="70" x2="581" y2="70" stroke="var(--ink)" stroke-width="1.3"/>
+  <text class="svg-note-sm" x="587" y="74">x = 6.5 m</text>
+  <line x1="555" y1="88" x2="581" y2="88" stroke="var(--accent)" stroke-width="1.3"/>
+  <text class="svg-note-sm" x="587" y="92">x = 7.5 m</text>
+  <line x1="555" y1="106" x2="581" y2="106" stroke="var(--blue)" stroke-width="1.3"/>
+  <text class="svg-note-sm" x="587" y="110">x = 9 m</text>
+  <line x1="555" y1="124" x2="581" y2="124" stroke="var(--success)" stroke-width="1.3"/>
+  <text class="svg-note-sm" x="587" y="128">x = 12 m</text>
+  <line x1="555" y1="142" x2="581" y2="142" stroke="var(--muted)" stroke-width="1.3"/>
+  <text class="svg-note-sm" x="587" y="146">x = 20 m</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">Cuándo se estabiliza la corrida.</b> Presión en las sondas de <code>system/presiones</code> del caso <code>uniforme15</code>. Las dos primeras, en el primer tramo del chorro, llegan a su valor en la etapa 1 y ahí se quedan: 0.050, la de la entrada, y 0.075, la de detrás del choque. Más lejos del labio, las sondas siguen moviéndose ±0.01 a ±0.03 hasta el final: esa parte del chorro no es estacionaria. Por eso <code>validar.py</code> mide en el primer metro y en el eje hasta \(x\) = 8 m.</figcaption>
+</figure>
+<h3>Las ondas: de los campos a los ángulos</h3>
+<p>El archivo <code>system/ondas</code>:</p><pre class="code"><code>// Campos promediados en sesenta rectas verticales, cada 0.05 m desde x = 6.05 hasta x = 9, del eje a y = 3: de ahí
+// validar.py saca la posición de las ondas. La recta salida, en x = 5.99, es la sección de salida de la tobera.
+type            sets;
+libs            ("libsampling.so");
+writeControl    writeTime;
+interpolationScheme cellPoint;
+setFormat       raw;
+fields          (pMean TMean UMean);
+sets
+(
+    salida { type lineUniform; axis y; start (5.99 0.0005 0.05); end (5.99 0.9995 0.05); nPoints 400; }
+    x000 { type lineUniform; axis y; start (6.05 0.0005 0.05); end (6.05 3 0.05); nPoints 1200; }
+    x001 { type lineUniform; axis y; start (6.10 0.0005 0.05); end (6.10 3 0.05); nPoints 1200; }</code></pre><p>(y así hasta <code>x059</code>, en \(x\) = 9). Sesenta rectas verticales, cada 0.05 m, con 1200 puntos cada una, y la sección de salida de la tobera. En cada recta <code>validar.py</code> busca la onda, y con las posiciones ajusta una recta por mínimos cuadrados, cuya pendiente da el ángulo:</p>
+<ul>
+  <li><strong>El choque</strong> es el máximo del gradiente de presión \(\partial p/\partial y\). Pero el máximo salta de celda en celda: con él, el ajuste dejaba errores de hasta 0.14 m y el ángulo se movía 2°. Por eso la posición es el <strong>centroide</strong> del gradiente alrededor del máximo, \(\sum y_i g_i / \sum g_i\), que varía suavemente: la desviación del ajuste baja a 2–9 mm, una fracción de celda.</li>
+  <li><strong>El abanico</strong> no tiene un pico: la presión cae de manera continua. La cabeza es el punto donde \(p\) ha caído 3 % del salto total, y la cola, donde le falta 3 % para llegar a \(p_b\).</li>
+  <li><strong>El ajuste</strong> usa sólo el primer metro, de \(x\) = 6.1 a 6.9 m, antes de que la onda reflejada contamine el resultado. Si hay disco de Mach, el centroide salta al disco en el punto triple, y el ajuste termina ahí.</li>
+</ul>
+
+    </section>
+    <section id="results-es">
+      <p class="section-label">Resultados</p>
+      <h2>Los chorros uniformes en ParaView</h2>
+
+<p>ParaView se abre con <code>paraFoam</code> en la carpeta de cada caso, como en la 1.2: <em>Apply</em>, el último tiempo, la vista −Z y el campo <code>Ma</code>; <em>Filters ▸ Alphabetical ▸ Reflect</em> con <em>Plane</em> en <em>Y Min</em> refleja la mitad calculada sobre el eje.</p>
+<figure class="diagram">
+  <img src="imagenes/t13-02_mach_uniforme.png" alt="Campo de Mach de los cuatro chorros uniformes" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">Los cuatro chorros uniformes.</b> Número de Mach del último tiempo, reflejado sobre el eje, con la misma escala: (a) \(p_b/p_1\) = 1.5, (b) 2.4, (c) 3.5 y (d) 0.7.</figcaption>
+</figure>
+<p>La figura 5 tiene los cuatro chorros uniformes. En (a) y (b), el choque del labio cruza hacia el eje y se refleja; detrás del segundo choque el Mach es menor, y al llegar al borde el choque se refleja como expansión. El chorro se angosta primero y luego se abre: sobreexpandido. En (b), con el choque más fuerte, el borde se dobla más. En (c) la reflexión regular ya no es posible, y el disco de Mach corta el núcleo del chorro cerca de la salida: detrás de él el gas es subsónico. En (d), al revés que en los otros tres, el chorro se abre primero, porque el abanico gira el flujo hacia afuera.</p>
+<p>Las fotografías de chorros supersónicos se toman con la técnica <em>schlieren</em>, que hace visible el gradiente de densidad. En ParaView se puede obtener lo mismo con tres filtros en cadena: <em>Cell Data to Point Data</em>; <em>Gradient</em>, con <code>rho</code> como campo; y <em>Calculator</em>, con la función <code>sqrt(Gradient_X^2+Gradient_Y^2)</code>. Después, <em>Reflect</em> y el mapa de color <em>X Ray</em>, con la escala de 0 a 1.5 (figura 6). Las ondas de la figura 2 se ven de una sola mirada.</p>
+<figure class="diagram">
+  <img src="imagenes/t13-04_schlieren.png" alt="Gradiente de densidad del chorro con disco de Mach" loading="lazy">
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">El «schlieren» numérico.</b> Magnitud del gradiente de densidad de <code>uniforme35</code>, reflejada sobre el eje, de \(x\) = 6 m a casi 12 m. El choque del labio baja hasta el punto triple; ahí se unen el disco de Mach, casi vertical, y el choque reflejado, que sigue hacia el borde del chorro. Las rayas finas de la derecha, del tamaño de una celda, no son física: es el ruido de la capa de corte en esta malla.</figcaption>
+</figure>
+<p>Lejos de la salida el patrón deja de ser ordenado. <code>Ma</code> es el campo instantáneo del último tiempo, y esa parte del chorro no es estacionaria (figura 4): sin viscosidad, el borde del chorro es una capa de corte que se ondula, y lo único que la amortigua es la disipación numérica. Esa región depende de la malla y no se compara con nada en esta guía.</p>
+
+    </section>
+    <section id="validation-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>Los chorros uniformes contra la teoría</h2>
+
+<p class="lead">Enunciado: con los cuatro chorros uniformes de la receta, comprobar el ángulo del choque oblicuo y los del abanico contra las ecuaciones (1) a (5), y encontrar entre qué presiones aparece el disco de Mach.</p>
+<h3>1. El choque oblicuo</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>\(p_b/p_1\)</th><th>β OpenFOAM</th><th>β teoría</th><th>Dif.</th><th>Flujo detrás</th><th>Teoría</th><th>\(M_2\)</th><th>Teoría</th></tr></thead>
+    <tbody>
+      <tr><td>1.5</td><td>29.4°</td><td>28.6°</td><td>+0.8°</td><td>−6.5°</td><td>−6.4°</td><td>2.222</td><td>2.236</td></tr>
+      <tr><td>2.4</td><td>36.9°</td><td>36.4°</td><td>+0.5°</td><td>−14.6°</td><td>−14.5°</td><td>1.898</td><td>1.896</td></tr>
+      <tr><td>3.5</td><td>45.6°</td><td>45.2°</td><td>+0.5°</td><td>−21.6°</td><td>−21.7°</td><td>1.572</td><td>1.563</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 5.</b> <b class="fig-title">Los choques del labio contra la teoría.</b> La salida de <code>validar.py</code> de cada caso, con \(M_1\) = 2.5. β se mide con la dirección del flujo que llega; el ángulo del flujo detrás, con el eje \(x\). Con \(p_b/p_1\) = 3.5 el ajuste termina en el punto triple.</caption>
+  </table>
+</div>
+<p>β queda +0.5° a +0.8° de la teoría, siempre arriba (tabla 5); la dirección del flujo detrás del choque, a 0.2° o menos, y el Mach, a menos de 1 %. El choque ocupa tres o cuatro celdas, y cerca del labio esa mancha sesga la posición. La prueba de que el sesgo es numérico es que cambia con la malla (tabla 6): con cada refinamiento β se acerca a la teoría, y la extrapolación de Richardson queda a 0.25° de ella.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Cifra</th><th>\(n_R\) = 15</th><th>\(n_R\) = 30</th><th>\(n_R\) = 60</th><th>Richardson</th><th>Teoría</th></tr></thead>
+    <tbody>
+      <tr><td>β, \(p_b/p_1\) = 1.5</td><td>29.95°</td><td>29.35°</td><td>29.07°</td><td>28.81°</td><td>28.56°</td></tr>
+      <tr><td>cabeza, \(p_b/p_1\) = 0.7</td><td>24.24°</td><td>23.72°</td><td>23.47°</td><td>23.22°</td><td>23.58°</td></tr>
+      <tr><td>cola, \(p_b/p_1\) = 0.7</td><td>17.26°</td><td>16.09°</td><td>15.87°</td><td>15.82°</td><td>16.32°</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 6.</b> <b class="fig-title">Los ángulos con tres mallas.</b> \(n_R\) es el número de celdas en la semialtura de la salida; las celdas del chorro y del ambiente se escalan con él. Corridas de la validación; la extrapolación es de Richardson, como en el <a href='rampa-compresion-expansion.html#validation-es'>1.1</a>.</caption>
+  </table>
+</div>
+<h3>2. El abanico</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>\(p_b/p_1\)</th><th>Cabeza OpenFOAM</th><th>Teoría</th><th>Cola OpenFOAM</th><th>Teoría</th><th>Flujo detrás</th><th>Teoría</th></tr></thead>
+    <tbody>
+      <tr><td>0.7</td><td>23.7°</td><td>23.6°</td><td>16.1°</td><td>16.3°</td><td>5.7°</td><td>5.2°</td></tr>
+      <tr><td>0.3</td><td>23.0°</td><td>23.6°</td><td>3.8°</td><td>1.6°</td><td>16.6°</td><td>16.0°</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 7.</b> <b class="fig-title">El abanico del labio contra la teoría.</b> La salida de <code>validar.py</code> con \(p_b/p_1\) = 0.7. Los ángulos son con el eje \(x\). El renglón de \(p_b/p_1\) = 0.3 es de la práctica sugerida: la cola de un abanico fuerte no se mide bien.</caption>
+  </table>
+</div>
+<p>Con \(p_b/p_1\) = 0.7, la cabeza y la cola coinciden con la teoría dentro de 0.3° (tabla 7). Con la malla los dos ángulos siguen bajando y cruzan la teoría: la tabla 6 los extrapola a 0.4° y 0.5° por debajo. Un abanico no tiene un borde nítido, y el umbral de 3 % es una definición: estas cifras se leen con ±0.5°. La figura 7 pone los dos resultados en todo el intervalo: es la curva completa de la validación, con este mismo caso.</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Ángulo de las ondas del labio contra la razón de presiones, teoría y OpenFOAM">
+  <text class="svg-title" x="76" y="28">Los ángulos de las ondas del labio con M₁ = 2.5</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="666" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">0</text>
+  <line class="svg-grid" x1="76" y1="258.3" x2="666" y2="258.3"/>
+  <text class="svg-tick" x="70" y="262.3" text-anchor="end">10</text>
+  <line class="svg-grid" x1="76" y1="216.7" x2="666" y2="216.7"/>
+  <text class="svg-tick" x="70" y="220.7" text-anchor="end">20</text>
+  <line class="svg-grid" x1="76" y1="175.0" x2="666" y2="175.0"/>
+  <text class="svg-tick" x="70" y="179.0" text-anchor="end">30</text>
+  <line class="svg-grid" x1="76" y1="133.3" x2="666" y2="133.3"/>
+  <text class="svg-tick" x="70" y="137.3" text-anchor="end">40</text>
+  <line class="svg-grid" x1="76" y1="91.7" x2="666" y2="91.7"/>
+  <text class="svg-tick" x="70" y="95.7" text-anchor="end">50</text>
+  <line class="svg-grid" x1="76" y1="50.0" x2="666" y2="50.0"/>
+  <text class="svg-tick" x="70" y="54.0" text-anchor="end">60</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0</text>
+  <text class="svg-tick" x="216.5" y="318" text-anchor="middle">1</text>
+  <text class="svg-tick" x="357.0" y="318" text-anchor="middle">2</text>
+  <text class="svg-tick" x="497.4" y="318" text-anchor="middle">3</text>
+  <text class="svg-tick" x="637.9" y="318" text-anchor="middle">4</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">pb / p1</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">ángulo con el eje x (°)</text>
+  <polyline points="216.5,201.8 222.1,200.0 227.7,198.2 233.3,196.5 239.0,194.8 244.6,193.1 250.2,191.4 255.8,189.8 261.4,188.2 267.0,186.5 272.7,184.9 278.3,183.4 283.9,181.8 289.5,180.2 295.1,178.7 300.8,177.1 306.4,175.6 312.0,174.1 317.6,172.6 323.2,171.1 328.9,169.6 334.5,168.2 340.1,166.7 345.7,165.2 351.3,163.8 357.0,162.4 362.6,160.9 368.2,159.5 373.8,158.1 379.4,156.7 385.0,155.3 390.7,153.9 396.3,152.5 401.9,151.1 407.5,149.7 413.1,148.4 418.8,147.0 424.4,145.6 430.0,144.3 435.6,142.9 441.2,141.6 446.9,140.2 452.5,138.9 458.1,137.5 463.7,136.2 469.3,134.9 475.0,133.5 480.6,132.2 486.2,130.9 491.8,129.6 497.4,128.2 503.0,126.9 508.7,125.6 514.3,124.3 519.9,123.0 525.5,121.6 531.1,120.3 536.8,119.0 542.4,117.7 548.0,116.4 553.6,115.1 559.2,113.8 564.9,112.5 570.5,111.2 576.1,109.9 581.7,108.5 587.3,107.2 593.0,105.9 598.6,104.6 604.2,103.3 609.8,102.0 615.4,100.7 621.0,99.3 626.7,98.0 632.3,96.7 637.9,95.4 643.5,94.1 649.1,92.7 654.8,91.4 660.4,90.1 666.0,88.7" fill="none" stroke="var(--accent)" stroke-width="1.8"/>
+  <circle cx="244.6" cy="190.6" r="3.6" fill="var(--accent)"/>
+  <circle cx="286.7" cy="177.7" r="3.6" fill="var(--accent)"/>
+  <circle cx="357.0" cy="160.2" r="3.6" fill="var(--accent)"/>
+  <circle cx="413.1" cy="146.3" r="3.6" fill="var(--accent)"/>
+  <circle cx="497.4" cy="126.7" r="3.6" fill="var(--accent)"/>
+  <circle cx="567.7" cy="110.3" r="3.6" fill="var(--accent)"/>
+  <circle cx="637.9" cy="95.2" r="3.6" fill="var(--accent)"/>
+  <polyline points="118.1,201.8 120.6,201.8 123.1,201.8 125.5,201.8 128.0,201.8 130.4,201.8 132.9,201.8 135.4,201.8 137.8,201.8 140.3,201.8 142.7,201.8 145.2,201.8 147.6,201.8 150.1,201.8 152.6,201.8 155.0,201.8 157.5,201.8 159.9,201.8 162.4,201.8 164.9,201.8 167.3,201.8 169.8,201.8 172.2,201.8 174.7,201.8 177.1,201.8 179.6,201.8 182.1,201.8 184.5,201.8 187.0,201.8 189.4,201.8 191.9,201.8 194.4,201.8 196.8,201.8 199.3,201.8 201.7,201.8 204.2,201.8 206.6,201.8 209.1,201.8 211.6,201.8 214.0,201.8 216.5,201.8" fill="none" stroke="var(--blue)" stroke-width="1.8"/>
+  <circle cx="118.1" cy="204.0" r="3.6" fill="var(--blue)"/>
+  <circle cx="146.2" cy="203.7" r="3.6" fill="var(--blue)"/>
+  <circle cx="174.3" cy="201.2" r="3.6" fill="var(--blue)"/>
+  <circle cx="195.4" cy="200.6" r="3.6" fill="var(--blue)"/>
+  <polyline points="118.1,293.3 120.6,289.6 123.1,286.0 125.5,282.6 128.0,279.3 130.4,276.1 132.9,273.0 135.4,270.1 137.8,267.2 140.3,264.4 142.7,261.7 145.2,259.0 147.6,256.4 150.1,253.9 152.6,251.5 155.0,249.1 157.5,246.8 159.9,244.5 162.4,242.2 164.9,240.0 167.3,237.9 169.8,235.8 172.2,233.7 174.7,231.7 177.1,229.7 179.6,227.8 182.1,225.8 184.5,223.9 187.0,222.1 189.4,220.3 191.9,218.5 194.4,216.7 196.8,214.9 199.3,213.2 201.7,211.5 204.2,209.8 206.6,208.2 209.1,206.5 211.6,204.9 214.0,203.3 216.5,201.8" fill="none" stroke="var(--success)" stroke-width="1.8"/>
+  <rect x="114.6" y="280.7" width="7" height="7" fill="none" stroke="var(--success)" stroke-width="1.4"/>
+  <rect x="142.7" y="251.3" width="7" height="7" fill="none" stroke="var(--success)" stroke-width="1.4"/>
+  <rect x="170.8" y="229.4" width="7" height="7" fill="none" stroke="var(--success)" stroke-width="1.4"/>
+  <rect x="191.9" y="212.2" width="7" height="7" fill="none" stroke="var(--success)" stroke-width="1.4"/>
+  <polyline points="481.5,300.0 481.5,50.0" fill="none" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <text class="svg-note-sm" x="489.9" y="287.5" text-anchor="start" fill="var(--muted)">disco de Mach →</text>
+  <line x1="90" y1="66" x2="116" y2="66" stroke="var(--accent)" stroke-width="1.8"/>
+  <text class="svg-note-sm" x="122" y="70">β, teoría</text>
+  <circle cx="103" cy="84" r="3.6" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="122" y="88">β, OpenFOAM</text>
+  <line x1="90" y1="102" x2="116" y2="102" stroke="var(--blue)" stroke-width="1.8"/>
+  <text class="svg-note-sm" x="122" y="106">cabeza, teoría</text>
+  <circle cx="103" cy="120" r="3.6" fill="var(--blue)"/>
+  <text class="svg-note-sm" x="122" y="124">cabeza, OpenFOAM</text>
+  <line x1="90" y1="138" x2="116" y2="138" stroke="var(--success)" stroke-width="1.8"/>
+  <text class="svg-note-sm" x="122" y="142">cola, teoría</text>
+  <rect x="100" y="152.5" width="7" height="7" fill="none" stroke="var(--success)" stroke-width="1.4"/>
+  <text class="svg-note-sm" x="122" y="160">cola, OpenFOAM</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">El barrido de presiones.</b> Ángulos de las ondas con \(M_1\) = 2.5, de la teoría y del barrido de la validación, que corrió este mismo caso con 11 presiones. β queda arriba de la curva en todo el intervalo por el sesgo de malla de la tabla 6; la cola del abanico se separa de la teoría en \(p_b/p_1\) = 0.3.</figcaption>
+</figure>
+<h3>3. El disco de Mach</h3>
+<p>El guion responde con un renglón al final: si el Mach medio del eje baja de 1 en los dos metros que siguen a la salida, hay disco de Mach. El caso <code>uniforme35</code> lo tiene en \(x\) = 6.68 m:</p>
+<pre class="code"><code>Chorro uniforme: M1 = 2.5, p1 = 0.05, pb = 0.175 (pb/p1 = 3.5)
+
+                                        OpenFOAM    teoría     dif.
+  β del choque, con el flujo que llega     45.6°     45.2°    +0.5°
+  ángulo del flujo detrás, con el eje     -21.6°    -21.7°    +0.1°
+  Mach detrás del choque                   1.572     1.563   +0.5 %
+  presión detrás del choque                0.173     0.175   -1.0 %
+  (ajuste de x = 6.10 a 6.65, desviación 0.002 m)
+
+  El Mach medio del eje baja de 1 en x = 6.68: disco de Mach.</code></pre>
+<p>Para encontrar dónde aparece, se corrieron dos presiones más alrededor del valor de la ecuación (6), \(p_b/p_1\) = 2.89. Con 2.8 el Mach del eje no baja de 1; con 2.9 sí, en \(x\) = 7.25 m (figura 8). OpenFOAM pasa de la reflexión regular al disco entre esos dos valores, donde lo pone la teoría. El ángulo del choque no se entera: β sigue +0.3° sobre la teoría de un lado y +0.3° del otro.</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Mach medio sobre el eje con tres razones de presión">
+  <text class="svg-title" x="76" y="28">El Mach medio en el eje alrededor de la primera reflexión</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="526" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">0</text>
+  <line class="svg-grid" x1="76" y1="216.7" x2="526" y2="216.7"/>
+  <text class="svg-tick" x="70" y="220.7" text-anchor="end">1</text>
+  <line class="svg-grid" x1="76" y1="133.3" x2="526" y2="133.3"/>
+  <text class="svg-tick" x="70" y="137.3" text-anchor="end">2</text>
+  <line class="svg-grid" x1="76" y1="50.0" x2="526" y2="50.0"/>
+  <text class="svg-tick" x="70" y="54.0" text-anchor="end">3</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">6</text>
+  <text class="svg-tick" x="226.0" y="318" text-anchor="middle">7</text>
+  <text class="svg-tick" x="376.0" y="318" text-anchor="middle">8</text>
+  <text class="svg-tick" x="526.0" y="318" text-anchor="middle">9</text>
+  <line class="svg-axis" x1="76" y1="300" x2="526" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="301.0" y="338" text-anchor="middle">x (m)</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">Mach</text>
+  <polyline points="76.2,91.7 77.7,91.7 79.2,91.7 80.7,91.7 82.2,91.7 83.7,91.7 85.2,91.7 86.7,91.7 88.2,91.7 89.7,91.7 91.2,91.7 92.7,91.7 94.2,91.7 95.7,91.7 97.2,91.7 98.7,91.7 100.2,91.7 101.7,91.7 103.2,91.7 104.7,91.7 106.2,91.7 107.7,91.7 109.2,91.7 110.7,91.7 112.2,91.7 113.7,91.7 115.2,91.7 116.7,91.7 118.2,91.7 119.7,91.7 121.2,91.7 122.7,91.7 124.2,91.7 125.7,91.7 127.2,91.7 128.7,91.7 130.2,91.7 131.7,91.7 133.2,91.7 134.7,91.7 136.2,91.7 137.7,91.7 139.2,91.7 140.7,91.7 142.2,91.7 143.7,91.7 145.2,91.7 146.7,91.7 148.2,91.7 149.7,91.7 151.2,91.7 152.7,91.7 154.2,91.7 155.7,91.7 157.2,91.7 158.7,91.7 160.2,91.7 161.7,91.7 163.2,91.7 164.7,91.7 166.2,91.7 167.7,91.7 169.2,91.7 170.7,91.7 172.2,91.7 173.7,91.7 175.2,91.7 176.7,91.7 178.2,91.7 179.7,91.7 181.2,91.7 182.7,91.7 184.2,91.7 185.7,91.7 187.2,91.7 188.7,91.7 190.2,91.7 191.7,91.7 193.2,91.7 194.7,91.7 196.2,91.7 197.7,91.7 199.2,91.7 200.7,91.7 202.2,91.7 203.7,91.7 205.2,91.7 206.7,91.7 208.2,91.7 209.7,91.7 211.2,91.7 212.7,91.7 214.2,91.7 215.7,91.7 217.2,91.7 218.7,91.7 220.2,91.7 221.7,91.7 223.2,91.7 224.7,91.7 226.2,91.7 227.7,91.7 229.2,91.7 230.7,91.7 232.2,91.7 233.7,91.7 235.2,91.9 236.7,92.0 238.2,92.2 239.7,93.1 241.2,94.5 242.7,95.9 244.2,97.8 245.7,102.8 247.2,107.7 248.7,112.4 250.2,119.9 251.7,128.1 253.2,135.8 254.7,143.6 256.2,151.4 257.7,158.8 259.2,165.9 260.7,172.4 262.2,178.8 263.7,184.9 265.2,190.6 266.7,195.2 268.2,199.7 269.7,204.1 271.2,205.8 272.7,207.1 274.2,208.5 275.7,208.9 277.2,208.6 278.7,208.3 280.2,208.0 281.7,207.8 283.2,207.6 284.7,207.4 286.2,207.3 287.7,207.3 289.2,207.3 290.7,207.3 292.2,207.4 293.7,207.6 295.2,207.7 296.7,207.9 298.2,208.1 299.7,208.3 301.2,208.6 302.7,208.9 304.2,209.2 305.7,209.6 307.2,209.9 308.7,210.2 310.2,210.5 311.7,210.9 313.2,211.2 314.7,211.4 316.2,211.7 317.7,211.9 319.2,212.1 320.7,212.2 322.2,212.3 323.7,212.3 325.2,212.4 326.7,212.4 328.2,212.3 329.7,212.3 331.2,212.2 332.7,212.1 334.2,212.0 335.7,211.9 337.2,211.8 338.7,211.7 340.2,211.7 341.7,211.6 343.2,211.5 344.7,211.3 346.2,210.9 347.7,210.6 349.2,210.1 350.7,209.3 352.2,208.5 353.7,207.7 355.2,206.8 356.7,205.8 358.2,204.8 359.7,203.8 361.2,202.8 362.7,201.8 364.2,200.8 365.7,199.7 367.2,198.7 368.7,197.7 370.2,196.6 371.7,195.6 373.2,194.5 374.7,193.4 376.2,192.4 377.7,191.3 379.2,190.2 380.7,189.2 382.2,188.1 383.7,187.0 385.2,186.0 386.7,184.9 388.2,183.8 389.7,182.8 391.2,181.7 392.7,180.7 394.2,179.6 395.7,178.6 397.2,177.5 398.7,176.5 400.2,175.4 401.7,174.4 403.2,173.4 404.7,172.4 406.2,171.4 407.7,170.4 409.2,169.4 410.7,168.4 412.2,167.4 413.7,166.4 415.2,165.4 416.7,164.5 418.2,163.5 419.7,162.6 421.2,161.6 422.7,160.7 424.2,159.8 425.7,158.9 427.2,158.0 428.7,157.1 430.2,156.2 431.7,155.3 433.2,154.4 434.7,153.5 436.2,152.7 437.7,151.8 439.2,151.0 440.7,150.1 442.2,149.3 443.7,148.5 445.2,147.7 446.7,146.9 448.2,146.0 449.7,145.2 451.2,144.5 452.7,143.7 454.2,142.9 455.7,142.1 457.2,141.4 458.7,140.6 460.2,139.8 461.7,139.1 463.2,138.4 464.7,137.6 466.2,136.9 467.7,136.2 469.2,135.5 470.7,134.8 472.2,134.1 473.7,133.4 475.2,132.7 476.7,132.0 478.2,131.4 479.7,130.7 481.2,130.1 482.7,129.4 484.2,128.8 485.7,128.2 487.2,127.5 488.7,126.9 490.2,126.3 491.7,125.7 493.2,125.1 494.7,124.5 496.2,123.9 497.7,123.4 499.2,122.8 500.7,122.2 502.3,121.7 503.8,121.1 505.3,120.6 506.8,120.1 508.3,119.5 509.8,119.0 511.3,118.5 512.8,118.0 514.3,117.5 515.8,117.0 517.3,116.5 518.8,116.0 520.3,115.5 521.8,115.1 523.3,114.6 524.8,114.1" fill="none" stroke="var(--success)" stroke-width="1.8"/>
+  <polyline points="76.2,91.7 77.7,91.7 79.2,91.7 80.7,91.7 82.2,91.7 83.7,91.7 85.2,91.7 86.7,91.7 88.2,91.7 89.7,91.7 91.2,91.7 92.7,91.7 94.2,91.7 95.7,91.7 97.2,91.7 98.7,91.7 100.2,91.7 101.7,91.7 103.2,91.7 104.7,91.7 106.2,91.7 107.7,91.7 109.2,91.7 110.7,91.7 112.2,91.7 113.7,91.7 115.2,91.7 116.7,91.7 118.2,91.7 119.7,91.7 121.2,91.7 122.7,91.7 124.2,91.7 125.7,91.7 127.2,91.7 128.7,91.7 130.2,91.7 131.7,91.7 133.2,91.7 134.7,91.7 136.2,91.7 137.7,91.7 139.2,91.7 140.7,91.7 142.2,91.7 143.7,91.7 145.2,91.7 146.7,91.7 148.2,91.7 149.7,91.7 151.2,91.7 152.7,91.7 154.2,91.7 155.7,91.7 157.2,91.7 158.7,91.7 160.2,91.7 161.7,91.7 163.2,91.7 164.7,91.7 166.2,91.7 167.7,91.7 169.2,91.7 170.7,91.7 172.2,91.7 173.7,91.7 175.2,91.7 176.7,91.7 178.2,91.7 179.7,91.7 181.2,91.7 182.7,91.7 184.2,91.7 185.7,91.7 187.2,91.7 188.7,91.7 190.2,91.7 191.7,91.7 193.2,91.7 194.7,91.7 196.2,91.7 197.7,91.7 199.2,91.7 200.7,91.7 202.2,91.7 203.7,91.7 205.2,91.7 206.7,91.7 208.2,91.7 209.7,91.7 211.2,91.7 212.7,91.7 214.2,91.7 215.7,91.7 217.2,91.7 218.7,91.7 220.2,91.7 221.7,91.7 223.2,91.7 224.7,91.7 226.2,91.7 227.7,91.7 229.2,91.7 230.7,91.9 232.2,92.0 233.7,92.1 235.2,93.4 236.7,94.8 238.2,96.0 239.7,99.6 241.2,104.6 242.7,109.5 244.2,115.1 245.7,123.6 247.2,131.7 248.7,139.3 250.2,149.1 251.7,159.3 253.2,168.9 254.7,178.4 256.2,187.6 257.7,196.4 259.2,204.7 260.7,209.9 262.2,214.1 263.7,218.3 265.2,221.0 266.7,221.6 268.2,222.2 269.7,222.9 271.2,222.6 272.7,222.3 274.2,222.0 275.7,221.7 277.2,221.6 278.7,221.4 280.2,221.3 281.7,221.3 283.2,221.4 284.7,221.4 286.2,221.5 287.7,221.7 289.2,221.8 290.7,221.9 292.2,222.0 293.7,222.0 295.2,222.1 296.7,222.0 298.2,221.9 299.7,221.8 301.2,221.7 302.7,221.5 304.2,221.3 305.7,221.1 307.2,220.8 308.7,220.5 310.2,220.1 311.7,219.7 313.2,219.3 314.7,218.8 316.2,218.3 317.7,217.7 319.2,217.1 320.7,216.5 322.2,215.9 323.7,215.2 325.2,214.5 326.7,213.8 328.2,213.0 329.7,212.3 331.2,211.5 332.7,210.7 334.2,209.8 335.7,209.0 337.2,208.1 338.7,207.2 340.2,206.3 341.7,205.4 343.2,204.5 344.7,203.6 346.2,202.6 347.7,201.7 349.2,200.7 350.7,199.7 352.2,198.8 353.7,197.8 355.2,196.8 356.7,195.8 358.2,194.8 359.7,193.8 361.2,192.8 362.7,191.7 364.2,190.7 365.7,189.7 367.2,188.7 368.7,187.7 370.2,186.7 371.7,185.6 373.2,184.6 374.7,183.6 376.2,182.6 377.7,181.6 379.2,180.6 380.7,179.6 382.2,178.6 383.7,177.6 385.2,176.6 386.7,175.7 388.2,174.7 389.7,173.7 391.2,172.7 392.7,171.8 394.2,170.8 395.7,169.9 397.2,169.0 398.7,168.0 400.2,167.1 401.7,166.2 403.2,165.3 404.7,164.4 406.2,163.5 407.7,162.6 409.2,161.7 410.7,160.8 412.2,160.0 413.7,159.1 415.2,158.3 416.7,157.4 418.2,156.6 419.7,155.8 421.2,155.0 422.7,154.1 424.2,153.3 425.7,152.5 427.2,151.8 428.7,151.0 430.2,150.2 431.7,149.4 433.2,148.6 434.7,147.9 436.2,147.2 437.7,146.4 439.2,145.7 440.7,144.9 442.2,144.2 443.7,143.5 445.2,142.8 446.7,142.1 448.2,141.4 449.7,140.7 451.2,140.0 452.7,139.4 454.2,138.7 455.7,138.0 457.2,137.4 458.7,136.7 460.2,136.1 461.7,135.5 463.2,134.8 464.7,134.2 466.2,133.6 467.7,133.0 469.2,132.4 470.7,131.8 472.2,131.2 473.7,130.7 475.2,130.1 476.7,129.5 478.2,129.0 479.7,128.4 481.2,127.9 482.7,127.4 484.2,126.8 485.7,126.3 487.2,125.8 488.7,125.3 490.2,124.8 491.7,124.4 493.2,123.9 494.7,123.4 496.2,123.0 497.7,122.5 499.2,122.0 500.7,121.6 502.3,121.2 503.8,120.7 505.3,120.3 506.8,119.9 508.3,119.5 509.8,119.1 511.3,118.7 512.8,118.4 514.3,118.0 515.8,117.6 517.3,117.3 518.8,116.9 520.3,116.6 521.8,116.2 523.3,115.9 524.8,115.6" fill="none" stroke="var(--blue)" stroke-width="1.8"/>
+  <polyline points="76.2,91.7 77.7,91.7 79.2,91.7 80.7,91.7 82.2,91.7 83.7,91.7 85.2,91.7 86.7,91.7 88.2,91.7 89.7,91.7 91.2,91.7 92.7,91.7 94.2,91.7 95.7,91.7 97.2,91.7 98.7,91.7 100.2,91.7 101.7,91.7 103.2,91.7 104.7,91.7 106.2,91.7 107.7,91.7 109.2,91.7 110.7,91.7 112.2,91.7 113.7,91.7 115.2,91.7 116.7,91.7 118.2,91.7 119.7,91.7 121.2,91.7 122.7,91.7 124.2,91.7 125.7,91.7 127.2,91.7 128.7,91.7 130.2,91.7 131.7,91.7 133.2,91.7 134.7,91.7 136.2,91.7 137.7,91.7 139.2,91.7 140.7,91.7 142.2,91.7 143.7,91.7 145.2,91.7 146.7,91.7 148.2,91.7 149.7,91.7 151.2,91.7 152.7,91.7 154.2,91.7 155.7,91.7 157.2,91.7 158.7,91.7 160.2,91.7 161.7,91.7 163.2,92.2 164.7,92.7 166.2,93.3 167.7,99.1 169.2,110.6 170.7,121.4 172.2,134.3 173.7,159.0 175.2,180.9 176.7,200.7 178.2,217.2 179.7,230.3 181.2,242.6 182.7,250.4 184.2,252.3 185.7,254.1 187.2,255.9 188.7,255.8 190.2,255.6 191.7,255.4 193.2,255.2 194.7,254.9 196.2,254.7 197.7,254.4 199.2,254.1 200.7,253.8 202.2,253.5 203.7,253.2 205.2,252.8 206.7,252.4 208.2,252.1 209.7,251.7 211.2,251.2 212.7,250.8 214.2,250.4 215.7,249.9 217.2,249.4 218.7,248.9 220.2,248.4 221.7,247.8 223.2,247.3 224.7,246.7 226.2,246.1 227.7,245.5 229.2,244.9 230.7,244.3 232.2,243.7 233.7,243.0 235.2,242.3 236.7,241.6 238.2,241.0 239.7,240.2 241.2,239.5 242.7,238.8 244.2,238.1 245.7,237.3 247.2,236.6 248.7,235.8 250.2,235.0 251.7,234.2 253.2,233.5 254.7,232.7 256.2,231.9 257.7,231.0 259.2,230.2 260.7,229.4 262.2,228.6 263.7,227.8 265.2,226.9 266.7,226.1 268.2,225.3 269.7,224.4 271.2,223.6 272.7,222.7 274.2,221.9 275.7,221.1 277.2,220.2 278.7,219.4 280.2,218.5 281.7,217.7 283.2,216.9 284.7,216.1 286.2,215.3 287.7,214.5 289.2,213.7 290.7,212.9 292.2,212.1 293.7,211.3 295.2,210.6 296.7,209.8 298.2,209.1 299.7,208.4 301.2,207.6 302.7,206.9 304.2,206.2 305.7,205.6 307.2,204.9 308.7,204.3 310.2,203.6 311.7,203.0 313.2,202.4 314.7,201.8 316.2,201.2 317.7,200.7 319.2,200.2 320.7,199.6 322.2,199.1 323.7,198.7 325.2,198.2 326.7,197.8 328.2,197.3 329.7,197.0 331.2,196.6 332.7,196.2 334.2,195.9 335.7,195.6 337.2,195.3 338.7,195.0 340.2,194.7 341.7,194.5 343.2,194.3 344.7,194.1 346.2,193.9 347.7,193.7 349.2,193.6 350.7,193.4 352.2,193.3 353.7,193.2 355.2,193.1 356.7,193.0 358.2,192.9 359.7,192.8 361.2,192.7 362.7,192.6 364.2,192.6 365.7,192.5 367.2,192.4 368.7,192.3 370.2,192.3 371.7,192.2 373.2,192.1 374.7,192.1 376.2,192.0 377.7,191.9 379.2,191.8 380.7,191.7 382.2,191.6 383.7,191.5 385.2,191.4 386.7,191.3 388.2,191.1 389.7,191.0 391.2,190.9 392.7,190.8 394.2,190.6 395.7,190.5 397.2,190.3 398.7,190.2 400.2,190.1 401.7,189.9 403.2,189.8 404.7,189.6 406.2,189.5 407.7,189.3 409.2,189.2 410.7,189.0 412.2,188.9 413.7,188.7 415.2,188.6 416.7,188.4 418.2,188.3 419.7,188.2 421.2,188.0 422.7,187.9 424.2,187.8 425.7,187.7 427.2,187.5 428.7,187.4 430.2,187.3 431.7,187.2 433.2,187.1 434.7,187.1 436.2,187.0 437.7,186.9 439.2,186.8 440.7,186.8 442.2,186.8 443.7,186.7 445.2,186.7 446.7,186.7 448.2,186.7 449.7,186.7 451.2,186.7 452.7,186.7 454.2,186.7 455.7,186.8 457.2,186.9 458.7,186.9 460.2,187.0 461.7,187.1 463.2,187.2 464.7,187.3 466.2,187.4 467.7,187.6 469.2,187.8 470.7,187.9 472.2,188.1 473.7,188.3 475.2,188.5 476.7,188.7 478.2,189.0 479.7,189.2 481.2,189.5 482.7,189.8 484.2,190.1 485.7,190.4 487.2,190.7 488.7,191.0 490.2,191.3 491.7,191.6 493.2,192.0 494.7,192.4 496.2,192.7 497.7,193.1 499.2,193.5 500.7,193.9 502.3,194.2 503.8,194.6 505.3,195.0 506.8,195.4 508.3,195.8 509.8,196.2 511.3,196.6 512.8,197.0 514.3,197.4 515.8,197.8 517.3,198.2 518.8,198.6 520.3,199.0 521.8,199.4 523.3,199.8 524.8,200.1" fill="none" stroke="var(--accent)" stroke-width="1.8"/>
+  <polyline points="76.0,216.7 526.0,216.7" fill="none" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <line x1="560" y1="66" x2="586" y2="66" stroke="var(--success)" stroke-width="1.8"/>
+  <text class="svg-note-sm" x="592" y="70">pb/p1 = 2.8</text>
+  <line x1="560" y1="84" x2="586" y2="84" stroke="var(--blue)" stroke-width="1.8"/>
+  <text class="svg-note-sm" x="592" y="88">pb/p1 = 2.9</text>
+  <line x1="560" y1="102" x2="586" y2="102" stroke="var(--accent)" stroke-width="1.8"/>
+  <text class="svg-note-sm" x="592" y="106">pb/p1 = 3.5</text>
+  <line x1="560" y1="120" x2="586" y2="120" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <text class="svg-note-sm" x="592" y="124">M = 1</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 8.</b> <b class="fig-title">De la reflexión regular al disco de Mach.</b> Mach medio sobre el eje, en \(y\) = 0.001 m. Con \(p_b/p_1\) = 2.8 el flujo cruza el choque reflejado y sigue supersónico, por poco; con 2.9 ya baja de 1; con 3.5 el disco está 0.6 m más cerca de la salida y el flujo de atrás es claramente subsónico.</figcaption>
+</figure>
+<div class="result-box">
+  <p><strong>Resultado:</strong> con salida uniforme, el ángulo del choque del labio queda a 0.8° o menos de la teoría, con un sesgo que baja con la malla; la cabeza y la cola del abanico, a 0.3°; y el disco de Mach aparece entre \(p_b/p_1\) = 2.8 y 2.9, con la teoría en 2.83–2.89.</p>
+</div>
+
+    </section>
+    <section id="nozzle-es">
+      <p class="section-label">La tobera real</p>
+      <h2>Cuando la salida no es uniforme</h2>
+
+<p>Ahora la misma pregunta con la tobera de verdad, sin salida uniforme. Lo primero es ver qué le llega al labio.</p>
+<h3>La sección de salida</h3>
+<p>El diseño de la 1.2 dio un Mach medio de salida muy cercano a la cuasi-1D, pero un promedio esconde el perfil. La presión de la sección de salida va de 0.0154 en el eje a 0.0481 junto al labio, más del triple, y el Mach, de 3.38 a 2.56 (figura 9). La presión de diseño, \(p_{III}\) = 0.021, sólo es la del gas en una parte de la sección.</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Presión en la sección de salida de la tobera y tres presiones de ambiente">
+  <text class="svg-title" x="76" y="28">La presión de la sección de salida contra la del ambiente</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="666" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">0.00</text>
+  <line class="svg-grid" x1="76" y1="237.5" x2="666" y2="237.5"/>
+  <text class="svg-tick" x="70" y="241.5" text-anchor="end">0.02</text>
+  <line class="svg-grid" x1="76" y1="175.0" x2="666" y2="175.0"/>
+  <text class="svg-tick" x="70" y="179.0" text-anchor="end">0.04</text>
+  <line class="svg-grid" x1="76" y1="112.5" x2="666" y2="112.5"/>
+  <text class="svg-tick" x="70" y="116.5" text-anchor="end">0.06</text>
+  <line class="svg-grid" x1="76" y1="50.0" x2="666" y2="50.0"/>
+  <text class="svg-tick" x="70" y="54.0" text-anchor="end">0.08</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0.0</text>
+  <text class="svg-tick" x="194.0" y="318" text-anchor="middle">0.2</text>
+  <text class="svg-tick" x="312.0" y="318" text-anchor="middle">0.4</text>
+  <text class="svg-tick" x="430.0" y="318" text-anchor="middle">0.6</text>
+  <text class="svg-tick" x="548.0" y="318" text-anchor="middle">0.8</text>
+  <text class="svg-tick" x="666.0" y="318" text-anchor="middle">1.0</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">y (m), del eje al labio</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">p / p0</text>
+  <polyline points="76.3,252.0 77.8,252.0 79.2,252.0 80.7,252.0 82.2,252.0 83.7,251.9 85.2,251.9 86.6,251.8 88.1,251.8 89.6,251.8 91.1,251.7 92.5,251.6 94.0,251.5 95.5,251.4 97.0,251.3 98.5,251.3 99.9,251.2 101.4,251.1 102.9,251.1 104.4,251.1 105.8,251.0 107.3,251.0 108.8,251.0 110.3,251.0 111.7,251.1 113.2,251.2 114.7,251.2 116.2,251.3 117.7,251.3 119.1,251.4 120.6,251.5 122.1,251.5 123.6,251.5 125.0,251.6 126.5,251.6 128.0,251.6 129.5,251.6 131.0,251.6 132.4,251.6 133.9,251.6 135.4,251.6 136.9,251.6 138.3,251.6 139.8,251.6 141.3,251.6 142.8,251.6 144.2,251.6 145.7,251.6 147.2,251.6 148.7,251.5 150.2,251.5 151.6,251.5 153.1,251.4 154.6,251.4 156.1,251.4 157.5,251.3 159.0,251.3 160.5,251.3 162.0,251.2 163.5,251.2 164.9,251.2 166.4,251.2 167.9,251.2 169.4,251.2 170.8,251.2 172.3,251.2 173.8,251.2 175.3,251.2 176.7,251.2 178.2,251.2 179.7,251.2 181.2,251.2 182.7,251.2 184.1,251.2 185.6,251.2 187.1,251.2 188.6,251.2 190.0,251.2 191.5,251.2 193.0,251.2 194.5,251.2 195.9,251.2 197.4,251.2 198.9,251.2 200.4,251.2 201.9,251.2 203.3,251.2 204.8,251.1 206.3,251.1 207.8,251.1 209.2,251.1 210.7,251.1 212.2,251.1 213.7,251.1 215.2,251.0 216.6,251.0 218.1,251.0 219.6,251.0 221.1,251.0 222.5,251.0 224.0,250.9 225.5,250.9 227.0,250.9 228.4,250.9 229.9,250.9 231.4,250.8 232.9,250.8 234.4,250.8 235.8,250.8 237.3,250.8 238.8,250.7 240.3,250.7 241.7,250.7 243.2,250.7 244.7,250.7 246.2,250.7 247.7,250.6 249.1,250.6 250.6,250.6 252.1,250.6 253.6,250.6 255.0,250.6 256.5,250.6 258.0,250.6 259.5,250.5 260.9,250.5 262.4,250.5 263.9,250.5 265.4,250.5 266.9,250.5 268.3,250.4 269.8,250.4 271.3,250.4 272.8,250.4 274.2,250.4 275.7,250.4 277.2,250.3 278.7,250.3 280.2,250.3 281.6,250.3 283.1,250.3 284.6,250.2 286.1,250.2 287.5,250.2 289.0,250.2 290.5,250.1 292.0,250.1 293.4,250.1 294.9,250.0 296.4,250.0 297.9,250.0 299.4,249.9 300.8,249.9 302.3,249.9 303.8,249.9 305.3,249.8 306.7,249.8 308.2,249.8 309.7,249.8 311.2,249.7 312.6,249.7 314.1,249.7 315.6,249.7 317.1,249.6 318.6,249.6 320.0,249.6 321.5,249.6 323.0,249.5 324.5,249.5 325.9,249.5 327.4,249.4 328.9,249.4 330.4,249.4 331.9,249.4 333.3,249.3 334.8,249.3 336.3,249.3 337.8,249.2 339.2,249.2 340.7,249.2 342.2,249.1 343.7,249.1 345.1,249.0 346.6,249.0 348.1,249.0 349.6,248.9 351.1,248.9 352.5,248.8 354.0,248.8 355.5,248.7 357.0,248.7 358.4,248.7 359.9,248.6 361.4,248.6 362.9,248.5 364.4,248.5 365.8,248.4 367.3,248.3 368.8,248.3 370.3,248.2 371.7,248.2 373.2,248.1 374.7,248.1 376.2,248.0 377.6,247.9 379.1,247.9 380.6,247.8 382.1,247.7 383.6,247.7 385.0,247.6 386.5,247.5 388.0,247.4 389.5,247.3 390.9,247.3 392.4,247.2 393.9,247.1 395.4,247.0 396.9,246.9 398.3,246.8 399.8,246.7 401.3,246.6 402.8,246.5 404.2,246.4 405.7,246.3 407.2,246.2 408.7,246.1 410.1,246.0 411.6,245.8 413.1,245.7 414.6,245.6 416.1,245.5 417.5,245.4 419.0,245.2 420.5,245.1 422.0,244.9 423.4,244.8 424.9,244.6 426.4,244.5 427.9,244.3 429.4,244.1 430.8,244.0 432.3,243.8 433.8,243.6 435.3,243.5 436.7,243.3 438.2,243.1 439.7,242.9 441.2,242.7 442.6,242.5 444.1,242.3 445.6,242.0 447.1,241.8 448.6,241.6 450.0,241.3 451.5,241.1 453.0,240.9 454.5,240.6 455.9,240.4 457.4,240.1 458.9,239.8 460.4,239.6 461.8,239.3 463.3,239.0 464.8,238.7 466.3,238.4 467.8,238.1 469.2,237.8 470.7,237.5 472.2,237.2 473.7,236.9 475.1,236.6 476.6,236.2 478.1,235.9 479.6,235.5 481.1,235.1 482.5,234.8 484.0,234.4 485.5,234.0 487.0,233.5 488.4,233.1 489.9,232.7 491.4,232.3 492.9,231.9 494.3,231.5 495.8,231.0 497.3,230.6 498.8,230.1 500.3,229.6 501.7,229.1 503.2,228.7 504.7,228.2 506.2,227.7 507.6,227.1 509.1,226.6 510.6,226.1 512.1,225.7 513.6,225.2 515.0,224.6 516.5,224.0 518.0,223.4 519.5,222.9 520.9,222.3 522.4,221.7 523.9,221.0 525.4,220.4 526.8,219.7 528.3,219.1 529.8,218.4 531.3,217.8 532.8,217.1 534.2,216.5 535.7,215.8 537.2,215.1 538.7,214.5 540.1,213.8 541.6,213.1 543.1,212.4 544.6,211.7 546.1,211.0 547.5,210.3 549.0,209.6 550.5,208.9 552.0,208.3 553.4,207.6 554.9,206.8 556.4,206.1 557.9,205.3 559.3,204.5 560.8,203.8 562.3,203.0 563.8,202.1 565.3,201.3 566.7,200.5 568.2,199.7 569.7,198.9 571.2,198.1 572.6,197.2 574.1,196.4 575.6,195.6 577.1,194.8 578.5,194.0 580.0,193.1 581.5,192.3 583.0,191.5 584.5,190.7 585.9,189.9 587.4,189.1 588.9,188.3 590.4,187.5 591.8,186.7 593.3,185.9 594.8,185.0 596.3,184.1 597.8,183.2 599.2,182.3 600.7,181.4 602.2,180.4 603.7,179.4 605.1,178.4 606.6,177.4 608.1,176.5 609.6,175.5 611.0,174.6 612.5,173.7 614.0,172.8 615.5,172.0 617.0,171.1 618.4,170.2 619.9,169.4 621.4,168.6 622.9,167.8 624.3,167.0 625.8,166.2 627.3,165.4 628.8,164.5 630.3,163.6 631.7,162.8 633.2,162.1 634.7,161.4 636.2,160.8 637.6,160.2 639.1,159.6 640.6,159.0 642.1,158.2 643.5,157.4 645.0,156.5 646.5,155.6 648.0,153.7" fill="none" stroke="var(--ink)" stroke-width="2.2"/>
+  <polyline points="76.0,268.8 666.0,268.8" fill="none" stroke="var(--success)" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <polyline points="76.0,234.4 666.0,234.4" fill="none" stroke="var(--blue)" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <polyline points="76.0,65.6 666.0,65.6" fill="none" stroke="var(--accent)" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <line x1="100" y1="92" x2="126" y2="92" stroke="var(--ink)" stroke-width="2.2"/>
+  <text class="svg-note-sm" x="132" y="96">p en la salida de la tobera</text>
+  <line x1="100" y1="110" x2="126" y2="110" stroke="var(--success)" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <text class="svg-note-sm" x="132" y="114">pb = 0.010</text>
+  <line x1="100" y1="128" x2="126" y2="128" stroke="var(--blue)" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <text class="svg-note-sm" x="132" y="132">pb = 0.021</text>
+  <line x1="100" y1="146" x2="126" y2="146" stroke="var(--accent)" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <text class="svg-note-sm" x="132" y="150">pb = 0.075</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 9.</b> <b class="fig-title">La salida no es uniforme.</b> Presión promediada en la sección \(x\) = 5.99 m, del eje a \(y\) = 0.97 m, de la corrida <code>sub010</code>; dentro de la tobera es la misma en todos los casos. Punteadas, tres presiones de ambiente. La del caso <code>adaptada</code> corta la curva: el núcleo queda por debajo del ambiente y la periferia, por encima.</figcaption>
+</figure>
+<p>Esto cambia lo que quiere decir «sobreexpandida». Con \(p_b\) = 0.075 todo el gas sale por debajo del ambiente; con \(p_b\) = 0.01, por encima. Pero con la presión de diseño, el caso que la cuasi-1D llama adaptado, el núcleo queda sobreexpandido y la periferia subexpandida, a la vez. En una tobera real no hay una sola razón de presiones.</p>
+<h3>Los cuatro casos</h3>
+<figure class="diagram">
+  <img src="imagenes/t13-03_mach_tobera.png" alt="Campo de Mach de los cuatro casos de la tobera" loading="lazy">
+  <figcaption><b class="fig-num">Figura 10.</b> <b class="fig-title">La tobera con el ambiente.</b> Número de Mach del último tiempo, con la misma escala: (a) <code>sobre075</code>, (b) <code>sobre120</code>, (c) <code>adaptada</code> y (d) <code>sub010</code>. El óvalo oscuro de (a) cerca de \(x\) = 12 m es un choque fuerte de la segunda celda, en la zona que no es estacionaria. En (d), los escalones del borde del chorro son de la malla: el chorro se abre hacia el ambiente, donde las celdas ya crecieron.</figcaption>
+</figure>
+<p>En la figura 10, (a) es el patrón de la figura 5, con el mismo tipo de choque en el labio y el mismo cruce sobre el eje, pero con un Mach mucho mayor en el núcleo. (b) ya tiene disco de Mach, en \(x\) = 6.69 m, aunque \(p_b/p_{labio}\) sólo es 2.49: con salida uniforme, la reflexión todavía sería regular. El choque llega al eje por un gas muy distinto al del labio: con Mach 3.38 y presión 0.0154, donde \(p_b/p_{eje}\) = 7.8, y para ese Mach la ecuación (6) deja de cumplirse en 5.2. En <code>sobre075</code> esa razón es 4.9, por debajo del límite, y no hay disco. (c) es el caso de diseño: el chorro casi no cambia de ancho, pero tampoco queda limpio. Sólo el promedio de la salida coincide con el ambiente, y el núcleo y la periferia hacen sus ajustes por separado. (d) es el abanico, con el chorro abriéndose hacia el ambiente.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Caso</th><th>\(p_b/p_0\)</th><th>\(p_b/p_{labio}\)</th><th>\(p_b/p_{eje}\)</th><th>Onda</th><th>OpenFOAM</th><th>Teoría</th><th>Dif.</th><th>Disco de Mach</th></tr></thead>
+    <tbody>
+      <tr><td><code>sobre075</code></td><td>0.075</td><td>1.56</td><td>4.88</td><td>choque, β</td><td>30.3°</td><td>28.4°</td><td>+1.9°</td><td>no</td></tr>
+      <tr><td><code>sobre120</code></td><td>0.120</td><td>2.49</td><td>7.81</td><td>choque, β</td><td>37.2°</td><td>36.2°</td><td>+1.0°</td><td>\(x\) = 6.69 m</td></tr>
+      <tr><td><code>adaptada</code></td><td>0.021</td><td>0.44</td><td>1.37</td><td>abanico, cabeza</td><td>19.2°</td><td>21.7°</td><td>−2.5°</td><td>no</td></tr>
+      <tr><td><code>sub010</code></td><td>0.010</td><td>0.21</td><td>0.65</td><td>abanico, cabeza</td><td>18.6°</td><td>21.7°</td><td>−3.1°</td><td>no</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 8.</b> <b class="fig-title">La tobera real: lo que nace en el labio.</b> La teoría usa un solo estado, el que llega al labio (\(M\) = 2.558, \(p\) = 0.0481, 1.3° hacia arriba). Las diferencias no son cifras validadas: miden cuánto se aleja la tobera real de esa hipótesis.</caption>
+  </table>
+</div>
+<p>La tabla 8 da la salida de <code>validar.py</code>. Con la tobera el guion compara sólo lo que nace en el labio. El choque sale +1.9° sobre la teoría, más que los +0.8° del chorro uniforme, y la cabeza del abanico, −3.1°. Las dos cosas salen de que las ondas se alejan del labio hacia el gas del núcleo, de menor presión y mayor Mach. Para el choque, \(p_b/p\) crece y se vuelve más fuerte: con el estado de \(y\) = 0.8 m, la ecuación (1) daría β = 31.5°, contra 28.4° con el del labio. La cabeza del abanico viaja con el ángulo de Mach, \(\arcsin(1/M)\), que se cierra cuando \(M\) sube. La teoría de un solo estado no puede ver ninguna de las dos. Estas diferencias no son errores del cálculo ni cifras validadas: son la medida de cuánto se aleja la tobera real de la hipótesis.</p>
+<div class="callout">
+  <p><strong>Una onda que no viene del ambiente.</strong> En la figura 10 (c) y (d) hay una línea que cruza el eje cerca de \(x\) = 8.2 m, en el mismo lugar con presiones de ambiente muy distintas. Sobre el eje, el Mach cae de 3.76 a 2.9 en los dos casos (figura 11). Es la compresión de la pared: desde \(x\) = 4 m la pared cosenoidal se abre cada vez menos, hasta regresar a la horizontal en la salida, y el flujo que venía abriéndose tiene que girar de regreso. Las ondas de compresión de ese giro viajan hacia el eje, y llegan a él ya afuera de la tobera. Por eso el Mach junto a la pared es menor que en el eje, y la salida no es uniforme. Se puede evitar con un contorno diseñado para ello; ése es el tema del <em>1.5</em>.</p>
+</div>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Mach medio sobre el eje de los cuatro casos de la tobera">
+  <text class="svg-title" x="76" y="28">El Mach medio en el eje: de la garganta al chorro</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="666" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">0</text>
+  <line class="svg-grid" x1="76" y1="237.5" x2="666" y2="237.5"/>
+  <text class="svg-tick" x="70" y="241.5" text-anchor="end">1</text>
+  <line class="svg-grid" x1="76" y1="175.0" x2="666" y2="175.0"/>
+  <text class="svg-tick" x="70" y="179.0" text-anchor="end">2</text>
+  <line class="svg-grid" x1="76" y1="112.5" x2="666" y2="112.5"/>
+  <text class="svg-tick" x="70" y="116.5" text-anchor="end">3</text>
+  <line class="svg-grid" x1="76" y1="50.0" x2="666" y2="50.0"/>
+  <text class="svg-tick" x="70" y="54.0" text-anchor="end">4</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">2</text>
+  <text class="svg-tick" x="141.6" y="318" text-anchor="middle">3</text>
+  <text class="svg-tick" x="207.1" y="318" text-anchor="middle">4</text>
+  <text class="svg-tick" x="272.7" y="318" text-anchor="middle">5</text>
+  <text class="svg-tick" x="338.2" y="318" text-anchor="middle">6</text>
+  <text class="svg-tick" x="403.8" y="318" text-anchor="middle">7</text>
+  <text class="svg-tick" x="469.3" y="318" text-anchor="middle">8</text>
+  <text class="svg-tick" x="534.9" y="318" text-anchor="middle">9</text>
+  <text class="svg-tick" x="600.4" y="318" text-anchor="middle">10</text>
+  <text class="svg-tick" x="666.0" y="318" text-anchor="middle">11</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">x (m)</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">Mach</text>
+  <polyline points="76.0,239.6 76.7,238.6 77.3,237.6 78.0,236.5 78.7,235.6 79.3,234.7 80.0,233.9 80.6,233.3 81.3,232.8 81.9,232.4 82.6,232.0 83.2,231.7 83.9,231.3 84.6,230.8 85.2,230.4 85.9,229.9 86.5,229.4 87.2,228.9 87.8,228.3 88.5,227.8 89.1,227.2 89.8,226.6 90.5,226.0 91.1,225.4 91.8,224.8 92.4,224.2 93.1,223.6 93.7,223.0 94.4,222.4 95.0,221.8 95.7,221.3 96.4,220.7 97.0,220.1 97.7,219.5 98.3,219.0 99.0,218.4 99.6,217.8 100.3,217.3 100.9,216.7 101.6,216.2 102.3,215.6 102.9,215.1 103.6,214.5 104.2,214.0 104.9,213.4 105.5,212.8 106.2,212.3 106.8,211.7 107.5,211.2 108.2,210.6 108.8,210.0 109.5,209.5 110.1,208.9 110.8,208.3 111.4,207.7 112.1,207.2 112.7,206.6 113.4,206.0 114.1,205.5 114.7,204.9 115.4,204.3 116.0,203.7 116.7,203.1 117.3,202.6 118.0,202.0 118.6,201.4 119.3,200.8 120.0,200.3 120.6,199.7 121.3,199.1 121.9,198.5 122.6,198.0 123.2,197.4 123.9,196.8 124.5,196.3 125.2,195.7 125.9,195.1 126.5,194.6 127.2,194.0 127.8,193.5 128.5,192.9 129.1,192.4 129.8,191.8 130.5,191.3 131.1,190.7 131.8,190.2 132.4,189.6 133.1,189.1 133.7,188.5 134.4,188.0 135.0,187.5 135.7,186.9 136.4,186.4 137.0,185.9 137.7,185.3 138.3,184.8 139.0,184.3 139.6,183.8 140.3,183.3 140.9,182.7 141.6,182.2 142.3,181.7 142.9,181.2 143.6,180.7 144.2,180.2 144.9,179.7 145.5,179.2 146.2,178.7 146.8,178.2 147.5,177.7 148.2,177.2 148.8,176.7 149.5,176.2 150.1,175.7 150.8,175.2 151.4,174.8 152.1,174.3 152.7,173.8 153.4,173.3 154.1,172.8 154.7,172.4 155.4,171.9 156.0,171.4 156.7,170.9 157.3,170.5 158.0,170.0 158.6,169.5 159.3,169.0 160.0,168.6 160.6,168.1 161.3,167.7 161.9,167.2 162.6,166.7 163.2,166.3 163.9,165.8 164.5,165.4 165.2,164.9 165.9,164.5 166.5,164.0 167.2,163.6 167.8,163.1 168.5,162.7 169.1,162.2 169.8,161.8 170.4,161.3 171.1,160.9 171.8,160.5 172.4,160.0 173.1,159.6 173.7,159.2 174.4,158.8 175.0,158.3 175.7,157.9 176.3,157.5 177.0,157.1 177.7,156.6 178.3,156.2 179.0,155.8 179.6,155.4 180.3,155.0 180.9,154.6 181.6,154.2 182.2,153.7 182.9,153.3 183.6,152.9 184.2,152.5 184.9,152.1 185.5,151.7 186.2,151.3 186.8,150.9 187.5,150.5 188.1,150.1 188.8,149.7 189.5,149.4 190.1,149.0 190.8,148.6 191.4,148.2 192.1,147.8 192.7,147.4 193.4,147.0 194.1,146.7 194.7,146.3 195.4,145.9 196.0,145.5 196.7,145.1 197.3,144.8 198.0,144.4 198.6,144.0 199.3,143.7 200.0,143.3 200.6,142.9 201.3,142.6 201.9,142.2 202.6,141.8 203.2,141.5 203.9,141.1 204.5,140.7 205.2,140.4 205.9,140.0 206.5,139.7 207.2,139.3 207.8,139.0 208.5,138.6 209.1,138.3 209.8,137.9 210.4,137.6 211.1,137.2 211.8,136.9 212.4,136.5 213.1,136.2 213.7,135.9 214.4,135.5 215.0,135.2 215.7,134.9 216.3,134.5 217.0,134.2 217.7,133.9 218.3,133.5 219.0,133.2 219.6,132.9 220.3,132.6 220.9,132.2 221.6,131.9 222.2,131.6 222.9,131.3 223.6,130.9 224.2,130.6 224.9,130.3 225.5,130.0 226.2,129.7 226.8,129.3 227.5,129.0 228.1,128.7 228.8,128.4 229.5,128.1 230.1,127.8 230.8,127.5 231.4,127.2 232.1,126.9 232.7,126.6 233.4,126.2 234.0,125.9 234.7,125.6 235.4,125.3 236.0,125.0 236.7,124.7 237.3,124.4 238.0,124.1 238.6,123.8 239.3,123.6 239.9,123.3 240.6,123.0 241.3,122.7 241.9,122.4 242.6,122.1 243.2,121.8 243.9,121.5 244.5,121.2 245.2,120.9 245.8,120.6 246.5,120.4 247.2,120.1 247.8,119.8 248.5,119.5 249.1,119.2 249.8,118.9 250.4,118.7 251.1,118.4 251.7,118.1 252.4,117.8 253.1,117.6 253.7,117.3 254.4,117.0 255.0,116.7 255.7,116.5 256.3,116.2 257.0,115.9 257.7,115.7 258.3,115.4 259.0,115.1 259.6,114.9 260.3,114.6 260.9,114.3 261.6,114.1 262.2,113.8 262.9,113.5 263.6,113.3 264.2,113.0 264.9,112.8 265.5,112.5 266.2,112.2 266.8,112.0 267.5,111.7 268.1,111.5 268.8,111.2 269.5,111.0 270.1,110.7 270.8,110.5 271.4,110.2 272.1,110.0 272.7,109.7 273.4,109.5 274.0,109.2 274.7,109.0 275.4,108.7 276.0,108.5 276.7,108.2 277.3,108.0 278.0,107.7 278.6,107.5 279.3,107.3 279.9,107.0 280.6,106.8 281.3,106.5 281.9,106.3 282.6,106.1 283.2,105.8 283.9,105.6 284.5,105.3 285.2,105.1 285.8,104.9 286.5,104.6 287.2,104.4 287.8,104.2 288.5,104.0 289.1,103.7 289.8,103.5 290.4,103.3 291.1,103.0 291.7,102.8 292.4,102.6 293.1,102.4 293.7,102.1 294.4,101.9 295.0,101.7 295.7,101.5 296.3,101.2 297.0,101.0 297.6,100.8 298.3,100.6 299.0,100.4 299.6,100.1 300.3,99.9 300.9,99.7 301.6,99.5 302.2,99.3 302.9,99.1 303.5,98.9 304.2,98.6 304.9,98.4 305.5,98.2 306.2,98.0 306.8,97.8 307.5,97.6 308.1,97.4 308.8,97.2 309.4,97.0 310.1,96.8 310.8,96.5 311.4,96.3 312.1,96.1 312.7,95.9 313.4,95.7 314.0,95.5 314.7,95.3 315.4,95.1 316.0,94.9 316.7,94.7 317.3,94.5 318.0,94.3 318.6,94.1 319.3,93.9 319.9,93.7 320.6,93.5 321.3,93.3 321.9,93.2 322.6,93.0 323.2,92.8 323.9,92.6 324.5,92.4 325.2,92.2 325.8,92.0 326.5,91.8 327.2,91.6 327.8,91.4 328.5,91.2 329.1,91.1 329.8,90.9 330.4,90.7 331.1,90.5 331.7,90.3 332.4,90.1 333.1,90.0 333.7,89.8 334.4,89.6 335.0,89.4 335.7,89.2 336.3,89.0 337.0,88.9 337.6,88.7 338.3,88.5 339.0,88.3 339.6,88.2 340.3,88.0 340.9,87.8 341.6,87.6 342.2,87.5 342.9,87.3 343.5,87.1 344.2,86.9 344.9,86.8 345.5,86.6 346.2,86.4 346.8,86.3 347.5,86.1 348.1,85.9 348.8,85.7 349.4,85.6 350.1,85.4 350.8,85.2 351.4,85.1 352.1,84.9 352.7,84.8 353.4,84.6 354.0,84.4 354.7,84.3 355.3,84.1 356.0,83.9 356.7,83.8 357.3,83.6 358.0,83.5 358.6,83.3 359.3,83.1 359.9,83.0 360.6,82.8 361.2,82.7 361.9,82.5 362.6,82.4 363.2,82.2 363.9,82.1 364.5,81.9 365.2,81.8 365.8,81.6 366.5,81.5 367.1,81.3 367.8,81.2 368.5,81.0 369.1,80.9 369.8,80.7 370.4,80.6 371.1,80.4 371.7,80.3 372.4,80.1 373.0,80.0 373.7,79.8 374.4,79.7 375.0,79.6 375.7,79.4 376.3,79.3 377.0,79.1 377.6,79.0 378.3,78.9 379.0,78.7 379.6,78.6 380.3,78.4 380.9,78.3 381.6,78.2 382.2,78.0 382.9,77.9 383.5,77.8 384.2,77.6 384.9,77.5 385.5,77.4 386.2,77.2 386.8,77.1 387.5,77.0 388.1,76.8 388.8,76.7 389.4,76.6 390.1,76.4 390.8,76.3 391.4,76.2 392.1,76.1 392.7,75.9 393.4,75.8 394.0,75.7 394.7,75.5 395.3,75.4 396.0,75.3 396.7,75.2 397.3,75.0 398.0,74.9 398.6,74.8 399.3,74.7 399.9,74.6 400.6,74.4 401.2,74.3 401.9,74.2 402.6,74.1 403.2,74.0 403.9,73.8 404.5,73.7 405.2,73.6 405.8,73.5 406.5,73.4 407.1,73.3 407.8,73.2 408.5,73.0 409.1,72.9 409.8,72.8 410.4,72.7 411.1,72.6 411.7,72.5 412.4,72.4 413.0,72.3 413.7,72.1 414.4,72.0 415.0,71.9 415.7,71.8 416.3,71.7 417.0,71.6 417.6,71.5 418.3,71.4 418.9,71.3 419.6,71.2 420.3,71.1 420.9,71.0 421.6,70.9 422.2,70.8 422.9,70.7 423.5,70.6 424.2,70.5 424.8,70.4 425.5,70.3 426.2,70.2 426.8,70.1 427.5,70.0 428.1,69.9 428.8,69.8 429.4,69.7 430.1,69.6 430.7,69.5 431.4,69.4 432.1,69.3 432.7,69.2 433.4,69.1 434.0,69.0 434.7,68.9 435.3,68.8 436.0,68.8 436.6,68.7 437.3,68.6 438.0,68.5 438.6,68.4 439.3,68.3 439.9,68.2 440.6,68.1 441.2,68.1 441.9,68.0 442.6,67.9 443.2,67.8 443.9,67.7 444.5,67.6 445.2,67.6 445.8,67.5 446.5,67.4 447.1,67.3 447.8,67.3 448.5,67.2 449.1,67.1 449.8,67.0 450.4,67.0 451.1,66.9 451.7,66.8 452.4,66.7 453.0,66.7 453.7,66.6 454.4,66.5 455.0,66.5 455.7,66.4 456.3,66.3 457.0,66.3 457.6,66.2 458.3,66.1 458.9,66.0 459.6,66.0 460.3,65.9 460.9,65.8 461.6,65.8 462.2,65.7 462.9,65.6 463.5,65.6 464.2,65.5 464.8,65.4 465.5,65.4 466.2,65.3 466.8,65.3 467.5,65.2 468.1,65.2 468.8,65.1 469.4,65.1 470.1,65.1 470.7,65.0 471.4,65.0 472.1,65.1 472.7,65.1 473.4,65.2 474.0,65.3 474.7,65.5 475.3,65.8 476.0,66.0 476.6,66.7 477.3,67.3 478.0,67.9 478.6,68.9 479.3,70.1 479.9,71.4 480.6,72.8 481.2,74.6 481.9,76.5 482.5,78.4 483.2,80.5 483.9,82.8 484.5,85.0 485.2,87.3 485.8,89.5 486.5,91.8 487.1,93.9 487.8,96.0 488.4,97.7 489.1,99.5 489.8,101.2 490.4,102.6 491.1,103.9 491.7,105.2 492.4,106.5 493.0,107.7 493.7,108.8 494.3,110.0 495.0,111.0 495.7,112.0 496.3,113.0 497.0,113.9 497.6,114.8 498.3,115.7 498.9,116.5 499.6,117.3 500.2,117.9 500.9,118.4 501.6,119.0 502.2,119.5 502.9,119.9 503.5,120.3 504.2,120.7 504.8,120.9 505.5,121.1 506.2,121.3 506.8,121.3 507.5,121.3 508.1,121.2 508.8,121.2 509.4,121.1 510.1,121.0 510.7,120.9 511.4,120.7 512.1,120.4 512.7,120.1 513.4,119.9 514.0,119.4 514.7,118.9 515.3,118.4 516.0,117.9 516.6,117.3 517.3,116.7 518.0,116.1 518.6,115.5 519.3,115.0 519.9,114.4 520.6,113.9 521.2,113.5 521.9,113.2 522.5,112.8 523.2,112.5 523.9,112.2 524.5,111.9 525.2,111.5 525.8,111.2 526.5,110.9 527.1,110.6 527.8,110.3 528.4,109.9 529.1,109.6 529.8,109.3 530.4,108.9 531.1,108.6 531.7,108.3 532.4,108.0 533.0,107.6 533.7,107.3 534.3,107.0 535.0,106.6 535.7,106.3 536.3,106.0 537.0,105.6 537.6,105.3 538.3,105.0 538.9,104.6 539.6,104.3 540.2,103.9 540.9,103.6 541.6,103.3 542.2,102.9 542.9,102.6 543.5,102.3 544.2,101.9 544.8,101.6 545.5,101.3 546.1,101.0 546.8,100.7 547.5,100.4 548.1,100.1 548.8,99.8 549.4,99.5 550.1,99.2 550.7,98.9 551.4,98.6 552.0,98.4 552.7,98.1 553.4,97.8 554.0,97.6 554.7,97.3 555.3,97.0 556.0,96.8 556.6,96.5 557.3,96.3 557.9,96.0 558.6,95.8 559.3,95.5 559.9,95.3 560.6,95.0 561.2,94.8 561.9,94.5 562.5,94.3 563.2,94.0 563.8,93.8 564.5,93.6 565.2,93.3 565.8,93.1 566.5,92.8 567.1,92.6 567.8,92.3 568.4,92.1 569.1,91.8 569.8,91.6 570.4,91.4 571.1,91.1 571.7,90.9 572.4,90.6 573.0,90.4 573.7,90.1 574.3,89.9 575.0,89.6 575.7,89.4 576.3,89.2 577.0,88.9 577.6,88.7 578.3,88.4 578.9,88.2 579.6,87.9 580.2,87.7 580.9,87.4 581.6,87.2 582.2,87.0 582.9,86.7 583.5,86.5 584.2,86.2 584.8,86.0 585.5,85.8 586.1,85.5 586.8,85.3 587.5,85.1 588.1,84.8 588.8,84.6 589.4,84.4 590.1,84.1 590.7,83.9 591.4,83.7 592.0,83.4 592.7,83.2 593.4,83.0 594.0,82.7 594.7,82.5 595.3,82.3 596.0,82.1 596.6,81.8 597.3,81.6 597.9,81.4 598.6,81.2 599.3,80.9 599.9,80.7 600.6,80.5 601.2,80.3 601.9,80.1 602.5,79.8 603.2,79.6 603.8,79.4 604.5,79.2 605.2,79.0 605.8,78.8 606.5,78.5 607.1,78.3 607.8,78.1 608.4,77.9 609.1,77.7 609.7,77.5 610.4,77.3 611.1,77.1 611.7,76.9 612.4,76.7 613.0,76.4 613.7,76.2 614.3,76.0 615.0,75.8 615.6,75.6 616.3,75.4 617.0,75.2 617.6,75.0 618.3,74.8 618.9,74.6 619.6,74.4 620.2,74.2 620.9,74.0 621.5,73.8 622.2,73.6 622.9,73.4 623.5,73.2 624.2,73.0 624.8,72.8 625.5,72.6 626.1,72.4 626.8,72.2 627.4,72.0 628.1,71.8 628.8,71.6 629.4,71.4 630.1,71.3 630.7,71.1 631.4,70.9 632.0,70.7 632.7,70.5 633.4,70.3 634.0,70.1 634.7,69.9 635.3,69.7 636.0,69.5 636.6,69.3 637.3,69.1 637.9,69.0 638.6,68.8 639.3,68.6 639.9,68.4 640.6,68.2 641.2,68.0 641.9,67.8 642.5,67.6 643.2,67.5 643.8,67.3 644.5,67.1 645.2,66.9 645.8,66.7 646.5,66.5 647.1,66.3 647.8,66.2 648.4,66.0 649.1,65.8 649.7,65.6 650.4,65.4 651.1,65.3 651.7,65.1 652.4,64.9 653.0,64.7 653.7,64.5 654.3,64.3 655.0,64.2 655.6,64.0 656.3,63.8 657.0,63.6 657.6,63.5 658.3,63.3 658.9,63.1 659.6,62.9 660.2,62.7 660.9,62.6 661.5,62.4 662.2,62.2 662.9,62.0 663.5,61.9 664.2,61.7 664.8,61.5 665.5,61.3" fill="none" stroke="var(--success)" stroke-width="1.6"/>
+  <polyline points="76.0,239.6 76.7,238.6 77.3,237.6 78.0,236.5 78.7,235.6 79.3,234.7 80.0,233.9 80.6,233.3 81.3,232.8 81.9,232.4 82.6,232.0 83.2,231.7 83.9,231.3 84.6,230.8 85.2,230.4 85.9,229.9 86.5,229.4 87.2,228.9 87.8,228.3 88.5,227.8 89.1,227.2 89.8,226.6 90.5,226.0 91.1,225.4 91.8,224.8 92.4,224.2 93.1,223.6 93.7,223.0 94.4,222.4 95.0,221.8 95.7,221.3 96.4,220.7 97.0,220.1 97.7,219.5 98.3,219.0 99.0,218.4 99.6,217.8 100.3,217.3 100.9,216.7 101.6,216.2 102.3,215.6 102.9,215.1 103.6,214.5 104.2,214.0 104.9,213.4 105.5,212.8 106.2,212.3 106.8,211.7 107.5,211.2 108.2,210.6 108.8,210.0 109.5,209.5 110.1,208.9 110.8,208.3 111.4,207.7 112.1,207.2 112.7,206.6 113.4,206.0 114.1,205.4 114.7,204.9 115.4,204.3 116.0,203.7 116.7,203.1 117.3,202.6 118.0,202.0 118.6,201.4 119.3,200.8 120.0,200.3 120.6,199.7 121.3,199.1 121.9,198.5 122.6,198.0 123.2,197.4 123.9,196.8 124.5,196.3 125.2,195.7 125.9,195.1 126.5,194.6 127.2,194.0 127.8,193.5 128.5,192.9 129.1,192.3 129.8,191.8 130.5,191.2 131.1,190.7 131.8,190.2 132.4,189.6 133.1,189.1 133.7,188.5 134.4,188.0 135.0,187.5 135.7,186.9 136.4,186.4 137.0,185.9 137.7,185.3 138.3,184.8 139.0,184.3 139.6,183.8 140.3,183.2 140.9,182.7 141.6,182.2 142.3,181.7 142.9,181.2 143.6,180.7 144.2,180.2 144.9,179.7 145.5,179.2 146.2,178.7 146.8,178.2 147.5,177.7 148.2,177.2 148.8,176.7 149.5,176.2 150.1,175.7 150.8,175.2 151.4,174.7 152.1,174.3 152.7,173.8 153.4,173.3 154.1,172.8 154.7,172.3 155.4,171.9 156.0,171.4 156.7,170.9 157.3,170.4 158.0,170.0 158.6,169.5 159.3,169.0 160.0,168.6 160.6,168.1 161.3,167.6 161.9,167.2 162.6,166.7 163.2,166.3 163.9,165.8 164.5,165.4 165.2,164.9 165.9,164.5 166.5,164.0 167.2,163.6 167.8,163.1 168.5,162.7 169.1,162.2 169.8,161.8 170.4,161.4 171.1,160.9 171.8,160.5 172.4,160.0 173.1,159.6 173.7,159.2 174.4,158.8 175.0,158.3 175.7,157.9 176.3,157.5 177.0,157.1 177.7,156.6 178.3,156.2 179.0,155.8 179.6,155.4 180.3,155.0 180.9,154.6 181.6,154.1 182.2,153.7 182.9,153.3 183.6,152.9 184.2,152.5 184.9,152.1 185.5,151.7 186.2,151.3 186.8,150.9 187.5,150.5 188.1,150.1 188.8,149.7 189.5,149.3 190.1,148.9 190.8,148.6 191.4,148.2 192.1,147.8 192.7,147.4 193.4,147.0 194.1,146.6 194.7,146.3 195.4,145.9 196.0,145.5 196.7,145.1 197.3,144.8 198.0,144.4 198.6,144.0 199.3,143.6 200.0,143.3 200.6,142.9 201.3,142.5 201.9,142.2 202.6,141.8 203.2,141.5 203.9,141.1 204.5,140.7 205.2,140.4 205.9,140.0 206.5,139.7 207.2,139.3 207.8,139.0 208.5,138.6 209.1,138.3 209.8,137.9 210.4,137.6 211.1,137.2 211.8,136.9 212.4,136.5 213.1,136.2 213.7,135.9 214.4,135.5 215.0,135.2 215.7,134.9 216.3,134.5 217.0,134.2 217.7,133.9 218.3,133.5 219.0,133.2 219.6,132.9 220.3,132.5 220.9,132.2 221.6,131.9 222.2,131.6 222.9,131.2 223.6,130.9 224.2,130.6 224.9,130.3 225.5,130.0 226.2,129.7 226.8,129.3 227.5,129.0 228.1,128.7 228.8,128.4 229.5,128.1 230.1,127.8 230.8,127.5 231.4,127.2 232.1,126.9 232.7,126.5 233.4,126.2 234.0,125.9 234.7,125.6 235.4,125.3 236.0,125.0 236.7,124.7 237.3,124.4 238.0,124.1 238.6,123.8 239.3,123.5 239.9,123.3 240.6,123.0 241.3,122.7 241.9,122.4 242.6,122.1 243.2,121.8 243.9,121.5 244.5,121.2 245.2,120.9 245.8,120.6 246.5,120.4 247.2,120.1 247.8,119.8 248.5,119.5 249.1,119.2 249.8,118.9 250.4,118.7 251.1,118.4 251.7,118.1 252.4,117.8 253.1,117.6 253.7,117.3 254.4,117.0 255.0,116.7 255.7,116.5 256.3,116.2 257.0,115.9 257.7,115.6 258.3,115.4 259.0,115.1 259.6,114.8 260.3,114.6 260.9,114.3 261.6,114.0 262.2,113.8 262.9,113.5 263.6,113.3 264.2,113.0 264.9,112.7 265.5,112.5 266.2,112.2 266.8,112.0 267.5,111.7 268.1,111.4 268.8,111.2 269.5,110.9 270.1,110.7 270.8,110.4 271.4,110.2 272.1,109.9 272.7,109.7 273.4,109.4 274.0,109.2 274.7,108.9 275.4,108.7 276.0,108.4 276.7,108.2 277.3,108.0 278.0,107.7 278.6,107.5 279.3,107.2 279.9,107.0 280.6,106.7 281.3,106.5 281.9,106.3 282.6,106.0 283.2,105.8 283.9,105.6 284.5,105.3 285.2,105.1 285.8,104.9 286.5,104.6 287.2,104.4 287.8,104.2 288.5,103.9 289.1,103.7 289.8,103.5 290.4,103.2 291.1,103.0 291.7,102.8 292.4,102.6 293.1,102.3 293.7,102.1 294.4,101.9 295.0,101.7 295.7,101.4 296.3,101.2 297.0,101.0 297.6,100.8 298.3,100.6 299.0,100.3 299.6,100.1 300.3,99.9 300.9,99.7 301.6,99.5 302.2,99.3 302.9,99.0 303.5,98.8 304.2,98.6 304.9,98.4 305.5,98.2 306.2,98.0 306.8,97.8 307.5,97.6 308.1,97.4 308.8,97.1 309.4,96.9 310.1,96.7 310.8,96.5 311.4,96.3 312.1,96.1 312.7,95.9 313.4,95.7 314.0,95.5 314.7,95.3 315.4,95.1 316.0,94.9 316.7,94.7 317.3,94.5 318.0,94.3 318.6,94.1 319.3,93.9 319.9,93.7 320.6,93.5 321.3,93.3 321.9,93.1 322.6,92.9 323.2,92.7 323.9,92.5 324.5,92.4 325.2,92.2 325.8,92.0 326.5,91.8 327.2,91.6 327.8,91.4 328.5,91.2 329.1,91.0 329.8,90.8 330.4,90.7 331.1,90.5 331.7,90.3 332.4,90.1 333.1,89.9 333.7,89.7 334.4,89.6 335.0,89.4 335.7,89.2 336.3,89.0 337.0,88.8 337.6,88.7 338.3,88.5 339.0,88.3 339.6,88.1 340.3,87.9 340.9,87.8 341.6,87.6 342.2,87.4 342.9,87.3 343.5,87.1 344.2,86.9 344.9,86.7 345.5,86.6 346.2,86.4 346.8,86.2 347.5,86.1 348.1,85.9 348.8,85.7 349.4,85.6 350.1,85.4 350.8,85.2 351.4,85.1 352.1,84.9 352.7,84.7 353.4,84.6 354.0,84.4 354.7,84.2 355.3,84.1 356.0,83.9 356.7,83.8 357.3,83.6 358.0,83.4 358.6,83.3 359.3,83.1 359.9,83.0 360.6,82.8 361.2,82.7 361.9,82.5 362.6,82.4 363.2,82.2 363.9,82.1 364.5,81.9 365.2,81.7 365.8,81.6 366.5,81.4 367.1,81.3 367.8,81.1 368.5,81.0 369.1,80.9 369.8,80.7 370.4,80.6 371.1,80.4 371.7,80.3 372.4,80.1 373.0,80.0 373.7,79.8 374.4,79.7 375.0,79.5 375.7,79.4 376.3,79.3 377.0,79.1 377.6,79.0 378.3,78.8 379.0,78.7 379.6,78.6 380.3,78.4 380.9,78.3 381.6,78.2 382.2,78.0 382.9,77.9 383.5,77.8 384.2,77.6 384.9,77.5 385.5,77.3 386.2,77.2 386.8,77.1 387.5,77.0 388.1,76.8 388.8,76.7 389.4,76.6 390.1,76.4 390.8,76.3 391.4,76.2 392.1,76.1 392.7,75.9 393.4,75.8 394.0,75.7 394.7,75.5 395.3,75.4 396.0,75.3 396.7,75.2 397.3,75.1 398.0,74.9 398.6,74.8 399.3,74.7 399.9,74.6 400.6,74.4 401.2,74.3 401.9,74.2 402.6,74.1 403.2,74.0 403.9,73.8 404.5,73.7 405.2,73.6 405.8,73.5 406.5,73.4 407.1,73.3 407.8,73.2 408.5,73.0 409.1,72.9 409.8,72.8 410.4,72.7 411.1,72.6 411.7,72.5 412.4,72.4 413.0,72.3 413.7,72.1 414.4,72.0 415.0,71.9 415.7,71.8 416.3,71.7 417.0,71.6 417.6,71.5 418.3,71.4 418.9,71.3 419.6,71.2 420.3,71.1 420.9,71.0 421.6,70.9 422.2,70.8 422.9,70.7 423.5,70.6 424.2,70.5 424.8,70.4 425.5,70.3 426.2,70.2 426.8,70.1 427.5,70.0 428.1,69.9 428.8,69.8 429.4,69.7 430.1,69.6 430.7,69.5 431.4,69.4 432.1,69.3 432.7,69.2 433.4,69.1 434.0,69.0 434.7,68.9 435.3,68.8 436.0,68.8 436.6,68.7 437.3,68.6 438.0,68.5 438.6,68.4 439.3,68.3 439.9,68.2 440.6,68.1 441.2,68.1 441.9,68.0 442.6,67.9 443.2,67.8 443.9,67.7 444.5,67.6 445.2,67.6 445.8,67.5 446.5,67.4 447.1,67.3 447.8,67.3 448.5,67.2 449.1,67.1 449.8,67.0 450.4,67.0 451.1,66.9 451.7,66.8 452.4,66.7 453.0,66.7 453.7,66.6 454.4,66.5 455.0,66.5 455.7,66.4 456.3,66.3 457.0,66.3 457.6,66.2 458.3,66.1 458.9,66.0 459.6,66.0 460.3,65.9 460.9,65.8 461.6,65.8 462.2,65.7 462.9,65.6 463.5,65.6 464.2,65.5 464.8,65.4 465.5,65.4 466.2,65.3 466.8,65.3 467.5,65.2 468.1,65.2 468.8,65.1 469.4,65.1 470.1,65.1 470.7,65.0 471.4,65.0 472.1,65.1 472.7,65.1 473.4,65.2 474.0,65.4 474.7,65.6 475.3,65.8 476.0,66.1 476.6,66.8 477.3,67.4 478.0,68.1 478.6,69.1 479.3,70.4 479.9,71.7 480.6,73.1 481.2,75.0 481.9,76.9 482.5,78.8 483.2,81.0 483.9,83.3 484.5,85.6 485.2,87.9 485.8,90.1 486.5,92.4 487.1,94.5 487.8,96.6 488.4,98.3 489.1,100.0 489.8,101.7 490.4,103.1 491.1,104.4 491.7,105.7 492.4,107.0 493.0,108.2 493.7,109.3 494.3,110.5 495.0,111.5 495.7,112.5 496.3,113.5 497.0,114.4 497.6,115.3 498.3,116.2 498.9,117.0 499.6,117.7 500.2,118.3 500.9,118.9 501.6,119.5 502.2,119.9 502.9,120.3 503.5,120.7 504.2,121.1 504.8,121.3 505.5,121.5 506.2,121.6 506.8,121.7 507.5,121.6 508.1,121.6 508.8,121.5 509.4,121.5 510.1,121.3 510.7,121.2 511.4,121.0 512.1,120.8 512.7,120.5 513.4,120.2 514.0,119.7 514.7,119.2 515.3,118.7 516.0,118.2 516.6,117.6 517.3,117.0 518.0,116.4 518.6,115.8 519.3,115.3 519.9,114.8 520.6,114.3 521.2,114.0 521.9,113.6 522.5,113.3 523.2,113.0 523.9,112.7 524.5,112.3 525.2,112.0 525.8,111.7 526.5,111.4 527.1,111.1 527.8,110.8 528.4,110.4 529.1,110.1 529.8,109.8 530.4,109.5 531.1,109.1 531.7,108.8 532.4,108.5 533.0,108.2 533.7,107.8 534.3,107.5 535.0,107.2 535.7,106.8 536.3,106.5 537.0,106.2 537.6,105.8 538.3,105.5 538.9,105.2 539.6,104.8 540.2,104.5 540.9,104.2 541.6,103.8 542.2,103.5 542.9,103.2 543.5,102.9 544.2,102.5 544.8,102.2 545.5,101.9 546.1,101.6 546.8,101.3 547.5,101.0 548.1,100.7 548.8,100.4 549.4,100.1 550.1,99.9 550.7,99.6 551.4,99.3 552.0,99.0 552.7,98.8 553.4,98.5 554.0,98.2 554.7,98.0 555.3,97.7 556.0,97.5 556.6,97.2 557.3,97.0 557.9,96.7 558.6,96.5 559.3,96.2 559.9,96.0 560.6,95.7 561.2,95.5 561.9,95.2 562.5,95.0 563.2,94.8 563.8,94.5 564.5,94.3 565.2,94.0 565.8,93.8 566.5,93.5 567.1,93.3 567.8,93.0 568.4,92.8 569.1,92.5 569.8,92.3 570.4,92.0 571.1,91.8 571.7,91.5 572.4,91.3 573.0,91.0 573.7,90.8 574.3,90.5 575.0,90.3 575.7,90.0 576.3,89.8 577.0,89.5 577.6,89.3 578.3,89.0 578.9,88.8 579.6,88.6 580.2,88.3 580.9,88.1 581.6,87.8 582.2,87.6 582.9,87.3 583.5,87.1 584.2,86.8 584.8,86.6 585.5,86.3 586.1,86.1 586.8,85.9 587.5,85.6 588.1,85.4 588.8,85.1 589.4,84.9 590.1,84.7 590.7,84.4 591.4,84.2 592.0,84.0 592.7,83.7 593.4,83.5 594.0,83.3 594.7,83.0 595.3,82.8 596.0,82.6 596.6,82.3 597.3,82.1 597.9,81.9 598.6,81.7 599.3,81.4 599.9,81.2 600.6,81.0 601.2,80.8 601.9,80.6 602.5,80.3 603.2,80.1 603.8,79.9 604.5,79.7 605.2,79.5 605.8,79.3 606.5,79.1 607.1,78.9 607.8,78.7 608.4,78.5 609.1,78.3 609.7,78.1 610.4,77.9 611.1,77.7 611.7,77.5 612.4,77.3 613.0,77.1 613.7,76.9 614.3,76.7 615.0,76.5 615.6,76.3 616.3,76.1 617.0,75.9 617.6,75.8 618.3,75.6 618.9,75.4 619.6,75.2 620.2,75.0 620.9,74.9 621.5,74.7 622.2,74.5 622.9,74.3 623.5,74.2 624.2,74.0 624.8,73.8 625.5,73.7 626.1,73.5 626.8,73.4 627.4,73.2 628.1,73.0 628.8,72.9 629.4,72.7 630.1,72.6 630.7,72.4 631.4,72.3 632.0,72.1 632.7,72.0 633.4,71.8 634.0,71.7 634.7,71.5 635.3,71.4 636.0,71.3 636.6,71.1 637.3,71.0 637.9,70.8 638.6,70.7 639.3,70.6 639.9,70.4 640.6,70.3 641.2,70.2 641.9,70.0 642.5,69.9 643.2,69.8 643.8,69.7 644.5,69.5 645.2,69.4 645.8,69.3 646.5,69.2 647.1,69.1 647.8,68.9 648.4,68.8 649.1,68.7 649.7,68.6 650.4,68.5 651.1,68.4 651.7,68.3 652.4,68.2 653.0,68.1 653.7,68.0 654.3,67.9 655.0,67.8 655.6,67.7 656.3,67.6 657.0,67.5 657.6,67.4 658.3,67.4 658.9,67.3 659.6,67.2 660.2,67.2 660.9,67.1 661.5,67.0 662.2,67.0 662.9,67.0 663.5,66.9 664.2,66.9 664.8,66.9 665.5,66.8" fill="none" stroke="var(--blue)" stroke-width="1.6"/>
+  <polyline points="76.0,239.6 76.7,238.6 77.3,237.6 78.0,236.5 78.7,235.6 79.3,234.7 80.0,233.9 80.6,233.3 81.3,232.8 81.9,232.4 82.6,232.0 83.2,231.7 83.9,231.3 84.6,230.8 85.2,230.4 85.9,229.9 86.5,229.4 87.2,228.9 87.8,228.3 88.5,227.8 89.1,227.2 89.8,226.6 90.5,226.0 91.1,225.4 91.8,224.8 92.4,224.2 93.1,223.6 93.7,223.0 94.4,222.4 95.0,221.8 95.7,221.3 96.4,220.7 97.0,220.1 97.7,219.5 98.3,219.0 99.0,218.4 99.6,217.8 100.3,217.3 100.9,216.7 101.6,216.2 102.3,215.6 102.9,215.1 103.6,214.5 104.2,214.0 104.9,213.4 105.5,212.8 106.2,212.3 106.8,211.7 107.5,211.2 108.2,210.6 108.8,210.0 109.5,209.5 110.1,208.9 110.8,208.3 111.4,207.7 112.1,207.2 112.7,206.6 113.4,206.0 114.1,205.4 114.7,204.9 115.4,204.3 116.0,203.7 116.7,203.1 117.3,202.6 118.0,202.0 118.6,201.4 119.3,200.8 120.0,200.3 120.6,199.7 121.3,199.1 121.9,198.5 122.6,198.0 123.2,197.4 123.9,196.8 124.5,196.3 125.2,195.7 125.9,195.1 126.5,194.6 127.2,194.0 127.8,193.5 128.5,192.9 129.1,192.3 129.8,191.8 130.5,191.2 131.1,190.7 131.8,190.2 132.4,189.6 133.1,189.1 133.7,188.5 134.4,188.0 135.0,187.5 135.7,186.9 136.4,186.4 137.0,185.9 137.7,185.3 138.3,184.8 139.0,184.3 139.6,183.8 140.3,183.2 140.9,182.7 141.6,182.2 142.3,181.7 142.9,181.2 143.6,180.7 144.2,180.2 144.9,179.7 145.5,179.2 146.2,178.7 146.8,178.2 147.5,177.7 148.2,177.2 148.8,176.7 149.5,176.2 150.1,175.7 150.8,175.2 151.4,174.7 152.1,174.3 152.7,173.8 153.4,173.3 154.1,172.8 154.7,172.3 155.4,171.9 156.0,171.4 156.7,170.9 157.3,170.4 158.0,170.0 158.6,169.5 159.3,169.0 160.0,168.6 160.6,168.1 161.3,167.6 161.9,167.2 162.6,166.7 163.2,166.3 163.9,165.8 164.5,165.4 165.2,164.9 165.9,164.5 166.5,164.0 167.2,163.6 167.8,163.1 168.5,162.7 169.1,162.2 169.8,161.8 170.4,161.4 171.1,160.9 171.8,160.5 172.4,160.1 173.1,159.6 173.7,159.2 174.4,158.8 175.0,158.3 175.7,157.9 176.3,157.5 177.0,157.1 177.7,156.6 178.3,156.2 179.0,155.8 179.6,155.4 180.3,155.0 180.9,154.6 181.6,154.1 182.2,153.7 182.9,153.3 183.6,152.9 184.2,152.5 184.9,152.1 185.5,151.7 186.2,151.3 186.8,150.9 187.5,150.5 188.1,150.1 188.8,149.7 189.5,149.4 190.1,149.0 190.8,148.6 191.4,148.2 192.1,147.8 192.7,147.4 193.4,147.0 194.1,146.7 194.7,146.3 195.4,145.9 196.0,145.5 196.7,145.1 197.3,144.8 198.0,144.4 198.6,144.0 199.3,143.7 200.0,143.3 200.6,142.9 201.3,142.6 201.9,142.2 202.6,141.8 203.2,141.5 203.9,141.1 204.5,140.8 205.2,140.4 205.9,140.0 206.5,139.7 207.2,139.3 207.8,139.0 208.5,138.6 209.1,138.3 209.8,137.9 210.4,137.6 211.1,137.3 211.8,136.9 212.4,136.6 213.1,136.2 213.7,135.9 214.4,135.6 215.0,135.2 215.7,134.9 216.3,134.5 217.0,134.2 217.7,133.9 218.3,133.5 219.0,133.2 219.6,132.9 220.3,132.6 220.9,132.2 221.6,131.9 222.2,131.6 222.9,131.3 223.6,130.9 224.2,130.6 224.9,130.3 225.5,130.0 226.2,129.7 226.8,129.3 227.5,129.0 228.1,128.7 228.8,128.4 229.5,128.1 230.1,127.8 230.8,127.5 231.4,127.2 232.1,126.9 232.7,126.6 233.4,126.2 234.0,125.9 234.7,125.6 235.4,125.3 236.0,125.0 236.7,124.7 237.3,124.4 238.0,124.1 238.6,123.8 239.3,123.5 239.9,123.3 240.6,123.0 241.3,122.7 241.9,122.4 242.6,122.1 243.2,121.8 243.9,121.5 244.5,121.2 245.2,120.9 245.8,120.6 246.5,120.4 247.2,120.1 247.8,119.8 248.5,119.5 249.1,119.2 249.8,118.9 250.4,118.7 251.1,118.4 251.7,118.1 252.4,117.8 253.1,117.6 253.7,117.3 254.4,117.0 255.0,116.7 255.7,116.5 256.3,116.2 257.0,115.9 257.7,115.7 258.3,115.4 259.0,115.1 259.6,114.8 260.3,114.6 260.9,114.3 261.6,114.1 262.2,113.8 262.9,113.5 263.6,113.3 264.2,113.0 264.9,112.7 265.5,112.5 266.2,112.2 266.8,112.0 267.5,111.7 268.1,111.5 268.8,111.2 269.5,111.0 270.1,110.7 270.8,110.4 271.4,110.2 272.1,109.9 272.7,109.7 273.4,109.4 274.0,109.2 274.7,109.0 275.4,108.7 276.0,108.5 276.7,108.2 277.3,108.0 278.0,107.7 278.6,107.5 279.3,107.2 279.9,107.0 280.6,106.8 281.3,106.5 281.9,106.3 282.6,106.1 283.2,105.8 283.9,105.6 284.5,105.3 285.2,105.1 285.8,104.9 286.5,104.6 287.2,104.4 287.8,104.2 288.5,104.0 289.1,103.7 289.8,103.5 290.4,103.3 291.1,103.0 291.7,102.8 292.4,102.6 293.1,102.4 293.7,102.1 294.4,101.9 295.0,101.7 295.7,101.5 296.3,101.2 297.0,101.0 297.6,100.8 298.3,100.6 299.0,100.4 299.6,100.1 300.3,99.9 300.9,99.7 301.6,99.5 302.2,99.3 302.9,99.1 303.5,98.9 304.2,98.6 304.9,98.4 305.5,98.2 306.2,98.0 306.8,97.8 307.5,97.6 308.1,97.4 308.8,97.2 309.4,97.0 310.1,96.8 310.8,96.5 311.4,96.3 312.1,96.1 312.7,95.9 313.4,95.7 314.0,95.5 314.7,95.3 315.4,95.1 316.0,94.9 316.7,94.7 317.3,94.5 318.0,94.3 318.6,94.1 319.3,93.9 319.9,93.7 320.6,93.5 321.3,93.3 321.9,93.1 322.6,92.9 323.2,92.8 323.9,92.6 324.5,92.4 325.2,92.2 325.8,92.0 326.5,91.8 327.2,91.6 327.8,91.4 328.5,91.2 329.1,91.0 329.8,90.9 330.4,90.7 331.1,90.5 331.7,90.3 332.4,90.1 333.1,89.9 333.7,89.8 334.4,89.6 335.0,89.4 335.7,89.2 336.3,89.0 337.0,88.9 337.6,88.7 338.3,88.5 339.0,88.3 339.6,88.1 340.3,88.0 340.9,87.8 341.6,87.6 342.2,87.4 342.9,87.3 343.5,87.1 344.2,86.9 344.9,86.7 345.5,86.6 346.2,86.4 346.8,86.2 347.5,86.1 348.1,85.9 348.8,85.7 349.4,85.6 350.1,85.4 350.8,85.2 351.4,85.1 352.1,84.9 352.7,84.7 353.4,84.6 354.0,84.4 354.7,84.3 355.3,84.1 356.0,83.9 356.7,83.8 357.3,83.6 358.0,83.5 358.6,83.3 359.3,83.1 359.9,83.0 360.6,82.8 361.2,82.7 361.9,82.5 362.6,82.4 363.2,82.2 363.9,82.1 364.5,81.9 365.2,81.8 365.8,81.6 366.5,81.5 367.1,81.3 367.8,81.2 368.5,81.0 369.1,80.9 369.8,80.7 370.4,80.6 371.1,80.4 371.7,80.3 372.4,80.1 373.0,80.0 373.7,79.8 374.4,79.7 375.0,79.5 375.7,79.4 376.3,79.3 377.0,79.1 377.6,79.0 378.3,78.8 379.0,78.7 379.6,78.6 380.3,78.4 380.9,78.3 381.6,78.2 382.2,78.0 382.9,77.9 383.5,77.7 384.2,77.6 384.9,77.5 385.5,77.3 386.2,77.2 386.8,77.1 387.5,77.0 388.1,76.8 388.8,76.7 389.4,76.6 390.1,76.4 390.8,76.3 391.4,76.2 392.1,76.0 392.7,75.9 393.4,75.8 394.0,75.7 394.7,75.5 395.3,75.4 396.0,75.3 396.7,75.2 397.3,75.0 398.0,74.9 398.6,74.8 399.3,74.7 399.9,74.6 400.6,74.4 401.2,74.3 401.9,74.2 402.6,74.1 403.2,74.0 403.9,73.8 404.5,73.7 405.2,73.6 405.8,73.5 406.5,73.4 407.1,73.3 407.8,73.1 408.5,73.0 409.1,72.9 409.8,72.8 410.4,72.7 411.1,72.6 411.7,72.5 412.4,72.4 413.0,72.2 413.7,72.1 414.4,72.0 415.0,71.9 415.7,71.8 416.3,71.7 417.0,71.6 417.6,71.5 418.3,71.4 418.9,71.3 419.6,71.2 420.3,71.1 420.9,71.0 421.6,70.9 422.2,70.8 422.9,70.7 423.5,70.6 424.2,70.5 424.8,70.4 425.5,70.3 426.2,70.2 426.8,70.1 427.5,70.0 428.1,69.9 428.8,69.8 429.4,69.7 430.1,69.6 430.7,69.5 431.4,69.4 432.1,69.3 432.7,69.2 433.4,69.1 434.0,69.0 434.7,69.0 435.3,68.9 436.0,68.9 436.6,68.9 437.3,69.1 438.0,69.4 438.6,69.7 439.3,70.3 439.9,71.2 440.6,72.1 441.2,73.1 441.9,74.5 442.6,76.1 443.2,77.5 443.9,79.6 444.5,82.1 445.2,84.6 445.8,87.3 446.5,91.9 447.1,96.5 447.8,101.0 448.5,106.8 449.1,113.3 449.8,119.6 450.4,125.8 451.1,132.5 451.7,138.9 452.4,145.1 453.0,151.0 453.7,156.7 454.4,162.1 455.0,167.2 455.7,171.7 456.3,176.0 457.0,180.1 457.6,183.7 458.3,186.9 458.9,189.9 459.6,192.8 460.3,195.2 460.9,197.4 461.6,199.5 462.2,201.4 462.9,202.9 463.5,204.4 464.2,205.9 464.8,206.9 465.5,207.9 466.2,208.8 466.8,209.6 467.5,210.1 468.1,210.6 468.8,211.1 469.4,211.4 470.1,211.6 470.7,211.9 471.4,212.1 472.1,212.2 472.7,212.4 473.4,212.5 474.0,212.7 474.7,212.9 475.3,213.1 476.0,213.3 476.6,213.5 477.3,213.7 478.0,214.0 478.6,214.2 479.3,214.5 479.9,214.8 480.6,215.1 481.2,215.4 481.9,215.7 482.5,215.9 483.2,216.2 483.9,216.5 484.5,216.7 485.2,217.0 485.8,217.2 486.5,217.4 487.1,217.7 487.8,217.9 488.4,218.0 489.1,218.2 489.8,218.3 490.4,218.4 491.1,218.5 491.7,218.7 492.4,218.8 493.0,218.8 493.7,218.8 494.3,218.8 495.0,218.8 495.7,218.8 496.3,218.8 497.0,218.7 497.6,218.8 498.3,218.8 498.9,218.9 499.6,218.9 500.2,219.0 500.9,219.0 501.6,219.0 502.2,218.9 502.9,218.8 503.5,218.7 504.2,218.5 504.8,218.3 505.5,218.1 506.2,217.8 506.8,217.6 507.5,217.3 508.1,217.0 508.8,216.7 509.4,216.3 510.1,215.9 510.7,215.6 511.4,215.1 512.1,214.6 512.7,214.1 513.4,213.6 514.0,213.0 514.7,212.3 515.3,211.7 516.0,211.1 516.6,210.3 517.3,209.6 518.0,208.9 518.6,208.1 519.3,207.3 519.9,206.5 520.6,205.7 521.2,204.9 521.9,204.0 522.5,203.2 523.2,202.3 523.9,201.4 524.5,200.6 525.2,199.7 525.8,198.8 526.5,197.9 527.1,197.0 527.8,196.1 528.4,195.2 529.1,194.3 529.8,193.4 530.4,192.5 531.1,191.6 531.7,190.7 532.4,189.8 533.0,188.9 533.7,188.0 534.3,187.1 535.0,186.2 535.7,185.3 536.3,184.4 537.0,183.5 537.6,182.7 538.3,181.8 538.9,181.0 539.6,180.1 540.2,179.3 540.9,178.4 541.6,177.6 542.2,176.8 542.9,175.9 543.5,175.1 544.2,174.3 544.8,173.5 545.5,172.7 546.1,172.0 546.8,171.2 547.5,170.4 548.1,169.7 548.8,168.9 549.4,168.1 550.1,167.4 550.7,166.7 551.4,166.0 552.0,165.3 552.7,164.6 553.4,163.9 554.0,163.1 554.7,162.5 555.3,161.8 556.0,161.1 556.6,160.4 557.3,159.8 557.9,159.1 558.6,158.5 559.3,157.8 559.9,157.2 560.6,156.6 561.2,156.0 561.9,155.3 562.5,154.7 563.2,154.1 563.8,153.5 564.5,152.9 565.2,152.3 565.8,151.7 566.5,151.1 567.1,150.6 567.8,150.0 568.4,149.4 569.1,148.9 569.8,148.3 570.4,147.8 571.1,147.2 571.7,146.7 572.4,146.2 573.0,145.6 573.7,145.1 574.3,144.6 575.0,144.1 575.7,143.6 576.3,143.1 577.0,142.6 577.6,142.1 578.3,141.6 578.9,141.1 579.6,140.7 580.2,140.2 580.9,139.7 581.6,139.3 582.2,138.8 582.9,138.4 583.5,137.9 584.2,137.5 584.8,137.1 585.5,136.7 586.1,136.2 586.8,135.8 587.5,135.4 588.1,135.0 588.8,134.6 589.4,134.2 590.1,133.8 590.7,133.5 591.4,133.1 592.0,132.7 592.7,132.3 593.4,132.0 594.0,131.6 594.7,131.3 595.3,130.9 596.0,130.6 596.6,130.3 597.3,129.9 597.9,129.6 598.6,129.3 599.3,129.0 599.9,128.6 600.6,128.3 601.2,128.0 601.9,127.7 602.5,127.4 603.2,127.1 603.8,126.9 604.5,126.6 605.2,126.3 605.8,126.0 606.5,125.7 607.1,125.5 607.8,125.2 608.4,125.0 609.1,124.7 609.7,124.4 610.4,124.2 611.1,123.9 611.7,123.7 612.4,123.5 613.0,123.2 613.7,123.0 614.3,122.8 615.0,122.5 615.6,122.3 616.3,122.1 617.0,121.9 617.6,121.6 618.3,121.4 618.9,121.2 619.6,121.0 620.2,120.8 620.9,120.6 621.5,120.4 622.2,120.2 622.9,120.0 623.5,119.8 624.2,119.6 624.8,119.4 625.5,119.3 626.1,119.1 626.8,118.9 627.4,118.7 628.1,118.5 628.8,118.4 629.4,118.2 630.1,118.0 630.7,117.9 631.4,117.7 632.0,117.5 632.7,117.4 633.4,117.2 634.0,117.1 634.7,116.9 635.3,116.8 636.0,116.6 636.6,116.5 637.3,116.4 637.9,116.2 638.6,116.1 639.3,116.0 639.9,115.8 640.6,115.7 641.2,115.6 641.9,115.5 642.5,115.4 643.2,115.3 643.8,115.2 644.5,115.1 645.2,115.0 645.8,114.9 646.5,114.9 647.1,114.8 647.8,114.8 648.4,114.7 649.1,114.7 649.7,114.7 650.4,114.7 651.1,114.8 651.7,114.8 652.4,114.9 653.0,115.0 653.7,115.2 654.3,115.3 655.0,115.5 655.6,115.8 656.3,116.1 657.0,116.4 657.6,116.8 658.3,117.2 658.9,117.7 659.6,118.2 660.2,118.7 660.9,119.3 661.5,119.9 662.2,120.5 662.9,121.2 663.5,121.8 664.2,122.5 664.8,123.2 665.5,123.9" fill="none" stroke="var(--accent)" stroke-width="1.6"/>
+  <polyline points="76.0,239.6 76.7,238.6 77.3,237.6 78.0,236.5 78.7,235.6 79.3,234.7 80.0,233.9 80.6,233.3 81.3,232.8 81.9,232.4 82.6,232.0 83.2,231.7 83.9,231.3 84.6,230.8 85.2,230.4 85.9,229.9 86.5,229.4 87.2,228.9 87.8,228.3 88.5,227.8 89.1,227.2 89.8,226.6 90.5,226.0 91.1,225.4 91.8,224.8 92.4,224.2 93.1,223.6 93.7,223.0 94.4,222.4 95.0,221.8 95.7,221.3 96.4,220.7 97.0,220.1 97.7,219.5 98.3,219.0 99.0,218.4 99.6,217.8 100.3,217.3 100.9,216.7 101.6,216.2 102.3,215.6 102.9,215.1 103.6,214.5 104.2,214.0 104.9,213.4 105.5,212.8 106.2,212.3 106.8,211.7 107.5,211.2 108.2,210.6 108.8,210.0 109.5,209.5 110.1,208.9 110.8,208.3 111.4,207.8 112.1,207.2 112.7,206.6 113.4,206.0 114.1,205.5 114.7,204.9 115.4,204.3 116.0,203.7 116.7,203.1 117.3,202.6 118.0,202.0 118.6,201.4 119.3,200.8 120.0,200.3 120.6,199.7 121.3,199.1 121.9,198.5 122.6,198.0 123.2,197.4 123.9,196.8 124.5,196.3 125.2,195.7 125.9,195.1 126.5,194.6 127.2,194.0 127.8,193.5 128.5,192.9 129.1,192.3 129.8,191.8 130.5,191.2 131.1,190.7 131.8,190.2 132.4,189.6 133.1,189.1 133.7,188.5 134.4,188.0 135.0,187.5 135.7,186.9 136.4,186.4 137.0,185.9 137.7,185.3 138.3,184.8 139.0,184.3 139.6,183.8 140.3,183.2 140.9,182.7 141.6,182.2 142.3,181.7 142.9,181.2 143.6,180.7 144.2,180.2 144.9,179.7 145.5,179.2 146.2,178.7 146.8,178.2 147.5,177.7 148.2,177.2 148.8,176.7 149.5,176.2 150.1,175.7 150.8,175.2 151.4,174.7 152.1,174.3 152.7,173.8 153.4,173.3 154.1,172.8 154.7,172.4 155.4,171.9 156.0,171.4 156.7,170.9 157.3,170.5 158.0,170.0 158.6,169.5 159.3,169.1 160.0,168.6 160.6,168.1 161.3,167.7 161.9,167.2 162.6,166.7 163.2,166.3 163.9,165.8 164.5,165.4 165.2,164.9 165.9,164.5 166.5,164.0 167.2,163.6 167.8,163.1 168.5,162.7 169.1,162.2 169.8,161.8 170.4,161.4 171.1,160.9 171.8,160.5 172.4,160.1 173.1,159.6 173.7,159.2 174.4,158.8 175.0,158.3 175.7,157.9 176.3,157.5 177.0,157.1 177.7,156.6 178.3,156.2 179.0,155.8 179.6,155.4 180.3,155.0 180.9,154.6 181.6,154.1 182.2,153.7 182.9,153.3 183.6,152.9 184.2,152.5 184.9,152.1 185.5,151.7 186.2,151.3 186.8,150.9 187.5,150.5 188.1,150.1 188.8,149.7 189.5,149.3 190.1,149.0 190.8,148.6 191.4,148.2 192.1,147.8 192.7,147.4 193.4,147.0 194.1,146.6 194.7,146.3 195.4,145.9 196.0,145.5 196.7,145.1 197.3,144.8 198.0,144.4 198.6,144.0 199.3,143.6 200.0,143.3 200.6,142.9 201.3,142.5 201.9,142.2 202.6,141.8 203.2,141.5 203.9,141.1 204.5,140.7 205.2,140.4 205.9,140.0 206.5,139.7 207.2,139.3 207.8,139.0 208.5,138.6 209.1,138.3 209.8,137.9 210.4,137.6 211.1,137.2 211.8,136.9 212.4,136.6 213.1,136.2 213.7,135.9 214.4,135.5 215.0,135.2 215.7,134.9 216.3,134.5 217.0,134.2 217.7,133.9 218.3,133.5 219.0,133.2 219.6,132.9 220.3,132.6 220.9,132.2 221.6,131.9 222.2,131.6 222.9,131.3 223.6,130.9 224.2,130.6 224.9,130.3 225.5,130.0 226.2,129.7 226.8,129.3 227.5,129.0 228.1,128.7 228.8,128.4 229.5,128.1 230.1,127.8 230.8,127.5 231.4,127.2 232.1,126.9 232.7,126.6 233.4,126.2 234.0,125.9 234.7,125.6 235.4,125.3 236.0,125.0 236.7,124.7 237.3,124.4 238.0,124.1 238.6,123.8 239.3,123.5 239.9,123.2 240.6,123.0 241.3,122.7 241.9,122.4 242.6,122.1 243.2,121.8 243.9,121.5 244.5,121.2 245.2,120.9 245.8,120.6 246.5,120.3 247.2,120.1 247.8,119.8 248.5,119.5 249.1,119.2 249.8,118.9 250.4,118.7 251.1,118.4 251.7,118.1 252.4,117.8 253.1,117.5 253.7,117.3 254.4,117.0 255.0,116.7 255.7,116.4 256.3,116.2 257.0,115.9 257.7,115.6 258.3,115.4 259.0,115.1 259.6,114.8 260.3,114.6 260.9,114.3 261.6,114.0 262.2,113.8 262.9,113.5 263.6,113.3 264.2,113.0 264.9,112.7 265.5,112.5 266.2,112.2 266.8,112.0 267.5,111.7 268.1,111.4 268.8,111.2 269.5,110.9 270.1,110.7 270.8,110.4 271.4,110.2 272.1,109.9 272.7,109.7 273.4,109.4 274.0,109.2 274.7,108.9 275.4,108.7 276.0,108.4 276.7,108.2 277.3,108.0 278.0,107.7 278.6,107.5 279.3,107.2 279.9,107.0 280.6,106.7 281.3,106.5 281.9,106.3 282.6,106.0 283.2,105.8 283.9,105.6 284.5,105.3 285.2,105.1 285.8,104.9 286.5,104.6 287.2,104.4 287.8,104.2 288.5,103.9 289.1,103.7 289.8,103.5 290.4,103.2 291.1,103.0 291.7,102.8 292.4,102.6 293.1,102.3 293.7,102.1 294.4,101.9 295.0,101.7 295.7,101.4 296.3,101.2 297.0,101.0 297.6,100.8 298.3,100.6 299.0,100.3 299.6,100.1 300.3,99.9 300.9,99.7 301.6,99.5 302.2,99.3 302.9,99.0 303.5,98.8 304.2,98.6 304.9,98.4 305.5,98.2 306.2,98.0 306.8,97.8 307.5,97.6 308.1,97.3 308.8,97.1 309.4,96.9 310.1,96.7 310.8,96.5 311.4,96.3 312.1,96.1 312.7,95.9 313.4,95.7 314.0,95.5 314.7,95.3 315.4,95.1 316.0,94.9 316.7,94.7 317.3,94.5 318.0,94.3 318.6,94.1 319.3,93.9 319.9,93.7 320.6,93.5 321.3,93.3 321.9,93.1 322.6,92.9 323.2,92.7 323.9,92.5 324.5,92.3 325.2,92.2 325.8,92.0 326.5,91.8 327.2,91.6 327.8,91.4 328.5,91.2 329.1,91.0 329.8,90.8 330.4,90.6 331.1,90.5 331.7,90.3 332.4,90.1 333.1,89.9 333.7,89.7 334.4,89.5 335.0,89.4 335.7,89.2 336.3,89.0 337.0,88.8 337.6,88.6 338.3,88.5 339.0,88.3 339.6,88.1 340.3,87.9 340.9,87.8 341.6,87.6 342.2,87.4 342.9,87.2 343.5,87.1 344.2,86.9 344.9,86.7 345.5,86.6 346.2,86.4 346.8,86.2 347.5,86.0 348.1,85.9 348.8,85.7 349.4,85.5 350.1,85.4 350.8,85.2 351.4,85.0 352.1,84.9 352.7,84.7 353.4,84.6 354.0,84.4 354.7,84.2 355.3,84.1 356.0,83.9 356.7,83.8 357.3,83.6 358.0,83.4 358.6,83.3 359.3,83.1 359.9,83.0 360.6,82.8 361.2,82.6 361.9,82.5 362.6,82.3 363.2,82.2 363.9,82.0 364.5,81.9 365.2,81.7 365.8,81.6 366.5,81.4 367.1,81.3 367.8,81.1 368.5,81.0 369.1,80.8 369.8,80.7 370.4,80.5 371.1,80.4 371.7,80.2 372.4,80.1 373.0,80.0 373.7,79.8 374.4,79.7 375.0,79.5 375.7,79.4 376.3,79.8 377.0,80.4 377.6,81.0 378.3,90.4 379.0,108.5 379.6,124.6 380.3,142.3 380.9,170.4 381.6,193.6 382.2,213.3 382.9,229.3 383.5,242.2 384.2,253.9 384.9,262.1 385.5,265.3 386.2,268.4 386.8,271.3 387.5,271.5 388.1,271.6 388.8,271.7 389.4,271.7 390.1,271.7 390.8,271.6 391.4,271.5 392.1,271.5 392.7,271.4 393.4,271.3 394.0,271.2 394.7,271.1 395.3,271.0 396.0,270.9 396.7,270.8 397.3,270.7 398.0,270.5 398.6,270.4 399.3,270.2 399.9,270.1 400.6,269.9 401.2,269.7 401.9,269.5 402.6,269.3 403.2,269.1 403.9,268.9 404.5,268.7 405.2,268.5 405.8,268.3 406.5,268.0 407.1,267.8 407.8,267.5 408.5,267.3 409.1,267.0 409.8,266.7 410.4,266.4 411.1,266.2 411.7,265.9 412.4,265.6 413.0,265.3 413.7,265.0 414.4,264.6 415.0,264.3 415.7,264.0 416.3,263.7 417.0,263.4 417.6,263.0 418.3,262.7 418.9,262.4 419.6,262.1 420.3,261.7 420.9,261.4 421.6,261.1 422.2,260.8 422.9,260.5 423.5,260.1 424.2,259.8 424.8,259.5 425.5,259.2 426.2,258.9 426.8,258.7 427.5,258.4 428.1,258.1 428.8,257.9 429.4,257.6 430.1,257.4 430.7,257.2 431.4,257.0 432.1,256.8 432.7,256.6 433.4,256.4 434.0,256.3 434.7,256.1 435.3,256.0 436.0,255.9 436.6,255.8 437.3,255.7 438.0,255.6 438.6,255.5 439.3,255.5 439.9,255.5 440.6,255.4 441.2,255.4 441.9,255.4 442.6,255.4 443.2,255.4 443.9,255.4 444.5,255.4 445.2,255.4 445.8,255.5 446.5,255.5 447.1,255.5 447.8,255.5 448.5,255.5 449.1,255.6 449.8,255.6 450.4,255.6 451.1,255.6 451.7,255.6 452.4,255.6 453.0,255.5 453.7,255.5 454.4,255.5 455.0,255.4 455.7,255.4 456.3,255.3 457.0,255.2 457.6,255.2 458.3,255.1 458.9,255.0 459.6,254.9 460.3,254.7 460.9,254.6 461.6,254.4 462.2,254.3 462.9,254.1 463.5,253.9 464.2,253.7 464.8,253.5 465.5,253.3 466.2,253.1 466.8,252.8 467.5,252.6 468.1,252.3 468.8,252.1 469.4,251.8 470.1,251.5 470.7,251.2 471.4,250.9 472.1,250.6 472.7,250.3 473.4,250.0 474.0,249.6 474.7,249.3 475.3,249.0 476.0,248.6 476.6,248.2 477.3,247.9 478.0,247.5 478.6,247.1 479.3,246.7 479.9,246.4 480.6,246.0 481.2,245.6 481.9,245.2 482.5,244.8 483.2,244.4 483.9,244.0 484.5,243.6 485.2,243.2 485.8,242.7 486.5,242.3 487.1,241.9 487.8,241.5 488.4,241.1 489.1,240.7 489.8,240.3 490.4,240.0 491.1,239.7 491.7,239.4 492.4,239.0 493.0,238.8 493.7,238.5 494.3,238.2 495.0,237.9 495.7,237.5 496.3,237.2 497.0,236.9 497.6,236.6 498.3,236.3 498.9,236.0 499.6,235.7 500.2,235.5 500.9,235.2 501.6,235.0 502.2,234.8 502.9,234.6 503.5,234.3 504.2,234.1 504.8,233.9 505.5,233.8 506.2,233.6 506.8,233.4 507.5,233.4 508.1,233.3 508.8,233.3 509.4,233.5 510.1,233.8 510.7,234.1 511.4,234.5 512.1,235.1 512.7,235.7 513.4,236.3 514.0,236.9 514.7,237.4 515.3,238.0 516.0,238.5 516.6,238.8 517.3,239.2 518.0,239.6 518.6,239.9 519.3,240.3 519.9,240.8 520.6,241.2 521.2,241.7 521.9,242.3 522.5,242.8 523.2,243.3 523.9,243.8 524.5,244.2 525.2,244.6 525.8,244.9 526.5,245.1 527.1,245.4 527.8,245.6 528.4,245.8 529.1,246.1 529.8,246.3 530.4,246.5 531.1,246.7 531.7,247.0 532.4,247.2 533.0,247.4 533.7,247.5 534.3,247.7 535.0,247.8 535.7,247.9 536.3,247.9 537.0,248.0 537.6,248.0 538.3,248.0 538.9,248.0 539.6,248.0 540.2,248.0 540.9,248.0 541.6,248.0 542.2,248.0 542.9,248.0 543.5,247.9 544.2,247.9 544.8,247.9 545.5,247.8 546.1,247.8 546.8,247.8 547.5,247.7 548.1,247.7 548.8,247.6 549.4,247.5 550.1,247.5 550.7,247.4 551.4,247.3 552.0,247.3 552.7,247.2 553.4,247.1 554.0,247.0 554.7,246.9 555.3,246.8 556.0,246.7 556.6,246.6 557.3,246.5 557.9,246.4 558.6,246.2 559.3,246.1 559.9,246.0 560.6,245.8 561.2,245.7 561.9,245.5 562.5,245.4 563.2,245.2 563.8,245.0 564.5,244.9 565.2,244.7 565.8,244.5 566.5,244.3 567.1,244.1 567.8,243.9 568.4,243.7 569.1,243.5 569.8,243.3 570.4,243.0 571.1,242.8 571.7,242.6 572.4,242.4 573.0,242.1 573.7,241.9 574.3,241.7 575.0,241.4 575.7,241.2 576.3,241.0 577.0,240.7 577.6,240.5 578.3,240.3 578.9,240.1 579.6,239.9 580.2,239.6 580.9,239.4 581.6,239.2 582.2,239.0 582.9,238.8 583.5,238.6 584.2,238.5 584.8,238.3 585.5,238.1 586.1,238.0 586.8,237.9 587.5,237.7 588.1,237.6 588.8,237.5 589.4,237.4 590.1,237.4 590.7,237.3 591.4,237.4 592.0,237.4 592.7,237.5 593.4,237.7 594.0,237.9 594.7,238.1 595.3,238.3 596.0,238.6 596.6,238.9 597.3,239.1 597.9,239.4 598.6,239.6 599.3,239.8 599.9,240.0 600.6,240.2 601.2,240.4 601.9,240.6 602.5,240.7 603.2,240.9 603.8,241.1 604.5,241.3 605.2,241.4 605.8,241.6 606.5,241.8 607.1,242.1 607.8,242.3 608.4,242.5 609.1,242.7 609.7,243.0 610.4,243.2 611.1,243.4 611.7,243.7 612.4,243.9 613.0,244.1 613.7,244.3 614.3,244.5 615.0,244.7 615.6,244.9 616.3,245.0 617.0,245.2 617.6,245.4 618.3,245.5 618.9,245.7 619.6,245.8 620.2,246.0 620.9,246.2 621.5,246.4 622.2,246.5 622.9,246.7 623.5,246.9 624.2,247.1 624.8,247.2 625.5,247.4 626.1,247.5 626.8,247.7 627.4,247.8 628.1,248.0 628.8,248.1 629.4,248.2 630.1,248.3 630.7,248.4 631.4,248.5 632.0,248.6 632.7,248.7 633.4,248.8 634.0,248.9 634.7,249.0 635.3,249.0 636.0,249.1 636.6,249.1 637.3,249.2 637.9,249.2 638.6,249.3 639.3,249.3 639.9,249.3 640.6,249.4 641.2,249.4 641.9,249.4 642.5,249.4 643.2,249.4 643.8,249.4 644.5,249.4 645.2,249.4 645.8,249.4 646.5,249.4 647.1,249.3 647.8,249.3 648.4,249.3 649.1,249.2 649.7,249.2 650.4,249.1 651.1,249.1 651.7,249.0 652.4,249.0 653.0,248.9 653.7,248.9 654.3,248.8 655.0,248.7 655.6,248.6 656.3,248.6 657.0,248.5 657.6,248.4 658.3,248.3 658.9,248.2 659.6,248.1 660.2,248.0 660.9,247.9 661.5,247.8 662.2,247.7 662.9,247.6 663.5,247.5 664.2,247.4 664.8,247.3 665.5,247.2" fill="none" stroke="var(--ink)" stroke-width="1.6"/>
+  <text class="svg-note-sm" x="338.2" y="284.4" text-anchor="middle" fill="var(--muted)">salida</text>
+  <line x1="90" y1="66" x2="116" y2="66" stroke="var(--success)" stroke-width="1.6"/>
+  <text class="svg-note-sm" x="122" y="70">sub010</text>
+  <line x1="90" y1="84" x2="116" y2="84" stroke="var(--blue)" stroke-width="1.6"/>
+  <text class="svg-note-sm" x="122" y="88">adaptada</text>
+  <line x1="90" y1="102" x2="116" y2="102" stroke="var(--accent)" stroke-width="1.6"/>
+  <text class="svg-note-sm" x="122" y="106">sobre075</text>
+  <line x1="90" y1="120" x2="116" y2="120" stroke="var(--ink)" stroke-width="1.6"/>
+  <text class="svg-note-sm" x="122" y="124">sobre120</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 11.</b> <b class="fig-title">Lo que el eje se entera del ambiente.</b> Mach medio sobre el eje de los cuatro casos. Dentro de la tobera las cuatro curvas son una sola, y afuera se separan sólo cuando llega la onda del labio: en \(x\) = 6.6 m la de <code>sobre120</code> y en 7.6 m la de <code>sobre075</code>. <code>sub010</code> y <code>adaptada</code> siguen juntas hasta \(x\) = 10.7 m: la caída de \(x\) ≈ 8.2 m es la misma en las dos, y no viene del labio, sino de adentro de la tobera.</figcaption>
+</figure>
+<p>La figura 11 tiene también una lección de flujo supersónico. Las curvas son la misma, ya afuera de la tobera, con presiones de ambiente que van de 0.01 a 0.12, hasta que la onda del labio llega al eje: en \(x\) = 6.6 m en <code>sobre120</code>, en 7.6 m en <code>sobre075</code>, y más lejos cuanto más débil es la onda. El gas del eje no sabe qué hay afuera hasta entonces.</p>
+<h3>Hasta dónde llega el ambiente</h3>
+<p>Con \(p_b\) mayor que \(p_{II}\) = 0.243 las ondas del labio ya no bastan y el choque entra a la tobera. Con \(p_b\) = 0.3, <code>validar.py</code> lo avisa:</p>
+<pre class="code"><code>Tobera con el ambiente a pb = 0.3
+  sección de salida, en el eje:  p = 0.2959, M = 0.376
+  junto al labio (del diseño):   p = 0.0481, M = 2.558, 1.3° hacia arriba
+  pb/p_labio = 6.24, pb/p_eje = 1.01
+
+  La salida es subsónica en el eje: el choque entró a la tobera y no hay
+  ondas en el labio. Es el régimen del Tutorial 1.2.</code></pre>
+<p>Es el régimen de la 1.2: el choque queda en el eje en \(x\) = 4.88 m, contra 4.81 m de la cuasi-1D. Ese caso no forma parte de la receta; se corre con <code>./Allrun tobera 0.3</code>.</p>
+<div class="result-box">
+  <p><strong>Resultado:</strong> dentro de la tobera y hasta que llega la onda del labio, el flujo no depende de \(p_b\). La sección de salida de la tobera cosenoidal no es uniforme, con la presión de 0.015 a 0.048, así que la tobera está sobreexpandida en una parte y subexpandida en otra para cualquier \(p_b\) en ese intervalo, que incluye la presión de diseño. El choque y la cabeza del abanico quedan a +2° y −3° de la teoría de un solo estado, y el disco de Mach aparece mucho antes que con salida uniforme.</p>
+</div>
+<div class="callout">
+  <p><strong>Lo que el modelo no dice: la viscosidad.</strong> Este cálculo es de Euler. En una tobera real, con \(p_b\) alto la capa límite no resiste el aumento de presión del labio: se separa dentro de la tobera, y el chorro se desprende de la pared (la <a href="tobera-sin-descarga.html#validation-es">1.2</a> da el criterio de Summerfield). La guía <em>1.4</em> repite la tobera con descarga con turbulencia.</p>
+</div>
+
+    </section>
+    <section id="errors-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Qué sale mal y qué dice OpenFOAM</h2>
+
+<p>Todos se reprodujeron en la laptop de la serie con este caso. Gmsh fuera de la ruta de búsqueda, correr el <code>Allrun</code> dos veces y un <code>setFieldsDict</code> de OpenFOAM 13 se resuelven como en la <a href="tobera-sin-descarga.html#errors-es">1.2</a>.</p>
+<h3>1. Una presión de ambiente demasiado alta</h3>
+<p><code>./Allrun uniforme 2.5 0.05 0.25</code>, con \(p_b/p_1\) = 5, se detiene casi al empezar:</p>
+<pre class="code"><code>Time = 0.0353271s
+Generating stack trace...
+	ZN4Foam6sigFpe13sigFpeHandlerEi 
+*** Falló foamRun: vea el final de log.foamRun.primerOrden</code></pre>
+<p>El primer renglón es el último paso de tiempo. El arranque pone en contacto el ambiente a \(p_b\) con el chorro a \(p_1\): con una diferencia tan grande, la temperatura de alguna celda se vuelve negativa. En Linux el mensaje lo dice; en blueCFD sólo queda la excepción de punto flotante (<code>sigFpe</code>). No es un error de la física, sino del arranque. <strong>Remedio:</strong> quedarse en \(p_b/p_1\) ≤ 4, como la validación; bajar el Courant de 0.4 a 0.2 no lo arregla.</p>
+<h3>2. Una presión de ambiente demasiado baja</h3>
+<p><code>./Allrun uniforme 2.5 0.05 0.0075</code>, con \(p_b/p_1\) = 0.15, falla de la misma manera, pero mucho después, en \(t\) ≈ 12:</p>
+<pre class="code"><code>Time = 11.98014s
+Generating stack trace...
+	ZN4Foam6sigFpe13sigFpeHandlerEi 
+*** Falló foamRun: vea el final de log.foamRun.primerOrden</code></pre>
+<p>El abanico fuerte lleva la presión y la temperatura muy cerca de cero. <strong>Remedio:</strong> no bajar de \(p_b/p_1\) = 0.3.</p>
+<h3>3. Usar el estado de diseño en lugar del que llega al labio</h3>
+<p>Es tentador tomar \(M_1\) = 3.17 y \(p_1\) = 0.021, los números de la 1.2, para predecir el choque de <code>sobre075</code>. Daría \(p_b/p_1\) = 3.57 y β = 34.3°, contra 30.3° medidos: el error es de 4.0°. <strong>Remedio:</strong> el choque del labio nace en el gas que llega al labio, con \(M\) = 2.56 y \(p\) = 0.048: un promedio no describe una onda local.</p>
+<h3>4. Medir la cola de un abanico fuerte</h3>
+<p>Con \(p_b/p_1\) = 0.3 la cola sale 3.8° contra 1.6° de la teoría. Al final de un abanico fuerte la presión tiende a \(p_b\) muy despacio, y el criterio del 3 % encuentra la cola antes de tiempo. La cabeza sigue bien. <strong>Remedio:</strong> no usar esa cifra como validación.</p>
+<h3>5. Comparar el campo lejano</h3>
+<p>Los ángulos se miden en el primer metro. Más allá, el chorro depende de la malla y del tiempo que se elija (figura 4), y dos alumnos con el mismo caso y distinto \(t\) verán patrones distintos. <strong>Remedio:</strong> comparar sólo el primer tramo, de los campos promediados.</p>
+
+    </section>
+    <section id="practice-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>Otro Mach y el disco de Mach</h2>
+
+<p><strong>Primera parte: otro Mach de salida.</strong> Correr el chorro uniforme con \(p_b/p_1\) = 1.5 y otros dos Mach. Para que la salida sea la de una tobera con \(p_0\) = 1, \(p_1/p_0\) sale de la relación isentrópica de la 1.2:</p>
+<pre class="code"><code>./Allrun uniforme 2 0.1278 0.1917
+./Allrun uniforme 3 0.02722 0.04083</code></pre>
+<p>Preguntas: ¿cómo cambia β con el Mach para la misma razón de presiones? ¿Qué ecuación lo explica? La respuesta para revisar: β = 37.4° contra 36.7° con Mach 2, y 23.7° contra 23.5° con Mach 3.</p>
+<p><strong>Segunda parte: el disco de Mach.</strong> Calcular con el <a href="#appendix-es">Apéndice</a> la razón \(p_b/p_1\) de la ecuación (6) para \(M_1\) = 2, correr un valor abajo y uno arriba, y comprobar con el último renglón de <code>validar.py</code> si el disco aparece. ¿Por qué la comparación no puede hacerse con el campo lejano?</p>
+
+    </section>
+    <section id="appendix-es">
+      <p class="section-label">Apéndice</p>
+      <h2>De la razón de presiones a los ángulos</h2>
+
+<p>Las cuentas de la tabla 3, con \(M_1\) = 2.5 y \(\gamma\) = 1.4. Son las que hacen las funciones <code>choque_oblicuo</code> y <code>abanico</code> de <code>validar.py</code>.</p>
+<h3>El choque con \(p_b/p_1\) = 1.5</h3>
+<ol>
+  <li>Ecuación (1): \(M_{n1}^2 = 1 + \tfrac{2.4}{2.8}(0.5)\) = 1.4286, así que \(M_{n1}\) = 1.1952.</li>
+  <li>\(\sin\beta\) = 1.1952/2.5 = 0.4781, y β = 28.56°.</li>
+  <li>Ecuación (2): θ = 6.35° y \(M_2\) = 2.236.</li>
+</ol>
+<h3>El abanico con \(p_b/p_1\) = 0.7</h3>
+<ol>
+  <li>Ecuación (3), despejando: \(1 + 0.2 M_2^2 = (1 + 0.2 \cdot 2.5^2)\,(0.7)^{-0.2857}\), de donde \(M_2\) = 2.731.</li>
+  <li>Ecuación (4): \(\nu(2.5)\) = 39.12° y \(\nu(M_2)\) = 44.28°, así que θ = 5.16°.</li>
+  <li>Ecuación (5): la cabeza va a \(\arcsin(1/2.5)\) = 23.58° y la cola, a 21.48° − 5.16° = 16.32°.</li>
+</ol>
+<h3>El límite de la reflexión regular</h3>
+<p>Para cada \(p_b/p_1\), las ecuaciones (1) y (2) dan θ y \(M_2\). Con ese \(M_2\) se recorre β en la relación θ–β–M para hallar \(\theta_{\max}(M_2)\), el máximo de θ. Cuando θ alcanza a \(\theta_{\max}\), la ecuación (6) deja de cumplirse. Con \(M_1\) = 2.5 eso ocurre en \(p_b/p_1\) = 2.887, con θ = 17.95° y \(M_2\) = 1.742. Con \(p_b/p_1\) = 2.8, θ = 17.37° y \(\theta_{\max}\) = 18.52°; con 3.0, θ = 18.68° y \(\theta_{\max}\) = 17.19°.</p>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ul>
+  <li>Ames Research Staff (1953). <em>Equations, Tables, and Charts for Compressible Flow</em>. NACA Report 1135.</li>
+  <li>Anderson, J. D. (2003). <em>Modern compressible flow: with historical perspective</em> (3.ª ed.). McGraw-Hill. Capítulos 4 (choques oblicuos y ondas de expansión) y 5 (toberas).</li>
+  <li>Ben-Dor, G. (2007). <em>Shock Wave Reflection Phenomena</em> (2.ª ed.). Springer.</li>
+  <li>Greenshields, C. J., Weller, H. G., Gasparini, L. y Reese, J. M. (2010). Implementation of semi-discrete, non-staggered central schemes in a colocated, polyhedral, finite volume framework, for high-speed viscous flows. <em>International Journal for Numerical Methods in Fluids</em>, 63(1), 1–21.</li>
+  <li>Hornung, H. (1986). Regular and Mach reflection of shock waves. <em>Annual Review of Fluid Mechanics</em>, 18, 33–58.</li>
+  <li>Kurganov, A. y Tadmor, E. (2000). New high-resolution central schemes for nonlinear conservation laws and convection-diffusion equations. <em>Journal of Computational Physics</em>, 160(1), 241–282.</li>
+  <li>OpenFOAM Foundation (2024). <em>OpenFOAM 12</em>. <a href="https://openfoam.org" target="_blank" rel="noopener">openfoam.org</a>.</li>
+  <li>Roache, P. J. (1998). <em>Verification and Validation in Computational Science and Engineering</em>. Hermosa Publishers.</li>
+</ul>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="tobera-sin-descarga.html?v=13"><span>Tutorial anterior</span>← 1.2 · La tobera convergente-divergente sin descarga</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Flujo compresible</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Eine überexpandierte von einer unterexpandierten Düse unterscheiden und sagen, welche Welle jeweils von der Lippe ausgeht; den Winkel des schrägen Stoßes sowie Kopf und Schwanz des Prandtl-Meyer-Fächers aus dem Druckverhältnis berechnen; diese Winkel mit einem kurzen Skript im OpenFOAM-Feld messen; das Auftreten einer Mach-Scheibe vorhersagen; und erklären, warum „überexpandiert“ bei einer Kosinusdüse davon abhängt, wo man hinschaut.</p>
+    </section>
+    <section id="problem-de">
+      <p class="section-label">Das Problem</p>
+      <h2>Was simuliert wird</h2>
+<p>Zwei Gebiete: der Strahl allein mit gleichförmigem Einlass in der Austrittsebene (Mach 2,5, p1/p0 = 0,05), wo die Theorie einen einzigen Ausgangszustand hat, und die Düse aus Tutorial 1.2 mit der Umgebung dahinter.</p>
+    </section>
+    <section id="theory-de">
+      <p class="section-label">Die Theorie</p>
+      <h2>Überexpandiert, unterexpandiert und die Mach-Scheibe</h2>
+<p>Mit pb > p1 geht ein schräger Stoß von der Lippe aus, mit pb < p1 ein Prandtl-Meyer-Fächer. Der Strahlrand reflektiert jede Welle mit umgekehrtem Vorzeichen; so entstehen die Diamanten. Die reguläre Reflexion auf der Achse verlangt, dass die Umlenkung hinter dem Lippenstoß unter dem Maximum eines anliegenden Stoßes bei M2 bleibt: bei M1 = 2,5 endet das bei pb/p1 = 2,89, und eine Mach-Scheibe erscheint.</p>
+    </section>
+    <section id="recipe-de">
+      <p class="section-label">Schritt für Schritt</p>
+      <h2>Acht Fälle mit einem Skript</h2>
+<p>Im blueCFD-Core-Terminal: tobera-con-descarga.zip entpacken, für jeden Fall einmal kopieren, ./Allrun uniforme M1 P1 PB oder ./Allrun tobera PB starten und dann python3 validar.py. Ein gleichförmiger Strahl braucht etwa 4 Minuten, ein Düsenfall etwa 12; jeder nutzt einen Kern.</p>
+    </section>
+    <section id="case-de">
+      <p class="section-label">Der Fall</p>
+      <h2>Der Fall, Datei für Datei</h2>
+<p>Dieselbe tobera.geo mit chorro = 1 oder 2; ein farField-Rand mit totalPressure, durch den der Strahl Umgebungsgas ansaugt; drei kürzere Stufen; und sechzig senkrechte Linien, aus denen validar.py die Wellenlagen entnimmt: der Schwerpunkt des Druckgradienten für den Stoß, 3-%%-Schwellen für den Fächer.</p>
+    </section>
+    <section id="results-de">
+      <p class="section-label">Ergebnisse</p>
+      <h2>Die gleichförmigen Strahlen in ParaView</h2>
+<p>Das Machzahlfeld der vier gleichförmigen Strahlen: Lippenstoß und Reflexion, die Mach-Scheibe bei pb/p1 = 3,5, der Fächer bei 0,7. Weit vom Austritt ist der Strahl instationär und netzabhängig.</p>
+    </section>
+    <section id="validation-de">
+      <p class="section-label">Durchgerechnetes Beispiel</p>
+      <h2>Die gleichförmigen Strahlen gegen die Theorie</h2>
+<p>Der Stoßwinkel beträgt 29,4° gegenüber 28,6° bei pb/p1 = 1,5, mit einer Abweichung, die mit dem Netz kleiner wird; Kopf und Schwanz des Fächers stimmen auf 0,3° überein; und die Mach-Scheibe erscheint zwischen pb/p1 = 2,8 und 2,9, wo die Theorie sie erwartet.</p>
+    </section>
+    <section id="nozzle-de">
+      <p class="section-label">Die reale Düse</p>
+      <h2>Wenn der Austritt nicht gleichförmig ist</h2>
+<p>Der Austrittsdruck reicht von 0,015 auf der Achse bis 0,048 an der Lippe, sodass beim Auslegungsdruck der Kern überexpandiert und der Rand unterexpandiert ist. Die Lippenwellen weichen um etwa +2° und −3° von der Ein-Zustands-Theorie ab, die Mach-Scheibe erscheint viel früher, und eine Kompressionswelle vom Ende der Kosinuskontur kreuzt die Achse bei x ≈ 8,2 m, unabhängig vom Umgebungsdruck.</p>
+    </section>
+    <section id="errors-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Was schiefgeht und was OpenFOAM meldet</h2>
+<p>pb/p1 = 5 und 0,15 enden mit einer Gleitkomma-Ausnahme; der mittlere Auslegungszustand statt des Zustands an der Lippe; das Ablesen des Schwanzes eines starken Fächers; und der Vergleich des Fernfelds.</p>
+    </section>
+    <section id="practice-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Eine andere Machzahl und die Mach-Scheibe</h2>
+<p>Den gleichförmigen Strahl bei Mach 2 und 3 mit pb/p1 = 1,5 rechnen und die Mach-Scheibe bei Mach 2 eingrenzen.</p>
+    </section>
+    <section id="appendix-de">
+      <p class="section-label">Anhang</p>
+      <h2>Vom Druckverhältnis zu den Winkeln</h2>
+<p>Die durchgerechneten Zahlen für den Stoß bei pb/p1 = 1,5, den Fächer bei 0,7 und die Grenze der regulären Reflexion.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>Andersons Modern Compressible Flow und NACA Report 1135 für die Theorie; Hornung und Ben-Dor zur Stoßreflexion; die Quellen von OpenFOAM 12 und die Arbeit von Kurganov und Tadmor für die Numerik.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="tobera-sin-descarga.html?v=13"><span>Vorheriges Tutorial</span>← 1.2 · Die Laval-Düse ohne Austrittsstrahl</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Kompressible Strömung</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>

@@ -108,7 +108,7 @@
     </section>
     <nav class="next-nav">
       <a class="next-link" href="rampa-compresion-expansion.html?v=13"><span>Previous tutorial</span>← 1.1 · The compression–expansion ramp</a>
-      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Compressible flow</a>
+      <a class="next-link" href="tobera-con-descarga.html?v=13"><span>Next tutorial</span>1.3 · The converging-diverging nozzle with exhaust →</a>
     </nav>
   </article>
   <article class="lecture" data-language="es" hidden>
@@ -161,7 +161,7 @@
 </svg>
   <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">La media tobera.</b> La pared de la tobera de la guía (\(A_e/A_t\) = 5, continua) y la del venturi (\(A_e/A_t\) = 1.5, punteada): el mismo contorno cosenoidal con otra garganta. Sólo se calcula la mitad de arriba; el eje es un plano de simetría.</figcaption>
 </figure>
-<p>En la entrada el gas viene de un depósito en reposo, con presión y temperatura de remanso \(p_0\) = 1 y \(T_0\) = 1. En la salida se impone la presión del lugar donde la tobera descarga, \(p_b\). La tobera acaba en la salida: lo que hace el chorro afuera es el tema del <em>1.3</em>, con descarga.</p>
+<p>En la entrada el gas viene de un depósito en reposo, con presión y temperatura de remanso \(p_0\) = 1 y \(T_0\) = 1. En la salida se impone la presión del lugar donde la tobera descarga, \(p_b\). La tobera acaba en la salida: lo que hace el chorro afuera es el tema del <a href="tobera-con-descarga.html">1.3</a>, con descarga.</p>
 <div class="table-wrap">
   <table>
     <thead><tr><th>Dato</th><th>Valor</th><th>Dónde se fija</th></tr></thead>
@@ -217,7 +217,7 @@
     <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Las presiones características.</b> Con la ecuación (1) en la salida y la (2), para las dos toberas de la guía.</caption>
   </table>
 </div>
-<p>Entre \(p_{II}\) y \(p_{III}\), y abajo de \(p_{III}\), el flujo dentro de la tobera es el del diseño; la diferencia entre \(p_e\) y \(p_b\) se arregla afuera, con choques oblicuos o expansiones en el borde de la salida. Eso necesita el dominio exterior: es la tobera sobreexpandida y subexpandida del <em>1.3</em>.</p>
+<p>Entre \(p_{II}\) y \(p_{III}\), y abajo de \(p_{III}\), el flujo dentro de la tobera es el del diseño; la diferencia entre \(p_e\) y \(p_b\) se arregla afuera, con choques oblicuos o expansiones en el borde de la salida. Eso necesita el dominio exterior: es la tobera sobreexpandida y subexpandida del <a href="tobera-con-descarga.html">1.3</a>.</p>
 <figure class="diagram">
 <svg viewBox="0 0 720 360" role="img" aria-label="Presión entre la de remanso sobre el eje para el diseño, los tres choques y la presión de bloqueo">
   <text class="svg-title" x="76" y="28">La presión sobre el eje según la cuasi-1D: una sola tobera, cuatro presiones de descarga</text>
@@ -649,7 +649,7 @@ sets
     <caption><b class="tab-num">Tabla 5.</b> <b class="fig-title">El diseño contra la cuasi-1D.</b> Mach medio de cada sección, ponderado con el gasto, como lo calcula <code>validar.py</code>.</caption>
   </table>
 </div>
-<p>Del Mach 1 de la garganta al 3 de la salida, el Mach medio de las secciones del divergente queda dentro de 0.9 % de la cuasi-1D, siempre un poco abajo (tabla 5). En la última sección la diferencia sube a 1.4 %: la salida de una tobera cosenoidal no es uniforme, con Mach mayor en el eje que junto a la pared (figura 6), y el promedio de un flujo no uniforme no es el Mach uniforme de la cuasi-1D. No es un error del cálculo: la validación lo comparó con SU2, otro programa, en la misma malla, y da el mismo intervalo de Mach a la salida. El <em>1.4</em> diseña un contorno con salida uniforme.</p>
+<p>Del Mach 1 de la garganta al 3 de la salida, el Mach medio de las secciones del divergente queda dentro de 0.9 % de la cuasi-1D, siempre un poco abajo (tabla 5). En la última sección la diferencia sube a 1.4 %: la salida de una tobera cosenoidal no es uniforme, con Mach mayor en el eje que junto a la pared (figura 6), y el promedio de un flujo no uniforme no es el Mach uniforme de la cuasi-1D. No es un error del cálculo: la validación lo comparó con SU2, otro programa, en la misma malla, y da el mismo intervalo de Mach a la salida. El <em>1.5</em> diseña un contorno con salida uniforme.</p>
 <p>La presión total que llega a la salida, 0.9910, debería ser 1: sin choque y sin viscosidad no hay nada que la pierda. La pérdida es del esquema numérico, y lo prueba que cambia con la malla (tabla 6): se reduce con cada refinamiento, y la extrapolación de Richardson, como en el 1.1, da 1.005, que es 1 dentro de la incertidumbre de la extrapolación: con una malla infinitamente fina, la pérdida desaparece. En la rampa la pérdida de presión total del choque era física y la extra era de la malla; aquí toda es de la malla.</p>
 <div class="table-wrap">
   <table>
@@ -820,7 +820,7 @@ file: …/setfields13/system/setFieldsDict from line 18 to line 30.</code></pre>
     </section>
     <nav class="next-nav">
       <a class="next-link" href="rampa-compresion-expansion.html?v=13"><span>Tutorial anterior</span>← 1.1 · La rampa de compresión y expansión</a>
-      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Flujo compresible</a>
+      <a class="next-link" href="tobera-con-descarga.html?v=13"><span>Tutorial siguiente</span>1.3 · La tobera convergente-divergente con descarga →</a>
     </nav>
   </article>
   <article class="lecture" data-language="de" hidden>
@@ -882,7 +882,7 @@ file: …/setfields13/system/setFieldsDict from line 18 to line 30.</code></pre>
     </section>
     <nav class="next-nav">
       <a class="next-link" href="rampa-compresion-expansion.html?v=13"><span>Vorheriges Tutorial</span>← 1.1 · Die Kompressions-Expansions-Rampe</a>
-      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenFOAM · Kompressible Strömung</a>
+      <a class="next-link" href="tobera-con-descarga.html?v=13"><span>Nächstes Tutorial</span>1.3 · Die Laval-Düse mit Austrittsstrahl →</a>
     </nav>
   </article>
 
