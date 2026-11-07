@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Tutorial series on OpenRocket: model, simulate and tune a low-power rocket for an Estes B or C motor." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>OpenRocket Tutorials | Carlos Molina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="../../index.html">Carlos Molina</a>
+    <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="../../index.html" data-ui-key="home">Home</a>
+      <a href="index.html?v=13" data-ui-key="course">Tutorials</a>
+      <a href="../../index.html#tools" data-ui-key="tools">Computational tools</a>
+    </nav>
+    <div class="language-switcher" aria-label="Language selector">
+      <button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button>
+      <button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button>
+    </div>
+  </div>
+</header>
+
+<section class="course-hero">
+  <div class="container hero-inner">
+      <div data-language="en">
+        <p class="eyebrow">Software tutorials · OpenRocket</p>
+        <h1>OpenRocket</h1>
+        <p class="hero-copy">A tutorial series on OpenRocket for the course project: a low-power rocket for an Estes B or C motor, built from a cardboard tube, 3D-printed parts and balsa or MDF fins, with a parachute and a retained motor.</p>
+        <p class="hero-copy"><strong>The model is the rocket that will be built.</strong> Every part goes in with its real material and mass, because the stability margin depends on all of them. Every figure and number comes from OpenRocket 24.12 itself.</p>
+      </div>
+      <div data-language="es" hidden>
+        <p class="eyebrow">Tutoriales de software · OpenRocket</p>
+        <h1>OpenRocket</h1>
+        <p class="hero-copy">Una serie sobre OpenRocket para el proyecto de la materia: un cohete de baja potencia para un motor Estes B o C, construido con tubo de cartón, piezas impresas en 3D y aletas de balsa o MDF, con paracaídas y retención del motor.</p>
+        <p class="hero-copy"><strong>El modelo es el cohete que se va a construir.</strong> Cada pieza entra con su material y su masa reales, porque el margen de estabilidad depende de todas. Todas las figuras y cifras proceden del propio OpenRocket 24.12.</p>
+      </div>
+      <div data-language="de" hidden>
+        <p class="eyebrow">Software-Tutorials · OpenRocket</p>
+        <h1>OpenRocket</h1>
+        <p class="hero-copy">Eine Reihe zu OpenRocket für das Kursprojekt: eine Rakete kleiner Leistung für einen Estes-Motor B oder C aus Papprohr, 3D-gedruckten Teilen und Flossen aus Balsa oder MDF, mit Fallschirm und gesichertem Motor.</p>
+        <p class="hero-copy"><strong>Das Modell ist die Rakete, die gebaut wird.</strong> Jedes Teil geht mit seinem echten Material und seiner Masse ein, denn die Stabilitätsreserve hängt von allen ab. Alle Abbildungen und Zahlen stammen aus OpenRocket 24.12 selbst.</p>
+      </div>
+  </div>
+</section>
+
+<main>
+  <section class="section">
+    <div class="container">
+    <div data-language="en">
+      <p class="section-label">Block 1 · The project rocket: an Estes B or C motor</p>
+      <div class="course-grid">
+        <article class="course-card available">
+          <span class="course-card-number">1.1</span>
+          <h3>Modelling the Rocket: From Real Parts to Stability in Calibers</h3>
+          <p>Printed nose, cardboard tube, MDF fins with tabs, motor mount with block and retainer, centering rings, baffle and parachute; B6-4 and C6-5 motors; CG, CP and stability margin.</p>
+          <span class="status">Available</span>
+          <a href="modelar-cohete.html?v=13">Open tutorial →</a>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">1.2</span>
+          <h3>The Motor and the Flight</h3>
+          <p>Flight simulation with Estes B and C motors: ejection delay, apogee, velocity off the rod, maximum velocity and descent rate under the parachute.</p>
+          <span class="status">Planned</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">1.3</span>
+          <h3>Tuning the Design</h3>
+          <p>Wind and stability, nose weight, parachute size, B versus C, fin templates and the parts list to build the rocket.</p>
+          <span class="status">Planned</span>
+        </article>
+      </div>
+    </div>
+    <div data-language="es" hidden>
+      <p class="section-label">Bloque 1 · El cohete del proyecto: un motor Estes B o C</p>
+      <div class="course-grid">
+        <article class="course-card available">
+          <span class="course-card-number">1.1</span>
+          <h3>Modelar el cohete: de las piezas reales a la estabilidad en calibres</h3>
+          <p>Nariz impresa, tubo de cartón, aletas de MDF con pestañas, porta motor con tope y retén, anillos centradores, deflector y paracaídas; motores B6-4 y C6-5; CG, CP y margen de estabilidad.</p>
+          <span class="status">Disponible</span>
+          <a href="modelar-cohete.html?v=13">Abrir tutorial →</a>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">1.2</span>
+          <h3>El motor y el vuelo</h3>
+          <p>Simulación del vuelo con motores Estes B y C: retardo de la carga de expulsión, apogeo, velocidad al dejar la varilla, velocidad máxima y velocidad de descenso con paracaídas.</p>
+          <span class="status">Previsto</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">1.3</span>
+          <h3>Ajustar el diseño</h3>
+          <p>Viento y estabilidad, lastre en la nariz, tamaño del paracaídas, B contra C, plantillas de las aletas y lista de componentes para construir el cohete.</p>
+          <span class="status">Previsto</span>
+        </article>
+      </div>
+    </div>
+    <div data-language="de" hidden>
+      <p class="section-label">Block 1 · Die Projektrakete: ein Estes-Motor B oder C</p>
+      <div class="course-grid">
+        <article class="course-card available">
+          <span class="course-card-number">1.1</span>
+          <h3>Die Rakete modellieren: von echten Bauteilen zur Stabilität in Kalibern</h3>
+          <p>Gedruckte Spitze, Papprohr, MDF-Flossen mit Laschen, Motorhalterung mit Anschlag und Halteclip, Zentrierringe, Prallblech und Fallschirm; Motoren B6-4 und C6-5; Schwerpunkt, Druckpunkt und Stabilitätsreserve.</p>
+          <span class="status">Verfügbar</span>
+          <a href="modelar-cohete.html?v=13">Tutorial öffnen →</a>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">1.2</span>
+          <h3>Motor und Flug</h3>
+          <p>Flugsimulation mit Estes-Motoren B und C: Ausstoßverzögerung, Gipfelhöhe, Geschwindigkeit am Stabende, Höchstgeschwindigkeit und Sinkgeschwindigkeit am Fallschirm.</p>
+          <span class="status">Geplant</span>
+        </article>
+        <article class="course-card">
+          <span class="course-card-number">1.3</span>
+          <h3>Den Entwurf abstimmen</h3>
+          <p>Wind und Stabilität, Ballast in der Spitze, Fallschirmgröße, B gegen C, Flossenschablonen und Stückliste für den Bau.</p>
+          <span class="status">Geplant</span>
+        </article>
+      </div>
+    </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>

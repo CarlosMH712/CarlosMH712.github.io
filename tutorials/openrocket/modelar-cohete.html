@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="OpenRocket tutorial: model a low-power rocket for an Estes B or C motor with a 3D-printed nose, cardboard tube, MDF fins with through-the-wall tabs, motor mount, baffle and parachute, and read its stability margin in calibers." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Modelling the Rocket: From Real Parts to Stability in Calibers | OpenRocket Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">OpenRocket · Tutorial 1.1</p><h1>Modelling the Rocket: From Real Parts to Stability in Calibers</h1><p class="hero-copy">A rocket that will actually be built, part by part: a printed nose, a cardboard tube, MDF fins, the motor mount with its block and retainer, a baffle and a parachute. With every mass in place, OpenRocket tells where the centre of gravity and the centre of pressure are, and whether the rocket will fly straight.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">OpenRocket · Tutorial 1.1</p><h1>Modelar el cohete: de las piezas reales a la estabilidad en calibres</h1><p class="hero-copy">Un cohete que de verdad se va a construir, pieza por pieza: nariz impresa, tubo de cartón, aletas de MDF, el porta motor con su tope y su retén, un deflector y el paracaídas. Con cada masa en su lugar, OpenRocket dice dónde están el centro de gravedad y el centro de presión, y si el cohete volará derecho.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">OpenRocket · Tutorial 1.1</p><h1>Die Rakete modellieren: von echten Bauteilen zur Stabilität in Kalibern</h1><p class="hero-copy">Eine Rakete, die wirklich gebaut wird, Teil für Teil: gedruckte Spitze, Papprohr, MDF-Flossen, die Motorhalterung mit Anschlag und Halteclip, ein Prallblech und der Fallschirm. Mit jeder Masse an ihrem Platz zeigt OpenRocket, wo Schwerpunkt und Druckpunkt liegen und ob die Rakete gerade fliegt.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 50 min</span><span data-language="es" hidden>Lectura estimada: 50 min</span><span data-language="de" hidden>Lesedauer: ca. 50 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on OpenRocket 24.12 (Windows 11)</span><span data-language="es" hidden>Verificado en OpenRocket 24.12 (Windows 11)</span><span data-language="de" hidden>Geprüft mit OpenRocket 24.12 (Windows 11)</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="index.html?v=13">← <span>Serie</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/fUW5ZwmdKp4" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Watch the video</span><span data-language="es" hidden>Ver el vídeo</span><span data-language="de" hidden>Video ansehen</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#physics">Stability</a><a href="#project">The rocket</a><a href="#interface">Orientation</a><a href="#body">Step 1 · Nose and tube</a><a href="#fins">Step 2 · Fins</a><a href="#mount">Step 3 · Motor mount</a><a href="#rings">Step 4 · Rings, tabs, baffle</a><a href="#recovery">Step 5 · Recovery</a><a href="#motors">Step 6 · Motors</a><a href="#stability">Step 7 · Stability</a><a href="#example">Suggested practice</a><a href="#summary">Key points</a><a href="#mistakes">Common mistakes</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#physics-es">Estabilidad</a><a href="#project-es">El cohete</a><a href="#interface-es">Orientación</a><a href="#body-es">Paso 1 · Nariz y tubo</a><a href="#fins-es">Paso 2 · Aletas</a><a href="#mount-es">Paso 3 · Porta motor</a><a href="#rings-es">Paso 4 · Anillos, pestañas, deflector</a><a href="#recovery-es">Paso 5 · Recuperación</a><a href="#motors-es">Paso 6 · Motores</a><a href="#stability-es">Paso 7 · Estabilidad</a><a href="#example-es">Práctica sugerida</a><a href="#summary-es">Puntos clave</a><a href="#mistakes-es">Errores frecuentes</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#physics-de">Stabilität</a><a href="#project-de">Die Rakete</a><a href="#interface-de">Orientierung</a><a href="#body-de">Schritt 1 · Spitze und Rohr</a><a href="#fins-de">Schritt 2 · Flossen</a><a href="#mount-de">Schritt 3 · Motorhalterung</a><a href="#rings-de">Schritt 4 · Ringe, Laschen, Prallblech</a><a href="#recovery-de">Schritt 5 · Bergung</a><a href="#motors-de">Schritt 6 · Motoren</a><a href="#stability-de">Schritt 7 · Stabilität</a><a href="#example-de">Übung</a><a href="#summary-de">Kernpunkte</a><a href="#mistakes-de">Häufige Fehler</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Model in OpenRocket the low-power rocket of the course project with the materials that will actually be used (printed PLA, cardboard, MDF), define a material the program lacks, assemble the motor mount with engine block and retainer, the centering rings, the fin tabs, a baffle and the parachute, load Estes B6-4 and C6-5 motors, and read the stability margin in calibers from the component analysis.</p>
+    </section>
+    <section id="physics">
+      <p class="section-label">The idea</p>
+      <h2>Centre of gravity, centre of pressure and the margin in calibers</h2>
+<p>A rocket flies straight if its centre of pressure lies behind its centre of gravity. The margin is (x_CP − x_CG)/d, in calibers; the usual target is 1 to 2. OpenRocket computes the centre of pressure with the Barrowman method, a weighted average of the components' normal-force slopes: here the nose contributes 2.0 and the fins 11.08 of a total of 13.08.</p>
+    </section>
+    <section id="project">
+      <p class="section-label">The project</p>
+      <h2>From the real parts to OpenRocket components</h2>
+<p>The example rocket is 44 cm long and 3.4 cm in diameter, with an 18 mm motor mount. Each real part is mapped to an OpenRocket component; the retainer and the baffle have no component of their own and are modelled as a mass component and as a centering ring with a hole.</p>
+    </section>
+    <section id="interface">
+      <p class="section-label">Orientation</p>
+      <h2>The window, the tree and the component palette</h2>
+<p>OpenRocket has three tabs (Rocket design, Motors &amp; Configuration, Flight simulations). The tree shows the rocket's components; a new component is added inside the one selected in the tree. A parts catalogue opens before every new component and is closed to configure it by hand.</p>
+    </section>
+    <section id="body">
+      <p class="section-label">Step 1</p>
+      <h2>The printed nose and the cardboard tube</h2>
+<p>An ogive nose of 9 cm in PLA (100 % infill, 1.25 g/cm³) with a capped shoulder of 3 cm weighs 18.08 g; the 35 cm cardboard tube, 3.4/3.2 cm, weighs 24.67 g. Outer diameter, inner diameter and wall thickness are linked fields.</p>
+    </section>
+    <section id="fins">
+      <p class="section-label">Step 2</p>
+      <h2>MDF fins and a material of your own</h2>
+<p>OpenRocket has no MDF: it is added as a custom material of 0.75 g/cm³. Three trapezoidal fins of 3 mm (root 6, tip 3, height 4.5, sweep 3 cm) weigh 13.67 g before the tabs.</p>
+    </section>
+    <section id="mount">
+      <p class="section-label">Step 3</p>
+      <h2>The motor mount, the engine block and the retainer</h2>
+<p>An inner tube of 7 cm, 1.9/1.8 cm, is marked as motor mount with 0.5 cm of overhang. The engine block is created with zero wall and at the bottom of the mount, where the motor goes; it must be moved to the top and given a 3 mm wall. The retainer is a 3 g mass component.</p>
+    </section>
+    <section id="rings">
+      <p class="section-label">Step 4</p>
+      <h2>Centering rings, fin tabs and the baffle</h2>
+<p>Two printed centering rings hold the mount; the fin tabs, whose height is 0 by default, are computed automatically to reach the mount between the rings (5.7 × 0.75 cm, +2.9 g). The baffle is a centering ring with a 1 cm hole in the middle of the tube.</p>
+    </section>
+    <section id="recovery">
+      <p class="section-label">Step 5</p>
+      <h2>Launch lug, parachute and shock cord</h2>
+<p>A launch lug for a 1/8 in rod, a 30 cm thin polyethylene parachute with thread lines (the default elastic-cord lines would weigh 3 g more) and an 80 cm shock cord.</p>
+    </section>
+    <section id="motors">
+      <p class="section-label">Step 6</p>
+      <h2>An Estes B6-4 and a C6-5 as flight configurations</h2>
+<p>Each motor is a flight configuration created with New Configuration. The motor dialog is taller than a 1080-pixel screen; limiting the diameter to the mount leaves the 18 mm motors, and the ejection delay is typed in.</p>
+    </section>
+    <section id="stability">
+      <p class="section-label">Step 7</p>
+      <h2>Reading the margin in the component analysis</h2>
+<p>Tools ▸ Component analysis lists mass, CG, CP and normal-force slope per component and copies with Ctrl+A, Ctrl+C. With motor the margin is 1.62 calibers (B6-4) and 1.45 (C6-5); without motor 2.46.</p>
+    </section>
+    <section id="example">
+      <p class="section-label">Suggested practice</p>
+      <h2>Balsa instead of MDF</h2>
+<p>Replace the MDF of the fins with balsa and record mass, CG and margin with both motors.</p>
+    </section>
+    <section id="summary">
+      <p class="section-label">Key points</p>
+      <h2>What to keep from this guide</h2>
+<p>Every part with its real material and mass; the centre of pressure comes from the outer shape, the centre of gravity from every mass; the margin is read with the motor installed.</p>
+    </section>
+    <section id="mistakes">
+      <p class="section-label">Common mistakes</p>
+      <h2>Where OpenRocket does not do what one expects</h2>
+<p>Adding a component with the wrong parent selected, the engine block defaults, the position reference that keeps the old place, the tabs left at height 0, the parachute lines, and the save dialog.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>OpenRocket documentation; Barrowman (1967); Niskanen (2009); Estes motor data; NAR Model Rocket Safety Code.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="index.html?v=13"><span>Series index</span>← OpenRocket tutorials</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenRocket · Tutorial series</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">Este es el primer tutorial de la serie y parte de cero: no supone haber abierto OpenRocket antes. Su tema es el cohete del proyecto de la materia, uno de baja potencia para un motor Estes B o C, construido con materiales sencillos: tubo de cartón, piezas impresas en 3D y aletas de MDF o de balsa. Al terminar esta guía debe ser posible:</p>
+<ul>
+  <li>Traducir cada pieza real del cohete al componente de OpenRocket que la representa, con su material y su masa.</li>
+  <li>Definir en OpenRocket un material que el programa no trae, como el MDF.</li>
+  <li>Armar el porta motor con su tope y su retén, los anillos centradores, las pestañas de las aletas, un deflector, el paracaídas y el cordón de amarre.</li>
+  <li>Cargar motores Estes B6-4 y C6-5 como configuraciones de vuelo.</li>
+  <li>Leer el centro de gravedad, el centro de presión y el margen de estabilidad en calibres, y comprobar ese margen a mano con la tabla del análisis de componentes.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> OpenRocket 24.12 (<a href="https://openrocket.info" target="_blank" rel="noopener">openrocket.info</a>), que es gratuito y trae su propio Java. La guía se verificó en Windows 11 con el instalador oficial, que pide permisos de administrador. El diseño terminado se puede descargar, <a href="archivos/cohete-ejemplo.ork" download>cohete-ejemplo.ork</a>, para compararlo con el propio; se abre con <code>File ▸ Open</code>.</p>
+</div>
+
+    </section>
+    <section id="physics-es">
+      <p class="section-label">La idea</p>
+      <h2>Centro de gravedad, centro de presión y el margen en calibres</h2>
+
+<p>Un cohete en vuelo puede girar alrededor de su <strong>centro de gravedad</strong> (CG). Si una ráfaga lo inclina, el aire que llega de lado empuja sobre todo el cuerpo, y la resultante de ese empuje actúa en un punto llamado <strong>centro de presión</strong> (CP). Cuando el CP está <em>detrás</em> del CG, esa fuerza endereza al cohete, como el viento a una veleta; cuando está delante, lo hace girar más, y el cohete da vueltas en lugar de subir.</p>
+<figure class="diagram">
+<svg viewBox="0 0 760 300" role="img" aria-label="Perfil del cohete con el centro de presión y los centros de gravedad sin motor y con los motores B6-4 y C6-5">
+  <polygon points="50.0,118.0 53.4,116.7 56.8,115.4 60.1,114.2 63.5,113.0 66.9,111.9 70.2,110.7 73.6,109.7 77.0,108.6 80.4,107.6 83.8,106.6 87.1,105.7 90.5,104.8 93.9,103.9 97.2,103.1 100.6,102.2 104.0,101.5 107.4,100.7 110.8,100.0 114.1,99.3 117.5,98.7 120.9,98.1 124.2,97.5 127.6,97.0 131.0,96.5 134.4,96.0 137.8,95.5 141.1,95.1 144.5,94.7 147.9,94.4 151.2,94.0 154.6,93.7 158.0,93.5 161.4,93.3 164.8,93.1 168.1,92.9 171.5,92.7 174.9,92.6 178.2,92.6 181.6,92.5 185.0,92.5 185.0,143.5 181.6,143.5 178.2,143.4 174.9,143.4 171.5,143.3 168.1,143.1 164.8,142.9 161.4,142.7 158.0,142.5 154.6,142.3 151.2,142.0 147.9,141.6 144.5,141.3 141.1,140.9 137.8,140.5 134.4,140.0 131.0,139.5 127.6,139.0 124.2,138.5 120.9,137.9 117.5,137.3 114.1,136.7 110.8,136.0 107.4,135.3 104.0,134.5 100.6,133.8 97.2,132.9 93.9,132.1 90.5,131.2 87.1,130.3 83.8,129.4 80.4,128.4 77.0,127.4 73.6,126.3 70.2,125.3 66.9,124.1 63.5,123.0 60.1,121.8 56.8,120.6 53.4,119.3 50.0,118.0" fill="var(--sky)" stroke="var(--ink)" stroke-width="1.4"/>
+  <rect x="185.0" y="92.5" width="525.0" height="51.0" fill="var(--sky)" stroke="var(--ink)" stroke-width="1.4"/>
+  <polygon points="620.0,92.5 665.0,25.0 710.0,25.0 710.0,92.5" fill="var(--line)" stroke="var(--ink)" stroke-width="1.2"/>
+  <polygon points="620.0,143.5 665.0,211.0 710.0,211.0 710.0,143.5" fill="var(--line)" stroke="var(--ink)" stroke-width="1.2"/>
+  <line class="svg-leader" x1="50.0" y1="276" x2="710.0" y2="276"/>
+  <text class="svg-note-sm" x="380.0" y="292" text-anchor="middle">L = 44 cm</text>
+  <text class="svg-note-sm" x="191.0" y="86.5" text-anchor="start">d = 3.4 cm</text>
+  <line x1="574.0" y1="36.0" x2="574.0" y2="118.0" stroke="var(--accent)" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <circle cx="574.0" cy="118.0" r="6" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="566.0" y="30" text-anchor="end" fill="var(--accent-dark)">CP = 34.94 cm (las tres configuraciones)</text>
+  <line x1="448.7" y1="118.0" x2="448.7" y2="190.0" stroke="var(--blue)" stroke-width="1" stroke-dasharray="2 2"/>
+  <circle cx="448.7" cy="118.0" r="4.5" fill="white" stroke="var(--blue)" stroke-width="2"/>
+  <text class="svg-note-sm" x="442.7" y="200.0" text-anchor="end">CG sin motor: 26.58 cm · 2.46 cal</text>
+  <line x1="491.5" y1="118.0" x2="491.5" y2="212.0" stroke="var(--blue)" stroke-width="1" stroke-dasharray="2 2"/>
+  <circle cx="491.5" cy="118.0" r="4.5" fill="white" stroke="var(--blue)" stroke-width="2"/>
+  <text class="svg-note-sm" x="485.5" y="222.0" text-anchor="end">CG B6-4: 29.43 cm · 1.62 cal</text>
+  <line x1="500.2" y1="118.0" x2="500.2" y2="234.0" stroke="var(--blue)" stroke-width="1" stroke-dasharray="2 2"/>
+  <circle cx="500.2" cy="118.0" r="4.5" fill="white" stroke="var(--blue)" stroke-width="2"/>
+  <text class="svg-note-sm" x="494.2" y="244.0" text-anchor="end">CG C6-5: 30.01 cm · 1.45 cal</text>
+  <line x1="500.2" y1="252" x2="574.0" y2="252" stroke="var(--ink)" stroke-width="1.6"/>
+  <text class="svg-note-sm" x="580.0" y="248" text-anchor="start">4.92 cm = 1.45 cal (C6-5)</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">El cohete de esta guía, con su centro de presión y sus centros de gravedad.</b> Perfil a escala con las medidas del diseño (dos de las tres aletas a la vista). El CP (rojo) es el mismo con motor o sin él, porque depende sólo de la forma exterior; el CG (azul) se mueve hacia la cola al poner el motor, y más con el C6, que pesa más. La barra de abajo es la distancia que define el margen de estabilidad para el C6-5.</figcaption>
+</figure>
+<p>La distancia entre los dos puntos se mide en <strong>calibres</strong>, es decir, en diámetros del cuerpo:</p>
+<div class="equation-card">\[ \text{margen} \;=\; \frac{x_{CP} - x_{CG}}{d} \qquad (1) \]</div>
+<p>con las posiciones medidas desde la punta de la nariz. Para el cohete de esta guía con el motor C6-5, \(x_{CP}\) = 34.94 cm, \(x_{CG}\) = 30.01 cm y \(d\) = 3.4 cm, de modo que el margen es \((34.94 - 30.01)/3.4 = 1.45\) calibres, la misma cifra que escribe OpenRocket junto a la vista del cohete. Como regla práctica del modelismo se busca un margen <strong>entre 1 y 2 calibres</strong>: con menos de 1, el cohete puede oscilar o perder el rumbo con viento; con más de 2 es «sobreestable» y tiende a girar hacia el viento al dejar la varilla.</p>
+<h3>De dónde sale el centro de presión</h3>
+<p>OpenRocket calcula el CP con el método de Barrowman: a cada componente exterior le asigna una pendiente de fuerza normal, \(C_{N\alpha}\), y un punto de aplicación, y el CP del cohete es el promedio de esos puntos pesado por las pendientes:</p>
+<div class="equation-card">\[ x_{CP} \;=\; \frac{\sum_i C_{N\alpha,i}\, x_i}{\sum_i C_{N\alpha,i}} \qquad (2) \]</div>
+<p>En este cohete sólo dos componentes tienen \(C_{N\alpha}\): la nariz, con 2.00 aplicado en 4.15 cm, y las aletas, con 11.08 aplicado en 40.49 cm (tabla 2). La ecuación (2) da \((2.00 \times 4.15 + 11.08 \times 40.49)/(2.00 + 11.08) = 34.94\) cm, el CP que reporta el programa. Las aletas aportan el 85 % de la fuerza normal y están en la cola: son ellas las que llevan el CP hacia atrás. Sin aletas, el CP sería el de la nariz, a 4.15 cm de la punta, delante de cualquier CG posible, y el cohete sería inestable.</p>
+<div class="result-box">
+  <p><strong>Dos consecuencias que ordenan el resto de la guía.</strong> El CP depende sólo de la forma exterior; el CG depende de <em>todas</em> las masas, también las que van por dentro. Por eso el modelo tiene que llevar cada pieza con su material real: un tope del motor sin masa o un paracaídas con las líneas equivocadas mueven el CG, y con él el margen.</p>
+</div>
+
+    </section>
+    <section id="project-es">
+      <p class="section-label">El proyecto</p>
+      <h2>De las piezas reales a los componentes de OpenRocket</h2>
+
+<p>El proyecto pide un cohete de baja potencia para un motor Estes B o C, con tubo de cartón, piezas impresas en 3D, aletas de balsa o MDF, paracaídas y retención del motor. El de esta guía es un ejemplo que cumple esos requisitos; cada equipo cambiará las medidas, pero las piezas y su orden de montaje son los mismos.</p>
+<figure class="diagram">
+  <img src="imagenes/t11-02_cohete.png" alt="Vista lateral del cohete terminado en OpenRocket con el motor C6-5" loading="lazy">
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">El cohete terminado, en la vista de OpenRocket.</b> Con la configuración de vuelo <code>[C6-5]</code>. De izquierda a derecha: el hombro de la nariz (rectángulo), el paracaídas (rojo, punteado), el cordón, el deflector a la mitad del tubo, el CG (azul y blanco), el CP (rojo), el anillo delantero, el porta motor con el motor (gris) y las aletas. Arriba a la derecha, el margen («Stability: 1.45 cal / 11.2 %»), el CG y el CP.</figcaption>
+</figure>
+<p>El primer trabajo es decidir con qué componente de OpenRocket se representa cada pieza real, y dentro de cuál va, porque el programa arma el cohete como un árbol: la nariz y el tubo cuelgan de la etapa, y todo lo demás cuelga del tubo o del porta motor.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Pieza real</th><th>Componente de OpenRocket</th><th>Dentro de</th><th>Material</th><th>Medidas</th></tr></thead>
+    <tbody>
+      <tr><td>Nariz impresa</td><td><code>Nose Cone</code></td><td>Sustainer</td><td>PLA al 100 %</td><td>ojiva de 9 cm; pared 0.15; hombro 3.2 × 3 con tapa</td></tr>
+      <tr><td>Tubo del cuerpo</td><td><code>Body Tube</code></td><td>Sustainer</td><td>cartón</td><td>35 cm; 3.4 / 3.2</td></tr>
+      <tr><td>Aletas</td><td><code>Trapezoidal</code> (fin set)</td><td>Tubo</td><td>MDF de 3 mm (propio)</td><td>3 trapezoidales: raíz 6, punta 3, altura 4.5, flecha 3, espesor 0.3; pestaña 5.7 × 0.75</td></tr>
+      <tr><td>Porta motor de 18 mm</td><td><code>Inner Tube</code></td><td>Tubo</td><td>cartón</td><td>7 cm; 1.9 / 1.8; voladizo del motor 0.5</td></tr>
+      <tr><td>Tope del motor</td><td><code>Engine Block</code></td><td>Porta motor</td><td>cartón</td><td>0.5 cm; 1.8 / 1.2</td></tr>
+      <tr><td>Retén (gancho o tapa)</td><td><code>Mass Component</code></td><td>Porta motor</td><td>—</td><td>masa de 3 g</td></tr>
+      <tr><td>Anillos centradores</td><td><code>Centering Ring</code></td><td>Tubo</td><td>PLA al 100 %</td><td>0.3 cm de espesor; 3.2 / 1.9</td></tr>
+      <tr><td>Deflector</td><td><code>Centering Ring</code> con orificio</td><td>Tubo</td><td>PLA al 100 %</td><td>0.3 cm de espesor; 3.2 / 1 (orificio)</td></tr>
+      <tr><td>Guía de lanzamiento</td><td><code>Launch Lug</code></td><td>Tubo</td><td>cartón</td><td>4 cm; 0.6 / 0.4</td></tr>
+      <tr><td>Paracaídas</td><td><code>Parachute</code></td><td>Tubo</td><td>polietileno delgado; hilo</td><td>30 cm de diámetro; 6 líneas de 30 cm</td></tr>
+      <tr><td>Cordón de amarre</td><td><code>Shock Cord</code></td><td>Tubo</td><td>elástico de 2 mm</td><td>80 cm</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Las piezas del cohete y su componente en OpenRocket.</b> Medidas en centímetros; en los tubos y anillos, diámetro exterior / interior. «Dentro de» es el componente que hay que tener seleccionado en el árbol al agregar la pieza. Las medidas se leen del archivo del diseño, <code>cohete-ejemplo.ork</code>.</caption>
+  </table>
+</div>
+<ul>
+  <li><strong>El porta motor</strong> es un tubo de 18 mm de diámetro interior, la medida de los motores Estes B y C, sostenido dentro del tubo grande por dos <strong>anillos centradores</strong>.</li>
+  <li><strong>El tope del motor</strong> es un anillo corto pegado al frente del porta motor; impide que el empuje meta el motor dentro del cohete.</li>
+  <li><strong>El retén</strong> (un gancho metálico o una tapa) impide lo contrario: que la carga de expulsión, que se dispara hacia adelante, eche el motor por detrás en lugar de sacar el paracaídas.</li>
+  <li><strong>Las pestañas de las aletas</strong> atraviesan la pared del tubo y se apoyan en el porta motor, entre los dos anillos, que las sujetan. Una aleta así no se despega con el golpe del aterrizaje.</li>
+  <li><strong>El deflector</strong> es un anillo con un orificio pequeño entre el motor y el paracaídas: frena los gases calientes de la carga de expulsión, que quemarían el paracaídas, pero deja pasar la presión que empuja la nariz hacia afuera.</li>
+</ul>
+<div class="callout">
+  <p><strong>Dos piezas sin componente propio.</strong> OpenRocket no tiene un componente «retén» ni uno «deflector». El retén se modela como una masa (<code>Mass Component</code>), y el deflector, como un anillo centrador al que se le escribe el diámetro del orificio. Lo que importa para la estabilidad es que su masa esté en el lugar correcto.</p>
+</div>
+
+    </section>
+    <section id="interface-es">
+      <p class="section-label">Orientación</p>
+      <h2>La ventana, el árbol y la paleta de componentes</h2>
+
+<p>Al abrir OpenRocket se muestran la ventana de bienvenida y las notas de la versión; al cerrarlas queda la ventana principal con un diseño nuevo.</p>
+<figure class="diagram">
+  <img src="imagenes/t11-01_ventana.png" alt="Ventana principal de OpenRocket con un diseño nuevo" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">OpenRocket al crear un diseño nuevo.</b> Arriba, las tres pestañas; a la izquierda, el árbol con el cohete (<code>Rocket</code>) y su etapa (<code>Sustainer</code>); a la derecha, la paleta <code>Add new component</code>, que sólo activa los componentes que caben dentro del seleccionado. Abajo, la vista del cohete, todavía vacía.</figcaption>
+</figure>
+<ul>
+  <li><strong>Las pestañas</strong> de arriba: <code>Rocket design</code>, donde se arma el cohete; <code>Motors &amp; Configuration</code>, donde se eligen los motores (paso 6); y <code>Flight simulations</code>, que esta guía no usa.</li>
+  <li><strong>El árbol</strong>, a la izquierda. El cohete (<code>Rocket</code>) tiene una etapa, <code>Sustainer</code>, y dentro de ella van los componentes. Un doble clic en un componente abre su cuadro de configuración.</li>
+  <li><strong>La paleta <code>Add new component</code></strong>, a la derecha. Un clic en un botón agrega ese componente <strong>dentro del que está seleccionado en el árbol</strong>, y sólo se activan los botones de los componentes que caben ahí. Antes de cada clic en la paleta hay que seleccionar el padre que indica la columna «Dentro de» de la tabla 1. La paleta tiene más grupos de los que caben a la vista (<code>Inner Components</code>, <code>Mass Components</code>); se recorre con la barra de desplazamiento de su derecha.</li>
+  <li><strong>La vista del cohete</strong>, abajo. Dibuja el cohete de perfil, marca el CG (círculo azul y blanco) y el CP (círculo rojo), y escribe arriba a la derecha el margen de estabilidad en calibres y en porcentaje de la longitud. Abajo, <code>Flight configuration</code> elige el motor con el que se calculan esas cifras.</li>
+</ul>
+<div class="callout">
+  <p><strong>El catálogo que aparece primero.</strong> Al agregar casi cualquier componente, OpenRocket abre antes <code>Choose component preset</code>, un catálogo de piezas comerciales (tubos, anillos y narices de fabricantes estadounidenses). Las piezas de este proyecto no vienen de ahí: se cierra con <code>Close</code> y aparece el cuadro de configuración del componente. Si se desmarca <code>Always open this dialog when creating a new …</code>, el catálogo deja de abrirse para ese tipo de componente.</p>
+</div>
+<h3>Cómo se coloca una pieza</h3>
+<p>Los cuadros de las piezas interiores tienen un recuadro <code>Placement</code> con dos campos: <code>Position relative to</code>, que elige la referencia (<code>Top</code>, <code>Middle</code> o <code>Bottom of the parent component</code>, es decir, el frente, la mitad o el final del padre), y <code>plus</code>, el desplazamiento desde esa referencia, positivo hacia la cola. Un anillo con <code>Bottom</code> y <code>plus</code> 0 queda al final del tubo; con <code>plus</code> −6.7, 6.7 cm más adelante. Las unidades son centímetros y gramos.</p>
+<h3>Guardar el diseño</h3>
+<p><code>File ▸ Save As</code> abre primero <code>Save Design Info</code>, un cuadro opcional con el nombre del diseño, el autor y una descripción; su <code>Design name</code> es el nombre que el cohete muestra en el árbol. Después aparece el cuadro de guardar de Java.</p>
+<div class="callout warning">
+  <p><strong>El cuadro de guardar no acepta rutas.</strong> Escribir una ruta con <code>\</code> o con <code>/</code> en el nombre de archivo da «Illegal filename», y escribir el nombre de una carpeta que no existe guarda un archivo con ese nombre. Hay que llegar a la carpeta haciendo doble clic en las carpetas de la lista. Además, en una computadora con OneDrive, la carpeta <code>Documents</code> del cuadro es <code>OneDrive&#92;Documentos</code>, no la carpeta Documentos local.</p>
+</div>
+
+    </section>
+    <section id="body-es">
+      <p class="section-label">Paso 1</p>
+      <h2>La nariz impresa y el tubo de cartón</h2>
+
+<p>La nariz y el tubo forman la forma exterior del cohete: son lo primero porque los demás componentes toman de ellos sus diámetros.</p>
+<h3>La nariz</h3>
+<ol>
+  <li>Seleccionar <code>Sustainer</code> en el árbol y hacer clic en <code>Nose Cone</code>. Cerrar el catálogo con <code>Close</code>. Se abre <code>Nose Cone configuration</code>, con una nariz de 15 cm de poliestireno y 31.5 g.</li>
+  <li>En <code>Component name</code>, escribir <code>Nariz</code>.</li>
+  <li>Pestaña <code>General</code>: <code>Nose cone shape</code> en <code>Ogive</code>, <code>Length</code> 9, <code>Base diameter</code> 3.4 y <code>Wall thickness</code> 0.15. El cuadro de la derecha explica cada forma; con <code>Shape parameter</code> 1 la ojiva es tangente al tubo.</li>
+  <li>En <code>Component material</code>, abrir la lista. Arriba tiene un campo, «Enter the material name»: escribir <code>PLA</code> y elegir <code>PLA - 100% infill (1.25 g/cm³)</code>. Con estas medidas y este material, la masa es de 11.5 g.</li>
+  <li>Pestaña <code>Shoulder</code>: <code>Diameter</code> 3.2 (el interior del tubo), <code>Length</code> 3, <code>Thickness</code> 0.15 y marcar <code>End capped</code>, la tapa donde se amarra el cordón. La masa sube a 18.1 g.</li>
+  <li><code>OK</code>.</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t11-03_nariz.png" alt="Cuadro de la nariz: pestañas General y Shoulder" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">La nariz impresa.</b> Pestaña <code>General</code> (izquierda), con la ojiva de 9 cm, la pared de 1.5 mm y el PLA; pestaña <code>Shoulder</code> (derecha), con el hombro que entra en el tubo y su tapa (<code>End capped</code>). Abajo a la izquierda de cada una, la masa: 11.5 g sin el hombro y 18.1 g con él.</figcaption>
+</figure>
+<div class="callout">
+  <p><strong>El PLA de OpenRocket es macizo.</strong> El material de la lista supone relleno al 100 %. Una nariz impresa con menos relleno pesa menos, y la diferencia mueve el CG. Cuando la pieza ya esté impresa conviene pesarla y comparar; OpenRocket tiene para eso la pestaña <code>Override</code> de cada componente, que esta guía no usa.</p>
+</div>
+<h3>El tubo</h3>
+<ol>
+  <li>Con <code>Sustainer</code> seleccionado, <code>Body Tube</code> y <code>Close</code> en el catálogo.</li>
+  <li><code>Component name</code>: <code>Tubo</code>. <code>Length</code> 35. <code>Outer diameter</code> se queda en <code>Automatic</code>: toma los 3.4 cm de la base de la nariz.</li>
+  <li><code>Wall thickness</code> 0.1: el diámetro interior pasa solo a 3.2. El material ya es <code>Cardboard (0.68 g/cm³)</code>.</li>
+  <li><code>OK</code>. La masa del tubo es de 24.7 g y el cohete mide ya 44 cm.</li>
+</ol>
+<figure class="diagram medium">
+  <img src="imagenes/t11-04_tubo.png" alt="Cuadro del tubo del cuerpo" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">El tubo de cartón.</b> El diámetro exterior queda en <code>Automatic</code>: lo toma de la base de la nariz. El interior y el espesor de pared están ligados; al escribir 0.1 en la pared, el interior pasa a 3.2 cm.</figcaption>
+</figure>
+<div class="callout">
+  <p><strong>Tres campos ligados.</strong> Diámetro exterior, diámetro interior y espesor de pared no son independientes: al cambiar uno, OpenRocket ajusta otro. En el tubo, escribir la pared cambia el interior; en la guía de lanzamiento (paso 5), escribir el interior conserva la pared y cambia el exterior. Después de escribir un diámetro hay que revisar los otros dos.</p>
+</div>
+
+    </section>
+    <section id="fins-es">
+      <p class="section-label">Paso 2</p>
+      <h2>Aletas de MDF y un material propio</h2>
+
+<p>Las aletas son de MDF de 3 mm. OpenRocket no trae ese material (sí trae balsa, contrachapado y varios cartones), así que primero se define.</p>
+<ol>
+  <li>Seleccionar <code>Tubo</code> en el árbol y hacer clic en <code>Trapezoidal</code>. No abre catálogo.</li>
+  <li><code>Component name</code>: <code>Aletas</code>. <code>Number of fins</code> 3, <code>Root chord</code> 6, <code>Tip chord</code> 3, <code>Height</code> 4.5, <code>Sweep length</code> 3; el <code>Sweep angle</code> se calcula solo (33.7°). <code>Fin cross section</code> <code>Square</code> (canto recto, sin perfilar) y <code>Thickness</code> 0.3.</li>
+  <li><code>Placement</code>: <code>Bottom of the parent component</code>, <code>plus</code> 0. Las aletas quedan al ras del final del tubo.</li>
+  <li>Abrir la lista <code>Component material</code> y elegir, al fondo, <code>Custom ▸ Add custom material</code>. En <code>Custom material</code>: <code>Material name</code> <code>MDF</code>, <code>Material density</code> 0.75 g/cm³, <code>Material group</code> <code>Custom</code>. <code>OK</code>.</li>
+  <li>El material de las aletas queda como <code>(ud) MDF (0.75 g/cm³)</code>. <code>OK</code>.</li>
+</ol>
+<figure class="diagram narrow">
+  <img src="imagenes/t11-05_material_mdf.png" alt="Cuadro Custom material con el MDF definido" loading="lazy">
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">Un material que OpenRocket no trae.</b> <code>Custom material</code>, desde la lista de materiales. Con <code>Add material to application database</code> sin marcar, el MDF sólo existe en este diseño.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t11-06_aletas.png" alt="Cuadro de las aletas trapezoidales con el MDF" loading="lazy">
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">Las aletas.</b> Tres aletas de raíz 6 cm, punta 3 cm, altura 4.5 cm y flecha 3 cm; el ángulo de flecha (33.7°) lo calcula el programa. El material aparece como «(ud) MDF», de <em>user defined</em>. Masa: 13.7 g, todavía sin pestañas.</figcaption>
+</figure>
+<p>Con las aletas, la vista marca por primera vez el CP en la cola. La densidad del MDF varía con el fabricante, entre unos 0.6 y 0.8 g/cm³; la forma más segura de conocerla es pesar una placa y dividir entre su volumen. La pestaña <code>Fin tabs</code> se deja para el paso 4: su cálculo automático se apoya en el porta motor y en los anillos, que todavía no existen.</p>
+<div class="callout">
+  <p><strong>Las plantillas de corte.</strong> El botón <code>Export to SVG</code> del mismo cuadro guarda el contorno de la aleta a escala, listo para una cortadora láser o para imprimirlo como plantilla.</p>
+</div>
+
+    </section>
+    <section id="mount-es">
+      <p class="section-label">Paso 3</p>
+      <h2>El porta motor, el tope y el retén</h2>
+
+<p>El porta motor es un tubo interior; lo que lo distingue es una casilla que le dice a OpenRocket que ahí va el motor.</p>
+<h3>El porta motor</h3>
+<ol>
+  <li>Seleccionar <code>Tubo</code> y, en el grupo <code>Inner Components</code> de la paleta, <code>Inner Tube</code>; <code>Close</code> en el catálogo.</li>
+  <li><code>Component name</code>: <code>Porta motor</code>. Revisar que <code>Length</code> sea 7, <code>Outer diameter</code> 1.9 e <code>Inner diameter</code> 1.8 (pared de 0.05), con <code>Placement</code> en <code>Bottom</code>, <code>plus</code> 0, y material <code>Cardboard</code>: en esta versión el tubo interior ya nace con esos valores, los de un porta motor de 18 mm.</li>
+  <li>Pestaña <code>Motor</code>: marcar <code>This component is a motor mount</code> y escribir <code>Motor overhang</code> 0.5, lo que el motor sobresale por detrás del porta motor.</li>
+  <li><code>OK</code>. Masa: 1.38 g.</li>
+</ol>
+<figure class="diagram medium">
+  <img src="imagenes/t11-07_porta_motor.png" alt="Pestaña Motor del tubo interior" loading="lazy">
+  <figcaption><b class="fig-num">Figura 8.</b> <b class="fig-title">El tubo interior se vuelve porta motor.</b> En la pestaña <code>Motor</code> del <code>Inner Tube</code>: la casilla <code>This component is a motor mount</code> y el voladizo del motor (<code>Motor overhang</code>), lo que el motor sobresale por detrás.</figcaption>
+</figure>
+<h3>El tope del motor</h3>
+<ol>
+  <li>Seleccionar <code>Porta motor</code> en el árbol y hacer clic en <code>Engine Block</code>; <code>Close</code> en el catálogo.</li>
+  <li><code>Component name</code>: <code>Tope del motor</code>. <code>Length</code> 0.5. El diámetro exterior queda en <code>Automatic</code> (1.8). Escribir <code>Inner diameter</code> 1.2: la pared queda en 0.3.</li>
+  <li><code>Position relative to</code>: <code>Top of the parent component</code>. Revisar <code>plus</code>: si dice 6.5, escribir 0.</li>
+  <li><code>OK</code>. Masa: 0.48 g.</li>
+</ol>
+<figure class="diagram medium">
+  <img src="imagenes/t11-08_tope.png" alt="Cuadro del tope del motor con plus en 6.5" loading="lazy">
+  <figcaption><b class="fig-num">Figura 9.</b> <b class="fig-title">El tope del motor, a medio corregir.</b> Se cambió la referencia a <code>Top of the parent component</code> y se le dio pared de 3 mm, pero el desplazamiento quedó en <code>plus 6.5</code>: OpenRocket conservó el lugar donde estaba el tope, al fondo. Hay que escribir 0.</figcaption>
+</figure>
+<div class="callout warning">
+  <p><strong>El tope nace en el lugar del motor y sin masa.</strong> OpenRocket crea el <code>Engine Block</code> con pared 0, es decir, sin masa, y al fondo del porta motor, que es justo donde va el motor. Además, al cambiar la referencia a <code>Top</code>, el programa conserva el lugar que tenía la pieza y ajusta <code>plus</code> para lograrlo: el tope sigue al fondo, ahora a «6.5 cm del frente». Esto vale para cualquier componente: después de cambiar <code>Position relative to</code> siempre hay que revisar <code>plus</code>.</p>
+</div>
+<h3>El retén</h3>
+<ol>
+  <li>Con <code>Porta motor</code> seleccionado, en el grupo <code>Mass Components</code>, <code>Mass Component</code>.</li>
+  <li><code>Component name</code>: <code>Retén del motor</code>. <code>Mass</code> 3 g, <code>Length</code> 1, <code>Diameter</code> 2.4. <code>Placement</code>: <code>Bottom</code>, <code>plus</code> 0.</li>
+  <li><code>OK</code>.</li>
+</ol>
+<p>Los 3 g son una estimación para un gancho metálico; con la pieza real en la mano, se pesa y se corrige. Como es una masa en la cola, cada gramo de más reduce el margen.</p>
+
+    </section>
+    <section id="rings-es">
+      <p class="section-label">Paso 4</p>
+      <h2>Anillos centradores, pestañas de las aletas y el deflector</h2>
+
+<h3>Los anillos centradores</h3>
+<ol>
+  <li>Seleccionar <code>Tubo</code> y hacer clic en <code>Centering Ring</code>; <code>Close</code> en el catálogo.</li>
+  <li><code>Component name</code>: <code>Anillo trasero</code>. <code>Thickness</code> 0.3. Los diámetros quedan en <code>Automatic</code>: el exterior toma el interior del tubo (3.2) y el interior, el exterior del porta motor (1.9).</li>
+  <li><code>Placement</code>: <code>Bottom</code>, <code>plus</code> 0. Material: <code>PLA - 100% infill</code>. <code>OK</code>. Masa: 1.95 g.</li>
+  <li>Con el anillo seleccionado, <code>Duplicate</code>. Abrir la copia con doble clic, llamarla <code>Anillo delantero</code> y escribir <code>plus</code> −6.7: queda en el frente del porta motor, entre 37.0 y 37.3 cm de la punta.</li>
+</ol>
+<h3>Las pestañas de las aletas</h3>
+<ol>
+  <li>Doble clic en <code>Aletas</code> y pestaña <code>Fin tabs</code>. <code>Tab height</code> está en 0: la pestaña existe, pero no tiene altura ni masa.</li>
+  <li>Hacer clic en <code>Calculate automatically</code>. OpenRocket ajusta la pestaña para que llegue a la pared del porta motor y quepa entre los dos anillos: <code>Tab length</code> 5.7, <code>Tab height</code> 0.75, <code>Tab position</code> −0.15 respecto a la mitad de la raíz.</li>
+  <li><code>OK</code>. Las aletas pasan de 13.7 a 16.6 g.</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t11-09_pestanas.png" alt="Pestaña Fin tabs con las medidas calculadas" loading="lazy">
+  <figcaption><b class="fig-num">Figura 10.</b> <b class="fig-title">Las pestañas de las aletas.</b> Después de <code>Calculate automatically</code>: 5.7 cm de largo y 0.75 cm de alto, centradas 0.15 cm adelante del centro de la raíz. La masa de las aletas sube de 13.7 a 16.6 g.</figcaption>
+</figure>
+<p>La altura de 0.75 cm es la distancia del exterior del tubo (radio 1.7) al exterior del porta motor (radio 0.95): la pestaña atraviesa la pared del tubo y toca el porta motor. El largo es el hueco entre el frente de la raíz y el anillo trasero.</p>
+<h3>El deflector</h3>
+<ol>
+  <li>Con <code>Tubo</code> seleccionado, otro <code>Centering Ring</code>; <code>Close</code> en el catálogo.</li>
+  <li><code>Component name</code>: <code>Deflector</code>. <code>Thickness</code> 0.3. Escribir <code>Inner diameter</code> 1: la casilla <code>Automatic</code> de ese diámetro se desmarca sola, y ese diámetro es el orificio.</li>
+  <li><code>Placement</code>: <code>Bottom</code>, <code>plus</code> −17.35: el deflector queda centrado a la mitad del tubo, en 26.5 cm. Material: <code>PLA - 100% infill</code>. <code>OK</code>. Masa: 2.72 g.</li>
+</ol>
+<figure class="diagram medium">
+  <img src="imagenes/t11-11_deflector.png" alt="Cuadro del deflector como anillo centrador con orificio" loading="lazy">
+  <figcaption><b class="fig-num">Figura 11.</b> <b class="fig-title">El deflector.</b> Un <code>Centering Ring</code> de PLA con el diámetro interior escrito (1 cm, sin <code>Automatic</code>). El campo <code>plus</code> muestra −17.4, redondeado: el valor guardado es −17.35 cm.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t11-10_cola.png" alt="Vista ampliada de la cola con las pestañas, los anillos y el deflector" loading="lazy">
+  <figcaption><b class="fig-num">Figura 12.</b> <b class="fig-title">La cola por dentro.</b> Vista al 100 %, de los 24 cm a la cola. La pestaña (rectángulo delgado sobre el porta motor) llega al porta motor y queda entre el anillo delantero (en 37 cm) y el trasero (al final del tubo). A la izquierda, el deflector a la mitad del tubo, con el orificio dibujado como un hueco en el centro.</figcaption>
+</figure>
+<div class="callout">
+  <p><strong>¿Dónde va el deflector?</strong> Entre el porta motor y el paracaídas; dentro de ese tramo, el lugar casi no cambia la estabilidad, porque pesa menos de 3 g. Se probaron dos posiciones: a 3.7 cm del porta motor y a la mitad del tubo. Pasarlo a la mitad del tubo adelantó el CG 0.2 cm y subió el margen en 0.06 calibres. Lo que sí cambia es el espacio para el paracaídas: delante del deflector quedan unos 14 cm de tubo libre.</p>
+</div>
+
+    </section>
+    <section id="recovery-es">
+      <p class="section-label">Paso 5</p>
+      <h2>Guía de lanzamiento, paracaídas y cordón</h2>
+
+<h3>La guía de lanzamiento</h3>
+<ol>
+  <li>Con <code>Tubo</code> seleccionado, <code>Launch Lug</code> (en la paleta, junto a <code>Rail Button</code>); <code>Close</code> en el catálogo.</li>
+  <li><code>Component name</code>: <code>Guía de lanzamiento</code>. <code>Length</code> 4. <code>Inner diameter</code> 0.4, para la varilla de 1/8 in (3.2 mm). El espesor se conserva en 0.1 y el exterior pasa a 0.6.</li>
+  <li>Revisar <code>Placement</code>: <code>Middle of the parent component</code>, <code>plus</code> 0 y <code>Rotation</code> 180, entre dos aletas; así viene. Material <code>Cardboard</code>. <code>OK</code>. Masa: 0.43 g.</li>
+</ol>
+<h3>El paracaídas</h3>
+<ol>
+  <li>Con <code>Tubo</code> seleccionado, en <code>Mass Components</code>, <code>Parachute</code>; <code>Close</code> en el catálogo.</li>
+  <li><code>Component name</code>: <code>Paracaídas</code>. <code>Canopy</code>: <code>Diameter</code> 30 y material <code>Polyethylene (thin)</code>, el de una bolsa de plástico.</li>
+  <li><code>Shroud lines</code>: <code>Number of lines</code> 6, <code>Line length</code> 30. En <code>Material</code>, cambiar el cordón elástico que trae por hilo: <code>Kevlar thread 138 (0.4 mm, 1/64 in)</code>.</li>
+  <li><code>Placement</code>: <code>Top</code>, <code>plus</code> 3 (justo detrás del hombro de la nariz). <code>Packed length</code> 4 y <code>Packed diameter</code> 2.8, el paracaídas doblado.</li>
+  <li><code>Deployment</code>: <code>Deploys at</code> <code>First ejection charge of this stage</code>, <code>plus</code> 0 s. <code>OK</code>. Masa: 1.33 g.</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t11-12_paracaidas.png" alt="Cuadro del paracaídas" loading="lazy">
+  <figcaption><b class="fig-num">Figura 13.</b> <b class="fig-title">El paracaídas.</b> Polietileno delgado de 30 cm, seis líneas de hilo de 0.4 mm, plegado en 4 × 2.8 cm junto a la nariz, y abierto por la carga de expulsión (<code>First ejection charge of this stage</code>). Masa: 1.33 g.</figcaption>
+</figure>
+<div class="callout warning">
+  <p><strong>Las líneas que trae el paracaídas pesan más que el paracaídas.</strong> OpenRocket propone líneas de cordón elástico de 2 mm: con ellas, el mismo paracaídas pesa 4.3 g. Con hilo de 0.4 mm pesa 1.33 g. Son 3 g en la parte delantera del cohete, que aquí harían ver el margen mejor de lo que es.</p>
+</div>
+<h3>El cordón de amarre</h3>
+<ol>
+  <li>Con <code>Tubo</code> seleccionado, <code>Shock Cord</code>.</li>
+  <li><code>Component name</code>: <code>Cordón de amarre</code>. <code>Shock cord length</code> 80, material <code>Elastic cord (round 2 mm, 1/16 in)</code>.</li>
+  <li><code>Placement</code>: <code>Top</code>, <code>plus</code> 7; <code>Packed length</code> 2.5, <code>Packed diameter</code> 2.5. <code>OK</code>. Masa: 1.44 g.</li>
+</ol>
+<p>El cohete está completo: 73.99 g sin motor. Es buen momento para guardarlo.</p>
+
+    </section>
+    <section id="motors-es">
+      <p class="section-label">Paso 6</p>
+      <h2>Un Estes B6-4 y un C6-5 como configuraciones de vuelo</h2>
+
+<p>En OpenRocket, cada motor que se quiera probar es una <strong>configuración de vuelo</strong>. El nombre del motor dice lo esencial: en <strong>C6-5</strong>, la C es la clase de impulso total (cada letra duplica a la anterior: una C tiene hasta el doble que una B), el 6 es el empuje medio en newtons y el 5 son los segundos entre el fin de la combustión y la carga de expulsión.</p>
+<ol>
+  <li>Pestaña <code>Motors &amp; Configuration</code>. En <code>Motor mounts</code> ya aparece <code>Porta motor</code> marcado: es el efecto de la casilla del paso 3.</li>
+  <li><code>New Configuration</code>. Se abre <code>Select a rocket motor</code>.</li>
+  <li>Marcar <code>Limit motor diameter to mount diameter</code>: la lista se reduce a los motores de 18 mm. OpenRocket recuerda la casilla, así que la siguiente vez ya aparece marcada.</li>
+  <li>Escribir <code>C6</code> en <code>Search</code> y elegir la fila <code>Estes</code> (la tercera: antes vienen el WECO Feuerwerk y el Quest). En <code>Ejection charge delay</code>, escribir 5.</li>
+  <li><code>OK</code>. La configuración aparece como <code>[C6-5]</code>.</li>
+  <li>Repetir con <code>New Configuration</code>: <code>B6</code> en <code>Search</code> (el Estes es la primera fila) y retardo 4: <code>[B6-4]</code>.</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t11-13_motor.png" alt="Cuadro Select a rocket motor con el Estes C6 elegido" loading="lazy">
+  <figcaption><b class="fig-num">Figura 14.</b> <b class="fig-title">La elección del motor.</b> Con <code>Limit motor diameter to mount diameter</code> quedan los motores de 18 mm (46 en la base de datos de esta versión). Está elegido el Estes C6 y el retardo escrito, 5 s. La ventana se subió hasta el borde de la pantalla para que se vieran el buscador y el botón <code>OK</code>.</figcaption>
+</figure>
+<div class="callout warning">
+  <p><strong>El cuadro de motores no cabe en la pantalla.</strong> En una pantalla de 1080 píxeles de alto, <code>Select a rocket motor</code> queda más alto que el espacio libre: el campo de búsqueda (<code>Search</code>) y los botones <code>OK</code> y <code>Cancel</code> quedan debajo de la barra de tareas, y la tecla Enter no lo cierra. Hay que arrastrarlo por su barra de título hasta el borde superior de la pantalla.</p>
+</div>
+<p>De vuelta en <code>Rocket design</code>, la lista <code>Flight configuration</code> de la vista ofrece <code>[No motors]</code>, <code>[C6-5]</code> y <code>[B6-4]</code>. Al elegir un motor, la vista lo dibuja en gris, recalcula el CG y, abajo a la izquierda, adelanta el resultado de una simulación rápida: con el C6-5, un apogeo de unos 175 m; con el B6-4, de unos 71 m (71.5 m en una corrida y 71.3 m en otra: la simulación rápida no da siempre lo mismo). Esas cifras dependen del lanzamiento y del clima que se supongan, y no son el tema de esta guía; el margen, sí.</p>
+
+    </section>
+    <section id="stability-es">
+      <p class="section-label">Paso 7</p>
+      <h2>Leer el margen en el análisis de componentes</h2>
+
+<p>La vista ya escribe el margen, pero la tabla de la que sale permite ver qué pieza pesa cuánto y dónde está, que es lo que hace falta para cambiar el diseño con criterio.</p>
+<ol>
+  <li><code>Tools ▸ Component analysis</code>.</li>
+  <li>Arriba a la derecha, en <code>Motor configuration</code>, elegir <code>[C6-5]</code>.</li>
+  <li>La pestaña <code>Stability</code> muestra una fila por componente: masa propia, masa agregada, CG, CP y \(C_{N\alpha}\). La primera fila, <code>Total (Rocket)</code>, es la del cohete completo.</li>
+  <li>Para llevarse la tabla: hacer clic en ella, <code>Ctrl+A</code> y <code>Ctrl+C</code>. Se copia con todos los decimales, separada por tabuladores, lista para pegarse en una hoja de cálculo.</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t11-14_analisis.png" alt="Cuadro Component analysis con el motor C6-5" loading="lazy">
+  <figcaption><b class="fig-num">Figura 15.</b> <b class="fig-title">El análisis de componentes.</b> <code>Tools ▸ Component analysis</code>, pestaña <code>Stability</code>, con la configuración <code>[C6-5]</code>. La fila <code>Total (Rocket)</code> da la masa, el CG (30.012 cm) y el CP (34.936 cm). Debajo de la tabla, fuera del recorte, el cuadro indica la longitud de referencia del margen: <code>Reference length: 3.4 cm</code>.</figcaption>
+</figure>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Componente</th><th>Masa (g)</th><th>CG (cm)</th><th>CP (cm)</th><th>C<sub>Nα</sub></th></tr></thead>
+    <tbody>
+      <tr><td><strong>Cohete completo</strong></td><td><strong>97.09</strong></td><td><strong>30.01</strong></td><td><strong>34.94</strong></td><td><strong>13.08</strong></td></tr>
+      <tr><td>Nariz</td><td>18.08</td><td>7.53</td><td>4.15</td><td>2.00</td></tr>
+      <tr><td>Tubo</td><td>24.67</td><td>26.50</td><td>—</td><td>—</td></tr>
+      <tr><td>Aletas</td><td>16.55</td><td>41.52</td><td>40.49</td><td>11.08</td></tr>
+      <tr><td>Porta motor</td><td>1.38</td><td>40.50</td><td>—</td><td>—</td></tr>
+      <tr><td>Tope del motor</td><td>0.48</td><td>37.25</td><td>—</td><td>—</td></tr>
+      <tr><td>Retén del motor</td><td>3.00</td><td>43.50</td><td>—</td><td>—</td></tr>
+      <tr><td>Anillo trasero</td><td>1.95</td><td>43.85</td><td>—</td><td>—</td></tr>
+      <tr><td>Anillo delantero</td><td>1.95</td><td>37.15</td><td>—</td><td>—</td></tr>
+      <tr><td>Guía de lanzamiento</td><td>0.43</td><td>26.50</td><td>—</td><td>—</td></tr>
+      <tr><td>Paracaídas</td><td>1.33</td><td>14.00</td><td>—</td><td>—</td></tr>
+      <tr><td>Cordón de amarre</td><td>1.44</td><td>17.25</td><td>—</td><td>—</td></tr>
+      <tr><td>Deflector</td><td>2.72</td><td>26.50</td><td>—</td><td>—</td></tr>
+      <tr><td>Motor Estes C6-5</td><td>23.10</td><td>41.00</td><td>—</td><td>—</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">El análisis de componentes con el motor C6-5.</b> Copia de la tabla de <code>Tools ▸ Component analysis</code> (pestaña <code>Stability</code>, Mach 0.3, ángulo de ataque 0), redondeada a dos decimales. Las posiciones se miden desde la punta de la nariz. Sólo la nariz y las aletas tienen C<sub>Nα</sub>: el tubo recto no aporta fuerza normal en la teoría de Barrowman, y las piezas internas no tocan el aire.</caption>
+  </table>
+</div>
+<p>Con la fila del total y la ecuación (1) se comprueba el margen: \((34.94 - 30.01)/3.4 = 1.45\) calibres. Repetido para las tres configuraciones:</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Configuración</th><th>Masa (g)</th><th>CG (cm)</th><th>CP (cm)</th><th>CP − CG (cm)</th><th>Margen (cal)</th><th>Respecto a L</th></tr></thead>
+    <tbody>
+      <tr><td>Sin motor</td><td>73.99</td><td>26.58</td><td>34.94</td><td>8.35</td><td>2.46</td><td>19.0 %</td></tr>
+      <tr><td>Estes B6-4</td><td>92.21</td><td>29.43</td><td>34.94</td><td>5.51</td><td>1.62</td><td>12.5 %</td></tr>
+      <tr><td>Estes C6-5</td><td>97.09</td><td>30.01</td><td>34.94</td><td>4.92</td><td>1.45</td><td>11.2 %</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">El margen de estabilidad en las tres configuraciones.</b> CG y CP de la fila «Total (Rocket)» de cada tabla de <code>Component analysis</code>; el margen se calcula con la ecuación (1), con d = 3.4 cm, y coincide con el que OpenRocket escribe junto a la vista del cohete. La última columna es la misma distancia como fracción de la longitud total (44 cm), la segunda cifra de esa línea.</caption>
+  </table>
+</div>
+<div class="result-box">
+  <p><strong>El margen que importa es el que tiene el cohete con motor.</strong> Sin motor, 2.46 calibres parecerían demasiados; pero el cohete nunca vuela sin motor. El B6-4 agrega 18.2 g y el C6-5 23.1 g, casi todo detrás del CG: el CG retrocede y el margen baja a 1.62 y 1.45 calibres, los dos dentro del intervalo de 1 a 2. El margen más pequeño es el del motor más pesado, y es el que hay que revisar primero.</p>
+</div>
+<div class="callout">
+  <p><strong>Las piezas internas no mueven el CP.</strong> El CP (34.94 cm) es el mismo en las tres filas de la tabla 3 y no cambió al agregar las pestañas ni el deflector, porque van por dentro. Lo que mueven es el CG: las pestañas suman masa en la cola y lo atrasan; una nariz más pesada lo adelanta. Para corregir un margen pequeño hay dos caminos: agrandar las aletas (mueve el CP hacia atrás) o poner peso en la nariz (mueve el CG hacia adelante).</p>
+</div>
+<div class="callout warning">
+  <p><strong>La lista de motores del análisis manda también en la ventana principal.</strong> Cambiar <code>Motor configuration</code> dentro de <code>Component analysis</code> cambia la configuración de la vista y marca el diseño como modificado (aparece un asterisco en el título).</p>
+</div>
+
+    </section>
+    <section id="example-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>Balsa en lugar de MDF</h2>
+
+<p class="lead">El proyecto admite aletas de balsa o de MDF. Esta práctica mide qué cambia al pasar de una a otra.</p>
+<div class="example">
+  <p><strong>Enunciado.</strong> En el cohete de esta guía, cambiar el material de las aletas de MDF a balsa, sin tocar su forma ni sus pestañas, y registrar la masa de las aletas, la masa del cohete sin motor y el margen de estabilidad sin motor, con el B6-4 y con el C6-5.</p>
+  <p><strong>Condiciones.</strong> OpenRocket 24.12; el diseño de esta guía o el archivo <a href="archivos/cohete-ejemplo.ork" download>cohete-ejemplo.ork</a>; margen leído en <code>Component analysis</code> y comprobado con la ecuación (1).</p>
+</div>
+<h3>El procedimiento, en corto</h3>
+<ol>
+  <li>Abrir el diseño y guardarlo con otro nombre (<code>File ▸ Save As</code>), para no perder el de MDF.</li>
+  <li>Doble clic en <code>Aletas</code>; en <code>Component material</code>, <code>Woods ▸ Balsa (0.17 g/cm³)</code>. Anotar la masa del pie del cuadro y <code>OK</code>.</li>
+  <li><code>Tools ▸ Component analysis</code>; copiar la fila <code>Total (Rocket)</code> con cada una de las tres configuraciones.</li>
+  <li>Calcular el margen con la ecuación (1) y compararlo con el que escribe la vista.</li>
+</ol>
+<h3>Registro de resultados</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Aletas</th><th>Masa de las aletas (g)</th><th>Masa sin motor (g)</th><th>Margen sin motor (cal)</th><th>Margen con B6-4 (cal)</th><th>Margen con C6-5 (cal)</th></tr></thead>
+    <tbody>
+      <tr><td>MDF (0.75 g/cm³)</td><td>16.55</td><td>73.99</td><td>2.46</td><td>1.62</td><td>1.45</td></tr>
+      <tr><td>Balsa (0.17 g/cm³)</td><td></td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">Registro de la práctica.</b> La primera fila es la del cohete de esta guía; la segunda se llena con aletas de balsa.</caption>
+  </table>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>La masa de las aletas, ¿cambia en la proporción de las densidades, 0.17/0.75? ¿Y la masa del cohete sin motor?</li>
+  <li>¿Se movió el CP? Explicar la respuesta con la ecuación (2).</li>
+  <li>¿Hacia dónde se movió el CG, y por qué el margen cambió en ese sentido?</li>
+  <li>Con aletas de balsa, ¿el margen con el C6-5 sigue entre 1 y 2 calibres? Si no, ¿qué cambiaría primero: el tamaño de las aletas o el peso de la nariz?</li>
+</ol>
+
+    </section>
+    <section id="summary-es">
+      <p class="section-label">Puntos clave</p>
+      <h2>Lo que hay que retener</h2>
+
+<ul>
+  <li><strong>El CP sale de la forma exterior; el CG, de todas las masas.</strong> Un modelo con materiales o masas equivocados da un margen equivocado aunque la forma sea perfecta.</li>
+  <li><strong>El margen se mide en calibres</strong>, \((x_{CP} - x_{CG})/d\), y se busca entre 1 y 2 <em>con el motor puesto</em>.</li>
+  <li><strong>Cada componente se agrega dentro del que está seleccionado.</strong> La nariz y el tubo cuelgan de la etapa; el porta motor, los anillos, las aletas y la recuperación, del tubo; el tope y el retén, del porta motor.</li>
+  <li><strong>Lo que OpenRocket no trae se construye con lo que sí trae:</strong> el MDF como material propio, el retén como masa, el deflector como anillo con orificio.</li>
+  <li><strong>Los valores por omisión no son inocentes:</strong> tope sin pared y al fondo, pestañas de altura 0, líneas del paracaídas de cordón elástico.</li>
+  <li><strong>La tabla de <code>Component analysis</code> se copia</strong> con <code>Ctrl+A</code>, <code>Ctrl+C</code>: así las cifras del reporte no se transcriben de la pantalla.</li>
+</ul>
+
+    </section>
+    <section id="mistakes-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Dónde OpenRocket no hace lo que uno espera</h2>
+
+<ul>
+  <li><strong>Agregar con el padre equivocado.</strong> Si está seleccionada la nariz al hacer clic en <code>Centering Ring</code>, el anillo queda dentro de la nariz. Se corrige borrándolo (<code>Delete</code>) y agregándolo de nuevo con el padre correcto.</li>
+  <li><strong>Dejar el tope del motor como nace.</strong> Pared 0 y al fondo del porta motor: no pesa y está donde va el motor.</li>
+  <li><strong>Cambiar <code>Position relative to</code> y no revisar <code>plus</code>.</strong> OpenRocket conserva el lugar de la pieza y compensa con el desplazamiento.</li>
+  <li><strong>Calcular las pestañas antes de tener los anillos</strong>, o no calcularlas: con <code>Tab height</code> 0 no existen.</li>
+  <li><strong>Quedarse con las líneas de cordón elástico del paracaídas</strong>: 3 g de más en la parte delantera.</li>
+  <li><strong>Leer el margen sin motor</strong> y concluir que el cohete es demasiado estable.</li>
+  <li><strong>Dejar vacío <code>Design name</code></strong> en <code>Save Design Info</code> al volver a guardar: el cohete vuelve a llamarse <code>Rocket</code> en el árbol.</li>
+  <li><strong>Escribir una ruta en el cuadro de guardar</strong> o buscar el archivo en la carpeta Documentos local cuando el cuadro guardó en la de OneDrive.</li>
+</ul>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ul>
+  <li>OpenRocket. <em>OpenRocket documentation</em> (versión 24.12). <a href="https://openrocket.readthedocs.io" target="_blank" rel="noopener">openrocket.readthedocs.io</a>.</li>
+  <li>Barrowman, J. S. (1967). <em>The practical calculation of the aerodynamic characteristics of slender finned vehicles</em>. Tesis de maestría, The Catholic University of America.</li>
+  <li>Niskanen, S. (2009). <em>Development of an open source model rocket simulation software</em>. Tesis de maestría, Helsinki University of Technology. Es la documentación técnica original de OpenRocket.</li>
+  <li>Estes Industries. Motores de modelismo, hojas de datos de los B6-4 y C6-5. <a href="https://estesrockets.com" target="_blank" rel="noopener">estesrockets.com</a>.</li>
+  <li>National Association of Rocketry. <em>Model Rocket Safety Code</em>. <a href="https://www.nar.org/safety-information/model-rocket-safety-code/" target="_blank" rel="noopener">nar.org</a>.</li>
+</ul>
+<p class="source-note">Todas las capturas son de OpenRocket 24.12 en Windows 11, manejado en una pantalla de 1920 × 1080. Las masas, los CG, los CP y los \(C_{N\alpha}\) se copiaron de <code>Component analysis</code> con <code>Ctrl+C</code>, y las medidas se leen del archivo del diseño, que se publica con la guía.</p>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="index.html?v=13"><span>Índice de la serie</span>← Tutoriales de OpenRocket</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenRocket · Serie de tutoriales</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Die Projektrakete in OpenRocket mit den tatsächlich verwendeten Materialien (gedrucktes PLA, Pappe, MDF) modellieren, ein fehlendes Material definieren, Motorhalterung mit Anschlag und Halteclip, Zentrierringe, Flossenlaschen, Prallblech und Fallschirm aufbauen, Estes-Motoren B6-4 und C6-5 laden und die Stabilitätsreserve in Kalibern aus der Komponentenanalyse ablesen.</p>
+    </section>
+    <section id="physics-de">
+      <p class="section-label">Die Idee</p>
+      <h2>Schwerpunkt, Druckpunkt und die Reserve in Kalibern</h2>
+<p>Eine Rakete fliegt gerade, wenn ihr Druckpunkt hinter dem Schwerpunkt liegt. Die Reserve ist (x_CP − x_CG)/d in Kalibern; üblich sind 1 bis 2. OpenRocket berechnet den Druckpunkt nach Barrowman als gewichtetes Mittel der Normalkraftgradienten der Bauteile: hier 2,0 von der Spitze und 11,08 von den Flossen bei insgesamt 13,08.</p>
+    </section>
+    <section id="project-de">
+      <p class="section-label">Das Projekt</p>
+      <h2>Von den echten Bauteilen zu OpenRocket-Komponenten</h2>
+<p>Die Beispielrakete ist 44 cm lang und hat 3,4 cm Durchmesser bei einer 18-mm-Motorhalterung. Jedes echte Bauteil wird einer OpenRocket-Komponente zugeordnet; Halteclip und Prallblech haben keine eigene Komponente und werden als Massenkomponente bzw. als Zentrierring mit Bohrung modelliert.</p>
+    </section>
+    <section id="interface-de">
+      <p class="section-label">Orientierung</p>
+      <h2>Das Fenster, der Baum und die Komponentenpalette</h2>
+<p>OpenRocket hat drei Reiter (Rocket design, Motors &amp; Configuration, Flight simulations). Der Baum zeigt die Komponenten; eine neue Komponente wird in die im Baum ausgewählte eingefügt. Vor jeder neuen Komponente öffnet sich ein Teilekatalog, der für die manuelle Eingabe geschlossen wird.</p>
+    </section>
+    <section id="body-de">
+      <p class="section-label">Schritt 1</p>
+      <h2>Die gedruckte Spitze und das Papprohr</h2>
+<p>Eine ogivale Spitze von 9 cm aus PLA (100 % Füllung, 1,25 g/cm³) mit geschlossener Schulter von 3 cm wiegt 18,08 g; das 35-cm-Papprohr, 3,4/3,2 cm, wiegt 24,67 g. Außendurchmesser, Innendurchmesser und Wandstärke sind gekoppelte Felder.</p>
+    </section>
+    <section id="fins-de">
+      <p class="section-label">Schritt 2</p>
+      <h2>MDF-Flossen und ein eigenes Material</h2>
+<p>OpenRocket kennt kein MDF: es wird als eigenes Material mit 0,75 g/cm³ angelegt. Drei trapezförmige Flossen von 3 mm (Wurzel 6, Spitze 3, Höhe 4,5, Pfeilung 3 cm) wiegen vor den Laschen 13,67 g.</p>
+    </section>
+    <section id="mount-de">
+      <p class="section-label">Schritt 3</p>
+      <h2>Motorhalterung, Motoranschlag und Halteclip</h2>
+<p>Ein Innenrohr von 7 cm, 1,9/1,8 cm, wird als Motorhalterung mit 0,5 cm Überstand markiert. Der Motoranschlag wird mit Wandstärke null und am unteren Ende der Halterung angelegt, wo der Motor sitzt; er muss nach oben und 3 mm Wand bekommen. Der Halteclip ist eine Massenkomponente von 3 g.</p>
+    </section>
+    <section id="rings-de">
+      <p class="section-label">Schritt 4</p>
+      <h2>Zentrierringe, Flossenlaschen und das Prallblech</h2>
+<p>Zwei gedruckte Zentrierringe halten die Motorhalterung; die Flossenlaschen, standardmäßig mit Höhe 0, werden automatisch so berechnet, dass sie zwischen den Ringen bis zur Halterung reichen (5,7 × 0,75 cm, +2,9 g). Das Prallblech ist ein Zentrierring mit 1 cm Bohrung in der Rohrmitte.</p>
+    </section>
+    <section id="recovery-de">
+      <p class="section-label">Schritt 5</p>
+      <h2>Startführung, Fallschirm und Gummischnur</h2>
+<p>Eine Startführung für einen 1/8-Zoll-Stab, ein 30-cm-Fallschirm aus dünnem Polyethylen mit Fadenleinen (die voreingestellten Gummileinen wögen 3 g mehr) und eine 80 cm lange Gummischnur.</p>
+    </section>
+    <section id="motors-de">
+      <p class="section-label">Schritt 6</p>
+      <h2>Ein Estes B6-4 und ein C6-5 als Flugkonfigurationen</h2>
+<p>Jeder Motor ist eine mit New Configuration angelegte Flugkonfiguration. Der Motordialog ist höher als ein 1080-Pixel-Bildschirm; die Begrenzung auf den Halterungsdurchmesser lässt die 18-mm-Motoren übrig, und die Ausstoßverzögerung wird eingetippt.</p>
+    </section>
+    <section id="stability-de">
+      <p class="section-label">Schritt 7</p>
+      <h2>Die Reserve in der Komponentenanalyse ablesen</h2>
+<p>Tools ▸ Component analysis listet Masse, Schwerpunkt, Druckpunkt und Normalkraftgradient je Bauteil und lässt sich mit Strg+A, Strg+C kopieren. Mit Motor beträgt die Reserve 1,62 Kaliber (B6-4) und 1,45 (C6-5), ohne Motor 2,46.</p>
+    </section>
+    <section id="example-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Balsa statt MDF</h2>
+<p>Das MDF der Flossen durch Balsa ersetzen und Masse, Schwerpunkt und Reserve mit beiden Motoren festhalten.</p>
+    </section>
+    <section id="summary-de">
+      <p class="section-label">Kernpunkte</p>
+      <h2>Was man behalten sollte</h2>
+<p>Jedes Teil mit seinem echten Material und seiner Masse; der Druckpunkt kommt von der Außenform, der Schwerpunkt von jeder Masse; die Reserve wird mit eingebautem Motor abgelesen.</p>
+    </section>
+    <section id="mistakes-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Wo OpenRocket nicht tut, was man erwartet</h2>
+<p>Eine Komponente bei falsch gewähltem Elternteil einfügen, die Voreinstellungen des Motoranschlags, die Positionsreferenz, die den alten Platz behält, Laschen mit Höhe 0, die Fallschirmleinen und der Speicherdialog.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>OpenRocket-Dokumentation; Barrowman (1967); Niskanen (2009); Estes-Motordaten; NAR Model Rocket Safety Code.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="index.html?v=13"><span>Übersicht der Reihe</span>← OpenRocket-Tutorials</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenRocket · Tutorialreihe</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>
