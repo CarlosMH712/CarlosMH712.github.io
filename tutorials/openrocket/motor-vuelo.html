@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="OpenRocket tutorial: simulate the flight of a low-power rocket with Estes B6 and C6 motors from a launch site at 1440 m, read the flight events, export the data, choose the ejection delay and check the flight against safety criteria." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>The Motor and the Flight: Simulating Estes B and C Motors | OpenRocket Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">OpenRocket · Tutorial 1.2</p><h1>The Motor and the Flight: Simulating Estes B and C Motors</h1><p class="hero-copy">The rocket of Tutorial 1.1 now flies. OpenRocket integrates the motor's thrust curve, the drag and the parachute from the launch site to the ground; the task is to set the conditions of the real launch, read what the simulation returns and decide which ejection delay to buy.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">OpenRocket · Tutorial 1.2</p><h1>El motor y el vuelo: simulación con motores Estes B y C</h1><p class="hero-copy">El cohete del tutorial 1.1 ahora vuela. OpenRocket integra la curva de empuje del motor, el arrastre y el paracaídas desde la varilla hasta el suelo; el trabajo es poner las condiciones del lanzamiento real, leer lo que devuelve la simulación y decidir qué retardo de expulsión comprar.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">OpenRocket · Tutorial 1.2</p><h1>Motor und Flug: Simulation mit Estes-Motoren B und C</h1><p class="hero-copy">Die Rakete aus Tutorial 1.1 fliegt jetzt. OpenRocket integriert die Schubkurve des Motors, den Luftwiderstand und den Fallschirm vom Startstab bis zum Boden; die Aufgabe ist, die Bedingungen des echten Starts einzustellen, die Simulation zu lesen und die passende Ausstoßverzögerung zu wählen.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 45 min</span><span data-language="es" hidden>Lectura estimada: 45 min</span><span data-language="de" hidden>Lesedauer: ca. 45 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on OpenRocket 24.12 (Windows 11)</span><span data-language="es" hidden>Verificado en OpenRocket 24.12 (Windows 11)</span><span data-language="de" hidden>Geprüft mit OpenRocket 24.12 (Windows 11)</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="modelar-cohete.html?v=13">← <span>1.1</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/qNT8LfvGTzY" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Watch the video</span><span data-language="es" hidden>Ver el vídeo</span><span data-language="de" hidden>Video ansehen</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#physics">The flight</a><a href="#motors">Step 1 · Motors</a><a href="#conditions">Step 2 · Launch site</a><a href="#run">Step 3 · Simulate</a><a href="#plot">Step 4 · Plot</a><a href="#export">Step 5 · Export</a><a href="#delay">Step 6 · Delay</a><a href="#criteria">Step 7 · Safety</a><a href="#example">Suggested practice</a><a href="#summary">Key points</a><a href="#mistakes">Common mistakes</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#physics-es">El vuelo</a><a href="#motors-es">Paso 1 · Motores</a><a href="#conditions-es">Paso 2 · Lugar</a><a href="#run-es">Paso 3 · Simular</a><a href="#plot-es">Paso 4 · Gráfica</a><a href="#export-es">Paso 5 · Exportar</a><a href="#delay-es">Paso 6 · Retardo</a><a href="#criteria-es">Paso 7 · Seguridad</a><a href="#example-es">Práctica sugerida</a><a href="#summary-es">Puntos clave</a><a href="#mistakes-es">Errores frecuentes</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#physics-de">Der Flug</a><a href="#motors-de">Schritt 1 · Motoren</a><a href="#conditions-de">Schritt 2 · Startplatz</a><a href="#run-de">Schritt 3 · Simulieren</a><a href="#plot-de">Schritt 4 · Diagramm</a><a href="#export-de">Schritt 5 · Export</a><a href="#delay-de">Schritt 6 · Verzögerung</a><a href="#criteria-de">Schritt 7 · Sicherheit</a><a href="#example-de">Übung</a><a href="#summary-de">Kernpunkte</a><a href="#mistakes-de">Häufige Fehler</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Read the motor data OpenRocket uses, set the launch conditions of the real site (Chihuahua, 1440 m, a 91 cm rod), run and read the simulations, plot and export a full flight, check the descent rate with a formula, choose the ejection delay and judge the flight against safety criteria.</p>
+    </section>
+    <section id="physics">
+      <p class="section-label">The idea</p>
+      <h2>Three stretches: thrust, coast and descent</h2>
+<p>The flight has three stretches: the motor burns (under 2 s), the rocket coasts to apogee slowed by gravity and drag, and it descends under the parachute at a constant rate. Without drag the C6-5 would leave the motor at 78 m/s and climb to 274 m; OpenRocket gives 64 m/s and 185 m. The descent rate follows v = √(2mg/(ρ C_D A)).</p>
+    </section>
+    <section id="motors">
+      <p class="section-label">Step 1</p>
+      <h2>What OpenRocket knows about an Estes B6 and C6</h2>
+<p>Show Details in the motor dialog gives the real data: the Estes C6 delivers 8.82 N·s in 1.83 s and the B6 4.33 N·s in 0.826 s; the list rounds the impulse to the class. The C6 is sold with delays of 0, 3, 5 and 7 s; the B6 with 0, 2, 4 and 6 s.</p>
+    </section>
+    <section id="conditions">
+      <p class="section-label">Step 2</p>
+      <h2>The place and the day of the launch</h2>
+<p>OpenRocket starts with Cape Canaveral at sea level and a 1 m rod. Here the site is Chihuahua at 1440 m with the 91 cm Estes rod; the standard atmosphere then gives 5.64 °C and 851.94 mbar.</p>
+    </section>
+    <section id="run">
+      <p class="section-label">Step 3</p>
+      <h2>Running the simulation and reading its table</h2>
+<p>OK runs the simulation. At 1440 m the C6-5 reaches 185 m (175 m at sea level) and the B6-4 74 m; the rocket leaves the rod at about 14 m/s and lands at 5.7 m/s.</p>
+    </section>
+    <section id="plot">
+      <p class="section-label">Step 4</p>
+      <h2>The plot and the flight events</h2>
+<p>Plot data draws altitude, velocity and acceleration against time with the flight events: lift-off, rod clearance, burnout, apogee, ejection, deployment and ground hit.</p>
+    </section>
+    <section id="export">
+      <p class="section-label">Step 5</p>
+      <h2>Exporting the data and checking the descent</h2>
+<p>Export data writes all 58 variables to CSV (select all and raise the decimals to 6). With them the descent formula gives a parachute drag coefficient of 0.80, OpenRocket's own value; the stability margin drops to about 1 caliber as the rocket leaves the rod in a crosswind.</p>
+    </section>
+    <section id="delay">
+      <p class="section-label">Step 6</p>
+      <h2>Choosing the ejection delay</h2>
+<p>With delays one step shorter or longer the parachute opens at 12–17 m/s, rising or falling; C6-5 and B6-4 open it 0.5–0.7 s after apogee at 5–7 m/s and are the right choice.</p>
+    </section>
+    <section id="criteria">
+      <p class="section-label">Step 7</p>
+      <h2>Is it a safe flight?</h2>
+<p>The NAR safety code asks for a field of 61 m (B) or 122 m (C) and winds under 20 mph. The rod exit speed, 13.5–13.9 m/s, is slightly below the 15 m/s rule of thumb.</p>
+    </section>
+    <section id="example">
+      <p class="section-label">Suggested practice</p>
+      <h2>A hot afternoon</h2>
+<p>Simulate a hot afternoon (30 °C, 850 mbar) instead of the standard atmosphere and predict the change in descent rate with the formula before running it.</p>
+    </section>
+    <section id="summary">
+      <p class="section-label">Key points</p>
+      <h2>What to keep from this guide</h2>
+<p>Launch conditions are part of the model; each configuration has its own simulation; data are exported, not read off the plot; the delay is chosen from the optimum delay.</p>
+    </section>
+    <section id="mistakes">
+      <p class="section-label">Common mistakes</p>
+      <h2>Where OpenRocket does not do what one expects</h2>
+<p>Keeping Cape Canaveral, editing one simulation and not the others, exporting with zero variables or three decimals, taking ground-hit velocity as the descent rate, and trusting the impulse column of the motor list.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>OpenRocket documentation; Niskanen (2009); NAR Model Rocket Safety Code; Estes motor data; ThrustCurve.org.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="modelar-cohete.html?v=13"><span>Previous tutorial</span>← 1.1 · Modelling the rocket</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenRocket · Tutorial series</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">El <a href="modelar-cohete.html">tutorial 1.1</a> dejó armado el cohete del proyecto, con sus masas reales y un margen de estabilidad de 1.45 calibres con el motor C6-5. Esta guía lo hace volar: OpenRocket simula el vuelo completo, desde la varilla hasta el suelo, y la tarea es darle las condiciones del lanzamiento real y leer con criterio lo que devuelve. Al terminar debe ser posible:</p>
+<ul>
+  <li>Leer en OpenRocket los datos de un motor (impulso total, duración de la combustión, retardos que se venden) y distinguirlos de lo que dice su nombre.</li>
+  <li>Poner las condiciones de lanzamiento del lugar real: altitud, varilla y atmósfera.</li>
+  <li>Correr las simulaciones y explicar cada columna de su tabla.</li>
+  <li>Graficar un vuelo, ubicar sus eventos y exportar sus datos para trabajarlos fuera del programa.</li>
+  <li>Comprobar la velocidad de descenso con una fórmula y los datos exportados.</li>
+  <li>Elegir el retardo de la carga de expulsión y revisar el vuelo contra los criterios de seguridad.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> OpenRocket 24.12 y el diseño del tutorial 1.1, propio o el de la guía (<a href="archivos/cohete-ejemplo.ork" download>cohete-ejemplo.ork</a>). El diseño con todo lo de esta guía, las seis configuraciones de motor y sus simulaciones en Chihuahua, también se puede descargar: <a href="archivos/cohete-vuelo.ork" download>cohete-vuelo.ork</a>.</p>
+</div>
+
+    </section>
+    <section id="physics-es">
+      <p class="section-label">La idea</p>
+      <h2>Tres tramos: empuje, inercia y descenso</h2>
+
+<p>El vuelo de un cohete de modelismo tiene tres tramos, y cada uno lo gobierna una cosa distinta (figura 1):</p>
+<ul>
+  <li><strong>El tramo propulsado</strong>, mientras el motor quema: menos de 2 s. Lo gobierna el <em>impulso total</em> del motor, el área bajo su curva de empuje.</li>
+  <li><strong>El tramo de inercia</strong>, del apagado al apogeo: el cohete sube con la velocidad que ganó, frenado por la gravedad y por el arrastre del aire. Al final, el motor dispara la <em>carga de expulsión</em>, que saca la nariz y el paracaídas; el tiempo entre el apagado y esa carga es el <em>retardo</em>, el último número del nombre del motor.</li>
+  <li><strong>El descenso</strong>: con el paracaídas abierto, el cohete cae a velocidad casi constante.</li>
+</ul>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Altura contra tiempo de los vuelos con C6-5 y B6-4">
+  <text class="svg-title" x="76" y="28">Altura sobre el lugar de lanzamiento</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="666" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">0</text>
+  <line class="svg-grid" x1="76" y1="237.5" x2="666" y2="237.5"/>
+  <text class="svg-tick" x="70" y="241.5" text-anchor="end">50</text>
+  <line class="svg-grid" x1="76" y1="175.0" x2="666" y2="175.0"/>
+  <text class="svg-tick" x="70" y="179.0" text-anchor="end">100</text>
+  <line class="svg-grid" x1="76" y1="112.5" x2="666" y2="112.5"/>
+  <text class="svg-tick" x="70" y="116.5" text-anchor="end">150</text>
+  <line class="svg-grid" x1="76" y1="50.0" x2="666" y2="50.0"/>
+  <text class="svg-tick" x="70" y="54.0" text-anchor="end">200</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0</text>
+  <text class="svg-tick" x="129.6" y="318" text-anchor="middle">4</text>
+  <text class="svg-tick" x="183.3" y="318" text-anchor="middle">8</text>
+  <text class="svg-tick" x="236.9" y="318" text-anchor="middle">12</text>
+  <text class="svg-tick" x="290.5" y="318" text-anchor="middle">16</text>
+  <text class="svg-tick" x="344.2" y="318" text-anchor="middle">20</text>
+  <text class="svg-tick" x="397.8" y="318" text-anchor="middle">24</text>
+  <text class="svg-tick" x="451.5" y="318" text-anchor="middle">28</text>
+  <text class="svg-tick" x="505.1" y="318" text-anchor="middle">32</text>
+  <text class="svg-tick" x="558.7" y="318" text-anchor="middle">36</text>
+  <text class="svg-tick" x="612.4" y="318" text-anchor="middle">40</text>
+  <text class="svg-tick" x="666.0" y="318" text-anchor="middle">44</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">tiempo (s)</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">altura (m)</text>
+  <polyline points="76.0,300.0 76.1,300.0 76.3,300.0 76.4,300.0 76.5,300.0 76.7,300.0 76.8,300.0 77.0,300.0 77.1,300.0 77.2,300.0 77.4,300.0 77.5,299.9 77.6,299.9 77.8,299.9 77.9,299.8 78.0,299.8 78.1,299.7 78.3,299.6 78.4,299.5 78.5,299.4 78.6,299.3 78.6,299.3 78.7,299.2 78.8,299.1 78.9,299.0 79.0,298.9 79.1,298.7 79.3,298.5 79.3,298.4 79.4,298.3 79.6,298.0 79.8,297.7 79.9,297.5 80.1,297.2 80.3,296.8 80.5,296.4 80.7,296.0 81.0,295.6 81.3,295.0 81.7,294.0 82.4,292.6 82.6,291.9 82.8,291.4 83.0,291.0 83.2,290.5 83.3,290.2 83.5,289.8 83.6,289.4 83.8,289.0 83.9,288.7 84.0,288.3 84.2,287.9 84.3,287.5 84.5,287.1 84.6,286.6 84.8,286.1 85.0,285.6 85.2,284.9 85.4,284.4 85.7,283.5 86.0,282.5 86.2,281.8 86.4,281.2 86.6,280.7 86.7,280.2 86.9,279.7 87.0,279.2 87.2,278.8 87.3,278.2 87.4,277.9 87.5,277.4 87.7,276.8 88.0,275.9 88.3,274.6 88.9,272.6 89.0,271.9 89.2,271.3 89.3,270.8 89.5,270.3 89.6,269.8 89.7,269.3 89.9,268.7 90.0,268.1 90.3,267.1 90.6,265.6 91.1,263.5 91.3,262.8 91.4,262.1 91.6,261.4 91.8,260.7 91.9,260.0 92.2,259.0 92.2,258.6 92.4,258.0 92.6,257.2 92.7,256.7 92.8,256.1 93.0,255.1 93.3,253.9 93.5,252.9 93.6,252.1 93.8,251.2 94.1,249.9 94.5,248.0 95.1,245.1 95.3,244.0 95.5,242.8 95.7,242.1 95.9,241.0 96.2,239.4 96.7,237.0 96.9,235.7 97.2,234.3 97.5,232.4 98.0,229.6 98.2,228.7 98.5,227.3 98.7,225.8 99.1,223.8 99.6,220.8 99.9,218.8 100.3,216.8 100.4,216.0 100.6,214.9 100.8,213.9 100.9,212.9 101.2,211.3 101.6,209.1 102.1,206.1 102.8,202.3 103.5,198.7 104.1,195.1 104.8,191.5 105.5,188.1 106.1,184.7 106.8,181.4 107.4,178.7 108.0,175.6 108.7,172.5 109.1,170.5 109.8,167.5 110.4,164.6 111.1,161.7 111.8,158.9 112.5,156.1 113.1,153.4 113.8,150.7 114.5,148.1 115.1,145.6 115.8,143.1 116.5,140.7 117.1,138.3 117.8,135.9 118.5,133.7 119.2,131.4 119.8,129.2 120.5,127.1 121.2,125.0 121.8,122.9 122.5,120.9 123.2,119.0 123.9,117.1 124.5,115.2 125.2,113.4 125.9,111.6 126.5,109.9 127.2,108.2 127.9,106.5 128.5,104.9 129.2,103.3 129.9,101.8 130.6,100.3 131.2,98.8 131.9,97.4 132.6,96.0 133.2,94.6 133.9,93.3 134.6,92.0 135.2,90.8 135.9,89.6 136.6,88.4 137.3,87.3 137.9,86.2 138.6,85.1 139.3,84.1 139.9,83.1 140.6,82.2 141.3,81.2 142.0,80.4 142.6,79.5 143.3,78.7 144.0,77.9 144.6,77.1 145.3,76.4 146.0,75.7 146.6,75.0 147.3,74.4 148.0,73.8 148.7,73.2 149.3,72.7 150.0,72.2 150.7,71.7 151.3,71.3 152.0,70.9 152.7,70.5 153.4,70.2 154.0,69.8 154.7,69.6 155.4,69.3 156.0,69.1 156.7,68.9 157.4,68.7 158.0,68.6 158.7,68.5 159.4,68.4 160.1,68.3 160.7,68.3 161.4,68.3 162.1,68.3 162.7,68.4 163.4,68.5 164.1,68.6 164.7,68.7 165.4,68.9 166.1,69.1 166.7,69.3 167.2,69.4 167.6,69.6 168.0,69.8 168.0,69.8 169.4,70.3 171.3,71.1 173.8,72.2 177.9,74.1 181.6,76.0 185.3,77.8 189.0,79.6 192.6,81.4 196.3,83.3 200.0,85.1 203.6,86.9 207.3,88.7 210.9,90.6 214.6,92.4 218.3,94.2 221.9,96.0 225.6,97.8 229.2,99.7 232.9,101.5 236.5,103.3 240.2,105.1 243.9,106.9 247.5,108.8 251.2,110.6 254.8,112.4 258.5,114.2 262.1,116.0 265.8,117.9 269.5,119.7 273.1,121.5 276.8,123.3 280.4,125.1 284.1,126.9 287.7,128.8 291.4,130.6 295.0,132.4 298.7,134.2 302.3,136.0 306.0,137.8 312.7,141.2 316.4,143.0 320.0,144.8 323.7,146.6 327.3,148.4 331.0,150.2 334.6,152.1 338.3,153.9 341.9,155.7 345.6,157.5 349.2,159.3 352.9,161.1 356.5,162.9 360.2,164.7 363.8,166.5 367.5,168.4 371.1,170.2 374.7,172.0 378.4,173.8 382.0,175.6 385.7,177.4 389.3,179.2 393.0,181.0 396.6,182.8 400.3,184.6 403.9,186.5 407.6,188.3 411.2,190.1 414.9,191.9 418.5,193.7 422.2,195.5 425.8,197.3 429.4,199.1 433.1,200.9 436.7,202.7 440.4,204.5 444.0,206.3 447.7,208.1 451.3,209.9 454.9,211.7 458.6,213.6 462.2,215.4 465.9,217.2 469.5,219.0 473.2,220.8 476.8,222.6 480.4,224.4 484.1,226.2 487.7,228.0 491.4,229.8 495.0,231.6 498.6,233.4 502.3,235.2 505.9,237.0 509.6,238.8 513.2,240.6 516.8,242.4 520.5,244.2 524.1,246.0 527.8,247.8 531.4,249.6 535.0,251.4 538.7,253.2 542.3,255.0 545.9,256.8 549.6,258.6 553.2,260.4 556.8,262.2 560.5,264.0 564.1,265.8 567.7,267.6 571.4,269.4 575.0,271.2 578.7,273.0 582.3,274.8 585.9,276.5 592.6,279.9 596.3,281.7 599.9,283.5 603.5,285.2 607.2,287.0 610.8,288.8 614.4,290.6 618.0,292.4 621.7,294.2 625.3,296.0 628.9,297.8 633.4,300.0" fill="none" stroke="var(--blue)" stroke-width="2"/>
+  <polyline points="76.0,300.0 76.1,300.0 76.3,300.0 76.3,300.0 76.4,300.0 76.5,300.0 76.6,300.0 76.7,300.0 76.8,300.0 76.8,300.0 76.9,300.0 77.0,300.0 77.2,300.0 77.3,300.0 77.5,299.9 77.6,299.9 77.7,299.9 77.8,299.8 78.0,299.7 78.1,299.7 78.3,299.6 78.3,299.6 78.4,299.5 78.4,299.4 78.6,299.3 78.7,299.2 78.8,299.1 78.9,299.0 79.0,298.8 79.1,298.7 79.2,298.5 79.4,298.3 79.6,297.9 79.8,297.6 80.0,297.3 80.1,297.2 80.2,297.0 80.4,296.7 80.6,296.3 80.8,295.9 81.0,295.4 81.4,294.7 81.9,293.6 82.4,292.4 82.6,291.9 82.7,291.5 82.9,291.2 83.0,290.8 83.2,290.5 83.3,290.1 83.4,289.8 83.6,289.4 83.7,289.0 83.8,288.8 83.9,288.4 84.1,288.0 84.3,287.4 84.5,286.7 84.9,285.6 85.0,285.2 85.2,284.6 85.5,283.7 85.7,283.1 85.8,282.5 86.0,282.0 86.1,281.5 86.3,281.0 86.4,280.5 86.5,280.2 86.7,279.7 86.8,279.4 86.9,279.1 87.0,278.5 87.1,278.3 87.1,278.0 87.3,277.6 87.5,276.9 87.5,276.7 87.6,276.3 87.8,275.7 88.1,274.9 88.3,274.1 88.5,273.4 88.7,272.8 88.9,272.1 89.1,271.4 89.4,270.5 89.8,269.2 90.4,267.2 90.8,265.9 91.1,264.9 91.4,264.0 91.7,263.0 92.0,262.0 92.4,261.0 92.9,259.4 93.6,257.5 94.0,256.2 94.3,255.4 94.6,254.6 95.0,253.6 95.4,252.3 96.1,250.6 96.8,248.8 97.2,247.8 97.7,246.4 98.4,244.8 99.1,243.2 99.7,241.6 100.4,240.1 101.1,238.6 101.8,237.2 102.4,235.7 103.1,234.4 103.8,233.0 104.4,231.8 105.1,230.5 105.8,229.3 106.4,228.1 107.1,226.9 107.8,225.8 108.5,224.7 109.1,223.7 109.8,222.7 110.5,221.7 111.1,220.8 111.8,219.8 112.5,219.0 113.1,218.1 113.8,217.3 114.5,216.5 115.2,215.8 115.8,215.1 116.5,214.4 117.2,213.8 117.8,213.1 118.5,212.6 119.2,212.0 119.9,211.5 120.5,211.0 121.2,210.5 121.9,210.1 122.5,209.7 123.2,209.4 123.9,209.0 124.5,208.7 125.2,208.5 125.9,208.2 126.6,208.0 127.2,207.8 127.9,207.7 128.6,207.5 129.2,207.5 129.9,207.4 130.6,207.4 131.3,207.4 131.9,207.4 132.6,207.4 133.3,207.5 133.9,207.7 134.6,207.8 135.3,208.0 135.9,208.2 136.6,208.4 137.3,208.7 138.0,209.0 138.6,209.3 139.3,209.6 139.8,209.9 140.3,210.2 140.8,210.4 141.2,210.7 141.2,210.7 142.7,211.6 145.3,213.0 148.9,214.8 152.6,216.6 156.2,218.4 159.9,220.2 163.5,222.0 167.2,223.8 170.8,225.6 174.5,227.5 178.1,229.3 181.8,231.1 185.4,232.9 189.0,234.7 192.7,236.5 196.3,238.3 200.0,240.1 203.6,241.9 207.3,243.7 210.9,245.5 214.6,247.3 218.2,249.1 221.8,250.9 225.5,252.8 229.1,254.6 232.8,256.4 236.4,258.2 240.1,260.0 243.7,261.8 247.3,263.6 251.0,265.4 254.6,267.2 258.3,269.0 261.9,270.8 265.5,272.6 269.2,274.4 272.8,276.2 276.5,278.0 280.1,279.8 283.7,281.6 287.4,283.4 291.0,285.2 294.7,287.0 298.3,288.8 301.9,290.6 305.6,292.4 309.2,294.2 312.8,296.0 316.5,297.8 320.9,300.0" fill="none" stroke="var(--accent)" stroke-width="2"/>
+  <circle cx="100.9" cy="212.9" r="4" fill="var(--paper)" stroke="var(--blue)" stroke-width="2"/>
+  <circle cx="168.0" cy="69.8" r="4" fill="var(--paper)" stroke="var(--blue)" stroke-width="2"/>
+  <circle cx="87.5" cy="276.7" r="4" fill="var(--paper)" stroke="var(--accent)" stroke-width="2"/>
+  <circle cx="141.2" cy="210.7" r="4" fill="var(--paper)" stroke="var(--accent)" stroke-width="2"/>
+  <text class="svg-note-sm" x="178.7" y="60.8" text-anchor="start">se abre el paracaídas</text>
+  <text class="svg-note-sm" x="397.8" y="140.0" text-anchor="middle">descenso con el paracaídas</text>
+  <line x1="470" y1="64" x2="496" y2="64" stroke="var(--blue)" stroke-width="2"/>
+  <text class="svg-note-sm" x="502" y="68">C6-5 · apogeo 185.4 m</text>
+  <line x1="470" y1="82" x2="496" y2="82" stroke="var(--accent)" stroke-width="2"/>
+  <text class="svg-note-sm" x="502" y="86">B6-4 · apogeo 74.1 m</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">El vuelo del cohete del 1.1 desde Chihuahua.</b> Altura contra tiempo con el C6-5 (azul) y el B6-4 (naranja), según los datos exportados de OpenRocket. Los círculos marcan el apagado del motor y la apertura del paracaídas. El tramo propulsado dura menos de 2 s; el resto del ascenso es inercia, y el descenso es casi una recta: la velocidad de caída es constante.</figcaption>
+</figure>
+<h3>Cuánto quita el aire</h3>
+<p>Sin arrastre, la velocidad al apagarse el motor se estima dividiendo el impulso entre la masa media y restando lo que la gravedad quita durante la combustión:</p>
+<div class="equation-card">\[ \Delta v \;\approx\; \frac{I}{\bar m} \;-\; g\, t_b \qquad (1) \]</div>
+<p>Para el C6, con \(I\) = 8.82 N·s, \(t_b\) = 1.83 s y una masa que baja de 97.09 a 86.29 g (media de 91.7 g), la ecuación da \(96.2 - 17.9 = 78.3\) m/s. La simulación da 63.3 m/s al apagado: el aire ya quitó el 19 % (con el B6, 40.3 contra 37.6 m/s, el 7 %, porque vuela más despacio). Después del apagado, sin arrastre, el cohete subiría todavía</p>
+<div class="equation-card">\[ h \;=\; \frac{v_b^{2}}{2g} \qquad (2) \]</div>
+<p>es decir, 205 m más sobre los 69.7 m a los que se apaga el C6: un apogeo de 274 m. OpenRocket da 185.4 m. El aire se lleva cerca de un tercio de la altura, y como el arrastre cambia con la velocidad a lo largo de todo el ascenso, el apogeo no se puede estimar a mano con precisión: hace falta la simulación.</p>
+<h3>Por qué el descenso es una recta</h3>
+<p>Con el paracaídas abierto, el arrastre crece con el cuadrado de la velocidad hasta igualar al peso. Desde ese momento la velocidad ya no cambia:</p>
+<div class="equation-card">\[ v_d \;=\; \sqrt{\frac{2\, m\, g}{\rho\, C_D\, A}} \qquad (3) \]</div>
+<p>con \(m\) la masa del cohete con el motor vacío, \(\rho\) la densidad del aire, \(A\) el área del paracaídas y \(C_D\) su coeficiente de arrastre. La ecuación dice dos cosas que importan en el proyecto: un paracaídas más grande baja la velocidad sólo con la raíz de su área, y en un lugar alto, con aire menos denso, el cohete cae más rápido. En el paso 5 se comprueba con los datos de la simulación.</p>
+
+    </section>
+    <section id="motors-es">
+      <p class="section-label">Paso 1</p>
+      <h2>Lo que OpenRocket sabe de un Estes B6 y un C6</h2>
+
+<p>El nombre de un motor Estes resume tres datos: en <strong>C6-5</strong>, la letra es la clase de impulso total (la C va de 5 a 10 N·s, la B de 2.5 a 5), el 6 es el empuje medio nominal en newtons y el 5, el retardo en segundos. Lo que usa la simulación no es el nombre, sino la curva de empuje medida del motor. Para verla:</p>
+<ol>
+  <li>Abrir el diseño del tutorial 1.1 y pasar a la pestaña <code>Motors &amp; Configuration</code>.</li>
+  <li>Seleccionar la configuración <code>[C6-5]</code> y hacer clic en <code>Select motor</code>. Se abre <code>Select a rocket motor</code> con el Estes C6 elegido.</li>
+  <li>A la derecha, pasar de <code>Filter Motors</code> a <code>Show Details</code>: aparecen el impulso total, los empujes medio y máximo, la duración, las masas y, abajo, la curva de empuje.</li>
+  <li>Abrir la lista <code>Ejection charge delay</code>: muestra los retardos con que se vende el motor.</li>
+  <li>Cerrar el cuadro con la <code>X</code> de su esquina: así no cambia nada. Repetir con <code>[B6-4]</code>.</li>
+</ol>
+<figure class="diagram medium">
+  <img src="imagenes/t12-02_motores.png" alt="Pestaña Show Details de los motores Estes C6 y B6" loading="lazy">
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">Lo que OpenRocket sabe de cada motor.</b> Pestaña <code>Show Details</code> del cuadro <code>Select a rocket motor</code>, con el Estes C6 (izquierda) y el B6 (derecha) elegidos. El impulso total va con el porcentaje de su clase: el C6 llena el 76 % del intervalo de la clase C, de 5 a 10 N·s. Abajo, la curva de empuje del archivo de la NAR.</figcaption>
+</figure>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th></th><th>Estes C6</th><th>Estes B6</th></tr></thead>
+    <tbody>
+      <tr><td>Impulso total</td><td>8.82 N·s (76 % C)</td><td>4.33 N·s (73 % B)</td></tr>
+      <tr><td>Empuje medio</td><td>4.81 N</td><td>5.23 N</td></tr>
+      <tr><td>Empuje máximo</td><td>14.1 N</td><td>12.1 N</td></tr>
+      <tr><td>Duración de la combustión</td><td>1.83 s</td><td>0.826 s</td></tr>
+      <tr><td>Masa al despegar</td><td>23.1 g</td><td>18.2 g</td></tr>
+      <tr><td>Masa vacía</td><td>12.3 g</td><td>12.6 g</td></tr>
+      <tr><td>Retardos en la lista</td><td>0, 3, 5, 7 y Plugged</td><td>0, 2, 4, 6 y Plugged</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Los dos motores del proyecto.</b> Datos de <code>Show Details</code> en OpenRocket 24.12. El impulso es el de la curva de empuje que usa la simulación (integrar la columna <code>Thrust</code> exportada da 8.82 y 4.33 N·s); el nominal de la caja es el tope de la clase.</caption>
+  </table>
+</div>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Curvas de empuje de los motores Estes C6 y B6 según OpenRocket">
+  <text class="svg-title" x="76" y="28">Empuje durante la combustión</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="666" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">0</text>
+  <line class="svg-grid" x1="76" y1="237.5" x2="666" y2="237.5"/>
+  <text class="svg-tick" x="70" y="241.5" text-anchor="end">4</text>
+  <line class="svg-grid" x1="76" y1="175.0" x2="666" y2="175.0"/>
+  <text class="svg-tick" x="70" y="179.0" text-anchor="end">8</text>
+  <line class="svg-grid" x1="76" y1="112.5" x2="666" y2="112.5"/>
+  <text class="svg-tick" x="70" y="116.5" text-anchor="end">12</text>
+  <line class="svg-grid" x1="76" y1="50.0" x2="666" y2="50.0"/>
+  <text class="svg-tick" x="70" y="54.0" text-anchor="end">16</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0</text>
+  <text class="svg-tick" x="149.8" y="318" text-anchor="middle">0.25</text>
+  <text class="svg-tick" x="223.5" y="318" text-anchor="middle">0.5</text>
+  <text class="svg-tick" x="297.2" y="318" text-anchor="middle">0.75</text>
+  <text class="svg-tick" x="371.0" y="318" text-anchor="middle">1</text>
+  <text class="svg-tick" x="444.8" y="318" text-anchor="middle">1.25</text>
+  <text class="svg-tick" x="518.5" y="318" text-anchor="middle">1.5</text>
+  <text class="svg-tick" x="592.2" y="318" text-anchor="middle">1.75</text>
+  <text class="svg-tick" x="666.0" y="318" text-anchor="middle">2</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">tiempo desde el encendido (s)</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">empuje (N)</text>
+  <polyline points="76.0,300.0 76.0,300.0 79.0,295.2 81.9,290.5 85.1,285.2 88.1,275.3 91.0,265.3 94.0,255.4 96.9,245.5 99.9,235.5 103.1,224.6 106.1,207.6 109.0,190.6 112.0,173.6 114.9,156.6 117.0,144.8 120.0,132.5 122.9,120.3 125.9,108.0 128.8,95.8 131.8,83.5 132.6,79.8 134.0,90.8 136.0,107.2 137.7,121.2 139.8,142.1 141.8,161.9 144.1,184.7 147.6,198.0 149.2,203.9 151.4,205.7 154.9,208.4 159.2,211.9 162.1,214.2 166.4,215.9 170.8,217.6 175.4,219.3 180.4,221.3 185.2,223.1 192.1,224.8 202.5,227.2 216.1,230.5 222.0,230.8 226.7,231.0 230.7,231.2 234.3,231.4 237.7,231.6 240.9,231.8 244.0,231.9 247.0,232.1 250.0,232.2 253.0,232.4 256.0,232.5 259.2,232.7 262.5,232.9 266.2,233.1 270.4,233.3 273.9,233.5 279.2,230.9 283.1,229.0 289.3,234.9 296.6,234.1 301.3,233.5 305.1,233.1 308.6,232.6 311.9,232.3 315.1,231.9 318.3,231.5 321.5,231.1 324.7,230.7 326.8,230.5 329.8,230.6 334.0,230.7 339.3,230.8 347.3,231.0 359.2,231.3 363.1,231.4 366.3,231.4 369.2,231.5 371.9,231.6 374.7,231.6 377.6,231.7 380.7,231.8 384.3,231.9 389.6,232.0 397.5,232.0 408.6,232.0 412.4,232.0 415.9,232.0 419.3,232.0 422.8,232.0 426.6,232.0 431.4,232.0 433.2,232.0 436.1,233.4 440.3,235.4 442.4,236.4 445.5,235.9 450.2,235.1 455.7,234.2 460.4,233.5 464.3,233.4 468.6,233.2 474.4,233.0 482.9,232.8 495.8,232.4 500.9,232.2 506.0,232.1 509.1,232.0 513.6,231.9 520.4,231.7 530.4,231.4 536.0,231.3 541.7,231.1 549.4,230.9 560.9,230.6 564.5,230.5 570.0,230.5 575.8,230.5 583.5,230.5 594.9,230.5 602.5,230.5 610.0,230.5 613.2,230.5 617.0,254.2 620.9,279.3 624.7,300.0 630.5,300.0 639.1,300.0" fill="none" stroke="var(--blue)" stroke-width="2"/>
+  <polyline points="76.0,300.0 76.0,300.0 79.0,295.3 81.9,290.7 82.8,289.2 84.1,285.6 86.1,280.1 89.1,272.0 92.0,263.8 92.8,261.6 94.0,256.9 95.9,249.7 98.6,239.0 102.3,224.8 105.2,210.5 108.2,196.3 110.2,186.3 113.2,173.4 116.1,160.4 119.7,144.9 122.6,129.8 125.6,114.8 126.4,110.3 127.8,111.9 129.8,114.2 132.3,117.3 135.0,132.5 137.7,155.6 139.8,164.3 141.9,172.5 143.9,180.2 146.8,187.5 151.2,198.6 155.8,203.3 160.1,207.9 164.4,212.4 166.0,214.0 168.3,215.2 171.8,217.0 176.5,219.5 181.6,222.2 186.6,224.8 194.1,225.5 205.3,226.7 216.7,227.8 221.0,227.8 224.5,227.8 227.6,227.8 230.6,227.8 233.6,227.8 236.4,227.8 239.3,227.8 242.2,227.8 245.2,227.8 247.1,227.8 250.0,228.0 253.6,228.2 257.7,228.4 263.1,228.7 271.0,229.2 273.9,229.4 278.3,230.3 284.8,231.6 288.9,232.5 292.4,233.2 296.1,234.0 299.2,233.6 302.4,233.1 305.7,232.7 307.9,232.4 311.1,245.1 312.6,250.9 314.8,258.9 318.2,271.0 319.4,275.4 321.2,279.8 324.0,286.4 328.1,296.2 329.7,300.0 332.1,300.0 335.7,300.0 341.1,300.0" fill="none" stroke="var(--accent)" stroke-width="2"/>
+  <text class="svg-note-sm" x="132.1" y="71.9" text-anchor="start">pico de 14.1 N</text>
+  <line x1="420" y1="74" x2="446" y2="74" stroke="var(--blue)" stroke-width="2"/>
+  <text class="svg-note-sm" x="452" y="78">Estes C6 · 8.82 N·s en 1.83 s</text>
+  <line x1="420" y1="92" x2="446" y2="92" stroke="var(--accent)" stroke-width="2"/>
+  <text class="svg-note-sm" x="452" y="96">Estes B6 · 4.33 N·s en 0.826 s</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">Las dos curvas de empuje.</b> Empuje contra tiempo, tomado de la columna <code>Thrust</code> de los datos exportados. Los dos motores tienen el pico del encendido, de 12 a 14 N; después, el C6 sostiene unos 4 N durante más del doble de tiempo que el B6. El área bajo cada curva es el impulso total.</figcaption>
+</figure>
+<p>Dos detalles de la tabla 1. Primero, el impulso real queda por debajo del tope de la clase: el C6 tiene 8.82 N·s, no 10. Segundo, el «6» de los dos nombres no es el empuje medio que mide la curva: el del C6 es menor que el del B6, aunque los dos se llamen «6», porque la combustión del C6 dura más del doble.</p>
+<div class="callout warning">
+  <p><strong>La lista de motores redondea.</strong> La columna <code>Total Impulse</code> de la lista muestra 10 para el C6 y 4 para el B6: es la clase, redondeada. El valor que usa la simulación está en <code>Show Details</code>. Además, al hacer clic en la fila del B6, OpenRocket cambió el retardo a 6, el mayor de la lista: después de elegir un motor hay que revisar el retardo.</p>
+</div>
+
+    </section>
+    <section id="conditions-es">
+      <p class="section-label">Paso 2</p>
+      <h2>El lugar y el día del lanzamiento</h2>
+
+<p>Cada configuración de motor tiene su simulación, y cada simulación, sus condiciones de lanzamiento. Las que trae OpenRocket son las de Cabo Cañaveral, en Florida, al nivel del mar. El proyecto se lanza en Chihuahua, a unos 1440 m: el aire es un 13 % menos denso.</p>
+<ol>
+  <li>Pestaña <code>Flight simulations</code>. Ya hay dos simulaciones, una por configuración, creadas al elegir los motores en el 1.1.</li>
+  <li>Seleccionar <code>Simulation 1</code> (la del <code>[C6-5]</code>) y hacer clic en <code>Edit simulation</code>. Se abre con la pestaña <code>Launch conditions</code>.</li>
+  <li>En <code>Launch site</code>: <code>Latitude</code> 28.64, <code>Longitude</code> −106.08 y <code>Altitude</code> 1440. La temperatura y la presión de <code>Atmospheric conditions</code> cambian solas a 5.64 °C y 851.94 mbar: son las de la atmósfera estándar a esa altitud.</li>
+  <li>En <code>Launch rod</code>: <code>Length</code> 91 cm, la varilla de 1/8 in que trae la plataforma Porta-Pad II de Estes (36 in). <code>Angle</code> se queda en 0, vertical.</li>
+  <li>El viento (<code>Average windspeed</code> 2 m/s, con 10 % de turbulencia) se deja como está.</li>
+  <li><code>OK</code>. Repetir con <code>Simulation 2</code>, la del <code>[B6-4]</code>.</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t12-04_condiciones.png" alt="Pestaña Launch conditions con el lugar de lanzamiento en Chihuahua" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">Las condiciones de lanzamiento.</b> <code>Edit simulation ▸ Launch conditions</code> con el lugar de lanzamiento en la ciudad de Chihuahua (1440 m) y la varilla de 91 cm. Con <code>Use International Standard Atmosphere</code> marcado, la temperatura y la presión (en gris) salen de la altitud: 5.64 °C y 851.94 mbar.</figcaption>
+</figure>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Campo</th><th>Por omisión</th><th>Esta guía</th><th>Por qué</th></tr></thead>
+    <tbody>
+      <tr><td><code>Latitude</code>, <code>Longitude</code></td><td>28.61, −80.6 (Cabo Cañaveral)</td><td>28.64, −106.08 (ciudad de Chihuahua)</td><td>casi no cambian el vuelo; ubican el lugar</td></tr>
+      <tr><td><code>Altitude</code></td><td>0 m</td><td>1440 m</td><td>el aire es menos denso</td></tr>
+      <tr><td><code>Launch rod ▸ Length</code></td><td>100 cm</td><td>91 cm</td><td>la varilla de 1/8 in del Porta-Pad II de Estes mide 36 in</td></tr>
+      <tr><td><code>Average windspeed</code></td><td>2 m/s</td><td>2 m/s</td><td>se conserva</td></tr>
+      <tr><td>Temperatura y presión (ISA)</td><td>15 °C, 1013.25 mbar</td><td>5.64 °C, 851.94 mbar</td><td>las calcula OpenRocket</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Las condiciones que trae OpenRocket y las de esta guía.</b> La temperatura y la presión salen de la atmósfera estándar a la altitud del lugar. El viento se deja en el valor de omisión; su efecto es el tema del tutorial 1.3.</caption>
+  </table>
+</div>
+<div class="callout">
+  <p><strong>El lugar real de cada equipo.</strong> Si el lanzamiento será en otro sitio, se escriben su latitud, su longitud y su altitud; la altitud es lo único que cambia el vuelo de manera apreciable. <code>Save as default</code> guarda estas condiciones para todas las simulaciones nuevas; esta guía no lo usa, para que se vea qué pasa sin él (paso 6).</p>
+</div>
+
+    </section>
+    <section id="run-es">
+      <p class="section-label">Paso 3</p>
+      <h2>Correr la simulación y leer su tabla</h2>
+
+<p>Al dar <code>OK</code> en <code>Edit simulation</code>, OpenRocket corre la simulación: no hace falta el botón <code>Run simulations</code>, que sirve para volver a correr las que se seleccionen. La tabla de la pestaña se llena con el resumen de cada vuelo.</p>
+<figure class="diagram">
+  <img src="imagenes/t12-05_tabla.png" alt="Tabla de Flight simulations con las dos simulaciones" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">La tabla de simulaciones.</b> Pestaña <code>Flight simulations</code> después de correr las dos simulaciones en Chihuahua. Cada fila es un vuelo completo; la marca verde de la izquierda dice que la simulación está al día con el diseño.</figcaption>
+</figure>
+<p>La tabla se puede copiar como texto: hacer clic en ella, <code>Ctrl+A</code> y <code>Ctrl+C</code>. Sale separada por comas, con todos los decimales y las unidades en los encabezados; de ahí salen las cifras de esta guía.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Columna</th><th>Significado</th><th>Chihuahua, 1440 m</th><th>Nivel del mar</th></tr></thead>
+    <tbody>
+      <tr><td><code>Velocity off rod</code></td><td>velocidad al salir de la varilla</td><td>13.9 / 13.5 m/s</td><td>14.5 / 14.0 m/s</td></tr>
+      <tr><td><code>Apogee</code></td><td>altura máxima sobre el lugar</td><td>185.4 / 74.1 m</td><td>174.8 / 71.5 m</td></tr>
+      <tr><td><code>Velocity at deployment</code></td><td>velocidad cuando se abre el paracaídas</td><td>5.1 / 6.8 m/s</td><td>6.6 / 7.3 m/s</td></tr>
+      <tr><td><code>Optimum delay</code></td><td>retardo que abriría el paracaídas justo en el apogeo</td><td>4.51 / 3.26 s</td><td>4.28 / 3.20 s</td></tr>
+      <tr><td><code>Max. velocity</code></td><td>velocidad máxima, al apagarse el motor</td><td>64.0 / 37.9 m/s</td><td>62.4 / 37.6 m/s</td></tr>
+      <tr><td><code>Max. acceleration</code></td><td>aceleración máxima, en el pico del empuje</td><td>137 / 123 m/s²</td><td>137 / 123 m/s²</td></tr>
+      <tr><td><code>Time to apogee</code></td><td>tiempo del encendido al apogeo</td><td>6.32 / 4.12 s</td><td>6.14 / 4.01 s</td></tr>
+      <tr><td><code>Flight time</code></td><td>duración del vuelo completo</td><td>41.6 / 18.3 s</td><td>41.6 / 18.6 s</td></tr>
+      <tr><td><code>Ground hit velocity</code></td><td>velocidad al tocar el suelo, con el viento</td><td>5.68 / 5.62 m/s</td><td>5.33 / 5.21 m/s</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">Qué dice cada columna de la tabla de simulaciones.</b> Cifras con el C6-5 y el B6-4 (en ese orden), copiadas de la tabla con <code>Ctrl+A</code> y <code>Ctrl+C</code>. La última columna es la de las condiciones de omisión (nivel del mar, varilla de 1 m), con las que se guardó el diseño del 1.1.</caption>
+  </table>
+</div>
+<p>Con el aire de Chihuahua, el C6-5 sube a 185.4 m, un 6 % más que al nivel del mar, y el B6-4 a 74.1 m (4 % más). La velocidad al dejar la varilla bajó de 14.5 a 13.9 m/s con el C6-5 por otra razón: la varilla es 9 cm más corta. Y el cohete toca el suelo más rápido, 5.68 m/s contra 5.33: con aire menos denso, el paracaídas frena menos (ecuación 3).</p>
+<div class="callout">
+  <p><strong>Dos corridas no dan exactamente lo mismo.</strong> El viento lleva turbulencia aleatoria. Volver a correr la misma simulación con <code>Run simulations</code> cambió el apogeo del C6-5 en milímetros (de 185.356 a 185.358 m), pero la misma simulación hecha de nuevo desde el diseño del 1.1, en el vídeo de esta guía, dio 185.7 m de apogeo y 4.9 m/s al abrir, contra 185.4 y 5.1 de la tabla 3. La velocidad al abrir es la que más cambia, porque depende de dónde cae el apogeo dentro del retardo. Por eso las cifras se citan con uno o dos decimales, no con seis, y una diferencia de unas décimas entre dos equipos no significa que un diseño sea mejor.</p>
+</div>
+
+    </section>
+    <section id="plot-es">
+      <p class="section-label">Paso 4</p>
+      <h2>La gráfica y los eventos del vuelo</h2>
+
+<ol>
+  <li>Seleccionar <code>Simulation 1</code> y hacer clic en <code>Plot / Export</code>. Se abre la simulación en la pestaña <code>Plot data</code>.</li>
+  <li>Dejar la configuración predefinida, <code>Vertical motion vs. time</code>. En <code>Flight events</code> se marcan los eventos que se quieren ver como líneas verticales (<code>All</code> los marca todos).</li>
+  <li><code>Plot</code>. Se abre la gráfica en una ventana aparte.</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t12-06_plot_data.png" alt="Pestaña Plot data del cuadro de la simulación" loading="lazy">
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">Qué se grafica.</b> <code>Plot / Export</code> abre la simulación en la pestaña <code>Plot data</code>. La configuración predefinida, <code>Vertical motion vs. time</code>, pone altura, velocidad vertical y aceleración vertical contra el tiempo; a la derecha se eligen los eventos que se marcan.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t12-07_grafica.png" alt="Gráfica de OpenRocket del vuelo con C6-5" loading="lazy">
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">La gráfica de OpenRocket.</b> El vuelo con el C6-5. Las líneas verticales son los eventos: encendido, apagado, apogeo y apertura del paracaídas, todos en los primeros 7 s, y el contacto con el suelo a los 41.6 s. La altura (azul) y la aceleración (rojo) usan el eje izquierdo; la velocidad (amarillo), el derecho. La ventana se subió hasta el borde de la pantalla para que se viera el eje del tiempo.</figcaption>
+</figure>
+<div class="callout warning">
+  <p><strong>La ventana de la gráfica no cabe.</strong> En una pantalla de 1080 píxeles de alto, la ventana abre más alta que la pantalla y el eje del tiempo queda debajo de la barra de tareas. Se arrastra por su barra de título hasta el borde superior. Con la rueda del ratón sobre la gráfica se acerca y se aleja; arrastrando se mueve.</p>
+</div>
+<p>Los eventos son el esqueleto del vuelo, y sus tiempos no se leen de la gráfica: van escritos en el archivo que se exporta en el paso 5.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Evento</th><th>C6-5 (s)</th><th>B6-4 (s)</th></tr></thead>
+    <tbody>
+      <tr><td>Despegue (<code>Lift-off</code>)</td><td>0.092</td><td>0.089</td></tr>
+      <tr><td>Fin de la varilla (<code>Launch rod clearance</code>)</td><td>0.223</td><td>0.223</td></tr>
+      <tr><td>Apagado del motor (<code>Motor burnout</code>)</td><td>1.860</td><td>0.860</td></tr>
+      <tr><td>Apogeo (<code>Apogee</code>)</td><td>6.369</td><td>4.120</td></tr>
+      <tr><td>Carga de expulsión (<code>Ejection charge</code>)</td><td>6.860</td><td>4.860</td></tr>
+      <tr><td>Paracaídas abierto (<code>Recovery device deployment</code>)</td><td>6.861</td><td>4.861</td></tr>
+      <tr><td>Contacto con el suelo (<code>Ground hit</code>)</td><td>41.569</td><td>18.265</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">Los eventos del vuelo.</b> Tiempos desde el encendido, de los comentarios <code># Event</code> del archivo exportado. El apogeo se registra al final del paso de integración en que ocurre: la tabla de simulaciones lo da en 6.32 s para el C6-5. La carga de expulsión llega al sumar el retardo al apagado.</caption>
+  </table>
+</div>
+<p>El cohete despega casi 0.1 s después del encendido, cuando el empuje supera al peso, y recorre la varilla en otros 0.13 s. El motor se apaga a los 1.83 s; el apogeo llega a los 6.32 s, y la carga de expulsión, 5 s después del apagado. Del apogeo a la apertura pasan 0.49 s: el retardo de 5 s es un poco largo para este cohete, y el paracaídas abre cuando el cohete ya empezó a caer (paso 6).</p>
+
+    </section>
+    <section id="export-es">
+      <p class="section-label">Paso 5</p>
+      <h2>Exportar los datos y comprobar el descenso</h2>
+
+<ol>
+  <li>En el mismo cuadro, pestaña <code>Export data</code>.</li>
+  <li><code>Select all</code>: quedan marcadas las 58 variables. En <code>Decimal places</code>, escribir 6. Dejar marcadas las tres casillas de <code>Comments</code>: la descripción de la simulación, los nombres de las columnas y los eventos.</li>
+  <li><code>Export</code>. En el cuadro de guardar, escribir un nombre, por ejemplo <code>vuelo_C6-5.csv</code>, y <code>Save</code>.</li>
+  <li>Repetir con <code>Simulation 2</code>.</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t12-08_export_data.png" alt="Pestaña Export data del cuadro de la simulación" loading="lazy">
+  <figcaption><b class="fig-num">Figura 8.</b> <b class="fig-title">La exportación de los datos.</b> Pestaña <code>Export data</code> como abrió en la computadora de la guía: ninguna de las 58 variables marcada y 3 decimales. <code>Select all</code> marca todas; los decimales se suben a 6 antes de <code>Export</code>.</figcaption>
+</figure>
+<div class="callout warning">
+  <p><strong>Tres decimales no alcanzan.</strong> Con los 3 decimales que trae, la densidad del aire sale como 0.001 g/cm³ en todo el vuelo y la masa del cohete se redondea al gramo: la ecuación 3 ya no se puede comprobar. Con 6 decimales, la densidad sale con cuatro cifras. OpenRocket recuerda la elección: la siguiente vez, la pestaña abre con las variables y los decimales que se dejaron.</p>
+</div>
+<p>El archivo es texto separado por comas: las líneas que empiezan con <code>#</code> son comentarios (entre ellos, una línea por evento, «<code># Event APOGEE occurred at t=6.369 seconds</code>»), y cada línea de datos es un instante. Se abre en una hoja de cálculo o en Python. Las figuras 9 y 10 están trazadas con esos archivos.</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Velocidad vertical contra tiempo de los vuelos con C6-5 y B6-4">
+  <text class="svg-title" x="76" y="28">Velocidad vertical (positiva hacia arriba)</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="666" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">−20</text>
+  <line class="svg-grid" x1="76" y1="272.2" x2="666" y2="272.2"/>
+  <text class="svg-tick" x="70" y="276.2" text-anchor="end">−10</text>
+  <line class="svg-grid" x1="76" y1="244.4" x2="666" y2="244.4"/>
+  <text class="svg-tick" x="70" y="248.4" text-anchor="end">0</text>
+  <line class="svg-grid" x1="76" y1="216.7" x2="666" y2="216.7"/>
+  <text class="svg-tick" x="70" y="220.7" text-anchor="end">10</text>
+  <line class="svg-grid" x1="76" y1="188.9" x2="666" y2="188.9"/>
+  <text class="svg-tick" x="70" y="192.9" text-anchor="end">20</text>
+  <line class="svg-grid" x1="76" y1="161.1" x2="666" y2="161.1"/>
+  <text class="svg-tick" x="70" y="165.1" text-anchor="end">30</text>
+  <line class="svg-grid" x1="76" y1="133.3" x2="666" y2="133.3"/>
+  <text class="svg-tick" x="70" y="137.3" text-anchor="end">40</text>
+  <line class="svg-grid" x1="76" y1="105.6" x2="666" y2="105.6"/>
+  <text class="svg-tick" x="70" y="109.6" text-anchor="end">50</text>
+  <line class="svg-grid" x1="76" y1="77.8" x2="666" y2="77.8"/>
+  <text class="svg-tick" x="70" y="81.8" text-anchor="end">60</text>
+  <line class="svg-grid" x1="76" y1="50.0" x2="666" y2="50.0"/>
+  <text class="svg-tick" x="70" y="54.0" text-anchor="end">70</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0</text>
+  <text class="svg-tick" x="135.0" y="318" text-anchor="middle">2</text>
+  <text class="svg-tick" x="194.0" y="318" text-anchor="middle">4</text>
+  <text class="svg-tick" x="253.0" y="318" text-anchor="middle">6</text>
+  <text class="svg-tick" x="312.0" y="318" text-anchor="middle">8</text>
+  <text class="svg-tick" x="371.0" y="318" text-anchor="middle">10</text>
+  <text class="svg-tick" x="430.0" y="318" text-anchor="middle">12</text>
+  <text class="svg-tick" x="489.0" y="318" text-anchor="middle">14</text>
+  <text class="svg-tick" x="548.0" y="318" text-anchor="middle">16</text>
+  <text class="svg-tick" x="607.0" y="318" text-anchor="middle">18</text>
+  <text class="svg-tick" x="666.0" y="318" text-anchor="middle">20</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <line class="svg-axis" x1="76" y1="244.4" x2="666" y2="244.4"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">tiempo (s)</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">velocidad vertical (m/s)</text>
+  <polyline points="76.0,244.4 76.3,244.4 76.6,244.4 76.9,244.4 77.2,244.4 77.5,244.1 77.8,243.6 78.1,243.0 78.4,242.2 78.7,241.1 79.0,239.8 79.3,238.2 79.6,236.3 79.9,234.1 80.1,232.4 80.4,229.7 80.7,226.7 81.0,223.6 81.3,220.2 81.6,216.6 81.7,215.4 81.8,213.8 82.0,211.4 82.2,209.6 82.4,207.6 82.6,205.9 82.8,204.2 83.2,202.2 83.3,201.4 83.5,200.2 83.9,198.6 84.3,196.6 84.6,195.2 85.0,193.4 85.5,191.5 85.9,189.6 86.4,187.6 86.9,185.8 87.6,183.2 88.6,179.4 90.0,174.8 90.6,172.9 91.1,171.4 91.5,170.1 91.8,169.0 92.2,167.9 92.5,166.9 92.8,166.0 93.1,165.1 93.4,164.2 93.7,163.3 94.0,162.3 94.3,161.4 94.7,160.4 95.0,159.3 95.4,158.0 95.8,157.0 96.3,155.4 96.7,154.1 97.3,152.2 98.1,150.1 98.5,148.8 98.9,147.6 99.3,146.6 99.6,145.6 99.9,144.6 100.2,143.6 100.5,142.7 100.9,141.7 101.1,141.1 101.4,140.1 101.8,138.8 102.3,137.2 103.1,134.8 104.3,131.3 104.7,130.2 105.0,129.3 105.3,128.5 105.6,127.7 105.9,126.9 106.2,126.1 106.5,125.2 106.8,124.2 107.4,122.8 108.1,120.6 109.3,117.5 109.6,116.5 110.0,115.5 110.3,114.6 110.7,113.6 111.1,112.6 111.5,111.3 111.7,110.8 112.0,110.1 112.4,109.0 112.6,108.5 113.0,107.8 113.4,106.7 114.0,105.3 114.4,104.2 114.8,103.3 115.3,102.2 115.8,100.8 116.7,98.7 118.0,95.5 118.5,94.3 119.0,93.0 119.3,92.3 119.8,91.2 120.4,89.5 121.4,87.2 122.0,85.9 122.6,84.5 123.3,82.7 124.5,80.0 124.9,79.1 125.4,77.9 126.0,76.5 126.7,74.8 127.9,72.2 128.6,70.6 129.4,68.9 129.7,68.3 130.1,67.7 130.5,67.9 130.9,68.6 131.4,70.1 132.3,72.4 133.4,75.2 134.9,78.9 136.4,82.4 137.9,85.9 139.3,89.3 140.8,92.6 142.3,95.8 143.8,98.9 145.0,101.5 146.4,104.4 147.9,107.3 148.9,109.2 150.3,111.9 151.8,114.7 153.2,117.4 154.7,120.0 156.2,122.6 157.7,125.2 159.1,127.7 160.6,130.1 162.1,132.5 163.6,134.9 165.0,137.2 166.5,139.5 168.0,141.7 169.5,143.9 170.9,146.1 172.4,148.2 173.9,150.3 175.4,152.4 176.8,154.5 178.3,156.5 179.8,158.4 181.3,160.4 182.7,162.3 184.2,164.2 185.7,166.1 187.2,167.9 188.6,169.8 190.1,171.6 191.6,173.4 193.1,175.1 194.5,176.9 196.0,178.6 197.5,180.3 199.0,182.0 200.4,183.6 201.9,185.3 203.4,187.0 204.9,188.6 206.3,190.2 207.8,191.8 209.3,193.4 210.8,194.9 212.2,196.5 213.7,198.0 215.2,199.6 216.7,201.1 218.1,202.6 219.6,204.1 221.1,205.6 222.6,207.0 224.0,208.5 225.5,210.0 227.0,211.4 228.5,212.9 229.9,214.3 231.4,215.7 232.9,217.1 234.4,218.6 235.8,220.0 237.3,221.4 238.8,222.8 240.3,224.2 241.7,225.6 243.2,227.0 244.7,228.3 246.2,229.7 247.6,231.0 249.1,232.4 250.6,233.7 252.1,235.1 253.5,236.4 255.0,237.7 256.5,239.0 258.0,240.2 259.4,241.5 260.9,242.8 262.4,244.0 263.9,245.2 265.3,246.5 266.8,247.7 268.3,248.9 269.8,250.0 271.2,251.2 272.7,252.3 274.2,253.4 275.4,254.3 276.5,255.1 277.5,255.8 278.4,256.3 278.4,256.4 281.5,256.6 285.7,257.1 291.3,257.9 300.2,259.0 308.4,259.2 316.5,259.3 324.5,259.3 332.6,259.3 340.6,259.3 348.7,259.3 356.8,259.3 364.8,259.3 372.9,259.3 380.9,259.3 389.0,259.3 397.0,259.3 405.1,259.3 413.1,259.3 421.2,259.3 429.2,259.3 437.3,259.3 445.3,259.3 453.3,259.3 461.4,259.3 469.4,259.3 477.5,259.3 485.5,259.3 493.6,259.3 501.6,259.3 509.6,259.3 517.7,259.3 525.7,259.3 533.8,259.3 541.8,259.3 549.8,259.3 557.9,259.2 565.9,259.3 574.0,259.3 582.0,259.3 596.7,259.3 604.8,259.2 612.8,259.3 620.8,259.2 628.9,259.2 636.9,259.2 644.9,259.2 653.0,259.2 661.0,259.2" fill="none" stroke="var(--blue)" stroke-width="2"/>
+  <polyline points="76.0,244.4 76.3,244.4 76.6,244.4 76.7,244.4 76.8,244.4 77.0,244.4 77.3,244.2 77.6,243.9 77.7,243.7 77.8,243.5 78.0,243.1 78.3,242.4 78.6,241.1 78.9,239.8 79.2,238.2 79.4,236.9 79.7,234.8 80.0,232.5 80.4,229.4 80.7,226.5 81.0,223.4 81.0,222.4 81.2,220.8 81.4,218.5 81.6,215.6 81.9,212.8 82.2,210.3 82.4,208.5 82.6,206.9 82.8,205.5 83.1,203.5 83.5,200.8 84.0,198.3 84.4,196.0 84.8,193.8 85.0,193.1 85.2,192.0 85.6,190.4 86.0,188.3 86.6,186.1 87.1,184.1 87.8,181.2 88.9,176.9 90.1,172.6 90.5,171.1 90.8,169.8 91.2,168.7 91.5,167.6 91.8,166.5 92.0,165.5 92.3,164.5 92.6,163.5 92.9,162.4 93.1,161.7 93.4,160.7 93.8,159.4 94.2,157.9 94.7,156.1 95.5,153.3 95.8,152.3 96.2,150.8 96.9,148.6 97.3,147.3 97.6,146.1 98.0,145.0 98.3,144.0 98.6,143.0 99.0,142.0 99.2,141.3 99.5,140.4 99.7,140.1 99.9,139.7 100.2,139.4 100.3,139.4 100.5,139.4 100.8,139.5 101.2,139.9 101.4,140.1 101.6,140.5 102.0,141.0 102.5,141.9 103.0,142.6 103.5,143.3 103.9,143.9 104.3,144.6 104.8,145.3 105.4,146.2 106.3,147.4 107.6,149.4 108.5,150.6 109.2,151.6 109.9,152.5 110.6,153.5 111.3,154.4 112.1,155.5 113.2,157.1 114.7,159.0 115.6,160.3 116.3,161.2 117.0,162.0 117.7,163.0 118.7,164.3 120.2,166.2 121.7,168.0 122.5,169.1 123.8,170.6 125.3,172.4 126.8,174.2 128.2,176.0 129.7,177.7 131.2,179.4 132.7,181.1 134.1,182.8 135.6,184.4 137.1,186.1 138.6,187.7 140.0,189.3 141.5,190.9 143.0,192.5 144.5,194.1 145.9,195.6 147.4,197.2 148.9,198.7 150.4,200.3 151.8,201.8 153.3,203.3 154.8,204.8 156.3,206.3 157.7,207.7 159.2,209.2 160.7,210.6 162.2,212.1 163.6,213.5 165.1,214.9 166.6,216.4 168.1,217.8 169.5,219.2 171.0,220.6 172.5,222.0 174.0,223.4 175.4,224.8 176.9,226.2 178.4,227.6 179.9,229.0 181.3,230.3 182.8,231.7 184.3,233.0 185.8,234.4 187.2,235.8 188.7,237.1 190.2,238.4 191.7,239.8 193.1,241.1 194.6,242.4 196.1,243.7 197.6,245.0 199.0,246.3 200.5,247.7 202.0,249.0 203.5,250.3 204.9,251.6 206.4,252.9 207.9,254.1 209.4,255.4 210.8,256.6 212.3,257.8 213.8,259.0 215.2,260.2 216.5,261.1 217.5,261.9 218.5,262.6 219.4,263.3 219.4,263.3 222.7,261.2 228.4,259.4 236.3,259.1 244.4,259.2 252.5,259.2 260.5,259.2 268.5,259.2 276.6,259.2 284.6,259.2 292.6,259.2 300.6,259.2 308.7,259.2 316.7,259.2 324.7,259.2 332.7,259.2 340.7,259.2 348.8,259.2 356.8,259.2 364.8,259.2 372.8,259.2 380.8,259.2 388.9,259.2 396.9,259.2 404.9,259.2 412.9,259.2 420.9,259.2 428.9,259.2 436.9,259.2 444.9,259.2 453.0,259.2 461.0,259.2 469.0,259.2 477.0,259.2 485.0,259.2 493.0,259.2 501.0,259.2 509.0,259.2 517.0,259.2 525.0,259.2 533.0,259.2 541.1,259.2 549.1,259.2 557.1,259.2 565.1,259.2 573.1,259.2 581.1,259.2 589.1,259.2 597.1,259.2 605.1,259.2 614.8,259.2" fill="none" stroke="var(--accent)" stroke-width="2"/>
+  <circle cx="278.4" cy="256.3" r="4" fill="var(--paper)" stroke="var(--blue)" stroke-width="2"/>
+  <circle cx="219.4" cy="263.3" r="4" fill="var(--paper)" stroke="var(--accent)" stroke-width="2"/>
+  <text class="svg-note-sm" x="142.7" y="63.8" text-anchor="start">máxima: 64.0 m/s</text>
+  <text class="svg-note-sm" x="113.2" y="130.9" text-anchor="start">37.9 m/s</text>
+  <text class="svg-note-sm" x="459.5" y="270.8" text-anchor="middle">descenso: −5.29 m/s, constante</text>
+  <line x1="560" y1="74" x2="586" y2="74" stroke="var(--blue)" stroke-width="2"/>
+  <text class="svg-note-sm" x="592" y="78">C6-5</text>
+  <line x1="560" y1="92" x2="586" y2="92" stroke="var(--accent)" stroke-width="2"/>
+  <text class="svg-note-sm" x="592" y="96">B6-4</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 9.</b> <b class="fig-title">La velocidad vertical.</b> Columna <code>Vertical velocity</code> de los datos exportados, en los primeros 20 s. La velocidad crece mientras el motor empuja, baja hasta cero en el apogeo y, después de la apertura (círculos), se queda en −5.29 m/s: el arrastre del paracaídas iguala al peso.</figcaption>
+</figure>
+<h3>La comprobación del descenso</h3>
+<p>El último renglón del archivo del C6-5 da, al tocar el suelo: masa 86.29 g, densidad del aire 1.065 kg/m³ y velocidad vertical −5.29 m/s. El paracaídas mide 30 cm de diámetro, \(A\) = 0.0707 m². Despejando \(C_D\) de la ecuación (3):</p>
+<div class="equation-card">\[ C_D \;=\; \frac{2\, m\, g}{\rho\, A\, v_d^{2}} \;=\; \frac{2 \times 0.0863 \times 9.788}{1.065 \times 0.0707 \times 5.29^{2}} \;=\; 0.80 \]</div>
+<div class="result-box">
+  <p><strong>Es el coeficiente que OpenRocket supone.</strong> El paracaídas del 1.1 tiene el \(C_D\) en automático, 0.8, y la ecuación (3) lo devuelve: 0.80 con el C6-5 y 0.80 con el B6-4. En el mismo renglón, la fuerza de arrastre, 0.845 N, es igual al peso, \(mg\) = 0.845 N. El descenso que simula OpenRocket es exactamente el de la ecuación (3); si el paracaídas real frena más o menos que un \(C_D\) de 0.8, la simulación no lo sabe.</p>
+</div>
+<div class="callout">
+  <p><strong>«Ground hit velocity» no es la velocidad de descenso.</strong> La tabla dice que el C6-5 toca el suelo a 5.68 m/s, y la figura 9 da 5.29 m/s. La de la tabla es la velocidad total, que suma la horizontal con la que el viento arrastra al cohete: con los 2.05 m/s de la columna <code>Lateral velocity</code> en ese instante, \(\sqrt{5.29^2 + 2.05^2} = 5.68\) m/s.</p>
+</div>
+<h3>El margen de estabilidad durante el vuelo</h3>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Margen de estabilidad contra tiempo desde la salida de la varilla">
+  <text class="svg-title" x="76" y="28">Margen de estabilidad en el ascenso</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="666" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">0.5</text>
+  <line class="svg-grid" x1="76" y1="216.7" x2="666" y2="216.7"/>
+  <text class="svg-tick" x="70" y="220.7" text-anchor="end">1.0</text>
+  <line class="svg-grid" x1="76" y1="133.3" x2="666" y2="133.3"/>
+  <text class="svg-tick" x="70" y="137.3" text-anchor="end">1.5</text>
+  <line class="svg-grid" x1="76" y1="50.0" x2="666" y2="50.0"/>
+  <text class="svg-tick" x="70" y="54.0" text-anchor="end">2.0</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0</text>
+  <text class="svg-tick" x="174.3" y="318" text-anchor="middle">0.5</text>
+  <text class="svg-tick" x="272.7" y="318" text-anchor="middle">1</text>
+  <text class="svg-tick" x="371.0" y="318" text-anchor="middle">1.5</text>
+  <text class="svg-tick" x="469.3" y="318" text-anchor="middle">2</text>
+  <text class="svg-tick" x="567.7" y="318" text-anchor="middle">2.5</text>
+  <text class="svg-tick" x="666.0" y="318" text-anchor="middle">3</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">tiempo (s)</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">margen (calibres)</text>
+  <line x1="76" y1="141.7" x2="666" y2="141.7" stroke="var(--blue)" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <line x1="76" y1="113.3" x2="666" y2="113.3" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <polyline points="119.9,231.5 121.4,227.6 123.8,222.8 124.8,220.8 126.3,217.5 128.6,212.2 131.5,205.4 133.4,200.8 136.3,193.7 139.2,185.8 142.3,177.3 145.6,167.8 148.8,158.9 153.4,145.7 160.3,129.1 169.4,146.9 173.3,151.1 176.4,154.0 179.1,155.8 181.5,156.8 183.8,157.2 185.9,157.3 188.0,157.0 190.0,156.2 192.0,155.0 194.0,153.4 196.0,151.0 198.1,148.2 200.3,144.7 202.8,140.4 205.6,134.2 208.0,128.5 211.5,119.7 214.1,121.1 218.2,126.4 223.1,130.8 226.2,132.9 228.8,134.0 231.1,134.2 233.3,133.9 235.4,133.6 237.5,132.8 239.6,131.5 241.8,129.6 243.2,128.2 245.2,125.9 248.0,122.2 251.5,116.8 256.8,112.3 264.8,120.9 267.4,122.6 269.5,123.4 271.4,123.6 273.3,123.1 275.1,121.8 277.1,120.1 279.2,117.8 281.6,114.6 285.1,109.2 290.3,107.4 297.7,112.4 300.3,112.6 302.6,112.2 304.8,111.3 307.2,109.9 309.8,107.7 312.9,104.6 314.2,103.4 316.0,101.5 318.9,99.3 320.3,100.2 322.3,101.4 325.5,103.3 329.1,104.3 332.3,104.1 334.8,102.7 337.8,100.5 341.6,97.0 347.3,95.7 355.9,97.3 359.2,96.5 362.7,94.6 364.7,93.0 367.7,90.5 372.3,91.5 379.0,92.0 382.6,91.1 386.5,89.3 391.6,86.1 399.2,86.8 401.7,86.9 405.3,86.2 409.2,84.6 414.3,81.5 422.0,82.0 427.0,81.0 432.0,79.2 434.1,78.4 436.7,77.5 439.2,76.6 441.8,77.2 445.6,78.1 451.4,78.1 458.9,77.0 468.8,76.8 478.6,77.5 488.4,77.1 498.3,78.2 508.1,77.0 517.9,77.2 527.8,78.9 536.0,78.7 545.5,77.9 555.3,79.9 561.7,78.6 571.3,77.6 581.2,77.4 591.0,78.3 600.8,78.8 610.7,77.3 620.5,78.1 630.3,77.3 640.2,78.4 650.0,77.5 659.8,77.5" fill="none" stroke="var(--blue)" stroke-width="2"/>
+  <polyline points="119.9,189.7 121.2,185.7 123.2,180.0 126.2,172.5 129.2,166.5 132.1,160.6 134.9,154.7 136.0,152.4 137.5,148.9 139.9,143.6 143.0,136.1 146.4,127.5 149.8,118.9 154.7,105.7 162.2,104.0 169.8,118.2 172.7,122.0 175.0,123.9 177.1,124.1 179.1,123.8 181.0,123.0 182.9,121.8 184.9,120.2 186.8,118.1 188.8,115.6 190.1,113.8 192.0,110.8 194.4,106.7 197.2,101.6 200.7,94.7 206.0,87.6 208.0,90.5 210.9,94.2 215.2,98.1 217.9,99.4 220.3,99.9 222.7,99.6 224.8,98.7 226.9,97.2 229.1,95.1 230.6,93.5 232.7,90.9 233.7,89.6 235.2,87.7 237.4,84.5 238.2,83.4 239.5,81.7 241.3,80.3 244.1,83.5 245.1,84.4 246.7,85.8 249.1,87.6 252.7,89.4 256.1,91.1 259.1,91.9 261.9,91.9 264.7,90.8 267.9,88.7 271.9,85.3 277.8,79.8 286.8,86.4 292.5,88.1 297.3,88.9 301.8,88.5 306.5,88.8 311.2,88.2 316.3,83.4 324.1,83.2 333.9,87.3 340.3,91.2 344.7,91.4 349.0,90.2 354.0,87.4 360.9,82.0 370.8,85.4 380.6,90.5 386.2,87.1 394.7,83.1 404.5,80.2 414.3,82.2 424.2,79.9 434.0,80.4 443.8,81.3 453.7,82.5 463.5,80.0 473.3,83.1" fill="none" stroke="var(--accent)" stroke-width="2"/>
+  <text class="svg-note-sm" x="129.1" y="253.3" text-anchor="start">al dejar la varilla: 0.91 cal (ángulo de ataque 9.3°)</text>
+  <text class="svg-note-sm" x="656.2" y="135.0" text-anchor="end" fill="var(--blue)">estático del 1.1 con el C6-5: 1.45</text>
+  <text class="svg-note-sm" x="656.2" y="106.7" text-anchor="end" fill="var(--accent-dark)">con el B6-4: 1.62</text>
+  <line x1="560" y1="205" x2="586" y2="205" stroke="var(--blue)" stroke-width="2"/>
+  <text class="svg-note-sm" x="592" y="209">C6-5</text>
+  <line x1="560" y1="223" x2="586" y2="223" stroke="var(--accent)" stroke-width="2"/>
+  <text class="svg-note-sm" x="592" y="227">B6-4</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 10.</b> <b class="fig-title">El margen en vuelo no es el de la tabla del 1.1.</b> Columna <code>Stability margin calibers</code> desde la salida de la varilla hasta poco después del apagado. Al dejar la varilla, a 13.9 m/s con 2 m/s de viento de costado, el cohete vuela inclinado respecto al aire; el CP se adelanta y el margen baja a cerca de 1 calibre. Después sube por encima del estático (líneas punteadas): el motor quema combustible, el CG avanza de 29.8 a 28.6 cm.</figcaption>
+</figure>
+<p>El margen de 1.45 calibres del 1.1 es el del cohete quieto, de frente al aire. En vuelo cambia por dos razones. El motor quema 10.8 g de combustible, que estaba detrás del CG: el CG avanza de 29.8 a 28.6 cm y al apagado el margen es de 1.84 calibres. Y al dejar la varilla, con 2 m/s de viento de costado y sólo 13.9 m/s de velocidad, el aire le llega al cohete con un ángulo de ataque de 9.3°; a ese ángulo el cuerpo también genera fuerza normal, el CP se adelanta a 32.9 cm y el margen baja a 0.91 calibres (1.16 con el B6-4). Es el instante más delicado del vuelo, y el tutorial 1.3 lo estudia con más viento.</p>
+
+    </section>
+    <section id="delay-es">
+      <p class="section-label">Paso 6</p>
+      <h2>Elegir el retardo de la carga de expulsión</h2>
+
+<p>La columna <code>Optimum delay</code> dice qué retardo abriría el paracaídas justo en el apogeo: 4.51 s con el C6 y 3.26 s con el B6. Los motores sólo se venden con ciertos retardos (tabla 1). Para decidir, se simulan los retardos vecinos.</p>
+<ol>
+  <li>Pestaña <code>Motors &amp; Configuration</code>, <code>New Configuration</code>. En <code>Select a rocket motor</code>, buscar <code>C6</code>, elegir la fila del Estes y escribir 3 en <code>Ejection charge delay</code>. <code>OK</code>: aparece <code>[C6-3]</code>.</li>
+  <li>Repetir para <code>C6-7</code>, <code>B6-2</code> y <code>B6-6</code>.</li>
+  <li>Pestaña <code>Flight simulations</code>: ya hay seis simulaciones; las cuatro nuevas se crearon y se corrieron solas.</li>
+  <li>Editar cada una de las cuatro nuevas y poner las condiciones del paso 2.</li>
+</ol>
+<div class="callout warning">
+  <p><strong>Las simulaciones nuevas nacen con las condiciones de omisión.</strong> OpenRocket crea la simulación de cada configuración nueva con Cabo Cañaveral y la varilla de 1 m, no con las condiciones de las simulaciones ya editadas, y la corre en seguida. Sus cifras parecen razonables, pero son de otro lugar: hay que editarlas una por una, o fijar antes las condiciones con <code>Save as default</code>.</p>
+</div>
+<figure class="diagram">
+  <img src="imagenes/t12-11_seis.png" alt="Tabla de Flight simulations con las seis configuraciones" loading="lazy">
+  <figcaption><b class="fig-num">Figura 11.</b> <b class="fig-title">Seis vuelos, tres retardos por motor.</b> La tabla de simulaciones con las seis configuraciones, todas en Chihuahua. La columna <code>Velocity at deployment</code> es la que cambia con el retardo.</figcaption>
+</figure>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Motor</th><th>Apogeo (m)</th><th>Retardo óptimo (s)</th><th>Después del apogeo (s)</th><th>Velocidad al abrir (m/s)</th><th>Vuelo (s)</th></tr></thead>
+    <tbody>
+      <tr><td>C6-3</td><td>177.9</td><td>4.47</td><td>−1.47</td><td>15.0</td><td>39.2</td></tr>
+      <tr><td>C6-5</td><td>185.4</td><td>4.51</td><td>0.49</td><td>5.1</td><td>41.6</td></tr>
+      <tr><td>C6-7</td><td>185.2</td><td>4.51</td><td>2.49</td><td>15.1</td><td>39.4</td></tr>
+      <tr><td>B6-2</td><td>69.1</td><td>3.22</td><td>−1.22</td><td>12.3</td><td>16.8</td></tr>
+      <tr><td>B6-4</td><td>74.1</td><td>3.26</td><td>0.74</td><td>6.8</td><td>18.3</td></tr>
+      <tr><td>B6-6</td><td>74.0</td><td>3.25</td><td>2.75</td><td>17.2</td><td>15.4</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 5.</b> <b class="fig-title">El retardo de la carga de expulsión.</b> Seis configuraciones en Chihuahua, de la tabla de simulaciones. «Después del apogeo» es el retardo menos el óptimo: negativo, el paracaídas abre antes del apogeo.</caption>
+  </table>
+</div>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Velocidad al abrir el paracaídas contra el retardo, para C6 y B6">
+  <text class="svg-title" x="76" y="28">Velocidad del cohete al abrirse el paracaídas</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="666" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">0</text>
+  <line class="svg-grid" x1="76" y1="237.5" x2="666" y2="237.5"/>
+  <text class="svg-tick" x="70" y="241.5" text-anchor="end">5</text>
+  <line class="svg-grid" x1="76" y1="175.0" x2="666" y2="175.0"/>
+  <text class="svg-tick" x="70" y="179.0" text-anchor="end">10</text>
+  <line class="svg-grid" x1="76" y1="112.5" x2="666" y2="112.5"/>
+  <text class="svg-tick" x="70" y="116.5" text-anchor="end">15</text>
+  <line class="svg-grid" x1="76" y1="50.0" x2="666" y2="50.0"/>
+  <text class="svg-tick" x="70" y="54.0" text-anchor="end">20</text>
+  <text class="svg-tick" x="125.2" y="318" text-anchor="middle">2</text>
+  <text class="svg-tick" x="223.5" y="318" text-anchor="middle">3</text>
+  <text class="svg-tick" x="321.8" y="318" text-anchor="middle">4</text>
+  <text class="svg-tick" x="420.2" y="318" text-anchor="middle">5</text>
+  <text class="svg-tick" x="518.5" y="318" text-anchor="middle">6</text>
+  <text class="svg-tick" x="616.8" y="318" text-anchor="middle">7</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">retardo de la carga de expulsión (s)</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">velocidad al abrir (m/s)</text>
+  <polyline points="223.5,112.3 420.2,236.1 616.8,111.6" fill="none" stroke="var(--blue)" stroke-width="1.6" stroke-dasharray="4 3"/>
+  <circle cx="223.5" cy="112.3" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="420.2" cy="236.1" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="616.8" cy="111.6" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <polyline points="125.2,145.7 321.8,214.9 518.5,85.3" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-dasharray="4 3"/>
+  <circle cx="125.2" cy="145.7" r="4.5" fill="var(--accent)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="321.8" cy="214.9" r="4.5" fill="var(--accent)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="518.5" cy="85.3" r="4.5" fill="var(--accent)" stroke="var(--paper)" stroke-width="1.5"/>
+  <text class="svg-note-sm" x="223.5" y="101.0" text-anchor="middle">15.0</text>
+  <text class="svg-note-sm" x="420.2" y="259.8" text-anchor="middle">5.1</text>
+  <text class="svg-note-sm" x="616.8" y="100.4" text-anchor="middle">15.1</text>
+  <text class="svg-note-sm" x="125.2" y="134.4" text-anchor="middle">12.3</text>
+  <text class="svg-note-sm" x="321.8" y="238.6" text-anchor="middle">6.8</text>
+  <text class="svg-note-sm" x="518.5" y="74.1" text-anchor="middle">17.2</text>
+  <circle cx="313" cy="74" r="4.5" fill="var(--blue)"/>
+  <text class="svg-note-sm" x="332" y="78">C6 · retardo óptimo 4.51 s</text>
+  <circle cx="313" cy="92" r="4.5" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="332" y="96">B6 · retardo óptimo 3.26 s</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 12.</b> <b class="fig-title">El retardo que conviene.</b> Velocidad al abrir el paracaídas para los tres retardos que se venden de cada motor. El mínimo cae en el retardo de en medio, el más cercano al retardo óptimo que calcula OpenRocket; un paso más corto abre el paracaídas todavía subiendo, uno más largo, ya cayendo.</figcaption>
+</figure>
+<p>Con el retardo corto, el paracaídas abre antes del apogeo, todavía subiendo: el C6-3 lo abre a 15.0 m/s y el apogeo baja a 177.9 m (un 4 % menos), porque el paracaídas frena el último tramo del ascenso; el B6-2, a 12.3 m/s. Con el largo, abre ya cayendo: 15.1 m/s con el C6-7 y 17.2 m/s con el B6-6. Las dos cosas son malas: el tirón del paracaídas crece con el cuadrado de la velocidad, y puede romper el cordón, rasgar el paracaídas o arrancar la nariz.</p>
+<div class="result-box">
+  <p><strong>Para este cohete, C6-5 y B6-4.</strong> Son los retardos de en medio y abren el paracaídas 0.49 y 0.74 s después del apogeo, a 5.1 y 6.8 m/s. Un retardo un poco más largo que el óptimo es preferible a uno más corto: el cohete casi detenido en el apogeo apenas acelera en medio segundo.</p>
+</div>
+
+    </section>
+    <section id="criteria-es">
+      <p class="section-label">Paso 7</p>
+      <h2>¿Es un vuelo seguro?</h2>
+
+<p>La simulación sirve para revisar el vuelo antes de hacerlo. El código de seguridad de la National Association of Rocketry (NAR), el que acompaña a los motores Estes, fija el tamaño mínimo del campo según el impulso del motor: 200 ft (61 m) para un B y 400 ft (122 m) para un C, con viento de no más de 20 mph. A eso se suman reglas prácticas de los simuladores y los clubes.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Criterio</th><th>Fuente</th><th>C6-5</th><th>B6-4</th><th>¿Cumple?</th></tr></thead>
+    <tbody>
+      <tr><td>Velocidad al dejar la varilla ≥ 15 m/s</td><td>regla práctica</td><td>13.9 m/s</td><td>13.5 m/s</td><td>por poco no</td></tr>
+      <tr><td>Velocidad al dejar la varilla ≥ 4 × viento (8 m/s)</td><td>regla práctica</td><td>13.9 m/s</td><td>13.5 m/s</td><td>sí</td></tr>
+      <tr><td>Campo de al menos 200 ft (B) o 400 ft (C)</td><td>NAR, punto 9</td><td>122 m; deriva 39 m</td><td>61 m; deriva 18 m</td><td>sí, si el campo los tiene</td></tr>
+      <tr><td>Viento de no más de 20 mph (8.9 m/s)</td><td>NAR, punto 9</td><td>2 m/s</td><td>2 m/s</td><td>sí</td></tr>
+      <tr><td>Varilla a menos de 30° de la vertical</td><td>NAR, punto 6</td><td>0°</td><td>0°</td><td>sí</td></tr>
+      <tr><td>Paracaídas abierto cerca del apogeo</td><td>esta guía</td><td>5.1 m/s</td><td>6.8 m/s</td><td>sí</td></tr>
+      <tr><td>Margen al dejar la varilla ≥ 1 calibre</td><td>regla del 1.1</td><td>0.91</td><td>1.16</td><td>justo: tema del 1.3</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 6.</b> <b class="fig-title">El vuelo contra los criterios.</b> El código de seguridad de la NAR es la norma de los motores Estes; los 15 m/s y las «4 veces el viento» son reglas prácticas de los simuladores y los clubes, no una norma. La deriva es la distancia del lugar de lanzamiento al punto de aterrizaje.</caption>
+  </table>
+</div>
+<ul>
+  <li><strong>La velocidad al dejar la varilla</strong> queda en 13.9 m/s con el C6-5 y 13.5 m/s con el B6-4: algo por debajo de los 15 m/s que se suelen pedir en aire quieto, aunque muy por encima de 4 veces el viento. Una varilla más larga la sube; el tutorial 1.3 lo prueba.</li>
+  <li><strong>La deriva</strong>: con 2 m/s de viento, el cohete aterriza a 39 m del lugar de lanzamiento con el C6-5 y a 18 m con el B6-4. Al subir, como una veleta, se inclina hacia el viento: en el apogeo, el C6-5 está 25 m del lado de donde viene el viento. Después el paracaídas lo arrastra durante 35 s y aterriza del otro lado. Con más viento, la deriva crece con el tiempo de descenso.</li>
+  <li><strong>El descenso</strong> a 5.29 m/s equivale a caer desde unos 1.4 m de altura. Para un cohete de cartón con nariz impresa es aceptable, pero las aletas de MDF lo resienten. El tamaño del paracaídas se ajusta en el tutorial 1.3.</li>
+</ul>
+
+    </section>
+    <section id="example-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>Una tarde calurosa</h2>
+
+<p class="lead">La atmósfera estándar a 1440 m supone 5.64 °C. Una tarde de mayo en Chihuahua puede llegar a 30 °C. Esta práctica mide cuánto cambia el vuelo con el aire caliente.</p>
+<div class="example">
+  <p><strong>Enunciado.</strong> En las simulaciones del C6-5 y del B6-4, desmarcar <code>Use International Standard Atmosphere</code> y escribir 30 °C y 850 mbar. Antes de correrlas, predecir con la ecuación (3) la nueva velocidad de descenso. Después, comparar la predicción con la simulación y registrar el apogeo.</p>
+  <p><strong>Condiciones.</strong> OpenRocket 24.12; el diseño de esta guía (<a href="archivos/cohete-vuelo.ork" download>cohete-vuelo.ork</a>) con las condiciones del paso 2; densidad del aire con la ley del gas ideal, \(\rho = p/(R\,T)\), \(R\) = 287.05 J/(kg·K).</p>
+</div>
+<h3>El procedimiento, en corto</h3>
+<ol>
+  <li>Calcular la densidad a 30 °C y 850 mbar, y con ella la velocidad de descenso: como en la ecuación (3) sólo cambia \(\rho\), \(v_d\) escala con \(1/\sqrt{\rho}\).</li>
+  <li><code>Edit simulation</code> de la del C6-5; en <code>Atmospheric conditions</code>, desmarcar la casilla: <code>Temperature</code> y <code>Pressure</code> dejan de estar en gris. Escribir 30 y 850, <code>OK</code>.</li>
+  <li>Exportar el vuelo y leer la velocidad vertical del último renglón. Repetir con el B6-4.</li>
+</ol>
+<h3>Registro de resultados</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Motor</th><th>Descenso con ISA (m/s)</th><th>Densidad a 30 °C y 850 mbar (kg/m³)</th><th>Descenso predicho (m/s)</th><th>Descenso simulado (m/s)</th><th>Apogeo con ISA (m)</th><th>Apogeo a 30 °C (m)</th></tr></thead>
+    <tbody>
+      <tr><td>C6-5</td><td>5.29</td><td></td><td></td><td></td><td>185.4</td><td></td></tr>
+      <tr><td>B6-4</td><td>5.31</td><td></td><td></td><td></td><td>74.1</td><td></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 7.</b> <b class="fig-title">Registro de la práctica.</b> Una fila por motor. La predicción se escribe antes de correr la simulación.</caption>
+  </table>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>¿La densidad a 30 °C y 850 mbar es mayor o menor que la de la atmósfera estándar a 1440 m? ¿Qué pesa más, la temperatura o la presión?</li>
+  <li>¿Acertó la predicción del descenso? Si no, ¿qué otra cantidad de la ecuación (3) pudo cambiar?</li>
+  <li>¿Cuánto cambió el apogeo, y por qué el cambio es más grande con el C6-5 que con el B6-4?</li>
+  <li>¿Cambió el retardo óptimo? ¿Seguiría conviniendo el C6-5?</li>
+</ol>
+
+    </section>
+    <section id="summary-es">
+      <p class="section-label">Puntos clave</p>
+      <h2>Lo que hay que retener</h2>
+
+<ul>
+  <li><strong>Las condiciones de lanzamiento son parte del modelo.</strong> A 1440 m el C6-5 sube 185.4 m y no 174.8, y el paracaídas baja más rápido.</li>
+  <li><strong>Cada configuración tiene su simulación</strong>, y las nuevas nacen con las condiciones de omisión.</li>
+  <li><strong>El impulso real está en <code>Show Details</code></strong>, no en el nombre ni en la lista de motores.</li>
+  <li><strong>El arrastre decide el apogeo</strong>: sin él, el C6-5 subiría 274 m (ecuaciones 1 y 2).</li>
+  <li><strong>El descenso es el de la ecuación (3)</strong>, con el \(C_D\) que se le dé al paracaídas.</li>
+  <li><strong>Los datos se exportan</strong>, con todas las variables y 6 decimales; no se leen de la gráfica.</li>
+  <li><strong>El retardo se elige con el retardo óptimo</strong>: el que se vende inmediatamente por encima.</li>
+</ul>
+
+    </section>
+    <section id="mistakes-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Dónde OpenRocket no hace lo que uno espera</h2>
+
+<ul>
+  <li><strong>Quedarse en Cabo Cañaveral.</strong> Las condiciones de omisión son las del nivel del mar en Florida.</li>
+  <li><strong>Editar una simulación y no las demás</strong>, o creer que las configuraciones nuevas heredan las condiciones de las ya editadas.</li>
+  <li><strong>Buscar la gráfica en un archivo recién abierto.</strong> El archivo guarda sólo el resumen de cada simulación (<code>Save options</code> ofrece <code>Only summary data</code> o <code>All simulated data</code>): <code>Plot data</code> y <code>Export data</code> están en gris hasta volver a correrla.</li>
+  <li><strong>Exportar sin variables o con 3 decimales</strong>, como abre la pestaña.</li>
+  <li><strong>Tomar <code>Ground hit velocity</code> como la velocidad de descenso</strong>: incluye el viento.</li>
+  <li><strong>Confiar en la columna <code>Total Impulse</code> de la lista de motores</strong>, que redondea a la clase, o no revisar el retardo después de elegir el motor.</li>
+  <li><strong>Leer el margen del 1.1 como el del vuelo</strong>: al dejar la varilla con viento es menor.</li>
+</ul>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ul>
+  <li>OpenRocket. <em>OpenRocket documentation</em> (versión 24.12). <a href="https://openrocket.readthedocs.io" target="_blank" rel="noopener">openrocket.readthedocs.io</a>.</li>
+  <li>Niskanen, S. (2009). <em>Development of an open source model rocket simulation software</em>. Tesis de maestría, Helsinki University of Technology. Describe el modelo de vuelo y de arrastre de OpenRocket.</li>
+  <li>National Association of Rocketry. <em>Model Rocket Safety Code</em>, con la tabla de dimensiones del campo de lanzamiento. <a href="https://nar.org/content.aspx?page_id=22&amp;club_id=114127&amp;module_id=669234" target="_blank" rel="noopener">nar.org</a>.</li>
+  <li>Estes Industries. Motores de modelismo C6-5 y B6-4 y plataforma Porta-Pad II. <a href="https://estesrockets.com" target="_blank" rel="noopener">estesrockets.com</a>.</li>
+  <li>ThrustCurve.org. Base de datos de curvas de empuje de motores de modelismo. <a href="https://www.thrustcurve.org" target="_blank" rel="noopener">thrustcurve.org</a>.</li>
+</ul>
+<p class="source-note">Todas las capturas son de OpenRocket 24.12 en Windows 11, manejado en una pantalla de 1920 × 1080. Las cifras de los vuelos se copiaron de la tabla de simulaciones con <code>Ctrl+C</code> o se leyeron de los archivos de <code>Export data</code>; las de los motores, de <code>Show Details</code>. Las gráficas de las figuras 1, 3, 9, 10 y 12 están trazadas con esos datos.</p>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="modelar-cohete.html?v=13"><span>Tutorial anterior</span>← 1.1 · Modelar el cohete</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenRocket · Serie de tutoriales</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Die Motordaten von OpenRocket lesen, die Bedingungen des echten Startplatzes einstellen (Chihuahua, 1440 m, 91-cm-Stab), Simulationen ausführen und lesen, einen ganzen Flug darstellen und exportieren, die Sinkgeschwindigkeit mit einer Formel prüfen, die Ausstoßverzögerung wählen und den Flug an Sicherheitskriterien messen.</p>
+    </section>
+    <section id="physics-de">
+      <p class="section-label">Die Idee</p>
+      <h2>Drei Abschnitte: Schub, Freiflug und Abstieg</h2>
+<p>Der Flug hat drei Abschnitte: Der Motor brennt (unter 2 s), die Rakete steigt im Freiflug bis zum Gipfel, gebremst von Schwerkraft und Luftwiderstand, und sinkt am Fallschirm mit konstanter Geschwindigkeit. Ohne Widerstand hätte der C6-5 bei Brennschluss 78 m/s und stiege auf 274 m; OpenRocket ergibt 64 m/s und 185 m. Die Sinkgeschwindigkeit folgt v = √(2mg/(ρ C_D A)).</p>
+    </section>
+    <section id="motors-de">
+      <p class="section-label">Schritt 1</p>
+      <h2>Was OpenRocket über einen Estes B6 und C6 weiß</h2>
+<p>Show Details im Motordialog zeigt die echten Daten: der Estes C6 liefert 8,82 N·s in 1,83 s, der B6 4,33 N·s in 0,826 s; die Liste rundet den Impuls auf die Klasse. Den C6 gibt es mit 0, 3, 5 und 7 s Verzögerung, den B6 mit 0, 2, 4 und 6 s.</p>
+    </section>
+    <section id="conditions-de">
+      <p class="section-label">Schritt 2</p>
+      <h2>Ort und Tag des Starts</h2>
+<p>OpenRocket beginnt mit Cape Canaveral auf Meereshöhe und einem 1-m-Stab. Hier ist der Startplatz Chihuahua auf 1440 m mit dem 91-cm-Stab von Estes; die Standardatmosphäre ergibt dann 5,64 °C und 851,94 mbar.</p>
+    </section>
+    <section id="run-de">
+      <p class="section-label">Schritt 3</p>
+      <h2>Die Simulation ausführen und ihre Tabelle lesen</h2>
+<p>OK startet die Simulation. Auf 1440 m erreicht der C6-5 185 m (175 m auf Meereshöhe) und der B6-4 74 m; die Rakete verlässt den Stab mit etwa 14 m/s und landet mit 5,7 m/s.</p>
+    </section>
+    <section id="plot-de">
+      <p class="section-label">Schritt 4</p>
+      <h2>Das Diagramm und die Flugereignisse</h2>
+<p>Plot data zeichnet Höhe, Geschwindigkeit und Beschleunigung über der Zeit mit den Flugereignissen: Abheben, Stabende, Brennschluss, Gipfel, Ausstoß, Öffnen und Aufprall.</p>
+    </section>
+    <section id="export-de">
+      <p class="section-label">Schritt 5</p>
+      <h2>Daten exportieren und den Abstieg prüfen</h2>
+<p>Export data schreibt alle 58 Variablen als CSV (alle auswählen, 6 Dezimalstellen). Damit ergibt die Sinkformel einen Widerstandsbeiwert des Fallschirms von 0,80, den Wert von OpenRocket; die Stabilitätsreserve fällt beim Verlassen des Stabs im Seitenwind auf etwa 1 Kaliber.</p>
+    </section>
+    <section id="delay-de">
+      <p class="section-label">Schritt 6</p>
+      <h2>Die Ausstoßverzögerung wählen</h2>
+<p>Mit einer Stufe kürzerer oder längerer Verzögerung öffnet der Fallschirm mit 12–17 m/s, steigend oder fallend; C6-5 und B6-4 öffnen ihn 0,5–0,7 s nach dem Gipfel mit 5–7 m/s und sind die richtige Wahl.</p>
+    </section>
+    <section id="criteria-de">
+      <p class="section-label">Schritt 7</p>
+      <h2>Ist es ein sicherer Flug?</h2>
+<p>Der NAR-Sicherheitskodex verlangt ein Feld von 61 m (B) bzw. 122 m (C) und Wind unter 20 mph. Die Geschwindigkeit am Stabende, 13,5–13,9 m/s, liegt knapp unter der Faustregel von 15 m/s.</p>
+    </section>
+    <section id="example-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Ein heißer Nachmittag</h2>
+<p>Einen heißen Nachmittag (30 °C, 850 mbar) statt der Standardatmosphäre simulieren und die Änderung der Sinkgeschwindigkeit vorher mit der Formel vorhersagen.</p>
+    </section>
+    <section id="summary-de">
+      <p class="section-label">Kernpunkte</p>
+      <h2>Was man behalten sollte</h2>
+<p>Die Startbedingungen gehören zum Modell; jede Konfiguration hat ihre eigene Simulation; Daten werden exportiert, nicht abgelesen; die Verzögerung wählt man nach der optimalen Verzögerung.</p>
+    </section>
+    <section id="mistakes-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Wo OpenRocket nicht tut, was man erwartet</h2>
+<p>Cape Canaveral beibehalten, nur eine Simulation bearbeiten, mit null Variablen oder drei Dezimalstellen exportieren, die Aufprallgeschwindigkeit als Sinkrate nehmen und der Impulsspalte der Motorliste vertrauen.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>OpenRocket-Dokumentation; Niskanen (2009); NAR Model Rocket Safety Code; Estes-Motordaten; ThrustCurve.org.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="modelar-cohete.html?v=13"><span>Vorheriges Tutorial</span>← 1.1 · Die Rakete modellieren</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenRocket · Tutorialreihe</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>

@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="OpenRocket tutorial: test a low-power rocket against wind, launch rod length, nose mass and ballast and parachute size, check the drift against the NAR field size, and export the PDF templates, the fin SVG and the nose OBJ to build it." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Tuning the Design: Wind, Nose Weight, Parachute and Build Templates | OpenRocket Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">OpenRocket · Tutorial 1.3</p><h1>Tuning the Design: Wind, Nose Weight, Parachute and Build Templates</h1><p class="hero-copy">The rocket flies in the simulation; now it has to fly on the real field, with wind, a printed nose that may not weigh what the model says and a parachute that decides how far it drifts. The last step takes the design out of OpenRocket: templates, a fin outline and a 3D model of the nose.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">OpenRocket · Tutorial 1.3</p><h1>Ajustar el diseño: viento, lastre, paracaídas y plantillas para construir</h1><p class="hero-copy">El cohete ya vuela en la simulación; ahora tiene que volar en el campo real, con viento, con una nariz impresa que quizá no pese lo que dice el modelo y con un paracaídas que decide hasta dónde se lo lleva el aire. El último paso saca el diseño de OpenRocket: plantillas, el contorno de las aletas y el modelo 3D de la nariz.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">OpenRocket · Tutorial 1.3</p><h1>Den Entwurf abstimmen: Wind, Ballast, Fallschirm und Bauvorlagen</h1><p class="hero-copy">Die Rakete fliegt in der Simulation; jetzt muss sie auf dem echten Feld fliegen, mit Wind, mit einer gedruckten Spitze, die vielleicht nicht so viel wiegt wie im Modell, und mit einem Fallschirm, der bestimmt, wie weit sie abtreibt. Der letzte Schritt bringt den Entwurf aus OpenRocket heraus: Schablonen, Flossenkontur und ein 3D-Modell der Spitze.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 50 min</span><span data-language="es" hidden>Lectura estimada: 50 min</span><span data-language="de" hidden>Lesedauer: ca. 50 min</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on OpenRocket 24.12 (Windows 11)</span><span data-language="es" hidden>Verificado en OpenRocket 24.12 (Windows 11)</span><span data-language="de" hidden>Geprüft mit OpenRocket 24.12 (Windows 11)</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="motor-vuelo.html?v=13">← <span>1.2</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/DBebZ0ybWFs" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Watch the video</span><span data-language="es" hidden>Ver el vídeo</span><span data-language="de" hidden>Video ansehen</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#physics">Four formulas</a><a href="#wind">Step 1 · Wind</a><a href="#rod">Step 2 · Rod</a><a href="#nose">Step 3 · Nose and ballast</a><a href="#parachute">Step 4 · Parachute</a><a href="#field">Step 5 · Field</a><a href="#build">Step 6 · To the workshop</a><a href="#check">Step 7 · Final check</a><a href="#example">Suggested practice</a><a href="#summary">Key points</a><a href="#mistakes">Common mistakes</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#physics-es">Cuatro fórmulas</a><a href="#wind-es">Paso 1 · Viento</a><a href="#rod-es">Paso 2 · Varilla</a><a href="#nose-es">Paso 3 · Nariz y lastre</a><a href="#parachute-es">Paso 4 · Paracaídas</a><a href="#field-es">Paso 5 · Campo</a><a href="#build-es">Paso 6 · Al taller</a><a href="#check-es">Paso 7 · Revisión</a><a href="#example-es">Práctica sugerida</a><a href="#summary-es">Puntos clave</a><a href="#mistakes-es">Errores frecuentes</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#physics-de">Vier Formeln</a><a href="#wind-de">Schritt 1 · Wind</a><a href="#rod-de">Schritt 2 · Stab</a><a href="#nose-de">Schritt 3 · Spitze und Ballast</a><a href="#parachute-de">Schritt 4 · Fallschirm</a><a href="#field-de">Schritt 5 · Feld</a><a href="#build-de">Schritt 6 · In die Werkstatt</a><a href="#check-de">Schritt 7 · Prüfung</a><a href="#example-de">Übung</a><a href="#summary-de">Kernpunkte</a><a href="#mistakes-de">Häufige Fehler</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Simulate the design with more wind and a longer rod, enter the measured mass of a part and add nose ballast, size the parachute, check the drift against the NAR field size, and export the PDF templates, the fin SVG and the nose OBJ for building.</p>
+    </section>
+    <section id="physics">
+      <p class="section-label">The idea</p>
+      <h2>What each adjustment changes</h2>
+<p>Four formulas anchor the guide: the angle of attack at rod exit, arctan(w/v); the centre of gravity as a mass-weighted mean; the descent rate inversely proportional to the parachute diameter; and the drift as wind speed times descent time minus the upwind climb.</p>
+    </section>
+    <section id="wind">
+      <p class="section-label">Step 1</p>
+      <h2>The same rocket with more wind</h2>
+<p>From 0 to 8 m/s of wind the apogee of the C6-5 drops only from 188 to 170 m, but the stability margin at rod exit falls from 1.49 to below 0.3 calibers and the drift grows from 0 to about 190 m.</p>
+    </section>
+    <section id="rod">
+      <p class="section-label">Step 2</p>
+      <h2>A longer launch rod</h2>
+<p>A 122 cm rod raises the rod exit speed from 13.9 to 15.5 m/s and meets the 15 m/s rule of thumb; the same wind then reaches the rocket at a smaller angle.</p>
+    </section>
+    <section id="nose">
+      <p class="section-label">Step 3</p>
+      <h2>The real mass of the nose, and ballast</h2>
+<p>Override mass enters the weighed mass of a part. A 10 g nose instead of 18 g lowers the static margin with the C6-5 to 0.85 calibers; 5 g of ballast in the tip restore 1.29. The hand calculation agrees with OpenRocket.</p>
+    </section>
+    <section id="parachute">
+      <p class="section-label">Step 4</p>
+      <h2>The size of the parachute</h2>
+<p>The descent rate times the diameter is constant: 7.95 m/s with 20 cm, 5.32 with 30 cm, 3.58 with 45 cm. A larger parachute lands softer but drifts much farther.</p>
+    </section>
+    <section id="field">
+      <p class="section-label">Step 5</p>
+      <h2>B or C: how much wind fits in the field</h2>
+<p>With the launcher in the middle of the NAR minimum field (122 m for C, 61 m for B), the 30 cm parachute keeps the rocket inside up to about 3 m/s of wind with either motor.</p>
+    </section>
+    <section id="build">
+      <p class="section-label">Step 6</p>
+      <h2>Templates, fin outline and nose model</h2>
+<p>Print design info saves a PDF with a summary, the parts list and 1:1 templates of fin, nose profile and rings; Export to SVG writes the fin outline in millimetres for laser cutting; Export as OBJ writes the nose as a closed solid for the 3D-printing slicer.</p>
+    </section>
+    <section id="check">
+      <p class="section-label">Step 7</p>
+      <h2>The final check of the design</h2>
+<p>A final table checks the design against the rules of thumb and the NAR code: margin, rod exit speed, deployment speed, descent rate, drift and wind.</p>
+    </section>
+    <section id="example">
+      <p class="section-label">Suggested practice</p>
+      <h2>Your rocket on a windy day</h2>
+<p>Take your own design to a day with 4 m/s of wind and find a motor and parachute that keep it inside the field, predicting the drift before simulating.</p>
+    </section>
+    <section id="summary">
+      <p class="section-label">Key points</p>
+      <h2>What to keep from this guide</h2>
+<p>Wind lowers the margin more than the apogee; the weighed mass replaces the modelled one; the parachute trades landing speed for drift; the field limits the wind; the files for the workshop come out of OpenRocket at true scale.</p>
+    </section>
+    <section id="mistakes">
+      <p class="section-label">Common mistakes</p>
+      <h2>Where OpenRocket does not do what one expects</h2>
+<p>Changing the wind in one simulation only, trusting the static margin on a windy day, leaving the modelled mass after weighing a part, printing the templates scaled to the page, and expecting the OBJ nose to have the model's wall.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>OpenRocket documentation; Niskanen (2009); NAR Model Rocket Safety Code; Estes launch equipment.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="motor-vuelo.html?v=13"><span>Previous tutorial</span>← 1.2 · The motor and the flight</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenRocket · Tutorial series</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">En el <a href="motor-vuelo.html">tutorial 1.2</a>, el cohete voló en Chihuahua con 2 m/s de viento, una nariz que pesa exactamente lo que calcula OpenRocket y un paracaídas de 30 cm. El día del lanzamiento puede haber más viento, la nariz impresa puede pesar otra cosa y el campo tiene un tamaño. Esta guía prueba el diseño contra esas tres cosas y termina sacándolo de OpenRocket para construirlo. Al terminar debe ser posible:</p>
+<ul>
+  <li>Simular el mismo cohete con distintos vientos y explicar por qué el viento baja el margen de estabilidad al dejar la varilla.</li>
+  <li>Decidir el largo de la varilla de lanzamiento.</li>
+  <li>Escribir en OpenRocket la masa medida de una pieza y, si hace falta, agregar lastre en la nariz.</li>
+  <li>Elegir el diámetro del paracaídas sabiendo lo que se gana y lo que se pierde.</li>
+  <li>Comprobar que el cohete aterriza dentro del campo que exige el código de seguridad de la NAR.</li>
+  <li>Obtener de OpenRocket las plantillas en PDF, el contorno de las aletas en SVG y la nariz en OBJ.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> OpenRocket 24.12 y el diseño del tutorial 1.2, propio o el de la guía (<a href="archivos/cohete-vuelo.ork" download>cohete-vuelo.ork</a>). El diseño de esta guía, con el C6-5 y el B6-4 simulados con 0, 2 y 4 m/s de viento, se puede descargar: <a href="archivos/cohete-ajustado.ork" download>cohete-ajustado.ork</a>; también el contorno de la aleta (<a href="archivos/aleta.svg" download>aleta.svg</a>) y la nariz (<a href="archivos/nariz.obj" download>nariz.obj</a>).</p>
+</div>
+
+    </section>
+    <section id="physics-es">
+      <p class="section-label">La idea</p>
+      <h2>Qué cambia cada ajuste</h2>
+
+<p>Cada ajuste de esta guía mueve una cantidad que se puede estimar a mano antes de simular. Las cuatro fórmulas siguientes sirven para saber qué esperar y para reconocer cuándo una simulación da algo raro.</p>
+<h3>El viento y el ángulo de ataque</h3>
+<p>Mientras el cohete está en la varilla, la varilla lo guía. Al dejarla, el aire le llega con la suma de dos velocidades: la del cohete hacia arriba, \(v_r\), y la del viento de costado, \(w\). El ángulo entre el eje del cohete y ese aire es el <em>ángulo de ataque</em>:</p>
+<div class="equation-card">\[ \alpha \;\approx\; \arctan\frac{w}{v_r} \qquad (1) \]</div>
+<p>Con 2 m/s de viento y los 13.9 m/s del C6-5 al dejar la varilla, \(\alpha\) = 8.2°. Con ángulo, el cuerpo del cohete también empuja aire de lado, la fuerza normal crece delante del CG y el centro de presión se adelanta: el margen baja. Por eso el instante más delicado del vuelo es la salida de la varilla, y la ecuación dice las dos maneras de protegerlo: menos viento o más velocidad.</p>
+<h3>El centro de gravedad con una pieza distinta</h3>
+<p>El CG es el promedio de las posiciones de las piezas, pesado con sus masas, y el margen es la distancia del CG al CP medida en diámetros \(d\):</p>
+<div class="equation-card">\[ x_{CG} \;=\; \frac{\sum_i m_i\, x_i}{\sum_i m_i}, \qquad \text{margen} \;=\; \frac{x_{CP} - x_{CG}}{d} \qquad (2) \]</div>
+<p>Para cambiar una pieza no hace falta rehacer la suma: se resta su producto \(m\,x\) viejo y se suma el nuevo. Una masa delante del CG lo adelanta y sube el margen; el CP no se mueve, porque depende sólo de la forma.</p>
+<h3>El paracaídas</h3>
+<p>El tutorial 1.2 comprobó que el descenso es estacionario, \(v_d = \sqrt{2mg/(\rho C_D A)}\). Como el área es \(A = \pi D^2/4\), la velocidad es inversamente proporcional al diámetro:</p>
+<div class="equation-card">\[ v_d\, D \;=\; \sqrt{\frac{8\, m\, g}{\pi\, \rho\, C_D}} \;=\; \text{constante} \qquad (3) \]</div>
+<h3>La deriva</h3>
+<p>Bajo el paracaídas, el cohete se mueve con el aire. Si baja desde el apogeo \(h\) a \(v_d\), tarda \(h/v_d\), y en ese tiempo el viento lo lleva \(w\,h/v_d\). Pero antes, al subir, el cohete se inclinó hacia el viento como una veleta y abrió el paracaídas a una distancia \(x_c\) del lado de donde viene el aire. La distancia del lanzador al punto de aterrizaje es, aproximadamente,</p>
+<div class="equation-card">\[ x \;\approx\; \frac{w\, h}{v_d} \;-\; x_c \qquad (4) \]</div>
+<p>El primer término manda: la deriva crece con el viento, con la altura y con el tamaño del paracaídas.</p>
+
+    </section>
+    <section id="wind-es">
+      <p class="section-label">Paso 1</p>
+      <h2>El mismo cohete con más viento</h2>
+
+<p>El viento es una condición de lanzamiento, como la altitud: se cambia en cada simulación.</p>
+<ol>
+  <li>Abrir el diseño del 1.2 y pasar a la pestaña <code>Flight simulations</code>.</li>
+  <li>Seleccionar la simulación del <code>[C6-5]</code> y hacer clic en <code>Edit simulation</code>. Se abre en <code>Launch conditions</code>.</li>
+  <li>En el cuadro <code>Wind</code>, escribir 4 en <code>Average windspeed</code>. La <code>Standard deviation</code> cambia sola a 0.4 m/s: la liga la <code>Turbulence intensity</code>, que se queda en 10 %.</li>
+  <li><code>OK</code>: la simulación se corre y su fila de la tabla cambia. Repetir con otros vientos y con el <code>[B6-4]</code>.</li>
+  <li>Para ver el margen al dejar la varilla, exportar el vuelo como en el 1.2 (<code>Plot / Export ▸ Export data</code>) y leer la columna <code>Stability margin calibers</code> en el primer renglón después del evento <code>LAUNCHROD</code>.</li>
+</ol>
+<figure class="diagram medium">
+  <img src="imagenes/t13-01_viento.png" alt="Pestaña Launch conditions con el cuadro del viento" loading="lazy">
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">Dónde se pone el viento.</b> <code>Edit simulation ▸ Launch conditions</code>. A la izquierda, el cuadro <code>Wind</code>: velocidad media, desviación estándar y la intensidad de la turbulencia (que las liga: 10 % de 2 m/s son 0.2 m/s) y la dirección de donde viene. A la derecha, la varilla: con <code>Always launch directly up-wind or down-wind</code> marcado, una varilla inclinada se orienta según el viento.</figcaption>
+</figure>
+<p>La tabla 1 junta los vuelos con 0 a 8 m/s. Cada simulación se corrió tres veces, porque el viento lleva turbulencia aleatoria y cada corrida da algo distinto.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Viento (m/s)</th><th>Ángulo de ataque, C6-5 (°)</th><th>Margen al dejar la varilla, C6-5 (cal)</th><th>Apogeo, C6-5 (m)</th><th>Deriva, C6-5 (m)</th><th>Margen, B6-4 (cal)</th><th>Apogeo, B6-4 (m)</th><th>Deriva, B6-4 (m)</th></tr></thead>
+    <tbody>
+      <tr><td>0</td><td>0.0</td><td>1.49</td><td>188</td><td>0</td><td>1.67</td><td>75</td><td>0</td></tr>
+      <tr><td>1</td><td>4.1</td><td>1.22</td><td>187</td><td>19–24</td><td>1.38</td><td>75</td><td>9–10</td></tr>
+      <tr><td>2</td><td>8.2</td><td>0.94</td><td>185</td><td>41–43</td><td>1.14</td><td>74</td><td>17–20</td></tr>
+      <tr><td>3</td><td>12.2</td><td>0.85</td><td>184</td><td>62–68</td><td>0.89</td><td>73</td><td>28–29</td></tr>
+      <tr><td>4</td><td>16.1</td><td>0.62</td><td>179</td><td>82–84</td><td>0.77</td><td>72</td><td>36–40</td></tr>
+      <tr><td>5</td><td>19.8</td><td>0.49</td><td>176</td><td>101–110</td><td>0.65</td><td>71</td><td>45–47</td></tr>
+      <tr><td>6</td><td>23.4</td><td>0.43</td><td>174</td><td>134–137</td><td>0.56</td><td>70</td><td>56–57</td></tr>
+      <tr><td>7</td><td>26.8</td><td>0.27</td><td>173</td><td>165–192</td><td>0.51</td><td>70</td><td>65–73</td></tr>
+      <tr><td>8</td><td>29.9</td><td>0.29</td><td>170</td><td>167–226</td><td>0.40</td><td>69</td><td>78–87</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">El mismo cohete con más viento.</b> Promedio de tres corridas de cada simulación; la deriva va con su intervalo, porque la turbulencia la cambia de una corrida a otra. El ángulo es el de la ecuación (1) con la velocidad al dejar la varilla (13.9 y 13.5 m/s).</caption>
+  </table>
+</div>
+<p>Lo primero que sorprende es lo poco que cambia el apogeo: de 188 a 179 m con 4 m/s, y 170 m con 8. Lo que cambia mucho son otras dos cosas.</p>
+<ul>
+  <li><strong>El margen al dejar la varilla</strong> (figura 2). El ángulo de ataque sigue la ecuación (1): 8.2° calculados contra 8.7° simulados con 2 m/s, y 16.1° contra 16.0° con 4 m/s. Con ese ángulo, el margen del C6-5 baja de 1.49 calibres sin viento a 0.94 con 2 m/s, 0.62 con 4 y 0.43 con 6. El B6-4 sale un poco mejor (1.14 y 0.77), porque su margen estático es mayor.</li>
+  <li><strong>La deriva</strong> (figura 3): 42 m con 2 m/s, 83 con 4 y 136 con 6; casi proporcional al viento, como dice la ecuación (4).</li>
+</ul>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Margen de estabilidad al dejar la varilla contra la velocidad del viento, C6-5 y B6-4">
+  <text class="svg-title" x="76" y="28">Margen de estabilidad al dejar la varilla</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="666" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">0.0</text>
+  <line class="svg-grid" x1="76" y1="258.3" x2="666" y2="258.3"/>
+  <text class="svg-tick" x="70" y="262.3" text-anchor="end">0.3</text>
+  <line class="svg-grid" x1="76" y1="216.7" x2="666" y2="216.7"/>
+  <text class="svg-tick" x="70" y="220.7" text-anchor="end">0.6</text>
+  <line class="svg-grid" x1="76" y1="175.0" x2="666" y2="175.0"/>
+  <text class="svg-tick" x="70" y="179.0" text-anchor="end">0.9</text>
+  <line class="svg-grid" x1="76" y1="133.3" x2="666" y2="133.3"/>
+  <text class="svg-tick" x="70" y="137.3" text-anchor="end">1.2</text>
+  <line class="svg-grid" x1="76" y1="91.7" x2="666" y2="91.7"/>
+  <text class="svg-tick" x="70" y="95.7" text-anchor="end">1.5</text>
+  <line class="svg-grid" x1="76" y1="50.0" x2="666" y2="50.0"/>
+  <text class="svg-tick" x="70" y="54.0" text-anchor="end">1.8</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0</text>
+  <text class="svg-tick" x="149.8" y="318" text-anchor="middle">1</text>
+  <text class="svg-tick" x="223.5" y="318" text-anchor="middle">2</text>
+  <text class="svg-tick" x="297.2" y="318" text-anchor="middle">3</text>
+  <text class="svg-tick" x="371.0" y="318" text-anchor="middle">4</text>
+  <text class="svg-tick" x="444.8" y="318" text-anchor="middle">5</text>
+  <text class="svg-tick" x="518.5" y="318" text-anchor="middle">6</text>
+  <text class="svg-tick" x="592.2" y="318" text-anchor="middle">7</text>
+  <text class="svg-tick" x="666.0" y="318" text-anchor="middle">8</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">viento medio (m/s)</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">margen (calibres)</text>
+  <line x1="76" y1="161.1" x2="666" y2="161.1" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <polyline points="76.0,92.8 149.8,130.5 223.5,168.8 297.2,181.8 371.0,213.7 444.8,232.1 518.5,240.1 592.2,262.4 666.0,259.9" fill="none" stroke="var(--blue)" stroke-width="1.6" stroke-dasharray="4 3"/>
+  <circle cx="76.0" cy="92.8" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="149.8" cy="130.5" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="223.5" cy="168.8" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="297.2" cy="181.8" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="371.0" cy="213.7" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="444.8" cy="232.1" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="518.5" cy="240.1" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="592.2" cy="262.4" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="666.0" cy="259.9" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <polyline points="76.0,68.2 149.8,108.5 223.5,141.2 297.2,175.9 371.0,193.6 444.8,209.6 518.5,222.6 592.2,229.4 666.0,243.8" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-dasharray="4 3"/>
+  <circle cx="76.0" cy="68.2" r="4.5" fill="var(--accent)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="149.8" cy="108.5" r="4.5" fill="var(--accent)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="223.5" cy="141.2" r="4.5" fill="var(--accent)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="297.2" cy="175.9" r="4.5" fill="var(--accent)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="371.0" cy="193.6" r="4.5" fill="var(--accent)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="444.8" cy="209.6" r="4.5" fill="var(--accent)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="518.5" cy="222.6" r="4.5" fill="var(--accent)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="592.2" cy="229.4" r="4.5" fill="var(--accent)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="666.0" cy="243.8" r="4.5" fill="var(--accent)" stroke="var(--paper)" stroke-width="1.5"/>
+  <text class="svg-note-sm" x="666.0" y="152.8" text-anchor="end">1 calibre</text>
+  <text class="svg-note-sm" x="216.1" y="189.7" text-anchor="end" fill="var(--blue)">0.94 cal con 2 m/s</text>
+  <text class="svg-note-sm" x="363.6" y="234.5" text-anchor="end" fill="var(--blue)">0.62 cal con 4 m/s</text>
+  <circle cx="573" cy="74" r="4.5" fill="var(--blue)"/>
+  <text class="svg-note-sm" x="592" y="78">C6-5</text>
+  <circle cx="573" cy="92" r="4.5" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="592" y="96">B6-4</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">El viento se come el margen.</b> Margen de estabilidad al dejar la varilla, columna <code>Stability margin calibers</code>, promedio de tres corridas. Sin viento es el estático del 1.1 (1.49 y 1.67 a esa velocidad); con viento, el aire le llega al cohete de lado, el ángulo de ataque crece (ecuación 1) y el CP se adelanta. Con el C6-5 baja de 1 calibre desde 2 m/s.</figcaption>
+</figure>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Deriva contra la velocidad del viento con el paracaídas de 30 cm, C6-5 y B6-4">
+  <text class="svg-title" x="76" y="28">Distancia del lanzador al punto de aterrizaje</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="666" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">0</text>
+  <line class="svg-grid" x1="76" y1="268.8" x2="666" y2="268.8"/>
+  <text class="svg-tick" x="70" y="272.8" text-anchor="end">25</text>
+  <line class="svg-grid" x1="76" y1="237.5" x2="666" y2="237.5"/>
+  <text class="svg-tick" x="70" y="241.5" text-anchor="end">50</text>
+  <line class="svg-grid" x1="76" y1="206.2" x2="666" y2="206.2"/>
+  <text class="svg-tick" x="70" y="210.2" text-anchor="end">75</text>
+  <line class="svg-grid" x1="76" y1="175.0" x2="666" y2="175.0"/>
+  <text class="svg-tick" x="70" y="179.0" text-anchor="end">100</text>
+  <line class="svg-grid" x1="76" y1="143.8" x2="666" y2="143.8"/>
+  <text class="svg-tick" x="70" y="147.8" text-anchor="end">125</text>
+  <line class="svg-grid" x1="76" y1="112.5" x2="666" y2="112.5"/>
+  <text class="svg-tick" x="70" y="116.5" text-anchor="end">150</text>
+  <line class="svg-grid" x1="76" y1="81.2" x2="666" y2="81.2"/>
+  <text class="svg-tick" x="70" y="85.2" text-anchor="end">175</text>
+  <line class="svg-grid" x1="76" y1="50.0" x2="666" y2="50.0"/>
+  <text class="svg-tick" x="70" y="54.0" text-anchor="end">200</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0</text>
+  <text class="svg-tick" x="149.8" y="318" text-anchor="middle">1</text>
+  <text class="svg-tick" x="223.5" y="318" text-anchor="middle">2</text>
+  <text class="svg-tick" x="297.2" y="318" text-anchor="middle">3</text>
+  <text class="svg-tick" x="371.0" y="318" text-anchor="middle">4</text>
+  <text class="svg-tick" x="444.8" y="318" text-anchor="middle">5</text>
+  <text class="svg-tick" x="518.5" y="318" text-anchor="middle">6</text>
+  <text class="svg-tick" x="592.2" y="318" text-anchor="middle">7</text>
+  <text class="svg-tick" x="666.0" y="318" text-anchor="middle">8</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">viento medio (m/s)</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">deriva (m)</text>
+  <line x1="76" y1="223.8" x2="666" y2="223.8" stroke="var(--blue)" stroke-width="1.2" stroke-dasharray="6 4"/>
+  <line x1="76" y1="261.9" x2="666" y2="261.9" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="6 4"/>
+  <polyline points="76.0,299.9 149.8,273.2 223.5,247.9 297.2,217.8 371.0,196.6 444.8,167.0 518.5,130.1 592.2,81.4 666.0,65.1" fill="none" stroke="var(--blue)" stroke-width="1.6" stroke-dasharray="4 3"/>
+  <circle cx="76.0" cy="299.9" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="149.8" cy="273.2" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="223.5" cy="247.9" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="297.2" cy="217.8" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="371.0" cy="196.6" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="444.8" cy="167.0" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="518.5" cy="130.1" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="592.2" cy="81.4" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="666.0" cy="65.1" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <polyline points="76.0,299.8 149.8,287.9 223.5,276.8 297.2,264.4 371.0,252.2 444.8,243.1 518.5,229.4 592.2,212.6 666.0,195.8" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-dasharray="4 3"/>
+  <circle cx="76.0" cy="299.8" r="4.5" fill="var(--accent)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="149.8" cy="287.9" r="4.5" fill="var(--accent)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="223.5" cy="276.8" r="4.5" fill="var(--accent)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="297.2" cy="264.4" r="4.5" fill="var(--accent)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="371.0" cy="252.2" r="4.5" fill="var(--accent)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="444.8" cy="243.1" r="4.5" fill="var(--accent)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="518.5" cy="229.4" r="4.5" fill="var(--accent)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="592.2" cy="212.6" r="4.5" fill="var(--accent)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="666.0" cy="195.8" r="4.5" fill="var(--accent)" stroke="var(--paper)" stroke-width="1.5"/>
+  <text class="svg-note-sm" x="87.1" y="217.5" text-anchor="start" fill="var(--blue)">C: mitad del campo, 61 m</text>
+  <text class="svg-note-sm" x="658.6" y="274.4" text-anchor="end" fill="var(--accent-dark)">B: mitad del campo, 30.5 m</text>
+  <circle cx="143" cy="74" r="4.5" fill="var(--blue)"/>
+  <text class="svg-note-sm" x="162" y="78">C6-5</text>
+  <circle cx="143" cy="92" r="4.5" fill="var(--accent)"/>
+  <text class="svg-note-sm" x="162" y="96">B6-4</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">El viento se lleva el cohete.</b> Distancia horizontal entre el lanzador y el punto de aterrizaje, columna <code>Lateral distance</code> al final de cada vuelo, promedio de tres corridas. Las líneas punteadas son la mitad del campo mínimo de la NAR: la distancia del centro a la orilla, si el lanzador está en medio.</figcaption>
+</figure>
+<p>Con la ecuación (4) se comprueba la deriva del C6-5 con 2 m/s y el paracaídas de 30 cm. El cohete llega a 185.4 m y baja a 5.32 m/s: tarda 34.9 s, y el viento lo lleva \(2 \times 34.9 = 69.7\) m. Al abrir el paracaídas estaba 26.9 m del lado del viento. La ecuación da \(69.7 - 26.9 = 42.8\) m; la simulación, 40.3 m. La diferencia, de unos metros, es el tiempo que tarda el paracaídas en tomar la velocidad del viento.</p>
+<div class="callout">
+  <p><strong>Más viento, más velocidad al abrir.</strong> La velocidad al abrir el paracaídas sube de 5.0 m/s sin viento a 8.1 m/s con 4 m/s, aunque el retardo es el mismo. El cohete se inclina contra el viento al subir y llega al apogeo todavía con velocidad horizontal: deja de subir, pero no está quieto.</p>
+</div>
+<div class="callout warning">
+  <p><strong>Con mucho viento, las corridas se separan.</strong> Con 7 m/s, la deriva del C6-5 fue de 165 a 192 m en tres corridas de la misma simulación. Una sola corrida no basta para decidir con viento fuerte: hay que correr varias y quedarse con la peor.</p>
+</div>
+
+    </section>
+    <section id="rod-es">
+      <p class="section-label">Paso 2</p>
+      <h2>Una varilla más larga</h2>
+
+<p>La ecuación (1) dice que, para el mismo viento, más velocidad al dejar la varilla es menos ángulo. La velocidad la da la varilla: el motor empuja más tiempo dentro de ella. El tutorial 1.2 usó la varilla de 91 cm (36 in) de la plataforma Porta-Pad II de Estes; aquí se prueban también 122 y 152 cm, en <code>Launch rod ▸ Length</code>.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Varilla</th><th>Velocidad al dejarla, C6-5 (m/s)</th><th>Ángulo con 2 / 4 m/s (°)</th><th>Margen con 2 / 4 m/s, C6-5 (cal)</th><th>Velocidad al dejarla, B6-4 (m/s)</th><th>Margen con 2 / 4 m/s, B6-4 (cal)</th></tr></thead>
+    <tbody>
+      <tr><td>91 cm (3 ft)</td><td>13.9</td><td>8.2 / 16.1</td><td>0.92 / 0.61</td><td>13.5</td><td>1.14 / 0.76</td></tr>
+      <tr><td>122 cm (4 ft)</td><td>15.5</td><td>7.4 / 14.5</td><td>1.02 / 0.80</td><td>15.2</td><td>1.21 / 0.92</td></tr>
+      <tr><td>152 cm (5 ft)</td><td>16.3</td><td>7.0 / 13.8</td><td>1.06 / 0.74</td><td>16.7</td><td>1.23 / 0.97</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Una varilla más larga.</b> Una corrida por caso. Con más velocidad al dejar la varilla, el mismo viento llega con menos ángulo (ecuación 1). El margen se lee en un instante con turbulencia aleatoria: compárense las tendencias, no la segunda cifra.</caption>
+  </table>
+</div>
+<p>Con 122 cm, el C6-5 deja la varilla a 15.5 m/s y el B6-4 a 15.2 m/s: ya se cumple la regla práctica de los 15 m/s que el 1.2 no alcanzaba. Con 4 m/s de viento, el ángulo baja de 16.1° a 14.5°, y el margen al dejar la varilla sube. Con 152 cm la ganancia es menor (16.3 m/s), porque el empuje del motor ya bajó de su pico cuando el cohete recorre esa distancia.</p>
+<div class="callout">
+  <p><strong>La varilla es del campo, no del cohete.</strong> El largo se decide con el equipo de lanzamiento que se va a usar. Una varilla de 1/8 in más larga se flexiona más, y una más gruesa tiene que caber en la guía de lanzamiento del cohete: la del diseño del 1.1 tiene 0.4 cm de diámetro interior, y una varilla de 3/16 in (0.48 cm) ya no entra.</p>
+</div>
+
+    </section>
+    <section id="nose-es">
+      <p class="section-label">Paso 3</p>
+      <h2>La masa real de la nariz y el lastre</h2>
+
+<p>OpenRocket calcula la masa de cada pieza con sus medidas y la densidad de su material. La nariz del 1.1 es de PLA al 100 % con pared de 1.5 mm: 18.1 g. Una nariz impresa casi nunca pesa eso: el programa de impresión decide las paredes y el relleno. Lo que se hace es <strong>pesar la pieza ya hecha y escribir su masa</strong>.</p>
+<ol>
+  <li>Pestaña <code>Rocket design</code>; doble clic en <code>Nariz</code>.</li>
+  <li>Pestaña <code>Override</code>: marcar <code>Override mass</code> y escribir la masa medida, por ejemplo 10 g. Abajo, el cuadro dice «18.1 g (overridden to 10 g)».</li>
+  <li><code>OK</code>. En el árbol, la nariz lleva un icono de pesa, y arriba a la derecha del dibujo cambian la masa, el CG y el margen.</li>
+</ol>
+<figure class="diagram medium">
+  <img src="imagenes/t13-04_override.png" alt="Pestaña Override del cuadro de la nariz" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">La masa medida manda.</b> Pestaña <code>Override</code> del cuadro de la nariz, con <code>Override mass</code> marcado y 10 g escritos. Abajo, OpenRocket dice las dos cosas: la masa que calcula (18.1 g) y la que usa (10 g). En el árbol, la nariz lleva un icono de pesa.</figcaption>
+</figure>
+<p>Con la configuración <code>[C6-5]</code>, el margen baja a 0.848 calibres: menos de 1. La ecuación (2) lo predice con la tabla de componentes del 1.1. El cohete pesa 97.09 g con el CG en 30.01 cm, y la nariz, 18.08 g con su CG en 7.53 cm; al cambiarla por una de 10 g,</p>
+<div class="equation-card">\[ x_{CG} \;=\; \frac{97.09 \times 30.01 \;-\; (18.08 - 10) \times 7.53}{89.01} \;=\; 32.05\ \text{cm}, \qquad \text{margen} \;=\; \frac{34.94 - 32.05}{3.4} \;=\; 0.85 \]</div>
+<h3>El lastre</h3>
+<p>Para recuperar el margen se agrega masa en la punta, donde más adelanta el CG por gramo. En el cohete real es plastilina apretada en la punta de la nariz; en OpenRocket, un componente de masa dentro de la nariz.</p>
+<ol>
+  <li>Con <code>Nariz</code> seleccionada, bajar en <code>Add new component</code> hasta <code>Mass Components</code> y hacer clic en <code>Mass Component</code>.</li>
+  <li>Nombre <code>Lastre</code>, <code>Mass</code> 5 g, <code>Length</code> 2 cm, <code>Diameter</code> 1.5 cm; en <code>Placement</code>, <code>Top of the parent component</code> más 2.5 cm. <code>Approximate density</code> da 1.41 g/cm³: el tamaño corresponde a una masa de plastilina, no a un trozo de metal.</li>
+  <li><code>OK</code>. El margen con el C6-5 sube a 1.29 calibres.</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t13-05_lastre.png" alt="Componente de masa Lastre dentro de la nariz" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">El lastre en la punta.</b> Un <code>Mass Component</code> de 5 g dentro de la nariz (en el árbol cuelga de <code>Nariz</code>), de 2 cm de largo y 1.5 cm de diámetro, a 2.5 cm de la punta. En el dibujo es el óvalo punteado de la nariz. Arriba a la derecha, con la configuración <code>[C6-5]</code>: 1.29 calibres.</figcaption>
+</figure>
+<p>La ecuación (2) da lo mismo: con 5 g a 3.5 cm de la punta, \(x_{CG}\) = 30.53 cm y el margen, 1.29 calibres. Con ella se calcula también cuánto lastre hace falta antes de probar: 1.6 g llevan el margen a 1 calibre y 6.9 g lo devuelven a los 1.45 del diseño.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Nariz</th><th>Masa de la nariz (g)</th><th>Lastre (g)</th><th>Margen estático, C6-5 (cal)</th><th>Margen estático, B6-4 (cal)</th><th>Margen al dejar la varilla (cal)</th><th>Apogeo (m)</th></tr></thead>
+    <tbody>
+      <tr><td>la del diseño (PLA 100 %, pared de 1.5 mm)</td><td>18.1</td><td>0</td><td>1.45 (1.45)</td><td>1.62 (1.62)</td><td>0.94</td><td>185.5</td></tr>
+      <tr><td>más ligera</td><td>10.0</td><td>0</td><td>0.85 (0.848)</td><td>1.00 (1)</td><td>0.40</td><td>198.5</td></tr>
+      <tr><td>más ligera, con lastre</td><td>10.0</td><td>5</td><td>1.29 (1.29)</td><td>1.46 (1.46)</td><td>0.88</td><td>190.7</td></tr>
+      <tr><td>más pesada</td><td>25.0</td><td>0</td><td>1.89</td><td>2.07</td><td>1.41</td><td>174.1</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">La masa de la nariz y el lastre.</b> Margen estático (Mach 0.3) calculado con la ecuación (2) y la tabla de componentes del 1.1; entre paréntesis, el que muestra OpenRocket donde se comprobó (sin los ceros finales). Margen al dejar la varilla y apogeo, con el C6-5 y 2 m/s de viento.</caption>
+  </table>
+</div>
+<p>El lastre tiene un costo: el cohete pesa más y sube menos. Con la nariz de 10 g y sin lastre, el C6-5 llegaría a 199 m, pero sale de la varilla con 0.40 calibres; con los 5 g de lastre, 191 m y 0.88 calibres. Una nariz más pesada que la del diseño (25 g) da más margen y menos altura (174 m). La regla es que el margen se cuida primero y la altura después.</p>
+<div class="callout warning">
+  <p><strong>Una nariz maciza pesa casi 90 g.</strong> El volumen exterior de la nariz con su hombro es de 68 cm³ (paso 6); impresa maciza en PLA, pesaría unos 85 g, casi lo que todo el cohete. Por eso se imprime hueca, se pesa, y la masa medida va a <code>Override</code>. La casilla <code>Filled</code> de la pestaña <code>General</code> de la nariz es para narices macizas de verdad.</p>
+</div>
+
+    </section>
+    <section id="parachute-es">
+      <p class="section-label">Paso 4</p>
+      <h2>El tamaño del paracaídas</h2>
+
+<ol>
+  <li>Pestaña <code>Rocket design</code>; doble clic en <code>Paracaídas</code>.</li>
+  <li>Cambiar <code>Diameter</code>, por ejemplo a 40 cm, y <code>Line length</code> al mismo valor. La masa del paracaídas se recalcula con el material (polietileno delgado de 15 g/m²).</li>
+  <li><code>OK</code>. En <code>Flight simulations</code>, las simulaciones quedan con un icono de flechas: el diseño cambió y hay que volver a correrlas. Seleccionarlas y <code>Run simulations</code>.</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t13-06_paracaidas.png" alt="Cuadro de configuración del paracaídas" loading="lazy">
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">El paracaídas.</b> <code>Diameter</code> es el diámetro del paño extendido; la masa se recalcula con el material. <code>Drag coefficient</code> está en 0.8, el valor automático; <code>Line length</code>, el largo de las líneas, se cambia aparte.</figcaption>
+</figure>
+<p>La tabla 4 y la figura 7 prueban seis diámetros. La velocidad de descenso sigue la ecuación (3): el producto \(v_d\,D\) vale 160 m/s·cm para todos. Pasar de 30 a 40 cm baja el descenso de 5.32 a 4.01 m/s; de 30 a 20 cm lo sube a 7.95 m/s.</p>
+<figure class="diagram">
+<svg viewBox="0 0 720 360" role="img" aria-label="Velocidad de descenso contra el diámetro del paracaídas">
+  <text class="svg-title" x="76" y="28">Velocidad vertical bajo el paracaídas</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="666" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">0</text>
+  <line class="svg-grid" x1="76" y1="272.2" x2="666" y2="272.2"/>
+  <text class="svg-tick" x="70" y="276.2" text-anchor="end">1</text>
+  <line class="svg-grid" x1="76" y1="244.4" x2="666" y2="244.4"/>
+  <text class="svg-tick" x="70" y="248.4" text-anchor="end">2</text>
+  <line class="svg-grid" x1="76" y1="216.7" x2="666" y2="216.7"/>
+  <text class="svg-tick" x="70" y="220.7" text-anchor="end">3</text>
+  <line class="svg-grid" x1="76" y1="188.9" x2="666" y2="188.9"/>
+  <text class="svg-tick" x="70" y="192.9" text-anchor="end">4</text>
+  <line class="svg-grid" x1="76" y1="161.1" x2="666" y2="161.1"/>
+  <text class="svg-tick" x="70" y="165.1" text-anchor="end">5</text>
+  <line class="svg-grid" x1="76" y1="133.3" x2="666" y2="133.3"/>
+  <text class="svg-tick" x="70" y="137.3" text-anchor="end">6</text>
+  <line class="svg-grid" x1="76" y1="105.6" x2="666" y2="105.6"/>
+  <text class="svg-tick" x="70" y="109.6" text-anchor="end">7</text>
+  <line class="svg-grid" x1="76" y1="77.8" x2="666" y2="77.8"/>
+  <text class="svg-tick" x="70" y="81.8" text-anchor="end">8</text>
+  <line class="svg-grid" x1="76" y1="50.0" x2="666" y2="50.0"/>
+  <text class="svg-tick" x="70" y="54.0" text-anchor="end">9</text>
+  <text class="svg-tick" x="116.7" y="318" text-anchor="middle">20</text>
+  <text class="svg-tick" x="218.4" y="318" text-anchor="middle">25</text>
+  <text class="svg-tick" x="320.1" y="318" text-anchor="middle">30</text>
+  <text class="svg-tick" x="421.9" y="318" text-anchor="middle">35</text>
+  <text class="svg-tick" x="523.6" y="318" text-anchor="middle">40</text>
+  <text class="svg-tick" x="625.3" y="318" text-anchor="middle">45</text>
+  <line class="svg-axis" x1="76" y1="300" x2="666" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="371.0" y="338" text-anchor="middle">diámetro del paracaídas (cm)</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">velocidad de descenso (m/s)</text>
+  <polyline points="76.0,53.7 78.0,55.1 80.1,56.4 82.1,57.7 84.1,59.0 86.2,60.3 88.2,61.6 90.2,62.9 92.3,64.2 94.3,65.4 96.3,66.7 98.4,67.9 100.4,69.1 102.4,70.3 104.5,71.5 106.5,72.6 108.6,73.8 110.6,74.9 112.6,76.1 114.7,77.2 116.7,78.3 118.7,79.4 120.8,80.5 122.8,81.6 124.8,82.7 126.9,83.7 128.9,84.8 130.9,85.8 133.0,86.8 135.0,87.9 137.0,88.9 139.1,89.9 141.1,90.9 143.1,91.9 145.2,92.8 147.2,93.8 149.2,94.7 151.3,95.7 153.3,96.6 155.3,97.6 157.4,98.5 159.4,99.4 161.4,100.3 163.5,101.2 165.5,102.1 167.6,103.0 169.6,103.8 171.6,104.7 173.7,105.5 175.7,106.4 177.7,107.2 179.8,108.1 181.8,108.9 183.8,109.7 185.9,110.5 187.9,111.3 189.9,112.1 192.0,112.9 194.0,113.7 196.0,114.5 198.1,115.3 200.1,116.0 202.1,116.8 204.2,117.5 206.2,118.3 208.2,119.0 210.3,119.8 212.3,120.5 214.3,121.2 216.4,121.9 218.4,122.7 220.4,123.4 222.5,124.1 224.5,124.8 226.6,125.5 228.6,126.1 230.6,126.8 232.7,127.5 234.7,128.2 236.7,128.8 238.8,129.5 240.8,130.1 242.8,130.8 244.9,131.4 246.9,132.1 248.9,132.7 251.0,133.3 253.0,133.9 255.0,134.6 257.1,135.2 259.1,135.8 261.1,136.4 263.2,137.0 265.2,137.6 267.2,138.2 269.3,138.8 271.3,139.4 273.3,139.9 275.4,140.5 277.4,141.1 279.4,141.7 281.5,142.2 283.5,142.8 285.6,143.3 287.6,143.9 289.6,144.4 291.7,145.0 293.7,145.5 295.7,146.1 297.8,146.6 299.8,147.1 301.8,147.6 303.9,148.2 305.9,148.7 307.9,149.2 310.0,149.7 312.0,150.2 314.0,150.7 316.1,151.2 318.1,151.7 320.1,152.2 322.2,152.7 324.2,153.2 326.2,153.7 328.3,154.2 330.3,154.6 332.3,155.1 334.4,155.6 336.4,156.1 338.4,156.5 340.5,157.0 342.5,157.4 344.6,157.9 346.6,158.4 348.6,158.8 350.7,159.3 352.7,159.7 354.7,160.1 356.8,160.6 358.8,161.0 360.8,161.5 362.9,161.9 364.9,162.3 366.9,162.7 369.0,163.2 371.0,163.6 373.0,164.0 375.1,164.4 377.1,164.8 379.1,165.2 381.2,165.7 383.2,166.1 385.2,166.5 387.3,166.9 389.3,167.3 391.3,167.7 393.4,168.0 395.4,168.4 397.4,168.8 399.5,169.2 401.5,169.6 403.6,170.0 405.6,170.4 407.6,170.7 409.7,171.1 411.7,171.5 413.7,171.9 415.8,172.2 417.8,172.6 419.8,173.0 421.9,173.3 423.9,173.7 425.9,174.0 428.0,174.4 430.0,174.8 432.0,175.1 434.1,175.5 436.1,175.8 438.1,176.2 440.2,176.5 442.2,176.8 444.2,177.2 446.3,177.5 448.3,177.9 450.3,178.2 452.4,178.5 454.4,178.9 456.4,179.2 458.5,179.5 460.5,179.8 462.6,180.2 464.6,180.5 466.6,180.8 468.7,181.1 470.7,181.5 472.7,181.8 474.8,182.1 476.8,182.4 478.8,182.7 480.9,183.0 482.9,183.3 484.9,183.6 487.0,183.9 489.0,184.2 491.0,184.5 493.1,184.8 495.1,185.1 497.1,185.4 499.2,185.7 501.2,186.0 503.2,186.3 505.3,186.6 507.3,186.9 509.3,187.2 511.4,187.5 513.4,187.8 515.4,188.0 517.5,188.3 519.5,188.6 521.6,188.9 523.6,189.2 525.6,189.4 527.7,189.7 529.7,190.0 531.7,190.3 533.8,190.5 535.8,190.8 537.8,191.1 539.9,191.3 541.9,191.6 543.9,191.9 546.0,192.1 548.0,192.4 550.0,192.7 552.1,192.9 554.1,193.2 556.1,193.4 558.2,193.7 560.2,193.9 562.2,194.2 564.3,194.4 566.3,194.7 568.3,194.9 570.4,195.2 572.4,195.4 574.4,195.7 576.5,195.9 578.5,196.2 580.6,196.4 582.6,196.7 584.6,196.9 586.7,197.1 588.7,197.4 590.7,197.6 592.8,197.8 594.8,198.1 596.8,198.3 598.9,198.5 600.9,198.8 602.9,199.0 605.0,199.2 607.0,199.5 609.0,199.7 611.1,199.9 613.1,200.1 615.1,200.4 617.2,200.6 619.2,200.8 621.2,201.0 623.3,201.3 625.3,201.5 627.3,201.7 629.4,201.9 631.4,202.1 633.4,202.3 635.5,202.6 637.5,202.8 639.6,203.0 641.6,203.2 643.6,203.4 645.7,203.6 647.7,203.8 649.7,204.0 651.8,204.2 653.8,204.4 655.8,204.7 657.9,204.9 659.9,205.1 661.9,205.3 664.0,205.5 666.0,205.7" fill="none" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <circle cx="116.7" cy="79.2" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="218.4" cy="123.0" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="320.1" cy="152.2" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="421.9" cy="173.0" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="523.6" cy="188.6" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <circle cx="625.3" cy="200.6" r="4.5" fill="var(--blue)" stroke="var(--paper)" stroke-width="1.5"/>
+  <text class="svg-note-sm" x="128.9" y="72.3" text-anchor="start">7.95</text>
+  <text class="svg-note-sm" x="230.6" y="116.1" text-anchor="start">6.37</text>
+  <text class="svg-note-sm" x="332.3" y="145.3" text-anchor="start">5.32</text>
+  <text class="svg-note-sm" x="434.1" y="166.1" text-anchor="start">4.57</text>
+  <text class="svg-note-sm" x="535.8" y="181.6" text-anchor="start">4.01</text>
+  <text class="svg-note-sm" x="637.5" y="193.7" text-anchor="start">3.58</text>
+  <line x1="390" y1="74" x2="416" y2="74" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <text class="svg-note-sm" x="422" y="78">ecuación (3): v·D = 160 m/s·cm</text>
+  <circle cx="403" cy="92" r="4.5" fill="var(--blue)"/>
+  <text class="svg-note-sm" x="422" y="96">OpenRocket, C6-5 sin viento</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">Un paracaídas el doble de ancho baja a la mitad de velocidad.</b> Velocidad vertical de descenso, promedio desde 3 s después de la apertura hasta el suelo, para seis paracaídas, sin viento. Los puntos caen sobre la curva \(v \propto 1/D\) de la ecuación (3): el área crece con el cuadrado del diámetro, y la velocidad, con la raíz del área.</figcaption>
+</figure>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Diámetro (cm)</th><th>Masa del paracaídas (g)</th><th>Descenso (m/s)</th><th>Caída equivalente (m)</th><th>Deriva C6-5 con 2 / 4 m/s (m)</th><th>Deriva B6-4 con 2 / 4 m/s (m)</th></tr></thead>
+    <tbody>
+      <tr><td>20</td><td>0.65</td><td>7.95</td><td>3.23</td><td>20 / 43</td><td>9 / 19</td></tr>
+      <tr><td>25</td><td>0.96</td><td>6.37</td><td>2.07</td><td>30 / 64</td><td>15 / 31</td></tr>
+      <tr><td>30</td><td>1.33</td><td>5.32</td><td>1.45</td><td>40 / 82</td><td>19 / 38</td></tr>
+      <tr><td>35</td><td>1.75</td><td>4.57</td><td>1.07</td><td>55 / 104</td><td>24 / 44</td></tr>
+      <tr><td>40</td><td>2.24</td><td>4.01</td><td>0.82</td><td>64 / 125</td><td>28 / 56</td></tr>
+      <tr><td>45</td><td>2.79</td><td>3.58</td><td>0.65</td><td>78 / 136</td><td>31 / 65</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">El tamaño del paracaídas.</b> Polietileno delgado con seis líneas del largo del diámetro. Descenso: velocidad vertical sin viento. «Caída equivalente»: la altura de la que habría que soltar el cohete para que llegue al suelo a esa velocidad, \(v^2/2g\). Deriva: una corrida por caso.</caption>
+  </table>
+</div>
+<p>Para juzgar una velocidad de aterrizaje ayuda la «caída equivalente», \(v^2/2g\): a 5.32 m/s, el cohete llega al suelo como si lo soltaran desde 1.4 m; a 7.95 m/s, desde 3.2 m; a 4.01 m/s, desde 0.8 m. Las aletas de MDF pegadas al tubo de cartón son lo que más sufre al aterrizar.</p>
+<p>El precio de un paracaídas grande es la deriva. Con 2 m/s de viento, el C6-5 aterriza a 20 m del lanzador con 20 cm, a 40 m con 30 cm y a 64 m con 40 cm: el tiempo de descenso crece con el diámetro, y con él, el primer término de la ecuación (4).</p>
+<div class="callout">
+  <p><strong>El \(C_D\) de 0.8 es una suposición.</strong> OpenRocket da a todo paracaídas un coeficiente de 0.8 (automático). Un paracaídas casero de bolsa de plástico puede frenar más o menos. La manera de saberlo es medir: soltar el cohete con el paracaídas abierto desde una altura conocida, tomar el tiempo y escribir el \(C_D\) que resulte en <code>Drag coefficient</code>.</p>
+</div>
+
+    </section>
+    <section id="field-es">
+      <p class="section-label">Paso 5</p>
+      <h2>¿B o C? Cuánto viento cabe en el campo</h2>
+
+<p>El código de seguridad de la NAR pide un campo de al menos 200 ft (61 m) para un motor B y 400 ft (122 m) para un C, y viento de no más de 20 mph (8.9 m/s). El código da la dimensión mínima del campo; si el lanzador está en el centro, el cohete tiene la mitad para derivar. Con la figura 3 y la tabla 1 se lee cuánto viento cabe.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Motor</th><th>Campo mínimo (NAR)</th><th>Lanzador en el centro</th><th>Lanzador en la orilla contra el viento</th></tr></thead>
+    <tbody>
+      <tr><td>C6-5</td><td>400 ft = 122 m</td><td>deriva ≤ 61 m: viento ≤ 2.8 m/s</td><td>deriva ≤ 122 m: viento ≤ 5.5 m/s</td></tr>
+      <tr><td>B6-4</td><td>200 ft = 61 m</td><td>deriva ≤ 30 m: viento ≤ 3.2 m/s</td><td>deriva ≤ 61 m: viento ≤ 6.3 m/s</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 5.</b> <b class="fig-title">Cuánto viento cabe en el campo.</b> Campo mínimo del código de seguridad de la NAR para el impulso del motor. Viento máximo: el que hace que la deriva media de la tabla 1 (paracaídas de 30 cm) llegue a la mitad del campo, si el lanzador está en el centro, o al campo entero, si está en la orilla de donde viene el viento.</caption>
+  </table>
+</div>
+<p>Con el paracaídas de 30 cm, los dos motores dan casi lo mismo: el C6-5 cabe en su campo hasta 2.8 m/s de viento y el B6-4 en el suyo hasta 3.2 m/s, con el lanzador en el centro. El C sube más del doble, pero también exige el doble de campo. Si el lanzador se pone en la orilla de donde viene el viento, el cohete dispone del campo entero y el límite sube a 5.5 y 6.3 m/s.</p>
+<div class="result-box">
+  <p><strong>El campo y el viento eligen el motor.</strong> En un campo de 122 m, con viento de hasta unos 3 m/s, el C6-5 cabe con el lanzador en el centro. Con más viento hay que mover el lanzador contra el viento o cambiar al B6-4, que en ese mismo campo deriva 38 m con 4 m/s. Un campo de menos de 122 m sólo admite el B. La velocidad de 8.9 m/s del código es un tope que este cohete no debe acercarse a usar: con 6 m/s su margen al dejar la varilla ya es de 0.43 calibres.</p>
+</div>
+<p>Los otros dos ajustes también mueven el límite: un paracaídas de 20 cm baja la deriva a la mitad (tabla 4) a cambio de aterrizar a 7.95 m/s, y una varilla más larga no cambia la deriva pero sí protege el margen.</p>
+
+    </section>
+    <section id="build-es">
+      <p class="section-label">Paso 6</p>
+      <h2>Plantillas, contorno de las aletas y modelo de la nariz</h2>
+
+<p>Con el diseño ajustado, OpenRocket entrega tres cosas para el taller: un PDF con la lista de piezas y las plantillas a escala, el contorno de una aleta para cortadora láser y el modelo 3D de las piezas impresas.</p>
+<h3>Las plantillas en PDF</h3>
+<ol>
+  <li><code>File ▸ Print design info</code> (<code>Ctrl+P</code>). Se abre <code>Print or export</code>.</li>
+  <li>Dejar marcadas todas las partes: <code>Design Report</code>, <code>Parts detail</code>, las plantillas (<code>Nose Cone</code>, <code>Transition</code>, <code>Centering Ring</code> y <code>Fin templates</code>) y <code>Fin marking guide</code>.</li>
+  <li><code>Save as PDF</code> y escribir un nombre. Sale un documento de seis páginas tamaño carta.</li>
+</ol>
+<figure class="diagram narrow">
+  <img src="imagenes/t13-08_imprimir.png" alt="Cuadro Print or export" loading="lazy">
+  <figcaption><b class="fig-num">Figura 8.</b> <b class="fig-title">Qué se imprime.</b> <code>File ▸ Print design info</code> (<code>Ctrl+P</code>). Cada casilla es una parte del documento; con <code>Update simulation data</code> marcado, las simulaciones se corren antes de escribir el resumen.</figcaption>
+</figure>
+<figure class="diagram">
+  <img src="imagenes/t13-09_pdf.png" alt="Tres páginas del PDF de OpenRocket" loading="lazy">
+  <figcaption><b class="fig-num">Figura 9.</b> <b class="fig-title">El documento para el taller.</b> Tres de las seis páginas carta de <code>Save as PDF</code>: el resumen del diseño con una tabla por simulación (izquierda), la lista de piezas con material, medidas y masa (centro) y la hoja de plantillas a escala 1:1 (derecha): la aleta con su pestaña, el perfil de la nariz, los dos anillos centradores y el deflector, y una regla en centímetros y pulgadas para comprobar la escala.</figcaption>
+</figure>
+<ul>
+  <li><strong>El resumen</strong> (<code>Design Report</code>): el dibujo, la masa, el margen y una tabla por simulación con el motor. La columna «Motor Wt» es la masa de propelente (10.8 g del C6: 23.1 menos 12.3), y «Thrust to Wt», el empuje medio entre el peso del cohete (5.05 con el C6).</li>
+  <li><strong>La lista de piezas</strong> (<code>Parts detail</code>): cada componente con su material, sus medidas y su masa. Es la lista de compras y la hoja para comprobar las masas al pesar.</li>
+  <li><strong>La guía para marcar las aletas</strong> (página 5): una tira que se enrolla en el tubo y marca dónde van las tres aletas y la guía de lanzamiento.</li>
+  <li><strong>La hoja de plantillas</strong>: la aleta con su pestaña, el perfil de la nariz, los dos anillos centradores y el deflector, a escala 1:1, con una regla en centímetros y pulgadas.</li>
+</ul>
+<div class="callout warning">
+  <p><strong>Imprimir a tamaño real.</strong> Los visores de PDF suelen ajustar la página a la hoja y cambian la escala. Hay que elegir «Tamaño real» (100 %) en el cuadro de impresión y, antes de cortar, medir la regla de la hoja de plantillas con una regla de verdad.</p>
+</div>
+<h3>La aleta para la cortadora láser</h3>
+<ol>
+  <li>Doble clic en <code>Aletas</code>. Abajo del cuadro, <code>Export to SVG</code>.</li>
+  <li>El cuadro de guardar pide además el color y el grosor del trazo (<code>Stroke width</code>, 0.1 mm). Escribir un nombre y <code>Save</code>; después, <code>Cancel</code> en el cuadro de las aletas, para no cambiar nada.</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t13-10_aletas_svg.png" alt="Cuadro de las aletas con el botón Export to SVG" loading="lazy">
+  <figcaption><b class="fig-num">Figura 10.</b> <b class="fig-title">La aleta para la cortadora láser.</b> Cuadro de configuración de las aletas. <code>Export to SVG</code>, abajo, escribe el contorno de una aleta, con su pestaña, en milímetros. El cuadro de guardar pide además el color y el grosor del trazo (0.1 mm).</figcaption>
+</figure>
+<p>El archivo trae el contorno de <em>una</em> aleta, en milímetros: 60.1 × 52.6 mm, con la pestaña de 57 × 7.5 mm que atraviesa el tubo. Se acomodan tres copias en el programa de la cortadora. El contorno es la línea de corte: el ancho del haz no está descontado.</p>
+<h3>La nariz para la impresora 3D</h3>
+<ol>
+  <li>En el árbol, clic derecho sobre <code>Nariz</code> ▸ <code>Export as OBJ (.obj)</code>.</li>
+  <li>Dejar <code>Optimize for: 3D printing</code>. En <code>Show Advanced options</code>, <code>Scaling</code> 1000: el diseño está en metros y el archivo sale en milímetros.</li>
+  <li>Escribir un nombre y <code>Save</code>. Lo mismo sirve para los anillos centradores y el deflector, que en el diseño también son de PLA.</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t13-11_obj.png" alt="Cuadro Export as Wavefront OBJ file con las opciones avanzadas" loading="lazy">
+  <figcaption><b class="fig-num">Figura 11.</b> <b class="fig-title">La nariz para la impresora 3D.</b> Clic derecho sobre <code>Nariz</code> en el árbol ▸ <code>Export as OBJ (.obj)</code>. <code>Optimize for: 3D printing</code> está elegido; en las opciones avanzadas, <code>Scaling</code> 1000 pasa de metros a milímetros, la unidad que suponen los programas de impresión.</figcaption>
+</figure>
+<p>El OBJ de la nariz mide 34 mm de diámetro y 120 mm de largo con el hombro, y es un <strong>sólido cerrado</strong>: no trae la pared de 1.5 mm del modelo. El espesor de las paredes y el relleno se eligen en el programa de impresión, y por eso la masa real sólo se sabe al pesar la pieza (paso 3).</p>
+
+    </section>
+    <section id="check-es">
+      <p class="section-label">Paso 7</p>
+      <h2>La revisión final del diseño</h2>
+
+<p>Antes de cortar y de imprimir, el diseño se revisa completo. La tabla 6 lo hace con el de la guía.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Revisión</th><th>Criterio</th><th>C6-5</th><th>B6-4</th><th>Dónde se ve</th></tr></thead>
+    <tbody>
+      <tr><td>Margen estático</td><td>entre 1 y 2 calibres (regla práctica)</td><td>1.45 cal</td><td>1.62 cal</td><td>tutorial 1.1; paso 3</td></tr>
+      <tr><td>Margen al dejar la varilla</td><td>≥ 1 calibre con el viento del día</td><td>0.94 cal con 2 m/s</td><td>1.14 cal con 2 m/s</td><td>paso 1</td></tr>
+      <tr><td>Velocidad al dejar la varilla</td><td>≥ 15 m/s (regla práctica)</td><td>13.9 m/s</td><td>13.5 m/s</td><td>paso 2: con 122 cm, sí</td></tr>
+      <tr><td>Velocidad al abrir el paracaídas</td><td>cerca del mínimo de los retardos</td><td>5.2 m/s</td><td>6.8 m/s</td><td>tutorial 1.2</td></tr>
+      <tr><td>Descenso</td><td>lo que resistan las aletas al aterrizar</td><td>5.32 m/s</td><td>5.32 m/s</td><td>paso 4</td></tr>
+      <tr><td>Deriva con el viento del día</td><td>dentro del campo (NAR)</td><td>42 m con 2 m/s</td><td>19 m con 2 m/s</td><td>paso 5</td></tr>
+      <tr><td>Viento</td><td>≤ 20 mph = 8.9 m/s (NAR)</td><td>≤ 2.8 m/s en un campo de 122 m</td><td>≤ 3.2 m/s en uno de 61 m</td><td>paso 5</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 6.</b> <b class="fig-title">La revisión final del diseño de la guía.</b> Valores con el C6-5 y el B6-4, varilla de 91 cm y paracaídas de 30 cm, en Chihuahua; los de 2 m/s son el promedio de la tabla 1. Las reglas prácticas son de los simuladores y los clubes; las de la NAR, de su código de seguridad.</caption>
+  </table>
+</div>
+<p>Dos renglones no pasan con la varilla de 91 cm: la velocidad al dejarla y, con el C6-5 y 2 m/s, el margen en ese instante (0.94 calibres). Con la varilla de 122 cm suben los dos: 15.5 m/s y 1.02 calibres (tabla 2). Lo demás pasa: el cohete del proyecto puede volar con C6-5 en un campo de 122 m con viento de hasta unos 3 m/s, y con B6-4 en uno de 61 m.</p>
+<div class="callout">
+  <p><strong>El margen al dejar la varilla no tiene norma.</strong> El intervalo de 1 a 2 calibres es para el margen estático. OpenRocket calcula además cómo se adelanta el CP con el ángulo de ataque; esta guía pide que, con el viento del día, ese margen tampoco baje de 1 calibre, como referencia prudente para un cohete sin probar.</p>
+</div>
+
+    </section>
+    <section id="example-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>El cohete propio en un día con viento</h2>
+
+<p class="lead">El pronóstico para el día del lanzamiento dice 4 m/s de viento. Esta práctica busca, con el cohete propio, una combinación de motor y paracaídas que lo deje caer dentro del campo.</p>
+<div class="example">
+  <p><strong>Enunciado.</strong> Con el diseño propio del equipo y las condiciones de Chihuahua del 1.2, simular el C6-5 y el B6-4 con 4 m/s de viento y el paracaídas que tenga el diseño. Si alguno no cabe en su campo mínimo con el lanzador en el centro, probar un paracaídas más chico, sin bajar de la velocidad de aterrizaje que el equipo considere segura para sus aletas. Antes de cada simulación, predecir la deriva con la ecuación (4).</p>
+  <p><strong>Condiciones.</strong> OpenRocket 24.12; varilla de 122 cm; masas medidas de las piezas ya construidas, si las hay (paso 3); campo de 122 m para el C y de 61 m para el B.</p>
+</div>
+<h3>El procedimiento, en corto</h3>
+<ol>
+  <li>Poner 4 m/s en <code>Average windspeed</code> y 122 cm en la varilla, en las dos simulaciones.</li>
+  <li>Predecir la deriva: \(4\,h/v_d\) menos unos metros, con el apogeo y el descenso de la simulación con 2 m/s.</li>
+  <li>Correr cada simulación tres veces con <code>Run simulations</code>, exportar y leer <code>Lateral distance</code> al final; quedarse con la mayor.</li>
+  <li>Si no cabe, cambiar el diámetro del paracaídas y repetir.</li>
+</ol>
+<h3>Registro de resultados</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Motor</th><th>Paracaídas (cm)</th><th>Viento (m/s)</th><th>Deriva predicha (m)</th><th>Deriva simulada (m)</th><th>Descenso (m/s)</th><th>Margen al dejar la varilla (cal)</th><th>¿Cabe en el campo?</th></tr></thead>
+    <tbody>
+      <tr><td>C6-5</td><td>30</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>C6-5</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>B6-4</td><td>30</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>B6-4</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 7.</b> <b class="fig-title">Registro de la práctica.</b> Una fila por combinación probada; el viento del día lo da el pronóstico o un anemómetro. Se escribe la predicción con la ecuación (4) antes de correr la simulación.</caption>
+  </table>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>¿Cuánto se equivocó la ecuación (4), y hacia qué lado? ¿Por qué siempre hacia el mismo?</li>
+  <li>¿Qué combinación deja el cohete dentro del campo con la menor velocidad de aterrizaje?</li>
+  <li>¿Cuánto cambió el margen al dejar la varilla al pasar de 91 a 122 cm?</li>
+  <li>Si el día del lanzamiento hay 6 m/s, ¿se lanza? ¿Con qué?</li>
+</ol>
+
+    </section>
+    <section id="summary-es">
+      <p class="section-label">Puntos clave</p>
+      <h2>Lo que hay que retener</h2>
+
+<ul>
+  <li><strong>El viento baja el margen, no el apogeo.</strong> El ángulo de ataque al dejar la varilla es \(\arctan(w/v_r)\); con 4 m/s el margen del C6-5 baja a 0.62 calibres.</li>
+  <li><strong>Más varilla, más velocidad, menos ángulo.</strong> Con 122 cm, los dos motores pasan de 15 m/s.</li>
+  <li><strong>La masa pesada manda sobre la calculada</strong>, con <code>Override mass</code>; el CG nuevo se predice con la ecuación (2), y el lastre va en la punta de la nariz.</li>
+  <li><strong>El paracaídas cambia aterrizaje por deriva</strong>: \(v_d\,D\) es constante, y la deriva crece con el tiempo de descenso.</li>
+  <li><strong>El campo limita el viento</strong>: con 30 cm de paracaídas y el lanzador al centro, unos 3 m/s para cualquiera de los dos motores en su campo mínimo.</li>
+  <li><strong>Lo del taller sale de OpenRocket</strong>: plantillas a escala en PDF, la aleta en SVG y las piezas impresas en OBJ.</li>
+</ul>
+
+    </section>
+    <section id="mistakes-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Dónde OpenRocket no hace lo que uno espera</h2>
+
+<ul>
+  <li><strong>Cambiar el viento en una simulación y no en las demás.</strong> Las condiciones son de cada simulación.</li>
+  <li><strong>Revisar sólo el margen estático.</strong> Con viento, el margen al dejar la varilla es mucho menor.</li>
+  <li><strong>Decidir con una corrida cuando hay mucho viento.</strong> La turbulencia aleatoria separa las corridas.</li>
+  <li><strong>Dejar la masa calculada después de pesar una pieza</strong>, o poner el lastre en <code>Override</code> de la nariz en vez de como componente aparte: así no se ve dónde está.</li>
+  <li><strong>Agrandar el paracaídas sin mirar la deriva.</strong></li>
+  <li><strong>Imprimir las plantillas ajustadas a la hoja</strong> y cortar sin medir la regla.</li>
+  <li><strong>Esperar que el OBJ traiga la pared del modelo</strong>, o imprimir la nariz maciza.</li>
+  <li><strong>Olvidar volver a correr las simulaciones</strong> después de cambiar el diseño: las que tienen el icono de flechas son de la versión anterior.</li>
+</ul>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ul>
+  <li>OpenRocket. <em>OpenRocket documentation</em> (versión 24.12). <a href="https://openrocket.readthedocs.io" target="_blank" rel="noopener">openrocket.readthedocs.io</a>.</li>
+  <li>Niskanen, S. (2009). <em>Development of an open source model rocket simulation software</em>. Tesis de maestría, Helsinki University of Technology. Describe el cálculo del CP con ángulo de ataque y el modelo de viento de OpenRocket.</li>
+  <li>National Association of Rocketry. <em>Model Rocket Safety Code</em>, puntos 6 (lanzador), 9 (campo y viento) y 10 (recuperación), y la tabla de dimensiones del campo. <a href="https://nar.org/content.aspx?page_id=22&amp;club_id=114127&amp;module_id=669234" target="_blank" rel="noopener">nar.org</a>.</li>
+  <li>Estes Industries. Plataforma de lanzamiento Porta-Pad II y varilla de 1/8 in. <a href="https://estesrockets.com" target="_blank" rel="noopener">estesrockets.com</a>.</li>
+</ul>
+<p class="source-note">Todas las capturas son de OpenRocket 24.12 en Windows 11, manejado en una pantalla de 1920 × 1080. Para las tablas, cada caso se preparó como una simulación de un archivo de OpenRocket, se corrió con <code>Run simulations</code> y se guardó con <code>Save options ▸ All simulated data</code>; las cifras se leyeron de esos archivos. Los márgenes estáticos se calcularon con la tabla de componentes del 1.1 y se comprobaron en la ventana de OpenRocket donde se indica. Las gráficas de las figuras 2, 3 y 7 están trazadas con esos datos.</p>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="motor-vuelo.html?v=13"><span>Tutorial anterior</span>← 1.2 · El motor y el vuelo</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenRocket · Serie de tutoriales</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Den Entwurf mit mehr Wind und längerem Stab simulieren, die gemessene Masse eines Bauteils eintragen und Ballast in die Spitze setzen, den Fallschirm bemessen, die Abdrift mit der NAR-Feldgröße vergleichen und die PDF-Schablonen, die Flossen-SVG und die OBJ-Datei der Spitze für den Bau exportieren.</p>
+    </section>
+    <section id="physics-de">
+      <p class="section-label">Die Idee</p>
+      <h2>Was jede Anpassung ändert</h2>
+<p>Vier Formeln tragen die Anleitung: der Anstellwinkel am Stabende, arctan(w/v); der Schwerpunkt als massengewichtetes Mittel; die Sinkgeschwindigkeit umgekehrt proportional zum Fallschirmdurchmesser; und die Abdrift als Windgeschwindigkeit mal Sinkzeit minus der Strecke gegen den Wind.</p>
+    </section>
+    <section id="wind-de">
+      <p class="section-label">Schritt 1</p>
+      <h2>Dieselbe Rakete bei mehr Wind</h2>
+<p>Von 0 auf 8 m/s Wind sinkt der Gipfel des C6-5 nur von 188 auf 170 m, aber die Stabilitätsreserve am Stabende fällt von 1,49 auf unter 0,3 Kaliber und die Abdrift wächst von 0 auf etwa 190 m.</p>
+    </section>
+    <section id="rod-de">
+      <p class="section-label">Schritt 2</p>
+      <h2>Ein längerer Startstab</h2>
+<p>Ein 122-cm-Stab erhöht die Geschwindigkeit am Stabende von 13,9 auf 15,5 m/s und erfüllt die Faustregel von 15 m/s; derselbe Wind trifft die Rakete dann unter kleinerem Winkel.</p>
+    </section>
+    <section id="nose-de">
+      <p class="section-label">Schritt 3</p>
+      <h2>Die echte Masse der Spitze und Ballast</h2>
+<p>Override mass trägt die gewogene Masse eines Bauteils ein. Eine 10-g-Spitze statt 18 g senkt die statische Reserve mit dem C6-5 auf 0,85 Kaliber; 5 g Ballast in der Spitze ergeben wieder 1,29. Die Handrechnung stimmt mit OpenRocket überein.</p>
+    </section>
+    <section id="parachute-de">
+      <p class="section-label">Schritt 4</p>
+      <h2>Die Größe des Fallschirms</h2>
+<p>Sinkgeschwindigkeit mal Durchmesser ist konstant: 7,95 m/s bei 20 cm, 5,32 bei 30 cm, 3,58 bei 45 cm. Ein größerer Fallschirm landet sanfter, treibt aber viel weiter ab.</p>
+    </section>
+    <section id="field-de">
+      <p class="section-label">Schritt 5</p>
+      <h2>B oder C: wie viel Wind ins Feld passt</h2>
+<p>Mit dem Startgerät in der Mitte des NAR-Mindestfelds (122 m für C, 61 m für B) bleibt die Rakete mit dem 30-cm-Fallschirm bis etwa 3 m/s Wind mit beiden Motoren im Feld.</p>
+    </section>
+    <section id="build-de">
+      <p class="section-label">Schritt 6</p>
+      <h2>Schablonen, Flossenkontur und Modell der Spitze</h2>
+<p>Print design info speichert ein PDF mit Übersicht, Stückliste und 1:1-Schablonen von Flosse, Spitzenprofil und Ringen; Export to SVG schreibt die Flossenkontur in Millimetern für den Laserschnitt; Export as OBJ schreibt die Spitze als geschlossenen Körper für den Slicer.</p>
+    </section>
+    <section id="check-de">
+      <p class="section-label">Schritt 7</p>
+      <h2>Die Schlussprüfung des Entwurfs</h2>
+<p>Eine Schlusstabelle prüft den Entwurf gegen die Faustregeln und den NAR-Kodex: Reserve, Geschwindigkeit am Stabende, beim Öffnen, Sinkrate, Abdrift und Wind.</p>
+    </section>
+    <section id="example-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Die eigene Rakete an einem windigen Tag</h2>
+<p>Den eigenen Entwurf an einem Tag mit 4 m/s Wind prüfen und Motor und Fallschirm finden, die ihn im Feld halten; die Abdrift vor der Simulation vorhersagen.</p>
+    </section>
+    <section id="summary-de">
+      <p class="section-label">Kernpunkte</p>
+      <h2>Was man behalten sollte</h2>
+<p>Wind senkt eher die Reserve als die Gipfelhöhe; die gewogene Masse ersetzt die modellierte; der Fallschirm tauscht Landegeschwindigkeit gegen Abdrift; das Feld begrenzt den Wind; die Dateien für die Werkstatt kommen maßstabsgetreu aus OpenRocket.</p>
+    </section>
+    <section id="mistakes-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Wo OpenRocket nicht tut, was man erwartet</h2>
+<p>Den Wind nur in einer Simulation ändern, der statischen Reserve an windigen Tagen trauen, nach dem Wiegen die modellierte Masse lassen, Schablonen seitenfüllend skaliert drucken und eine OBJ-Spitze mit der Wand des Modells erwarten.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>OpenRocket-Dokumentation; Niskanen (2009); NAR Model Rocket Safety Code; Estes-Startausrüstung.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="motor-vuelo.html?v=13"><span>Vorheriges Tutorial</span>← 1.2 · Motor und Flug</a>
+      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>OpenRocket · Tutorialreihe</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>
