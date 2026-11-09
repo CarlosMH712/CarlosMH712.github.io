@@ -143,7 +143,7 @@
     </section>
     <nav class="next-nav">
       <a class="next-link" href="perfil-campo-lejano.html?v=13"><span>Previous tutorial</span>← Tutorial 2.2.3 · The airfoil with the far field at 500 chords</a>
-      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Tutorial series</a>
+      <a class="next-link" href="tobera-parametrizada.html?v=13"><span>Next tutorial</span>Tutorial 2.3.2 · The Parametric Nozzle: Planar, with the Jet, and as a Wedge →</a>
     </nav>
   </article>
   <article class="lecture" data-language="es" hidden>
@@ -160,7 +160,10 @@
   <li>Mallar sólo la mitad de una geometría simétrica y comprobar en OpenFOAM que el plano de simetría da lo mismo que la geometría completa.</li>
 </ul>
 <div class="callout">
-  <p><strong>Qué hace falta.</strong> Gmsh 4.15.2 y, para la comprobación, OpenFOAM 13 (<a href="https://openfoam.org" target="_blank" rel="noopener">openfoam.org</a>). Se suponen el <a href="cavidad-cuadrada.html">1.1</a> (la extrusión, los grupos físicos y el formato MSH 2) y el <a href="perfil-dominio-c.html">2.2.1</a> (bloques de cuatro lados hechos con los botones). La tobera es la del <a href="tobera-parametrizada.html">2.3.2</a>, con los mismos números; allí está la teoría.</p>
+  <p><strong>Qué hace falta.</strong> Gmsh 4.15.2 y, para la comprobación, OpenFOAM 13 (<a href="https://openfoam.org" target="_blank" rel="noopener">openfoam.org</a>). Se suponen el <a href="cavidad-cuadrada.html">1.1</a> (la extrusión, los grupos físicos y el formato MSH 2) y el <a href="perfil-dominio-c.html">2.2.1</a> (bloques de cuatro lados hechos con los botones). No hacen falta el 2.2.2 ni el 2.2.3.</p>
+</div>
+<div class="callout">
+  <p><strong>Si viene del perfil (2.2.3).</strong> Este tutorial empieza de nuevo, y es más sencillo que el anterior a propósito. El bloque 2 trata cada geometría en dos pasos: primero se arma con los botones de la interfaz, para entender los bloques, y después se reescribe como un archivo con parámetros. Así se hizo con el perfil (2.2.1, y luego 2.2.2 y 2.2.3), y así se hace con la tobera: este tutorial con los botones y el <a href="tobera-parametrizada.html">2.3.2</a> con parámetros. También cambia el flujo: el perfil era un cuerpo en el aire libre a baja velocidad; la tobera es un conducto por dentro del cual el gas pasa a ser supersónico, como en la rampa del <a href="rampa-compresion-expansion.html">2.1</a>. La sección siguiente explica lo que hace falta saber de ella para mallarla.</p>
 </div>
 
     </section>
@@ -168,6 +171,11 @@
       <p class="section-label">La idea</p>
       <h2>Mallar la mitad de arriba y que el eje sea un plano de simetría</h2>
 
+<h3>Lo que hace la tobera, y lo que eso le pide a la malla</h3>
+<p>En el convergente el gas acelera y la presión baja; en la garganta, la sección más angosta, llega a Mach 1; en el divergente, si la presión de afuera es lo bastante baja, sigue acelerando y sale supersónico. En el modelo más simple, el cuasi-unidimensional, el Mach de cada sección depende sólo de su área \(A\) comparada con la de la garganta \(A^*\):</p>
+<div class="equation-card">\[ \frac{A}{A^*} = \frac{1}{M}\left[\frac{2}{\gamma+1}\left(1+\frac{\gamma-1}{2}M^2\right)\right]^{\frac{\gamma+1}{2(\gamma-1)}} \]</div>
+<p>Con la razón de áreas de esta tobera, 5, y aire (\(\gamma\) = 1.4), el gas sale a Mach 3.175, con una presión 47.6 veces menor que la del depósito. Para la malla, eso significa tres cosas: el flujo cambia más rápido en la garganta, donde pasa por Mach 1, que en cualquier otra parte de la tobera, así que ahí van las celdas más finas; la pared debe ser lisa, sin quiebres, porque un quiebre en flujo supersónico produce una onda; y el chorro que sale del labio necesita su propia región de celdas, el núcleo del chorro. El <a href="tobera-parametrizada.html">2.3.2</a> desarrolla esta teoría y comprueba, con OpenFOAM, que el Mach sigue a la sección.</p>
+<h3>Mallar la mitad</h3>
 <p>La tobera de este tutorial es plana: la pared de arriba y la de abajo son espejo una de otra, y el flujo también, siempre que sea simétrico, como lo es en una tobera que descarga a un ambiente en reposo. Entonces basta resolver la mitad de arriba, del eje a la pared, y decirle al solver que el eje es un <strong>plano de simetría</strong>: una frontera donde la velocidad normal es cero y las demás variables no cambian al cruzarla. Se tienen la mitad de celdas y, en la interfaz, la mitad de clics.</p>
 <p>La media tobera se parte en cuatro bloques de cuatro lados (figura 1): el convergente (S1), el divergente (S2), el núcleo del chorro (S3), que sigue a la tobera hasta la salida del dominio, y el ambiente (S4), por encima del chorro. La razón de áreas es 5: la salida mide 1 m de semialtura y la garganta 0.2 m; el convergente mide 2 m, el divergente 4 m y el dominio llega a x = 22 m y a y = 6 m.</p>
 <figure class="diagram">
@@ -612,7 +620,7 @@ Physical Volume(&quot;fluid&quot;, 108) = {1, 2, 3, 4};</code></pre>
     </section>
     <nav class="next-nav">
       <a class="next-link" href="perfil-campo-lejano.html?v=13"><span>Tutorial anterior</span>← Tutorial 2.2.3 · El perfil con el campo lejano a 500 cuerdas</a>
-      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Serie de tutoriales</a>
+      <a class="next-link" href="tobera-parametrizada.html?v=13"><span>Tutorial siguiente</span>Tutorial 2.3.2 · La tobera parametrizada: plana, con el chorro, y en cuña →</a>
     </nav>
   </article>
   <article class="lecture" data-language="de" hidden>
@@ -709,7 +717,7 @@ Physical Volume(&quot;fluid&quot;, 108) = {1, 2, 3, 4};</code></pre>
     </section>
     <nav class="next-nav">
       <a class="next-link" href="perfil-campo-lejano.html?v=13"><span>Vorheriges Tutorial</span>← Tutorial 2.2.3 · Das Profil mit dem Fernfeld bei 500 Sehnen</a>
-      <a class="next-link" href="index.html?v=13"><span data-ui-key="back">Back to the series</span>Gmsh · Tutorialreihe</a>
+      <a class="next-link" href="tobera-parametrizada.html?v=13"><span>Nächstes Tutorial</span>Tutorial 2.3.2 · Die parametrische Laval-Düse: eben, mit dem Strahl, und als Keil →</a>
     </nav>
   </article>
 

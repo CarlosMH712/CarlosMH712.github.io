@@ -122,6 +122,9 @@
 <div class="callout">
   <p><strong>Qué hace falta.</strong> blueCFD-Core 2024 con su ParaView 5.11.2 y el caso del <a href="perfil-naca0012.html">tutorial 2.1</a> ya calculado: la carpeta <code>perfil-naca0012</code> de la carpeta de corridas, con el tiempo <code>2000</code> escrito (se calcula en unos minutos con la receta de ese tutorial; el caso se descarga en <a href="archivos/perfil-naca0012.zip"><code>perfil-naca0012.zip</code></a>). La guía no usa ningún guion: todo se hace con el ratón y con el panel de propiedades, como en el vídeo.</p>
 </div>
+<div class="callout">
+  <p><strong>Si viene de la polar (tutorial <a href="polar-naca0012.html">2.2</a>).</strong> Este tutorial no usa las diez corridas de la polar: regresa a una sola solución, la del 2.1 a 10°, la que se comparó con la NASA, para leerla con detalle. La polar no hace falta para seguirlo. Si ya no tiene el caso del 2.1 pero sí la polar, la corrida <code>perfil-polar/a10</code> es el mismo cálculo —la misma malla, el mismo modelo, los mismos esquemas y el mismo ángulo— con 2500 iteraciones en lugar de 2000, y da la misma sustentación (\(C_L\) = 1.0742 en las dos). Se abre con <code>paraFoam</code> desde esa carpeta y todo lo de esta guía funciona igual; sólo cambia el último tiempo, 2500 en lugar de 2000. Las otras corridas de la polar (<code>a0</code> a <code>a17</code>) se abren de la misma manera, para ver cómo cambia el flujo con el ángulo.</p>
+</div>
 
     </section>
     <section id="problem-es">
