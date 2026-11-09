@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="OpenFOAM and ParaView tutorial: saving surfaces of a transient run at short intervals with the surfaces function object (a mid-span plane and Q isosurfaces), joining them into a time series, colouring the vorticity with a fixed range, and saving the animation as MP4 from the ParaView GUI or from a pvbatch script, for URANS, DDES and LES of the NACA 0012 at 45°." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>Animating the Stalled Airfoil | OpenFOAM Incompressible-Flow Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">OpenFOAM · Incompressible flow · Tutorial 2.5</p><h1>Animating the stalled airfoil</h1><p class="hero-copy">A wake that changes every few hundredths of a chord cannot be shown with a field every five chords. The run itself saves a plane and the vortex surfaces at short intervals, and ParaView turns them into a video: by hand for one model, with a script for three.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">OpenFOAM · Flujo incompresible · Tutorial 2.5</p><h1>La animación del perfil en pérdida</h1><p class="hero-copy">Una estela que cambia cada pocas centésimas de cuerda no se puede mostrar con un campo cada cinco cuerdas. La propia corrida guarda un plano y las superficies de los remolinos a intervalos cortos, y ParaView las convierte en un vídeo: a mano para un modelo, con un guion para los tres.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">OpenFOAM · Inkompressible Strömung · Tutorial 2.5</p><h1>Die Animation des abgerissenen Profils</h1><p class="hero-copy">Ein Nachlauf, der sich alle paar Hundertstel einer Sehne ändert, lässt sich nicht mit einem Feld alle fünf Sehnen zeigen. Die Rechnung selbst speichert eine Ebene und die Wirbelflächen in kurzen Abständen, und ParaView macht daraus ein Video: von Hand für ein Modell, mit einem Skript für drei.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 40 min (plus the 2D run of Tutorial 2.4)</span><span data-language="es" hidden>Lectura estimada: 40 min (y la corrida 2D del tutorial 2.4)</span><span data-language="de" hidden>Lesedauer: ca. 40 min (dazu die 2D-Rechnung aus Tutorial 2.4)</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on OpenFOAM 12 (blueCFD-Core 2024), ParaView 5.11.2 and ffmpeg</span><span data-language="es" hidden>Verificado en OpenFOAM 12 (blueCFD-Core 2024), ParaView 5.11.2 y ffmpeg</span><span data-language="de" hidden>Geprüft mit OpenFOAM 12 (blueCFD-Core 2024), ParaView 5.11.2 und ffmpeg</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="perfil-perdida.html?v=13">← <span>2.4</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/HdNte8M6m0M" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Watch the video</span><span data-language="es" hidden>Ver el vídeo</span><span data-language="de" hidden>Video ansehen</span></a><a class="button secondary" href="https://youtu.be/3JCf7tEANoY" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">The animations</span><span data-language="es" hidden>Las animaciones</span><span data-language="de" hidden>Die Animationen</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#problem">The problem</a><a href="#theory">Theory</a><a href="#recipe">Recipe</a><a href="#case">The case</a><a href="#check">Check</a><a href="#errors">Common errors</a><a href="#practice">Suggested exercise</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#problem-es">El problema</a><a href="#theory-es">Teoría</a><a href="#recipe-es">Receta</a><a href="#case-es">El caso</a><a href="#check-es">Revisión</a><a href="#errors-es">Errores frecuentes</a><a href="#practice-es">Práctica sugerida</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#problem-de">Das Problem</a><a href="#theory-de">Theorie</a><a href="#recipe-de">Ablauf</a><a href="#case-de">Der Fall</a><a href="#check-de">Prüfung</a><a href="#errors-de">Häufige Fehler</a><a href="#practice-de">Übungsvorschlag</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Make a transient run save what an animation needs, at the right interval and size; open it in ParaView as a time series; fix the colour range; save the animation as a video by hand and with a script.</p>
+    </section>
+    <section id="problem">
+      <p class="section-label">The problem</p>
+      <h2>Five chords between two pictures</h2>
+<p>The runs of Tutorial 2.4 write the full fields every 5 chords, once per shedding period: an animation from them would show one picture per vortex. The wake needs about 190 pictures per period.</p>
+    </section>
+    <section id="theory">
+      <p class="section-label">The theory</p>
+      <h2>How often, how much and what to draw</h2>
+<p>Sampling interval against the shedding period; playback speed; the size of full fields against surfaces; vorticity on a plane and the Q criterion in 3D; why the colour range must be fixed.</p>
+    </section>
+    <section id="recipe">
+      <p class="section-label">Step by step</p>
+      <h2>From the run to the video</h2>
+<p>The functions vorticity, Q and surfaces are already in the case of 2.4; ./serie joins the frames into .vtk.series files; ParaView opens one, colours vorticity Z from −5 to 5, adds the time and saves the animation as MP4; pvbatch animacion.py does the same without a window.</p>
+    </section>
+    <section id="case">
+      <p class="section-label">The case</p>
+      <h2>The functions and the two scripts</h2>
+<p>The animation block of system/functions, the serie script and the pvbatch script animacion.py.</p>
+    </section>
+    <section id="check">
+      <p class="section-label">Worked example</p>
+      <h2>One model by hand, three with a script</h2>
+<p>The 2D URANS by hand: 377 frames, 1085 MB, a video of 12.6 s. The three 3D runs with the script: about 400 frames each, 7.2 GB of surfaces per run, two to three minutes of pvbatch per view.</p>
+    </section>
+    <section id="errors">
+      <p class="section-label">Common errors</p>
+      <h2>When the video shows nothing</h2>
+<p>The automatic colour range (dominated by the wall); a function changed outside its time window is not re-read; a copied file keeps its old date; the disk; a camera from above pushes the wake out of the frame; an airfoil seen edge-on.</p>
+    </section>
+    <section id="practice">
+      <p class="section-label">Suggested exercise</p>
+      <h2>Pressure instead of vorticity</h2>
+<p>Animate the pressure and the velocity magnitude of the 2D URANS with fixed ranges, and decide which one shows the vortices better.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>Hunt, Wray and Moin (1988) on the Q criterion; Jeong and Hussain (1995) on vortex identification; the ParaView and OpenFOAM documentation.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="perfil-perdida.html?v=13"><span>Previous tutorial</span>← 2.4 · The stalled airfoil: URANS, DDES and LES</a>
+      <a class="next-link" href="jimny-caso.html?v=13"><span>Next tutorial</span>3.1 · From motorBikeSteady to the Jimny →</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">El tutorial <a href="perfil-perdida.html">2.4</a> mostró que el URANS, el DDES y el LES dan estelas distintas, y que la diferencia se entiende mejor en movimiento. Esta guía enseña a hacer esas animaciones: qué tiene que guardar la corrida, cómo se abre en ParaView y cómo se guarda el vídeo.</p>
+<ul>
+  <li>Hacer que una corrida transitoria guarde lo que una animación necesita: qué, cada cuánto y cuánto ocupa.</li>
+  <li>Abrir en ParaView una serie de superficies como una animación.</li>
+  <li>Fijar el rango de colores para que la estela se vea y no cambie de un cuadro al otro.</li>
+  <li>Guardar la animación como vídeo, a mano en ParaView y con un guion de <code>pvbatch</code>.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> El URANS 2D del <a href="perfil-perdida.html">2.4</a> ya calculado en <code>$FOAM_RUN/perfil-perdida</code> (13 minutos con 4 núcleos): el caso ya trae lo necesario para la animación, y la corrida guarda sus cuadros de t = 30 a 40 sin hacer nada más. Para las animaciones 3D de la sección <a href="#check-es">Ejemplo resuelto</a> hacen falta las corridas de un día del 2.4; la guía las muestra, pero no son necesarias para seguirla.</p>
+</div>
+
+    </section>
+    <section id="problem-es">
+      <p class="section-label">El problema</p>
+      <h2>Cinco cuerdas entre dos imágenes</h2>
+
+<p>Las corridas del 2.4 escriben los campos completos cada 5 cuerdas recorridas (<code>writeInterval 5</code>), y el desprendimiento tiene un periodo de 5.0 cuerdas: una animación hecha con esos tiempos mostraría una imagen por remolino, siempre en la misma fase. Para ver cómo nace un remolino en el borde, rueda y se va con la corriente, hacen falta decenas de imágenes por periodo. Escribir los campos completos tan seguido llenaría el disco (sección <a href="#theory-es">Teoría</a>).</p>
+<p>La solución es que la corrida guarde, mientras calcula, sólo lo que se va a dibujar: un plano y unas superficies, no el volumen. La pregunta de esta guía: <strong>¿qué hay que guardar, cada cuánto, y cómo se convierte en un vídeo?</strong></p>
+
+    </section>
+    <section id="theory-es">
+      <p class="section-label">La teoría</p>
+      <h2>Cada cuánto, cuánto y qué dibujar</h2>
+
+<h3>Cada cuánto</h3>
+<p>Un fenómeno que se repite cada \(T\) se ve continuo en un vídeo si cada periodo tiene, por lo menos, unas cuantas decenas de cuadros. Si los cuadros se guardan cada \(n\) pasos de tiempo \(\Delta t\), un periodo tiene</p>
+<div class="equation-card">\[ N_T = \frac{T}{n\,\Delta t} \tag{1} \]</div>
+<p>cuadros. En el URANS 2D, \(T\) = 5.0 c/U y \(\Delta t\) ≈ 1.33·10<sup>−3</sup> c/U; con \(n\) = 20, cada cuadro está a 0.027 c/U del siguiente y un periodo tiene unos 190 cuadros: de sobra. Como el paso de tiempo cambia, los cuadros no quedan exactamente equiespaciados (de 0.020 a 0.034 c/U en la prueba), lo que no se nota en el vídeo.</p>
+<p>La velocidad de reproducción la decide quien hace el vídeo. Con 30 cuadros por segundo, los 377 cuadros de t = 30 a 40 duran 12.6 s: las 10 cuerdas recorridas se ven a poco más de una por segundo. Para verlo más lento se baja la cadencia o se guardan más cuadros.</p>
+<h3>Cuánto ocupa</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Qué se guarda</th><th>2D</th><th>3D</th><th>3D, 418 cuadros</th></tr></thead>
+    <tbody>
+      <tr><td><code>planoMedio</code>: el plano z = 0.5 c</td><td>2.77</td><td>2.77</td><td>1.2 GB</td></tr>
+      <tr><td><code>remolinos</code>: la isosuperficie \(Q\) = 5</td><td>0.06</td><td>9.24</td><td>3.9 GB</td></tr>
+      <tr><td><code>remolinosFuertes</code>: \(Q\) = 20</td><td>0.04</td><td>5.26</td><td>2.2 GB</td></tr>
+      <tr><td>Un tiempo completo</td><td></td><td>103</td><td>43 GB</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">Lo que ocupa una animación.</b> MB por cuadro, medidos en la prueba 2D y en el DDES del 2.4 (VTK binario). El tiempo completo es lo que el solver escribe en cada <code>writeInterval</code> (U, p, \(\tilde\nu\), \(\nu_t\) y el flujo en las caras, en los 8 procesos).</caption>
+  </table>
+</div>
+<p>En la malla 3D del 2.4, un tiempo completo —U, p, \(\tilde\nu\), \(\nu_t\) y el flujo en las caras, lo que el solver necesita para seguir— pesa 103 MB. Guardarlo 418 veces serían 43 GB por corrida. Las superficies de la animación pesan 17.3 MB por cuadro y 7.2 GB en total (tabla 1): seis veces menos, y todavía mucho. En 2D, la misma animación ocupa 1.1 GB.</p>
+<h3>Qué dibujar</h3>
+<p>Los remolinos son regiones donde el fluido gira. En un plano, lo que lo muestra es la <strong>vorticidad</strong> perpendicular al plano,</p>
+<div class="equation-card">\[ \omega_z = \frac{\partial u_y}{\partial x} - \frac{\partial u_x}{\partial y} \tag{2} \]</div>
+<p>positiva (rojo) donde el aire gira en sentido antihorario y negativa (azul) donde gira en sentido horario. En 3D, la vorticidad no basta: también es grande en una capa límite, donde el aire no gira, sólo se corta. El <strong>criterio Q</strong> <a href="#references-es">(Hunt, Wray y Moin, 1988)</a> separa las dos cosas: compara la rotación \(\boldsymbol{\Omega}\) con la deformación \(\mathbf{S}\), las partes antisimétrica y simétrica del gradiente de velocidad,</p>
+<div class="equation-card">\[ Q = \tfrac{1}{2}\left(\|\boldsymbol{\Omega}\|^2 - \|\mathbf{S}\|^2\right) \tag{3} \]</div>
+<p>y una superficie de \(Q\) constante y positivo dibuja los tubos de los remolinos. Qué valor de \(Q\) es el que conviene depende del caso: muy bajo, todo es remolino; muy alto, sólo quedan los más fuertes. Para este caso se probaron 2, 5, 20 y 50 \((U_\infty/c)^2\) sobre un tiempo guardado del DDES, y se quedaron dos: 5, que todavía muestra la ruptura en remolinos chicos, y 20, sólo los grandes.</p>
+<h3>El rango de colores</h3>
+<p>ParaView pone, por omisión, el rango de colores del mínimo al máximo de los datos. En una animación eso tiene dos problemas: el rango cambia de un cuadro al otro, y los colores con él; y los extremos de la vorticidad están en la capa límite, junto a la pared. En el plano medio del DDES, \(\omega_z\) va de −3219 a 2396 \(U_\infty/c\) en el primer cuadro, y la estela vive entre ±5. El rango se fija a mano, una vez, para toda la animación.</p>
+
+    </section>
+    <section id="recipe-es">
+      <p class="section-label">Paso a paso</p>
+      <h2>De la corrida al vídeo</h2>
+
+<p>El caso del 2.4 ya hace que la corrida guarde los cuadros: las funciones <code>vorticidad</code>, <code>Q</code> y <code>animacion</code> de <code>system/functions</code> (sección <a href="#case-es">El caso</a>) trabajan de t = 30 a 40. Al terminar <code>./Allrun urans2d 4</code>, en la terminal de blueCFD-Core:</p>
+<ol>
+  <li><strong>Ver lo que se guardó.</strong> <code>cd $FOAM_RUN/perfil-perdida</code> y <code>ls postProcessing/animacion | wc -l</code>: 377 carpetas, una por cuadro, cada una con <code>planoMedio.vtk</code>, <code>remolinos.vtk</code> y <code>remolinosFuertes.vtk</code>.</li>
+  <li><strong>Unirlas en una serie:</strong> <code>./serie</code>. ParaView no agrupa archivos que están en carpetas distintas; el guion escribe un archivo <code>.vtk.series</code> por superficie con el nombre y el tiempo de cada cuadro (figura 1).</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t25-01_serie.png" alt="La terminal de blueCFD con la lista de cuadros y la salida del guion serie" loading="lazy">
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">Los cuadros y la serie.</b> En la terminal: la carpeta <code>postProcessing/animacion</code> tiene una subcarpeta por cuadro, con las tres superficies; <code>./serie</code> escribe un <code>.vtk.series</code> por superficie, y su principio es la lista de archivos con su tiempo.</figcaption>
+</figure>
+<ol start="3">
+  <li><strong>Abrir ParaView:</strong> <code>paraview &amp;</code>, sin nada más (error 3). En ParaView, <em>File ▸ Open</em> (<kbd>Ctrl</kbd>+<kbd>O</kbd>), escribir <code>postProcessing/animacion/planoMedio.vtk.series</code> en <em>File name</em> y <em>OK</em> (figura 2); en el panel <em>Properties</em>, <em>Apply</em>. La barra de tiempo ya tiene los 377 tiempos («max is 376»: se cuentan desde 0).</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t25-09_abrir.png" alt="El cuadro Open File de ParaView en la carpeta del caso con la ruta de la serie escrita" loading="lazy">
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">Abrir la serie.</b> <em>File ▸ Open</em> empieza en la carpeta desde la que se abrió ParaView, la del caso: basta escribir la ruta de la serie en <em>Name</em>. (La carpeta <code>postProcessing/animacion</code> tiene cientos de subcarpetas; buscar el archivo a mano entre ellas es lento.)</figcaption>
+</figure>
+<ol start="4">
+  <li><strong>Encuadrar la estela:</strong> los botones <em>−Z</em> y <em>Reset Camera</em> ponen el dominio de frente. Como el plano es plano, ParaView pone la vista en modo 2D, con proyección paralela, y en ese modo <em>Adjust Camera</em> no acerca: se usa <em>Zoom To Box</em> (la lupa con un recuadro) y se arrastra un rectángulo sobre el perfil y unas ocho cuerdas de estela.</li>
+  <li><strong>Colorear por la vorticidad:</strong> en la barra de arriba, <code>vorticity</code> y su componente <code>Z</code>. El plano se ve casi de un solo color (figura 3; error 1).</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t25-02_automatico.png" alt="ParaView con el plano medio coloreado por la vorticidad con el rango automático" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">La vorticidad con el rango automático.</b> El plano medio coloreado por \(\omega_z\) con el rango que ParaView elige solo: los extremos están en la capa límite del perfil, y toda la estela queda en el color del cero.</figcaption>
+</figure>
+<ol start="6">
+  <li><strong>Fijar el rango:</strong> el botón <em>Rescale to Custom Data Range</em>, mínimo −5 y máximo 5, y <em>Rescale and disable automatic rescaling</em> (figura 4). El botón <em>Rescale</em> a secas no basta (error 2).</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t25-03_rango.png" alt="El cuadro Rescale to Custom Data Range de ParaView con el mínimo y el máximo" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">El rango fijo.</b> <em>Rescale to Custom Data Range</em>, de −5 a 5. Es el mismo para todos los cuadros y para las tres corridas 3D.</figcaption>
+</figure>
+<ol start="7">
+  <li><strong>El tiempo en la imagen:</strong> con el buscador de filtros (<kbd>Ctrl</kbd>+<kbd>Espacio</kbd>), <em>Annotate Time Filter</em> y <em>Apply</em>: escribe el tiempo de cada cuadro en una esquina.</li>
+  <li><strong>Reproducir:</strong> el botón <em>Play</em> de la barra de tiempo (figura 5).</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t25-04_vorticidad.png" alt="ParaView con la vorticidad de la estela del URANS 2D de menos 5 a 5 y el tiempo escrito" loading="lazy">
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">La estela, con el rango fijo.</b> El mismo plano con el rango de −5 a 5, la cámara sobre la estela y el tiempo escrito por <em>Annotate Time Filter</em>; arriba, la barra de tiempo, con el botón <em>Play</em>, el tiempo y el número de cuadro (de 0 a 376). Se ven los remolinos alternados que se desprenden de los dos bordes.</figcaption>
+</figure>
+<ol start="9">
+  <li><strong>Guardar el vídeo:</strong> <em>File ▸ Save Animation…</em> y el nombre <code>animacion.mp4</code>. En el cuadro de opciones (figura 6), ParaView propone la resolución de la vista y <em>Frame Rate</em> 1: se cambia a 30 (error 4) y <em>OK</em>. ParaView recorre los 377 tiempos y escribe el vídeo con su <em>MP4 Writer</em> (figura 7). Al terminar puede abrirse la ventana <em>Output Messages</em> con el aviso «The requested resolution '(1421, 739)' has been changed…»: el MP4 pide un ancho y un alto pares, y ParaView los ajusta (el vídeo de la prueba salió de 1420 × 738 píxeles). No es un error. Con <code>.png</code> en lugar de <code>.mp4</code>, escribe una imagen por cuadro, que se unen con ffmpeg (paso 11).</li>
+</ol>
+<figure class="diagram">
+  <img src="imagenes/t25-05_opciones.png" alt="El cuadro de opciones de Save Animation de ParaView" loading="lazy">
+  <figcaption><b class="fig-num">Figura 6.</b> <b class="fig-title">Las opciones del vídeo.</b> Después de elegir el nombre del archivo, <em>Save Animation</em> pregunta la resolución, el formato (aquí, <em>MP4 Writer</em>, por la extensión) y la cadencia, <em>Frame Rate</em>, que propone en 1 y aquí ya se cambió a 30.</figcaption>
+</figure>
+<figure class="diagram">
+  <video src="imagenes/t25-06_paraview.mp4" aria-label="El vídeo que guardó ParaView: la vorticidad del URANS 2D de t igual a 30 a 40" autoplay loop muted playsinline preload="auto" style="display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:white"></video>
+  <figcaption><b class="fig-num">Figura 7.</b> <b class="fig-title">El vídeo de ParaView.</b> El archivo que escribió <em>Save Animation</em> en el ensayo: el URANS 2D de t = 30 a 40, a 30 cuadros por segundo (recomprimido para la página).</figcaption>
+</figure>
+<ol start="10">
+  <li><strong>Sin ventana, con un guion</strong>, para varias corridas o varias vistas: <code>pvbatch animacion.py . cuadros "URANS 2D" vorticidad</code> escribe en <code>cuadros/</code> una imagen por tiempo con la misma vista; con <code>remolinos</code> en lugar de <code>vorticidad</code>, la isosuperficie \(Q\) = 5 en perspectiva.</li>
+  <li><strong>Unir las imágenes</strong> con ffmpeg, que no viene con blueCFD-Core: se instala aparte y se corre en PowerShell, en la carpeta del caso: <code>ffmpeg -framerate 30 -i cuadros/f%03d.png -c:v libx264 -pix_fmt yuv420p vorticidad.mp4</code>. <code>-pix_fmt yuv420p</code> hace que el vídeo se reproduzca en cualquier navegador.</li>
+</ol>
+<div class="callout">
+  <p><strong>¿A mano o con el guion?</strong> A mano se aprende qué hace cada paso y se decide la vista; el guion repite exactamente la misma vista en cada corrida, que es lo que hace falta para comparar modelos. Las animaciones del 2.4 se hicieron con el guion.</p>
+</div>
+
+    </section>
+    <section id="case-es">
+      <p class="section-label">El caso</p>
+      <h2>Las funciones y los dos guiones</h2>
+
+<p>La parte de <code>system/functions</code> que hace la animación:</p>
+<pre class="code"><code>// Para la animación (tutorial 2.5): de t = 30 a 40, cada 20 pasos (≈ 0.025 c/U), el plano medio de la envergadura con
+// U, p, la vorticidad y Q, y las isosuperficies Q = 5 y 20 (U/c)², en VTK (postProcessing/animacion/&lt;t&gt;/).
+vorticidad
+{
+    type            vorticity;
+    libs            (&quot;libfieldFunctionObjects.so&quot;);
+    startTime       30;
+    endTime         40;
+    executeControl  timeStep;
+    executeInterval 20;
+    writeControl    writeTime;
+}
+Q
+{
+    type            Q;
+    libs            (&quot;libfieldFunctionObjects.so&quot;);
+    startTime       30;
+    endTime         40;
+    executeControl  timeStep;
+    executeInterval 20;
+    writeControl    writeTime;
+}
+animacion
+{
+    type            surfaces;
+    libs            (&quot;libsampling.so&quot;);
+    startTime       30;
+    endTime         40;
+    writeControl    timeStep;
+    writeInterval   20;
+    surfaceFormat   vtk;
+    writeFormat     binary;
+    interpolationScheme cellPoint;
+    fields          (U p vorticity Q);
+    surfaces
+    (
+        planoMedio
+        {
+            type        cutPlane;
+            planeType   pointAndNormal;
+            point       (0 0 0.5);
+            normal      (0 0 1);
+            interpolate true;
+        }
+        remolinos               // Q = 5: también los remolinos chicos de la estela 3D
+        {
+            type        isoSurface;
+            isoField    Q;
+            isoValue    5;
+            interpolate true;
+        }
+        remolinosFuertes        // Q = 20: sólo los grandes (scripts/calibrar_q.py con el DDES a t = 5)
+        {
+            type        isoSurface;
+            isoField    Q;
+            isoValue    20;
+            interpolate true;
+        }
+    );
+}</code></pre>
+<p><code>vorticidad</code> y <code>Q</code> calculan los campos <code>vorticity</code> y <code>Q</code> cada 20 pasos, de t = 30 a 40 (<code>startTime</code>, <code>endTime</code>); <code>writeControl writeTime</code> hace que, como campos completos, sólo se escriban con los tiempos normales. <code>animacion</code> es una función <code>surfaces</code>: cada 20 pasos corta el plano medio de la envergadura y saca las isosuperficies \(Q\) = 5 y 20, con U, p, la vorticidad y Q interpoladas a sus puntos (<code>cellPoint</code>), y las escribe en VTK binario en <code>postProcessing/animacion/&lt;t&gt;/</code>. Las dos primeras calculan, cada 20 pasos, los campos que usa la tercera en esos mismos pasos, y van antes que ella en el archivo.</p>
+<p>El guion <code>serie</code> escribe los archivos que ParaView abre como una serie:</p>
+<p class="code-name"><code>serie</code></p>
+<pre class="code"><code>#!/bin/sh
+# Une los cuadros de la animación en series que ParaView abre de una vez. La función `animacion` (system/functions)
+# guarda cada cuadro en su propia carpeta, postProcessing/animacion/&lt;t&gt;/, y ParaView no agrupa archivos de carpetas
+# distintas: este guion escribe, junto a ellas, un archivo .vtk.series por superficie, con el nombre y el tiempo de
+# cada cuadro.
+#
+#   ./serie        → postProcessing/animacion/planoMedio.vtk.series, remolinos.vtk.series, remolinosFuertes.vtk.series
+cd ${0%/*}/postProcessing/animacion 2&gt;/dev/null || { echo &quot;No existe postProcessing/animacion: ¿ya pasó t = 30?&quot;; exit 1; }
+for sup in planoMedio remolinos remolinosFuertes; do
+    ls -d [0-9]* | sort -g | awk -v s=$sup &#x27;
+        BEGIN { printf &quot;{\n  \&quot;file-series-version\&quot; : \&quot;1.0\&quot;,\n  \&quot;files\&quot; : [\n&quot; }
+        { printf &quot;%s    { \&quot;name\&quot; : \&quot;%s/%s.vtk\&quot;, \&quot;time\&quot; : %s }&quot;, (NR &gt; 1 ? &quot;,\n&quot; : &quot;&quot;), $1, s, $1 }
+        END { printf &quot;\n  ]\n}\n&quot;; print s &quot;.vtk.series: &quot; NR &quot; cuadros&quot; &gt; &quot;/dev/stderr&quot; }&#x27; &gt; $sup.vtk.series
+done</code></pre>
+<p>y la salida, en la prueba de esta guía:</p>
+<pre class="code"><code>planoMedio.vtk.series: 377 cuadros
+remolinos.vtk.series: 377 cuadros
+remolinosFuertes.vtk.series: 377 cuadros</code></pre>
+<p>Un <code>.vtk.series</code> es un texto con la lista de archivos y sus tiempos, en el formato JSON de las series de ParaView:</p>
+<pre class="code"><code>{
+  &quot;file-series-version&quot; : &quot;1.0&quot;,
+  &quot;files&quot; : [
+    { &quot;name&quot; : &quot;30.008996/planoMedio.vtk&quot;, &quot;time&quot; : 30.008996 },
+    { &quot;name&quot; : &quot;30.039008/planoMedio.vtk&quot;, &quot;time&quot; : 30.039008 },
+    { &quot;name&quot; : &quot;30.069063/planoMedio.vtk&quot;, &quot;time&quot; : 30.069063 },
+    …</code></pre>
+<p>El guion <code>animacion.py</code> es el que hizo las animaciones del 2.4: abre la serie de una superficie y el parche del perfil (del propio caso), fija la vista, el rango y la barra de colores, y guarda una imagen por tiempo. Se corre con <code>pvbatch</code>, el ParaView sin ventana:</p>
+<p class="code-name"><code>animacion.py</code></p>
+<pre class="code"><code># -*- coding: utf-8 -*-
+&quot;&quot;&quot;
+Cuadros de la animación del perfil en pérdida (tutorial 2.5), a partir de las superficies que la función `animacion`
+de system/functions guarda cada 20 pasos de t = 30 a 40 (postProcessing/animacion/&lt;t&gt;/): el perfil (parche airfoil,
+del propio caso) en gris y, según la vista,
+
+    vorticidad   el plano medio de la envergadura coloreado por la vorticidad ω_z, visto de frente (proyección paralela)
+    remolinos    la isosuperficie Q coloreada por |U|, en perspectiva
+
+Un PNG por tiempo (f000.png, f001.png…); se unen con ffmpeg.
+
+    pvbatch animacion_perfil.py &lt;caso&gt; &lt;carpeta de salida&gt; &lt;rótulo&gt; &lt;vista&gt; [cada]
+
+[cada]: usar uno de cada n tiempos (1 por omisión).
+&quot;&quot;&quot;
+import os
+import sys
+
+import paraview.simple
+from paraview.simple import *  # noqa: F401,F403
+
+paraview.simple._DisableFirstRenderCameraReset()
+
+caso, out, rotulo, vista = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
+cada = int(sys.argv[5]) if len(sys.argv) &gt; 5 else 1
+os.makedirs(out, exist_ok=True)
+carpeta = os.path.join(caso, &quot;postProcessing&quot;, &quot;animacion&quot;)
+tiempos = sorted((d for d in os.listdir(carpeta) if os.path.isdir(os.path.join(carpeta, d))), key=float)[::cada]
+superficie = &quot;remolinos.vtk&quot; if vista == &quot;remolinos&quot; else &quot;planoMedio.vtk&quot;
+open(os.path.join(caso, &quot;caso.foam&quot;), &quot;a&quot;).close()
+
+datos = LegacyVTKReader(FileNames=[os.path.join(carpeta, tiempos[0], superficie)])
+if vista == &quot;remolinos&quot;:
+    fuente = GenerateSurfaceNormals(Input=datos)  # sombreado suave: sin normales, los triángulos se ven facetados
+else:
+    fuente = Clip(Input=datos)                  # el plano sólo alrededor del perfil y su estela
+    fuente.ClipType = &quot;Box&quot;
+    fuente.ClipType.Position = [-1.5, -2.0, -1]
+    fuente.ClipType.Length = [9.5, 4.0, 3]
+    fuente.Invert = 1
+    fuente.Crinkleclip = 0
+    try:
+        fuente.Exact = 1
+    except AttributeError:
+        pass
+
+r = OpenFOAMReader(FileName=caso + &quot;/caso.foam&quot;)
+r.CaseType = &quot;Decomposed Case&quot; if os.path.isdir(os.path.join(caso, &quot;processor0&quot;)) else &quot;Reconstructed Case&quot;
+r.MeshRegions = [&quot;patch/airfoil&quot;]
+r.CellArrays = []
+r.UpdatePipelineInformation()
+if vista == &quot;remolinos&quot;:
+    perfil = r
+else:                                           # visto de frente, el parche del perfil es una línea: se rellena el
+    corte = Slice(Input=r)                      # contorno en el plano medio
+    corte.SliceType = &quot;Plane&quot;
+    corte.SliceType.Origin = [0, 0, 0.5]
+    corte.SliceType.Normal = [0, 0, 1]
+    perfil = Delaunay2D(Input=corte)
+
+v = CreateView(&quot;RenderView&quot;)
+v.ViewSize = [1600, 720]
+v.Background = [1, 1, 1]
+try:
+    v.UseColorPaletteForBackground = 0
+except AttributeError:
+    pass
+v.OrientationAxesVisibility = 0
+
+df = Show(fuente, v)
+if vista == &quot;remolinos&quot;:
+    ColorBy(df, (&quot;POINTS&quot;, &quot;U&quot;, &quot;Magnitude&quot;))
+    lut = GetColorTransferFunction(&quot;U&quot;)
+    lut.ApplyPreset(&quot;Turbo&quot;, True)
+    lut.RescaleTransferFunction(0.0, 2.0)
+    titulo = &quot;|U| / U&quot;
+else:
+    ColorBy(df, (&quot;POINTS&quot;, &quot;vorticity&quot;, &quot;Z&quot;))
+    lut = GetColorTransferFunction(&quot;vorticity&quot;)
+    lut.ApplyPreset(&quot;Cool to Warm&quot;, True)
+    lut.RescaleTransferFunction(-5.0, 5.0)      # la estela: ±20 sólo deja ver las capas junto al perfil
+    titulo = &quot;vorticidad z (U/c)&quot;               # la fuente de ParaView no tiene ω
+    df.Ambient = 1.0                            # sin sombreado: los colores del mapa tal cual
+    df.Diffuse = 0.0
+lut.AutomaticRescaleRangeMode = &quot;Never&quot;
+df.SetScalarBarVisibility(v, True)
+barra = GetScalarBar(lut, v)
+barra.Title = titulo
+barra.ComponentTitle = &quot;&quot;
+barra.TitleColor = barra.LabelColor = [0, 0, 0]
+barra.RangeLabelFormat = &quot;%.0f&quot;
+dp = Show(perfil, v)
+dp.ColorArrayName = [&quot;POINTS&quot;, &quot;&quot;]             # color sólido (ColorBy(dp, None) falla sin arreglos en el lector)
+dp.DiffuseColor = [0.35, 0.36, 0.40]
+dp.Specular = 0.3
+texto = Text()
+dt = Show(texto, v)
+dt.Color = [0, 0, 0]
+dt.FontSize = 24
+dt.WindowLocation = &quot;Upper Left Corner&quot;
+
+if vista == &quot;remolinos&quot;:
+    v.CameraParallelProjection = 0
+    v.CameraPosition = [-0.8, 1.9, 6.6]         # más de lado que en calibrar_q.py: desde arriba, la estela del DDES
+    v.CameraFocalPoint = [2.8, 0.1, 0.5]       # sube en la imagen y se salía del cuadro
+    v.CameraViewUp = [0, 1, 0]
+    v.CameraViewAngle = 30
+else:
+    v.CameraParallelProjection = 1
+    v.CameraPosition = [3.0, -0.2, 20]
+    v.CameraFocalPoint = [3.0, -0.2, 0.5]
+    v.CameraViewUp = [0, 1, 0]
+    v.CameraParallelScale = 1.9
+
+for i, t in enumerate(tiempos):
+    datos.FileNames = [os.path.join(carpeta, t, superficie)]
+    texto.Text = &quot;%s   t = %.2f c/U&quot; % (rotulo, float(t))
+    Render(v)
+    SaveScreenshot(os.path.join(out, &quot;f%03d.png&quot; % i), v)
+print(&quot;cuadros:&quot;, len(tiempos))</code></pre>
+
+    </section>
+    <section id="check-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>Un modelo a mano, tres con un guion</h2>
+
+<p class="lead">Enunciado: hacer la animación de la vorticidad del URANS 2D a mano, con ParaView, y las de los tres cálculos 3D del 2.4 con el guion; revisar cuánto ocupan y cuánto tardan.</p>
+<h3>1. El URANS 2D, a mano</h3>
+<p>La corrida de prueba guardó 377 cuadros, de t = 30.01 a 39.98, que ocupan 1.1 GB. ParaView los convirtió en un vídeo de 12.6 s (figura 7) en unos 30 s. Se ve la calle de remolinos de von Kármán: de cada borde se desprende un remolino por periodo, alternados, y la corriente se los lleva; corriente abajo se van difundiendo.</p>
+<h3>2. Los tres cálculos 3D, con el guion</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Corrida</th><th>Cuadros</th><th>De t a t</th><th>Plano medio (s)</th><th>Remolinos (s)</th></tr></thead>
+    <tbody>
+      <tr><td>URANS 3D</td><td>378</td><td>30.02 a 39.98</td><td>52</td><td>38</td></tr>
+      <tr><td>DDES</td><td>418</td><td>30.01 a 39.99</td><td>66</td><td>121</td></tr>
+      <tr><td>LES</td><td>374</td><td>30.00 a 39.97</td><td>73</td><td>128</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Las animaciones del 2.4, con el guion.</b> <code>pvbatch animacion.py</code> sobre cada corrida, una vez por vista, en la laptop de la serie (sin otra corrida en marcha).</caption>
+  </table>
+</div>
+<p>El guion tardó de 38 a 128 s por vista y por corrida (tabla 2). En el DDES y el LES, la vista de los remolinos tarda casi el doble que la del plano, porque sus isosuperficies pesan más; en el URANS es la más rápida, porque sus remolinos casi no pasan de \(Q\) = 5. Los tres vídeos de cada vista se pusieron uno sobre otro con ffmpeg (la animación de la vorticidad del 2.4 y la figura 8). Como los cuadros de cada corrida están cada 20 pasos y el paso de tiempo es distinto en cada una, los tres vídeos tienen distinto número de cuadros; para que avancen juntos, cada uno entra con la cadencia que le da a sus 10 c/U los mismos 13 s.</p>
+<figure class="diagram">
+  <video src="imagenes/t25-07_animacion_remolinos.mp4" aria-label="Animación de los remolinos del criterio Q con URANS 3D, DDES y LES" autoplay loop muted playsinline preload="auto" style="display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:white"></video>
+  <figcaption><b class="fig-num">Figura 8.</b> <b class="fig-title">Los remolinos de los tres cálculos 3D.</b> La isosuperficie \(Q\) = 5 \((U_\infty/c)^2\) coloreada por |U|, de t = 30 a 40, hecha con <code>animacion.py</code>; URANS 3D arriba, DDES en medio y LES abajo.</figcaption>
+</figure>
+<p>Con \(Q\) = 5, el URANS sólo muestra los rodillos junto al perfil: corriente abajo, su viscosidad turbulenta difunde los remolinos por debajo de ese valor. No es un defecto de la animación sino de la física del modelo, y es lo que la animación debe enseñar. En el DDES y el LES, la estela es un enjambre de tubos que cambian a lo largo de la envergadura.</p>
+<div class="result-box">
+  <p><strong>Resultado:</strong> una animación de un cálculo transitorio se planea antes de correrlo: qué superficies, cada cuántos pasos (aquí, unos 190 cuadros por periodo) y cuánto disco (1.1 GB en 2D, 7.2 GB en 3D, contra 43 GB si se guardaran los campos completos). Con el rango de colores fijo, ParaView lo convierte en un vídeo a mano en un par de minutos, y un guion de <code>pvbatch</code> repite la misma vista en todas las corridas.</p>
+</div>
+
+    </section>
+    <section id="errors-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Cuando el vídeo no muestra nada</h2>
+
+<p>Los siete salieron al preparar esta guía.</p>
+<h3>1. El rango automático</h3>
+<p>Al colorear por la vorticidad, ParaView toma el rango de los datos del cuadro actual. Los extremos están en las capas límite del perfil: en el plano medio del URANS 2D, de −3669 a 1879 \(U_\infty/c\) en el primer cuadro, y de −3219 a 2396 en el DDES. La estela, entre ±5, queda en el color del cero, y el vídeo parece vacío (figura 3). <strong>Remedio:</strong> el rango fijo, a mano (paso 6 de la receta).</p>
+<h3>2. El rango que vuelve a abrirse</h3>
+<p>Con <em>Rescale</em> a secas, el rango queda en ±5 y la estela se ve; pero al aplicar el filtro siguiente (aquí, <em>Annotate Time Filter</em>), ParaView vuelve a abrirlo a todo lo que hay en los datos, porque por omisión reajusta el mapa de colores con cada <em>Apply</em> (figura 9). <strong>Remedio:</strong> <em>Rescale and disable automatic rescaling</em>, que fija el rango y apaga el reajuste. Tampoco conviene la opción de reajustarlo en cada cuadro: los colores cambiarían de significado durante el vídeo.</p>
+<figure class="diagram">
+  <img src="imagenes/t25-08_rango_crece.png" alt="ParaView con el rango de la vorticidad abierto otra vez tras aplicar Annotate Time Filter" loading="lazy">
+  <figcaption><b class="fig-num">Figura 9.</b> <b class="fig-title">El rango que vuelve a abrirse.</b> La primera vuelta del ensayo: el rango se fijó con <em>Rescale</em> a secas y la estela se veía; al aplicar <em>Annotate Time Filter</em>, la barra de colores volvió a ir de −3 700 a 1 900 y el plano, a un solo color (todavía sin acercar la cámara).</figcaption>
+</figure>
+<h3>3. paraview con un archivo, en la terminal de blueCFD</h3>
+<p>Escribir <code>paraview postProcessing/animacion/planoMedio.vtk.series</code>, con o sin &amp; al final, o la forma con <code>--data=</code>, da</p>
+<pre class="code"><code>$ paraview postProcessing/animacion/planoMedio.vtk.series
+bash: syntax error near unexpected token `postProcessing/animacion/planoMedio.vtk.series&#x27;</code></pre>
+<p>En la terminal de blueCFD-Core, <code>paraview</code> no es el programa sino un alias que lo corre en un subshell: <code>type paraview</code> responde</p>
+<pre class="code"><code>$ type paraview
+paraview is aliased to `(export PATH=/bin:/usr/bin:/usr/local/bin:$ParaView_DIR/bin; paraview)&#x27;</code></pre>
+<p>y lo que se escribe después del alias queda fuera del paréntesis, donde bash no lo espera. <strong>Remedio:</strong> <code>paraview &amp;</code> sin argumentos y la serie con <em>File ▸ Open</em>, como en la receta.</p>
+<h3>4. Un cuadro por segundo</h3>
+<p><em>Save Animation</em> propone <em>Frame Rate</em> 1. Si no se cambia, los 377 cuadros duran 377 s: en el ensayo de esta guía, así salió el primer vídeo, de más de seis minutos y a saltos. <strong>Remedio:</strong> 30 cuadros por segundo.</p>
+<h3>5. Una función que no se relee</h3>
+<p>OpenFOAM vuelve a leer <code>system/functions</code> cuando cambia, aun con la corrida en marcha, y así se le agregó la animación al DDES del 2.4 cuando ya llevaba horas de cálculo. Pero al corregir después esa entrada, cuya ventana todavía no empezaba (<code>startTime 30</code>), el cambio no se aplicó: la función siguió con su diccionario anterior. OpenFOAM 12 sólo le pasa el diccionario nuevo a una función activa, dentro de su ventana de tiempo. El registro del DDES lo deja ver:</p>
+<pre class="code"><code>regIOobject::readIfModified() : 
+    Re-reading object functions from file &quot;…/ddes/system/functions&quot;
+Reading surface description:
+    planoMedio
+    remolinos
+
+Courant Number mean: 0.0036449011 max: 0.90088058
+deltaT = 0.0014033554
+Time = 2.347658s
+----
+regIOobject::readIfModified() : 
+    Re-reading object functions from file &quot;…/ddes/system/functions&quot;
+Courant Number mean: 0.003301584 max: 0.89907728
+deltaT = 0.0012535747
+Time = 5.039605s
+----
+regIOobject::readIfModified() : 
+    Re-reading object functions from file &quot;…/ddes/system/functions&quot;
+Courant Number mean: 0.0033714582 max: 0.899336
+deltaT = 0.0012795079
+Time = 5.066218s
+----
+regIOobject::readIfModified() : 
+    Re-reading object functions from file &quot;…/ddes/system/functions&quot;
+Reading surface description:
+    planoMedio
+    remolinos
+    remolinosFuertes
+
+Courant Number mean: 0.0034346421 max: 0.89934385
+deltaT = 0.0013035881
+Time = 5.099812s</code></pre>
+<p>En t = 2.35 la función se agrega y se construye con dos superficies. En t = 5.04 se le agrega la tercera (<code>remolinosFuertes</code>): OpenFOAM relee el archivo, pero no vuelve a leer la descripción de las superficies. En t = 5.07 se quita la entrada y en t = 5.10 se vuelve a poner: se construye de nuevo, ahora con las tres. <strong>Remedio:</strong> para cambiar una función que todavía no empieza, quitarla, esperar a que el registro diga que releyó el archivo, y volver a ponerla; y comprobar en el registro que la lista de superficies es la nueva. Ojo en Windows: copiar el archivo corregido encima del de la corrida con <code>Copy-Item</code> de PowerShell conserva la fecha del original, y OpenFOAM, que decide por la fecha, no ve el cambio; <code>cp</code> en la terminal de blueCFD pone la fecha actual.</p>
+<h3>6. El disco</h3>
+<p>Cada corrida 3D del 2.4 guardó 7.2 GB de superficies; las tres, más de 20 GB. La isosuperficie \(Q\) = 5 es la que más pesa (9.2 MB por cuadro, contra 2.8 del plano). <strong>Remedio:</strong> hacer la cuenta antes (tabla 1), guardar sólo la ventana que se va a animar, y en una prueba corta medir lo que pesa un cuadro.</p>
+<h3>7. La cámara del guion</h3>
+<p>La primera vista de los remolinos de <code>animacion.py</code> miraba el perfil desde arriba y de lado. Como la estela se aleja de la cámara, en perspectiva sube en la imagen, y en el DDES se salía por la parte de arriba del cuadro. Alejar la cámara no lo arregló: la estela seguía subiendo, sólo más chica. <strong>Remedio:</strong> bajar la altura de la cámara, para verla más de lado; la estela queda horizontal. Conviene probar la vista en tres o cuatro cuadros repartidos en la ventana (<code>pvbatch animacion.py … remolinos 100</code> usa uno de cada cien) antes de dibujar todos. En la vista de frente, además, el parche del perfil se ve de canto, como una línea, y desaparece: el guion lo corta en el plano medio (<em>Slice</em>) y rellena el contorno con <em>Delaunay2D</em>.</p>
+
+    </section>
+    <section id="practice-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>La presión en lugar de la vorticidad</h2>
+
+<p class="lead">La presión en lugar de la vorticidad.</p>
+<div class="example">
+  <p><strong>Enunciado.</strong> Con la serie del plano medio del URANS 2D, hacer dos animaciones más, una de la presión <code>p</code> y otra de la magnitud de la velocidad, y decidir cuál de las tres variables muestra mejor los remolinos.</p>
+  <p><strong>Condiciones.</strong> La misma serie y la misma cámara de esta guía; el rango de cada variable se elige mirando dos o tres cuadros, y se fija.</p>
+</div>
+<h3>El procedimiento, en corto</h3>
+<ol>
+  <li>En ParaView, con la serie abierta, colorear por <code>p</code>; avanzar a dos o tres tiempos y anotar el rango que cubre la estela.</li>
+  <li>Fijarlo con <em>Rescale to Custom Data Range</em> y <em>Rescale and disable automatic rescaling</em>, y guardar la animación (<em>File ▸ Save Animation…</em>, con <em>Frame Rate</em> 30).</li>
+  <li>Lo mismo con <code>U</code>, <em>Magnitude</em>.</li>
+</ol>
+<h3>Registro de resultados</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Variable</th><th>Rango fijo</th><th>¿Se distinguen los remolinos?</th><th>¿Se distingue la capa que se desprende?</th></tr></thead>
+    <tbody>
+      <tr><td><code>vorticity</code> Z</td><td>−5 a 5 \(U_\infty/c\)</td><td>sí</td><td>sí</td></tr>
+      <tr><td><code>p</code></td><td></td><td></td><td></td></tr>
+      <tr><td><code>U</code> (magnitud)</td><td></td><td></td><td></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">Registro de la práctica.</b> El primer renglón es el de esta guía.</caption>
+  </table>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>¿En qué variable el centro de un remolino se distingue mejor de lo que lo rodea? ¿Por qué el centro de un remolino es una zona de presión baja?</li>
+  <li>¿Cuál de las tres variables se puede usar con la misma escala en el URANS, el DDES y el LES?</li>
+  <li>Con la ecuación (1), ¿cada cuántos pasos habría que guardar para tener 20 cuadros por periodo? ¿Cuánto disco se ahorraría en 3D?</li>
+</ol>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ul class="references">
+  <li>Hunt, J. C. R., Wray, A. A. y Moin, P. (1988). Eddies, streams, and convergence zones in turbulent flows. En <em>Studying Turbulence Using Numerical Simulation Databases II</em> (Report CTR-S88, pp. 193–208). Center for Turbulence Research.</li>
+  <li>Jeong, J. y Hussain, F. (1995). On the identification of a vortex. <em>Journal of Fluid Mechanics, 285</em>, 69–94.</li>
+  <li>Kitware. (2023). <em>ParaView documentation</em>, versión 5.11 (lectura de series de archivos y guardado de animaciones). https://docs.paraview.org</li>
+  <li>OpenFOAM Foundation. (2024). <em>OpenFOAM 12</em>, funciones <code>surfaces</code>, <code>vorticity</code> y <code>Q</code> (<code>etc/caseDicts/functions</code>). https://openfoam.org</li>
+</ul>
+<p class="source-note">La corrida de prueba es el URANS 2D del caso descargable del 2.4, corrido tal cual el 6 de noviembre de 2026; las corridas 3D, las del 2.4. Las capturas son del ensayo del vídeo, en la misma computadora, con ParaView 5.11.2 de blueCFD-Core 2024.</p>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="perfil-perdida.html?v=13"><span>Tutorial anterior</span>← 2.4 · El perfil en pérdida: URANS, DDES y LES</a>
+      <a class="next-link" href="jimny-caso.html?v=13"><span>Tutorial siguiente</span>3.1 · Del motorBikeSteady al Jimny →</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Eine instationäre Rechnung speichern lassen, was eine Animation braucht, im richtigen Abstand und Umfang; sie in ParaView als Zeitreihe öffnen; den Farbbereich festlegen; die Animation von Hand und mit einem Skript als Video speichern.</p>
+    </section>
+    <section id="problem-de">
+      <p class="section-label">Das Problem</p>
+      <h2>Fünf Sehnen zwischen zwei Bildern</h2>
+<p>Die Rechnungen aus Tutorial 2.4 schreiben die vollständigen Felder alle 5 Sehnen, einmal je Ablöseperiode: eine Animation daraus zeigte ein Bild je Wirbel. Der Nachlauf braucht etwa 190 Bilder je Periode.</p>
+    </section>
+    <section id="theory-de">
+      <p class="section-label">Die Theorie</p>
+      <h2>Wie oft, wie viel und was zeichnen</h2>
+<p>Abtastabstand gegen die Ablöseperiode; Wiedergabegeschwindigkeit; die Größe vollständiger Felder gegen Flächen; Wirbelstärke auf einer Ebene und das Q-Kriterium in 3D; warum der Farbbereich fest sein muss.</p>
+    </section>
+    <section id="recipe-de">
+      <p class="section-label">Schritt für Schritt</p>
+      <h2>Von der Rechnung zum Video</h2>
+<p>Die Funktionen vorticity, Q und surfaces sind schon im Fall aus 2.4; ./serie fasst die Bilder zu .vtk.series-Dateien zusammen; ParaView öffnet eine, färbt vorticity Z von −5 bis 5, blendet die Zeit ein und speichert die Animation als MP4; pvbatch animacion.py macht dasselbe ohne Fenster.</p>
+    </section>
+    <section id="case-de">
+      <p class="section-label">Der Fall</p>
+      <h2>Die Funktionen und die zwei Skripte</h2>
+<p>Der Animationsblock von system/functions, das Skript serie und das pvbatch-Skript animacion.py.</p>
+    </section>
+    <section id="check-de">
+      <p class="section-label">Durchgerechnetes Beispiel</p>
+      <h2>Ein Modell von Hand, drei mit einem Skript</h2>
+<p>Der 2D-URANS von Hand: 377 Bilder, 1085 MB, ein Video von 12,6 s. Die drei 3D-Rechnungen mit dem Skript: je etwa 400 Bilder, 7,2 GB Flächen je Rechnung, zwei bis drei Minuten pvbatch je Ansicht.</p>
+    </section>
+    <section id="errors-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Wenn das Video nichts zeigt</h2>
+<p>Der automatische Farbbereich (von der Wand bestimmt); eine Funktion, die außerhalb ihres Zeitfensters geändert wird, wird nicht neu gelesen; eine kopierte Datei behält ihr altes Datum; die Festplatte; eine Kamera von oben schiebt den Nachlauf aus dem Bild; ein Profil von der Kante gesehen.</p>
+    </section>
+    <section id="practice-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Druck statt Wirbelstärke</h2>
+<p>Druck und Geschwindigkeitsbetrag des 2D-URANS mit festen Bereichen animieren und entscheiden, welche Größe die Wirbel besser zeigt.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>Hunt, Wray und Moin (1988) zum Q-Kriterium; Jeong und Hussain (1995) zur Wirbelidentifikation; die Dokumentation von ParaView und OpenFOAM.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="perfil-perdida.html?v=13"><span>Vorheriges Tutorial</span>← 2.4 · Das abgerissene Profil: URANS, DDES und LES</a>
+      <a class="next-link" href="jimny-caso.html?v=13"><span>Nächstes Tutorial</span>3.1 · Vom motorBikeSteady zum Jimny →</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>

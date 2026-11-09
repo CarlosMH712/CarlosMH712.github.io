@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="OpenFOAM tutorial: the NACA 0012 at 45° and Re = 5·10⁵, fully stalled, computed four ways on the same mesh (URANS in 2D and 3D, Spalart-Allmaras DDES and WALE LES): time averages and their standard error, the shedding frequency, the wake and the vortices, the cost, and the lift and drag against the Sandia wind-tunnel data." />
+  <meta name="author" content="Carlos Alberto Molina Holguín" />
+  <meta name="theme-color" content="#071d33" />
+  <title>The Stalled Airfoil: URANS, DDES and LES | OpenFOAM Incompressible-Flow Tutorials</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="lecture.css?v=13" />
+  <script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],processEscapes:true},options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <script defer src="lecture.js?v=13"></script>
+</head>
+<body>
+<header class="site-header"><div class="container nav-wrap">
+  <a class="brand" href="../../index.html">Carlos Molina</a>
+  <button class="menu-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" aria-label="Main navigation"><a href="../../index.html" data-ui-key="home">Home</a><a href="index.html?v=13" data-ui-key="course">Tutorials</a><a href="../../index.html#tools" data-ui-key="tools">Computational tools</a></nav>
+  <div class="language-switcher" aria-label="Language selector"><button class="lang-button active" type="button" data-lang="en" aria-pressed="true">EN</button><button class="lang-button" type="button" data-lang="es" aria-pressed="false">ES</button><button class="lang-button" type="button" data-lang="de" aria-pressed="false">DE</button></div>
+</div></header>
+
+<section class="lecture-hero"><div class="container hero-inner">
+  <div data-language="en"><p class="eyebrow">OpenFOAM · Incompressible flow · Tutorial 2.4</p><h1>The stalled airfoil: URANS, DDES and LES</h1><p class="hero-copy">At 45° the flow leaves the NACA 0012 at both edges and the wake is a street of large eddies. The same case, computed four ways, shows what each turbulence treatment resolves, what it costs, and how far its lift and drag land from the wind tunnel.</p></div>
+  <div data-language="es" hidden><p class="eyebrow">OpenFOAM · Flujo incompresible · Tutorial 2.4</p><h1>El perfil en pérdida: URANS, DDES y LES</h1><p class="hero-copy">A 45° el flujo se desprende del NACA 0012 por los dos bordes y la estela es una calle de remolinos grandes. El mismo caso, calculado de cuatro maneras, muestra qué resuelve cada tratamiento de la turbulencia, cuánto cuesta y qué tan lejos del túnel de viento quedan su sustentación y su resistencia.</p></div>
+  <div data-language="de" hidden><p class="eyebrow">OpenFOAM · Inkompressible Strömung · Tutorial 2.4</p><h1>Das abgerissene Profil: URANS, DDES und LES</h1><p class="hero-copy">Bei 45° löst die Strömung an beiden Kanten des NACA 0012 ab, und der Nachlauf ist eine Straße großer Wirbel. Derselbe Fall, auf vier Arten gerechnet, zeigt, was jede Turbulenzbehandlung auflöst, was sie kostet und wie weit Auftrieb und Widerstand vom Windkanal entfernt liegen.</p></div>
+  <div class="hero-meta">
+    <span data-language="en">Estimated reading: 50 min (plus a quarter of an hour of computing in 2D and about a day per 3D model)</span><span data-language="es" hidden>Lectura estimada: 50 min (y un cuarto de hora de cálculo en 2D y alrededor de un día por modelo en 3D)</span><span data-language="de" hidden>Lesedauer: ca. 50 min (dazu eine Viertelstunde Rechenzeit in 2D und etwa einen Tag je 3D-Modell)</span>
+    <span data-language="en">Level: undergraduate</span><span data-language="es" hidden>Nivel: licenciatura</span><span data-language="de" hidden>Niveau: Bachelor</span>
+    <span data-language="en">Verified on OpenFOAM 12 (blueCFD-Core 2024), Gmsh 4.15.2 and ParaView 5.11.2</span><span data-language="es" hidden>Verificado en OpenFOAM 12 (blueCFD-Core 2024), Gmsh 4.15.2 y ParaView 5.11.2</span><span data-language="de" hidden>Geprüft mit OpenFOAM 12 (blueCFD-Core 2024), Gmsh 4.15.2 und ParaView 5.11.2</span>
+  </div>
+  <div class="button-row"><a class="button secondary" href="paraview-naca0012.html?v=13">← <span>2.3</span></a><a class="button primary" href="index.html?v=13"><span data-ui-key="back">Back to the series</span></a><a class="button secondary" href="https://youtu.be/K4kbJMbZDL0" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">Watch the video</span><span data-language="es" hidden>Ver el vídeo</span><span data-language="de" hidden>Video ansehen</span></a><a class="button secondary" href="https://youtu.be/3JCf7tEANoY" target="_blank" rel="noopener">▶&nbsp;<span data-language="en">The animations</span><span data-language="es" hidden>Las animaciones</span><span data-language="de" hidden>Die Animationen</span></a></div>
+</div></section>
+
+<main><div class="container lecture-shell">
+  <aside class="toc">
+    <h2 data-ui-key="contents">On this page</h2>
+    <div class="toc-links" data-language="en">
+      <a href="#objectives">Objectives</a><a href="#problem">The problem</a><a href="#theory">Theory</a><a href="#recipe">Recipe</a><a href="#case">The case</a><a href="#check">Check</a><a href="#errors">Common errors</a><a href="#practice">Suggested exercise</a><a href="#references">Sources</a>
+    </div>
+    <div class="toc-links" data-language="es" hidden>
+      <a href="#objectives-es">Objetivos</a><a href="#problem-es">El problema</a><a href="#theory-es">Teoría</a><a href="#recipe-es">Receta</a><a href="#case-es">El caso</a><a href="#check-es">Revisión</a><a href="#errors-es">Errores frecuentes</a><a href="#practice-es">Práctica sugerida</a><a href="#references-es">Fuentes</a>
+    </div>
+    <div class="toc-links" data-language="de" hidden>
+      <a href="#objectives-de">Lernziele</a><a href="#problem-de">Das Problem</a><a href="#theory-de">Theorie</a><a href="#recipe-de">Ablauf</a><a href="#case-de">Der Fall</a><a href="#check-de">Prüfung</a><a href="#errors-de">Häufige Fehler</a><a href="#practice-de">Übungsvorschlag</a><a href="#references-de">Quellen</a>
+    </div>
+  </aside>
+
+  <article class="lecture" data-language="en">
+    <section id="objectives">
+      <p class="section-label">Learning objectives</p>
+      <h2>What you should be able to do</h2>
+      <p class="pending-note"><strong>Full English translation in preparation.</strong> Each section below carries a summary of its content; the complete text, figures and tables are available in the Spanish version, which the ES button above selects.</p>
+<p>Explain what URANS, DDES and LES resolve and what they model; run the same transient case with each; average a fluctuating force coefficient in time and estimate its standard error; compare the four results with wind-tunnel data and with their cost.</p>
+    </section>
+    <section id="problem">
+      <p class="section-label">The problem</p>
+      <h2>An airfoil that behaves like a bluff body</h2>
+<p>At 45° the NACA 0012 is deep in stall: the flow separates at both edges and sheds a vortex street, like a flat plate. The Sandia data (Sheldahl and Klimas, 1981) give C_L = 1.085 and C_D = 1.075. Which turbulence treatment gets there?</p>
+    </section>
+    <section id="theory">
+      <p class="section-label">The theory</p>
+      <h2>Averaging, filtering and the hybrid</h2>
+<p>Averaged versus filtered equations; Spalart-Allmaras, the DDES length scale and the WALE subgrid model; why a URANS in 3D stays two-dimensional; the Strouhal number with the projected height; time averages, fluctuation and the standard error from blocks.</p>
+    </section>
+    <section id="recipe">
+      <p class="section-label">Step by step</p>
+      <h2>One case, four runs</h2>
+<p>One case, perfil-perdida, with ./Allrun urans2d|urans|ddes|les: Gmsh builds the 2D or the 3D mesh, the script picks the model and the schemes and runs foamRun up to t = 40 chords; ./promedios gives the averages and their standard error.</p>
+    </section>
+    <section id="case">
+      <p class="section-label">The case</p>
+      <h2>The mesh and the dictionaries</h2>
+<p>The mesh (43,141 cells in 2D, 1,380,512 in 3D, with a wall function), the three momentumTransport files, the two fvSchemes files, fvSolution, controlDict and the functions.</p>
+    </section>
+    <section id="check">
+      <p class="section-label">Worked example</p>
+      <h2>Four calculations against the wind tunnel</h2>
+<p>From t = 20 to 40: URANS 2D C_L 1.714, C_D 1.762; URANS 3D 1.713 and 1.763 (the same: the flow stays 2D); DDES 1.532 and 1.559; LES 1.179 and 1.193; tunnel 1.085 and 1.075. URANS overestimates drag by 64 %, DDES by 45 %, LES by 11 %. The 3D runs cost about a day each; the 2D URANS, 38 minutes.</p>
+    </section>
+    <section id="errors">
+      <p class="section-label">Common errors</p>
+      <h2>Six ways to waste a day of computing</h2>
+<p>Periodic span boundaries (ten times more pressure iterations); y⁺ ≈ 1 in a separated flow (a time step three times smaller); a sharp trailing edge; averaging from t = 0; averaging without the time-step weight; trusting two equal halves as a converged mean.</p>
+    </section>
+    <section id="practice">
+      <p class="section-label">Suggested exercise</p>
+      <h2>Five degrees either way</h2>
+<p>Run the 2D URANS at 40° and 50°, compare with the Sandia table and decide whether its error depends on the angle.</p>
+    </section>
+    <section id="references" class="references">
+      <p class="section-label">Sources</p>
+      <h2>References</h2>
+<p>Sheldahl and Klimas (1981) for the wind-tunnel data; Spalart and Allmaras (1994); Spalart et al. (2006) and Spalart (2009) on DES and DDES; Nicoud and Ducros (1999) on WALE; Fage and Johansen (1927) on the inclined plate; Shur, Spalart, Strelets and Travin (1999) for the idea of the case.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="paraview-naca0012.html?v=13"><span>Previous tutorial</span>← 2.3 · Post-processing the NACA 0012 in ParaView</a>
+      <a class="next-link" href="perfil-animacion.html?v=13"><span>Next tutorial</span>2.5 · Animating the stalled airfoil →</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="es" hidden>
+    <section id="objectives-es">
+      <p class="section-label">Objetivos de aprendizaje</p>
+      <h2>Qué se debe poder hacer al terminar</h2>
+
+<p class="lead">Los tutoriales <a href="perfil-naca0012.html">2.1</a> y <a href="polar-naca0012.html">2.2</a> calcularon el NACA 0012 con el flujo pegado, donde un cálculo estacionario con Spalart-Allmaras basta. Esta guía lo pone a 45°, en pérdida profunda, donde el flujo nunca se está quieto, y lo calcula de cuatro maneras sobre la misma malla.</p>
+<ul>
+  <li>Explicar qué resuelve y qué modela un URANS, un DDES y un LES.</li>
+  <li>Correr el mismo caso transitorio con cada uno, cambiando sólo el argumento del <code>Allrun</code>.</li>
+  <li>Promediar en el tiempo un coeficiente que oscila y estimar el error de su media.</li>
+  <li>Explicar por qué un URANS en 3D da lo mismo que en 2D.</li>
+  <li>Comparar los cuatro resultados con el túnel de viento y con lo que cuestan.</li>
+</ul>
+<div class="callout">
+  <p><strong>Qué hace falta.</strong> blueCFD-Core 2024 (OpenFOAM 12), Gmsh 4.15.2 en el <code>PATH</code> como en el tutorial <a href="perfil-naca0012.html">2.1</a>, y el caso <a href="archivos/perfil-perdida.zip"><code>perfil-perdida.zip</code></a>. El URANS 2D tarda 13 minutos con 4 núcleos; cada cálculo 3D, alrededor de un día con 8 núcleos (tabla 4). Las cifras de esta guía son de las cuatro corridas completas; quien no tenga un día de cómputo puede seguirla con el URANS 2D y los datos de aquí.</p>
+</div>
+
+    </section>
+    <section id="problem-es">
+      <p class="section-label">El problema</p>
+      <h2>Un perfil que se comporta como un cuerpo romo</h2>
+
+<p>Por debajo de la pérdida —en la polar del 2.2, hasta unos 16° a \(Re\) = 6·10⁶—, el NACA 0012 trabaja con el flujo pegado: la capa límite sigue la superficie y la estela es delgada. Pasada la pérdida, el flujo se desprende; a 45° se desprende desde los dos bordes, y el perfil se comporta como una placa inclinada: un cuerpo romo. Detrás de él se forma una calle de remolinos que se desprenden alternadamente de un borde y del otro, y la sustentación y la resistencia oscilan con ellos.</p>
+<p>Los perfiles en pérdida profunda no son una curiosidad: los álabes de un aerogenerador de eje vertical pasan por todos los ángulos en cada vuelta, y para diseñarlos se midieron los perfiles NACA de 0 a 180°. De esas mediciones, las de Sandia <a href="#references-es">(Sheldahl y Klimas, 1981)</a>, sale la referencia de esta guía: a 45°, \(C_L\) = 1.085 y \(C_D\) = 1.075. Se toma \(Re\) = 5·10⁵, la media de las tres del túnel; el informe advierte que, en pérdida profunda, sus datos casi no dependen de \(Re\) y que tienen dispersión.</p>
+<p>La pregunta: <strong>¿qué tratamiento de la turbulencia llega a esas cifras, y a qué precio?</strong> Es el caso con el que se presentó la simulación de remolinos separados <a href="#references-es">(Shur, Spalart, Strelets y Travin, 1999)</a>: un perfil a ángulos grandes, con una cuerda de envergadura.</p>
+
+    </section>
+    <section id="theory-es">
+      <p class="section-label">La teoría</p>
+      <h2>Promediar, filtrar y el híbrido</h2>
+
+<h3>Promediar o filtrar</h3>
+<p>Un URANS (<em>unsteady</em> RANS) resuelve las ecuaciones promediadas, como el RANS del 2.1, con la derivada en el tiempo. El modelo de turbulencia —aquí Spalart-Allmaras <a href="#references-es">(Spalart y Allmaras, 1994)</a>, el de los tutoriales 2.1 y 2.2— representa con una viscosidad turbulenta \(\nu_t\) el efecto de <em>todos</em> los remolinos. Lo que queda en el tiempo es sólo lo más lento y más grande: el desprendimiento alternado, como si fuera una oscilación del flujo medio.</p>
+<p>Un LES (<em>large-eddy simulation</em>) resuelve las ecuaciones filtradas: calcula los remolinos más grandes que el filtro, del tamaño de la celda,</p>
+<div class="equation-card">\[ \Delta = V_{celda}^{1/3} \tag{1} \]</div>
+<p>y modela sólo los más pequeños, con una viscosidad de submalla \(\nu_{sgs}\). El modelo de esta guía es WALE <a href="#references-es">(Nicoud y Ducros, 1999)</a>, que calcula \(\nu_{sgs}\) con el gradiente de la velocidad y la apaga sola donde el flujo sólo gira o sólo se corta, como junto a una pared. Un LES propiamente dicho pide resolver también los remolinos de la capa límite, con celdas de y⁺ ≈ 1 y muy finas a lo largo de la pared; esta malla no las tiene, y el LES de esta guía usa la misma función de pared que los otros cálculos. Es la comparación honesta de lo que pasa cuando se usa un LES donde la malla no le alcanza.</p>
+<p>Un DDES (<em>delayed detached-eddy simulation</em>) es el híbrido del tutorial <a href="jimny-ddes.html">3.7</a>: Spalart-Allmaras en la capa límite y LES lejos de la pared. El modelo compara la escala de la turbulencia con la de la malla, y donde la malla es más fina, baja su viscosidad y deja que el cálculo resuelva los remolinos <a href="#references-es">(Spalart et al., 2006; Spalart, 2009)</a>:</p>
+<div class="equation-card">\[ l_{DDES} = d - f_d\,\max\left(0,\; d - C_{DES}\,\Delta\right) \tag{2} \]</div>
+<p>donde \(d\) es la distancia a la pared (la escala de Spalart-Allmaras), \(C_{DES}\) = 0.65 y \(f_d\) vale 0 dentro de la capa límite (RANS) y 1 fuera de ella (LES).</p>
+<h3>Por qué un URANS en 3D se queda en 2D</h3>
+<p>El perfil, la corriente y las fronteras son iguales en toda la envergadura. Para que el flujo cambie a lo largo de ella, alguna perturbación tiene que crecer en esa dirección. En un LES o un DDES crecen: la viscosidad del modelo es chica y las capas que se desprenden se vuelven inestables en las tres direcciones. En un URANS, la viscosidad turbulenta es enorme —en la estela, miles de veces la del aire (punto 4 del ejemplo resuelto)— y amortigua cualquier perturbación más chica que los remolinos grandes. El flujo empieza siendo igual en toda la envergadura y lo sigue siendo: el URANS 3D es el 2D repetido 32 veces.</p>
+<h3>La frecuencia del desprendimiento</h3>
+<p>En un cuerpo romo, la frecuencia \(f\) de los remolinos se escribe sin dimensiones con el número de Strouhal. Para una placa inclinada, la longitud que lo hace casi constante es la altura que el perfil le presenta a la corriente, \(c\,\mathrm{sen}\,\alpha\) <a href="#references-es">(Fage y Johansen, 1927)</a>:</p>
+<div class="equation-card">\[ St = \frac{f\, c\,\mathrm{sen}\,\alpha}{U_\infty} \approx 0.15 \tag{3} \]</div>
+<p>Con \(c\) = 1 m y \(U_\infty\) = 1 m/s, el tiempo se mide en cuerdas recorridas (\(c/U_\infty\) = 1 s): la ecuación (3) predice \(f \approx\) 0.15/sen 45° = 0.21 \(U_\infty/c\), un remolino de cada lado cada unas cinco cuerdas.</p>
+<h3>Lo que se reporta de un cálculo transitorio</h3>
+<p>Los coeficientes se definen como en el 2.1, con el área de referencia de la envergadura calculada, \(A_{ref} = b\,c\) = 1 m² (en 2D, la capa de una cuerda de espesor):</p>
+<div class="equation-card">\[ C_L = \frac{L}{\tfrac12 \rho U_\infty^2\, b\, c}, \qquad C_D = \frac{D}{\tfrac12 \rho U_\infty^2\, b\, c} \tag{4} \]</div>
+<p>Como oscilan, se reporta su <strong>media en el tiempo</strong> a partir de que el flujo olvidó el arranque. El paso de tiempo cambia en cada paso (se ajusta para que el número de Courant no pase de 0.9), así que cada muestra pesa lo que dura su paso:</p>
+<div class="equation-card">\[ \overline{C_D} = \frac{1}{t_1 - t_0}\int_{t_0}^{t_1} C_D\,dt \approx \frac{\sum_i \tfrac12\left(C_{D,i} + C_{D,i+1}\right)\Delta t_i}{t_1 - t_0} \tag{5} \]</div>
+<p>La desviación estándar dice cuánto oscila el coeficiente, no qué tan bien se conoce su media. Para eso se parte el registro en \(N\) tramos de por lo menos un periodo, se promedia cada uno y se toma el error estándar de esas medias, como en el tutorial <a href="cd-incertidumbre.html">3.6</a>:</p>
+<div class="equation-card">\[ \varepsilon = \frac{s\left(\overline{C_D}^{(1)}, \dots, \overline{C_D}^{(N)}\right)}{\sqrt{N}} \tag{6} \]</div>
+
+    </section>
+    <section id="recipe-es">
+      <p class="section-label">Paso a paso</p>
+      <h2>Un caso, cuatro corridas</h2>
+
+<p>El caso <a href="archivos/perfil-perdida.zip"><code>perfil-perdida.zip</code></a> se descomprime en <code>$FOAM_RUN</code>. Trae el <code>.geo</code>, los diccionarios de los cuatro cálculos y dos guiones: <code>promedios</code> (esta guía) y <code>serie</code> (el tutorial 2.5). En la terminal de blueCFD-Core:</p>
+<ol>
+  <li><strong>Gmsh en el <code>PATH</code>:</strong> <code>export PATH="$PATH:/c/gmsh-4.15.2-Windows64"</code>, como en el 2.1.</li>
+  <li><strong>El URANS 2D.</strong> <code>cd $FOAM_RUN/perfil-perdida</code> y <code>./Allrun urans2d 4</code>. El <code>Allrun</code> hace la malla de una capa, cambia los parches, copia el modelo y los esquemas del URANS y corre <code>foamRun</code> en 4 procesos hasta t = 40. Responde con</li>
+</ol>
+<pre class="code"><code>$ ./Allrun urans2d 4
+Running gmshToFoam on …/perfil-perdida
+Running checkMesh on …/perfil-perdida
+Running decomposePar on …/perfil-perdida
+Running foamRun in parallel on …/perfil-perdida using 4 processes</code></pre>
+<ol start="3">
+  <li><strong>Vigilarlo</strong> desde otra terminal: <code>tail -f postProcessing/fuerzas/0/forceCoeffs.dat | cut -f 1-4</code> (el tiempo, \(C_m\), \(C_D\) y \(C_L\); el archivo trae seis columnas, demasiado anchas para la terminal), o <code>foamMonitor -l "postProcessing/residuals(p,U)"/*/residuals.dat</code> y <code>foamMonitor postProcessing/fuerzas/0/forceCoeffs.dat</code>. Los residuos no quedan en la carpeta <code>0</code>: la función empieza a escribir en el primer paso de tiempo y nombra la carpeta con él (<code>0.000895095</code> en la prueba), por eso el <code>*</code>. En la prueba de esta guía tardó 13 minutos.</li>
+  <li><strong>Los promedios:</strong> <code>./promedios</code> (de t = 20 a 40) y <code>./promedios 20 40 5</code> (además, los cuatro tramos de 5 c/U y el error estándar de la ecuación 6).</li>
+  <li><strong>Un cálculo 3D</strong> en una copia del caso, para no mezclar corridas: <code>cd $FOAM_RUN</code>, <code>cp -r perfil-perdida perdida-ddes</code>, <code>cd perdida-ddes</code> y <code>./Allrun ddes 8</code>. Lo mismo con <code>urans</code> y <code>les</code>. Cada uno tarda alrededor de un día con 8 núcleos, y conviene correrlos uno tras otro: dos a la vez se reparten los núcleos y cada uno tarda el doble. La terminal no se cierra mientras corre: cerrarla mata los procesos.</li>
+  <li><strong>Los promedios de cada cálculo 3D</strong>, igual que en el paso 4, en su carpeta.</li>
+</ol>
+<div class="callout">
+  <p><strong>¿Por qué 40 cuerdas?</strong> Las primeras 20 son el arranque: el flujo sale del reposo, el desprendimiento se forma y tarda en olvidar cómo empezó (error 4). Las otras 20 son cuatro periodos de desprendimiento, para los promedios. Con el URANS 2D se comprobó que alargar hasta 60 cuerdas cambia el promedio de \(C_D\) en 0.04 %.</p>
+</div>
+
+    </section>
+    <section id="case-es">
+      <p class="section-label">El caso</p>
+      <h2>La malla y los diccionarios</h2>
+
+<p>La malla la hace Gmsh con <code>perdida.geo</code>, como en los tutoriales <a href="perfil-naca0012.html">2.1</a> y 2.2.3 de Gmsh, pero con otra forma (tabla 1 y figura 1). El perfil se gira, no la corriente: el aire entra en \(+x\) y la estela queda dentro de dos cajas de celdas uniformes, que son la zona donde el DDES y el LES resuelven los remolinos.</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th></th><th>Valor</th></tr></thead>
+    <tbody>
+      <tr><td>Perfil</td><td>NACA 0012, cuerda \(c\) = 1 m, a \(\alpha\) = 45°; borde de salida cerrado con un semicírculo</td></tr>
+      <tr><td>Corriente</td><td>\(U_\infty\) = 1 m/s, \(\nu\) = 2·10⁻⁶ m²/s: \(Re\) = 5·10⁵; el tiempo se mide en cuerdas recorridas, \(c/U_\infty\) = 1 s</td></tr>
+      <tr><td>Dominio</td><td>de −15 c a +30 c en \(x\) y ±15 c en \(y\); envergadura de 1 c</td></tr>
+      <tr><td>Malla 2D (URANS 2D)</td><td>43 141 celdas, una capa con caras <code>empty</code></td></tr>
+      <tr><td>Malla 3D (URANS, DDES y LES)</td><td>1 380 512 celdas: la misma, extruida en 32 capas (Δz = 0.031 c), con caras <code>symmetry</code> en los extremos</td></tr>
+      <tr><td>Calidad (<code>checkMesh</code>)</td><td>no ortogonalidad máxima 36.7°, relación de aspecto máxima 39.9: <code>Mesh OK</code></td></tr>
+      <tr><td>Pared</td><td>primera celda de 10⁻³ c y <code>nutUSpaldingWallFunction</code>; y⁺ medido: promedio 13, máximo 37</td></tr>
+      <tr><td>Estela</td><td>dos cajas de celdas uniformes: 0.025 c hasta 4 c detrás del perfil y 0.06 c hasta 12 c</td></tr>
+      <tr><td>Paso de tiempo</td><td>ajustable con \(Co_{máx}\) = 0.9</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 1.</b> <b class="fig-title">El caso.</b> Las cifras de la malla son de <code>checkMesh</code>; el y⁺ es el que mide <code>foamPostProcess -func yPlus</code> en el último tiempo de la corrida (en la tabla, el del URANS 2D; el del DDES es casi igual).</caption>
+  </table>
+</div>
+<figure class="diagram">
+  <img src="imagenes/t24-01_malla.png" alt="La malla del perfil a 45 grados: las cajas de la estela y la capa junto al borde de ataque" loading="lazy">
+  <figcaption><b class="fig-num">Figura 1.</b> <b class="fig-title">La malla.</b> Arriba, el perfil girado 45° y las dos cajas de celdas uniformes que cubren la estela (la cercana, de 0.025 c, hasta 4 c detrás del perfil; la lejana, de 0.06 c, hasta 12 c). Abajo, el borde de ataque: la capa de cuadriláteros pegada a la pared, con la primera celda de 10⁻³ c. Es la malla 2D; la 3D la repite en 32 capas.</figcaption>
+</figure>
+<p>Dos decisiones de la malla vienen de errores de esta guía. La pared usa función de pared en lugar de resolver la capa límite (error 2), y los extremos de la envergadura son planos de simetría en lugar de caras periódicas (error 1). Con una cuerda de envergadura, la simetría impide que los remolinos crucen el extremo, pero deja que el flujo cambie a lo largo de la envergadura, que es lo que distingue al DDES y al LES del URANS.</p>
+<p>Lo que cambia entre los cuatro cálculos lo decide el <code>Allrun</code> (tabla 2):</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Cálculo</th><th><code>./Allrun …</code></th><th>Malla</th><th>Modelo</th><th>Esquema de U</th></tr></thead>
+    <tbody>
+      <tr><td>URANS 2D</td><td><code>urans2d 4</code></td><td>1 capa, <code>empty</code></td><td><code>SpalartAllmaras</code></td><td><code>linearUpwind</code></td></tr>
+      <tr><td>URANS 3D</td><td><code>urans 8</code></td><td>32 capas, <code>symmetry</code></td><td><code>SpalartAllmaras</code></td><td><code>linearUpwind</code></td></tr>
+      <tr><td>DDES</td><td><code>ddes 8</code></td><td>32 capas, <code>symmetry</code></td><td><code>SpalartAllmarasDDES</code></td><td><code>LUST</code></td></tr>
+      <tr><td>LES</td><td><code>les 8</code></td><td>32 capas, <code>symmetry</code></td><td><code>WALE</code></td><td><code>LUST</code></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 2.</b> <b class="fig-title">Los cuatro cálculos del mismo caso.</b> Lo que el <code>Allrun</code> cambia según su primer argumento. El resto —el perfil, la corriente, las fronteras, el algoritmo PIMPLE y las funciones— es igual en los cuatro.</caption>
+  </table>
+</div>
+<p class="code-name"><code>constant/momentumTransport.ddes</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    &quot;constant&quot;;
+    object      momentumTransport;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// DDES de Spalart-Allmaras: RANS junto a la pared, LES lejos de ella.
+
+simulationType  LES;
+
+LES
+{
+    model           SpalartAllmarasDDES;
+    delta           cubeRootVol;
+    cubeRootVolCoeffs
+    {
+        deltaCoeff  1;
+    }
+    turbulence      on;
+    printCoeffs     on;
+}
+
+// ************************************************************************* //</code></pre>
+<p>El LES es igual, con <code>model WALE;</code>; el URANS, <code>simulationType RAS;</code> con <code>SpalartAllmaras</code>. <code>cubeRootVol</code> es la \(\Delta\) de la ecuación (1).</p>
+<p class="code-name"><code>system/fvSchemes.les</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    &quot;system&quot;;
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// DDES y LES: LUST para U (75 % lineal, 25 % linearUpwind), poca disipación numérica (motorBike/lesFiles).
+
+ddtSchemes      { default backward; }
+gradSchemes     { default Gauss linear; }
+divSchemes
+{
+    default         none;
+    div(phi,U)      Gauss LUST grad(U);
+    div(phi,nuTilda) Gauss limitedLinear 1;
+    div((nuEff*dev2(T(grad(U))))) Gauss linear;
+}
+laplacianSchemes { default Gauss linear corrected; }
+interpolationSchemes { default linear; }
+snGradSchemes   { default corrected; }
+wallDist        { method meshWave; }
+
+// ************************************************************************* //</code></pre>
+<p><code>backward</code> es de segundo orden en el tiempo. <code>LUST</code> mezcla 75 % de interpolación lineal con 25 % de <code>linearUpwind</code>: el DDES y el LES necesitan poca disipación numérica, para que los esquemas no amortigüen los remolinos que el cálculo debe resolver. El URANS usa <code>linearUpwind</code> (<code>system/fvSchemes.urans</code>), como el 2.1.</p>
+<p class="code-name"><code>system/fvSolution</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    &quot;system&quot;;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          GAMG;
+        smoother        GaussSeidel;
+        tolerance       1e-6;
+        relTol          0.05;
+    }
+    pFinal
+    {
+        $p;
+        relTol          0;
+    }
+    &quot;nuTilda.*&quot;         // PBiCGStab: con la primera malla (y⁺ ≈ 1), smoothSolver se caía en el primer paso
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-7;
+        relTol          0;
+    }
+    &quot;U.*&quot;
+    {
+        solver          smoothSolver;
+        smoother        symGaussSeidel;
+        tolerance       1e-7;
+        relTol          0;
+    }
+}
+
+PIMPLE
+{
+    nOuterCorrectors 1;
+    nCorrectors     2;
+    nNonOrthogonalCorrectors 0;
+}
+
+// ************************************************************************* //</code></pre>
+<p>PIMPLE con una sola pasada y dos correcciones de presión por paso es el algoritmo PISO: con \(Co \le\) 0.9 no hace falta relajar ni iterar dentro del paso.</p>
+<p class="code-name"><code>system/controlDict</code></p>
+<pre class="code"><code>FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    &quot;system&quot;;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     foamRun;
+solver          incompressibleFluid;
+
+startFrom       latestTime;
+startTime       0;
+stopAt          endTime;
+endTime         40;             // 40 cuerdas recorridas: 20 de arranque y 20 para los promedios
+
+deltaT          1e-3;
+adjustTimeStep  yes;
+maxCo           0.9;
+maxDeltaT       0.02;
+
+writeControl    adjustableRunTime;
+writeInterval   5;
+purgeWrite      0;
+writeFormat     binary;
+writePrecision  8;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable true;
+
+// las funciones (fuerzas y promedios) están en system/functions, que OpenFOAM 12 lee por su cuenta
+
+// ************************************************************************* //</code></pre>
+<p><code>adjustTimeStep yes</code> con <code>maxCo 0.9</code>: OpenFOAM elige en cada paso el \(\Delta t\) más grande que no deja pasar de 0.9 al número de Courant, \(Co = |U|\Delta t/\Delta x\), en ninguna celda. La celda que manda es la más chica donde el aire va más rápido: la del borde de ataque o la del semicírculo del borde de salida.</p>
+<p>Las fuerzas y los promedios de los campos están en <code>system/functions</code>. La primera línea escribe \(C_L\), \(C_D\) y \(C_m\) (respecto a \(c/4\)) en cada paso, en <code>postProcessing/fuerzas/0/forceCoeffs.dat</code>; <code>promedios</code> acumula, desde t = 20, la media de U y p. El resto del archivo —la vorticidad, Q y las superficies de la animación— es el tema del <a href="perfil-animacion.html">2.5</a>.</p>
+
+    </section>
+    <section id="check-es">
+      <p class="section-label">Ejemplo resuelto</p>
+      <h2>Cuatro cálculos contra el túnel</h2>
+
+<p class="lead">Enunciado: con las cuatro corridas de 40 cuerdas, comparar con el túnel la sustentación y la resistencia medias, su oscilación y su frecuencia, y lo que cuesta cada una.</p>
+<h3>1. El arranque y la ventana de los promedios</h3>
+<figure class="diagram">
+<svg viewBox="0 0 900 360" role="img" aria-label="Coeficiente de sustentación del perfil a 45 grados en el tiempo con URANS 2D, URANS 3D, DDES y LES, y el valor del túnel; los promedios empiezan en t = 20.">
+  <text class="svg-title" x="76" y="28">La sustentación de los cuatro cálculos en el tiempo</text>
+  <line class="svg-grid" x1="76" y1="300.0" x2="846" y2="300.0"/>
+  <text class="svg-tick" x="70" y="304.0" text-anchor="end">0.6</text>
+  <line class="svg-grid" x1="76" y1="264.3" x2="846" y2="264.3"/>
+  <text class="svg-tick" x="70" y="268.3" text-anchor="end">1.0</text>
+  <line class="svg-grid" x1="76" y1="228.6" x2="846" y2="228.6"/>
+  <text class="svg-tick" x="70" y="232.6" text-anchor="end">1.4</text>
+  <line class="svg-grid" x1="76" y1="192.9" x2="846" y2="192.9"/>
+  <text class="svg-tick" x="70" y="196.9" text-anchor="end">1.8</text>
+  <line class="svg-grid" x1="76" y1="157.1" x2="846" y2="157.1"/>
+  <text class="svg-tick" x="70" y="161.1" text-anchor="end">2.2</text>
+  <line class="svg-grid" x1="76" y1="121.4" x2="846" y2="121.4"/>
+  <text class="svg-tick" x="70" y="125.4" text-anchor="end">2.6</text>
+  <line class="svg-grid" x1="76" y1="85.7" x2="846" y2="85.7"/>
+  <text class="svg-tick" x="70" y="89.7" text-anchor="end">3.0</text>
+  <line class="svg-grid" x1="76" y1="50.0" x2="846" y2="50.0"/>
+  <text class="svg-tick" x="70" y="54.0" text-anchor="end">3.4</text>
+  <text class="svg-tick" x="76.0" y="318" text-anchor="middle">0</text>
+  <text class="svg-tick" x="172.2" y="318" text-anchor="middle">5</text>
+  <text class="svg-tick" x="268.5" y="318" text-anchor="middle">10</text>
+  <text class="svg-tick" x="364.8" y="318" text-anchor="middle">15</text>
+  <text class="svg-tick" x="461.0" y="318" text-anchor="middle">20</text>
+  <text class="svg-tick" x="557.2" y="318" text-anchor="middle">25</text>
+  <text class="svg-tick" x="653.5" y="318" text-anchor="middle">30</text>
+  <text class="svg-tick" x="749.8" y="318" text-anchor="middle">35</text>
+  <text class="svg-tick" x="846.0" y="318" text-anchor="middle">40</text>
+  <line class="svg-axis" x1="76" y1="300" x2="846" y2="300"/>
+  <line class="svg-axis" x1="76" y1="50" x2="76" y2="300"/>
+  <text class="svg-note-sm" x="461.0" y="338" text-anchor="middle">t [c/U]</text>
+  <text class="svg-note-sm" x="20" y="175.0" transform="rotate(-90 20 175.0)" text-anchor="middle">CL</text>
+  <polyline points="76.2,100.8 76.5,132.3 76.9,141.4 77.5,144.5 78.2,139.6 78.9,135.7 79.6,133.9 80.3,134.4 81.1,135.6 81.9,136.3 82.7,137.3 83.5,137.7 84.3,137.7 85.2,137.4 86.1,137.7 87.0,138.3 87.9,138.8 88.8,139.4 89.7,140.0 90.7,140.7 91.7,141.3 92.6,141.7 93.6,142.1 94.6,142.7 95.7,143.4 96.7,144.2 97.7,145.1 98.8,145.9 99.8,146.7 100.9,147.6 102.0,148.6 103.1,149.6 104.2,150.7 105.4,151.9 106.5,153.3 107.7,154.8 108.9,156.5 110.1,158.5 111.3,160.7 112.5,163.1 113.7,165.7 115.0,168.6 116.2,171.8 117.5,175.3 118.8,179.1 120.1,183.1 121.4,187.3 122.6,191.7 123.9,196.2 125.1,200.9 126.4,205.7 127.6,210.8 128.8,216.1 130.0,221.8 131.3,228.1 132.5,235.1 133.7,242.6 134.8,249.9 136.0,256.2 137.0,261.2 138.1,264.4 139.1,265.9 140.0,266.0 140.9,265.0 141.8,263.3 142.7,261.1 143.6,258.7 144.4,256.2 145.3,253.8 146.1,251.5 147.0,249.4 147.8,247.5 148.7,245.7 149.5,244.2 150.4,242.9 151.3,241.7 152.2,240.7 153.1,239.9 154.0,239.2 154.9,238.6 155.9,238.2 156.9,237.8 157.8,237.5 158.8,237.3 159.9,237.1 160.9,236.9 162.0,236.7 163.1,236.5 164.2,236.2 165.3,235.8 166.5,235.2 167.7,234.5 168.9,233.5 170.1,232.2 171.4,230.6 172.7,228.7 174.0,226.3 175.3,223.6 176.6,220.5 177.8,217.1 179.1,213.5 180.3,209.7 181.5,205.8 182.8,201.9 184.0,198.1 185.2,194.3 186.3,190.7 187.5,187.4 188.7,184.3 189.9,181.4 191.1,178.8 192.2,176.5 193.4,174.4 194.6,172.6 195.8,171.1 197.0,169.8 198.1,169.0 199.3,168.5 200.6,168.5 201.8,168.9 203.0,169.7 204.2,170.9 205.5,172.6 206.7,174.8 208.0,177.3 209.2,180.2 210.4,183.3 211.5,186.7 212.6,190.2 213.7,193.9 214.8,197.6 215.8,201.3 216.8,204.8 217.8,208.0 218.7,210.7 219.7,212.9 220.5,214.5 221.4,215.5 222.3,216.2 223.1,216.5 223.9,216.6 224.7,216.7 225.5,216.9 226.3,217.0 227.1,217.3 227.9,217.7 228.7,218.1 229.4,218.5 230.2,219.1 231.0,219.5 231.8,220.0 232.6,220.5 233.4,221.0 234.2,221.5 235.0,222.0 235.9,222.5 236.7,223.0 237.5,223.4 238.4,223.9 239.2,224.4 240.1,224.9 240.9,225.5 241.8,226.0 242.7,226.6 243.6,227.1 244.5,227.7 245.4,228.3 246.4,228.9 247.3,229.5 248.3,230.0 249.3,230.6 250.3,231.1 251.3,231.7 252.3,232.2 253.4,232.8 254.4,233.2 255.5,233.6 256.6,233.8 257.8,234.0 258.9,234.0 260.1,234.0 261.3,233.7 262.5,233.2 263.8,232.4 265.0,231.3 266.3,229.7 267.6,227.8 268.9,225.4 270.2,222.5 271.5,219.2 272.7,215.4 274.0,211.3 275.2,206.8 276.4,202.2 277.6,197.5 278.8,192.9 280.0,188.5 281.1,184.5 282.3,180.7 283.5,177.3 284.6,174.3 285.8,171.7 286.9,169.4 288.1,167.5 289.3,166.0 290.4,164.9 291.6,164.3 292.8,164.1 294.0,164.4 295.2,165.2 296.4,166.5 297.6,168.2 298.8,170.4 300.0,172.9 301.2,175.7 302.3,178.7 303.4,181.9 304.5,185.2 305.5,188.4 306.5,191.5 307.5,194.3 308.4,196.6 309.3,198.4 310.2,199.6 311.1,200.4 311.9,200.9 312.7,201.2 313.5,201.5 314.4,201.8 315.2,202.2 315.9,202.7 316.7,203.4 317.5,204.2 318.3,205.1 319.1,206.0 319.9,206.9 320.7,207.9 321.4,208.9 322.2,209.8 323.0,210.8 323.8,211.7 324.6,212.6 325.4,213.4 326.2,214.3 327.0,215.0 327.9,215.8 328.7,216.5 329.5,217.3 330.4,217.9 331.2,218.6 332.1,219.3 332.9,220.0 333.8,220.7 334.7,221.4 335.6,222.0 336.5,222.7 337.4,223.4 338.3,224.1 339.3,224.8 340.2,225.5 341.2,226.1 342.2,226.8 343.2,227.5 344.2,228.1 345.3,228.8 346.3,229.4 347.4,229.9 348.5,230.3 349.6,230.6 350.7,230.9 351.9,230.9 353.1,230.9 354.3,230.6 355.5,230.1 356.8,229.2 358.1,228.0 359.4,226.4 360.7,224.3 361.9,221.8 363.2,218.8 364.4,215.3 365.6,211.4 366.9,207.0 368.1,202.5 369.3,197.8 370.4,193.2 371.6,188.6 372.8,184.3 373.9,180.3 375.1,176.7 376.3,173.5 377.4,170.6 378.6,168.2 379.7,166.2 380.9,164.5 382.0,163.3 383.2,162.5 384.4,162.3 385.6,162.5 386.7,163.3 387.9,164.5 389.2,166.2 390.4,168.3 391.6,170.9 392.7,173.7 393.8,176.7 394.9,179.9 396.0,183.2 397.0,186.4 398.0,189.4 399.0,192.1 399.9,194.4 400.8,196.1 401.7,197.3 402.6,198.1 403.4,198.5 404.2,198.8 405.0,199.1 405.8,199.5 406.6,200.0 407.4,200.6 408.2,201.3 409.0,202.1 409.8,203.0 410.6,204.0 411.3,205.0 412.1,206.0 412.9,207.0 413.7,208.0 414.5,209.0 415.3,209.9 416.1,210.9 416.9,211.8 417.7,212.7 418.5,213.5 419.3,214.3 420.1,215.1 421.0,215.9 421.8,216.6 422.7,217.3 423.5,218.0 424.4,218.8 425.3,219.5 426.1,220.2 427.0,220.9 427.9,221.6 428.8,222.4 429.8,223.1 430.7,223.8 431.7,224.5 432.6,225.2 433.6,225.9 434.6,226.6 435.7,227.3 436.7,228.0 437.7,228.6 438.8,229.1 439.9,229.6 441.0,229.9 442.2,230.1 443.3,230.3 444.5,230.2 445.7,229.9 446.9,229.4 448.2,228.6 449.5,227.4 450.8,225.7 452.1,223.6 453.4,221.1 454.6,218.0 455.8,214.5 457.1,210.5 458.3,206.2 459.5,201.7 460.6,197.1 461.8,192.4 463.0,187.8 464.2,183.5 465.3,179.5 466.5,175.9 467.6,172.8 468.8,170.0 469.9,167.5 471.1,165.5 472.2,163.9 473.4,162.7 474.6,162.0 475.7,161.8 476.9,162.1 478.1,162.9 479.3,164.1 480.5,165.9 481.7,168.1 482.9,170.7 484.1,173.5 485.2,176.6 486.3,179.8 487.3,183.0 488.4,186.2 489.3,189.2 490.3,191.9 491.2,194.1 492.1,195.8 493.0,197.0 493.9,197.7 494.7,198.1 495.5,198.4 496.4,198.7 497.2,199.1 497.9,199.6 498.7,200.2 499.5,201.0 500.3,201.8 501.1,202.7 501.9,203.7 502.6,204.7 503.4,205.7 504.2,206.7 505.0,207.7 505.8,208.7 506.6,209.7 507.4,210.6 508.2,211.5 509.0,212.4 509.8,213.2 510.6,214.1 511.5,214.8 512.3,215.6 513.1,216.3 514.0,217.1 514.8,217.8 515.7,218.5 516.6,219.3 517.4,220.0 518.3,220.7 519.2,221.4 520.2,222.2 521.1,222.9 522.0,223.6 523.0,224.3 523.9,225.0 524.9,225.7 525.9,226.4 527.0,227.1 528.0,227.8 529.0,228.4 530.1,229.0 531.2,229.4 532.3,229.8 533.5,230.0 534.6,230.1 535.8,230.1 537.0,229.8 538.3,229.3 539.5,228.5 540.8,227.3 542.1,225.6 543.4,223.5 544.7,220.9 545.9,217.9 547.2,214.3 548.4,210.4 549.6,206.0 550.8,201.5 552.0,196.8 553.2,192.1 554.3,187.6 555.5,183.3 556.6,179.4 557.8,175.8 558.9,172.7 560.1,169.9 561.2,167.4 562.4,165.4 563.5,163.8 564.7,162.6 565.9,161.9 567.0,161.7 568.2,161.9 569.4,162.7 570.6,164.0 571.8,165.7 573.0,167.9 574.2,170.5 575.4,173.3 576.5,176.3 577.6,179.5 578.6,182.8 579.7,186.0 580.7,189.1 581.6,191.8 582.6,194.0 583.5,195.7 584.3,196.9 585.2,197.6 586.0,198.1 586.9,198.4 587.7,198.7 588.5,199.1 589.3,199.6 590.0,200.2 590.8,200.9 591.6,201.8 592.4,202.7 593.2,203.6 594.0,204.6 594.7,205.6 595.5,206.7 596.3,207.7 597.1,208.6 597.9,209.6 598.7,210.6 599.5,211.5 600.3,212.4 601.1,213.2 601.9,214.0 602.8,214.8 603.6,215.6 604.4,216.3 605.3,217.0 606.1,217.7 607.0,218.5 607.9,219.2 608.7,219.9 609.6,220.7 610.5,221.4 611.5,222.1 612.4,222.8 613.3,223.5 614.3,224.2 615.2,225.0 616.2,225.7 617.2,226.4 618.2,227.1 619.3,227.8 620.3,228.4 621.4,228.9 622.5,229.4 623.6,229.8 624.8,230.0 625.9,230.2 627.1,230.1 628.3,229.9 629.5,229.4 630.8,228.6 632.1,227.5 633.4,225.9 634.7,223.8 635.9,221.3 637.2,218.3 638.4,214.7 639.7,210.8 640.9,206.5 642.1,201.9 643.3,197.3 644.4,192.6 645.6,188.0 646.8,183.7 647.9,179.8 649.1,176.1 650.2,172.9 651.4,170.1 652.5,167.7 653.7,165.7 654.8,164.0 656.0,162.7 657.2,162.0 658.3,161.7 659.5,161.9 660.7,162.6 661.9,163.8 663.1,165.4 664.3,167.6 665.5,170.1 666.7,172.9 667.8,175.9 668.9,179.1 669.9,182.4 671.0,185.6 672.0,188.7 672.9,191.5 673.9,193.8 674.8,195.6 675.7,196.8 676.5,197.6 677.4,198.1 678.2,198.4 679.0,198.8 679.8,199.1 680.6,199.6 681.4,200.1 682.2,200.9 683.0,201.7 683.8,202.6 684.5,203.6 685.3,204.6 686.1,205.6 686.9,206.6 687.7,207.6 688.5,208.6 689.3,209.6 690.1,210.5 690.9,211.4 691.7,212.3 692.5,213.1 693.3,213.9 694.1,214.7 694.9,215.5 695.8,216.2 696.6,217.0 697.5,217.7 698.3,218.4 699.2,219.1 700.1,219.9 701.0,220.6 701.9,221.3 702.8,222.0 703.7,222.8 704.6,223.5 705.6,224.2 706.6,224.9 707.6,225.6 708.5,226.3 709.6,227.0 710.6,227.7 711.6,228.3 712.7,228.9 713.8,229.4 714.9,229.8 716.0,230.0 717.2,230.2 718.4,230.2 719.6,230.0 720.8,229.6 722.1,228.8 723.3,227.8 724.6,226.3 725.9,224.3 727.2,221.8 728.5,218.9 729.7,215.5 731.0,211.6 732.2,207.4 733.4,202.9 734.6,198.2 735.7,193.5 736.9,188.9 738.1,184.5 739.2,180.5 740.4,176.8 741.5,173.5 742.7,170.6 743.8,168.1 745.0,166.0 746.2,164.3 747.3,163.0 748.5,162.1 749.6,161.7 750.8,161.8 752.0,162.4 753.2,163.4 754.4,165.0 755.6,167.1 756.8,169.5 757.9,172.2 759.1,175.2 760.2,178.4 761.3,181.6 762.3,184.9 763.3,188.1 764.3,190.9 765.2,193.4 766.1,195.3 767.0,196.6 767.9,197.5 768.7,198.1 769.6,198.4 770.4,198.7 771.2,199.1 772.0,199.5 772.8,200.1 773.6,200.8 774.3,201.6 775.1,202.5 775.9,203.4 776.7,204.4 777.5,205.4 778.3,206.4 779.1,207.4 779.8,208.4 780.6,209.4 781.4,210.4 782.2,211.3 783.0,212.1 783.8,213.0 784.7,213.8 785.5,214.6 786.3,215.4 787.1,216.1 788.0,216.8 788.8,217.6 789.7,218.3 790.6,219.0 791.4,219.8 792.3,220.5 793.2,221.2 794.1,221.9 795.1,222.6 796.0,223.3 796.9,224.0 797.9,224.8 798.9,225.5 799.9,226.2 800.9,226.9 801.9,227.6 803.0,228.2 804.0,228.8 805.1,229.3 806.2,229.7 807.3,230.0 808.5,230.2 809.7,230.3 810.9,230.1 812.1,229.8 813.3,229.1 814.6,228.1 815.9,226.7 817.2,224.9 818.5,222.6 819.7,219.8 821.0,216.5 822.2,212.7 823.4,208.5 824.6,204.1 825.8,199.4 827.0,194.7 828.2,190.1 829.4,185.7 830.5,181.5 831.7,177.8 832.8,174.4 834.0,171.4 835.1,168.8 836.3,166.6 837.5,164.7 838.6,163.3 839.8,162.3 840.9,161.8 842.1,161.8 843.3,162.2 844.5,163.2 845.6,164.6" fill="none" stroke="var(--ink)" stroke-width="1.0"/>
+  <polyline points="76.2,104.5 76.5,130.8 76.9,141.4 77.5,144.0 78.2,139.1 78.9,136.4 79.6,133.5 80.3,133.5 81.1,134.9 81.9,136.5 82.7,137.8 83.5,137.5 84.3,137.8 85.2,137.7 86.1,137.9 87.0,138.5 87.9,139.1 88.8,139.6 89.7,140.1 90.7,140.8 91.6,141.4 92.6,141.9 93.6,142.3 94.6,142.8 95.6,143.5 96.6,144.2 97.7,145.0 98.7,145.8 99.8,146.6 100.9,147.5 102.0,148.4 103.1,149.5 104.2,150.6 105.3,151.8 106.4,153.2 107.6,154.7 108.8,156.4 110.0,158.3 111.2,160.4 112.4,162.8 113.6,165.3 114.8,168.2 116.1,171.3 117.3,174.7 118.6,178.4 119.9,182.4 121.2,186.6 122.5,191.0 123.7,195.5 125.0,200.1 126.2,204.9 127.4,209.8 128.7,215.0 129.9,220.5 131.1,226.6 132.3,233.2 133.5,240.5 134.7,247.9 135.8,254.9 136.9,260.7 138.0,264.6 139.0,266.6 140.0,267.0 140.9,266.3 141.8,264.6 142.7,262.4 143.5,259.9 144.4,257.4 145.3,254.9 146.1,252.4 147.0,250.2 147.8,248.1 148.7,246.3 149.5,244.6 150.4,243.2 151.3,242.0 152.2,240.9 153.1,240.0 154.0,239.3 154.9,238.7 155.9,238.2 156.8,237.8 157.8,237.5 158.8,237.2 159.8,237.0 160.9,236.8 161.9,236.6 163.0,236.4 164.1,236.0 165.3,235.6 166.4,235.1 167.6,234.4 168.8,233.4 170.0,232.2 171.3,230.7 172.5,228.8 173.9,226.5 175.2,223.8 176.4,220.8 177.7,217.4 178.9,213.8 180.2,210.1 181.4,206.2 182.6,202.3 183.8,198.4 185.0,194.7 186.2,191.1 187.4,187.8 188.5,184.6 189.7,181.7 190.9,179.1 192.0,176.7 193.2,174.6 194.4,172.7 195.6,171.1 196.7,169.8 197.9,168.9 199.1,168.4 200.3,168.2 201.5,168.5 202.7,169.2 204.0,170.3 205.2,171.9 206.5,173.9 207.7,176.4 208.9,179.2 210.1,182.2 211.3,185.6 212.4,189.1 213.5,192.7 214.6,196.4 215.6,200.1 216.6,203.6 217.6,206.9 218.5,209.7 219.4,212.0 220.3,213.8 221.2,215.0 222.1,215.8 222.9,216.1 223.7,216.4 224.5,216.5 225.3,216.5 226.1,216.7 226.9,216.9 227.7,217.2 228.5,217.6 229.3,218.1 230.1,218.5 230.8,219.0 231.6,219.6 232.4,220.1 233.2,220.7 234.0,221.2 234.8,221.7 235.7,222.3 236.5,222.8 237.3,223.3 238.2,223.8 239.0,224.3 239.9,224.8 240.7,225.4 241.6,226.0 242.5,226.5 243.4,227.1 244.3,227.6 245.2,228.2 246.1,228.8 247.1,229.3 248.0,229.9 249.0,230.5 250.0,231.0 251.0,231.6 252.0,232.1 253.0,232.6 254.1,233.0 255.2,233.4 256.3,233.7 257.4,233.9 258.5,234.0 259.7,234.0 260.9,233.8 262.1,233.4 263.3,232.7 264.6,231.8 265.8,230.5 267.1,228.7 268.4,226.5 269.7,223.9 271.0,220.8 272.2,217.3 273.5,213.3 274.7,209.0 275.9,204.5 277.1,199.9 278.3,195.3 279.5,190.7 280.7,186.5 281.8,182.6 283.0,179.0 284.1,175.8 285.3,173.0 286.4,170.5 287.6,168.5 288.8,166.7 289.9,165.4 291.1,164.4 292.2,164.0 293.4,164.0 294.6,164.5 295.8,165.5 297.0,166.9 298.2,168.8 299.4,171.1 300.6,173.8 301.8,176.7 302.9,179.8 304.0,183.0 305.0,186.2 306.0,189.4 307.0,192.4 308.0,195.0 308.9,197.1 309.8,198.7 310.7,199.8 311.6,200.5 312.4,201.0 313.2,201.2 314.0,201.5 314.8,201.8 315.6,202.2 316.4,202.8 317.2,203.5 318.0,204.3 318.8,205.1 319.6,206.0 320.3,207.0 321.1,207.9 321.9,208.9 322.7,209.9 323.5,210.8 324.3,211.8 325.1,212.7 325.9,213.6 326.7,214.5 327.5,215.3 328.3,216.1 329.2,216.8 330.0,217.5 330.8,218.2 331.7,218.9 332.5,219.6 333.4,220.3 334.3,221.0 335.2,221.7 336.1,222.4 337.0,223.1 337.9,223.8 338.8,224.4 339.8,225.1 340.7,225.8 341.7,226.4 342.7,227.1 343.7,227.7 344.7,228.4 345.8,229.0 346.8,229.5 347.9,230.0 349.0,230.4 350.1,230.7 351.2,230.9 352.4,231.0 353.6,230.9 354.8,230.5 356.0,230.0 357.3,229.1 358.5,227.8 359.8,226.1 361.1,224.0 362.4,221.4 363.6,218.4 364.9,214.8 366.1,210.9 367.3,206.6 368.5,202.0 369.7,197.3 370.9,192.7 372.0,188.1 373.2,183.8 374.4,179.9 375.5,176.3 376.7,173.2 377.8,170.4 379.0,168.0 380.1,166.0 381.3,164.4 382.4,163.1 383.6,162.4 384.7,162.1 385.9,162.3 387.1,163.0 388.3,164.2 389.5,165.9 390.7,168.1 391.9,170.6 393.1,173.4 394.2,176.4 395.3,179.6 396.3,182.9 397.4,186.1 398.4,189.1 399.3,191.8 400.3,194.0 401.2,195.8 402.1,197.1 402.9,197.8 403.8,198.4 404.6,198.7 405.4,199.0 406.2,199.3 407.0,199.7 407.8,200.3 408.6,201.0 409.3,201.8 410.1,202.6 410.9,203.6 411.7,204.6 412.5,205.5 413.3,206.6 414.0,207.6 414.8,208.6 415.6,209.6 416.4,210.6 417.2,211.5 418.0,212.5 418.8,213.3 419.7,214.2 420.5,215.0 421.3,215.8 422.2,216.5 423.0,217.2 423.9,218.0 424.7,218.8 425.6,219.5 426.5,220.2 427.4,220.9 428.3,221.6 429.2,222.3 430.1,223.1 431.0,223.8 432.0,224.5 432.9,225.1 433.9,225.8 434.9,226.5 435.9,227.2 437.0,227.9 438.0,228.4 439.1,229.0 440.2,229.4 441.3,229.8 442.4,230.1 443.5,230.2 444.7,230.2 445.9,230.0 447.1,229.6 448.4,228.8 449.6,227.7 450.9,226.2 452.2,224.2 453.5,221.8 454.8,218.9 456.0,215.5 457.2,211.8 458.4,207.6 459.6,203.1 460.8,198.5 462.0,193.8 463.1,189.2 464.3,184.8 465.5,180.7 466.6,177.0 467.8,173.7 468.9,170.8 470.0,168.3 471.2,166.1 472.3,164.4 473.5,163.0 474.7,162.1 475.8,161.6 477.0,161.6 478.2,162.2 479.4,163.3 480.6,164.8 481.8,166.8 483.0,169.2 484.1,172.0 485.3,174.9 486.4,178.1 487.4,181.3 488.5,184.5 489.5,187.6 490.5,190.5 491.4,192.9 492.3,194.8 493.2,196.2 494.1,197.2 494.9,197.8 495.8,198.1 496.6,198.4 497.4,198.7 498.2,199.1 499.0,199.7 499.8,200.3 500.5,201.1 501.3,201.9 502.1,202.9 502.9,203.8 503.7,204.8 504.4,205.8 505.2,206.9 506.0,207.9 506.8,208.9 507.6,209.9 508.4,210.9 509.2,211.8 510.0,212.7 510.8,213.6 511.7,214.4 512.5,215.2 513.3,216.0 514.2,216.7 515.0,217.4 515.9,218.2 516.7,218.9 517.6,219.7 518.5,220.4 519.4,221.1 520.3,221.8 521.2,222.5 522.1,223.2 523.1,224.0 524.0,224.7 525.0,225.4 526.0,226.1 527.0,226.8 528.0,227.4 529.1,228.1 530.1,228.6 531.2,229.1 532.3,229.5 533.4,229.9 534.6,230.1 535.7,230.1 536.9,230.0 538.1,229.7 539.4,229.1 540.6,228.1 541.9,226.8 543.2,225.0 544.5,222.8 545.7,220.1 547.0,216.9 548.2,213.3 549.4,209.2 550.6,204.9 551.8,200.2 553.0,195.6 554.2,190.9 555.3,186.5 556.5,182.3 557.6,178.5 558.8,175.0 559.9,171.9 561.1,169.2 562.2,166.9 563.4,164.9 564.5,163.4 565.7,162.3 566.8,161.6 568.0,161.4 569.2,161.8 570.4,162.6 571.6,163.9 572.8,165.7 574.0,167.9 575.1,170.5 576.3,173.4 577.4,176.5 578.5,179.6 579.6,182.9 580.6,186.1 581.6,189.1 582.5,191.8 583.5,193.9 584.4,195.6 585.2,196.8 586.1,197.5 586.9,198.0 587.8,198.3 588.6,198.6 589.4,198.9 590.2,199.4 591.0,200.0 591.7,200.7 592.5,201.5 593.3,202.4 594.1,203.4 594.9,204.4 595.6,205.4 596.4,206.4 597.2,207.4 598.0,208.4 598.8,209.5 599.6,210.4 600.4,211.4 601.2,212.3 602.0,213.2 602.8,214.0 603.7,214.8 604.5,215.6 605.3,216.3 606.2,217.1 607.0,217.8 607.9,218.6 608.7,219.3 609.6,220.0 610.5,220.7 611.4,221.4 612.3,222.2 613.3,222.9 614.2,223.6 615.1,224.3 616.1,225.0 617.1,225.7 618.1,226.4 619.1,227.1 620.1,227.7 621.2,228.3 622.3,228.9 623.3,229.3 624.4,229.7 625.6,230.0 626.7,230.2 627.9,230.2 629.1,230.0 630.3,229.5 631.6,228.8 632.8,227.7 634.1,226.1 635.4,224.2 636.7,221.7 638.0,218.8 639.2,215.4 640.4,211.6 641.6,207.3 642.8,202.8 644.0,198.2 645.2,193.5 646.4,188.9 647.5,184.5 648.7,180.5 649.8,176.8 651.0,173.5 652.1,170.6 653.2,168.1 654.4,166.0 655.5,164.2 656.7,162.8 657.9,161.9 659.0,161.4 660.2,161.5 661.4,162.0 662.6,163.0 663.8,164.6 665.0,166.5 666.2,168.9 667.3,171.7 668.5,174.6 669.6,177.8 670.7,181.0 671.7,184.3 672.7,187.4 673.7,190.3 674.6,192.8 675.6,194.7 676.4,196.2 677.3,197.2 678.2,197.8 679.0,198.2 679.8,198.5 680.6,198.8 681.4,199.2 682.2,199.7 683.0,200.4 683.8,201.1 684.6,202.0 685.3,202.9 686.1,203.9 686.9,204.9 687.7,205.9 688.5,206.9 689.3,207.9 690.1,208.9 690.8,209.9 691.6,210.9 692.4,211.8 693.3,212.7 694.1,213.6 694.9,214.4 695.7,215.2 696.5,216.0 697.4,216.7 698.2,217.4 699.1,218.2 700.0,218.9 700.8,219.6 701.7,220.3 702.6,221.1 703.5,221.8 704.4,222.5 705.4,223.2 706.3,223.9 707.3,224.6 708.2,225.3 709.2,226.0 710.2,226.7 711.2,227.4 712.3,228.0 713.3,228.6 714.4,229.1 715.5,229.6 716.6,229.9 717.7,230.1 718.9,230.2 720.1,230.2 721.3,229.9 722.5,229.3 723.8,228.5 725.1,227.2 726.4,225.5 727.6,223.4 728.9,220.8 730.2,217.7 731.4,214.1 732.6,210.1 733.8,205.8 735.0,201.2 736.2,196.5 737.4,191.9 738.5,187.3 739.7,183.1 740.9,179.1 742.0,175.6 743.1,172.5 744.3,169.7 745.4,167.3 746.6,165.3 747.7,163.7 748.9,162.5 750.0,161.7 751.2,161.4 752.4,161.6 753.5,162.3 754.7,163.5 755.9,165.1 757.1,167.2 758.3,169.7 759.5,172.5 760.6,175.5 761.7,178.7 762.8,182.0 763.8,185.2 764.8,188.3 765.8,191.1 766.7,193.4 767.6,195.3 768.5,196.6 769.4,197.5 770.2,198.0 771.1,198.4 771.9,198.7 772.7,199.0 773.5,199.4 774.3,200.0 775.1,200.7 775.8,201.4 776.6,202.3 777.4,203.2 778.2,204.2 779.0,205.2 779.7,206.2 780.5,207.3 781.3,208.3 782.1,209.3 782.9,210.3 783.7,211.2 784.5,212.1 785.3,213.0 786.1,213.9 787.0,214.7 787.8,215.5 788.6,216.2 789.5,217.0 790.3,217.7 791.2,218.4 792.0,219.2 792.9,219.9 793.8,220.6 794.7,221.3 795.6,222.0 796.5,222.7 797.5,223.4 798.4,224.1 799.4,224.9 800.3,225.6 801.3,226.2 802.3,226.9 803.4,227.6 804.4,228.2 805.5,228.8 806.5,229.3 807.6,229.7 808.8,230.0 809.9,230.2 811.1,230.3 812.3,230.2 813.5,229.8 814.7,229.2 816.0,228.2 817.3,226.9 818.6,225.1 819.8,222.8 821.1,220.0 822.4,216.8 823.6,213.1 824.8,209.1 826.0,204.6 827.2,200.0 828.4,195.3 829.5,190.7 830.7,186.2 831.9,182.0 833.0,178.2 834.2,174.8 835.3,171.7 836.5,169.1 837.6,166.8 838.7,164.9 839.9,163.3 841.1,162.2 842.2,161.6 843.4,161.4 844.5,161.8 845.7,162.6" fill="none" stroke="var(--muted)" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <polyline points="76.1,96.0 76.3,123.2 76.5,141.0 76.8,140.7 77.4,147.0 78.1,146.8 78.7,140.6 79.3,135.4 80.0,132.3 80.7,130.5 81.4,133.6 82.2,134.8 82.9,134.2 83.7,137.6 84.5,138.8 85.3,136.4 86.1,137.0 87.0,143.1 87.8,146.1 88.6,140.0 89.5,131.4 90.4,132.2 91.4,146.6 92.3,160.6 93.1,162.1 94.0,151.5 94.9,136.8 95.9,123.4 97.0,125.0 98.0,140.2 99.0,152.3 99.9,162.8 100.8,171.8 101.8,175.1 102.7,171.7 103.7,158.5 104.8,138.1 105.9,121.4 107.2,127.6 108.4,146.1 109.5,158.9 110.5,166.7 111.4,174.7 112.3,182.6 113.2,188.8 114.2,193.1 115.1,197.0 116.1,196.7 117.1,199.4 118.2,199.4 119.3,196.1 120.4,190.4 121.5,189.8 122.6,192.4 123.6,196.1 124.6,200.9 125.6,207.8 126.5,214.5 127.5,220.9 128.4,226.3 129.3,230.9 130.2,235.0 131.0,237.5 131.8,237.4 132.6,235.5 133.3,231.6 134.0,226.2 134.7,220.5 135.4,214.6 136.1,208.4 136.8,202.6 137.5,197.3 138.2,193.0 138.8,190.3 139.5,189.4 140.3,190.1 141.0,191.9 141.7,194.9 142.4,198.7 143.2,204.0 143.9,210.2 144.6,215.4 145.3,217.5 146.0,217.4 146.7,216.4 147.4,215.5 148.1,215.1 148.8,215.5 149.5,216.3 150.2,217.8 150.9,219.0 151.6,219.6 152.3,219.5 153.0,219.0 153.8,218.1 154.5,217.0 155.2,215.8 156.0,214.3 156.7,212.9 157.5,211.9 158.2,211.1 159.0,210.6 159.8,211.1 160.5,212.8 161.3,215.4 162.1,218.1 163.0,220.4 163.8,222.0 164.7,223.1 165.6,223.9 166.4,224.2 167.3,224.3 168.2,223.9 169.1,223.2 170.0,222.2 170.9,220.8 171.8,218.8 172.7,216.0 173.7,212.2 174.7,207.9 175.7,203.6 176.8,199.0 177.9,194.4 178.9,189.8 180.1,184.9 181.2,179.8 182.3,174.7 183.3,169.4 184.4,164.2 185.4,159.7 186.4,156.0 187.5,153.1 188.5,150.7 189.5,148.5 190.5,145.7 191.5,143.0 192.4,140.2 193.4,137.7 194.4,135.3 195.4,132.6 196.4,129.7 197.4,126.7 198.4,124.0 199.4,121.6 200.4,119.8 201.4,119.1 202.4,119.1 203.4,119.1 204.4,118.9 205.4,118.6 206.3,119.1 207.3,119.1 208.3,117.8 209.3,117.1 210.3,116.4 211.3,116.4 212.3,118.0 213.2,119.7 214.2,121.3 215.2,122.3 216.2,121.1 217.2,119.2 218.2,118.0 219.3,117.8 220.3,119.1 221.4,122.3 222.4,126.8 223.5,131.3 224.5,135.6 225.6,139.7 226.6,143.7 227.7,147.7 228.8,152.2 229.8,157.9 230.9,164.1 232.0,170.6 233.1,178.1 234.1,185.2 235.1,193.3 236.1,202.3 237.1,211.4 237.9,218.5 238.7,221.8 239.5,221.9 240.2,219.8 240.9,216.0 241.6,210.8 242.3,204.9 242.9,199.0 243.5,193.3 244.2,188.1 244.8,183.6 245.4,180.6 246.0,178.7 246.6,177.7 247.2,177.1 247.8,176.7 248.4,176.5 249.0,176.4 249.6,176.3 250.2,176.3 250.8,176.4 251.4,176.8 252.0,177.2 252.7,177.1 253.3,177.0 253.9,176.9 254.5,176.9 255.1,177.2 255.8,177.9 256.4,178.8 257.1,180.0 257.7,181.6 258.4,183.2 259.1,185.1 259.7,186.6 260.4,187.8 261.1,189.2 261.7,190.9 262.4,192.6 263.1,193.9 263.8,195.1 264.6,196.3 265.3,197.4 266.0,197.8 266.7,197.7 267.4,197.7 268.2,198.6 268.9,200.1 269.7,201.4 270.4,203.3 271.2,205.3 272.0,207.8 272.8,210.4 273.6,213.1 274.4,215.5 275.3,216.4 276.1,215.8 277.0,214.5 277.9,213.7 278.8,214.2 279.7,216.0 280.6,217.6 281.5,217.5 282.5,216.0 283.4,214.8 284.5,214.5 285.5,213.0 286.6,209.7 287.6,206.2 288.7,203.0 289.8,199.3 290.9,195.2 292.0,190.6 293.1,185.8 294.2,181.2 295.2,177.1 296.3,173.4 297.4,171.1 298.4,169.7 299.4,169.1 300.4,168.1 301.3,166.6 302.3,164.8 303.3,163.2 304.3,161.9 305.4,160.9 306.4,159.9 307.4,158.4 308.3,156.9 309.3,155.6 310.3,154.3 311.3,153.0 312.3,151.4 313.2,150.2 314.2,149.6 315.2,149.8 316.1,149.5 317.1,149.1 318.0,149.2 319.0,149.4 319.9,150.9 320.9,152.9 321.8,154.4 322.7,155.9 323.5,157.1 324.3,157.8 325.2,159.0 325.9,160.7 326.6,162.1 327.3,162.8 327.9,163.1 328.4,163.2 329.0,163.3 329.5,163.7 330.1,164.0 330.8,164.4 331.5,165.9 332.3,168.5 333.1,171.5 333.9,173.5 334.7,175.9 335.5,178.6 336.3,181.3 337.1,184.1 338.0,187.5 338.8,191.1 339.5,194.2 340.3,196.8 341.0,199.5 341.8,203.1 342.5,207.6 343.2,211.6 343.9,215.2 344.7,218.2 345.4,221.5 346.2,224.9 347.0,228.3 347.8,231.7 348.5,234.4 349.2,236.1 350.0,236.8 350.7,236.9 351.4,236.5 352.2,236.4 352.9,236.9 353.6,237.3 354.3,237.4 355.1,236.9 355.8,236.2 356.6,235.4 357.3,234.2 358.0,233.3 358.8,232.3 359.5,232.0 360.2,231.6 360.9,231.2 361.6,230.2 362.3,228.9 363.1,227.6 363.8,226.3 364.5,225.8 365.3,225.8 366.1,225.5 366.8,224.5 367.6,225.1 368.4,227.4 369.2,228.9 370.0,231.0 370.8,233.4 371.6,234.9 372.4,235.7 373.2,235.6 374.0,234.6 374.9,233.5 375.7,232.2 376.6,231.9 377.5,231.7 378.3,231.5 379.1,232.1 380.0,231.5 380.8,230.8 381.8,230.8 382.7,231.4 383.6,232.5 384.5,233.6 385.4,234.2 386.3,234.4 387.3,233.5 388.2,230.8 389.3,227.3 390.2,223.7 391.1,220.7 392.2,222.4 392.9,224.9 393.4,225.6 393.8,225.4 394.5,224.3 395.4,221.7 396.4,219.4 397.5,216.5 398.6,213.3 399.7,209.8 400.7,207.2 401.8,204.8 403.0,202.4 404.1,200.6 405.1,199.0 406.2,197.9 407.3,197.4 408.4,197.4 409.4,197.5 410.5,197.4 411.6,196.9 412.7,195.9 413.9,194.9 415.0,194.2 416.1,193.6 417.2,193.4 418.3,193.4 419.4,193.9 420.5,194.6 421.5,195.7 422.6,197.1 423.6,198.8 424.7,200.9 425.7,203.6 426.7,206.8 427.7,209.6 428.7,212.1 429.6,214.5 430.5,216.7 431.4,219.2 432.3,222.1 433.2,225.2 434.1,228.6 434.9,231.8 435.8,234.2 436.6,236.6 437.5,238.8 438.3,240.4 439.1,242.3 439.9,244.1 440.6,245.1 441.4,245.7 442.1,245.1 442.9,244.2 443.6,243.5 444.3,242.6 445.0,242.0 445.8,241.0 446.4,239.7 447.1,238.1 447.7,237.6 448.5,239.4 449.3,240.4 450.0,240.8 450.7,241.1 451.5,240.7 452.2,239.9 452.9,238.6 453.7,236.9 454.4,235.1 455.1,233.5 455.9,232.4 456.7,231.7 457.5,232.0 458.2,233.0 459.0,234.1 459.8,234.0 460.6,233.3 461.3,232.8 462.1,233.0 462.9,233.4 463.6,234.3 464.4,235.1 465.2,235.1 465.9,234.1 466.7,233.9 467.5,233.3 468.3,233.8 469.1,234.4 469.9,234.7 470.7,234.6 471.5,234.6 472.4,233.7 473.2,232.8 474.1,232.4 475.0,232.4 475.9,232.1 476.9,231.0 477.8,229.4 478.7,227.3 479.7,225.1 480.7,222.4 481.7,219.7 482.8,217.0 484.0,214.0 485.1,211.1 486.3,209.2 487.5,207.3 488.6,205.1 489.7,202.5 490.9,199.8 492.0,197.3 493.1,195.2 494.3,192.6 495.4,190.9 496.5,189.6 497.6,188.7 498.6,187.9 499.7,187.5 500.7,187.3 501.7,187.7 502.8,188.3 503.8,188.6 504.8,188.6 505.8,188.8 506.7,189.2 507.7,189.5 508.7,190.4 509.6,191.4 510.3,192.3 511.0,192.9 511.9,193.4 512.9,194.6 513.7,195.9 514.7,197.4 515.6,199.2 516.5,200.4 517.4,202.2 518.3,204.2 519.3,206.5 520.2,209.0 521.1,212.0 522.0,215.0 522.9,218.4 523.8,222.3 524.7,226.2 525.6,230.0 526.6,233.3 527.5,236.4 528.4,239.2 529.2,241.6 530.1,243.0 530.9,244.1 531.8,245.0 532.6,245.7 533.4,246.8 534.3,247.7 535.1,248.1 535.9,247.9 536.7,247.5 537.5,246.9 538.3,246.5 539.1,246.4 539.9,246.6 540.7,246.5 541.4,245.8 542.2,245.2 543.0,245.3 543.8,244.8 544.5,243.8 545.3,242.6 546.1,242.0 546.8,242.5 547.6,243.3 548.3,243.1 549.1,242.0 549.9,240.6 550.7,238.9 551.5,237.2 552.3,236.5 553.2,237.1 554.1,238.9 554.9,240.6 555.8,241.0 556.7,241.0 557.5,240.8 558.4,240.6 559.3,240.2 560.1,240.0 561.0,240.0 561.9,239.8 562.9,239.6 563.8,240.1 564.8,241.0 565.7,241.6 566.7,241.8 567.6,241.5 568.6,240.9 569.5,240.0 570.5,238.5 571.4,236.5 572.4,233.6 573.5,230.8 574.6,227.8 575.7,224.3 576.8,220.0 578.0,215.9 579.2,212.3 580.3,208.8 581.5,205.7 582.6,202.9 583.7,200.1 584.9,197.7 586.0,195.2 587.1,192.7 588.3,190.3 589.4,188.2 590.5,186.6 591.6,185.0 592.7,183.9 593.8,183.5 594.8,183.0 595.8,182.0 596.7,181.1 597.7,180.5 598.7,180.1 599.6,180.4 600.6,181.4 601.6,182.3 602.5,183.5 603.5,185.1 604.4,186.8 605.4,188.9 606.4,191.2 607.4,193.6 608.4,196.9 609.3,200.8 610.3,204.6 611.2,208.4 612.1,212.0 613.0,214.9 613.8,216.8 614.6,217.8 615.4,218.5 616.2,219.0 616.9,219.4 617.7,219.4 618.4,219.3 619.1,219.1 619.8,219.1 620.5,219.0 621.3,218.8 622.0,218.6 622.7,218.7 623.4,218.8 624.1,218.8 624.8,218.7 625.4,218.8 626.1,218.8 626.9,218.6 627.6,218.4 628.3,218.8 629.0,219.2 629.7,219.4 630.4,219.7 631.1,219.8 631.9,220.5 632.6,221.5 633.4,223.0 634.1,224.1 634.8,224.7 635.5,225.2 636.3,226.5 637.0,227.9 637.7,228.1 638.5,227.5 639.2,227.2 640.0,227.1 640.7,227.5 641.5,227.6 642.3,227.1 643.1,225.9 643.9,224.8 644.7,224.3 645.6,224.3 646.4,224.6 647.3,224.8 648.1,225.1 648.9,226.2 649.7,227.9 650.5,229.4 651.3,230.2 652.1,230.4 652.9,230.0 653.7,229.4 654.6,228.2 655.5,226.1 656.4,223.3 657.3,220.3 658.3,217.8 659.4,215.2 660.4,212.7 661.5,209.6 662.5,205.4 663.6,200.6 664.7,195.5 665.8,190.3 666.9,186.0 668.0,182.6 669.1,179.4 670.2,176.2 671.2,173.0 672.3,169.9 673.3,166.8 674.4,163.9 675.5,161.1 676.5,158.4 677.6,155.9 678.6,153.8 679.7,152.0 680.7,150.5 681.8,149.1 682.8,148.1 683.9,147.3 684.9,146.9 685.9,146.8 686.9,147.0 687.8,147.6 688.8,148.7 689.7,150.4 690.6,152.2 691.5,153.7 692.4,155.0 693.3,156.4 694.2,158.3 695.1,160.5 695.9,163.0 696.8,167.1 697.7,170.9 698.6,174.1 699.5,177.5 700.3,181.1 701.0,184.3 701.6,187.0 702.3,189.3 703.1,192.1 703.9,195.6 704.8,199.5 705.6,203.1 706.4,206.1 707.2,209.0 708.0,212.2 708.8,214.8 709.5,215.7 710.2,215.7 710.9,215.3 711.6,215.2 712.3,215.7 713.0,216.3 713.7,217.0 714.4,217.5 715.1,217.5 715.7,216.5 716.4,215.7 717.1,215.7 717.8,215.8 718.5,216.4 719.2,216.7 719.9,217.0 720.6,218.0 721.3,219.4 722.0,220.5 722.7,221.1 723.4,222.3 724.1,223.0 724.8,222.5 725.5,222.0 726.2,221.6 727.0,220.8 727.7,220.2 728.5,220.6 729.3,221.5 730.1,222.4 730.9,223.6 731.7,225.0 732.5,226.1 733.4,226.7 734.2,226.8 735.0,226.4 735.9,226.1 736.7,226.4 737.6,226.9 738.5,227.6 739.5,228.1 740.4,228.2 741.3,228.1 742.3,227.3 743.1,225.6 744.0,223.1 744.9,220.1 745.8,217.9 746.7,217.3 747.6,219.2 748.6,222.0 749.5,223.9 750.3,225.1 751.2,225.9 752.1,226.6 753.0,226.9 754.0,227.0 754.9,226.8 755.9,226.5 756.9,225.7 757.9,224.2 759.0,222.1 760.0,219.5 761.0,217.0 762.0,214.9 763.0,213.0 764.1,211.7 765.1,210.5 766.2,209.3 767.3,208.1 768.4,207.3 769.5,206.8 770.7,206.8 771.8,206.9 773.0,206.8 774.1,206.8 775.2,207.2 776.3,207.6 777.4,208.0 778.4,208.5 779.5,209.5 780.6,210.8 781.6,212.1 782.6,213.2 783.6,214.1 784.6,215.0 785.6,215.8 786.6,216.9 787.6,217.6 788.5,218.1 789.5,218.7 790.5,219.6 791.4,220.7 792.3,222.1 793.2,223.8 794.1,226.0 795.0,228.5 795.9,231.0 796.7,232.9 797.6,234.3 798.6,235.9 799.5,237.6 800.4,238.8 801.4,239.9 802.3,241.7 803.3,243.9 804.2,246.3 805.1,248.1 806.0,249.6 806.8,250.6 807.7,251.4 808.6,252.1 809.6,252.9 810.5,254.3 811.5,255.9 812.4,256.7 813.3,257.1 814.3,256.9 815.2,256.2 816.1,255.3 817.0,254.3 817.9,254.4 818.7,254.9 819.6,255.4 820.5,256.0 821.4,256.8 822.3,257.7 823.2,258.7 824.1,259.8 825.0,260.7 825.9,260.9 826.9,260.4 827.8,259.6 828.8,259.3 829.7,259.0 830.7,259.0 831.7,259.2 832.7,259.8 833.7,260.4 834.7,260.4 835.7,259.6 836.7,257.9 837.7,255.4 838.8,253.4 839.8,251.5 840.9,250.1 842.0,248.6 843.1,247.4 844.2,246.0 845.3,244.1" fill="none" stroke="var(--blue)" stroke-width="1.0"/>
+  <polyline points="76.1,93.1 76.3,121.9 76.6,136.5 77.1,140.2 77.7,143.3 78.3,136.7 79.0,132.8 79.7,146.7 80.4,132.8 81.1,133.1 81.9,142.6 82.6,145.3 83.4,136.1 84.2,127.4 85.1,140.3 85.9,165.0 86.7,159.3 87.5,136.0 88.4,119.8 89.3,120.8 90.2,132.5 91.1,139.8 92.0,150.1 92.9,146.1 93.7,130.9 94.7,134.2 95.7,148.4 96.6,166.7 97.5,166.6 98.5,147.3 99.5,129.3 100.6,132.1 101.7,140.5 102.7,147.9 103.7,151.5 104.7,154.3 105.7,163.1 106.7,175.2 107.7,178.3 108.7,165.6 109.8,151.0 111.0,146.4 112.2,149.0 113.3,153.9 114.3,156.9 115.3,164.2 116.3,178.2 117.3,192.5 118.3,200.3 119.4,204.6 120.5,206.9 121.6,199.6 122.7,189.4 123.8,190.9 124.8,197.5 125.8,203.2 126.8,208.4 127.8,213.3 128.8,217.7 129.8,222.0 130.7,227.6 131.7,234.9 132.7,243.1 133.7,250.9 134.6,258.4 135.5,264.2 136.4,266.9 137.2,266.5 138.0,264.1 138.8,260.4 139.5,256.3 140.2,252.2 140.9,248.8 141.6,245.6 142.3,242.9 143.0,240.2 143.7,237.4 144.4,234.0 145.1,230.2 145.8,226.1 146.5,221.7 147.2,218.2 147.9,216.5 148.6,217.7 149.3,231.2 149.8,230.5 150.4,220.8 151.0,217.5 151.6,218.6 152.3,220.6 152.9,221.9 153.5,222.6 154.2,223.8 154.8,226.6 155.5,228.3 156.2,227.7 156.8,227.8 157.5,227.5 158.2,227.7 158.9,228.8 159.6,231.8 160.2,231.5 160.9,229.5 161.6,230.9 162.3,231.2 163.1,231.3 163.8,232.5 164.6,235.3 165.3,236.8 166.1,237.9 166.8,237.7 167.6,238.5 168.4,239.7 169.2,240.7 170.0,241.7 170.8,242.3 171.7,242.9 172.5,241.5 173.3,240.1 174.2,239.2 175.1,237.5 176.1,236.9 177.0,236.9 177.9,236.6 178.9,234.2 179.9,231.2 180.8,227.8 181.7,224.9 182.7,221.2 183.7,216.0 184.8,209.7 185.9,202.6 187.0,196.8 188.1,193.0 189.2,189.1 190.3,184.5 191.4,180.6 192.5,177.9 193.6,175.1 194.7,173.7 195.7,171.4 196.8,169.7 197.8,166.9 198.8,163.5 199.8,160.8 200.7,157.1 201.7,154.1 202.6,152.0 203.6,150.5 204.6,150.3 205.6,150.9 206.6,151.1 207.7,150.0 208.7,148.2 209.7,146.6 210.7,145.2 211.7,143.8 212.7,142.1 213.8,140.1 214.8,140.1 215.8,140.1 216.8,139.6 217.8,140.0 218.8,141.6 219.8,143.0 220.8,143.4 221.8,143.7 222.8,144.6 223.8,145.1 224.8,145.7 225.8,146.2 226.8,146.6 227.9,147.2 228.9,149.8 229.8,154.4 230.7,159.3 231.6,164.9 232.4,170.4 233.2,175.1 234.0,179.5 234.8,183.0 235.5,185.4 236.2,187.2 236.9,188.9 237.6,190.8 238.3,193.2 239.1,195.8 239.8,198.6 240.4,201.9 241.1,205.3 241.8,207.3 242.5,208.2 243.1,208.1 243.8,207.6 244.4,206.9 245.1,207.0 245.7,206.7 246.3,207.1 246.9,207.8 247.5,208.8 248.1,209.2 248.7,209.4 249.2,211.6 249.7,211.8 250.2,209.5 250.8,208.3 251.4,209.0 251.9,209.5 252.4,210.2 253.0,210.0 253.6,211.5 254.2,212.6 254.8,212.4 255.4,213.3 256.0,213.2 256.6,214.5 257.2,217.1 257.8,216.5 258.4,215.0 259.1,214.6 259.6,214.0 260.2,214.5 260.8,214.5 261.4,214.3 262.1,216.1 262.7,219.8 263.3,221.9 263.9,222.6 264.5,222.3 265.1,221.4 265.7,220.7 266.3,219.3 266.9,217.8 267.5,216.0 268.1,216.9 268.7,220.6 269.3,223.4 269.9,222.2 270.5,221.0 271.2,221.8 271.8,224.7 272.5,229.3 273.0,230.5 273.6,225.9 274.3,222.6 275.0,222.9 275.7,222.1 276.4,225.3 277.1,225.7 277.8,225.9 278.5,226.7 279.2,226.6 279.9,225.9 280.7,225.5 281.4,224.5 282.2,225.5 282.9,226.7 283.7,226.1 284.6,225.4 285.4,224.2 286.3,222.9 287.1,222.8 288.0,221.5 288.9,219.6 289.9,216.8 290.8,213.5 291.8,209.8 292.8,206.4 293.8,203.8 294.8,201.6 295.8,198.3 296.9,195.7 297.9,193.9 299.0,192.9 300.1,191.7 301.1,190.0 302.1,189.1 303.1,187.9 304.0,185.8 305.0,184.0 305.9,183.5 306.8,182.6 307.6,181.7 308.5,180.9 309.2,180.6 309.9,180.4 310.8,179.8 311.8,178.5 312.8,177.5 313.8,177.5 314.8,176.9 315.8,176.9 316.8,176.4 317.8,176.7 318.7,177.9 319.6,179.6 320.4,180.2 321.1,180.6 321.9,180.5 322.9,180.7 323.8,181.9 324.8,182.9 325.8,183.1 326.7,183.2 327.7,184.6 328.7,187.1 329.6,189.1 330.5,189.8 331.5,190.2 332.4,191.3 333.2,192.1 334.1,192.9 335.0,193.7 335.9,195.0 336.8,196.3 337.7,198.2 338.5,200.6 339.3,203.1 340.0,205.4 340.6,207.3 341.1,208.7 341.6,209.9 342.0,211.2 342.5,212.7 343.2,215.2 344.0,218.9 344.8,222.5 345.7,225.4 346.6,227.8 347.4,230.0 348.3,232.4 349.2,235.3 350.1,238.5 350.9,241.2 351.8,243.1 352.7,245.2 353.6,247.0 354.4,248.1 355.3,248.9 356.1,249.3 357.0,250.0 357.9,250.5 358.8,251.0 359.6,251.5 360.5,252.2 361.3,252.2 362.1,251.8 362.9,251.7 363.7,252.1 364.5,250.2 365.4,248.8 366.2,248.5 367.1,248.7 368.0,249.0 368.8,248.6 369.7,247.5 370.5,245.9 371.3,244.6 372.2,243.8 373.1,244.1 374.0,245.3 374.8,246.6 375.7,247.6 376.6,247.4 377.5,246.2 378.4,245.3 379.3,245.6 380.1,246.4 381.0,246.8 381.8,247.0 382.7,247.4 383.6,247.9 384.5,247.2 385.4,245.7 386.2,244.3 387.1,243.3 388.0,242.3 388.9,241.5 389.8,240.9 390.7,241.1 391.6,240.7 392.5,239.9 393.4,239.2 394.3,238.4 395.2,237.0 396.2,235.5 397.2,234.0 398.2,232.5 399.1,231.6 400.2,231.4 401.2,231.0 402.3,230.4 403.3,229.5 404.3,228.3 405.4,227.4 406.4,226.5 407.5,225.6 408.6,224.9 409.6,224.5 410.7,224.0 411.7,223.9 412.8,223.6 413.8,223.5 414.8,223.0 415.9,222.7 416.9,222.7 417.9,222.9 418.9,223.1 420.0,223.2 421.0,223.3 422.0,223.6 423.1,224.1 424.1,224.7 425.2,225.4 426.2,226.5 427.2,227.1 428.2,227.7 429.2,229.0 430.2,231.0 431.2,232.9 432.2,234.0 433.1,234.9 434.1,235.6 435.0,236.9 436.0,237.9 436.9,238.6 437.8,240.2 438.7,241.5 439.7,242.8 440.6,244.5 441.5,245.6 442.4,246.6 443.3,247.3 444.1,247.6 445.0,248.1 445.8,248.7 446.7,249.3 447.6,250.0 448.4,250.9 449.3,251.5 450.1,252.1 450.9,252.7 451.8,252.9 452.6,252.9 453.4,252.8 454.2,252.2 455.0,251.3 455.9,250.0 456.7,248.5 457.5,247.1 458.4,246.3 459.2,246.1 460.1,246.2 460.9,246.2 461.8,246.8 462.7,247.5 463.5,247.9 464.4,248.2 465.3,248.5 466.2,248.8 467.1,248.8 467.9,248.7 468.8,248.3 469.7,247.8 470.6,247.3 471.5,246.9 472.4,246.5 473.3,247.0 474.3,247.8 475.2,248.4 476.2,248.6 477.1,248.6 478.2,248.8 479.2,249.0 480.2,249.3 481.3,249.2 482.4,248.7 483.5,248.0 484.6,247.6 485.8,247.4 486.9,247.7 488.1,247.6 489.2,247.1 490.4,246.8 491.6,246.7 492.8,247.1 493.9,247.7 495.1,247.9 496.3,247.8 497.5,247.5 498.6,247.2 499.8,247.1 500.9,247.1 502.1,246.7 503.2,246.2 504.4,245.4 505.5,244.2 506.6,243.1 507.8,242.1 508.9,241.7 510.0,241.3 511.1,241.2 512.3,241.2 513.4,241.2 514.5,241.2 515.5,241.4 516.6,241.6 517.6,241.6 518.6,241.9 519.6,242.0 520.6,242.2 521.6,243.1 522.6,243.8 523.6,244.6 524.5,245.4 525.5,245.9 526.4,246.5 527.4,247.2 528.3,248.3 529.2,249.3 530.2,250.2 531.1,250.9 532.0,252.0 532.9,253.2 533.8,254.2 534.6,254.9 535.5,255.8 536.4,257.0 537.3,257.9 538.2,259.0 539.1,260.2 540.0,261.0 540.8,261.3 541.7,261.2 542.6,261.3 543.5,261.6 544.4,261.1 545.3,260.7 546.2,260.1 547.0,260.4 547.9,261.1 548.8,261.4 549.7,261.7 550.6,261.5 551.5,261.3 552.4,261.1 553.4,261.2 554.3,261.6 555.2,261.6 556.1,261.2 557.1,259.9 558.0,258.0 559.0,256.4 560.0,255.1 560.9,254.7 561.9,254.8 562.8,254.8 563.8,254.5 564.8,254.2 565.8,253.9 566.8,253.2 567.8,252.2 568.8,251.2 569.8,249.8 570.9,248.2 571.9,246.7 573.0,245.3 574.1,244.1 575.1,243.2 576.2,242.2 577.3,240.9 578.4,239.7 579.5,238.1 580.6,236.6 581.6,235.3 582.7,234.0 583.9,232.9 585.0,231.9 586.1,230.9 587.2,230.1 588.2,229.2 589.3,228.5 590.4,228.1 591.4,227.8 592.4,227.9 593.5,228.0 594.5,228.2 595.6,228.4 596.6,229.0 597.6,229.6 598.6,230.2 599.6,231.1 600.6,231.9 601.5,232.8 602.5,233.5 603.4,234.4 604.4,235.6 605.4,237.0 606.3,238.5 607.2,240.0 608.2,241.1 609.2,241.9 610.1,242.9 611.1,244.1 612.0,245.1 613.0,245.6 613.9,245.9 614.8,246.7 615.6,247.7 616.3,248.3 617.1,248.6 617.9,248.8 618.8,248.5 619.7,247.8 620.5,247.4 621.4,247.3 622.2,247.3 623.1,247.3 624.0,247.3 624.8,247.6 625.7,248.6 626.5,249.3 627.4,249.9 628.3,249.8 629.1,249.5 630.0,249.0 630.9,248.2 631.8,247.2 632.7,246.1 633.6,245.2 634.5,245.0 635.5,246.5 636.4,248.3 637.4,249.0 638.4,249.0 639.4,248.3 640.4,248.0 641.3,247.6 642.3,247.5 643.3,247.4 644.2,247.5 645.1,247.7 646.1,247.3 647.1,247.0 648.1,246.7 649.0,246.5 650.0,246.1 651.0,245.6 652.0,244.5 653.0,243.9 654.1,243.1 655.1,242.0 656.1,241.0 657.1,240.2 658.2,239.6 659.3,239.2 660.3,239.1 661.4,238.9 662.4,238.9 663.5,238.9 664.5,238.8 665.6,238.8 666.6,238.5 667.7,238.0 668.7,237.5 669.8,237.0 670.8,236.4 671.8,236.1 672.8,236.0 673.8,235.8 674.8,235.4 675.7,235.1 676.7,235.0 677.7,235.1 678.6,235.4 679.6,235.7 680.6,236.6 681.6,238.4 682.6,240.1 683.7,241.5 684.7,242.6 685.7,243.9 686.7,245.5 687.6,246.9 688.6,247.9 689.6,249.0 690.6,250.0 691.6,250.7 692.5,251.3 693.5,251.9 694.5,252.4 695.5,252.7 696.4,253.5 697.4,254.5 698.4,255.2 699.3,255.5 700.3,255.4 701.3,255.5 702.3,255.7 703.2,255.5 704.2,255.0 705.2,254.4 706.2,253.6 707.1,253.0 708.0,252.3 709.0,252.0 709.9,252.5 710.8,252.8 711.8,252.5 712.7,252.4 713.6,252.5 714.6,252.9 715.5,253.0 716.4,252.9 717.3,253.0 718.2,254.0 719.2,254.7 720.1,254.7 721.1,255.0 722.0,255.7 723.0,256.1 724.0,256.5 725.0,256.7 726.0,256.6 727.0,256.1 728.1,255.3 729.1,254.5 730.2,253.6 731.3,252.7 732.4,252.0 733.5,251.4 734.6,250.9 735.7,250.5 736.8,250.0 737.9,249.7 739.0,248.7 740.1,247.8 741.2,247.1 742.3,246.1 743.5,245.2 744.6,244.5 745.7,243.6 746.8,243.0 747.9,242.4 749.0,242.0 750.1,241.7 751.2,241.2 752.3,240.7 753.4,240.2 754.5,239.9 755.6,239.9 756.7,239.8 757.8,240.0 758.8,240.3 759.8,240.7 760.9,241.0 762.0,241.4 763.0,242.1 764.0,243.0 765.0,243.6 766.0,244.5 767.0,245.7 768.1,246.6 769.1,247.1 770.1,247.5 771.2,248.3 772.2,249.6 773.2,251.0 774.2,252.0 775.2,253.0 776.3,253.8 777.3,254.4 778.3,254.9 779.4,255.6 780.4,256.4 781.5,257.2 782.5,258.1 783.5,258.8 784.5,259.3 785.5,259.4 786.5,259.6 787.6,259.6 788.6,259.5 789.6,259.6 790.6,259.7 791.6,259.8 792.6,260.1 793.6,260.5 794.6,261.0 795.6,261.2 796.6,261.2 797.6,261.0 798.7,260.5 799.7,260.1 800.7,259.8 801.7,259.6 802.7,259.6 803.7,259.7 804.7,259.8 805.7,260.0 806.7,260.2 807.7,260.3 808.7,260.5 809.7,260.6 810.7,260.7 811.8,260.8 812.9,260.8 813.9,260.7 815.0,260.8 816.1,260.8 817.2,260.8 818.3,260.7 819.4,260.3 820.5,259.8 821.6,259.2 822.7,258.3 823.7,257.4 824.8,256.4 825.9,255.3 827.0,254.3 828.1,253.4 829.2,252.4 830.2,251.5 831.4,250.7 832.5,249.8 833.6,249.1 834.7,248.5 835.8,248.0 836.9,247.7 838.0,247.4 839.1,247.1 840.2,247.0 841.3,246.9 842.3,246.9 843.4,247.0 844.4,247.2 845.5,247.3" fill="none" stroke="var(--accent)" stroke-width="1.0"/>
+  <polyline points="76.0,256.7 846.0,256.7" fill="none" stroke="var(--success)" stroke-width="1.6" stroke-dasharray="6 4"/>
+  <polyline points="461.0,300.0 461.0,130.4" fill="none" stroke="var(--muted)" stroke-width="0.8" stroke-dasharray="2 3"/>
+  <text class="svg-note-sm" x="468.7" y="292.9" text-anchor="start" fill="var(--muted)">inicio del promedio</text>
+  <line x1="520" y1="62" x2="546" y2="62" stroke="var(--ink)" stroke-width="1.0"/>
+  <text class="svg-note-sm" x="552" y="66">URANS 2D: media 1.714</text>
+  <line x1="520" y1="80" x2="546" y2="80" stroke="var(--muted)" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <text class="svg-note-sm" x="552" y="84">URANS 3D: media 1.713</text>
+  <line x1="520" y1="98" x2="546" y2="98" stroke="var(--blue)" stroke-width="1.0"/>
+  <text class="svg-note-sm" x="552" y="102">DDES: media 1.532</text>
+  <line x1="520" y1="116" x2="546" y2="116" stroke="var(--accent)" stroke-width="1.0"/>
+  <text class="svg-note-sm" x="552" y="120">LES: media 1.179</text>
+  <line x1="520" y1="134" x2="546" y2="134" stroke="var(--success)" stroke-width="1.6" stroke-dasharray="6 4"/>
+  <text class="svg-note-sm" x="552" y="138">túnel: 1.085</text>
+</svg>
+  <figcaption><b class="fig-num">Figura 2.</b> <b class="fig-title">La sustentación en el tiempo.</b> Los cuatro cálculos arrancan del flujo uniforme. El URANS 3D (discontinuo) queda encima del 2D en todo el registro: no se distinguen. El DDES oscila tanto como el URANS, pero con menos orden y alrededor de un valor más bajo; el LES oscila mucho menos y queda cerca del túnel (verde).</figcaption>
+</figure>
+<p>Los cuatro cálculos arrancan del aire uniforme y tardan en formar la estela (figura 2). El URANS se asienta pronto en una oscilación regular; el DDES tarda más: hasta t ≈ 14 sus promedios por tramos de 2 c/U andan entre 1.74 y 2.38 en \(C_D\), y de ahí en adelante, más abajo. Por eso los promedios empiezan en t = 20.</p>
+<h3>2. Los números</h3>
+<p>En la carpeta del DDES:</p>
+<pre class="code"><code>$ ./promedios 20 40 5
+De t = 20 a 40 c/U (17005 pasos)
+           media     desv.      mín.      máx.
+Cl        1.5319    0.2879    1.0379    2.3158
+Cd        1.5588    0.2500    1.0768    2.2497
+Cm        0.4689    0.1300    0.2814    0.7815
+
+Tramos de 5 c/U
+                      Cl        Cd
+   20 a 25        1.4874    1.5135
+   25 a 30        1.5545    1.6051
+   30 a 35        1.7565    1.7796
+   35 a 40        1.3291    1.3370
+error estándar    0.0885    0.0923</code></pre>
+<p>Los cuatro cálculos, con su error estándar (tabla 3):</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Cálculo</th><th>\(C_L\)</th><th>\(C_D\)</th><th>\(\sigma(C_L)\)</th><th>\(C_L\) mín. – máx.</th><th>\(f\)</th><th>Contra el túnel</th></tr></thead>
+    <tbody>
+      <tr><td>URANS 2D</td><td>1.714 ± 0.003</td><td>1.762 ± 0.004</td><td>0.248</td><td>1.38 – 2.15</td><td>0.20</td><td>+58 % / +64 %</td></tr>
+      <tr><td>URANS 3D</td><td>1.713 ± 0.003</td><td>1.763 ± 0.004</td><td>0.249</td><td>1.38 – 2.15</td><td>0.20</td><td>+58 % / +64 %</td></tr>
+      <tr><td>DDES</td><td>1.532 ± 0.088</td><td>1.559 ± 0.092</td><td>0.288</td><td>1.04 – 2.32</td><td>0.20</td><td>+41 % / +45 %</td></tr>
+      <tr><td>LES</td><td>1.179 ± 0.023</td><td>1.193 ± 0.025</td><td>0.091</td><td>1.03 – 1.41</td><td>0.25</td><td>+9 % / +11 %</td></tr>
+      <tr><td>Túnel (Sandia)</td><td>1.085</td><td>1.075</td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 3.</b> <b class="fig-title">Los cuatro cálculos contra el túnel.</b> Promedios en el tiempo de t = 20 a 40 c/U, con el peso del paso de tiempo (el guion <code>promedios</code>); el ± es el error estándar de la media con cuatro tramos de 5 c/U, un periodo del desprendimiento (<code>./promedios 20 40 5</code>). \(\sigma\) es la desviación estándar de \(C_L\): cuánto oscila, no la incertidumbre de la media. \(f\) es la frecuencia más fuerte de \(C_L\), en \(U_\infty/c\), con una resolución de 0.05. El túnel: Sheldahl y Klimas (1981), NACA 0012 a 45°.</caption>
+  </table>
+</div>
+<p>El URANS sobrestima la resistencia en +64 % y la sustentación en +58 %; el DDES, en +45 % y +41 %; el LES, en +11 % y +9 %. Los errores de la media son muy distintos: ±0.004 en el URANS, que oscila como un reloj; ±0.025 en el LES; y ±0.092 en el DDES, cuyos tramos de 5 c/U van de 1.34 a 1.78 (error 6). Aun con ese error, las diferencias entre los modelos son mucho mayores que la incertidumbre de cada media: no son ruido.</p>
+<p>La frecuencia del URANS es 0.20 \(U_\infty/c\): un periodo de 5.0 cuerdas y \(St\) = 0.14 con la altura proyectada, el valor de una placa inclinada (ecuación 3). El DDES tiene la misma frecuencia dominante, pero su \(C_L\) va de 1.04 a 2.32: los remolinos ya no son todos iguales. El LES oscila tres veces menos (\(\sigma\) = 0.091), y su pico está en 0.25 \(U_\infty/c\): la calle de remolinos ordenada casi desaparece. Con 20 c/U de registro, la resolución en frecuencia es de 0.05 \(U_\infty/c\): las dos son aproximadas.</p>
+<h3>3. El URANS 3D da lo mismo que el 2D</h3>
+<p>A tres cifras: \(C_L\) = 1.713 contra 1.714, \(C_D\) = 1.763 contra 1.762, la misma oscilación y la misma frecuencia. El flujo se quedó bidimensional, como predice la teoría: las isosuperficies del URANS 3D son rodillos rectos e idénticos en toda la envergadura (figura 4, arriba). Fueron 28 horas de cálculo para la respuesta que el 2D da en 38 minutos. <strong>La mejora del DDES y del LES no viene de calcular en 3D, sino de resolver los remolinos.</strong></p>
+<h3>4. La estela</h3>
+<figure class="diagram">
+  <img src="imagenes/t24-02_vorticidad.png" alt="La vorticidad en el plano medio de la envergadura en t igual a 35 con URANS 3D, DDES y LES" loading="lazy">
+  <figcaption><b class="fig-num">Figura 3.</b> <b class="fig-title">La estela de los tres cálculos 3D.</b> La vorticidad \(\omega_z\) en el plano medio de la envergadura, de −5 a 5 \(U_\infty/c\), en t ≈ 35: URANS 3D arriba, DDES en medio y LES abajo. El URANS da remolinos grandes y lisos que se difunden en unas cuantas cuerdas; el DDES y el LES, capas que se rompen en remolinos chicos desde los bordes del perfil.</figcaption>
+</figure>
+<p>En el plano medio de la envergadura (figura 3), el URANS da dos remolinos grandes por periodo, lisos, que se difunden en unas cuantas cuerdas. En el DDES y el LES, las capas que se desprenden de los bordes se rompen en remolinos chicos casi desde el perfil, y la estela es un revoltijo que conserva, a grandes rasgos, el vaivén de un lado al otro. Esos remolinos mezclan el aire lento de detrás del perfil con el de fuera, que es lo que en un cuerpo romo sube la presión de la cara trasera y baja la resistencia.</p>
+<p>La viscosidad del modelo explica la diferencia. En t = 40, entre 0.5 y 4 c detrás del perfil, la mediana de \(\nu_t/\nu\) es 3 380 en el URANS, 0.3 en el DDES y 3.6 en el LES: el URANS calcula una estela miles de veces más «viscosa» que el aire, que no deja vivir a los remolinos chicos; en el DDES y el LES la viscosidad del modelo es del orden de la del aire, y los remolinos se resuelven.</p>
+<figure class="diagram">
+  <img src="imagenes/t24-03_remolinos.png" alt="Las isosuperficies del criterio Q alrededor del perfil con URANS 3D, DDES y LES" loading="lazy">
+  <figcaption><b class="fig-num">Figura 4.</b> <b class="fig-title">Los remolinos en 3D.</b> La isosuperficie \(Q\) = 5 \((U_\infty/c)^2\) coloreada por |U|, en el mismo instante y en el mismo orden. En el URANS son dos rodillos idénticos a lo largo de la envergadura, sólo junto al perfil: corriente abajo, la viscosidad turbulenta del modelo los difunde por debajo de ese valor. En el DDES y el LES, la estela es un enjambre de tubos que cambian a lo largo de la envergadura.</figcaption>
+</figure>
+<figure class="diagram">
+  <video src="imagenes/t24-04_animacion_vorticidad.mp4" aria-label="Animación de la vorticidad en el plano medio con URANS 3D, DDES y LES" autoplay loop muted playsinline preload="auto" style="display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:white"></video>
+  <figcaption><b class="fig-num">Figura 5.</b> <b class="fig-title">La estela en movimiento.</b> La misma vorticidad de t = 30 a 40 (dos periodos del desprendimiento), unos 400 cuadros por modelo, reproducidos en 13 s; URANS 3D arriba, DDES en medio y LES abajo. Cómo se hace es el tema del tutorial 2.5.</figcaption>
+</figure>
+<p>En movimiento (figura 5) la diferencia es todavía más clara: el URANS se repite igual en cada periodo; el DDES y el LES, nunca.</p>
+<h3>5. ¿Por qué el LES se acerca más?</h3>
+<p>Hay que decirlo con cuidado. El LES queda a 11 % del túnel, pero esta malla no resuelve la pared como lo pide un LES, y el informe de Sandia advierte que sus datos en pérdida profunda tienen dispersión. Lo que sí se puede afirmar es el orden: del URANS al DDES y al LES, cada vez más remolinos resueltos y menos resistencia, y el DDES, que deja a Spalart-Allmaras en la capa límite y junto a los bordes, queda en medio. Con esta malla, el DDES todavía le deja al modelo buena parte de las capas que se desprenden; el LES las resuelve desde el borde. Decidir cuál está bien, y no sólo cuál se acerca, pediría una malla más fina y una envergadura más larga (práctica sugerida, pregunta 4).</p>
+<h3>6. El costo</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Cálculo</th><th>Celdas</th><th>Procesos</th><th>Δt medio (c/U)</th><th>\(Co_{máx}\)</th><th>Pasos</th><th>Segundos por paso</th><th>Horas</th></tr></thead>
+    <tbody>
+      <tr><td>URANS 2D</td><td>43 141</td><td>4</td><td>1.33·10<sup>−3</sup></td><td>0.90</td><td>45 299</td><td>0.05</td><td>0.6</td></tr>
+      <tr><td>URANS 3D</td><td>1 380 128</td><td>8</td><td>1.32·10<sup>−3</sup></td><td>0.90</td><td>30 170</td><td>3.37</td><td>28.2</td></tr>
+      <tr><td>DDES</td><td>1 380 512</td><td>8</td><td>1.18·10<sup>−3</sup></td><td>0.92</td><td>35 067</td><td>2.95</td><td>28.7</td></tr>
+      <tr><td>LES</td><td>1 380 512</td><td>8</td><td>1.30·10<sup>−3</sup></td><td>0.91</td><td>33 499</td><td>2.48</td><td>23.1</td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 4.</b> <b class="fig-title">Lo que cuesta.</b> En la laptop de la serie (8 núcleos, 16 GB). El Δt medio y el Courant máximo son los de t = 20 a 40; el número de pasos y las horas, los de toda la corrida (el URANS 2D llegó hasta t = 60).</caption>
+  </table>
+</div>
+<p>El paso de tiempo es casi el mismo en los cuatro (tabla 4): lo fija el número de Courant en las celdas más chicas, que son iguales en 2D y en 3D. El 3D tiene 32 veces más celdas, y cada paso, con el doble de procesos, cuesta del orden de 59 veces más. El DDES y el LES cuestan por paso un poco menos que el URANS 3D (su presión converge con menos iteraciones): lo caro es la malla, no el modelo.</p>
+<div class="result-box">
+  <p><strong>Resultado:</strong> el NACA 0012 a 45° da \(C_D\) = 1.762 con URANS (en 2D y en 3D), 1.559 ± 0.092 con DDES y 1.193 ± 0.025 con LES, contra 1.075 del túnel. El URANS sobrestima la resistencia en 64 %, porque su viscosidad turbulenta amortigua los remolinos de la estela; resolverlos la baja. Calcular en 3D con URANS no cambia nada: cuesta 45 veces más y da lo mismo.</p>
+</div>
+
+    </section>
+    <section id="errors-es">
+      <p class="section-label">Errores frecuentes</p>
+      <h2>Seis maneras de perder un día de cálculo</h2>
+
+<p>Los seis salieron al preparar esta guía.</p>
+<h3>1. Caras periódicas en la envergadura</h3>
+<p>La forma clásica de calcular un tramo de ala «infinita» es unir los dos extremos de la envergadura con caras periódicas (<code>cyclic</code>): lo que sale por un lado entra por el otro. Con ellas, la presión necesitaba diez veces más iteraciones por paso. En una malla de prueba de 8 capas, la última corrección de presión de cada uno de los primeros 22 pasos tomó con <code>cyclic</code> 1000 iteraciones de GAMG (el máximo) en los primeros pasos y de 50 a 600 en los últimos; con <code>symmetry</code>, de 10 a 15. Ninguno de los cambios que se probaron lo arregló: otros suavizadores, PCG, otra aglomeración, un solucionador directo en el nivel más grueso, hacer la extrusión con <code>extrudeMesh</code> en vez de Gmsh. Las caras estaban bien emparejadas. <strong>Remedio:</strong> planos de simetría, como trae el caso. Con una cuerda de envergadura, la diferencia para los remolinos es pequeña; para el costo, enorme.</p>
+<h3>2. y⁺ ≈ 1 en un flujo desprendido</h3>
+<p>La primera malla ponía la primera celda en 4·10⁻⁵ c, para y⁺ ≈ 1, como el 2.1. En pérdida profunda, esas celdas tan delgadas junto al borde de ataque, por donde el aire pasa rapidísimo al rodearlo, fijaban el paso de tiempo: 4.6·10<sup>−4</sup> c/U en promedio, contra 1.3·10<sup>−3</sup> con la malla actual, 2.9 veces más chico. Las 40 cuerdas habrían sido 88 000 pasos, y en 3D la presión convergía mal con celdas de pared tan aplastadas contra Δz. <strong>Remedio:</strong> función de pared (<code>nutUSpaldingWallFunction</code>, que vale para cualquier y⁺) con la primera celda en 10⁻³ c. El flujo se desprende en los bordes, donde lo fija la geometría, no la capa límite: lo que se pierde al no resolverla es poco. El y⁺ medido quedó entre 1 y 37, con promedio de 13.</p>
+<h3>3. El borde de salida agudo</h3>
+<p>El NACA 0012 de la fórmula estándar deja el borde de salida abierto; la variante que lo cierra en punta obliga a Gmsh a poner en la punta un abanico de celdas diminutas (4·10⁻⁵ c por lado), y con ellas el paso de tiempo bajó a 1.2·10⁻⁵ c/U. <strong>Remedio:</strong> cerrar el borde estándar con un semicírculo de su medio espesor, 0.00126 c, como hace <code>perdida.geo</code>. Aun así, las celdas de ese semicírculo y las del borde de ataque son las que fijan el Courant máximo.</p>
+<h3>4. Promediar desde el arranque</h3>
+<pre class="code"><code>$ ./promedios 0 40
+De t = 0 a 40 c/U (35068 pasos)
+           media     desv.      mín.      máx.
+Cl        1.6907    4.6161 -110.6307  855.7036
+Cd        1.7082    4.7354 -114.1009  878.7333
+Cm        0.5253    1.6560  -38.9696  305.3301</code></pre>
+<p>(en el DDES). El primer paso, con el aire uniforme chocando contra el perfil, da coeficientes de cientos; los primeros periodos, una estela que todavía no es la del perfil. El promedio de 0 a 40 da \(C_D\) = 1.708, 10 % más que de 20 a 40. <strong>Remedio:</strong> mirar la historia (figura 2) antes de elegir dónde empieza el promedio.</p>
+<h3>5. Promediar sin el peso del paso de tiempo</h3>
+<p>Con <code>adjustTimeStep</code>, los pasos no duran lo mismo: cuando el Courant sube, en los momentos rápidos del desprendimiento, el paso se acorta y esos momentos dejan más muestras. El promedio simple de las muestras del URANS 2D, de 20 a 40, da \(C_D\) = 1.778 contra 1.762 de la ecuación (5): 0.9 % de diferencia, más que el error de la media del URANS. <strong>Remedio:</strong> el guion <code>promedios</code>, que pesa cada muestra con su paso.</p>
+<h3>6. Dos mitades iguales no prueban un promedio</h3>
+<p>Las dos mitades del DDES dan \(C_D\) = 1.559 y 1.558: parece un promedio firme a tres cifras. Pero sus cuatro tramos de 5 c/U van de 1.34 a 1.78, y el error estándar es ±0.092, unas veinte veces la diferencia entre las mitades. Que dos números coincidan puede ser suerte. <strong>Remedio:</strong> el error estándar con varios tramos de por lo menos un periodo (ecuación 6), y la cautela del 3.6: con cuatro tramos, el error estándar también es una estimación gruesa.</p>
+
+    </section>
+    <section id="practice-es">
+      <p class="section-label">Práctica sugerida</p>
+      <h2>Cinco grados de cada lado</h2>
+
+<p class="lead">Cinco grados de cada lado.</p>
+<div class="example">
+  <p><strong>Enunciado.</strong> Calcular con el URANS 2D el mismo perfil a 40° y a 50°, llenar la tabla 5 y decidir si el exceso del URANS sobre el túnel depende del ángulo.</p>
+  <p><strong>Condiciones.</strong> La malla, el modelo y el tiempo del caso; sólo cambia el ángulo, el parámetro <code>alfa</code> al principio de <code>perdida.geo</code>. Cada corrida tarda lo mismo que la de esta guía.</p>
+</div>
+<h3>El procedimiento, en corto</h3>
+<ol>
+  <li><code>cd $FOAM_RUN</code>, <code>cp -r perfil-perdida perdida-40</code> y, en <code>perdida-40/perdida.geo</code>, <code>alfa = {40, …}</code>.</li>
+  <li><code>./Allrun urans2d 4</code> y <code>./promedios 20 40 5</code>.</li>
+  <li>Lo mismo a 50°.</li>
+</ol>
+<h3>Registro de resultados</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>\(\alpha\)</th><th>\(C_L\)</th><th>\(C_D\)</th><th>Túnel \(C_L\)</th><th>Túnel \(C_D\)</th><th>Exceso en \(C_D\)</th></tr></thead>
+    <tbody>
+      <tr><td>45°</td><td>1.714</td><td>1.762</td><td>1.085</td><td>1.075</td><td>+64 %</td></tr>
+      <tr><td>40°</td><td></td><td></td><td>1.075</td><td>0.920</td><td></td></tr>
+      <tr><td>50°</td><td></td><td></td><td>1.040</td><td>1.215</td><td></td></tr>
+    </tbody>
+    <caption><b class="tab-num">Tabla 5.</b> <b class="fig-title">Registro de la práctica.</b> URANS 2D con la malla del caso, de t = 20 a 40. El primer renglón es el de esta guía; el túnel, la tabla 2 de Sheldahl y Klimas (1981).</caption>
+  </table>
+</div>
+<h3>Preguntas que orientan la lectura</h3>
+<ol>
+  <li>¿El exceso del URANS en \(C_D\) crece o baja con el ángulo? ¿Y en \(C_L\)?</li>
+  <li>Calcule el número de Strouhal con la altura proyectada (ecuación 3) en los tres ángulos. ¿Se mantiene cerca de 0.15?</li>
+  <li>¿Por qué no tiene caso repetir el ejercicio con el URANS 3D?</li>
+  <li>Para saber si el LES de esta guía acierta por buenas razones, ¿qué cambiaría primero: la envergadura, la malla junto a la pared o la de la estela? ¿Cuánto costaría, con la tabla 4?</li>
+</ol>
+
+    </section>
+    <section id="references-es" class="references">
+      <p class="section-label">Fuentes</p>
+      <h2>Referencias</h2>
+
+<ul class="references">
+  <li>Fage, A. y Johansen, F. C. (1927). On the flow of air behind an inclined flat plate of infinite span. <em>Proceedings of the Royal Society of London A, 116</em>, 170–197.</li>
+  <li>Nicoud, F. y Ducros, F. (1999). Subgrid-scale stress modelling based on the square of the velocity gradient tensor. <em>Flow, Turbulence and Combustion, 62</em>, 183–200.</li>
+  <li>Sheldahl, R. E. y Klimas, P. C. (1981). <em>Aerodynamic characteristics of seven symmetrical airfoil sections through 180-degree angle of attack for use in aerodynamic analysis of vertical axis wind turbines</em> (SAND80-2114). Sandia National Laboratories.</li>
+  <li>Shur, M., Spalart, P. R., Strelets, M. y Travin, A. (1999). Detached-eddy simulation of an airfoil at high angle of attack. En W. Rodi y D. Laurence (eds.), <em>Engineering Turbulence Modelling and Experiments 4</em>. Elsevier.</li>
+  <li>Spalart, P. R. (2009). Detached-eddy simulation. <em>Annual Review of Fluid Mechanics, 41</em>, 181–202.</li>
+  <li>Spalart, P. R. y Allmaras, S. R. (1994). A one-equation turbulence model for aerodynamic flows. <em>La Recherche Aérospatiale, 1</em>, 5–21.</li>
+  <li>Spalart, P. R., Deck, S., Shur, M. L., Squires, K. D., Strelets, M. Kh. y Travin, A. (2006). A new version of detached-eddy simulation, resistant to ambiguous grid densities. <em>Theoretical and Computational Fluid Dynamics, 20</em>, 181–195.</li>
+</ul>
+<p class="source-note">Las cifras son de cuatro corridas hechas del 2 al 6 de noviembre de 2026 en la misma computadora, con blueCFD-Core 2024 (OpenFOAM 12), Gmsh 4.15.2 y el caso de esta guía; las imágenes, de ParaView 5.11.2 sin ventana (<code>pvbatch</code>) sobre esas corridas. Del artículo de Shur y colaboradores sólo se toma la idea del caso: no se usa ninguna de sus cifras.</p>
+
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="paraview-naca0012.html?v=13"><span>Tutorial anterior</span>← 2.3 · El posprocesamiento del NACA 0012 con ParaView</a>
+      <a class="next-link" href="perfil-animacion.html?v=13"><span>Tutorial siguiente</span>2.5 · La animación del perfil en pérdida →</a>
+    </nav>
+  </article>
+  <article class="lecture" data-language="de" hidden>
+    <section id="objectives-de">
+      <p class="section-label">Lernziele</p>
+      <h2>Was Sie danach können sollten</h2>
+      <p class="pending-note"><strong>Vollständige deutsche Übersetzung in Vorbereitung.</strong> Jeder Abschnitt enthält eine Zusammenfassung; der vollständige Text mit Abbildungen und Tabellen liegt in der spanischen Fassung vor, die über die Schaltfläche ES oben erreichbar ist.</p>
+<p>Erklären, was URANS, DDES und LES auflösen und was sie modellieren; denselben instationären Fall mit jedem Verfahren rechnen; einen schwankenden Kraftbeiwert zeitlich mitteln und seinen Standardfehler schätzen; die vier Ergebnisse mit Windkanaldaten und mit ihren Kosten vergleichen.</p>
+    </section>
+    <section id="problem-de">
+      <p class="section-label">Das Problem</p>
+      <h2>Ein Profil, das sich wie ein stumpfer Körper verhält</h2>
+<p>Bei 45° ist das NACA 0012 tief im Strömungsabriss: Die Strömung löst an beiden Kanten ab und bildet eine Wirbelstraße wie eine ebene Platte. Die Sandia-Daten (Sheldahl und Klimas, 1981) ergeben C_L = 1,085 und C_D = 1,075. Welche Turbulenzbehandlung kommt dorthin?</p>
+    </section>
+    <section id="theory-de">
+      <p class="section-label">Die Theorie</p>
+      <h2>Mitteln, Filtern und der Hybrid</h2>
+<p>Gemittelte gegen gefilterte Gleichungen; Spalart-Allmaras, die DDES-Längenskala und das WALE-Feinstrukturmodell; warum ein URANS in 3D zweidimensional bleibt; die Strouhal-Zahl mit der projizierten Höhe; Zeitmittel, Schwankung und der Standardfehler aus Blöcken.</p>
+    </section>
+    <section id="recipe-de">
+      <p class="section-label">Schritt für Schritt</p>
+      <h2>Ein Fall, vier Rechnungen</h2>
+<p>Ein Fall, perfil-perdida, mit ./Allrun urans2d|urans|ddes|les: Gmsh erzeugt das 2D- oder 3D-Netz, das Skript wählt Modell und Schemata und rechnet mit foamRun bis t = 40 Sehnen; ./promedios liefert die Mittelwerte und ihren Standardfehler.</p>
+    </section>
+    <section id="case-de">
+      <p class="section-label">Der Fall</p>
+      <h2>Das Netz und die Dictionaries</h2>
+<p>Das Netz (43.141 Zellen in 2D, 1.380.512 in 3D, mit Wandfunktion), die drei momentumTransport-Dateien, die zwei fvSchemes-Dateien, fvSolution, controlDict und die Funktionen.</p>
+    </section>
+    <section id="check-de">
+      <p class="section-label">Durchgerechnetes Beispiel</p>
+      <h2>Vier Rechnungen gegen den Windkanal</h2>
+<p>Von t = 20 bis 40: URANS 2D C_L 1,714, C_D 1,762; URANS 3D 1,713 und 1,763 (dasselbe: die Strömung bleibt 2D); DDES 1,532 und 1,559; LES 1,179 und 1,193; Windkanal 1,085 und 1,075. URANS überschätzt den Widerstand um 64 %, DDES um 45 %, LES um 11 %. Die 3D-Rechnungen kosten je etwa einen Tag, der 2D-URANS 38 Minuten.</p>
+    </section>
+    <section id="errors-de">
+      <p class="section-label">Häufige Fehler</p>
+      <h2>Sechs Arten, einen Rechentag zu verlieren</h2>
+<p>Periodische Spannweitenränder (zehnmal mehr Druckiterationen); y⁺ ≈ 1 in einer abgelösten Strömung (ein dreimal kleinerer Zeitschritt); eine scharfe Hinterkante; Mitteln ab t = 0; Mitteln ohne Gewichtung mit dem Zeitschritt; zwei gleiche Hälften für einen konvergierten Mittelwert halten.</p>
+    </section>
+    <section id="practice-de">
+      <p class="section-label">Übungsvorschlag</p>
+      <h2>Fünf Grad in jede Richtung</h2>
+<p>Den 2D-URANS bei 40° und 50° rechnen, mit der Sandia-Tabelle vergleichen und entscheiden, ob sein Fehler vom Winkel abhängt.</p>
+    </section>
+    <section id="references-de" class="references">
+      <p class="section-label">Quellen</p>
+      <h2>Literatur</h2>
+<p>Sheldahl und Klimas (1981) für die Windkanaldaten; Spalart und Allmaras (1994); Spalart et al. (2006) und Spalart (2009) zu DES und DDES; Nicoud und Ducros (1999) zu WALE; Fage und Johansen (1927) zur geneigten Platte; Shur, Spalart, Strelets und Travin (1999) für die Idee des Falls.</p>
+    </section>
+    <nav class="next-nav">
+      <a class="next-link" href="paraview-naca0012.html?v=13"><span>Vorheriges Tutorial</span>← 2.3 · Die Nachbearbeitung des NACA 0012 in ParaView</a>
+      <a class="next-link" href="perfil-animacion.html?v=13"><span>Nächstes Tutorial</span>2.5 · Die Animation des abgerissenen Profils →</a>
+    </nav>
+  </article>
+
+</div></main>
+<footer><div class="container footer-wrap"><p>© <span id="year"></span> Carlos Alberto Molina Holguín</p><p>Universidad Autónoma de Chihuahua</p></div></footer>
+</body>
+</html>
